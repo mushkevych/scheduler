@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8"/>
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', file='ui_style.css') }}">
+    <script type="text/javascript" src="{{ url_for('static', file='jquery-1.6.1.min.js') }}"></script>
+    <script type="text/javascript" src="{{ url_for('static', file='scheduler_ui.js') }}"></script>
+    <script type="text/javascript" src="{{ url_for('static', file='menu.js') }}"></script>
+    <script type="text/javascript" src="{{ url_for('static', file='jquery.dataTables.min.js') }}"></script>
+    <title>main_header</title>
+</head>
+
+<body>
+<table style="width: 100%" class="header-table">
+    <thead>
+    <tr>
+        <th>Synergy Scheduler</th>
+        <th></th>
+        <th></th>
+        <th style="text-align: right">as of: {{get_current_time()}}</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr>
+        <td><a href="{{ url_for('scheduler_details') }}">scheduler details</a></td>
+        <td><a href="{{ url_for('traffic_details') }}">traffic details</a></td>
+        <td><a href="{{ url_for('financial_details') }}">financial details</a></td>
+        <td><a href="{{ url_for('processing_details') }}">processing details</a></td>
+    </tr>
+    </tbody>
+</table>
+<br/>
+<br/>
+
+<div class="body">{% block body %}{% endblock %}</div>
+<br/>
+
+<div id="footer" style="text-align: right"><a
+        href="mailto:bmushkevych@reinvent.com?subject=Comments to Scheduler MX page">Feedback</a></div>
+
+</body>
+</html>

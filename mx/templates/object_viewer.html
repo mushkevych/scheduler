@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8"/>
+    <script type="text/javascript" src="{{ url_for('static', file='json_formatter.js') }}"></script>
+    <script type="text/javascript" src="{{ url_for('static', file='jquery-1.6.1.min.js') }}"></script>
+    <title>Object Viewer</title>
+</head>
+
+<body>
+<pre id="json"></pre>
+
+<form style="text-align: center">
+    <input type="button" value="Close Window" onclick="window.close()"/>
+</form>
+
+<script type="text/javascript">
+    $(document).ready(function() {
+        if (window.location.search.search("action_get_uow") != -1) {
+            var url = "/action_get_uow/" + window.location.search;
+        } else {
+            var url = "/action_get_log/" + window.location.search;
+        }
+
+        $.get(url, function(data) {
+            $("#json").text(FormatJSON(data));
+        });
+    });
+</script>
+
+</body>
+</html>

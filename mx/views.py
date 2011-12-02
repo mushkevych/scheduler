@@ -1,0 +1,447 @@
+"""
+Created on 2011-04-20
+
+@author: Bohdan Mushkevych
+"""
+from datetime import datetime, timedelta
+import functools
+import json
+import time
+
+from werkzeug.utils import cached_property, redirect
+from werkzeug.wrappers import Response
+from processing_details import ProcessingDetails
+from system.collection_context import ReplicaSetContext
+from system.process_context import ProcessContext
+from system.performance_ticker import FootprintCalculator
+from system import time_helper
+from utils import render_template, expose, jinja_env
+try:
+    from scheduler import unit_of_work_helper
+except:
+    import unit_of_work_helper
+
+
+@expose('/')
+@expose('/scheduler_details/')
+def scheduler_details(request):
+    details = SchedulerDetails(jinja_env.globals['mbean'])
+    connections = ConnectionDetails(jinja_env.globals['mbean'])
+    return render_template('scheduler_details.html', details=details, connections=connections)
+
+@expose('/traffic_details/')
+def traffic_details(request):
+    return render_template('traffic_details.html')
+
+@expose('/financial_details/')
+def financial_details(request):
+    return render_template('financial_details.html')
+
+@expose('/processing_details/')
+def processing_details(request):
+    details = TimeperiodProcessingDetails(jinja_env.globals['mbean'], request)
+    return render_template('processing_details.html', details=details)
+
+@expose('/request_children/')
+def request_children(request):
+    details = NodeDetails(jinja_env.globals['mbean'], request)
+    return Response(response=json.dumps(details.details),
+                    mimetype='application/json')
+
+@expose('/request_verticals/')
+def request_verticals(request):
+    details = TimeperiodTreeDetails(jinja_env.globals['mbean'], request)
+    return Response(response=json.dumps(details.details),
+                    mimetype='application/json')
+
+@expose('/request_timeperiods/')
+def request_timeperiods(request):
+    details = TimeperiodTreeDetails(jinja_env.globals['mbean'], request)
+    return Response(response=json.dumps(details.details),
+                    mimetype='application/json')
+
+@expose('/action_reprocess/')
+def action_reprocess(request):
+    handler = ActionHandler(jinja_env.globals['mbean'], request)
+    return Response(response=json.dumps(handler.action_reprocess()),
+                    mimetype='application/json')
+
+@expose('/action_skip/')
+def action_skip(request):
+    handler = ActionHandler(jinja_env.globals['mbean'], request)
+    return Response(response=json.dumps(handler.action_skip()),
+                    mimetype='application/json')
+
+@expose('/action_get_uow/')
+def action_get_uow(request):
+    handler = ActionHandler(jinja_env.globals['mbean'], request)
+    return Response(response=json.dumps(handler.action_get_uow()),
+                    mimetype='application/json')
+
+@expose('/action_get_log/')
+def action_get_log(request):
+    handler = ActionHandler(jinja_env.globals['mbean'], request)
+    return Response(response=json.dumps(handler.action_get_log()),
+                    mimetype='application/json')
+
+@expose('/action_change_interval/')
+def action_change_interval(request):
+    handler = ActionHandler(jinja_env.globals['mbean'], request)
+    handler.action_change_interval()
+    return redirect('/')
+
+@expose('/object_viewer/')
+def object_viewer(request):
+    return render_template('object_viewer.html')
+
+def not_found(request):
+    return render_template('not_found.html')
+
+
+def valid_only(method):
+    """ wraps method with verification for _valid_ and """
+    @functools.wraps(method)
+    def _wrapper(self, *args, **kwargs):
+        if not self.valid:
+            return dict()
+        try:
+            return method(self, *args, **kwargs)
+        except Exception as e:
+            self.logger.error('MX Exception: %s' % str(e), exc_info=True)
+    return _wrapper
+
+
+# Timetable Details views
+class TimeperiodTreeDetails(object):
+    def __init__(self, mbean, request):
+        self.mbean = mbean
+        self.logger = self.mbean.logger
+        self.request = request
+        self.referrer = self.request.referrer
+        self.valid = self.mbean is not None
+
+    def _get_reprocessing_details(self, process_name):
+        resp = []
+        per_process = self.mbean.timetable.reprocess.get(process_name)
+        if per_process is not None:
+            resp = sorted(per_process.keys())
+        return resp
+
+    def _get_nodes_details(self, tree):
+        timetable = self.mbean.timetable
+        description = dict()
+        description['reprocessing_queues'] = dict()
+        description['processes'] = dict()
+        description['next_timeperiods'] = dict()
+        try:
+            # workaround for importing "scheduler" package
+            if type(tree).__name__ == 'FourLevelTree':
+                description['number_of_levels'] = 4
+                description['reprocessing_queues']['yearly'] = self._get_reprocessing_details(tree.process_yearly)
+                description['reprocessing_queues']['monthly'] = self._get_reprocessing_details(tree.process_monthly)
+                description['reprocessing_queues']['daily'] = self._get_reprocessing_details(tree.process_daily)
+                description['reprocessing_queues']['hourly'] = self._get_reprocessing_details(tree.process_hourly)
+                description['processes']['yearly'] = tree.process_yearly
+                description['processes']['monthly'] = tree.process_monthly
+                description['processes']['daily'] = tree.process_daily
+                description['processes']['hourly'] = tree.process_hourly
+                description['next_timeperiods']['yearly'] = timetable.get_next_timetable_record(tree.process_yearly).get_timestamp()
+                description['next_timeperiods']['monthly'] = timetable.get_next_timetable_record(tree.process_monthly).get_timestamp()
+                description['next_timeperiods']['daily'] = timetable.get_next_timetable_record(tree.process_daily).get_timestamp()
+                description['next_timeperiods']['hourly'] = timetable.get_next_timetable_record(tree.process_hourly).get_timestamp()
+            elif type(tree).__name__ == 'ThreeLevelTree':
+                description['number_of_levels'] = 3
+                description['reprocessing_queues']['yearly'] = self._get_reprocessing_details(tree.process_yearly)
+                description['reprocessing_queues']['monthly'] = self._get_reprocessing_details(tree.process_monthly)
+                description['reprocessing_queues']['daily'] = self._get_reprocessing_details(tree.process_daily)
+                description['processes']['yearly'] = tree.process_yearly
+                description['processes']['monthly'] = tree.process_monthly
+                description['processes']['daily'] = tree.process_daily
+                description['next_timeperiods']['yearly'] = timetable.get_next_timetable_record(tree.process_yearly).get_timestamp()
+                description['next_timeperiods']['monthly'] = timetable.get_next_timetable_record(tree.process_monthly).get_timestamp()
+                description['next_timeperiods']['daily'] = timetable.get_next_timetable_record(tree.process_daily).get_timestamp()
+            elif type(tree).__name__ == 'TwoLevelTree':
+                description['number_of_levels'] = 1
+                description['reprocessing_queues']['linear'] = self._get_reprocessing_details(tree.process_name)
+                description['processes']['linear'] = tree.process_name
+                description['next_timeperiods']['daily'] = timetable.get_next_timetable_record(tree.process_name).get_timestamp()
+        except Exception as e:
+            self.logger.error('MX Exception: ' + str(e), exc_info=True)
+        finally:
+            return description
+
+    @cached_property
+    @valid_only
+    def details(self):
+        timetable = self.mbean.timetable
+        resp = dict()
+        if 'traffic_details' in self.referrer:
+            resp['vertical_site'] = self._get_nodes_details(timetable.vertical_site)
+            resp['vertical_site']['type'] = 'vertical'
+            resp['horizontal_client'] = self._get_nodes_details(timetable.horizontal_client)
+            resp['horizontal_client']['type'] = 'horizontal'
+            resp['linear_daily_alert'] = self._get_nodes_details(timetable.linear_daily_alert)
+            resp['linear_daily_alert']['type'] = 'linear'
+        elif 'financial_details' in self.referrer:
+	    pass
+
+        return resp
+
+
+class NodeDetails(object):
+    def __init__(self, mbean, request):
+        self.mbean = mbean
+        self.logger = self.mbean.logger
+        self.request = request
+        self.process_name = request.args.get('process_name')
+        self.timestamp = request.args.get('timestamp')
+        self.valid = self.mbean is not None
+        
+    @classmethod
+    def _get_nodes_details(cls, logger, node):
+        """method returns {
+                process_name : string,
+                timestamp : string,
+                number_of_children : integer,
+                number_of_failed_calls : integer,
+                state : STATE_SKIPPED, STATE_IN_PROGRESS, STATE_PROCESSED, STATE_FINAL_RUN, STATE_EMBRYO
+            }
+         """
+        description = dict()
+        try:
+            description['process_name'] = node.process_name
+            description['time_qualifier'] = ProcessContext.get_time_qualifier(node.process_name)
+            description['number_of_children'] = len(node.children)
+            description['number_of_failed_calls'] = node.time_record.get_number_of_failures()
+            description['timestamp'] = node.time_record.get_timestamp()
+            description['state'] = node.time_record.get_state()
+        except Exception as e:
+            logger.error('MX Exception: ' + str(e), exc_info=True)
+        finally:
+            return description
+
+    @cached_property
+    @valid_only
+    def details(self):
+        resp = dict()
+        timetable = self.mbean.timetable
+        tree = timetable.get_tree(self.process_name)
+
+        if self.timestamp is None and tree is not None:
+            # return list of yearly nodes
+            resp['children'] = dict()
+            for key in tree.root.children:
+                child = tree.root.children[key]
+                resp['children'][key] = NodeDetails._get_nodes_details(self.logger, child)
+        elif tree is not None:
+            self.timestamp = time_helper.cast_to_time_qualifier(self.process_name, self.timestamp)
+            node = tree.get_node_by_process(self.process_name, self.timestamp)
+            resp['node'] = NodeDetails._get_nodes_details(self.logger, node)
+            resp['children'] = dict()
+            for key in node.children:
+                child = node.children[key]
+                resp['children'][key] = NodeDetails._get_nodes_details(self.logger, child)
+
+        return resp
+
+
+class TimeperiodProcessingDetails(object):
+    def __init__(self, mbean, request):
+        self.mbean = mbean
+        self.logger = self.mbean.logger
+        self.request = request
+        self.year = self.request.args.get('year')
+        self.month = self.request.args.get('month')
+        self.day = self.request.args.get('day')
+        self.hour = self.request.args.get('hour')
+        self.state = self.request.args.get('state')
+        if self.state is not None and self.state == 'on':
+            self.state = True
+        else:
+            self.state = False
+
+        if self.year is not None and self.year.strip() == '':
+            self.year = None
+        if self.month is not None and self.month.strip() == '':
+            self.month = None
+        if self.day is not None and self.day.strip() == '':
+            self.day = None
+        self.valid = self.mbean is not None \
+                     and self.year is not None \
+                     and self.month is not None \
+                     and self.day is not None \
+                     and self.hour is not None
+
+    @cached_property
+    @valid_only
+    def entries(self):
+        processor = ProcessingDetails(self.logger)
+        timestamp = self.year + self.month + self.day + self.hour
+        selection = processor.retrieve_for_timestamp(timestamp, self.state)
+        sorter_keys = sorted(selection.keys())
+
+        resp = []
+        for key in sorter_keys:
+            t = (key[0], key[1], selection[key].get_state())
+            resp.append(t)
+
+        print ('%r' % resp)
+        return resp
+
+
+class ActionHandler(object):
+    def __init__(self, mbean, request):
+        self.mbean = mbean
+        self.logger = self.mbean.logger
+        self.request = request
+        self.process_name = request.args.get('process_name')
+        self.timestamp = request.args.get('timestamp')
+        self.valid = self.mbean is not None and self.process_name is not None and self.timestamp is not None
+
+    @valid_only
+    def action_reprocess(self):
+        resp = dict()
+        timetable = self.mbean.timetable
+        tree = timetable.get_tree(self.process_name)
+
+        if tree is not None:
+            self.timestamp = time_helper.cast_to_time_qualifier(self.process_name, self.timestamp)
+            node = tree.get_node_by_process(self.process_name, self.timestamp)
+            self.logger.info('MX (requesting re-process timeperiod %r for %r) { ' % (self.timestamp, self.process_name))
+            effected_nodes = node.request_reprocess()
+            for node in effected_nodes:
+                resp[node.timestamp] = NodeDetails._get_nodes_details(self.logger, node)
+            self.logger.info('}')
+
+        return resp
+
+    @valid_only
+    def action_skip(self):
+        resp = dict()
+        timetable = self.mbean.timetable
+        tree = timetable.get_tree(self.process_name)
+
+        if tree is not None:
+            self.timestamp = time_helper.cast_to_time_qualifier(self.process_name, self.timestamp)
+            node = tree.get_node_by_process(self.process_name, self.timestamp)
+            self.logger.info('MX (requesting skip timeperiod %r for %r) { ' % (self.timestamp, self.process_name))
+            effected_nodes = node.request_skip()
+            for node in effected_nodes:
+                resp[node.timestamp] = NodeDetails._get_nodes_details(self.logger, node)
+            self.logger.info('}')
+
+        return resp
+
+    @valid_only
+    def action_get_uow(self):
+        resp = dict()
+        timetable = self.mbean.timetable
+        tree = timetable.get_tree(self.process_name)
+
+        if tree is not None:
+            self.timestamp = time_helper.cast_to_time_qualifier(self.process_name, self.timestamp)
+            node = tree.get_node_by_process(self.process_name, self.timestamp)
+
+            uow_id = node.time_record.get_related_unit_of_work()
+            if uow_id is None:
+                resp = {'response' : 'no related unit_of_work'}
+            else:
+                resp = unit_of_work_helper.retrieve_by_id(self.logger, uow_id).get_document()
+                for key in resp:
+                    resp[key] = str(resp[key])
+
+        return resp
+
+    @valid_only
+    def action_get_log(self):
+        resp = dict()
+        timetable = self.mbean.timetable
+        tree = timetable.get_tree(self.process_name)
+
+        if tree is not None:
+            self.timestamp = time_helper.cast_to_time_qualifier(self.process_name, self.timestamp)
+            node = tree.get_node_by_process(self.process_name, self.timestamp)
+            resp['log'] = node.time_record.get_log()
+
+        return resp
+
+    @valid_only
+    def action_change_interval(self):
+        resp = dict()
+        new_interval = self.request.args.get('interval')
+        if new_interval is not None:
+            new_interval = int(new_interval)
+            thread_handler = self.mbean.thread_handlers[self.process_name]
+            thread_handler.change_interval(new_interval)
+            resp['status'] = 'changed interval for %r to %r' % (self.process_name, new_interval)
+        
+        return resp
+    
+
+# Scheduler Details views
+class SchedulerDetails(object):
+    def __init__(self, mbean):
+        self.mbean = mbean
+        self.logger = self.mbean.logger
+
+    @cached_property
+    def entries(self):
+        list_of_rows = []
+        try:
+            sorter_keys = sorted(self.mbean.thread_handlers.keys())
+            for key in sorter_keys:
+                row = []
+                thread_handler = self.mbean.thread_handlers[key]
+                process_name = thread_handler.args[0]
+                row.append(process_name)
+                row.append(thread_handler.is_alive())
+                row.append(int(thread_handler.interval_new))
+                row.append(thread_handler.activation_dt.strftime('%Y-%m-%d %H:%M:%S %Z'))
+                next_run = timedelta(seconds=thread_handler.interval_current) + thread_handler.activation_dt
+                next_run = next_run - datetime.utcnow()
+                row.append(str(next_run).split('.')[0])
+
+                timetable = self.mbean.timetable
+                if timetable.get_tree(process_name) is not None:
+                    time_record = timetable.get_next_timetable_record(process_name)
+                    row.append(time_record.get_timestamp())
+                else:
+                    row.append('NA')
+
+                list_of_rows.append(row)
+        except Exception as e:
+            self.logger.error('MX Exception %s' % str(e), exc_info=True)
+
+        return list_of_rows
+
+    @cached_property
+    def footprint(self):
+        try:
+            calculator = FootprintCalculator()
+            footprint = calculator.get_snapshot_as_list()
+            return footprint
+        except Exception as e:
+            self.logger.error('MX Exception %s' % str(e), exc_info=True)
+
+            
+class ConnectionDetails(object):
+    def __init__(self, mbean):
+        self.mbean = mbean
+        self.logger = self.mbean.logger
+
+    @cached_property
+    def entries(self):
+        list_of_rows = []
+        try:
+            for key in ReplicaSetContext.connection_pool:
+                row = []
+                conn = ReplicaSetContext.connection_pool[key]
+                row.append(key)
+                row.append('%r' % conn.master)
+                row.append('%r' % conn.slaves)
+                row.append(time.strftime('%Y-%m-%d %H:%M:%S', time.gmtime(conn._last_validate_time)))
+
+                list_of_rows.append(row)
+        except Exception as e:
+            self.logger.error('MX Exception %s' % str(e), exc_info=True)
+        return list_of_rows
