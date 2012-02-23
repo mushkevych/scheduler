@@ -54,12 +54,13 @@ class IdentityWorker(AbstractWorker):
             return
 
         try:
+            self.performance_ticker.start_uow(unit_of_work)
             unit_of_work.set_state(UnitsOfWorkCollection.STATE_PROCESSED)
             unit_of_work.set_number_of_processed_documents(0)
             unit_of_work.set_started_at(datetime.utcnow())
             unit_of_work.set_finished_at(datetime.utcnow())
-            self.performance_ticker.finish_uow()
             unit_of_work_helper.update(self.logger, unit_of_work)
+            self.performance_ticker.finish_uow()
         except Exception as e:
             unit_of_work.set_state(UnitsOfWorkCollection.STATE_INVALID)
             unit_of_work_helper.update(self.logger, unit_of_work)
