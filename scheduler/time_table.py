@@ -38,16 +38,23 @@ class TimeTable:
         self.logger = logger
         self.reprocess = dict()
 
+        # self.trees contain all of the trees and manages much of their life cycle
+        # remember to enlist there all trees the system is working with
+        self.trees = list()
+
         self.vertical_site = FourLevelTree(process_context.PROCESS_SITE_YEARLY,
                                            process_context.PROCESS_SITE_MONTHLY,
                                            process_context.PROCESS_SITE_DAILY,
                                            process_context.PROCESS_SITE_HOURLY)
+        self.trees.append(self.vertical_site)
 
         self.horizontal_client = ThreeLevelTree(process_context.PROCESS_CLIENT_YEARLY,
                                                 process_context.PROCESS_CLIENT_MONTHLY,
                                                 process_context.PROCESS_CLIENT_DAILY)
+        self.trees.append(self.horizontal_client)
 
         self.linear_daily_alert = TwoLevelTree(process_context.PROCESS_ALERT_DAILY)
+        self.trees.append(self.linear_daily_alert)
 
         self._register_callbacks()
         self._register_dependents()
@@ -69,19 +76,16 @@ class TimeTable:
         and create embryo timetable record request"""
 
         # reprocessing request
-        self.vertical_site.register_reprocess_callback(self._callback_reprocess)
-        self.horizontal_client.register_reprocess_callback(self._callback_reprocess)
-        self.linear_daily_alert.register_reprocess_callback(self._callback_reprocess)
+        for tree in self.trees:
+            tree.register_reprocess_callback(self._callback_reprocess)
 
         # skip request
-        self.vertical_site.register_skip_callback(self._callback_skip)
-        self.horizontal_client.register_skip_callback(self._callback_skip)
-        self.linear_daily_alert.register_skip_callback(self._callback_skip)
+        for tree in self.trees:
+            tree.register_skip_callback(self._callback_skip)
 
         # callbacks register
-        self.vertical_site.register_timetable_callbacks(self._callback_timetable_record)
-        self.horizontal_client.register_timetable_callbacks(self._callback_timetable_record)
-        self.linear_daily_alert.register_timetable_callbacks(self._callback_timetable_record)
+        for tree in self.trees:
+            tree.register_timetable_callbacks(self._callback_timetable_record)
 
     # *** Timetable collection helper ***
     @thread_safe
@@ -125,12 +129,9 @@ class TimeTable:
     @thread_safe
     def get_tree(self, process_name):
         """ return tree that is managing time-periods for given process"""
-        if self.vertical_site.is_managing_process(process_name):
-            return self.vertical_site
-        elif self.horizontal_client.is_managing_process(process_name):
-            return self.horizontal_client
-        elif self.linear_daily_alert.is_managing_process(process_name):
-            return self.linear_daily_alert
+        for tree in self.trees:
+            if tree.is_managing_process(process_name):
+                return tree
 
     @thread_safe
     def _callback_reprocess(self, process_name, timestamp, tree_node):
@@ -231,16 +232,14 @@ class TimeTable:
     @thread_safe
     def build_tree(self):
         """ method iterates thru all trees and ensures that all time-period nodes are created up till <utc_now>"""
-        self.vertical_site.build_tree()
-        self.horizontal_client.build_tree()
-        self.linear_daily_alert.build_tree()
+        for tree in self.trees:
+            tree.build_tree()
 
     @thread_safe
     def validate(self):
         """validates that none of nodes in tree is improperly finalized and that every node has time_record"""
-        self.vertical_site.validate()
-        self.horizontal_client.validate()
-        self.linear_daily_alert.validate()
+        for tree in self.trees:
+            tree.validate()
 
     @thread_safe
     def failed_on_processing_timetable_record(self, process_name, timestamp):
