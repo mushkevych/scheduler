@@ -90,6 +90,12 @@ def action_change_interval(request):
     handler.action_change_interval()
     return redirect('/')
 
+@expose('/action_trigger_now/')
+def action_trigger_now(request):
+    handler = ActionHandler(jinja_env.globals['mbean'], request)
+    handler.action_trigger_now()
+    return redirect('/')
+
 @expose('/object_viewer/')
 def object_viewer(request):
     return render_template('object_viewer.html')
@@ -376,7 +382,18 @@ class ActionHandler(object):
             resp['status'] = 'changed interval for %r to %r' % (self.process_name, new_interval)
         
         return resp
-    
+
+    @valid_only
+    def action_trigger_now(self):
+        resp = dict()
+        thread_handler = self.mbean.thread_handlers[self.process_name]
+        thread_handler.trigger()
+
+        next_run = timedelta(seconds=thread_handler.interval_current) + thread_handler.activation_dt
+        next_run = next_run - datetime.utcnow()
+
+        resp['status'] = 'Triggered process %r; Next run in to %r' % (self.process_name, str(next_run).split('.')[0])
+        return resp
 
 # Scheduler Details views
 class SchedulerDetails(object):

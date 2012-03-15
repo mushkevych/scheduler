@@ -27,10 +27,6 @@ class GarbageCollectorUnitTest(unittest.TestCase):
         self.worker.__del__()
         del self.worker
 
-    def test_s3(self):
-        self.worker._perform_EA('20010304')
-        pass
-
 
 if __name__ == '__main__':
     unittest.main()
