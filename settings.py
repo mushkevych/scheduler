@@ -60,6 +60,7 @@ test_cases = [
     'tests.test_site_statistics',
     'tests.test_single_session_statistics',
     'tests.test_time_helper',
+    'tests.test_repeat_timer',
     'tests.test_site_hourly_aggregator',
 ]
 
