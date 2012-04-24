@@ -9,7 +9,7 @@ from datetime import datetime
 from logging import INFO, WARNING, ERROR
 
 from flopsy.flopsy import PublishersPool
-from time_table_collection import TimeTableCollection
+from time_table_entry import TimeTableEntry
 from system.collection_context import  with_reconnect
 import unit_of_work_helper
 
@@ -99,7 +99,7 @@ class AbstractPipeline(object):
             # As soon as among <dependent on> periods are in STATE_SKIPPED
             # there is very little sense in waiting for them to become STATE_PROCESSED
             # Skip this timeperiod itself
-            time_record.set_state(TimeTableCollection.STATE_SKIPPED)
+            time_record.set_state(TimeTableEntry.STATE_SKIPPED)
             self.timetable._save_time_record(process_name, time_record)
             tree = self.timetable.get_tree(process_name)
             tree.update_node_by_process(process_name, time_record)
@@ -118,19 +118,19 @@ class AbstractPipeline(object):
         In case Scheduler sees that unit_of_work is pending - it just updates boundaries of the processing"""
         timestamp_tr = time_record.get_timestamp()
         try:
-            if time_record.get_state() == TimeTableCollection.STATE_EMBRYO:
+            if time_record.get_state() == TimeTableEntry.STATE_EMBRYO:
                 self._process_state_embryo(process_name, time_record, timestamp_tr)
 
-            elif time_record.get_state() == TimeTableCollection.STATE_IN_PROGRESS:
+            elif time_record.get_state() == TimeTableEntry.STATE_IN_PROGRESS:
                 self._process_state_in_progress(process_name, time_record, timestamp_tr)
 
-            elif time_record.get_state() == TimeTableCollection.STATE_FINAL_RUN:
+            elif time_record.get_state() == TimeTableEntry.STATE_FINAL_RUN:
                 self._process_state_final_run(process_name, time_record)
 
-            elif time_record.get_state() == TimeTableCollection.STATE_SKIPPED:
+            elif time_record.get_state() == TimeTableEntry.STATE_SKIPPED:
                 self._process_state_skipped(process_name, time_record)
 
-            elif time_record.get_state() == TimeTableCollection.STATE_PROCESSED:
+            elif time_record.get_state() == TimeTableEntry.STATE_PROCESSED:
                 self._process_state_processed(process_name, time_record)
 
             else:

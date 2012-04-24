@@ -8,8 +8,8 @@ from datetime import datetime
 import functools
 from threading import RLock
 from bson.objectid import ObjectId
-from data_collections.abstract_collection import AbstractCollection
-from time_table_collection import TimeTableCollection
+from model.abstract_model import AbstractModel
+from time_table_entry import TimeTableEntry
 from tree import TwoLevelTree, ThreeLevelTree, FourLevelTree
 from system import process_context
 from system.process_context import ProcessContext
@@ -34,6 +34,12 @@ def thread_safe(method):
 class TimeTable:
 
     def __init__(self, logger):
+        try:
+            from mx.views import MX_PAGE_TRAFFIC
+        except:
+            from views import MX_PAGE_TRAFFIC
+
+
         self.lock = RLock()
         self.logger = logger
         self.reprocess = dict()
@@ -45,15 +51,21 @@ class TimeTable:
         self.vertical_site = FourLevelTree(process_context.PROCESS_SITE_YEARLY,
                                            process_context.PROCESS_SITE_MONTHLY,
                                            process_context.PROCESS_SITE_DAILY,
-                                           process_context.PROCESS_SITE_HOURLY)
+                                           process_context.PROCESS_SITE_HOURLY,
+                                           process_context._TOKEN_SITE,
+                                           MX_PAGE_TRAFFIC)
         self.trees.append(self.vertical_site)
 
         self.horizontal_client = ThreeLevelTree(process_context.PROCESS_CLIENT_YEARLY,
                                                 process_context.PROCESS_CLIENT_MONTHLY,
-                                                process_context.PROCESS_CLIENT_DAILY)
+                                                process_context.PROCESS_CLIENT_DAILY,
+                                                process_context._TOKEN_CLIENT,
+                                                MX_PAGE_TRAFFIC)
         self.trees.append(self.horizontal_client)
 
-        self.linear_daily_alert = TwoLevelTree(process_context.PROCESS_ALERT_DAILY)
+        self.linear_daily_alert = TwoLevelTree(process_context.PROCESS_ALERT_DAILY,
+                                               process_context._TOKEN_ALERT,
+                                               MX_PAGE_TRAFFIC)
         self.trees.append(self.linear_daily_alert)
 
         self._register_callbacks()
@@ -139,7 +151,7 @@ class TimeTable:
         It is possible that timetable record will be transfered to STATE_IN_PROGRESS with no related unit_of_work"""
         uow_id = tree_node.time_record.get_related_unit_of_work()
         if uow_id is not None:
-            tree_node.time_record.set_state(TimeTableCollection.STATE_IN_PROGRESS)
+            tree_node.time_record.set_state(TimeTableEntry.STATE_IN_PROGRESS)
             uow_obj = unit_of_work_helper.retrieve_by_id(self.logger, ObjectId(uow_id))
             uow_obj.set_state(uow_obj.STATE_INVALID)
             uow_obj.set_number_of_retries(0)
@@ -149,7 +161,7 @@ class TimeTable:
                     % (tree_node.time_record.get_document()['_id'], tree_node.time_record.get_timestamp(),
                        tree_node.time_record.get_state(), uow_obj.get_state())
         else:
-            tree_node.time_record.set_state(TimeTableCollection.STATE_EMBRYO)
+            tree_node.time_record.set_state(TimeTableEntry.STATE_EMBRYO)
             msg = 'Transferred time-record %s in timeperiod %s to %s;'\
                     % (tree_node.time_record.get_document()['_id'], tree_node.time_record.get_timestamp(),
                        tree_node.time_record.get_state())
@@ -166,7 +178,7 @@ class TimeTable:
     @thread_safe
     def _callback_skip(self, process_name, timestamp, tree_node):
         """ is called from tree to answer skip request"""
-        tree_node.time_record.set_state(TimeTableCollection.STATE_SKIPPED)
+        tree_node.time_record.set_state(TimeTableEntry.STATE_SKIPPED)
         uow_id = tree_node.time_record.get_related_unit_of_work()
         if uow_id is not None:
             uow_obj = unit_of_work_helper.retrieve_by_id(self.logger, ObjectId(uow_id))
@@ -191,12 +203,12 @@ class TimeTable:
     def _callback_timetable_record(self, process_name, timestamp, tree_node):
         """ is called from tree to create timetable record and bind it to the tree node"""
         collection = self._get_timetable_collection(process_name)
-        time_record = collection.find_one({TimeTableCollection.PROCESS_NAME : process_name,
-                                   AbstractCollection.TIMESTAMP : timestamp})
+        time_record = collection.find_one({TimeTableEntry.PROCESS_NAME : process_name,
+                                   AbstractModel.TIMESTAMP : timestamp})
 
         if time_record is None:
-            time_record = TimeTableCollection()
-            time_record.set_state(TimeTableCollection.STATE_EMBRYO)
+            time_record = TimeTableEntry()
+            time_record.set_state(TimeTableEntry.STATE_EMBRYO)
             time_record.set_timestamp(timestamp)
             time_record.set_process_name(process_name)
 
@@ -213,7 +225,7 @@ class TimeTable:
             self.logger.warning('No TimeTable Records in %s.' % str(collection))
         else:
             for document in cursor:
-                obj = TimeTableCollection(document)
+                obj = TimeTableEntry(document)
                 tree = self.get_tree(obj.get_process_name())
                 if tree is not None:
                     tree.update_node_by_process(obj.get_process_name(), obj)

@@ -4,9 +4,9 @@ Created on 2011-01-24
 @author: Bohdan Mushkevych
 """
 
-from data_collections.abstract_collection import AbstractCollection
+from model.abstract_model import AbstractModel
 
-class RawData(AbstractCollection):
+class RawData(AbstractModel):
     SESSION = 'session'
     USER = 'user'
     DOMAIN_NAME = 'domain'

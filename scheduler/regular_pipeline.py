@@ -10,10 +10,10 @@ from pymongo.objectid import ObjectId
 from datetime import datetime
 from logging import ERROR, WARNING, INFO
 
-from data_collections.abstract_collection import AbstractCollection
+from model.abstract_model import AbstractModel
 from abstract_pipeline import AbstractPipeline
-from units_of_work_collection import UnitsOfWorkCollection
-from time_table_collection import TimeTableCollection
+from unit_of_work_entry import UnitOfWorkEntry
+from time_table_entry import TimeTableEntry
 from system.process_context import ProcessContext
 from system.collection_context import CollectionContext, with_reconnect
 from system import time_helper
@@ -37,7 +37,7 @@ class RegularPipeline(AbstractPipeline):
         target_collection_name = ProcessContext.get_target_collection(process_name)
         source_collection = CollectionContext.get_collection(self.logger, source_collection_name)
 
-        query = { AbstractCollection.TIMESTAMP : { '$gte' : start_time, '$lt' : end_time } }
+        query = { AbstractModel.TIMESTAMP : { '$gte' : start_time, '$lt' : end_time } }
         asc_search = source_collection.find(spec=query, fields='_id').sort('_id', ASCENDING).limit(1)
         if asc_search.count() == 0:
             raise LookupError('No messages in timeperiod: %s:%s in collection %s'
@@ -47,7 +47,7 @@ class RegularPipeline(AbstractPipeline):
         dec_search = source_collection.find(spec=query, fields='_id').sort('_id', DESCENDING).limit(1)
         last_object_id = dec_search[0]['_id']
 
-        unit_of_work = UnitsOfWorkCollection()
+        unit_of_work = UnitOfWorkEntry()
         unit_of_work.set_timestamp(start_time)
         unit_of_work.set_start_id(str(first_object_id))
         unit_of_work.set_end_id(str(last_object_id))
@@ -81,7 +81,7 @@ class RegularPipeline(AbstractPipeline):
         source_collection_name = unit_of_work.get_source_collection()
         source_collection = CollectionContext.get_collection(self.logger, source_collection_name)
 
-        query = { AbstractCollection.TIMESTAMP : { '$gte' : start_time, '$lt' : end_time } }
+        query = { AbstractModel.TIMESTAMP : { '$gte' : start_time, '$lt' : end_time } }
         dec_search = source_collection.find(spec=query, fields='_id').sort('_id', DESCENDING).limit(1)
         last_object_id = dec_search[0]['_id']
         unit_of_work.set_end_id(str(last_object_id))
@@ -115,7 +115,7 @@ class RegularPipeline(AbstractPipeline):
             self.timetable.update_timetable_record(process_name,
                                                    time_record,
                                                    uow_obj,
-                                                   TimeTableCollection.STATE_IN_PROGRESS)
+                                                   TimeTableEntry.STATE_IN_PROGRESS)
         else:
             msg = 'MANUAL INTERVENTION REQUIRED! Unable to locate unit_of_work for %s in %s' \
                     % (process_name, time_record.get_timestamp())
@@ -136,7 +136,7 @@ class RegularPipeline(AbstractPipeline):
             self.timetable.update_timetable_record(process_name,
                                                    time_record,
                                                    uow_obj,
-                                                   TimeTableCollection.STATE_FINAL_RUN)
+                                                   TimeTableEntry.STATE_FINAL_RUN)
         else:
             msg = 'MANUAL INTERVENTION REQUIRED! Unable to locate unit_of_work for %s in %s' \
                     % (process_name, time_record.get_timestamp())
@@ -161,8 +161,8 @@ class RegularPipeline(AbstractPipeline):
         uow_obj = unit_of_work_helper.retrieve_by_id(self.logger, ObjectId(uow_id))
 
         if start_time == actual_time or can_finalize_timerecord == False:
-            if uow_obj.get_state() == UnitsOfWorkCollection.STATE_INVALID\
-                or uow_obj.get_state() == UnitsOfWorkCollection.STATE_REQUESTED:
+            if uow_obj.get_state() == UnitOfWorkEntry.STATE_INVALID\
+                or uow_obj.get_state() == UnitOfWorkEntry.STATE_REQUESTED:
                 # current uow has not been processed yet. update it
                 self.update_scope_of_processing(process_name, uow_obj, start_time, end_time, time_record)
             else:
@@ -185,20 +185,20 @@ class RegularPipeline(AbstractPipeline):
         uow_id = time_record.get_related_unit_of_work()
         uow_obj = unit_of_work_helper.retrieve_by_id(self.logger, ObjectId(uow_id))
 
-        if uow_obj.get_state() == UnitsOfWorkCollection.STATE_PROCESSED:
+        if uow_obj.get_state() == UnitOfWorkEntry.STATE_PROCESSED:
             self.timetable.update_timetable_record(process_name,
                                                    time_record,
                                                    uow_obj,
-                                                   TimeTableCollection.STATE_PROCESSED)
+                                                   TimeTableEntry.STATE_PROCESSED)
             timetable_tree = self.timetable.get_tree(process_name)
             timetable_tree.build_tree()
             msg = 'Transferred time-record %s in timeperiod %s to STATE_PROCESSED for %s'\
                     % (time_record.get_document()['_id'], time_record.get_timestamp(), process_name)
-        elif uow_obj.get_state() == UnitsOfWorkCollection.STATE_CANCELED:
+        elif uow_obj.get_state() == UnitOfWorkEntry.STATE_CANCELED:
             self.timetable.update_timetable_record(process_name,
                                                    time_record,
                                                    uow_obj,
-                                                   TimeTableCollection.STATE_SKIPPED)
+                                                   TimeTableEntry.STATE_SKIPPED)
             msg = 'Transferred time-record %s in timeperiod %s to STATE_SKIPPED for %s'\
                     % (time_record.get_document()['_id'], time_record.get_timestamp(), process_name)
         else:

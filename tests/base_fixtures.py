@@ -8,8 +8,8 @@ import inspect
 import logging
 import random
 
-from scheduler.units_of_work_collection import UnitsOfWorkCollection
-from data_collections.single_session import SingleSessionStatistics
+from scheduler.unit_of_work_entry import UnitOfWorkEntry
+from model.single_session import SingleSessionStatistics
 from system.process_context import ProcessContext
 from system.collection_context import CollectionContext, COLLECTION_SINGLE_SESSION
 from scheduler import unit_of_work_helper
@@ -120,13 +120,13 @@ def create_unit_of_work(process_name, first_object_id, last_object_id):
     target_collection = ProcessContext.get_target_collection(process_name)
     logger = ProcessContext.get_logger(process_name)
     
-    unit_of_work = UnitsOfWorkCollection()
+    unit_of_work = UnitOfWorkEntry()
     unit_of_work.set_timestamp('UNIT_TEST')
     unit_of_work.set_start_id(first_object_id)
     unit_of_work.set_end_id(last_object_id)
     unit_of_work.set_source_collection(source_collection)
     unit_of_work.set_target_collection(target_collection)
-    unit_of_work.set_state(UnitsOfWorkCollection.STATE_REQUESTED)
+    unit_of_work.set_state(UnitOfWorkEntry.STATE_REQUESTED)
     unit_of_work.set_process_name(process_name)
     unit_of_work.set_number_of_retries(0)
     

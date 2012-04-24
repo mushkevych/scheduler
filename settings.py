@@ -45,7 +45,7 @@ settings.update(overrides.settings)
 
 # Modules to test and verify (pylint/pep8)
 testable_modules = [
-        'data_collections',
+        'model',
         'event_stream_generator',
         'flopsy',
         'supervisor',

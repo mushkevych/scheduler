@@ -5,7 +5,7 @@ Created on 2011-02-21
 """
 
 import unittest
-from data_collections.abstract_collection import AbstractCollection
+from model.abstract_model import AbstractModel
 from tests import hourly_fixtures
 from system.process_context import PROCESS_SITE_HOURLY
 from tests.test_abstract_worker import AbstractWorkerUnitTest
@@ -27,7 +27,7 @@ class HourlySiteAggregatorUnitTest(AbstractWorkerUnitTest):
         hourly_fixtures.clean_session_entries()
 
     def _get_key(self, obj):
-        return obj[AbstractCollection.DOMAIN_NAME], obj[AbstractCollection.TIMESTAMP]
+        return obj[AbstractModel.DOMAIN_NAME], obj[AbstractModel.TIMESTAMP]
 
     def test_aggregation(self):
         super(HourlySiteAggregatorUnitTest, self).perform_aggregation()

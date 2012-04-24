@@ -7,7 +7,7 @@ RestClient performs REST-protocol communication with the construction tier
 
 import json
 from rest_client.restful_lib import Connection
-from data_collections.abstract_collection import AbstractCollection
+from model.abstract_model import AbstractModel
 
 from settings import settings
 
@@ -42,7 +42,7 @@ class RestClient(object):
     REQUEST_CLIENT     = '/admin/clients'
 
     ARGUMENT_SITES     = 'domains'
-    ARGUMENT_TIMESTAMP = AbstractCollection.TIMESTAMP
+    ARGUMENT_TIMESTAMP = AbstractModel.TIMESTAMP
 
     def __init__(self, logger):
         login = settings['construction_login']

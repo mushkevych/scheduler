@@ -4,20 +4,19 @@ Created on 2011-10-21
 @author: Bohdan Mushkevych
 """
 from threading import RLock
-from data_collections.abstract_collection import AbstractCollection
+from model.abstract_model import AbstractModel
 from system.collection_context import CollectionContext, COLLECTION_TIMETABLE_YEARLY, \
     COLLECTION_TIMETABLE_MONTHLY, COLLECTION_TIMETABLE_DAILY, COLLECTION_TIMETABLE_HOURLY
 
 try:
     from scheduler.time_table import thread_safe
-    from scheduler.time_table_collection import TimeTableCollection
+    from scheduler.time_table_entry import TimeTableEntry
 except:
     from time_table import thread_safe
-    from time_table_collection import TimeTableCollection
+    from time_table_entry import TimeTableEntry
 
 
-
-class ProcessingDetails(object):
+class ProcessingStatements(object):
     """ Reads from MongoDB status of timeperiods and their processing status """
 
     def __init__(self, logger):
@@ -44,27 +43,27 @@ class ProcessingDetails(object):
         resp = dict()
         try:
             if unprocessed_only:
-                query = { AbstractCollection.TIMESTAMP : {'$regex': timestamp },
-                          TimeTableCollection.STATE : {'$ne' : TimeTableCollection.STATE_PROCESSED }}
+                query = { AbstractModel.TIMESTAMP : {'$regex': timestamp },
+                          TimeTableEntry.STATE : {'$ne' : TimeTableEntry.STATE_PROCESSED }}
             else:
-                query = { AbstractCollection.TIMESTAMP : {'$regex': timestamp }}
+                query = { AbstractModel.TIMESTAMP : {'$regex': timestamp }}
 
             cursor = collection.find(query)
             if cursor.count() == 0:
                 self.logger.warning('No TimeTable Records in %s.' % str(collection))
             else:
                 for document in cursor:
-                    obj = TimeTableCollection(document)
+                    obj = TimeTableEntry(document)
                     key = (obj.get_process_name(), obj.get_timestamp())
                     resp[key] = obj
                     print(key)
         except Exception as e:
-            self.logger.error('ProcessingDetails error: %s' % str(e))
+            self.logger.error('ProcessingStatements error: %s' % str(e))
         return resp
 
     
 if __name__ == '__main__':
     import logging
-    pd = ProcessingDetails(logging)
+    pd = ProcessingStatements(logging)
     resp = pd.retrieve_for_timestamp('201110', false)
     print('%r' % resp)

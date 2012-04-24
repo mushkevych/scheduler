@@ -8,7 +8,7 @@ import unittest
 from rest_client.restful_lib import Connection
 
 from settings import settings
-from scheduler.time_table_collection import TimeTableCollection
+from scheduler.time_table_entry import TimeTableEntry
 from system.process_context import PROCESS_SITE_HOURLY, PROCESS_ALERT_DAILY, PROCESS_FINANCIAL_DAILY
 
 class TestSchedulerMx(unittest.TestCase):
@@ -27,7 +27,7 @@ class TestSchedulerMx(unittest.TestCase):
     def test_request_root(self):
         resp = self.connection.request_get(
                         self.REQUEST_CHILDREN,
-                        args={TimeTableCollection.PROCESS_NAME: PROCESS_SITE_HOURLY},
+                        args={TimeTableEntry.PROCESS_NAME: PROCESS_SITE_HOURLY},
                         headers={'content-type':'application/json', 'accept':'application/json'})
         status = resp[u'headers']['status']
 
@@ -40,8 +40,8 @@ class TestSchedulerMx(unittest.TestCase):
     def test_request_4_level_children(self):
         resp = self.connection.request_get(
                         self.REQUEST_CHILDREN,
-                        args={TimeTableCollection.TIMESTAMP: settings['synergy_start_timestamp'],
-                              TimeTableCollection.PROCESS_NAME: PROCESS_SITE_HOURLY},
+                        args={TimeTableEntry.TIMESTAMP: settings['synergy_start_timestamp'],
+                              TimeTableEntry.PROCESS_NAME: PROCESS_SITE_HOURLY},
                         headers={'content-type':'application/json', 'accept':'application/json'})
         status = resp[u'headers']['status']
 
@@ -54,8 +54,8 @@ class TestSchedulerMx(unittest.TestCase):
     def test_request_3_level_children(self):
         resp = self.connection.request_get(
                         self.REQUEST_CHILDREN,
-                        args={TimeTableCollection.TIMESTAMP: settings['synergy_start_timestamp'],
-                              TimeTableCollection.PROCESS_NAME: PROCESS_FINANCIAL_DAILY},
+                        args={TimeTableEntry.TIMESTAMP: settings['synergy_start_timestamp'],
+                              TimeTableEntry.PROCESS_NAME: PROCESS_FINANCIAL_DAILY},
                         headers={'content-type':'application/json', 'accept':'application/json'})
         status = resp[u'headers']['status']
 
@@ -68,7 +68,7 @@ class TestSchedulerMx(unittest.TestCase):
     def test_request_1_level_children(self):
         resp = self.connection.request_get(
                         self.REQUEST_CHILDREN,
-                        args={TimeTableCollection.PROCESS_NAME: PROCESS_ALERT_DAILY},
+                        args={TimeTableEntry.PROCESS_NAME: PROCESS_ALERT_DAILY},
                         headers={'content-type':'application/json', 'accept':'application/json'})
         status = resp[u'headers']['status']
 

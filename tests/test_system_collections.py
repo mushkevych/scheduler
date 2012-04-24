@@ -6,18 +6,18 @@ Created on 2011-07-05
 
 import unittest
 from base_fixtures import compare_dictionaries
-from supervisor.box_configuration_collection import BoxConfigurationCollection
-from scheduler.scheduler_configuration_collection import SchedulerConfigurationCollection
-from scheduler.time_table_collection import TimeTableCollection
-from scheduler.units_of_work_collection import UnitsOfWorkCollection
+from supervisor.box_configuration_entry import BoxConfigurationEntry
+from scheduler.scheduler_configuration_entry import SchedulerConfigurationEntry
+from scheduler.time_table_entry import TimeTableEntry
+from scheduler.unit_of_work_entry import UnitOfWorkEntry
 
 class TestSystemCollections(unittest.TestCase):
     
     def setUp(self):
-        self.box_configuration = BoxConfigurationCollection()
-        self.scheduler_configuration = SchedulerConfigurationCollection()
-        self.timetable = TimeTableCollection()
-        self.uow = UnitsOfWorkCollection()
+        self.box_configuration = BoxConfigurationEntry()
+        self.scheduler_configuration = SchedulerConfigurationEntry()
+        self.timetable = TimeTableEntry()
+        self.uow = UnitOfWorkEntry()
 
     def tearDown(self):
         del self.box_configuration
@@ -28,16 +28,16 @@ class TestSystemCollections(unittest.TestCase):
     def test_box_configuration(self):
         box_id = 'box_1'
         process_list = {
-            'process_1' : {BoxConfigurationCollection.STATE : BoxConfigurationCollection.STATE_ON,
-                           BoxConfigurationCollection.PID : 1001},
-            'process_2' : {BoxConfigurationCollection.STATE : BoxConfigurationCollection.STATE_ON,
-                           BoxConfigurationCollection.PID : 1001},
-            'process_3' : {BoxConfigurationCollection.STATE : BoxConfigurationCollection.STATE_ON,
-                           BoxConfigurationCollection.PID : 1001},
+            'process_1' : {BoxConfigurationEntry.STATE : BoxConfigurationEntry.STATE_ON,
+                           BoxConfigurationEntry.PID : 1001},
+            'process_2' : {BoxConfigurationEntry.STATE : BoxConfigurationEntry.STATE_ON,
+                           BoxConfigurationEntry.PID : 1001},
+            'process_3' : {BoxConfigurationEntry.STATE : BoxConfigurationEntry.STATE_ON,
+                           BoxConfigurationEntry.PID : 1001},
         }
         self.box_configuration.set_box_id(box_id)
         self.box_configuration.set_process_list(process_list)
-        self.box_configuration.set_process_state('process_2', BoxConfigurationCollection.STATE_OFF)
+        self.box_configuration.set_process_state('process_2', BoxConfigurationEntry.STATE_OFF)
 
         assert box_id == self.box_configuration.get_box_id()
         compare_dictionaries(self.box_configuration.get_process_list(), process_list)

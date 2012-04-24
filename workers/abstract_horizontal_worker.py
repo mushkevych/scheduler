@@ -5,7 +5,7 @@ Module contains common logic for all workers that work with chunks of data from 
 
 @author: Bohdan Mushkevych
 """
-from data_collections.abstract_collection import AbstractCollection
+from model.abstract_model import AbstractModel
 from workers.abstract_aware_worker import AbstractAwareWorker
 
 class AbstractHorizontalWorker(AbstractAwareWorker):
@@ -33,7 +33,7 @@ class AbstractHorizontalWorker(AbstractAwareWorker):
                 self.performance_ticker.increment()
             if len(bulk_array) > 0:
                 # Mongo funny behaviour - cursor may be empty, with cursor.count != 0
-                self._process_bulk_array(bulk_array, bulk_array[0][AbstractCollection.TIMESTAMP])
+                self._process_bulk_array(bulk_array, bulk_array[0][AbstractModel.TIMESTAMP])
                 shall_continue = True
             del bulk_array
         except LookupError as e:

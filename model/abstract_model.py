@@ -5,7 +5,7 @@ Created on 2011-01-28
 """
 
 # pylint: disable=W0511
-class AbstractCollection(object):
+class AbstractModel(object):
     """
     This class presents common functionality for all Synergy Collections
     """

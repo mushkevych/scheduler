@@ -10,10 +10,10 @@ from threading import Lock
 from pymongo import ASCENDING
 
 from datetime import datetime, timedelta, time
-from data_collections.abstract_collection import AbstractCollection
+from model.abstract_model import AbstractModel
 from flopsy.flopsy import PublishersPool
 from workers.abstract_worker import AbstractWorker
-from scheduler.units_of_work_collection import UnitsOfWorkCollection
+from scheduler.unit_of_work_entry import UnitOfWorkEntry
 from scheduler.time_table import thread_safe
 from system.collection_context import CollectionContext, COLLECTION_SINGLE_SESSION
 from system.collection_context import COLLECTION_UNITS_OF_WORK
@@ -44,9 +44,9 @@ class GarbageCollectorWorker(AbstractWorker):
     def _mq_callback(self, message):
         """ method looks for units of work in STATE_INVALID and re-runs them"""
         try:
-            query = { UnitsOfWorkCollection.STATE : { '$in' : [UnitsOfWorkCollection.STATE_IN_PROGRESS,
-                                                               UnitsOfWorkCollection.STATE_INVALID,
-                                                               UnitsOfWorkCollection.STATE_REQUESTED]}}
+            query = { UnitOfWorkEntry.STATE : { '$in' : [UnitOfWorkEntry.STATE_IN_PROGRESS,
+                                                               UnitOfWorkEntry.STATE_INVALID,
+                                                               UnitOfWorkEntry.STATE_REQUESTED]}}
             cursor = self.collection.find(query).sort('_id', ASCENDING)
             
             if cursor.count() != 0:
@@ -60,13 +60,13 @@ class GarbageCollectorWorker(AbstractWorker):
     def _process_single_document(self, document):
         """ actually inspects UOW retrieved from the database"""
         repost = False
-        unit_of_work = UnitsOfWorkCollection(document)
+        unit_of_work = UnitOfWorkEntry(document)
         process_name = unit_of_work.get_process_name()
 
-        if unit_of_work.get_state() == UnitsOfWorkCollection.STATE_INVALID:
+        if unit_of_work.get_state() == UnitOfWorkEntry.STATE_INVALID:
             repost = True
-        elif unit_of_work.get_state() == UnitsOfWorkCollection.STATE_IN_PROGRESS \
-            or unit_of_work.get_state() == UnitsOfWorkCollection.STATE_REQUESTED:
+        elif unit_of_work.get_state() == UnitOfWorkEntry.STATE_IN_PROGRESS \
+            or unit_of_work.get_state() == UnitOfWorkEntry.STATE_REQUESTED:
 
             last_activity = unit_of_work.get_started_at()
             if last_activity is None:
@@ -78,7 +78,7 @@ class GarbageCollectorWorker(AbstractWorker):
         if repost:
             creation_time = unit_of_work.get_created_at()
             if  datetime.utcnow() - creation_time < timedelta(hours=LIFE_SUPPORT_HOURS):
-                unit_of_work.set_state(UnitsOfWorkCollection.STATE_REQUESTED)
+                unit_of_work.set_state(UnitOfWorkEntry.STATE_REQUESTED)
                 unit_of_work.set_number_of_retries(unit_of_work.get_number_of_retries() + 1)
                 unit_of_work_helper.update(self.logger, unit_of_work)
                 self.publishers.get_publisher(process_name).publish(str(document['_id']))
@@ -87,7 +87,7 @@ class GarbageCollectorWorker(AbstractWorker):
                                  % (process_name, str(document['_id']), unit_of_work.get_number_of_retries()))
                 self.performance_ticker.increment()
             else:
-                unit_of_work.set_state(UnitsOfWorkCollection.STATE_CANCELED)
+                unit_of_work.set_state(UnitOfWorkEntry.STATE_CANCELED)
                 unit_of_work_helper.update(self.logger, unit_of_work)
                 self.logger.info('UOW transfered to STATE_CANCELED: process %s; id %s; attempt %d' \
                                  % (process_name, str(document['_id']), unit_of_work.get_number_of_retries()))

@@ -5,7 +5,7 @@ Created on 2011-01-28
 """
 
 import unittest
-from data_collections.site_statistics import SiteStatistics  
+from model.site_statistics import SiteStatistics
 
 class TestSiteStatistics(unittest.TestCase):
     

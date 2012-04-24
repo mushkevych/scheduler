@@ -5,7 +5,7 @@ Created on 2011-01-28
 """
 
 import unittest
-from data_collections.raw_data import RawData 
+from model.raw_data import RawData
 
 class TestRawData(unittest.TestCase):
     

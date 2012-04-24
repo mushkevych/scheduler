@@ -4,7 +4,7 @@ Created on 2011-01-21
 @author: Bohdan Mushkevych
 """
 from flopsy.flopsy import Publisher
-from data_collections.raw_data import RawData
+from model.raw_data import RawData
 from system.performance_ticker import WorkerPerformanceTicker
 from system.synergy_process import SynergyProcess
 

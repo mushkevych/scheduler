@@ -5,7 +5,7 @@ Created on 2011-03-18
 """
 MAX_NUMBER_OF_LOG_ENTRIES = 32
 
-class TimeTableCollection(object):
+class TimeTableEntry(object):
     """
     This class presents status for the time-period, and indicates whether data was process by particular process
     
@@ -73,7 +73,7 @@ class TimeTableCollection(object):
         return self.data[self.END_OBJ_ID]
 
     def set_state(self, value):
-        if not TimeTableCollection.is_state_valid(value):
+        if not TimeTableEntry.is_state_valid(value):
             raise ValueError('unit of work is in incorrect state')
         self.data[self.STATE] = value
 

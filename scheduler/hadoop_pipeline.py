@@ -10,8 +10,8 @@ from datetime import datetime
 from logging import ERROR, WARNING, INFO
 
 from abstract_pipeline import AbstractPipeline
-from units_of_work_collection import UnitsOfWorkCollection
-from time_table_collection import TimeTableCollection
+from unit_of_work_entry import UnitOfWorkEntry
+from time_table_entry import TimeTableEntry
 from system.collection_context import  with_reconnect
 from system import time_helper
 import unit_of_work_helper
@@ -35,7 +35,7 @@ class HadoopPipeline(AbstractPipeline):
         first_object_id = 0
         last_object_id = iteration
 
-        unit_of_work = UnitsOfWorkCollection()
+        unit_of_work = UnitOfWorkEntry()
         unit_of_work.set_timestamp(start_time)
         unit_of_work.set_start_id(first_object_id)
         unit_of_work.set_end_id(last_object_id)
@@ -80,7 +80,7 @@ class HadoopPipeline(AbstractPipeline):
             self.timetable.update_timetable_record(process_name,
                                                    time_record,
                                                    uow_obj,
-                                                   TimeTableCollection.STATE_IN_PROGRESS)
+                                                   TimeTableEntry.STATE_IN_PROGRESS)
         else:
             msg = 'MANUAL INTERVENTION REQUIRED! Unable to locate unit_of_work for %s in %s'\
             % (process_name, time_record.get_timestamp())
@@ -98,36 +98,36 @@ class HadoopPipeline(AbstractPipeline):
 
         try:
             if start_time == actual_time or can_finalize_timerecord == False:
-                if uow_obj.get_state() == UnitsOfWorkCollection.STATE_REQUESTED\
-                    or uow_obj.get_state() == UnitsOfWorkCollection.STATE_IN_PROGRESS\
-                    or uow_obj.get_state() == UnitsOfWorkCollection.STATE_INVALID:
+                if uow_obj.get_state() == UnitOfWorkEntry.STATE_REQUESTED\
+                    or uow_obj.get_state() == UnitOfWorkEntry.STATE_IN_PROGRESS\
+                    or uow_obj.get_state() == UnitOfWorkEntry.STATE_INVALID:
                     # Hadoop processing takes more than 1 tick of Scheduler
                     # Let the Hadoop processing complete - do no updates to Scheduler records
                     pass
-                elif uow_obj.get_state() == UnitsOfWorkCollection.STATE_PROCESSED\
-                    or uow_obj.get_state() == UnitsOfWorkCollection.STATE_CANCELED:
+                elif uow_obj.get_state() == UnitOfWorkEntry.STATE_PROCESSED\
+                    or uow_obj.get_state() == UnitOfWorkEntry.STATE_CANCELED:
                     # create new uow to cover new inserts
                     uow_obj = self.insert_uow(process_name, start_time, end_time, iteration + 1, time_record)
                     self.timetable.update_timetable_record(process_name,
                                                            time_record,
                                                            uow_obj,
-                                                           TimeTableCollection.STATE_IN_PROGRESS)
+                                                           TimeTableEntry.STATE_IN_PROGRESS)
 
             elif start_time < actual_time and can_finalize_timerecord == True:
-                if uow_obj.get_state() == UnitsOfWorkCollection.STATE_REQUESTED\
-                    or uow_obj.get_state() == UnitsOfWorkCollection.STATE_IN_PROGRESS\
-                    or uow_obj.get_state() == UnitsOfWorkCollection.STATE_INVALID:
+                if uow_obj.get_state() == UnitOfWorkEntry.STATE_REQUESTED\
+                    or uow_obj.get_state() == UnitOfWorkEntry.STATE_IN_PROGRESS\
+                    or uow_obj.get_state() == UnitOfWorkEntry.STATE_INVALID:
                     # Hadoop processing has not started yet
                     # Let the Hadoop processing complete - do no updates to Scheduler records
                     pass
-                elif uow_obj.get_state() == UnitsOfWorkCollection.STATE_PROCESSED\
-                    or uow_obj.get_state() == UnitsOfWorkCollection.STATE_CANCELED:
+                elif uow_obj.get_state() == UnitOfWorkEntry.STATE_PROCESSED\
+                    or uow_obj.get_state() == UnitOfWorkEntry.STATE_CANCELED:
                     # create new uow for FINAL RUN
                     uow_obj = self.insert_uow(process_name, start_time, end_time, iteration + 1, time_record)
                     self.timetable.update_timetable_record(process_name,
                                                            time_record,
                                                            uow_obj,
-                                                           TimeTableCollection.STATE_FINAL_RUN)
+                                                           TimeTableEntry.STATE_FINAL_RUN)
             else:
                 msg = 'Time-record %s has timestamp from future %s vs current time %s'\
                         % (time_record.get_document()['_id'], start_time, actual_time)
@@ -151,20 +151,20 @@ class HadoopPipeline(AbstractPipeline):
         uow_id = time_record.get_related_unit_of_work()
         uow_obj = unit_of_work_helper.retrieve_by_id(self.logger, ObjectId(uow_id))
 
-        if uow_obj.get_state() == UnitsOfWorkCollection.STATE_PROCESSED:
+        if uow_obj.get_state() == UnitOfWorkEntry.STATE_PROCESSED:
             self.timetable.update_timetable_record(process_name,
                                                    time_record,
                                                    uow_obj,
-                                                   TimeTableCollection.STATE_PROCESSED)
+                                                   TimeTableEntry.STATE_PROCESSED)
             timetable_tree = self.timetable.get_tree(process_name)
             timetable_tree.build_tree()
             msg = 'Transferred time-record %s in timeperiod %s to STATE_PROCESSED for %s'\
             % (time_record.get_document()['_id'], time_record.get_timestamp(), process_name)
-        elif uow_obj.get_state() == UnitsOfWorkCollection.STATE_CANCELED:
+        elif uow_obj.get_state() == UnitOfWorkEntry.STATE_CANCELED:
             self.timetable.update_timetable_record(process_name,
                                                    time_record,
                                                    uow_obj,
-                                                   TimeTableCollection.STATE_SKIPPED)
+                                                   TimeTableEntry.STATE_SKIPPED)
             msg = 'Transferred time-record %s in timeperiod %s to STATE_SKIPPED for %s'\
             % (time_record.get_document()['_id'], time_record.get_timestamp(), process_name)
         else:

@@ -3,9 +3,9 @@ Created on 2011-01-25
 
 @author: Bohdan Mushkevych
 """
-from data_collections.abstract_collection import AbstractCollection
+from model.abstract_model import AbstractModel
 
-class SiteStatistics(AbstractCollection):
+class SiteStatistics(AbstractModel):
     """
     class presents site statistics like number of visits per defined period or list of search keywords
     """

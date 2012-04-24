@@ -4,9 +4,9 @@ Created on 2011-06-14
 @author: Bohdan Mushkevych
 """
 
-from data_collections.abstract_collection import AbstractCollection
+from model.abstract_model import AbstractModel
 
-class BoxConfigurationCollection(AbstractCollection):
+class BoxConfigurationEntry(AbstractModel):
     """
     Class presents list of processes that are supposed to run on particular box.
     """
@@ -20,7 +20,7 @@ class BoxConfigurationCollection(AbstractCollection):
     STATE_OFF = 'state_off'
 
     def __init__(self, document = None):
-        super(BoxConfigurationCollection, self).__init__(document)
+        super(BoxConfigurationEntry, self).__init__(document)
 
     def set_box_id(self, value):
         self.data[self.BOX_ID] = value

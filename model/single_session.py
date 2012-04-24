@@ -3,9 +3,9 @@ Created on 2011-01-25
 
 @author: bmushkevych
 """
-from data_collections.abstract_collection import AbstractCollection
+from model.abstract_model import AbstractModel
 
-class SingleSessionStatistics(AbstractCollection):
+class SingleSessionStatistics(AbstractModel):
     """
     class presents statistics, gathered during the life of the session
     """

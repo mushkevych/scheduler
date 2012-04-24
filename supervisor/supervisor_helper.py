@@ -3,17 +3,17 @@ Created on 2011-06-15
 
 @author: Bohdan Mushkevych
 """
-from box_configuration_collection import BoxConfigurationCollection
+from box_configuration_entry import BoxConfigurationEntry
 from settings import settings
 from system.collection_context import CollectionContext, COLLECTION_BOX_CONFIGURATION
 
 def retrieve_configuration(logger, box_id):
     """ method reads box configuration from the MongoDB"""
     collection = CollectionContext.get_collection(logger, COLLECTION_BOX_CONFIGURATION)
-    document = collection.find_one( { BoxConfigurationCollection.BOX_ID : box_id } )
+    document = collection.find_one( { BoxConfigurationEntry.BOX_ID : box_id } )
     if document is None:
         raise LookupError('MongoDB has no process list for box_id = %r' % box_id)
-    return BoxConfigurationCollection(document)
+    return BoxConfigurationEntry(document)
 
 
 def update_configuration(logger, box_configuration):

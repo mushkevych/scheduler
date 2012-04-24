@@ -6,9 +6,9 @@ Module is responsible for reading MQ queue and updating/inserting data records t
 """
 import time
 from pymongo.errors import AutoReconnect
-from data_collections.single_session import SingleSessionStatistics
-from data_collections.raw_data import RawData
-from data_collections.abstract_collection import AbstractCollection
+from model.single_session import SingleSessionStatistics
+from model.raw_data import RawData
+from model.abstract_model import AbstractModel
 from system.performance_ticker import SessionPerformanceTicker
 from workers.abstract_worker import AbstractWorker
 from system.collection_context import CollectionContext, COLLECTION_SINGLE_SESSION
@@ -41,8 +41,8 @@ class SingleSessionWorker(AbstractWorker):
         try:
             single_session_collection = CollectionContext.get_collection(self.logger, COLLECTION_SINGLE_SESSION)
             raw_data = RawData(message.body)
-            query = {AbstractCollection.DOMAIN_NAME: raw_data.get_key()[0],
-                     AbstractCollection.FAMILY_USER_PROFILE + '.' + AbstractCollection.SESSION_ID: raw_data.get_session_id()}
+            query = {AbstractModel.DOMAIN_NAME: raw_data.get_key()[0],
+                     AbstractModel.FAMILY_USER_PROFILE + '.' + AbstractModel.SESSION_ID: raw_data.get_session_id()}
             document = single_session_collection.find_one(query)
 
             if document is None:

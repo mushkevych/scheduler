@@ -1,36 +1,15 @@
 {% extends 'main_header.html' %}
 {% block body %}
 
-<form style="text-align: center" method="get">
-    Year:  <input type="text" name="year" value=""/>
-    Month: <input type="text" name="month" value=""/>
-    Day: <input type="text" name="day" value=""/>
-    Hour: <input type="text" name="hour" value=""/>
-    Unprocessed only: <input type="checkbox" name="state" checked="true"/>
-    <input type="submit" value="List"/>
-    <br/>
-    <b><i>at least year, month and day must be filled</i></b>
-</form>
-
-<table style="width: 90%" class="one-column-emphasis">
-    <thead>
-    <tr class="oce-first">
-        <th scope="col">Process Name</th>
-        <th scope="col">Time period</th>
-        <th scope="col">State</th>
-    </tr>
-    </thead>
-    <tbody>
-
-    {%- for row in details.entries %}
-    <tr class="{{ row[2] }}">
-        <td>{{ row[0] }}</td>
-        <td>{{ row[1] }}</td>
-        <td>{{ row[2] }}</td>
-    </tr>
-    {%- endfor %}
-
-    </tbody>
-</table>
+    <div id="container">
+        <div id="wrapper">
+            <div id="level">
+            </div>
+            <div id="content">
+            </div>
+        </div>
+        <div id="navigation">
+        </div>
+    </div>
 
 {% endblock %}

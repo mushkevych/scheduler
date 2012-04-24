@@ -8,9 +8,14 @@ import os
 from system.data_logging import Logger
 from settings import settings
 
-PROCESS_STREAM_GEN = 'EventStreamGenerator'
+TYPE_ALERT = 'type_alert'
+TYPE_HORIZONTAL_AGGREGATOR = 'type_horizontal'
+TYPE_VERTICAL_AGGREGATOR = 'type_vertical'
+TYPE_GARBAGE_COLLECTOR = 'type_garbage'
+
 PROCESS_SCHEDULER = 'Scheduler'
 PROCESS_SUPERVISOR = 'Supervisor'
+PROCESS_STREAM_GEN = 'EventStreamGenerator'
 PROCESS_SESSION_WORKER_00 = 'SingleSessionWorker_00'
 PROCESS_SESSION_WORKER_01 = 'SingleSessionWorker_01'
 PROCESS_GC = 'GarbageCollectorWorker'
@@ -22,6 +27,70 @@ PROCESS_CLIENT_DAILY = 'ClientDailyAggregator'
 PROCESS_CLIENT_MONTHLY = 'ClientMonthlyAggregator'
 PROCESS_CLIENT_YEARLY = 'ClientYearlyAggregator'
 PROCESS_ALERT_DAILY = 'AlertDailyWorker'
+
+_TOKEN_SCHEDULER = 'scheduler'
+_TOKEN_SUPERVISOR = 'supervisor'
+_TOKEN_STREAM = 'stream'
+_TOKEN_SESSION = 'session'
+_TOKEN_GC = 'gc'
+_TOKEN_SITE = 'site'
+_TOKEN_CLIENT = 'client'
+_TOKEN_ALERT = 'alert'
+
+_ROUTING_PREFIX = 'routing_'
+_QUEUE_PREFIX = 'queue_'
+_VOID = 'VOID'
+
+_NAME = 'process_name'
+_LOG_FILENAME = 'log_filename'
+_LOG_TAG = 'log_tag'
+_PID_FILENAME = 'pid_filename'
+_CLASSNAME = 'classname'
+_SOURCE_COLLECTION = 'source_collection'
+_TARGET_COLLECTION = 'target_collection'
+_MQ_QUEUE = 'mq_queue'
+_MQ_EXCHANGE = 'mq_exchange'
+_MQ_ROUTING_KEY = 'mq_routing_key'
+_TIME_QUALIFIER = 'time_qualifier'
+_TYPE = 'type'
+
+def _create_context_entry(process_name,
+                          classname,
+                          token,
+                          time_qualifier,
+                          exchange,
+                          queue=None,
+                          routing=None,
+                          type=None,
+                          source_collection=_VOID,
+                          target_collection=_VOID,
+                          pid_file=None,
+                          log_file=None):
+    """ forms process context entry """
+    if queue is None:
+        queue = _QUEUE_PREFIX + token
+    if routing is None:
+        routing = _ROUTING_PREFIX + token + '_' + time_qualifier
+    if pid_file is None:
+        pid_file = token + '_' + time_qualifier + '.pid'
+    if log_file is None:
+        log_file = token + '_' + time_qualifier + '.log'
+
+    return {
+        _NAME: process_name,
+        _PID_FILENAME: settings['pid_directory'] + pid_file,
+        _CLASSNAME: classname,
+        _LOG_FILENAME: settings['log_directory'] + log_file,
+        _LOG_TAG: token + '_' + time_qualifier,
+        _SOURCE_COLLECTION: source_collection,
+        _TARGET_COLLECTION: target_collection,
+        _MQ_QUEUE: queue,
+        _MQ_EXCHANGE: exchange,
+        _MQ_ROUTING_KEY: routing,
+        _TIME_QUALIFIER: time_qualifier,
+        _TYPE: type
+    }
+
 
 class ProcessContext:
     # process_context format: "process_name": {
@@ -35,14 +104,13 @@ class ProcessContext:
     # mq_queue
     # mq_exchange
     # mq_routing_key
-    # time_qualifier 
+    # time_qualifier
+    # mx_page
+    # type
     # }
 
     QUEUE_RAW_DATA = 'queue_raw_data'
-    QUEUE_VERTICAL_SITE = 'queue_vertical_site'
-    QUEUE_HORIZONTAL_CLIENT = 'queue_horizontal_client'
-    QUEUE_ALERT = 'queue_alert'
-    QUEUE_GARBAGE_COLLECTOR = 'queue_garbage_collector'
+    ROUTING_IRRELEVANT = 'routing_irrelevant'
 
     QUALIFIER_REAL_TIME = 'real_time'
     QUALIFIER_BY_SCHEDULE = 'by_schedule'
@@ -57,194 +125,143 @@ class ProcessContext:
     EXCHANGE_ALERT = 'exchange_alert'
     EXCHANGE_UTILS = 'exchange_utils'
 
-    ROUTING_IRRELEVANT = 'routing_irrelevant'
-    ROUTING_GC = 'routing_gc'
-
-    ROUTING_VERTICAL_SITE = 'routing_vertical_site'
-    ROUTING_HORIZONTAL_CLIENT = 'routing_horizontal_client'
-    ROUTING_ALERT = 'routing_alert'
-
-    _NAME = 'process_name'
-    _LOG_FILENAME = 'log_filename'
-    _LOG_TAG = 'log_tag'
-    _PID_FILENAME = 'pid_filename'
-    _CLASSNAME = 'classname'
-    _SOURCE_COLLECTION = 'source_collection'
-    _TARGET_COLLECTION = 'target_collection'
-    _MQ_QUEUE = 'mq_queue'
-    _MQ_EXCHANGE = 'mq_exchange'
-    _MQ_ROUTING_KEY = 'mq_routing_key'
-    _TIME_QUALIFIER = 'time_qualifier'
-    VOID = 'VOID'
-
     logger_pool = dict()
 
     PROCESS_CONTEXT = {
-        PROCESS_SITE_DAILY: {_PID_FILENAME: settings['pid_directory'] + 'site_daily_aggregator.pid',
-                             _CLASSNAME: 'workers.hadoop_aggregator_driver.HadoopAggregatorDriver',
-                             _LOG_FILENAME: settings['log_directory'] + 'site_daily_aggregator.log',
-                             _LOG_TAG: 'daily_site',
-                             _SOURCE_COLLECTION: VOID,
-                             _TARGET_COLLECTION: VOID,
-                             _MQ_QUEUE: QUEUE_VERTICAL_SITE + QUALIFIER_DAILY,
-                             _MQ_EXCHANGE: EXCHANGE_VERTICAL,
-                             _MQ_ROUTING_KEY: ROUTING_VERTICAL_SITE + QUALIFIER_DAILY,
-                             _TIME_QUALIFIER: QUALIFIER_DAILY
-        },
-        PROCESS_SITE_HOURLY: {_PID_FILENAME: settings['pid_directory'] + 'site_hourly_aggregator.pid',
-                              _CLASSNAME: 'workers.site_hourly_aggregator.SiteHourlyAggregator',
-                              _LOG_FILENAME: settings['log_directory'] + 'site_hourly_aggregator.log',
-                              _LOG_TAG: 'hourly_site',
-                              _SOURCE_COLLECTION: 'single_session_collection',
-                              _TARGET_COLLECTION: VOID,
-                              _MQ_QUEUE: QUEUE_VERTICAL_SITE + QUALIFIER_HOURLY,
-                              _MQ_EXCHANGE: EXCHANGE_VERTICAL,
-                              _MQ_ROUTING_KEY: ROUTING_VERTICAL_SITE + QUALIFIER_HOURLY,
-                              _TIME_QUALIFIER: QUALIFIER_HOURLY
-        },
-        PROCESS_SITE_MONTHLY: {_PID_FILENAME: settings['pid_directory'] + 'site_monthly_aggregator.pid',
-                               _CLASSNAME: 'workers.hadoop_aggregator_driver.HadoopAggregatorDriver',
-                               _LOG_FILENAME: settings['log_directory'] + 'site_monthly_aggregator.log',
-                               _LOG_TAG: 'monthly_site',
-                               _SOURCE_COLLECTION: VOID,
-                               _TARGET_COLLECTION: VOID,
-                               _MQ_QUEUE: QUEUE_VERTICAL_SITE + QUALIFIER_MONTHLY,
-                               _MQ_EXCHANGE: EXCHANGE_VERTICAL,
-                               _MQ_ROUTING_KEY: ROUTING_VERTICAL_SITE + QUALIFIER_MONTHLY,
-                               _TIME_QUALIFIER: QUALIFIER_MONTHLY
-        },
-        PROCESS_SITE_YEARLY: {_PID_FILENAME: settings['pid_directory'] + 'site_yearly_aggregator.pid',
-                              _CLASSNAME: 'workers.hadoop_aggregator_driver.HadoopAggregatorDriver',
-                              _LOG_FILENAME: settings['log_directory'] + 'site_yearly_aggregator.log',
-                              _LOG_TAG: 'yearly_site',
-                              _SOURCE_COLLECTION: VOID,
-                              _TARGET_COLLECTION: VOID,
-                              _MQ_QUEUE: QUEUE_VERTICAL_SITE + QUALIFIER_YEARLY,
-                              _MQ_EXCHANGE: EXCHANGE_VERTICAL,
-                              _MQ_ROUTING_KEY: ROUTING_VERTICAL_SITE + QUALIFIER_YEARLY,
-                              _TIME_QUALIFIER: QUALIFIER_YEARLY
-        },
-        PROCESS_GC: {_PID_FILENAME: settings['pid_directory'] + 'garbage_collector.pid',
-                     _CLASSNAME: 'workers.garbage_collector_worker.GarbageCollectorWorker',
-                     _LOG_FILENAME: settings['log_directory'] + 'garbage_collector.log',
-                     _LOG_TAG: 'GC',
-                     _SOURCE_COLLECTION: 'units_of_work_collection',
-                     _TARGET_COLLECTION: 'units_of_work_collection',
-                     _MQ_QUEUE: QUEUE_GARBAGE_COLLECTOR,
-                     _MQ_EXCHANGE: EXCHANGE_UTILS,
-                     _MQ_ROUTING_KEY: ROUTING_GC,
-                     _TIME_QUALIFIER: QUALIFIER_BY_SCHEDULE
-        },
-        PROCESS_SESSION_WORKER_00: {_PID_FILENAME: settings['pid_directory'] + 'session_worker_00.pid',
-                                    _CLASSNAME: 'workers.single_session_worker.SingleSessionWorker',
-                                    _LOG_FILENAME: settings['log_directory'] + 'session_worker_00.log',
-                                    _LOG_TAG: 'session_worker_00',
-                                    _SOURCE_COLLECTION: 'single_session_collection',
-                                    _TARGET_COLLECTION: 'single_session_collection',
-                                    _MQ_QUEUE: QUEUE_RAW_DATA,
-                                    _MQ_EXCHANGE: EXCHANGE_RAW_DATA,
-                                    _MQ_ROUTING_KEY: ROUTING_IRRELEVANT,
-                                    _TIME_QUALIFIER: QUALIFIER_REAL_TIME
-        },
-        PROCESS_SESSION_WORKER_01: {_PID_FILENAME: settings['pid_directory'] + 'session_worker_01.pid',
-                                    _CLASSNAME: 'workers.single_session_worker.SingleSessionWorker',
-                                    _LOG_FILENAME: settings['log_directory'] + 'session_worker_01.log',
-                                    _LOG_TAG: 'session_worker_01',
-                                    _SOURCE_COLLECTION: 'single_session_collection',
-                                    _TARGET_COLLECTION: 'single_session_collection',
-                                    _MQ_QUEUE: QUEUE_RAW_DATA,
-                                    _MQ_EXCHANGE: EXCHANGE_RAW_DATA,
-                                    _MQ_ROUTING_KEY: ROUTING_IRRELEVANT,
-                                    _TIME_QUALIFIER: QUALIFIER_REAL_TIME
-        },
-        PROCESS_SCHEDULER: {_PID_FILENAME: settings['pid_directory'] + 'scheduler.pid',
-                            _CLASSNAME: 'scheduler.scheduler.Scheduler',
-                            _LOG_FILENAME: settings['log_directory'] + 'scheduler.log',
-                            _LOG_TAG: 'scheduler',
-                            _SOURCE_COLLECTION: VOID,
-                            _TARGET_COLLECTION: VOID,
-                            _MQ_QUEUE: '',
-                            _MQ_EXCHANGE: '',
-                            _MQ_ROUTING_KEY: '',
-                            _TIME_QUALIFIER: ''
-        },
-        PROCESS_SUPERVISOR: {_PID_FILENAME: settings['pid_directory'] + 'supervisor.pid',
-                             _CLASSNAME: 'supervisor.supervisor.Supervisor',
-                             _LOG_FILENAME: settings['log_directory'] + 'supervisor.log',
-                             _LOG_TAG: 'supervisor',
-                             _SOURCE_COLLECTION: VOID,
-                             _TARGET_COLLECTION: VOID,
-                             _MQ_QUEUE: '',
-                             _MQ_EXCHANGE: '',
-                             _MQ_ROUTING_KEY: '',
-                             _TIME_QUALIFIER: ''
-        },
-        PROCESS_STREAM_GEN: {_PID_FILENAME: settings['pid_directory'] + 'event_generator.pid',
-                             _CLASSNAME: 'event_stream_generator.event_stream_generator.EventStreamGenerator',
-                             _LOG_FILENAME: settings['log_directory'] + 'event_generator.log',
-                             _LOG_TAG: 'event_generator',
-                             _SOURCE_COLLECTION: VOID,
-                             _TARGET_COLLECTION: VOID,
-                             _MQ_QUEUE: QUEUE_RAW_DATA,
-                             _MQ_EXCHANGE: EXCHANGE_RAW_DATA,
-                             _MQ_ROUTING_KEY: ROUTING_IRRELEVANT,
-                             _TIME_QUALIFIER: QUALIFIER_REAL_TIME
-        },
-        PROCESS_CLIENT_DAILY: {_PID_FILENAME: settings['pid_directory'] + 'client_daily.pid',
-                               _CLASSNAME: 'workers.hadoop_aggregator_driver.HadoopAggregatorDriver',
-                               _LOG_FILENAME: settings['log_directory'] + 'client_daily.log',
-                               _LOG_TAG: 'client_daily',
-                               _SOURCE_COLLECTION: VOID,
-                               _TARGET_COLLECTION: VOID,
-                               _MQ_QUEUE: QUEUE_HORIZONTAL_CLIENT + QUALIFIER_DAILY,
-                               _MQ_EXCHANGE: EXCHANGE_HORIZONTAL,
-                               _MQ_ROUTING_KEY: ROUTING_HORIZONTAL_CLIENT + QUALIFIER_DAILY,
-                               _TIME_QUALIFIER: QUALIFIER_DAILY
-        },
-        PROCESS_CLIENT_MONTHLY: {_PID_FILENAME: settings['pid_directory'] + 'client_monthly.pid',
-                                 _CLASSNAME: 'workers.hadoop_aggregator_driver.HadoopAggregatorDriver',
-                                 _LOG_FILENAME: settings['log_directory'] + 'client_monthly.log',
-                                 _LOG_TAG: 'client_monthly',
-                                 _SOURCE_COLLECTION: VOID,
-                                 _TARGET_COLLECTION: VOID,
-                                 _MQ_QUEUE: QUEUE_HORIZONTAL_CLIENT + QUALIFIER_MONTHLY,
-                                 _MQ_EXCHANGE: EXCHANGE_HORIZONTAL,
-                                 _MQ_ROUTING_KEY: ROUTING_HORIZONTAL_CLIENT + QUALIFIER_MONTHLY,
-                                 _TIME_QUALIFIER: QUALIFIER_MONTHLY
-        },
-        PROCESS_CLIENT_YEARLY: {_PID_FILENAME: settings['pid_directory'] + 'client_yearly.pid',
-                                _CLASSNAME: 'workers.hadoop_aggregator_driver.HadoopAggregatorDriver',
-                                _LOG_FILENAME: settings['log_directory'] + 'client_yearly.log',
-                                _LOG_TAG: 'client_yearly',
-                                _SOURCE_COLLECTION: VOID,
-                                _TARGET_COLLECTION: VOID,
-                                _MQ_QUEUE: QUEUE_HORIZONTAL_CLIENT + QUALIFIER_YEARLY,
-                                _MQ_EXCHANGE: EXCHANGE_HORIZONTAL,
-                                _MQ_ROUTING_KEY: ROUTING_HORIZONTAL_CLIENT + QUALIFIER_YEARLY,
-                                _TIME_QUALIFIER: QUALIFIER_YEARLY
-        },
-        PROCESS_ALERT_DAILY: {_PID_FILENAME: settings['pid_directory'] + 'alert_daily.pid',
-                              _CLASSNAME: 'workers.hadoop_aggregator_driver.HadoopAggregatorDriver',
-                              _LOG_FILENAME: settings['log_directory'] + 'alert_daily.log',
-                              _LOG_TAG: 'alert_daily',
-                              _SOURCE_COLLECTION: VOID,
-                              _TARGET_COLLECTION: VOID,
-                              _MQ_QUEUE: QUEUE_ALERT + QUALIFIER_DAILY,
-                              _MQ_EXCHANGE: EXCHANGE_ALERT,
-                              _MQ_ROUTING_KEY: ROUTING_ALERT + QUALIFIER_DAILY,
-                              _TIME_QUALIFIER: QUALIFIER_DAILY
-        },
-        'TestAggregator': {_PID_FILENAME: '',
-                           _CLASSNAME: '',
-                           _LOG_FILENAME: settings['log_directory'] + 'synergy_tests.log',
-                           _LOG_TAG: 'test',
-                           _SOURCE_COLLECTION: VOID,
-                           _TARGET_COLLECTION: VOID,
-                           _MQ_QUEUE: '',
-                           _MQ_EXCHANGE: '',
-                           _MQ_ROUTING_KEY: '',
-                           _TIME_QUALIFIER: ''
-        }
+        PROCESS_SITE_DAILY: _create_context_entry(
+            process_name=PROCESS_SITE_DAILY,
+            classname='workers.hadoop_aggregator_driver.HadoopAggregatorDriver',
+            token=_TOKEN_SITE,
+            time_qualifier=QUALIFIER_DAILY,
+            exchange=EXCHANGE_VERTICAL,
+            type=TYPE_VERTICAL_AGGREGATOR),
+
+        PROCESS_SITE_HOURLY: _create_context_entry(
+            process_name=PROCESS_SITE_HOURLY,
+            classname='workers.site_hourly_aggregator.SiteHourlyAggregator',
+            token=_TOKEN_SITE,
+            time_qualifier=QUALIFIER_HOURLY,
+            exchange=EXCHANGE_VERTICAL,
+            type=TYPE_VERTICAL_AGGREGATOR,
+            source_collection= 'single_session_collection'),
+
+        PROCESS_SITE_MONTHLY: _create_context_entry(
+            process_name=PROCESS_SITE_MONTHLY,
+            classname='workers.hadoop_aggregator_driver.HadoopAggregatorDriver',
+            token=_TOKEN_SITE,
+            time_qualifier=QUALIFIER_MONTHLY,
+            exchange=EXCHANGE_VERTICAL,
+            type=TYPE_VERTICAL_AGGREGATOR),
+
+        PROCESS_SITE_YEARLY: _create_context_entry(
+            process_name=PROCESS_SITE_YEARLY,
+            classname='workers.hadoop_aggregator_driver.HadoopAggregatorDriver',
+            token=_TOKEN_SITE,
+            time_qualifier=QUALIFIER_YEARLY,
+            exchange=EXCHANGE_VERTICAL,
+            type=TYPE_VERTICAL_AGGREGATOR),
+
+        PROCESS_GC: _create_context_entry(
+            process_name=PROCESS_GC,
+            classname='workers.garbage_collector_worker.GarbageCollectorWorker',
+            token=_TOKEN_SITE,
+            time_qualifier=QUALIFIER_BY_SCHEDULE,
+            exchange=EXCHANGE_UTILS,
+            type=TYPE_VERTICAL_AGGREGATOR,
+            source_collection='units_of_work_collection',
+            target_collection='units_of_work_collection'),
+
+        PROCESS_SESSION_WORKER_00: _create_context_entry(
+            process_name=PROCESS_SESSION_WORKER_00,
+            classname='workers.single_session_worker.SingleSessionWorker',
+            token=_TOKEN_SESSION,
+            time_qualifier=QUALIFIER_REAL_TIME,
+            queue=QUEUE_RAW_DATA,
+            routing=ROUTING_IRRELEVANT,
+            exchange=EXCHANGE_RAW_DATA,
+            source_collection='single_session_collection',
+            target_collection='single_session_collection',
+            pid_file='session_worker_00.pid',
+            log_file='session_worker_00.log'),
+
+        PROCESS_SESSION_WORKER_01: _create_context_entry(
+            process_name=PROCESS_SESSION_WORKER_01,
+            classname='workers.single_session_worker.SingleSessionWorker',
+            token=_TOKEN_SESSION,
+            time_qualifier=QUALIFIER_REAL_TIME,
+            queue=QUEUE_RAW_DATA,
+            routing=ROUTING_IRRELEVANT,
+            exchange=EXCHANGE_RAW_DATA,
+            source_collection='single_session_collection',
+            target_collection='single_session_collection',
+            pid_file='session_worker_01.pid',
+            log_file='session_worker_01.log'),
+
+        PROCESS_SCHEDULER: _create_context_entry(
+            process_name=PROCESS_SCHEDULER,
+            classname='scheduler.scheduler.Scheduler',
+            token=_TOKEN_SCHEDULER,
+            time_qualifier='',
+            queue='',
+            routing='',
+            exchange=''),
+
+        PROCESS_SUPERVISOR: _create_context_entry(
+            process_name=PROCESS_SUPERVISOR,
+            classname='supervisor.supervisor.Supervisor',
+            token=_TOKEN_SUPERVISOR,
+            time_qualifier='',
+            queue='',
+            routing='',
+            exchange=''),
+
+        PROCESS_STREAM_GEN: _create_context_entry(
+            process_name=PROCESS_STREAM_GEN,
+            classname='event_stream_generator.event_stream_generator.EventStreamGenerator',
+            token=_TOKEN_STREAM,
+            time_qualifier=QUALIFIER_REAL_TIME,
+            queue=QUEUE_RAW_DATA,
+            routing=ROUTING_IRRELEVANT,
+            exchange=EXCHANGE_RAW_DATA),
+
+        PROCESS_CLIENT_DAILY: _create_context_entry(
+            process_name=PROCESS_CLIENT_DAILY,
+            classname='workers.hadoop_aggregator_driver.HadoopAggregatorDriver',
+            token=_TOKEN_CLIENT,
+            time_qualifier=QUALIFIER_DAILY,
+            exchange=EXCHANGE_HORIZONTAL,
+            type=TYPE_HORIZONTAL_AGGREGATOR),
+
+        PROCESS_CLIENT_MONTHLY: _create_context_entry(
+            process_name=PROCESS_CLIENT_MONTHLY,
+            classname='workers.hadoop_aggregator_driver.HadoopAggregatorDriver',
+            token=_TOKEN_CLIENT,
+            time_qualifier=QUALIFIER_MONTHLY,
+            exchange=EXCHANGE_HORIZONTAL,
+            type=TYPE_HORIZONTAL_AGGREGATOR),
+
+        PROCESS_CLIENT_YEARLY: _create_context_entry(
+            process_name=PROCESS_CLIENT_YEARLY,
+            classname='workers.hadoop_aggregator_driver.HadoopAggregatorDriver',
+            token=_TOKEN_CLIENT,
+            time_qualifier=QUALIFIER_YEARLY,
+            exchange=EXCHANGE_HORIZONTAL,
+            type=TYPE_HORIZONTAL_AGGREGATOR),
+
+        PROCESS_ALERT_DAILY: _create_context_entry(
+            process_name=PROCESS_ALERT_DAILY,
+            classname='workers.hadoop_aggregator_driver.HadoopAggregatorDriver',
+            token=_TOKEN_ALERT,
+            time_qualifier=QUALIFIER_DAILY,
+            exchange=EXCHANGE_ALERT,
+            type=TYPE_HORIZONTAL_AGGREGATOR),
+
+        'TestAggregator': _create_context_entry(
+            process_name='TestAggregator',
+            classname='',
+            token='test',
+            time_qualifier='',
+            exchange=''),
     }
 
     @classmethod
@@ -285,55 +302,61 @@ class ProcessContext:
     @classmethod
     def get_pid_filename(cls, process_name):
         """method returns path for the PID FILENAME """
-        return cls.PROCESS_CONTEXT[process_name][cls._PID_FILENAME]
+        return cls.PROCESS_CONTEXT[process_name][_PID_FILENAME]
 
     @classmethod
     def get_classname(cls, process_name):
         """ method returns fully qualified classname of the instance running as process"""
-        return cls.PROCESS_CONTEXT[process_name][cls._CLASSNAME]
+        return cls.PROCESS_CONTEXT[process_name][_CLASSNAME]
 
     @classmethod
     def get_log_filename(cls, process_name):
         """method returns path for the Log filename"""
-        return cls.PROCESS_CONTEXT[process_name][cls._LOG_FILENAME]
+        return cls.PROCESS_CONTEXT[process_name][_LOG_FILENAME]
 
     @classmethod
     def get_log_tag(cls, process_name):
         """method returns tag that all logging messages will be marked with"""
-        return cls.PROCESS_CONTEXT[process_name][cls._LOG_TAG]
+        return cls.PROCESS_CONTEXT[process_name][_LOG_TAG]
 
     @classmethod
     def get_time_qualifier(cls, process_name):
         """ method returns worker/aggregator time scale (like daily or yearly)"""
-        return cls.PROCESS_CONTEXT[process_name][cls._TIME_QUALIFIER]
+        return cls.PROCESS_CONTEXT[process_name][_TIME_QUALIFIER]
 
     @classmethod
     def get_routing(cls, process_name):
         """ method returns routing; it is used to segregate traffic within the queue
         for instance: routing_hourly for hourly reports, while routing_yearly for yearly reports"""
-        return cls.PROCESS_CONTEXT[process_name][cls._MQ_ROUTING_KEY]
+        return cls.PROCESS_CONTEXT[process_name][_MQ_ROUTING_KEY]
 
     @classmethod
     def get_exchange(cls, process_name):
         """ method returns exchange for this classname.
         Exchange is a component that sits between queue and the publisher"""
-        return cls.PROCESS_CONTEXT[process_name][cls._MQ_EXCHANGE]
+        return cls.PROCESS_CONTEXT[process_name][_MQ_EXCHANGE]
 
     @classmethod
     def get_queue(cls, process_name):
         """ method returns queue that is applicable for the worker/aggregator, specified by classname"""
-        return cls.PROCESS_CONTEXT[process_name][cls._MQ_QUEUE]
+        return cls.PROCESS_CONTEXT[process_name][_MQ_QUEUE]
 
     @classmethod
     def get_target_collection(cls, process_name):
         """ method returns target collection - the one where aggregated data will be placed in """
-        return cls.PROCESS_CONTEXT[process_name][cls._TARGET_COLLECTION]
+        return cls.PROCESS_CONTEXT[process_name][_TARGET_COLLECTION]
 
     @classmethod
     def get_source_collection(cls, process_name):
         """ method returns source collection - the one where data is taken from for analysis"""
-        return cls.PROCESS_CONTEXT[process_name][cls._SOURCE_COLLECTION]
+        return cls.PROCESS_CONTEXT[process_name][_SOURCE_COLLECTION]
 
+    @classmethod
+    def get_type(cls, process_name):
+        """ method returns process type
+        Supported types are listed in process_context starting with TYPE_ prefix and are enumerated in
+        scheduler.start() method"""
+        return cls.PROCESS_CONTEXT[process_name][_TYPE]
 
 if __name__ == '__main__':
     pass

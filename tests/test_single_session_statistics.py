@@ -5,7 +5,7 @@ Created on 2011-01-28
 """
 
 import unittest
-from data_collections.single_session import SingleSessionStatistics  
+from model.single_session import SingleSessionStatistics
 
 class TestSingleSessionStatistics(unittest.TestCase):
     

@@ -8,7 +8,7 @@ Module contains logic for YES worker - one that marks any units_of_work as compl
 from bson.objectid import ObjectId
 from datetime import datetime
 
-from scheduler.units_of_work_collection import UnitsOfWorkCollection
+from scheduler.unit_of_work_entry import UnitOfWorkEntry
 from scheduler import unit_of_work_helper
 from workers.abstract_worker import AbstractWorker
 from system.performance_ticker import AggregatorPerformanceTicker
@@ -41,8 +41,8 @@ class IdentityWorker(AbstractWorker):
             # @param object_id: ObjectId of the unit_of_work from mq
             object_id = ObjectId(message.body)
             unit_of_work = unit_of_work_helper.retrieve_by_id(self.logger, object_id)
-            if unit_of_work.get_state() == UnitsOfWorkCollection.STATE_CANCELED \
-                or unit_of_work.get_state() == UnitsOfWorkCollection.STATE_PROCESSED:
+            if unit_of_work.get_state() == UnitOfWorkEntry.STATE_CANCELED \
+                or unit_of_work.get_state() == UnitOfWorkEntry.STATE_PROCESSED:
                 # garbage collector might have reposted this UOW
                 self.logger.warning('Skipping unit_of_work: id %s; state %s;' \
                                     % (str(message.body), unit_of_work.get_state()), exc_info=False)
@@ -55,14 +55,14 @@ class IdentityWorker(AbstractWorker):
 
         try:
             self.performance_ticker.start_uow(unit_of_work)
-            unit_of_work.set_state(UnitsOfWorkCollection.STATE_PROCESSED)
+            unit_of_work.set_state(UnitOfWorkEntry.STATE_PROCESSED)
             unit_of_work.set_number_of_processed_documents(0)
             unit_of_work.set_started_at(datetime.utcnow())
             unit_of_work.set_finished_at(datetime.utcnow())
             unit_of_work_helper.update(self.logger, unit_of_work)
             self.performance_ticker.finish_uow()
         except Exception as e:
-            unit_of_work.set_state(UnitsOfWorkCollection.STATE_INVALID)
+            unit_of_work.set_state(UnitOfWorkEntry.STATE_INVALID)
             unit_of_work_helper.update(self.logger, unit_of_work)
             self.performance_ticker.cancel_uow()
             self.logger.error('Safety fuse while processing unit_of_work %s in timeperiod %s : %r'\

@@ -4,9 +4,9 @@ Created on 2011-02-01
 @author: Bohdan Mushkevych
 """
 
-from data_collections.single_session import SingleSessionStatistics  
-from data_collections.site_statistics import SiteStatistics
-from data_collections.abstract_collection import AbstractCollection
+from model.single_session import SingleSessionStatistics
+from model.site_statistics import SiteStatistics
+from model.abstract_model import AbstractModel
 from settings import settings
 from workers.abstract_vertical_worker import AbstractVerticalWorker
 from system import time_helper
@@ -48,11 +48,11 @@ class SiteHourlyAggregator(AbstractVerticalWorker):
         target_obj.set_number_of_visits(target_obj.get_number_of_visits() + 1)
         target_obj.set_number_of_pageviews(target_obj.get_number_of_visits() + source_obj.get_number_of_pageviews())
         target_obj.set_total_duration(target_obj.get_total_duration() + source_obj.get_total_duration())
-        AbstractCollection._increment_family_property(source_obj.get_os(), target_obj.get_os())
-        AbstractCollection._increment_family_property(source_obj.get_browser(), target_obj.get_browsers())
-        AbstractCollection._increment_family_property(source_obj.get_screen_res(), target_obj.get_screen_res())
-        AbstractCollection._increment_family_property(source_obj.get_language(), target_obj.get_languages())
-        AbstractCollection._increment_family_property(source_obj.get_country(), target_obj.get_countries())
+        AbstractModel._increment_family_property(source_obj.get_os(), target_obj.get_os())
+        AbstractModel._increment_family_property(source_obj.get_browser(), target_obj.get_browsers())
+        AbstractModel._increment_family_property(source_obj.get_screen_res(), target_obj.get_screen_res())
+        AbstractModel._increment_family_property(source_obj.get_language(), target_obj.get_languages())
+        AbstractModel._increment_family_property(source_obj.get_country(), target_obj.get_countries())
 
 
 if __name__ == '__main__':

@@ -4,7 +4,7 @@ Created on 2011-06-02
 @author: Bohdan Mushkevych
 """
 from system.process_context import ProcessContext
-from time_table_collection import TimeTableCollection, MAX_NUMBER_OF_LOG_ENTRIES
+from time_table_entry import TimeTableEntry, MAX_NUMBER_OF_LOG_ENTRIES
 
 
 class AbstractNode(object):
@@ -109,9 +109,9 @@ class AbstractNode(object):
                 continue
 
             dep_node = dependent_on.get_node_by_process(dep_proc_name, self.timestamp)
-            if dep_node.time_record.get_state() != TimeTableCollection.STATE_PROCESSED:
+            if dep_node.time_record.get_state() != TimeTableEntry.STATE_PROCESSED:
                 dependents_are_finalized = False
-            if dep_node.time_record.get_state() == TimeTableCollection.STATE_SKIPPED:
+            if dep_node.time_record.get_state() == TimeTableEntry.STATE_SKIPPED:
                 dependents_are_skipped = True
 
         return dependents_are_finalized, dependents_are_skipped
@@ -134,9 +134,9 @@ class LinearNode(AbstractNode):
         if self.time_record is None:
             self.request_timetable_record()
 
-        if self.time_record.get_state() == TimeTableCollection.STATE_FINAL_RUN \
-            or self.time_record.get_state() == TimeTableCollection.STATE_IN_PROGRESS \
-            or self.time_record.get_state() == TimeTableCollection.STATE_EMBRYO:
+        if self.time_record.get_state() == TimeTableEntry.STATE_FINAL_RUN \
+            or self.time_record.get_state() == TimeTableEntry.STATE_IN_PROGRESS \
+            or self.time_record.get_state() == TimeTableEntry.STATE_EMBRYO:
             return True
         return False
 
@@ -161,9 +161,9 @@ class TreeNode(AbstractNode):
         children_processed = True
         for timestamp in self.children:
             child = self.children[timestamp]
-            if child.time_record.get_state() == TimeTableCollection.STATE_FINAL_RUN \
-                or child.time_record.get_state() == TimeTableCollection.STATE_IN_PROGRESS \
-                or child.time_record.get_state() == TimeTableCollection.STATE_EMBRYO:
+            if child.time_record.get_state() == TimeTableEntry.STATE_FINAL_RUN \
+                or child.time_record.get_state() == TimeTableEntry.STATE_IN_PROGRESS \
+                or child.time_record.get_state() == TimeTableEntry.STATE_EMBRYO:
                 children_processed = False
                 break
         return children_processed
@@ -181,16 +181,16 @@ class TreeNode(AbstractNode):
             child = self.children[timestamp]
             children_processed = child.validate()
 
-            if child.time_record.get_state() == TimeTableCollection.STATE_EMBRYO \
-                or child.time_record.get_state() == TimeTableCollection.STATE_IN_PROGRESS \
-                or child.time_record.get_state() == TimeTableCollection.STATE_FINAL_RUN:
+            if child.time_record.get_state() == TimeTableEntry.STATE_EMBRYO \
+                or child.time_record.get_state() == TimeTableEntry.STATE_IN_PROGRESS \
+                or child.time_record.get_state() == TimeTableEntry.STATE_FINAL_RUN:
                 children_processed = False
-            if child.time_record.get_state() != TimeTableCollection.STATE_SKIPPED:
+            if child.time_record.get_state() != TimeTableEntry.STATE_SKIPPED:
                 all_children_skipped = False
 
         if children_processed == False \
-            and (self.time_record.get_state() == TimeTableCollection.STATE_FINAL_RUN
-                or self.time_record.get_state() == TimeTableCollection.STATE_PROCESSED):
+            and (self.time_record.get_state() == TimeTableEntry.STATE_FINAL_RUN
+                or self.time_record.get_state() == TimeTableEntry.STATE_PROCESSED):
             self.request_reprocess()
 
         # ideally, we should check if our tree holds HOURLY records by running <isinstance(self.tree, FourLevelTree)>

@@ -3,7 +3,7 @@ Created on 2011-02-07
 
 @author: Bohdan Mushkevych
 """
-class UnitsOfWorkCollection(object):
+class UnitOfWorkEntry(object):
     """
     This class serves as a wrapper for the "units_of_work_collection" entry
     
@@ -89,7 +89,7 @@ class UnitsOfWorkCollection(object):
         return self.data[self.TARGET_COLLECTION]
 
     def set_state(self, value):
-        if not UnitsOfWorkCollection.is_state_valid(value):
+        if not UnitOfWorkEntry.is_state_valid(value):
             raise ValueError('unit of work is in incorrect state')
         self.data[self.STATE] = value
 

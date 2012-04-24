@@ -4,7 +4,7 @@ Created on 2011-02-21
 @author: Bohdan Mushkevych
 """
 import logging
-from data_collections.abstract_collection import AbstractCollection
+from model.abstract_model import AbstractModel
 from tests import base_fixtures
 from system.collection_context import CollectionContext, COLLECTION_SINGLE_SESSION
 
@@ -60,9 +60,9 @@ def clean_session_entries():
     for i in range(base_fixtures.TOTAL_ENTRIES):
         key = generate_session_composite_key(i, base_fixtures.TOTAL_ENTRIES)
         connection.remove({
-                AbstractCollection.DOMAIN_NAME : key[0],
-                AbstractCollection.TIMESTAMP : key[1],
-                AbstractCollection.FAMILY_USER_PROFILE + '.' + AbstractCollection.SESSION_ID : 'session_id_' + str(i)})
+                AbstractModel.DOMAIN_NAME : key[0],
+                AbstractModel.TIMESTAMP : key[1],
+                AbstractModel.FAMILY_USER_PROFILE + '.' + AbstractModel.SESSION_ID : 'session_id_' + str(i)})
 
 def generated_session_entries():
     return base_fixtures.create_session_stats(generate_session_composite_key)

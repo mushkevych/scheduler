@@ -11,10 +11,10 @@ import socket
 from bson.objectid import ObjectId
 from datetime import datetime
 from pymongo import ASCENDING
-from data_collections.abstract_collection import AbstractCollection
+from model.abstract_model import AbstractModel
 
 from settings import settings
-from scheduler.units_of_work_collection import UnitsOfWorkCollection
+from scheduler.unit_of_work_entry import UnitOfWorkEntry
 from scheduler import unit_of_work_helper
 from system.decimal_encoder import DecimalEncoder
 from system.process_context import ProcessContext
@@ -130,8 +130,8 @@ class AbstractAwareWorker(AbstractWorker):
             # @param object_id: ObjectId of the unit_of_work from mq
             object_id = ObjectId(message.body)
             unit_of_work = unit_of_work_helper.retrieve_by_id(self.logger, object_id)
-            if unit_of_work.get_state() == UnitsOfWorkCollection.STATE_CANCELED \
-                or unit_of_work.get_state() == UnitsOfWorkCollection.STATE_PROCESSED:
+            if unit_of_work.get_state() == UnitOfWorkEntry.STATE_CANCELED \
+                or unit_of_work.get_state() == UnitOfWorkEntry.STATE_PROCESSED:
                 # garbage collector might have reposted this UOW
                 self.logger.warning('Skipping unit_of_work: id %s; state %s;' \
                                     % (str(message.body), unit_of_work.get_state()), exc_info=False)
@@ -148,7 +148,7 @@ class AbstractAwareWorker(AbstractWorker):
             start_timestamp = unit_of_work.get_start_timestamp()
             end_timestamp = unit_of_work.get_end_timestamp()
 
-            unit_of_work.set_state(UnitsOfWorkCollection.STATE_IN_PROGRESS)
+            unit_of_work.set_state(UnitOfWorkEntry.STATE_IN_PROGRESS)
             unit_of_work.set_started_at(datetime.utcnow())
             unit_of_work_helper.update(self.logger, unit_of_work)
             self.performance_ticker.start_uow(unit_of_work)
@@ -164,7 +164,7 @@ class AbstractAwareWorker(AbstractWorker):
 
                 if start_timestamp is not None and end_timestamp is not None:
                     # remove all accident objects that may be in [start_id_obj : end_id_obj] range
-                    queue[AbstractCollection.TIMESTAMP] = { '$gte' : start_timestamp, '$lt' : end_timestamp }
+                    queue[AbstractModel.TIMESTAMP] = { '$gte' : start_timestamp, '$lt' : end_timestamp }
 
                 cursor = source_collection.find(queue).sort('_id', ASCENDING).limit(bulk_threshold)
                 count = cursor.count(with_limit_and_skip=True)
@@ -189,11 +189,11 @@ class AbstractAwareWorker(AbstractWorker):
             unit_of_work.set_number_of_aggregated_documents(number_of_aggregated_objects)
             unit_of_work.set_number_of_processed_documents(self.performance_ticker.posts_per_job)
             unit_of_work.set_finished_at(datetime.utcnow())
-            unit_of_work.set_state(UnitsOfWorkCollection.STATE_PROCESSED)
+            unit_of_work.set_state(UnitOfWorkEntry.STATE_PROCESSED)
             unit_of_work_helper.update(self.logger, unit_of_work)
             self.performance_ticker.finish_uow()
         except Exception as e:
-            unit_of_work.set_state(UnitsOfWorkCollection.STATE_INVALID)
+            unit_of_work.set_state(UnitOfWorkEntry.STATE_INVALID)
             unit_of_work_helper.update(self.logger, unit_of_work)
             self.performance_ticker.cancel_uow()
 

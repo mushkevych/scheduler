@@ -157,7 +157,7 @@ def start_process(options, daemonize):
     import psutil
     from settings import settings
     from supervisor import supervisor_helper as helper
-    from supervisor.box_configuration_collection import BoxConfigurationCollection
+    from supervisor.box_configuration_entry import BoxConfigurationEntry
 
     box_id = helper.get_box_id(logging)
     if options.app is not None and options.app != process_context.PROCESS_SUPERVISOR:
@@ -168,7 +168,7 @@ def start_process(options, daemonize):
             sys.exit(1)
 
         box_configuration = helper.retrieve_configuration(logging, box_id)
-        box_configuration.set_process_state(options.app, BoxConfigurationCollection.STATE_ON)
+        box_configuration.set_process_state(options.app, BoxConfigurationEntry.STATE_ON)
         helper.update_configuration(logging, box_configuration)
     else:
         # start Supervisor
@@ -195,7 +195,7 @@ def stop_process(options):
     """Stop the synergy-data daemons"""
     import logging
     from supervisor import supervisor_helper as helper
-    from supervisor.box_configuration_collection import BoxConfigurationCollection
+    from supervisor.box_configuration_entry import BoxConfigurationEntry
 
     if options.app is not None and options.app != process_context.PROCESS_SUPERVISOR:
         # mark individual process for termination
@@ -206,7 +206,7 @@ def stop_process(options):
 
         box_id = helper.get_box_id(logging)
         box_configuration = helper.retrieve_configuration(logging, box_id)
-        box_configuration.set_process_state(options.app, BoxConfigurationCollection.STATE_OFF)
+        box_configuration.set_process_state(options.app, BoxConfigurationEntry.STATE_OFF)
         helper.update_configuration(logging, box_configuration)
     else:
         # stop Supervisor

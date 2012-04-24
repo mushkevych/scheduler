@@ -10,7 +10,7 @@ import time
 
 from werkzeug.utils import cached_property, redirect
 from werkzeug.wrappers import Response
-from processing_details import ProcessingDetails
+from processing_statements import ProcessingStatements
 from system.collection_context import ReplicaSetContext
 from system.process_context import ProcessContext
 from system.performance_ticker import FootprintCalculator
@@ -22,6 +22,9 @@ except:
     import unit_of_work_helper
 
 
+MX_PAGE_TRAFFIC = 'traffic_details'
+MX_PAGE_FINANCIAL = 'financial_details'
+
 @expose('/')
 @expose('/scheduler_details/')
 def scheduler_details(request):
@@ -29,18 +32,18 @@ def scheduler_details(request):
     connections = ConnectionDetails(jinja_env.globals['mbean'])
     return render_template('scheduler_details.html', details=details, connections=connections)
 
-@expose('/traffic_details/')
+@expose('/' + MX_PAGE_TRAFFIC +'/')
 def traffic_details(request):
-    return render_template('traffic_details.html')
+    return render_template('processing_details.html')
 
-@expose('/financial_details/')
+@expose('/' + MX_PAGE_FINANCIAL + '/')
 def financial_details(request):
-    return render_template('financial_details.html')
+    return render_template('processing_details.html')
 
-@expose('/processing_details/')
-def processing_details(request):
-    details = TimeperiodProcessingDetails(jinja_env.globals['mbean'], request)
-    return render_template('processing_details.html', details=details)
+@expose('/processing_statements/')
+def processing_statements(request):
+    details = TimeperiodProcessingStatements(jinja_env.globals['mbean'], request)
+    return render_template('processing_statements.html', details=details)
 
 @expose('/request_children/')
 def request_children(request):
@@ -155,6 +158,7 @@ class TimeperiodTreeDetails(object):
                 description['next_timeperiods']['monthly'] = timetable.get_next_timetable_record(tree.process_monthly).get_timestamp()
                 description['next_timeperiods']['daily'] = timetable.get_next_timetable_record(tree.process_daily).get_timestamp()
                 description['next_timeperiods']['hourly'] = timetable.get_next_timetable_record(tree.process_hourly).get_timestamp()
+                description['type'] = ProcessContext.get_type(tree.process_yearly)
             elif type(tree).__name__ == 'ThreeLevelTree':
                 description['number_of_levels'] = 3
                 description['reprocessing_queues']['yearly'] = self._get_reprocessing_details(tree.process_yearly)
@@ -166,11 +170,13 @@ class TimeperiodTreeDetails(object):
                 description['next_timeperiods']['yearly'] = timetable.get_next_timetable_record(tree.process_yearly).get_timestamp()
                 description['next_timeperiods']['monthly'] = timetable.get_next_timetable_record(tree.process_monthly).get_timestamp()
                 description['next_timeperiods']['daily'] = timetable.get_next_timetable_record(tree.process_daily).get_timestamp()
+                description['type'] = ProcessContext.get_type(tree.process_yearly)
             elif type(tree).__name__ == 'TwoLevelTree':
                 description['number_of_levels'] = 1
                 description['reprocessing_queues']['linear'] = self._get_reprocessing_details(tree.process_name)
                 description['processes']['linear'] = tree.process_name
                 description['next_timeperiods']['daily'] = timetable.get_next_timetable_record(tree.process_name).get_timestamp()
+                description['type'] = ProcessContext.get_type(tree.process_name)
         except Exception as e:
             self.logger.error('MX Exception: ' + str(e), exc_info=True)
         finally:
@@ -179,17 +185,14 @@ class TimeperiodTreeDetails(object):
     @cached_property
     @valid_only
     def details(self):
-        timetable = self.mbean.timetable
+        """ method iterates thru all trees and visualize only those, that has "mx_page" field set
+        to current self.referrer value """
         resp = dict()
-        if 'traffic_details' in self.referrer:
-            resp['vertical_site'] = self._get_nodes_details(timetable.vertical_site)
-            resp['vertical_site']['type'] = 'vertical'
-            resp['horizontal_client'] = self._get_nodes_details(timetable.horizontal_client)
-            resp['horizontal_client']['type'] = 'horizontal'
-            resp['linear_daily_alert'] = self._get_nodes_details(timetable.linear_daily_alert)
-            resp['linear_daily_alert']['type'] = 'linear'
-        elif 'financial_details' in self.referrer:
-	    pass
+        timetable = self.mbean.timetable
+
+        for tree in timetable.trees:
+            if tree.mx_page in self.referrer:
+                resp[tree.category] = self._get_nodes_details(tree)
 
         return resp
 
@@ -251,7 +254,7 @@ class NodeDetails(object):
         return resp
 
 
-class TimeperiodProcessingDetails(object):
+class TimeperiodProcessingStatements(object):
     def __init__(self, mbean, request):
         self.mbean = mbean
         self.logger = self.mbean.logger
@@ -281,7 +284,7 @@ class TimeperiodProcessingDetails(object):
     @cached_property
     @valid_only
     def entries(self):
-        processor = ProcessingDetails(self.logger)
+        processor = ProcessingStatements(self.logger)
         timestamp = self.year + self.month + self.day + self.hour
         selection = processor.retrieve_for_timestamp(timestamp, self.state)
         sorter_keys = sorted(selection.keys())

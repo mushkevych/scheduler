@@ -6,7 +6,7 @@ Created on 2011-04-04
 
 from datetime import datetime, timedelta
 from tree_node import TreeNode, LinearNode
-from time_table_collection import TimeTableCollection
+from time_table_entry import TimeTableEntry
 from settings import settings
 from system import time_helper
 from system.time_helper import cast_to_time_qualifier
@@ -16,12 +16,19 @@ LIFE_SUPPORT_HOURS = 48      # number of hours that node is retried infinite num
 
 class AbstractTree(object):
     """Linear timeline structure, presenting array of timetable_records"""
-    def __init__(self, node_klass):
+    def __init__(self, node_klass, category=None, mx_page=None):
+        """
+        @parameter node_klass: presents descendant of the AbstractNode class, that is used to instantiate nodes of the tree
+        @optional @parameter category: is used by MX only as visual vertical name
+        @optional @parameter mx_page: is used by MX only as anchor to specific page
+        """
         self.build_timestamp = None
         self.validation_timestamp = None
         self.reprocess_callbacks = []
         self.skip_callbacks = []
         self.create_timetable_record_callbacks = []
+        self.category = category
+        self.mx_page = mx_page
         self.node_klass = node_klass
         self.root = node_klass(self, None, None, None, None)
         self.dependent_on = []
@@ -108,9 +115,9 @@ class AbstractTree(object):
                 return node
             elif self._skip_the_node(node):
                 continue
-            elif node.time_record.get_state() == TimeTableCollection.STATE_FINAL_RUN \
-                 or node.time_record.get_state() == TimeTableCollection.STATE_IN_PROGRESS \
-                 or node.time_record.get_state() == TimeTableCollection.STATE_EMBRYO:
+            elif node.time_record.get_state() == TimeTableEntry.STATE_FINAL_RUN \
+                 or node.time_record.get_state() == TimeTableEntry.STATE_IN_PROGRESS \
+                 or node.time_record.get_state() == TimeTableEntry.STATE_EMBRYO:
                 return node
 
         # special case, when all children of the parent node are not suitable for processing
@@ -162,8 +169,8 @@ class AbstractTree(object):
 
 class TwoLevelTree(AbstractTree):
     """Linear timeline structure, presenting array of timetable_records"""
-    def __init__(self, process_name):
-        super(TwoLevelTree, self).__init__(LinearNode)
+    def __init__(self, process_name, category=None, mx_page=None):
+        super(TwoLevelTree, self).__init__(LinearNode, category, mx_page)
         self.process_name = process_name
 
     # *** SPECIFIC METHODS ***
@@ -189,8 +196,8 @@ class TwoLevelTree(AbstractTree):
     def _skip_the_node(self, node):
         """Method is used during _get_next_node calculations.
         Returns True in case node shall be _skipped_"""
-        if node.time_record.get_state() == TimeTableCollection.STATE_SKIPPED \
-            or node.time_record.get_state() == TimeTableCollection.STATE_PROCESSED:
+        if node.time_record.get_state() == TimeTableEntry.STATE_SKIPPED \
+            or node.time_record.get_state() == TimeTableEntry.STATE_PROCESSED:
             return True
         return node.time_record.get_number_of_failures() > MAX_NUMBER_OF_RETRIES
 
@@ -224,8 +231,8 @@ class TwoLevelTree(AbstractTree):
 
 class ThreeLevelTree(AbstractTree):
     """Three level tree present structure, monitoring: yearly, monthly and daily time-periods"""
-    def __init__(self, process_yearly, process_monthly, process_daily):
-        super(ThreeLevelTree, self).__init__(TreeNode)
+    def __init__(self, process_yearly, process_monthly, process_daily, category=None, mx_page=None):
+        super(ThreeLevelTree, self).__init__(TreeNode, category, mx_page)
         self.process_yearly = process_yearly
         self.process_monthly = process_monthly
         self.process_daily = process_daily
@@ -302,8 +309,8 @@ class ThreeLevelTree(AbstractTree):
         """Method is used during _get_next_node calculations.
         Returns True in case node shall be _skipped_"""
         # case 1: node processing is complete
-        if node.time_record.get_state() == TimeTableCollection.STATE_SKIPPED \
-            or node.time_record.get_state() == TimeTableCollection.STATE_PROCESSED:
+        if node.time_record.get_state() == TimeTableEntry.STATE_SKIPPED \
+            or node.time_record.get_state() == TimeTableEntry.STATE_PROCESSED:
             return True
 
         # case 2: this is a daily leaf node. retry this time_period for INFINITE_RETRY_HOURS
@@ -325,7 +332,7 @@ class ThreeLevelTree(AbstractTree):
             child = node.children[key]
             if child.time_record is None or \
                         (child.time_record.get_number_of_failures() <= MAX_NUMBER_OF_RETRIES
-                        and child.time_record.get_state() != TimeTableCollection.STATE_SKIPPED):
+                        and child.time_record.get_state() != TimeTableEntry.STATE_SKIPPED):
                 all_children_spoiled = False
                 break
         return all_children_spoiled
@@ -350,8 +357,8 @@ class ThreeLevelTree(AbstractTree):
 
 class FourLevelTree(ThreeLevelTree):
     """Four level tree present structure, monitoring: yearly, monthly, daily and hourly time-periods"""
-    def __init__(self, process_yearly, process_monthly, process_daily, process_hourly):
-        super(FourLevelTree, self).__init__(process_yearly, process_monthly, process_daily)
+    def __init__(self, process_yearly, process_monthly, process_daily, process_hourly, category=None, mx_page=None):
+        super(FourLevelTree, self).__init__(process_yearly, process_monthly, process_daily, category, mx_page)
         self.process_hourly = process_hourly
 
     # *** PRIVATE METHODS ***
@@ -405,8 +412,8 @@ class FourLevelTree(ThreeLevelTree):
         """Method is used during _get_next_node calculations.
         Returns True in case node shall be _skipped_"""
         if node.process_name == self.process_hourly:
-            if node.time_record.get_state() == TimeTableCollection.STATE_SKIPPED \
-                or node.time_record.get_state() == TimeTableCollection.STATE_PROCESSED:
+            if node.time_record.get_state() == TimeTableEntry.STATE_SKIPPED \
+                or node.time_record.get_state() == TimeTableEntry.STATE_PROCESSED:
                 return True
             return node.time_record.get_number_of_failures() > MAX_NUMBER_OF_RETRIES
         else:

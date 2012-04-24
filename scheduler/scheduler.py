@@ -18,7 +18,7 @@ from system.process_context import *
 
 from hadoop_pipeline import HadoopPipeline
 from regular_pipeline import RegularPipeline
-from scheduler_configuration_collection import SchedulerConfigurationCollection
+from scheduler_configuration_entry import SchedulerConfigurationEntry
 from time_table import TimeTable
 
 
@@ -61,28 +61,28 @@ class Scheduler(SynergyProcess):
             raise LookupError('MongoDB has no scheduler configuration entries')
 
         for entry in cursor:
-            document = SchedulerConfigurationCollection(entry)
+            document = SchedulerConfigurationEntry(entry)
             interval = document.get_interval()
             parameters = [document.get_process_name()]
+            type = ProcessContext.get_type(document.get_process_name())
 
-            if document.get_type() == document.TYPE_ALERT:
+            if type == TYPE_ALERT:
                 function = self.fire_alert
-            elif document.get_type() == document.TYPE_HORIZONTAL_AGGREGATOR:
+            elif type == TYPE_HORIZONTAL_AGGREGATOR:
                 function = self.fire_worker
-            elif document.get_type() == document.TYPE_VERTICAL_AGGREGATOR:
+            elif type == TYPE_VERTICAL_AGGREGATOR:
                 function = self.fire_worker
-            elif document.get_type() == document.TYPE_GARBAGE_COLLECTOR:
+            elif type == TYPE_GARBAGE_COLLECTOR:
                 function = self.fire_garbage_collector
             else:
-                self.logger.error('Can not start scheduler for %s since it has no processing function'\
-                                    % (document.get_type()))
+                self.logger.error('Can not start scheduler for %s since it has no processing function' % type)
                 continue
 
             handler = RepeatTimer(interval, function, args=parameters)
             self.thread_handlers[document.get_process_name()] = handler
             handler.start()
             self.logger.info('Started scheduler for %s:%s, triggering every %d seconds'\
-                                % (document.get_type(), document.get_process_name(), interval))
+                                % (type, document.get_process_name(), interval))
 
         self.mx.start_mx_thread()
 
