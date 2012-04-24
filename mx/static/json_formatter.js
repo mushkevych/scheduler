@@ -30,7 +30,6 @@ function FormatJSON(oData, sIndent) {
         var iCount = 0;
         $.each(oData, function() {
             iCount++;
-            return;
         });
         if (iCount == 0) { // object is empty
             return "{}";

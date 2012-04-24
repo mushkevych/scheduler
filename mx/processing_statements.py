@@ -60,5 +60,5 @@ class ProcessingStatements(object):
 if __name__ == '__main__':
     import logging
     pd = ProcessingStatements(logging)
-    resp = pd.retrieve_for_timestamp('201110', false)
+    resp = pd.retrieve_for_timestamp('201110', False)
     print('%r' % resp)

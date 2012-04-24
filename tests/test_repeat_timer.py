@@ -5,7 +5,7 @@ Created on 2012-03-15
 """
 
 import unittest
-from datetime import datetime, timedelta
+from datetime import datetime
 import time
 from system import repeat_timer
 
