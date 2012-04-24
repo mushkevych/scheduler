@@ -8,7 +8,7 @@ import unittest
 from rest_client.restful_lib import Connection
 
 from settings import settings
-from scheduler.time_table_entry import TimeTableEntry
+from model.time_table_entry import TimeTableEntry
 from system.process_context import PROCESS_SITE_HOURLY, PROCESS_ALERT_DAILY, PROCESS_FINANCIAL_DAILY
 
 class TestSchedulerMx(unittest.TestCase):

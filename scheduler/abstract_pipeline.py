@@ -9,9 +9,9 @@ from datetime import datetime
 from logging import INFO, WARNING, ERROR
 
 from flopsy.flopsy import PublishersPool
-from time_table_entry import TimeTableEntry
-from system.collection_context import  with_reconnect
-import unit_of_work_helper
+from model import unit_of_work_helper
+from model.time_table_entry import TimeTableEntry
+from system.decorator import with_reconnect
 
 
 class AbstractPipeline(object):

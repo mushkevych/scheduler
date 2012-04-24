@@ -10,20 +10,14 @@ import time
 
 from werkzeug.utils import cached_property, redirect
 from werkzeug.wrappers import Response
+from model import unit_of_work_helper
 from processing_statements import ProcessingStatements
 from system.collection_context import ReplicaSetContext
 from system.process_context import ProcessContext
 from system.performance_ticker import FootprintCalculator
 from system import time_helper
 from utils import render_template, expose, jinja_env
-try:
-    from scheduler import unit_of_work_helper
-except:
-    import unit_of_work_helper
 
-
-MX_PAGE_TRAFFIC = 'traffic_details'
-MX_PAGE_FINANCIAL = 'financial_details'
 
 @expose('/')
 @expose('/scheduler_details/')
@@ -32,11 +26,11 @@ def scheduler_details(request):
     connections = ConnectionDetails(jinja_env.globals['mbean'])
     return render_template('scheduler_details.html', details=details, connections=connections)
 
-@expose('/' + MX_PAGE_TRAFFIC +'/')
+@expose('/traffic_details/')
 def traffic_details(request):
     return render_template('processing_details.html')
 
-@expose('/' + MX_PAGE_FINANCIAL + '/')
+@expose('/financial_details/')
 def financial_details(request):
     return render_template('processing_details.html')
 

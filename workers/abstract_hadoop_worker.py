@@ -11,10 +11,10 @@ from bson.objectid import ObjectId
 from datetime import datetime
 import psutil
 from psutil.error import TimeoutExpired
+from model import unit_of_work_helper
 
 from settings import settings
-from scheduler.unit_of_work_entry import UnitOfWorkEntry
-from scheduler import unit_of_work_helper
+from model.unit_of_work_entry import UnitOfWorkEntry
 from workers.abstract_worker import AbstractWorker
 from system.performance_ticker import AggregatorPerformanceTicker
 

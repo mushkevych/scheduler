@@ -7,9 +7,9 @@ Module contains logic for YES worker - one that marks any units_of_work as compl
 """
 from bson.objectid import ObjectId
 from datetime import datetime
+from model import unit_of_work_helper
 
-from scheduler.unit_of_work_entry import UnitOfWorkEntry
-from scheduler import unit_of_work_helper
+from model.unit_of_work_entry import UnitOfWorkEntry
 from workers.abstract_worker import AbstractWorker
 from system.performance_ticker import AggregatorPerformanceTicker
 

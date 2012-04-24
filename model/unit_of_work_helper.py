@@ -3,7 +3,7 @@ Created on 2011-04-67
 
 @author: Bohdan Mushkevych
 """
-from unit_of_work_entry import UnitOfWorkEntry
+from model.unit_of_work_entry import UnitOfWorkEntry
 from system.collection_context import COLLECTION_UNITS_OF_WORK
 from system.collection_context import CollectionContext
 

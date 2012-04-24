@@ -5,41 +5,26 @@ Created on 2011-04-47
 @author: Bohdan Mushkevych
 """
 from datetime import datetime
-import functools
 from threading import RLock
 from bson.objectid import ObjectId
+from model import unit_of_work_helper
 from model.abstract_model import AbstractModel
-from time_table_entry import TimeTableEntry
+from model.time_table_entry import TimeTableEntry
+from system.decorator import thread_safe
 from tree import TwoLevelTree, ThreeLevelTree, FourLevelTree
 from system import process_context
 from system.process_context import ProcessContext
 from system.collection_context import CollectionContext
 from system.collection_context import COLLECTION_TIMETABLE_DAILY, COLLECTION_TIMETABLE_HOURLY, \
                                       COLLECTION_TIMETABLE_MONTHLY, COLLECTION_TIMETABLE_YEARLY
-import unit_of_work_helper
 
-def thread_safe(method):
-    """ wraps function with lock acquire/release cycle """
 
-    @functools.wraps(method)
-    def _locker(self, *args, **kwargs):
-        try:
-            self.lock.acquire()
-            return method(self, *args, **kwargs)
-        finally:
-            self.lock.release()
-    return _locker
-
+# make sure MX_PAGE_TRAFFIC refers to mx.views.py page
+MX_PAGE_TRAFFIC = 'traffic_details'
 
 class TimeTable:
 
     def __init__(self, logger):
-        try:
-            from mx.views import MX_PAGE_TRAFFIC
-        except:
-            from views import MX_PAGE_TRAFFIC
-
-
         self.lock = RLock()
         self.logger = logger
         self.reprocess = dict()

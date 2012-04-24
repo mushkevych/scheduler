@@ -7,12 +7,12 @@ Created on 2011-02-25
 import inspect
 import logging
 import random
+from model import unit_of_work_helper
 
-from scheduler.unit_of_work_entry import UnitOfWorkEntry
+from model.unit_of_work_entry import UnitOfWorkEntry
 from model.single_session import SingleSessionStatistics
 from system.process_context import ProcessContext
 from system.collection_context import CollectionContext, COLLECTION_SINGLE_SESSION
-from scheduler import unit_of_work_helper
 
 TOTAL_ENTRIES = 101
 

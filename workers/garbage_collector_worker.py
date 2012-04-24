@@ -5,22 +5,17 @@ Module re-launches invalid units_of_work
 @author: Bohdan Mushkevych
 """
 
-import psutil
 from threading import Lock
 from pymongo import ASCENDING
 
-from datetime import datetime, timedelta, time
-from model.abstract_model import AbstractModel
+from datetime import datetime, timedelta
 from flopsy.flopsy import PublishersPool
+from model import unit_of_work_helper
+from system.decorator import thread_safe
 from workers.abstract_worker import AbstractWorker
-from scheduler.unit_of_work_entry import UnitOfWorkEntry
-from scheduler.time_table import thread_safe
-from system.collection_context import CollectionContext, COLLECTION_SINGLE_SESSION
+from model.unit_of_work_entry import UnitOfWorkEntry
+from system.collection_context import CollectionContext
 from system.collection_context import COLLECTION_UNITS_OF_WORK
-from system.repeat_timer import RepeatTimer
-from system import time_helper
-from scheduler import unit_of_work_helper
-from settings import settings
 
 
 LIFE_SUPPORT_HOURS = 48 # number of hours from UOW creation time to keep UOW re-posting to MQ

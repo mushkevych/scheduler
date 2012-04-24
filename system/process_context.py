@@ -11,7 +11,7 @@ from settings import settings
 TYPE_ALERT = 'type_alert'
 TYPE_HORIZONTAL_AGGREGATOR = 'type_horizontal'
 TYPE_VERTICAL_AGGREGATOR = 'type_vertical'
-TYPE_GARBAGE_COLLECTOR = 'type_garbage'
+TYPE_GARBAGE_COLLECTOR = 'type_gc'
 
 PROCESS_SCHEDULER = 'Scheduler'
 PROCESS_SUPERVISOR = 'Supervisor'
@@ -70,18 +70,18 @@ def _create_context_entry(process_name,
     if queue is None:
         queue = _QUEUE_PREFIX + token
     if routing is None:
-        routing = _ROUTING_PREFIX + token + '_' + time_qualifier
+        routing = _ROUTING_PREFIX + token + time_qualifier
     if pid_file is None:
-        pid_file = token + '_' + time_qualifier + '.pid'
+        pid_file = token + time_qualifier + '.pid'
     if log_file is None:
-        log_file = token + '_' + time_qualifier + '.log'
+        log_file = token + time_qualifier + '.log'
 
     return {
         _NAME: process_name,
         _PID_FILENAME: settings['pid_directory'] + pid_file,
         _CLASSNAME: classname,
         _LOG_FILENAME: settings['log_directory'] + log_file,
-        _LOG_TAG: token + '_' + time_qualifier,
+        _LOG_TAG: token + time_qualifier,
         _SOURCE_COLLECTION: source_collection,
         _TARGET_COLLECTION: target_collection,
         _MQ_QUEUE: queue,
@@ -105,15 +105,14 @@ class ProcessContext:
     # mq_exchange
     # mq_routing_key
     # time_qualifier
-    # mx_page
     # type
     # }
 
     QUEUE_RAW_DATA = 'queue_raw_data'
     ROUTING_IRRELEVANT = 'routing_irrelevant'
 
-    QUALIFIER_REAL_TIME = 'real_time'
-    QUALIFIER_BY_SCHEDULE = 'by_schedule'
+    QUALIFIER_REAL_TIME = '_real_time'
+    QUALIFIER_BY_SCHEDULE = '_by_schedule'
     QUALIFIER_HOURLY = '_hourly'
     QUALIFIER_DAILY = '_daily'
     QUALIFIER_MONTHLY = '_monthly'
@@ -164,10 +163,10 @@ class ProcessContext:
         PROCESS_GC: _create_context_entry(
             process_name=PROCESS_GC,
             classname='workers.garbage_collector_worker.GarbageCollectorWorker',
-            token=_TOKEN_SITE,
+            token=_TOKEN_GC,
             time_qualifier=QUALIFIER_BY_SCHEDULE,
             exchange=EXCHANGE_UTILS,
-            type=TYPE_VERTICAL_AGGREGATOR,
+            type=TYPE_GARBAGE_COLLECTOR,
             source_collection='units_of_work_collection',
             target_collection='units_of_work_collection'),
 

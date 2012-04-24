@@ -10,11 +10,11 @@ from datetime import datetime
 from logging import ERROR, WARNING, INFO
 
 from abstract_pipeline import AbstractPipeline
-from unit_of_work_entry import UnitOfWorkEntry
-from time_table_entry import TimeTableEntry
-from system.collection_context import  with_reconnect
+from model import unit_of_work_helper
+from model.unit_of_work_entry import UnitOfWorkEntry
+from model.time_table_entry import TimeTableEntry
 from system import time_helper
-import unit_of_work_helper
+from system.decorator import with_reconnect
 
 
 class HadoopPipeline(AbstractPipeline):

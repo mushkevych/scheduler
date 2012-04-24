@@ -9,15 +9,16 @@ from pymongo.errors import DuplicateKeyError
 from pymongo.objectid import ObjectId
 from datetime import datetime
 from logging import ERROR, WARNING, INFO
+from model import unit_of_work_helper
 
 from model.abstract_model import AbstractModel
 from abstract_pipeline import AbstractPipeline
-from unit_of_work_entry import UnitOfWorkEntry
-from time_table_entry import TimeTableEntry
+from model.unit_of_work_entry import UnitOfWorkEntry
+from model.time_table_entry import TimeTableEntry
+from system.decorator import with_reconnect
 from system.process_context import ProcessContext
-from system.collection_context import CollectionContext, with_reconnect
+from system.collection_context import CollectionContext
 from system import time_helper
-import unit_of_work_helper
 
 
 class RegularPipeline(AbstractPipeline):

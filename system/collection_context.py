@@ -4,9 +4,7 @@ Created on 2011-04-23
 @author: Bohdan Mushkevych
 @author: Aaron Westendorf
 """
-import functools
 import time
-from pymongo.errors import AutoReconnect
 from settings import settings
 from pymongo.connection import Connection as MongoConnection, _str_to_node
 from pymongo.master_slave_connection import MasterSlaveConnection
@@ -23,29 +21,6 @@ COLLECTION_TIMETABLE_YEARLY = 'timetable_yearly_collection'
 
 REPLICA_SET_SSC = 'replica_set_sss'
 REPLICA_SET_SYSTEM = 'replica_set_system'
-
-def with_reconnect(func):
-    """
-    Handle when AutoReconnect is raised from pymongo. This is the standard error
-    raised for everything from "host disconnected" to "couldn't connect to host"
-    and more.
-
-    The sleep handles the edge case when the state of a replica set changes, and
-    the cursor raises AutoReconnect because the master may have changed. It can
-    take some time for the replica set to stop raising this exception, and the
-    small sleep and iteration count gives us a couple of seconds before we fail
-    completely.
-    """
-
-    @functools.wraps(func)
-    def _reconnector(*args, **kwargs):
-        for _ in xrange(0, 20):
-            try:
-                return func(*args, **kwargs)
-            except AutoReconnect:
-                time.sleep(0.250)
-        raise
-    return _reconnector
 
 
 class ClusterConnection(MasterSlaveConnection):

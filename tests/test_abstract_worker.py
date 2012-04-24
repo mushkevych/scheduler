@@ -5,10 +5,10 @@ Created on 2011-06-01
 """
 
 import unittest
+from model import unit_of_work_helper
 from tests import base_fixtures
 from tests.base_fixtures import TestMessage
 from tests.base_fixtures import TestConsumer
-from scheduler import unit_of_work_helper
 
 # pylint: disable=E1002
 def get_test_aggregator(baseclass, process_name):

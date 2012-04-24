@@ -8,17 +8,17 @@ from datetime import datetime
 from threading import Lock
 from amqplib.client_0_8 import AMQPException
 
-from mx.mx import MX
 from flopsy.flopsy import PublishersPool
+from system.decorator import with_reconnect
 from system.synergy_process import SynergyProcess
-from system.collection_context import CollectionContext, with_reconnect
+from system.collection_context import CollectionContext
 from system.collection_context import COLLECTION_SCHEDULER_CONFIGURATION
 from system.repeat_timer import RepeatTimer
 from system.process_context import *
 
 from hadoop_pipeline import HadoopPipeline
 from regular_pipeline import RegularPipeline
-from scheduler_configuration_entry import SchedulerConfigurationEntry
+from model.scheduler_configuration_entry import SchedulerConfigurationEntry
 from time_table import TimeTable
 
 
@@ -34,7 +34,6 @@ class Scheduler(SynergyProcess):
         self.timetable = TimeTable(self.logger)
         self.regular_pipeline = RegularPipeline(self, self.timetable)
         self.hadoop_pipeline = HadoopPipeline(self, self.timetable)
-        self.mx = MX(self)
         self.logger.info('Started %s' % self.process_name)
 
 
@@ -84,6 +83,14 @@ class Scheduler(SynergyProcess):
             self.logger.info('Started scheduler for %s:%s, triggering every %d seconds'\
                                 % (type, document.get_process_name(), interval))
 
+        # as Scheduler is now initialized and running - we can safely start its MX
+        self.start_mx()
+
+
+    def start_mx(self):
+        """ method's only purpose: import MX module (which has back-reference import to scheduler) and start it """
+        from mx.mx import MX
+        self.mx = MX(self)
         self.mx.start_mx_thread()
 
 

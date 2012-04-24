@@ -6,8 +6,8 @@ Created on 2011-02-25
 
 import unittest
 from flopsy.flopsy import PublishersPool
-from scheduler import unit_of_work_helper
-from scheduler.unit_of_work_entry import UnitOfWorkEntry
+from model import unit_of_work_helper
+from model.unit_of_work_entry import UnitOfWorkEntry
 from system.process_context import PROCESS_SITE_DAILY
 from tests.base_fixtures import TestMessage
 from workers.site_daily_aggregator import SiteDailyAggregator

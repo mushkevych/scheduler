@@ -4,7 +4,7 @@ Created on 2011-06-02
 @author: Bohdan Mushkevych
 """
 from system.process_context import ProcessContext
-from time_table_entry import TimeTableEntry, MAX_NUMBER_OF_LOG_ENTRIES
+from model.time_table_entry import TimeTableEntry, MAX_NUMBER_OF_LOG_ENTRIES
 
 
 class AbstractNode(object):

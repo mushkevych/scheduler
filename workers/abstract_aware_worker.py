@@ -11,11 +11,11 @@ import socket
 from bson.objectid import ObjectId
 from datetime import datetime
 from pymongo import ASCENDING
+from model import unit_of_work_helper
 from model.abstract_model import AbstractModel
 
 from settings import settings
-from scheduler.unit_of_work_entry import UnitOfWorkEntry
-from scheduler import unit_of_work_helper
+from model.unit_of_work_entry import UnitOfWorkEntry
 from system.decimal_encoder import DecimalEncoder
 from system.process_context import ProcessContext
 from system.collection_context import CollectionContext

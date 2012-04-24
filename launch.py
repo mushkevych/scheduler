@@ -157,7 +157,7 @@ def start_process(options, daemonize):
     import psutil
     from settings import settings
     from supervisor import supervisor_helper as helper
-    from supervisor.box_configuration_entry import BoxConfigurationEntry
+    from model.box_configuration_entry import BoxConfigurationEntry
 
     box_id = helper.get_box_id(logging)
     if options.app is not None and options.app != process_context.PROCESS_SUPERVISOR:
@@ -195,7 +195,7 @@ def stop_process(options):
     """Stop the synergy-data daemons"""
     import logging
     from supervisor import supervisor_helper as helper
-    from supervisor.box_configuration_entry import BoxConfigurationEntry
+    from model.box_configuration_entry import BoxConfigurationEntry
 
     if options.app is not None and options.app != process_context.PROCESS_SUPERVISOR:
         # mark individual process for termination

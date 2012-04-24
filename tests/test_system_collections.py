@@ -6,10 +6,10 @@ Created on 2011-07-05
 
 import unittest
 from base_fixtures import compare_dictionaries
-from supervisor.box_configuration_entry import BoxConfigurationEntry
-from scheduler.scheduler_configuration_entry import SchedulerConfigurationEntry
-from scheduler.time_table_entry import TimeTableEntry
-from scheduler.unit_of_work_entry import UnitOfWorkEntry
+from model.box_configuration_entry import BoxConfigurationEntry
+from model.scheduler_configuration_entry import SchedulerConfigurationEntry
+from model.time_table_entry import TimeTableEntry
+from model.unit_of_work_entry import UnitOfWorkEntry
 
 class TestSystemCollections(unittest.TestCase):
     

@@ -11,7 +11,7 @@ from psutil import TimeoutExpired
 
 import supervisor_helper as helper
 from launch import get_python, PROJECT_ROOT, PROCESS_STARTER
-from box_configuration_entry import BoxConfigurationEntry
+from model.box_configuration_entry import BoxConfigurationEntry
 from system.process_context import ProcessContext
 from system.repeat_timer import RepeatTimer
 from system.synergy_process import SynergyProcess

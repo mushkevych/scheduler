@@ -6,7 +6,7 @@ Created on 2011-04-04
 
 from datetime import datetime, timedelta
 from tree_node import TreeNode, LinearNode
-from time_table_entry import TimeTableEntry
+from model.time_table_entry import TimeTableEntry
 from settings import settings
 from system import time_helper
 from system.time_helper import cast_to_time_qualifier

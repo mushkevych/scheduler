@@ -3,7 +3,7 @@ Created on 2011-06-15
 
 @author: Bohdan Mushkevych
 """
-from box_configuration_entry import BoxConfigurationEntry
+from model.box_configuration_entry import BoxConfigurationEntry
 from settings import settings
 from system.collection_context import CollectionContext, COLLECTION_BOX_CONFIGURATION
 

@@ -5,15 +5,10 @@ Created on 2011-10-21
 """
 from threading import RLock
 from model.abstract_model import AbstractModel
+from model.time_table_entry import TimeTableEntry
 from system.collection_context import CollectionContext, COLLECTION_TIMETABLE_YEARLY, \
     COLLECTION_TIMETABLE_MONTHLY, COLLECTION_TIMETABLE_DAILY, COLLECTION_TIMETABLE_HOURLY
-
-try:
-    from scheduler.time_table import thread_safe
-    from scheduler.time_table_entry import TimeTableEntry
-except:
-    from time_table import thread_safe
-    from time_table_entry import TimeTableEntry
+from system.decorator import thread_safe
 
 
 class ProcessingStatements(object):
