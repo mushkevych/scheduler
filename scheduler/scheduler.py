@@ -63,6 +63,7 @@ class Scheduler(SynergyProcess):
             document = SchedulerConfigurationEntry(entry)
             interval = document.get_interval()
             parameters = [document.get_process_name()]
+            is_active = document.get_process_state() == SchedulerConfigurationEntry.STATE_ON
             type = ProcessContext.get_type(document.get_process_name())
 
             if type == TYPE_ALERT:
@@ -79,9 +80,14 @@ class Scheduler(SynergyProcess):
 
             handler = RepeatTimer(interval, function, args=parameters)
             self.thread_handlers[document.get_process_name()] = handler
-            handler.start()
-            self.logger.info('Started scheduler for %s:%s, triggering every %d seconds'\
-                                % (type, document.get_process_name(), interval))
+
+            if is_active:
+                handler.start()
+                self.logger.info('Started scheduler for %s:%s, triggering every %d seconds'\
+                % (type, document.get_process_name(), interval))
+            else:
+                self.logger.info('Handler for %s:%s registered in Scheduler. Idle until activated.'\
+                % (type, document.get_process_name()))
 
         # as Scheduler is now initialized and running - we can safely start its MX
         self.start_mx()
