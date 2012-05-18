@@ -62,9 +62,9 @@ class Scheduler(SynergyProcess):
         for entry in cursor:
             document = SchedulerConfigurationEntry(entry)
             interval = document.get_interval()
-            parameters = [document.get_process_name()]
             is_active = document.get_process_state() == SchedulerConfigurationEntry.STATE_ON
             type = ProcessContext.get_type(document.get_process_name())
+            parameters = [document.get_process_name(), document]
 
             if type == TYPE_ALERT:
                 function = self.fire_alert

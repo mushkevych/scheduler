@@ -7,10 +7,12 @@ from datetime import datetime, timedelta
 import functools
 import json
 import time
+from system.repeat_timer import RepeatTimer
 
 from werkzeug.utils import cached_property, redirect
 from werkzeug.wrappers import Response
-from model import unit_of_work_helper
+from model import unit_of_work_helper, scheduler_configuration_helper
+from model.scheduler_configuration_entry import SchedulerConfigurationEntry
 from processing_statements import ProcessingStatements
 from system.collection_context import ReplicaSetContext
 from system.process_context import ProcessContext
@@ -91,6 +93,12 @@ def action_change_interval(request):
 def action_trigger_now(request):
     handler = ActionHandler(jinja_env.globals['mbean'], request)
     handler.action_trigger_now()
+    return redirect('/')
+
+@expose('/action_change_process_state/')
+def action_change_process_state(request):
+    handler = ActionHandler(jinja_env.globals['mbean'], request)
+    handler.action_change_process_state()
     return redirect('/')
 
 @expose('/object_viewer/')
@@ -376,6 +384,11 @@ class ActionHandler(object):
             new_interval = int(new_interval)
             thread_handler = self.mbean.thread_handlers[self.process_name]
             thread_handler.change_interval(new_interval)
+
+            document = thread_handler.args[1] # of type SchedulerConfigurationEntry
+            document.set_interval(new_interval)
+            scheduler_configuration_helper.update(self.logger, document)
+
             resp['status'] = 'changed interval for %r to %r' % (self.process_name, new_interval)
         
         return resp
@@ -386,10 +399,46 @@ class ActionHandler(object):
         thread_handler = self.mbean.thread_handlers[self.process_name]
         thread_handler.trigger()
 
-        next_run = timedelta(seconds=thread_handler.interval_current) + thread_handler.activation_dt
-        next_run = next_run - datetime.utcnow()
+        if thread_handler.is_alive():
+            next_run = timedelta(seconds=thread_handler.interval_current) + thread_handler.activation_dt
+            next_run = next_run - datetime.utcnow()
+        else:
+            next_run = 'NA'
 
         resp['status'] = 'Triggered process %r; Next run in to %r' % (self.process_name, str(next_run).split('.')[0])
+        return resp
+
+    @valid_only
+    def action_change_process_state(self):
+        resp = dict()
+        thread_handler = self.mbean.thread_handlers[self.process_name]
+        document = thread_handler.args[1] # of type SchedulerConfigurationEntry
+
+        state = self.request.args.get('state')
+        if state is None:
+            # request was performed with undefined "state", what means that checkbox was unselected
+            # thus - turning off the process
+            thread_handler.cancel()
+            document.set_process_state(SchedulerConfigurationEntry.STATE_OFF)
+            message = 'Stopped RepeatTimer for %s' % document.get_process_name()
+        elif not thread_handler.is_alive():
+            document.set_process_state(SchedulerConfigurationEntry.STATE_ON)
+
+            thread_handler = RepeatTimer(thread_handler.interval_current,
+                thread_handler.callable,
+                thread_handler.args,
+                thread_handler.kwargs)
+            thread_handler.start()
+
+            self.mbean.thread_handlers[self.process_name] = thread_handler
+            message = 'Started RepeatTimer for %s, triggering every %d seconds' \
+                        % (document.get_process_name(), document.get_interval())
+        else:
+            message = 'RepeatTimer for %s is already active. Ignoring request.' % document.get_process_name()
+
+        scheduler_configuration_helper.update(self.logger, document)
+        self.logger.info(message)
+        resp['status'] = message
         return resp
 
 # Scheduler Details views
@@ -410,10 +459,15 @@ class SchedulerDetails(object):
                 row.append(process_name)
                 row.append(thread_handler.is_alive())
                 row.append(int(thread_handler.interval_new))
-                row.append(thread_handler.activation_dt.strftime('%Y-%m-%d %H:%M:%S %Z'))
-                next_run = timedelta(seconds=thread_handler.interval_current) + thread_handler.activation_dt
-                next_run = next_run - datetime.utcnow()
-                row.append(str(next_run).split('.')[0])
+
+                if not thread_handler.is_alive():
+                    row.append('NA') # Last Triggered
+                    row.append('NA') # Next Run In
+                else:
+                    row.append(thread_handler.activation_dt.strftime('%Y-%m-%d %H:%M:%S %Z'))
+                    next_run = timedelta(seconds=thread_handler.interval_current) + thread_handler.activation_dt
+                    next_run = next_run - datetime.utcnow()
+                    row.append(str(next_run).split('.')[0])
 
                 timetable = self.mbean.timetable
                 if timetable.get_tree(process_name) is not None:
@@ -422,6 +476,9 @@ class SchedulerDetails(object):
                 else:
                     row.append('NA')
 
+                # indicate whether process is in active or passive state
+                # parameters are set in Scheduler.run() method
+                row.append(thread_handler.args[1].get_process_state() == SchedulerConfigurationEntry.STATE_ON)
                 list_of_rows.append(row)
         except Exception as e:
             self.logger.error('MX Exception %s' % str(e), exc_info=True)

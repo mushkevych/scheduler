@@ -3,6 +3,7 @@
 <table style="width: 90%" class="one-column-emphasis">
     <thead>
     <tr class="oce-first">
+        <th scope="col">On/Off</th>
         <th scope="col">Trigger Name</th>
         <th scope="col">Is Alive</th>
         <th scope="col">Repeat Interval</th>
@@ -16,6 +17,14 @@
 
     {%- for row in details.entries %}
     <tr>
+        <td>
+            <form method="GET" action="/action_change_process_state/">
+                <input type="hidden" name="process_name" value="{{ row[0] }}" />
+                <input type="hidden" name="timestamp" value="{{ row[5] }}" />
+                <input type="checkbox" name="state" value="state_on" {% if row[6] %} checked {% endif %} />
+                <input type="submit" value="Apply" />
+            </form>
+        </td>
         <td>{{ row[0] }}</td>
         <td>{{ row[1] }}</td>
         <td>
