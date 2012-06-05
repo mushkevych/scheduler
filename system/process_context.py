@@ -68,7 +68,7 @@ def _create_context_entry(process_name,
                           log_file=None):
     """ forms process context entry """
     if queue is None:
-        queue = _QUEUE_PREFIX + token
+        queue = _QUEUE_PREFIX + token + time_qualifier
     if routing is None:
         routing = _ROUTING_PREFIX + token + time_qualifier
     if pid_file is None:
