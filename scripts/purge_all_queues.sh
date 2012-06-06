@@ -5,12 +5,7 @@
 # script clears all the queues in the Rabbit MQ
 
 # List of queues to purge
-QUEUES="queue_alert_daily
-queue_raw_data
-queue_vertical_site_hourly
-queue_vertical_site_monthly
-queue_vertical_site_yearly
-queue_vertical_site_daily"
+QUEUES="all"
 
 cd ..
 for queue in $QUEUES
