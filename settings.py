@@ -19,6 +19,7 @@ settings = dict(
     mq_delivery_mode=2,
     mq_no_ack=False,
 
+    ds_type='mongo_db',
     mongo_db_name='synergy_hadoop',
     hadoop_command='/usr/bin/hadoop',
     hadoop_jar='/home/bmushkevych/git/synergy-hadoop/dist/synergy-hadoop-02.jar',

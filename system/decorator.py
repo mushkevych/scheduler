@@ -43,3 +43,20 @@ def with_reconnect(func):
                 time.sleep(0.250)
         raise
     return _reconnector
+
+
+def singleton(cls):
+    """
+    turns class to singleton
+    @param cls: class itself
+    @return: function that either creates new instance of the class or returns existing one
+    """
+
+    # the only way to implement nonlocal closure variables in Python 2.X
+    instances = {}
+
+    def get_instance():
+        if cls not in instances:
+            instances[cls] = cls()
+        return instances[cls]
+    return get_instance

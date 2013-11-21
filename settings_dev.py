@@ -11,10 +11,8 @@ settings = dict(
     mq_vhost='/',
     mq_port=5672,
 
-    rs_ssc_host_list=['127.0.0.1:27017'],
-    rs_system_host_list=['127.0.0.1:27017'],
-
-    export_mongo_db_login = 'bmushkevych',
+    rs_ssc_host_list=['mongodb://127.0.0.1:27017'],
+    rs_system_host_list=['mongodb://127.0.0.1:27017'],
 
     construction_hosts=['https://***REST_INTERFACE_URL***'],         # production access
     construction_login='***REST_INTERFACE_LOGIN***',                           # production access ONLY
