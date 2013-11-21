@@ -357,7 +357,7 @@ class ActionHandler(object):
             if uow_id is None:
                 resp = {'response' : 'no related unit_of_work'}
             else:
-                resp = unit_of_work_helper.retrieve_by_id(self.logger, uow_id).get_document()
+                resp = unit_of_work_helper.retrieve_by_id(self.logger, uow_id).document
                 for key in resp:
                     resp[key] = str(resp[key])
 
@@ -386,7 +386,7 @@ class ActionHandler(object):
             thread_handler.change_interval(new_interval)
 
             document = thread_handler.args[1] # of type SchedulerConfigurationEntry
-            document.set_interval(new_interval)
+            document.interval = new_interval
             scheduler_configuration_helper.update(self.logger, document)
 
             resp['status'] = 'changed interval for %r to %r' % (self.process_name, new_interval)
@@ -412,27 +412,27 @@ class ActionHandler(object):
     def action_change_process_state(self):
         resp = dict()
         thread_handler = self.mbean.thread_handlers[self.process_name]
-        document = thread_handler.args[1] # of type SchedulerConfigurationEntry
+        document = thread_handler.args[1]  # of type SchedulerConfigurationEntry
 
         state = self.request.args.get('state')
         if state is None:
             # request was performed with undefined "state", what means that checkbox was unselected
             # thus - turning off the process
             thread_handler.cancel()
-            document.set_process_state(SchedulerConfigurationEntry.STATE_OFF)
+            document.process_state = SchedulerConfigurationEntry.STATE_OFF
             message = 'Stopped RepeatTimer for %s' % document.get_process_name()
         elif not thread_handler.is_alive():
-            document.set_process_state(SchedulerConfigurationEntry.STATE_ON)
+            document.process_state = SchedulerConfigurationEntry.STATE_ON
 
             thread_handler = RepeatTimer(thread_handler.interval_current,
-                thread_handler.callable,
-                thread_handler.args,
-                thread_handler.kwargs)
+                                         thread_handler.callable,
+                                         thread_handler.args,
+                                         thread_handler.kwargs)
             thread_handler.start()
 
             self.mbean.thread_handlers[self.process_name] = thread_handler
             message = 'Started RepeatTimer for %s, triggering every %d seconds' \
-                        % (document.get_process_name(), document.get_interval())
+                        % (document.get_process_name(), document.interval)
         else:
             message = 'RepeatTimer for %s is already active. Ignoring request.' % document.get_process_name()
 
@@ -478,7 +478,7 @@ class SchedulerDetails(object):
 
                 # indicate whether process is in active or passive state
                 # parameters are set in Scheduler.run() method
-                row.append(thread_handler.args[1].get_process_state() == SchedulerConfigurationEntry.STATE_ON)
+                row.append(thread_handler.args[1].process_state == SchedulerConfigurationEntry.STATE_ON)
                 list_of_rows.append(row)
         except Exception as e:
             self.logger.error('MX Exception %s' % str(e), exc_info=True)

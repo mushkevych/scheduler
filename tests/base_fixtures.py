@@ -133,6 +133,7 @@ def create_unit_of_work(process_name, first_object_id, last_object_id):
     uow_id = unit_of_work_helper.insert(logger, unit_of_work)
     return uow_id
 
+
 def create_session_stats(composite_key_function, seed='RANDOM_SEED_OBJECT'):
     time_array = ['20010303102210', '20010303102212', '20010303102215', '20010303102250']
     connection = CollectionContext.get_collection(logging, COLLECTION_SINGLE_SESSION)
@@ -141,7 +142,7 @@ def create_session_stats(composite_key_function, seed='RANDOM_SEED_OBJECT'):
     for i in range(TOTAL_ENTRIES):
         key = composite_key_function(i, TOTAL_ENTRIES)
         session = SingleSessionStatistics()
-        session.composite_key(key[0], key[1])
+        session.key = (key[0], key[1])
         session.set_session_id('session_id_' + str(i))
         session.set_ip('192.168.0.2')
         if i % 3 == 0:
@@ -169,7 +170,7 @@ def create_session_stats(composite_key_function, seed='RANDOM_SEED_OBJECT'):
             session.set_number_of_entries(index + 1)
             session.set_entry_timestamp(index, time_array[index])
 
-        sess_id = connection.insert(session.get_document(), safe=True)
+        sess_id = connection.insert(session.document, safe=True)
         object_ids.append(sess_id)
         
     return object_ids 
@@ -219,7 +220,7 @@ def create_site_stats(collection, composite_key_function, statistics_klass, seed
         items['us'] = 9
         site_stat.set_countries(items)
 
-        stat_id = connection.insert(site_stat.get_document(), safe=True)
+        stat_id = connection.insert(site_stat.document, safe=True)
         object_ids.append(stat_id)
                 
     return object_ids 

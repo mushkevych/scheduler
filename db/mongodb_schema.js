@@ -11,7 +11,7 @@ db.single_session_collection.ensureIndex( { timestamp : 1 });
 
 // *** SYSTEM ***
 db.createCollection('scheduler_configuration_collection');
-db.scheduler_configuration_collection.ensureIndex( { entry_name : 1}, {unique: true} );
+db.scheduler_configuration_collection.ensureIndex( { process_name : 1}, {unique: true} );
 
 db.createCollection('units_of_work_collection');
 db.units_of_work_collection.ensureIndex( { process_name : 1, timestamp : 1, start_obj_id : 1, end_obj_id : 1}, {unique: true} );

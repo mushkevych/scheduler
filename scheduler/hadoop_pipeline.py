@@ -130,7 +130,7 @@ class HadoopPipeline(AbstractPipeline):
                                                            TimeTableEntry.STATE_FINAL_RUN)
             else:
                 msg = 'Time-record %s has timestamp from future %s vs current time %s'\
-                        % (time_record.get_document()['_id'], start_time, actual_time)
+                        % (time_record.document['_id'], start_time, actual_time)
                 self._log_message(ERROR, process_name, time_record, msg)
 
         except DuplicateKeyError as e:
@@ -159,14 +159,14 @@ class HadoopPipeline(AbstractPipeline):
             timetable_tree = self.timetable.get_tree(process_name)
             timetable_tree.build_tree()
             msg = 'Transferred time-record %s in timeperiod %s to STATE_PROCESSED for %s'\
-            % (time_record.get_document()['_id'], time_record.get_timestamp(), process_name)
+            % (time_record.document['_id'], time_record.get_timestamp(), process_name)
         elif uow_obj.get_state() == UnitOfWorkEntry.STATE_CANCELED:
             self.timetable.update_timetable_record(process_name,
                                                    time_record,
                                                    uow_obj,
                                                    TimeTableEntry.STATE_SKIPPED)
             msg = 'Transferred time-record %s in timeperiod %s to STATE_SKIPPED for %s'\
-            % (time_record.get_document()['_id'], time_record.get_timestamp(), process_name)
+            % (time_record.document['_id'], time_record.get_timestamp(), process_name)
         else:
             msg = 'Suppressed creating uow for %s in timeperiod %s; time_record is in %s; uow is in %s'\
             % (process_name, time_record.get_timestamp(), time_record.get_state(), uow_obj.get_state())
@@ -176,13 +176,13 @@ class HadoopPipeline(AbstractPipeline):
     def _process_state_skipped(self, process_name, time_record):
         """method takes care of processing timetable records in STATE_SKIPPED state"""
         msg = 'Skipping time-record %s in timeperiod %s. Apparently its most current timeperiod as of %s UTC'\
-        % (time_record.get_document()['_id'], time_record.get_timestamp(), str(datetime.utcnow()))
+        % (time_record.document['_id'], time_record.get_timestamp(), str(datetime.utcnow()))
         self._log_message(WARNING, process_name, time_record, msg)
 
 
     def _process_state_processed(self, process_name, time_record):
         """method takes care of processing timetable records in STATE_PROCESSED state"""
         msg = 'Unexpected state %s of time-record %s' % (time_record.get_state(),
-                                                         time_record.get_document()['_id'])
+                                                         time_record.document['_id'])
         self._log_message(ERROR, process_name, time_record, msg)
 

@@ -1,31 +1,36 @@
-from abc import abstractmethod, ABCMeta
-
 __author__ = 'Bohdan Mushkevych'
+
 
 from pymongo import MongoClient
 from settings import settings
+from abc import abstractmethod, ABCMeta
 
 
-def factory():
-    # the only way to implement nonlocal closure variables in Python 2.X
-    instances = {}
+if 'ds_factory' not in globals():
+    # this block defines global variable ds_factory
 
-    def get_instance(logger):
-        ds_type = settings['ds_type']
+    def factory():
+        # the only way to implement nonlocal closure variables in Python 2.X
+        instances = {}
 
-        if ds_type not in instances:
-            if type == "mongo_db":
-                instances[ds_type] = MongoDbManager(logger)
-            elif type == "hbase":
-                instances[ds_type] = HBaseManager(logger)
-            else:
-                raise ValueError('Unsupported Data Source type')
-        return instances[ds_type]
+        def get_instance(logger):
+            ds_type = settings['ds_type']
 
-    return get_instance
+            if ds_type not in instances:
+                if type == "mongo_db":
+                    instances[ds_type] = MongoDbManager(logger)
+                elif type == "hbase":
+                    instances[ds_type] = HBaseManager(logger)
+                else:
+                    raise ValueError('Unsupported Data Source type')
+            return instances[ds_type]
+        return get_instance
+
+    global ds_factory
+    ds_factory = factory()
 
 
-class BaseManager(object):
+class BaseManager:
     """
     AbstractManager holds definition of the Data Source and an interface to read, write, delete and update (CRUD)
     models withing the DataSource

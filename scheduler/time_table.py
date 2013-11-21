@@ -106,13 +106,13 @@ class TimeTable:
     def _save_time_record(self, process_name, time_record):
         collection = self._get_timetable_collection(process_name)
         w_number = CollectionContext.get_w_number(self.logger, COLLECTION_TIMETABLE_YEARLY)
-        return collection.save(time_record.get_document(), safe=True, w=w_number)
+        return collection.save(time_record.document, safe=True, w=w_number)
 
     @thread_safe
     def update_timetable_record(self, process_name, time_record, uow, new_state):
         """ method updates time_record with new unit_of_work and new state"""
         time_record.set_state(new_state)
-        time_record.set_related_unit_of_work(uow.get_document()['_id'])
+        time_record.set_related_unit_of_work(uow.document['_id'])
         time_record.set_start_id(uow.get_start_id())
         time_record.set_end_id(uow.get_end_id())
         self._save_time_record(process_name, time_record)
@@ -120,7 +120,7 @@ class TimeTable:
         tree = self.get_tree(process_name)
         tree.update_node_by_process(process_name, time_record)
         self.logger.info('Updated time-record %s in timeperiod %s for %s as %s' \
-                         % (time_record.get_document()['_id'], time_record.get_timestamp(), process_name, new_state))
+                         % (time_record.document['_id'], time_record.get_timestamp(), process_name, new_state))
 
     # *** Regular code ***
     @thread_safe
@@ -143,12 +143,12 @@ class TimeTable:
             uow_obj.set_created_at(datetime.utcnow())
             unit_of_work_helper.update(self.logger, uow_obj)
             msg = 'Transferred time-record %s in timeperiod %s to %s; Transferred unit_of_work to %s'\
-                    % (tree_node.time_record.get_document()['_id'], tree_node.time_record.get_timestamp(),
+                    % (tree_node.time_record.document['_id'], tree_node.time_record.get_timestamp(),
                        tree_node.time_record.get_state(), uow_obj.get_state())
         else:
             tree_node.time_record.set_state(TimeTableEntry.STATE_EMBRYO)
             msg = 'Transferred time-record %s in timeperiod %s to %s;'\
-                    % (tree_node.time_record.get_document()['_id'], tree_node.time_record.get_timestamp(),
+                    % (tree_node.time_record.document['_id'], tree_node.time_record.get_timestamp(),
                        tree_node.time_record.get_state())
 
         tree_node.time_record.set_number_of_failures(0)
@@ -170,11 +170,11 @@ class TimeTable:
             uow_obj.set_state(uow_obj.STATE_CANCELED)
             unit_of_work_helper.update(self.logger, uow_obj)
             msg = 'Transferred time-record %s in timeperiod %s to %s; Transferred unit_of_work to %s'\
-                    % (tree_node.time_record.get_document()['_id'], tree_node.time_record.get_timestamp(),
+                    % (tree_node.time_record.document['_id'], tree_node.time_record.get_timestamp(),
                        tree_node.time_record.get_state(), uow_obj.get_state())
         else:
             msg = 'Transferred time-record %s in timeperiod %s to %s;'\
-                    % (tree_node.time_record.get_document()['_id'], tree_node.time_record.get_timestamp(),
+                    % (tree_node.time_record.document['_id'], tree_node.time_record.get_timestamp(),
                        tree_node.time_record.get_state())
 
         self._save_time_record(process_name, tree_node.time_record)

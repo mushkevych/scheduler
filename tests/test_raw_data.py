@@ -26,7 +26,7 @@ class TestRawData(unittest.TestCase):
     def test_session_id(self):
         value = 'value_1234567890'
         self.obj.set_session_id(value)
-        temp = self.obj.get_session_id()
+        temp = self.obj.session_id
         assert temp == value
 
     def test_os(self):
@@ -45,7 +45,7 @@ class TestRawData(unittest.TestCase):
     def test_ip(self):
         value = '100.100.200.200'
         self.obj.set_ip(value)
-        temp = self.obj.get_ip()
+        temp = self.obj.ip
         assert temp == value
 
     def test_screen_res(self):

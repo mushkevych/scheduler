@@ -50,9 +50,9 @@ class SingleSessionWorker(AbstractWorker):
                 session = SingleSessionStatistics()
 
                 # input data constraints - both session_id and user_id must be present in MQ message
-                session.composite_key(raw_data.get_key()[0], time_helper.raw_to_session(raw_data.get_key()[1]))
+                session.key = (raw_data.get_key()[0], time_helper.raw_to_session(raw_data.get_key()[1]))
                 session.set_session_id(raw_data.get_session_id())
-                session.set_ip(raw_data.get_ip())
+                session.set_ip(raw_data.ip)
                 session.set_total_duration(0)
 
                 session = self.update_session_body(raw_data, session)
@@ -76,7 +76,7 @@ class SingleSessionWorker(AbstractWorker):
                 isSafe = True
                 self._last_safe_save_time = time.time()
 
-            single_session_collection.save(session.get_document(), safe=isSafe)
+            single_session_collection.save(session.document, safe=isSafe)
             self.consumer.acknowledge(message.delivery_tag)
         except AutoReconnect as e:
             self.logger.error('MongoDB connection error: %r\nRe-queueing message & exiting the worker' % e)

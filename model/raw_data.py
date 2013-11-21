@@ -1,76 +1,120 @@
-"""
-Created on 2011-01-24
+__author__ = 'Bohdan Mushkevych'
 
-@author: Bohdan Mushkevych
-"""
+from model.base_model import *
 
-from model.abstract_model import AbstractModel
 
-class RawData(AbstractModel):
-    SESSION = 'session'
-    USER = 'user'
-    DOMAIN_NAME = 'domain'
-    PAGE_VIEW = 'page_view'
-    SCREEN_X = 'screen_x'
-    SCREEN_Y = 'screen_y'
+CREATION_TIME = 'creation_time'
+SESSION_ID = 'session_id'
+IP = 'ip'
+OS = 'os'
+BROWSER = 'browser'
+USER_ID = 'user_id'
+SCREEN_RESOLUTION_X = 'screen_resolution_x'
+SCREEN_RESOLUTION_Y = 'screen_resolution_y'
+LANGUAGE = 'language'
+COUNTRY = 'country'
+PAGE = 'page'
 
-    def __init__(self, document = None):
+SESSION = 'session'
+USER = 'user'
+DOMAIN_NAME = 'domain'
+PAGE_VIEW = 'page_view'
+SCREEN_X = 'screen_x'
+SCREEN_Y = 'screen_y'
+
+TOTAL_DURATION = 'total_duration'
+NUMBER_OF_UNIQUE_VISITORS = 'number_of_uniques'
+NUMBER_OF_VISITS = 'number_of_visits'
+NUMBER_OF_ENTRIES = 'number_of_entries'
+NUMBER_OF_PAGEVIEWS = 'number_of_pageviews'
+
+# FAMILIES
+FAMILY_STAT = 'stat'
+FAMILY_SITES = 'site'
+FAMILY_USER_PROFILE = 'user_profile'
+FAMILY_SITE_PROFILE = 'site_profile'
+FAMILY_BROWSING_HISTORY = 'browsing_history'
+FAMILY_ENTRIES = 'entries'
+FAMILY_VISITS = 'visit'
+FAMILY_PAGEVIEWS = 'pageview'
+FAMILY_DURATION = 'duration'
+FAMILY_SESSIONS = 'session'
+FAMILY_COUNTRIES = 'country'
+FAMILY_OS = 'os'
+FAMILY_BROWSERS = 'browser'
+FAMILY_SCREEN_RESOLUTIONS = 'screen_resolution'
+FAMILY_LANGUAGES = 'language'
+
+
+class RawData(BaseModel):
+
+    def __init__(self, document=None):
         super(RawData, self).__init__(document)
-    
-    def composite_key(self, domain_name, timestamp):
-        self.data[self.DOMAIN_NAME] = domain_name
-        self.data[self.TIMESTAMP] = timestamp
 
-    def get_key(self):
-        return self.data[self.DOMAIN_NAME], self.data[self.TIMESTAMP]
+    @property
+    def session_id(self):
+        return self.data[SESSION]
 
-    def set_session_id(self, value):
-        self.data[self.SESSION] = value
-        
-    def get_session_id(self):
-        return self.data[self.SESSION]
+    @session_id.setter
+    def session_id(self, value):
+        self.data[SESSION] = value
 
-    def set_ip(self, value):
-        self.data[self.IP] = value
+    @property
+    def ip(self):
+        return self.data[IP]
 
-    def get_ip(self):
-        return self.data[self.IP]
+    @ip.setter
+    def ip(self, value):
+        self.data[IP] = value
 
-    def set_screen_res(self, value_x, value_y):
-        self.data[self.SCREEN_X] = value_x
-        self.data[self.SCREEN_Y] = value_y
-        
-    def get_screen_res(self):
-        return self.data.get(self.SCREEN_X), self.data.get(self.SCREEN_Y)
+    @property
+    def screen_res(self):
+        return self.data.get(SCREEN_X), self.data.get(SCREEN_Y)
 
-    def set_os(self, value):
-        self.data[self.OS] = value
+    @screen_res.setter
+    def screen_res(self, value):
+        self.data[SCREEN_X] = value[0]
+        self.data[SCREEN_Y] = value[1]
 
-    def get_os(self):
-        return self.data.get(self.OS)
+    @property
+    def os(self):
+        return self.data.get(OS)
 
-    def set_browser(self, value):
-        self.data[self.BROWSER] = value
+    @os.setter
+    def os(self, value):
+        self.data[OS] = value
 
-    def get_browser(self):
-        return self.data.get(self.BROWSER)
+    @property
+    def browser(self):
+        return self.data.get(BROWSER)
 
-    def set_language(self, value):
-        self.data[self.LANGUAGE] = value
-        
-    def get_language(self):
-        return self.data.get(self.LANGUAGE)
+    @browser.setter
+    def browser(self, value):
+        self.data[BROWSER] = value
 
-    def set_country(self, value):
-        self.data[self.COUNTRY] = value
+    @property
+    def language(self):
+        return self.data.get(LANGUAGE)
 
-    def get_country(self):
-        return self.data.get(self.COUNTRY)
+    @language.setter
+    def language(self, value):
+        self.data[LANGUAGE] = value
 
-    def set_page_view(self):
-        self.data[self.PAGE_VIEW] = 1
+    @property
+    def country(self):
+        return self.data.get(COUNTRY)
 
+    @country.setter
+    def country(self, value):
+        self.data[COUNTRY] = value
+
+    @property
     def is_page_view(self):
-        if self.PAGE_VIEW in self.data:
+        if PAGE_VIEW in self.data:
             return True
         return False
+
+    @is_page_view.setter
+    def is_page_view(self, value):
+        self.data[PAGE_VIEW] = 1
+

@@ -148,7 +148,7 @@ class AggregatorPerformanceTicker(WorkerPerformanceTicker):
         self.state_triggered_at = time.time()
 
     def finish_uow(self):
-        _id = self.uow_obj.get_document()['_id']
+        _id = self.uow_obj.document['_id']
         self.logger.info('Success: unit_of_work %s in timeperiod %s; processed %d entries in %d seconds' \
                     % (_id,
                        self.uow_obj.get_timestamp(),

@@ -1,46 +1,53 @@
-"""
-Created on 2011-02-08
+__author__ = 'Bohdan Mushkevych'
 
-@author: Bohdan Mushkevych
-"""
+from model.base_model import BaseModel
 
-class SchedulerConfigurationEntry(object):
+PROCESS_NAME = 'process_name'
+STATE = 'state'
+INTERVAL = 'interval_seconds'
+
+STATE_ON = 'state_on'
+STATE_OFF = 'state_off'
+
+
+class SchedulerConfigurationEntry(BaseModel):
     """
     Class presents single configuration entry for the scheduler. 
     """
-    
-    PROCESS_NAME = 'process_name'
-    STATE = 'state'
-    INTERVAL = 'interval_seconds'
 
-    STATE_ON = 'state_on'
-    STATE_OFF = 'state_off'
+    def __init__(self, document=None):
+        super(SchedulerConfigurationEntry, self).__init__(document)
 
-    def __init__(self, document = None):
-        if document is None:
-            self.data = dict()
-        else:
-            self.data = document
-    
-    def set_interval(self, value):
-        self.data[self.INTERVAL] = value
+    @property
+    def key(self):
+        return self.data[PROCESS_NAME]
 
-    def get_interval(self):
-        return self.data[self.INTERVAL]
+    @key.setter
+    def key(self, value):
+        self.data[PROCESS_NAME] = value
 
-    def set_process_name(self, value):
-        self.data[self.PROCESS_NAME] = value
+    @property
+    def process_name(self):
+        return self.data[PROCESS_NAME]
 
-    def get_process_name(self):
-        return self.data[self.PROCESS_NAME]
+    @process_name.setter
+    def process_name(self, value):
+        self.data[PROCESS_NAME] = value
 
-    def set_process_state(self, value):
-        if value not in [self.STATE_ON, self.STATE_OFF]:
+    @property
+    def interval(self):
+        return self.data[INTERVAL]
+
+    @interval.setter
+    def interval(self, value):
+        self.data[INTERVAL] = value
+
+    @property
+    def process_state(self):
+        return self.data[STATE]
+
+    @process_state.setter
+    def process_state(self, value):
+        if value not in [STATE_ON, STATE_OFF]:
             raise ValueError('incorrect state for process %r' % value)
-        self.data[self.STATE] = value
-
-    def get_process_state(self):
-        return self.data[self.STATE]
-
-    def get_document(self):
-        return self.data
+        self.data[STATE] = value

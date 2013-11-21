@@ -93,7 +93,7 @@ class EventStreamGenerator(SynergyProcess):
                     document.set_country('eu')
                     
                 document.set_page_view()
-                self.publisher.publish(document.get_document())
+                self.publisher.publish(document.document)
                 self.performance_ticker.increment()
                 time.sleep(SLEEP_TIME)
             except (AMQPException, IOError) as e:

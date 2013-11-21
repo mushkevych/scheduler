@@ -135,7 +135,7 @@ class AbstractPipeline(object):
 
             else:
                 msg = 'Unknown state %s of time-record %s' % (time_record.get_state(),
-                                                              time_record.get_document()['_id'])
+                                                              time_record.document['_id'])
                 self._log_message(ERROR, process_name, time_record, msg)
 
         except LookupError as e:

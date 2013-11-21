@@ -36,13 +36,13 @@ def update(logger, unit_of_work):
     """ method finds unit_of_work record and change its status"""
     w_number = CollectionContext.get_w_number(logger, COLLECTION_UNITS_OF_WORK)
     collection = CollectionContext.get_collection(logger, COLLECTION_UNITS_OF_WORK)
-    collection.save(unit_of_work.get_document(), safe=True, w=w_number)
+    collection.save(unit_of_work.document, safe=True, w=w_number)
 
 def insert(logger, unit_of_work):
     """ inserts unit of work to MongoDB. @throws DuplicateKeyError is such record already exists """
     w_number = CollectionContext.get_w_number(logger, COLLECTION_UNITS_OF_WORK)
     collection = CollectionContext.get_collection(logger, COLLECTION_UNITS_OF_WORK)
-    uow_id = collection.insert(unit_of_work.get_document(), safe=True, w=w_number)
+    uow_id = collection.insert(unit_of_work.document, safe=True, w=w_number)
     return uow_id
 
 def remove(logger, uow_id):

@@ -1,59 +1,60 @@
-"""
-Created on 2011-06-14
+__author__ = 'Bohdan Mushkevych'
 
-@author: Bohdan Mushkevych
-"""
 
-from model.abstract_model import AbstractModel
+from model.base_model import *
 
-class BoxConfigurationEntry(AbstractModel):
+BOX_ID = 'box_id'
+PROCESS_LIST = 'process_list'
+PID = 'pid'
+STATE = 'state'
+STATE_ON = 'state_on'
+STATE_OFF = 'state_off'
+
+
+class BoxConfigurationEntry(BaseModel):
     """
     Class presents list of processes that are supposed to run on particular box.
     """
-    BOX_ID = 'box_id'
-    PROCESS_LIST = 'process_list'
 
-    PID = 'pid'
-    STATE = 'state'
-    
-    STATE_ON = 'state_on'
-    STATE_OFF = 'state_off'
-
-    def __init__(self, document = None):
+    def __init__(self, document=None):
         super(BoxConfigurationEntry, self).__init__(document)
 
-    def set_box_id(self, value):
-        self.data[self.BOX_ID] = value
+    @property
+    def box_id(self):
+        return self.data[BOX_ID]
 
-    def get_box_id(self):
-        return self.data[self.BOX_ID]
+    @box_id.setter
+    def box_id(self, value):
+        self.data[BOX_ID] = value
 
+    @property
+    def process_list(self):
+        return self._get_column_family(PROCESS_LIST)
+
+    @process_list.setter
     def set_process_list(self, value):
-        self.data[self.PROCESS_LIST] = value
-
-    def get_process_list(self):
-        return self._get_column_family(self.PROCESS_LIST)
+        self.data[PROCESS_LIST] = value
 
     def _get_process_entry(self, process_name):
-        family = self.get_process_list()
+        family = self.process_list
         if process_name not in family:
             family[process_name] = dict()
         return family[process_name]
 
     def set_process_state(self, process_name, value):
-        if value not in [self.STATE_ON, self.STATE_OFF]:
+        if value not in [STATE_ON, STATE_OFF]:
             raise ValueError('incorrect state for process %r' % value)
         process = self._get_process_entry(process_name)
-        process[self.STATE] = value
+        process[STATE] = value
 
     def get_process_state(self, process_name):
         process = self._get_process_entry(process_name)
-        return process.get(self.STATE)
+        return process.get(STATE)
 
     def set_process_pid(self, process_name, value):
         process = self._get_process_entry(process_name)
-        process[self.PID] = value
+        process[PID] = value
 
     def get_process_pid(self, process_name):
         process = self._get_process_entry(process_name)
-        return process.get(self.PID)
+        return process.get(PID)

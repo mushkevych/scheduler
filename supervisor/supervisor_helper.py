@@ -20,7 +20,7 @@ def update_configuration(logger, box_configuration):
     """ method updates box configuration in the MongoDB"""
     w_number = CollectionContext.get_w_number(logger, COLLECTION_BOX_CONFIGURATION)
     collection = CollectionContext.get_collection(logger, COLLECTION_BOX_CONFIGURATION)
-    collection.save(box_configuration.get_document(), safe=True, w=w_number)
+    collection.save(box_configuration.document, safe=True, w=w_number)
 
 
 def get_box_id(logger):

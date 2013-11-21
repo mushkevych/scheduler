@@ -3,43 +3,9 @@ __author__ = 'Bohdan Mushkevych'
 import ds_manager
 
 # FIELDS
-DOMAIN_NAME = 'domain_name'      #'key'
-TIMESTAMP = 'timestamp'      #'t'
-TIMEPERIOD = 'timeperiod'      #'t'
-CREATION_TIME = 'creation_time'              #'created_at'
-SESSION_ID = 'session_id'    #'ses_id'
-IP = 'ip'             #'ip'
-OS = 'os'             #'os'
-BROWSER = 'browser'        #'brws'
-USER_ID = 'user_id'        #'usr'
-SCREEN_RESOLUTION_X = 'screen_resolution_x'   #'res_x'
-SCREEN_RESOLUTION_Y = 'screen_resolution_y'   #'res_y'
-LANGUAGE = 'language'       #'lng'
-COUNTRY = 'country'        #'cntr'
-PAGE = 'page'           #'pg'
-
-TOTAL_DURATION = 'total_duration'                 #'t_dur'
-NUMBER_OF_UNIQUE_VISITORS = 'number_of_uniques'   #'n_unq'
-NUMBER_OF_VISITS = 'number_of_visits'             #'n_vst'
-NUMBER_OF_ENTRIES = 'number_of_entries'           #'n_ent'
-NUMBER_OF_PAGEVIEWS = 'number_of_pageviews'       #'n_pv'
-
-# FAMILIES
-FAMILY_STAT = 'stat'
-FAMILY_SITES = 'site'
-FAMILY_USER_PROFILE = 'user_profile'              #'usr_prfl'
-FAMILY_SITE_PROFILE = 'site_profile'              #'s_prfl'
-FAMILY_BROWSING_HISTORY = 'browsing_history'      #'brws_hst'
-FAMILY_ENTRIES = 'entries'                        #'ents'
-FAMILY_VISITS = 'visit'                           #'vsts'
-FAMILY_PAGEVIEWS = 'pageview'
-FAMILY_DURATION = 'duration'
-FAMILY_SESSIONS = 'session'                       #'sess'
-FAMILY_COUNTRIES = 'country'                      #'cntrs'
-FAMILY_OS = 'os'                                  #'oss'
-FAMILY_BROWSERS = 'browser'                       #'brws'
-FAMILY_SCREEN_RESOLUTIONS = 'screen_resolution'   #'scr_ress'
-FAMILY_LANGUAGES = 'language'                     #'lngs'
+KEY = 'domain_name'
+TIMESTAMP = 'timestamp'
+TIMEPERIOD = 'timeperiod'
 
 
 class BaseModel(object):
@@ -49,29 +15,32 @@ class BaseModel(object):
 
     def __init__(self, table, document=None):
         self.table = table
-        self.ds_manager = ds_manager.factory().
+        self.ds_manager = ds_manager.ds_factory()
         if document is None:
             self.data = dict()
         else:
             self.data = document
 
-    def get_key(self):
-        return self.data[DOMAIN_NAME], self.data[TIMESTAMP]
+    @property
+    def key(self):
+        return self.data[KEY], self.data[TIMEPERIOD]
 
-    def composite_key(self, key, timestamp):
+    @key.setter
+    def key(self, value):
         """
-        @param key: id of the template
-        @param timestamp: as string in Synergy Data format
+        @param value: tuple - value[0] id of the template
+        value[1] - timestamp as string in Synergy Data format
         """
-        self.data[DOMAIN_NAME] = key
-        self.data[TIMESTAMP] = timestamp
+        self.data[KEY] = value[0]
+        self.data[TIMEPERIOD] = value[1]
 
     def _get_column_family(self, family_name):
         if family_name not in self.data:
             self.data[family_name] = dict()
         return self.data[family_name]
 
-    def get_document(self):
+    @property
+    def document(self):
         return self.data
 
     @classmethod

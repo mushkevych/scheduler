@@ -72,7 +72,7 @@ class AbstractWorkerUnitTest(unittest.TestCase):
         if self.generate_output:
             i = 0
             for key in self.aggregator.aggregated_objects:
-                print self.output_prefix + '_%02d = %s' % (i, self.aggregator.aggregated_objects[key].get_document())
+                print self.output_prefix + '_%02d = %s' % (i, self.aggregator.aggregated_objects[key].document)
                 i += 1
         
         if self.compare_results:
@@ -80,7 +80,7 @@ class AbstractWorkerUnitTest(unittest.TestCase):
             if len(expected_values) == 0:
                 assert 1 == 0
             for obj in expected_values:
-                document = self.aggregator.aggregated_objects[self._get_key(obj)].get_document()
+                document = self.aggregator.aggregated_objects[self._get_key(obj)].document
                 base_fixtures.compare_dictionaries(document, obj)
 
 

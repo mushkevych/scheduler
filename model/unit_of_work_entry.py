@@ -1,8 +1,6 @@
-"""
-Created on 2011-02-07
+__author__ = 'Bohdan Mushkevych'
 
-@author: Bohdan Mushkevych
-"""
+
 class UnitOfWorkEntry(object):
     """
     This class serves as a wrapper for the "units_of_work_collection" entry

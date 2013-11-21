@@ -61,10 +61,10 @@ class Scheduler(SynergyProcess):
 
         for entry in cursor:
             document = SchedulerConfigurationEntry(entry)
-            interval = document.get_interval()
-            is_active = document.get_process_state() == SchedulerConfigurationEntry.STATE_ON
-            type = ProcessContext.get_type(document.get_process_name())
-            parameters = [document.get_process_name(), document]
+            interval = document.interval
+            is_active = document.process_state == SchedulerConfigurationEntry.STATE_ON
+            type = ProcessContext.get_type(document.process_name)
+            parameters = [document.process_name, document]
 
             if type == TYPE_ALERT:
                 function = self.fire_alert
@@ -79,15 +79,15 @@ class Scheduler(SynergyProcess):
                 continue
 
             handler = RepeatTimer(interval, function, args=parameters)
-            self.thread_handlers[document.get_process_name()] = handler
+            self.thread_handlers[document.process_name] = handler
 
             if is_active:
                 handler.start()
                 self.logger.info('Started scheduler for %s:%s, triggering every %d seconds'\
-                % (type, document.get_process_name(), interval))
+                % (type, document.process_name, interval))
             else:
                 self.logger.info('Handler for %s:%s registered in Scheduler. Idle until activated.'\
-                % (type, document.get_process_name()))
+                % (type, document.process_name))
 
         # as Scheduler is now initialized and running - we can safely start its MX
         self.start_mx()

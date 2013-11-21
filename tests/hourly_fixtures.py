@@ -55,6 +55,7 @@ def generate_session_composite_key(index, total):
     else:
         return 'domain_name_' + str(index // 3), h2
 
+
 def clean_session_entries():
     connection = CollectionContext.get_collection(logging, COLLECTION_SINGLE_SESSION)
     for i in range(base_fixtures.TOTAL_ENTRIES):
@@ -63,6 +64,7 @@ def clean_session_entries():
                 AbstractModel.DOMAIN_NAME : key[0],
                 AbstractModel.TIMESTAMP : key[1],
                 AbstractModel.FAMILY_USER_PROFILE + '.' + AbstractModel.SESSION_ID : 'session_id_' + str(i)})
+
 
 def generated_session_entries():
     return base_fixtures.create_session_stats(generate_session_composite_key)
