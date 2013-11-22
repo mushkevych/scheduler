@@ -1,23 +1,20 @@
-"""
-Created on 2012-05-18
+__author__ = 'Bohdan Mushkevych'
 
-@author: Bohdan Mushkevych
-"""
-from model.scheduler_configuration_entry import SchedulerConfigurationEntry
+from model.scheduler_configuration import SchedulerConfiguration
 from system.collection_context import COLLECTION_SCHEDULER_CONFIGURATION
 from system.collection_context import CollectionContext
 
 
 def retrieve(logger, process_name):
     """ method finds scheduler_configuration record and returns it to the caller"""
-    query = { 'process_name' : process_name }
+    query = {'process_name': process_name}
     collection = CollectionContext.get_collection(logger, COLLECTION_SCHEDULER_CONFIGURATION)
     db_entry = collection.find_one(query)
     if db_entry is None:
         msg = 'SchedulerConfigurationEntry for process=%s was not found' % str(process_name)
         logger.warning(msg)
         raise LookupError(msg)
-    return SchedulerConfigurationEntry(db_entry)
+    return SchedulerConfiguration(db_entry)
 
 
 def update(logger, scheduler_configuration):

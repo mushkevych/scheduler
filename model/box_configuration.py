@@ -11,13 +11,13 @@ STATE_ON = 'state_on'
 STATE_OFF = 'state_off'
 
 
-class BoxConfigurationEntry(BaseModel):
+class BoxConfiguration(BaseModel):
     """
     Class presents list of processes that are supposed to run on particular box.
     """
 
     def __init__(self, document=None):
-        super(BoxConfigurationEntry, self).__init__(document)
+        super(BoxConfiguration, self).__init__(document)
 
     @property
     def box_id(self):
@@ -32,7 +32,7 @@ class BoxConfigurationEntry(BaseModel):
         return self._get_column_family(PROCESS_LIST)
 
     @process_list.setter
-    def set_process_list(self, value):
+    def process_list(self, value):
         self.data[PROCESS_LIST] = value
 
     def _get_process_entry(self, process_name):

@@ -1,12 +1,10 @@
-"""
-Created on 2011-06-20
+__author__ = 'Bohdan Mushkevych'
 
-@author: Bohdan Mushkevych
-"""
 import setproctitle
 
 from settings import settings
 from system.process_context import ProcessContext
+
 
 class SynergyProcess(object):
     """ Fundamental class for all processes. Registers logger and renames process to SynergyYYY"""
@@ -19,7 +17,6 @@ class SynergyProcess(object):
         # process-related activities
         setproctitle.setproctitle(settings['process_prefix'] + self.process_name)
         ProcessContext.create_pid_file(self.process_name)
-
 
     def __del__(self):
         """ removes PID file """

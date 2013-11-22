@@ -1,19 +1,16 @@
-"""
-Created on 2011-02-10
-
-@author: Bohdan Mushkevych
-"""
+__author__ = 'Bohdan Mushkevych'
 
 import sys
 import logging
 import logging.handlers
 from settings import settings
 
+
 class Logger(object):
     """
     Logger presents standard API to log messages and store them for future analysis
     """
-    
+
     def __init__(self, file_name, context):
         """
         Constructor: dictionary of loggers available for this Python process
@@ -62,7 +59,7 @@ class Logger(object):
 
 if __name__ == '__main__':
     from system.process_context import ProcessContext
-    
+
     process_name = 'TestAggregator'
     logger = ProcessContext.get_logger(process_name)
     logger.info('test_message')

@@ -1,12 +1,13 @@
-"""
-Created on 2011-02-10
+__author__ = 'Bohdan Mushkevych'
 
-@author: Bohdan Mushkevych
-"""
-import time, os, psutil
+import time
+import os
+
+import psutil
 
 from system.repeat_timer import RepeatTimer
 from settings import settings
+
 
 class FootprintCalculator(object):
     def __init__(self):
@@ -46,11 +47,11 @@ class WorkerPerformanceTicker(object):
         self.mark_24_hours = time.time()
         self.mark_footprint = time.time()
         self.footprint = FootprintCalculator()
-        
+
     def start(self):
         self.timer = RepeatTimer(self.interval, self._run_tick_thread)
         self.timer.start()
-    
+
     def cancel(self):
         self.timer.cancel()
 
@@ -61,10 +62,10 @@ class WorkerPerformanceTicker(object):
 
     def _run_tick_thread(self):
         self._print_footprint()
-        self.logger.info('Processed: %d in last %d seconds; %d in last 24 hours;' \
-                    % (self.posts_per_tick,
-                       self.interval,
-                       self.posts_per_24_hours))
+        self.logger.info('Processed: %d in last %d seconds; %d in last 24 hours;'
+                         % (self.posts_per_tick,
+                            self.interval,
+                            self.posts_per_24_hours))
 
         self.posts_per_tick = 0
         if time.time() - self.mark_24_hours > self.SECONDS_IN_24_HOURS:
@@ -77,7 +78,6 @@ class WorkerPerformanceTicker(object):
 
 
 class SessionPerformanceTicker(WorkerPerformanceTicker):
-
     def __init__(self, logger):
         super(SessionPerformanceTicker, self).__init__(logger)
         self.updates_per_24_hours = 0
@@ -85,12 +85,12 @@ class SessionPerformanceTicker(WorkerPerformanceTicker):
 
     def _run_tick_thread(self):
         self._print_footprint()
-        self.logger.info('Inserts/Updates. In last {0:d} seconds: {1:d}/{2:d}. In last 24 hours: {3:d}/{4:d};' \
-                        .format(self.interval,
-                                self.posts_per_tick,
-                                self.updates_per_tick,
-                                self.posts_per_24_hours,
-                                self.updates_per_24_hours))
+        self.logger.info('Inserts/Updates. In last {0:d} seconds: {1:d}/{2:d}. In last 24 hours: {3:d}/{4:d};'.format(
+            self.interval,
+            self.posts_per_tick,
+            self.updates_per_tick,
+            self.posts_per_24_hours,
+            self.updates_per_24_hours))
 
         self.posts_per_tick = 0
         self.updates_per_tick = 0
@@ -117,17 +117,17 @@ class AggregatorPerformanceTicker(WorkerPerformanceTicker):
         self.posts_per_job = 0
         self.uow_obj = None
         self.state_triggered_at = time.time()
-        
+
     def _run_tick_thread(self):
         self._print_footprint()
         if self.state == self.STATE_PROCESSING or self.posts_per_tick > 0 or self.posts_per_24_hours > 0:
             msg = 'State: %s for %d sec; processed: %d in %d sec. %d in this uow; %d in 24 hours;' \
-                    % (self.state,
-                       time.time() - self.state_triggered_at,
-                       self.posts_per_tick,
-                       self.interval,
-                       self.posts_per_job,
-                       self.posts_per_24_hours,)
+                  % (self.state,
+                     time.time() - self.state_triggered_at,
+                     self.posts_per_tick,
+                     self.interval,
+                     self.posts_per_job,
+                     self.posts_per_24_hours,)
         else:
             msg = 'State: %s for %d sec;' % (self.state, time.time() - self.state_triggered_at)
         self.logger.info(msg)
@@ -149,11 +149,11 @@ class AggregatorPerformanceTicker(WorkerPerformanceTicker):
 
     def finish_uow(self):
         _id = self.uow_obj.document['_id']
-        self.logger.info('Success: unit_of_work %s in timeperiod %s; processed %d entries in %d seconds' \
-                    % (_id,
-                       self.uow_obj.get_timestamp(),
-                       self.posts_per_job,
-                       time.time() - self.state_triggered_at))
+        self.logger.info('Success: unit_of_work %s in timeperiod %s; processed %d entries in %d seconds'
+                         % (_id,
+                            self.uow_obj.timeperiod,
+                            self.posts_per_job,
+                            time.time() - self.state_triggered_at))
         self.cancel_uow()
 
     def cancel_uow(self):

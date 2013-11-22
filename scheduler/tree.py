@@ -1,21 +1,20 @@
-"""
-Created on 2011-04-04
+__author__ = 'Bohdan Mushkevych'
 
-@author: Bohdan Mushkevych
-"""
 
 from datetime import datetime, timedelta
 from tree_node import TreeNode, LinearNode
-from model.time_table_entry import TimeTableEntry
 from settings import settings
+from model import time_table
 from system import time_helper
 from system.time_helper import cast_to_time_qualifier
 
 MAX_NUMBER_OF_RETRIES = 3    # number of times a node is re-run before it is considered STATE_SKIPPED
 LIFE_SUPPORT_HOURS = 48      # number of hours that node is retried infinite number of times
 
+
 class AbstractTree(object):
     """Linear timeline structure, presenting array of timetable_records"""
+
     def __init__(self, node_klass, category=None, mx_page=None):
         """
         @parameter node_klass: presents descendant of the AbstractNode class, that is used to instantiate nodes of the tree
@@ -115,9 +114,9 @@ class AbstractTree(object):
                 return node
             elif self._skip_the_node(node):
                 continue
-            elif node.time_record.get_state() == TimeTableEntry.STATE_FINAL_RUN \
-                 or node.time_record.get_state() == TimeTableEntry.STATE_IN_PROGRESS \
-                 or node.time_record.get_state() == TimeTableEntry.STATE_EMBRYO:
+            elif node.time_record.state == time_table.STATE_FINAL_RUN \
+                    or node.time_record.state == time_table.STATE_IN_PROGRESS \
+                    or node.time_record.state == time_table.STATE_EMBRYO:
                 return node
 
         # special case, when all children of the parent node are not suitable for processing
@@ -132,7 +131,7 @@ class AbstractTree(object):
             return self.get_node_by_process(process_name, timestamp_now)
 
     # *** INHERITANCE INTERFACE ***
-    def build_tree(self, rebuild = False):
+    def build_tree(self, rebuild=False):
         """method builds tree by iterating from the synergy_start_timestamp to current time
         and inserting corresponding nodes"""
         pass
@@ -184,11 +183,11 @@ class TwoLevelTree(AbstractTree):
         return node
 
     def __update_node(self, time_record):
-        node = self.__get_node(time_record.get_timestamp())
+        node = self.__get_node(time_record.timeperiod)
         node.time_record = time_record
 
     # *** INHERITANCE INTERFACE ***
-    def build_tree(self, rebuild = False):
+    def build_tree(self, rebuild=False):
         """method builds timeline by iterating from the synergy_start_timestamp to current time
         and inserting nodes"""
         self._build_tree(rebuild, self.process_name, self.__get_node)
@@ -196,10 +195,10 @@ class TwoLevelTree(AbstractTree):
     def _skip_the_node(self, node):
         """Method is used during _get_next_node calculations.
         Returns True in case node shall be _skipped_"""
-        if node.time_record.get_state() == TimeTableEntry.STATE_SKIPPED \
-            or node.time_record.get_state() == TimeTableEntry.STATE_PROCESSED:
+        if node.time_record.state == time_table.STATE_SKIPPED \
+                or node.time_record.state == time_table.STATE_PROCESSED:
             return True
-        return node.time_record.get_number_of_failures() > MAX_NUMBER_OF_RETRIES
+        return node.time_record.number_of_failures > MAX_NUMBER_OF_RETRIES
 
     def is_managing_process(self, process_name):
         """method returns True if process_name is registered on Timeline during creation"""
@@ -281,7 +280,7 @@ class ThreeLevelTree(AbstractTree):
         return self._get_next_node(parent)
 
     # *** INHERITANCE INTERFACE ***
-    def build_tree(self, rebuild = False):
+    def build_tree(self, rebuild=False):
         """method builds tree by iterating from the synergy_start_timestamp to current time
         and inserting corresponding nodes"""
         self._build_tree(rebuild, self.process_daily, self.__get_daily_node)
@@ -296,11 +295,11 @@ class ThreeLevelTree(AbstractTree):
 
     def update_node_by_process(self, process_name, time_record):
         if process_name == self.process_yearly:
-            node = self.__get_yearly_node(time_record.get_timestamp())
+            node = self.__get_yearly_node(time_record.get_timeperiod())
         elif process_name == self.process_monthly:
-            node = self.__get_monthly_node(time_record.get_timestamp())
+            node = self.__get_monthly_node(time_record.get_timeperiod())
         elif process_name == self.process_daily:
-            node = self.__get_daily_node(time_record.get_timestamp())
+            node = self.__get_daily_node(time_record.get_timeperiod())
         else:
             raise ValueError('unknown process name: %s' % process_name)
         node.time_record = time_record
@@ -309,8 +308,8 @@ class ThreeLevelTree(AbstractTree):
         """Method is used during _get_next_node calculations.
         Returns True in case node shall be _skipped_"""
         # case 1: node processing is complete
-        if node.time_record.get_state() == TimeTableEntry.STATE_SKIPPED \
-            or node.time_record.get_state() == TimeTableEntry.STATE_PROCESSED:
+        if node.time_record.state == time_table.STATE_SKIPPED \
+                or node.time_record.state == time_table.STATE_PROCESSED:
             return True
 
         # case 2: this is a daily leaf node. retry this time_period for INFINITE_RETRY_HOURS
@@ -318,10 +317,10 @@ class ThreeLevelTree(AbstractTree):
             if len(node.children) == 0:
                 # no children - this is a leaf
                 creation_time = time_helper.synergy_to_datetime(node.process_name, node.timestamp)
-                if  datetime.utcnow() - creation_time < timedelta(hours=LIFE_SUPPORT_HOURS):
+                if datetime.utcnow() - creation_time < timedelta(hours=LIFE_SUPPORT_HOURS):
                     return False
                 else:
-                    return node.time_record.get_number_of_failures() > MAX_NUMBER_OF_RETRIES
+                    return node.time_record.number_of_failures > MAX_NUMBER_OF_RETRIES
 
         # case 3: here we process process_daily, process_monthly and process_yearly that have children
         # iterate thru children and check if all of them are in STATE_SKIPPED (i.e. no data for parent to process)
@@ -331,8 +330,8 @@ class ThreeLevelTree(AbstractTree):
         for key in node.children.keys():
             child = node.children[key]
             if child.time_record is None or \
-                        (child.time_record.get_number_of_failures() <= MAX_NUMBER_OF_RETRIES
-                        and child.time_record.get_state() != TimeTableEntry.STATE_SKIPPED):
+                (child.time_record.number_of_failures <= MAX_NUMBER_OF_RETRIES
+                    and child.time_record.state != time_table.STATE_SKIPPED):
                 all_children_spoiled = False
                 break
         return all_children_spoiled
@@ -349,8 +348,8 @@ class ThreeLevelTree(AbstractTree):
         """method returns True if process_name is among processes (yearly/monthly/daily etc),
         registered on Tree creation"""
         if process_name == self.process_yearly \
-            or process_name == self.process_monthly \
-            or process_name == self.process_daily:
+                or process_name == self.process_monthly \
+                or process_name == self.process_daily:
             return True
         return False
 
@@ -378,7 +377,7 @@ class FourLevelTree(ThreeLevelTree):
         return self._get_next_node(parent)
 
     # *** INHERITANCE INTERFACE ***
-    def build_tree(self, rebuild = False):
+    def build_tree(self, rebuild=False):
         """@see ThreeLevelTree.build_tree """
         self._build_tree(rebuild, self.process_hourly, self.__get_hourly_node)
 
@@ -403,7 +402,7 @@ class FourLevelTree(ThreeLevelTree):
 
     def update_node_by_process(self, process_name, time_record):
         if process_name == self.process_hourly:
-            node = self.__get_hourly_node(time_record.get_timestamp())
+            node = self.__get_hourly_node(time_record.get_timeperiod())
             node.time_record = time_record
         else:
             return super(FourLevelTree, self).update_node_by_process(process_name, time_record)
@@ -412,10 +411,9 @@ class FourLevelTree(ThreeLevelTree):
         """Method is used during _get_next_node calculations.
         Returns True in case node shall be _skipped_"""
         if node.process_name == self.process_hourly:
-            if node.time_record.get_state() == TimeTableEntry.STATE_SKIPPED \
-                or node.time_record.get_state() == TimeTableEntry.STATE_PROCESSED:
+            if node.time_record.state == time_table.STATE_SKIPPED \
+                    or node.time_record.state == time_table.STATE_PROCESSED:
                 return True
-            return node.time_record.get_number_of_failures() > MAX_NUMBER_OF_RETRIES
+            return node.time_record.number_of_failures > MAX_NUMBER_OF_RETRIES
         else:
             return super(FourLevelTree, self)._skip_the_node(node)
-

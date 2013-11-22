@@ -1,8 +1,5 @@
-"""
-Created on 2011-02-07
+__author__ = 'Bohdan Mushkevych'
 
-@author: Bohdan Mushkevych
-"""
 
 from datetime import datetime
 from threading import Lock
@@ -18,12 +15,13 @@ from system.process_context import *
 
 from hadoop_pipeline import HadoopPipeline
 from regular_pipeline import RegularPipeline
-from model.scheduler_configuration_entry import SchedulerConfigurationEntry
+from model import scheduler_configuration
+from model.scheduler_configuration import SchedulerConfiguration
 from time_table import TimeTable
 
 
 class Scheduler(SynergyProcess):
-    """ Scheduler encapsulate logic for starting the aggregators/alerts/other readers """
+    """ Scheduler encapsulate logic for handling task pipelines """
 
     def __init__(self, process_name):
         super(Scheduler, self).__init__(process_name)
@@ -36,19 +34,16 @@ class Scheduler(SynergyProcess):
         self.hadoop_pipeline = HadoopPipeline(self, self.timetable)
         self.logger.info('Started %s' % self.process_name)
 
-
     def __del__(self):
         for handler in self.thread_handlers:
             handler.cancel()
         self.thread_handlers.clear()
         super(Scheduler, self).__del__()
 
-
     def _log_message(self, level, process_name, time_record, msg):
         """ method performs logging into log file and TimeTable node"""
         self.timetable.add_log_entry(process_name, time_record, datetime.utcnow(), msg)
         self.logger.log(level, msg)
-
 
     # **************** Scheduler Methods ************************
     @with_reconnect
@@ -60,9 +55,9 @@ class Scheduler(SynergyProcess):
             raise LookupError('MongoDB has no scheduler configuration entries')
 
         for entry in cursor:
-            document = SchedulerConfigurationEntry(entry)
+            document = SchedulerConfiguration(entry)
             interval = document.interval
-            is_active = document.process_state == SchedulerConfigurationEntry.STATE_ON
+            is_active = document.process_state == scheduler_configuration.STATE_ON
             type = ProcessContext.get_type(document.process_name)
             parameters = [document.process_name, document]
 
@@ -83,22 +78,21 @@ class Scheduler(SynergyProcess):
 
             if is_active:
                 handler.start()
-                self.logger.info('Started scheduler for %s:%s, triggering every %d seconds'\
-                % (type, document.process_name, interval))
+                self.logger.info('Started scheduler for %s:%s, triggering every %d seconds'
+                                 % (type, document.process_name, interval))
             else:
-                self.logger.info('Handler for %s:%s registered in Scheduler. Idle until activated.'\
-                % (type, document.process_name))
+                self.logger.info('Handler for %s:%s registered in Scheduler. Idle until activated.'
+                                 % (type, document.process_name))
 
         # as Scheduler is now initialized and running - we can safely start its MX
         self.start_mx()
 
-
     def start_mx(self):
         """ method's only purpose: import MX module (which has back-reference import to scheduler) and start it """
         from mx.mx import MX
+
         self.mx = MX(self)
         self.mx.start_mx_thread()
-
 
     def fire_worker(self, *args):
         """requests vertical aggregator (hourly site, daily variant, etc) to start up"""
@@ -123,7 +117,6 @@ class Scheduler(SynergyProcess):
             self.logger.info('}')
             self.lock.release()
 
-
     def fire_alert(self, *args):
         """ Triggers AlertWorker. Makes sure its <dependent on> trees have
             finalized corresponding timeperiods prior to that"""
@@ -142,7 +135,6 @@ class Scheduler(SynergyProcess):
         finally:
             self.logger.info('}')
             self.lock.release()
-
 
     def fire_garbage_collector(self, *args):
         """fires garbage collector to re-run all invalid records"""

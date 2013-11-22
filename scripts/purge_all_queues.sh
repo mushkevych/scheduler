@@ -8,9 +8,9 @@
 QUEUES="all"
 
 cd ..
-for queue in $QUEUES
+for queue in ${QUEUES}
 do
-  .ve/bin/python -m scripts.purge_queue $queue
+  .ve/bin/python -m scripts.purge_queue ${queue}
 done
 
 exit 0

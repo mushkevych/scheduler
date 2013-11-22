@@ -11,7 +11,7 @@ from psutil import TimeoutExpired
 
 import supervisor_helper as helper
 from launch import get_python, PROJECT_ROOT, PROCESS_STARTER
-from model.box_configuration_entry import BoxConfigurationEntry
+from model.box_configuration import BoxConfiguration
 from system.process_context import ProcessContext
 from system.repeat_timer import RepeatTimer
 from system.synergy_process import SynergyProcess
@@ -123,7 +123,7 @@ class Supervisor(SynergyProcess):
             box_configuration = helper.retrieve_configuration(self.logger, self.box_id)
             state = box_configuration.get_process_state(process_name)
             pid = box_configuration.get_process_pid(process_name)
-            if state == BoxConfigurationEntry.STATE_OFF:
+            if state == BoxConfiguration.STATE_OFF:
                 if pid is not None:
                     self._kill_process(box_configuration, process_name)
                 return

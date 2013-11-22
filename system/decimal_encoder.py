@@ -9,6 +9,7 @@ http://stackoverflow.com/questions/1960516/python-json-serialize-a-decimal-objec
 import decimal
 import json
 
+
 class DecimalEncoder(json.JSONEncoder):
     def _iterencode(self, o, markers=None):
         if isinstance(o, decimal.Decimal):

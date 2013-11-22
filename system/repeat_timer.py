@@ -9,14 +9,15 @@ from datetime import datetime
 
 import threading
 
+
 class RepeatTimer(threading.Thread):
-    def __init__(self, interval, callable, args=[], kwargs={}):
+    def __init__(self, interval, call_back, args=[], kwargs={}):
         threading.Thread.__init__(self)
         # interval_current shows number of milliseconds in currently triggered <tick>
         self.interval_current = interval
         # interval_new shows number of milliseconds for next <tick>
         self.interval_new = interval
-        self.callable = callable
+        self.call_back = call_back
         self.args = args
         self.kwargs = kwargs
         self.event = threading.Event()
@@ -28,9 +29,9 @@ class RepeatTimer(threading.Thread):
         while self.event.is_set():
             self.activation_dt = datetime.utcnow()
             self.__timer = threading.Timer(self.interval_new,
-                                          self.callable,
-                                          self.args,
-                                          self.kwargs)
+                                           self.call_back,
+                                           self.args,
+                                           self.kwargs)
             self.interval_current = self.interval_new
             self.__timer.start()
             self.__timer.join()
@@ -41,7 +42,7 @@ class RepeatTimer(threading.Thread):
             self.__timer.cancel()
 
     def trigger(self):
-        self.callable(*self.args, **self.kwargs)
+        self.call_back(*self.args, **self.kwargs)
         if self.__timer is not None:
             self.__timer.cancel()
 

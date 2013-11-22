@@ -10,6 +10,7 @@ from system import process_context
 from system.process_context import ProcessContext
 from tests.base_fixtures import get_field_starting_with
 
+
 def purge_mq_queue(mq_queue_name):
     conn = Connection()
     chan = conn.connection.channel()
@@ -21,6 +22,7 @@ def purge_mq_queue(mq_queue_name):
 
     chan.close()
     conn.close()
+
 
 if __name__ == '__main__':
     if len(sys.argv) < 2:

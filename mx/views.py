@@ -1,8 +1,6 @@
-"""
-Created on 2011-04-20
+__author__ = 'Bohdan Mushkevych'
 
-@author: Bohdan Mushkevych
-"""
+
 from datetime import datetime, timedelta
 import functools
 import json
@@ -12,7 +10,7 @@ from system.repeat_timer import RepeatTimer
 from werkzeug.utils import cached_property, redirect
 from werkzeug.wrappers import Response
 from model import unit_of_work_helper, scheduler_configuration_helper
-from model.scheduler_configuration_entry import SchedulerConfigurationEntry
+from model import scheduler_configuration
 from processing_statements import ProcessingStatements
 from system.collection_context import ReplicaSetContext
 from system.process_context import ProcessContext
@@ -156,10 +154,10 @@ class TimeperiodTreeDetails(object):
                 description['processes']['monthly'] = tree.process_monthly
                 description['processes']['daily'] = tree.process_daily
                 description['processes']['hourly'] = tree.process_hourly
-                description['next_timeperiods']['yearly'] = timetable.get_next_timetable_record(tree.process_yearly).get_timestamp()
-                description['next_timeperiods']['monthly'] = timetable.get_next_timetable_record(tree.process_monthly).get_timestamp()
-                description['next_timeperiods']['daily'] = timetable.get_next_timetable_record(tree.process_daily).get_timestamp()
-                description['next_timeperiods']['hourly'] = timetable.get_next_timetable_record(tree.process_hourly).get_timestamp()
+                description['next_timeperiods']['yearly'] = timetable.get_next_timetable_record(tree.process_yearly).timeperiod
+                description['next_timeperiods']['monthly'] = timetable.get_next_timetable_record(tree.process_monthly).timeperiod
+                description['next_timeperiods']['daily'] = timetable.get_next_timetable_record(tree.process_daily).timeperiod
+                description['next_timeperiods']['hourly'] = timetable.get_next_timetable_record(tree.process_hourly).timeperiod
                 description['type'] = ProcessContext.get_type(tree.process_yearly)
             elif type(tree).__name__ == 'ThreeLevelTree':
                 description['number_of_levels'] = 3
@@ -169,15 +167,15 @@ class TimeperiodTreeDetails(object):
                 description['processes']['yearly'] = tree.process_yearly
                 description['processes']['monthly'] = tree.process_monthly
                 description['processes']['daily'] = tree.process_daily
-                description['next_timeperiods']['yearly'] = timetable.get_next_timetable_record(tree.process_yearly).get_timestamp()
-                description['next_timeperiods']['monthly'] = timetable.get_next_timetable_record(tree.process_monthly).get_timestamp()
-                description['next_timeperiods']['daily'] = timetable.get_next_timetable_record(tree.process_daily).get_timestamp()
+                description['next_timeperiods']['yearly'] = timetable.get_next_timetable_record(tree.process_yearly).timeperiod
+                description['next_timeperiods']['monthly'] = timetable.get_next_timetable_record(tree.process_monthly).timeperiod
+                description['next_timeperiods']['daily'] = timetable.get_next_timetable_record(tree.process_daily).timeperiod
                 description['type'] = ProcessContext.get_type(tree.process_yearly)
             elif type(tree).__name__ == 'TwoLevelTree':
                 description['number_of_levels'] = 1
                 description['reprocessing_queues']['linear'] = self._get_reprocessing_details(tree.process_name)
                 description['processes']['linear'] = tree.process_name
-                description['next_timeperiods']['daily'] = timetable.get_next_timetable_record(tree.process_name).get_timestamp()
+                description['next_timeperiods']['daily'] = timetable.get_next_timetable_record(tree.process_name).timeperiod
                 description['type'] = ProcessContext.get_type(tree.process_name)
         except Exception as e:
             self.logger.error('MX Exception: ' + str(e), exc_info=True)
@@ -207,7 +205,7 @@ class NodeDetails(object):
         self.process_name = request.args.get('process_name')
         self.timestamp = request.args.get('timestamp')
         self.valid = self.mbean is not None
-        
+
     @classmethod
     def _get_nodes_details(cls, logger, node):
         """method returns {
@@ -223,9 +221,9 @@ class NodeDetails(object):
             description['process_name'] = node.process_name
             description['time_qualifier'] = ProcessContext.get_time_qualifier(node.process_name)
             description['number_of_children'] = len(node.children)
-            description['number_of_failed_calls'] = node.time_record.get_number_of_failures()
-            description['timestamp'] = node.time_record.get_timestamp()
-            description['state'] = node.time_record.get_state()
+            description['number_of_failed_calls'] = node.time_record.number_of_failures
+            description['timestamp'] = node.time_record.timeperiod
+            description['state'] = node.time_record.state
         except Exception as e:
             logger.error('MX Exception: ' + str(e), exc_info=True)
         finally:
@@ -278,10 +276,10 @@ class TimeperiodProcessingStatements(object):
         if self.day is not None and self.day.strip() == '':
             self.day = None
         self.valid = self.mbean is not None \
-                     and self.year is not None \
-                     and self.month is not None \
-                     and self.day is not None \
-                     and self.hour is not None
+            and self.year is not None \
+            and self.month is not None \
+            and self.day is not None \
+            and self.hour is not None
 
     @cached_property
     @valid_only
@@ -293,7 +291,7 @@ class TimeperiodProcessingStatements(object):
 
         resp = []
         for key in sorter_keys:
-            t = (key[0], key[1], selection[key].get_state())
+            t = (key[0], key[1], selection[key].state)
             resp.append(t)
 
         print ('%r' % resp)
@@ -355,7 +353,7 @@ class ActionHandler(object):
 
             uow_id = node.time_record.get_related_unit_of_work()
             if uow_id is None:
-                resp = {'response' : 'no related unit_of_work'}
+                resp = {'response': 'no related unit_of_work'}
             else:
                 resp = unit_of_work_helper.retrieve_by_id(self.logger, uow_id).document
                 for key in resp:
@@ -372,7 +370,7 @@ class ActionHandler(object):
         if tree is not None:
             self.timestamp = time_helper.cast_to_time_qualifier(self.process_name, self.timestamp)
             node = tree.get_node_by_process(self.process_name, self.timestamp)
-            resp['log'] = node.time_record.get_log()
+            resp['log'] = node.time_record.log()
 
         return resp
 
@@ -390,7 +388,7 @@ class ActionHandler(object):
             scheduler_configuration_helper.update(self.logger, document)
 
             resp['status'] = 'changed interval for %r to %r' % (self.process_name, new_interval)
-        
+
         return resp
 
     @valid_only
@@ -419,10 +417,10 @@ class ActionHandler(object):
             # request was performed with undefined "state", what means that checkbox was unselected
             # thus - turning off the process
             thread_handler.cancel()
-            document.process_state = SchedulerConfigurationEntry.STATE_OFF
-            message = 'Stopped RepeatTimer for %s' % document.get_process_name()
+            document.process_state = scheduler_configuration.STATE_OFF
+            message = 'Stopped RepeatTimer for %s' % document.process_name
         elif not thread_handler.is_alive():
-            document.process_state = SchedulerConfigurationEntry.STATE_ON
+            document.process_state = scheduler_configuration.STATE_ON
 
             thread_handler = RepeatTimer(thread_handler.interval_current,
                                          thread_handler.callable,
@@ -432,14 +430,15 @@ class ActionHandler(object):
 
             self.mbean.thread_handlers[self.process_name] = thread_handler
             message = 'Started RepeatTimer for %s, triggering every %d seconds' \
-                        % (document.get_process_name(), document.interval)
+                      % (document.process_name, document.interval)
         else:
-            message = 'RepeatTimer for %s is already active. Ignoring request.' % document.get_process_name()
+            message = 'RepeatTimer for %s is already active. Ignoring request.' % document.process_name
 
         scheduler_configuration_helper.update(self.logger, document)
         self.logger.info(message)
         resp['status'] = message
         return resp
+
 
 # Scheduler Details views
 class SchedulerDetails(object):
@@ -472,13 +471,13 @@ class SchedulerDetails(object):
                 timetable = self.mbean.timetable
                 if timetable.get_tree(process_name) is not None:
                     time_record = timetable.get_next_timetable_record(process_name)
-                    row.append(time_record.get_timestamp())
+                    row.append(time_record.timeperiod)
                 else:
                     row.append('NA')
 
                 # indicate whether process is in active or passive state
                 # parameters are set in Scheduler.run() method
-                row.append(thread_handler.args[1].process_state == SchedulerConfigurationEntry.STATE_ON)
+                row.append(thread_handler.args[1].process_state == scheduler_configuration.STATE_ON)
                 list_of_rows.append(row)
         except Exception as e:
             self.logger.error('MX Exception %s' % str(e), exc_info=True)
@@ -494,7 +493,7 @@ class SchedulerDetails(object):
         except Exception as e:
             self.logger.error('MX Exception %s' % str(e), exc_info=True)
 
-            
+
 class ConnectionDetails(object):
     def __init__(self, mbean):
         self.mbean = mbean

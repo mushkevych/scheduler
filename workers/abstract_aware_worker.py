@@ -1,26 +1,24 @@
-"""
-Created on 2011-02-01
+""" Module contains common logic for aggregators and workers that work with unit_of_work """
 
-Module contains common logic for aggregators and workers that work with unit_of_work 
+__author__ = 'Bohdan Mushkevych'
 
-@author: Bohdan Mushkevych
-"""
 import gc
 import json
 import socket
-from bson.objectid import ObjectId
 from datetime import datetime
-from pymongo import ASCENDING
-from model import unit_of_work_helper
-from model.abstract_model import AbstractModel
 
+from bson.objectid import ObjectId
+from pymongo import ASCENDING
+
+from model import unit_of_work_helper, unit_of_work
+from model import base_model
 from settings import settings
-from model.unit_of_work_entry import UnitOfWorkEntry
 from system.decimal_encoder import DecimalEncoder
 from system.process_context import ProcessContext
 from system.collection_context import CollectionContext
 from workers.abstract_worker import AbstractWorker
 from system.performance_ticker import AggregatorPerformanceTicker
+
 
 class AbstractAwareWorker(AbstractWorker):
     """ Abstract class is inherited by all workers/aggregators
@@ -58,7 +56,7 @@ class AbstractAwareWorker(AbstractWorker):
             # nothing to do
             return 0
 
-        total_transfered_bytes = 0
+        total_transferred_bytes = 0
         number_of_aggregated_objects = len(self.aggregated_objects)
         self.logger.info('Aggregated %d documents. Performing flush.' % number_of_aggregated_objects)
         tunnel_address = (settings['tunnel_host'], self._get_tunnel_port())
@@ -68,20 +66,20 @@ class AbstractAwareWorker(AbstractWorker):
             client_socket.connect(tunnel_address)
             document = self.aggregated_objects[key]
             tunnel_obj = json.dumps(document.data, cls=DecimalEncoder)
-            transfered_bytes = client_socket.send(tunnel_obj)
-            if transfered_bytes == 0:
+            transferred_bytes = client_socket.send(tunnel_obj)
+            if transferred_bytes == 0:
                 raise RuntimeError("Transferred 0 bytes. Socket connection broken")
-            total_transfered_bytes += transfered_bytes
+            total_transferred_bytes += transferred_bytes
             client_socket.shutdown(socket.SHUT_WR)
             client_socket.close()
 
         client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         client_socket.connect(tunnel_address)
-        transfered_bytes = client_socket.send('FLUSH')
-        if transfered_bytes == 0:
+        transferred_bytes = client_socket.send('FLUSH')
+        if transferred_bytes == 0:
             raise RuntimeError("Transferred 0 bytes. Socket connection broken")
         client_socket.close()
-        self.logger.info('Flush successful. Transmitted %r bytes' % total_transfered_bytes)
+        self.logger.info('Flush successful. Transmitted %r bytes' % total_transferred_bytes)
 
         del self.aggregated_objects
         self.aggregated_objects = dict()
@@ -125,16 +123,16 @@ class AbstractAwareWorker(AbstractWorker):
         - catches the exception
         - logs the exception
         - marks unit of work as INVALID"""
-        unit_of_work = None
+        uow = None
         try:
             # @param object_id: ObjectId of the unit_of_work from mq
             object_id = ObjectId(message.body)
-            unit_of_work = unit_of_work_helper.retrieve_by_id(self.logger, object_id)
-            if unit_of_work.get_state() == UnitOfWorkEntry.STATE_CANCELED \
-                or unit_of_work.get_state() == UnitOfWorkEntry.STATE_PROCESSED:
+            uow = unit_of_work_helper.retrieve_by_id(self.logger, object_id)
+            if uow.state == unit_of_work.STATE_CANCELED \
+                or uow.state == unit_of_work.STATE_PROCESSED:
                 # garbage collector might have reposted this UOW
-                self.logger.warning('Skipping unit_of_work: id %s; state %s;' \
-                                    % (str(message.body), unit_of_work.get_state()), exc_info=False)
+                self.logger.warning('Skipping unit_of_work: id %s; state %s;' % (str(message.body), uow.state),
+                                    exc_info=False)
                 self.consumer.acknowledge(message.delivery_tag)
                 return
         except Exception:
@@ -143,34 +141,34 @@ class AbstractAwareWorker(AbstractWorker):
             return
 
         try:
-            start_id_obj = ObjectId(unit_of_work.get_start_id())
-            end_id_obj = ObjectId(unit_of_work.get_end_id())
-            start_timestamp = unit_of_work.get_start_timestamp()
-            end_timestamp = unit_of_work.get_end_timestamp()
+            start_id_obj = ObjectId(uow.start_id)
+            end_id_obj = ObjectId(uow.end_id)
+            start_timeperiod = uow.start_timeperiod
+            end_timeperiod = uow.end_timeperiod
 
-            unit_of_work.set_state(UnitOfWorkEntry.STATE_IN_PROGRESS)
-            unit_of_work.set_started_at(datetime.utcnow())
-            unit_of_work_helper.update(self.logger, unit_of_work)
-            self.performance_ticker.start_uow(unit_of_work)
+            uow.state = unit_of_work.STATE_IN_PROGRESS
+            uow.started_at = datetime.utcnow()
+            unit_of_work_helper.update(self.logger, uow)
+            self.performance_ticker.start_uow(uow)
 
             bulk_threshold = settings['bulk_threshold']
             iteration = 0
             while True:
                 source_collection = self._get_source_collection()
                 if iteration == 0:
-                    queue = { '_id' : { '$gte' : start_id_obj, '$lte' : end_id_obj } }
+                    queue = {'_id': {'$gte': start_id_obj, '$lte': end_id_obj}}
                 else:
-                    queue = { '_id' : { '$gt' : start_id_obj, '$lte' : end_id_obj } }
+                    queue = {'_id': {'$gt': start_id_obj, '$lte': end_id_obj}}
 
-                if start_timestamp is not None and end_timestamp is not None:
+                if start_timeperiod is not None and end_timeperiod is not None:
                     # remove all accident objects that may be in [start_id_obj : end_id_obj] range
-                    queue[AbstractModel.TIMESTAMP] = { '$gte' : start_timestamp, '$lt' : end_timestamp }
+                    queue[base_model.TIMEPERIOD] = {'$gte': start_timeperiod, '$lt': end_timeperiod}
 
                 cursor = source_collection.find(queue).sort('_id', ASCENDING).limit(bulk_threshold)
                 count = cursor.count(with_limit_and_skip=True)
                 if count == 0 and iteration == 0:
-                    msg = 'No entries in %s at range [%s : %s]'\
-                            % (str(source_collection.name), unit_of_work.get_start_id(), unit_of_work.get_end_id())
+                    msg = 'No entries in %s at range [%s : %s]' % (
+                    str(source_collection.name), uow.start_id, uow.end_id)
                     self.logger.warning(msg)
                     break
                 else:
@@ -184,25 +182,25 @@ class AbstractAwareWorker(AbstractWorker):
             msg = 'Cursor exploited after %s iterations' % str(iteration)
             self.logger.info(msg)
 
-            self.perform_post_processing(unit_of_work.get_timestamp())
+            self.perform_post_processing(uow.timeperiod)
             number_of_aggregated_objects = self._flush_aggregated_objects()
-            unit_of_work.set_number_of_aggregated_documents(number_of_aggregated_objects)
-            unit_of_work.set_number_of_processed_documents(self.performance_ticker.posts_per_job)
-            unit_of_work.set_finished_at(datetime.utcnow())
-            unit_of_work.set_state(UnitOfWorkEntry.STATE_PROCESSED)
-            unit_of_work_helper.update(self.logger, unit_of_work)
+            uow.number_of_aggregated_documents = number_of_aggregated_objects
+            uow.number_of_processed_documents = self.performance_ticker.posts_per_job
+            uow.finished_at = datetime.utcnow()
+            uow.state = unit_of_work.STATE_PROCESSED
+            unit_of_work_helper.update(self.logger, uow)
             self.performance_ticker.finish_uow()
         except Exception as e:
-            unit_of_work.set_state(UnitOfWorkEntry.STATE_INVALID)
-            unit_of_work_helper.update(self.logger, unit_of_work)
+            uow.state = unit_of_work.STATE_INVALID
+            unit_of_work_helper.update(self.logger, uow)
             self.performance_ticker.cancel_uow()
 
             del self.aggregated_objects
             self.aggregated_objects = dict()
             gc.collect()
 
-            self.logger.error('Safety fuse while processing unit_of_work %s in timeperiod %s : %r'\
-                              % (message.body, unit_of_work.get_timestamp(), e), exc_info=True)
+            self.logger.error('Safety fuse while processing unit_of_work %s in timeperiod %s : %r'
+                              % (message.body, uow.timeperiod, e), exc_info=True)
         finally:
             self.consumer.acknowledge(message.delivery_tag)
             self.consumer.close()

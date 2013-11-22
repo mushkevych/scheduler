@@ -10,13 +10,13 @@ STATE_ON = 'state_on'
 STATE_OFF = 'state_off'
 
 
-class SchedulerConfigurationEntry(BaseModel):
+class SchedulerConfiguration(BaseModel):
     """
     Class presents single configuration entry for the scheduler. 
     """
 
     def __init__(self, document=None):
-        super(SchedulerConfigurationEntry, self).__init__(document)
+        super(SchedulerConfiguration, self).__init__(document)
 
     @property
     def key(self):

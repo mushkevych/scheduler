@@ -1,28 +1,27 @@
-"""
-Timetable present a tree, where every node presents a time-period
+__author__ = 'Bohdan Mushkevych'
 
-Created on 2011-04-47
-@author: Bohdan Mushkevych
-"""
+
 from datetime import datetime
 from threading import RLock
 from bson.objectid import ObjectId
-from model import unit_of_work_helper
-from model.abstract_model import AbstractModel
-from model.time_table_entry import TimeTableEntry
+from model import unit_of_work_helper, time_table, unit_of_work
+from model import base_model
+from model.time_table import TimeTable
 from system.decorator import thread_safe
 from tree import TwoLevelTree, ThreeLevelTree, FourLevelTree
 from system import process_context
 from system.process_context import ProcessContext
 from system.collection_context import CollectionContext
 from system.collection_context import COLLECTION_TIMETABLE_DAILY, COLLECTION_TIMETABLE_HOURLY, \
-                                      COLLECTION_TIMETABLE_MONTHLY, COLLECTION_TIMETABLE_YEARLY
+    COLLECTION_TIMETABLE_MONTHLY, COLLECTION_TIMETABLE_YEARLY
 
 
 # make sure MX_PAGE_TRAFFIC refers to mx.views.py page
 MX_PAGE_TRAFFIC = 'traffic_details'
 
+
 class TimeTable:
+    """ Timetable present a tree, where every node presents a time-period """
 
     def __init__(self, logger):
         self.lock = RLock()
@@ -61,12 +60,11 @@ class TimeTable:
 
     def _register_dependents(self):
         """ register dependencies between trees"""
-#        self.horizontal_client.register_dependent_on(self.vertical_site)
-#        self.horizontal_client.register_dependent_on(self.vertical_visitor)
-#        self.linear_daily_alert.register_dependent_on(self.post_proc_site)
-#        self.linear_daily_alert.register_dependent_on(self.vertical_visitor)
+        #        self.horizontal_client.register_dependent_on(self.vertical_site)
+        #        self.horizontal_client.register_dependent_on(self.vertical_visitor)
+        #        self.linear_daily_alert.register_dependent_on(self.post_proc_site)
+        #        self.linear_daily_alert.register_dependent_on(self.vertical_visitor)
         pass
-
 
     def _register_callbacks(self):
         """ register logic that reacts on reprocessing request
@@ -111,16 +109,16 @@ class TimeTable:
     @thread_safe
     def update_timetable_record(self, process_name, time_record, uow, new_state):
         """ method updates time_record with new unit_of_work and new state"""
-        time_record.set_state(new_state)
-        time_record.set_related_unit_of_work(uow.document['_id'])
-        time_record.set_start_id(uow.get_start_id())
-        time_record.set_end_id(uow.get_end_id())
+        time_record.state = new_state
+        time_record.related_unit_of_work = uow.document['_id']
+        time_record.start_id = uow.start_id
+        time_record.end_id = uow.end_id
         self._save_time_record(process_name, time_record)
 
         tree = self.get_tree(process_name)
         tree.update_node_by_process(process_name, time_record)
-        self.logger.info('Updated time-record %s in timeperiod %s for %s as %s' \
-                         % (time_record.document['_id'], time_record.get_timestamp(), process_name, new_state))
+        self.logger.info('Updated time-record %s in timeperiod %s for %s as %s'
+                         % (time_record.document['_id'], time_record.timeperiod, process_name, new_state))
 
     # *** Regular code ***
     @thread_safe
@@ -133,25 +131,25 @@ class TimeTable:
     @thread_safe
     def _callback_reprocess(self, process_name, timestamp, tree_node):
         """ is called from tree to answer reprocessing request.
-        It is possible that timetable record will be transfered to STATE_IN_PROGRESS with no related unit_of_work"""
-        uow_id = tree_node.time_record.get_related_unit_of_work()
+        It is possible that timetable record will be transferred to STATE_IN_PROGRESS with no related unit_of_work"""
+        uow_id = tree_node.time_record.related_unit_of_work
         if uow_id is not None:
-            tree_node.time_record.set_state(TimeTableEntry.STATE_IN_PROGRESS)
+            tree_node.time_record.state = time_table.STATE_IN_PROGRESS
             uow_obj = unit_of_work_helper.retrieve_by_id(self.logger, ObjectId(uow_id))
-            uow_obj.set_state(uow_obj.STATE_INVALID)
-            uow_obj.set_number_of_retries(0)
-            uow_obj.set_created_at(datetime.utcnow())
+            uow_obj.state = unit_of_work.STATE_INVALID
+            uow_obj.number_of_retries = 0
+            uow_obj.created_at = datetime.utcnow()
             unit_of_work_helper.update(self.logger, uow_obj)
-            msg = 'Transferred time-record %s in timeperiod %s to %s; Transferred unit_of_work to %s'\
-                    % (tree_node.time_record.document['_id'], tree_node.time_record.get_timestamp(),
-                       tree_node.time_record.get_state(), uow_obj.get_state())
+            msg = 'Transferred time-record %s in timeperiod %s to %s; Transferred unit_of_work to %s' \
+                  % (tree_node.time_record.document['_id'], tree_node.time_record.timeperiod,
+                     tree_node.time_record.state, uow_obj.state)
         else:
-            tree_node.time_record.set_state(TimeTableEntry.STATE_EMBRYO)
-            msg = 'Transferred time-record %s in timeperiod %s to %s;'\
-                    % (tree_node.time_record.document['_id'], tree_node.time_record.get_timestamp(),
-                       tree_node.time_record.get_state())
+            tree_node.time_record.state = time_table.STATE_EMBRYO
+            msg = 'Transferred time-record %s in timeperiod %s to %s;' \
+                  % (tree_node.time_record.document['_id'], tree_node.time_record.timeperiod,
+                     tree_node.time_record.state)
 
-        tree_node.time_record.set_number_of_failures(0)
+        tree_node.time_record.number_of_failures = 0
         self._save_time_record(process_name, tree_node.time_record)
         self.logger.warning(msg)
         tree_node.add_log_entry([datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S'), msg])
@@ -163,19 +161,19 @@ class TimeTable:
     @thread_safe
     def _callback_skip(self, process_name, timestamp, tree_node):
         """ is called from tree to answer skip request"""
-        tree_node.time_record.set_state(TimeTableEntry.STATE_SKIPPED)
-        uow_id = tree_node.time_record.get_related_unit_of_work()
+        tree_node.time_record.state = time_table.STATE_SKIPPED
+        uow_id = tree_node.time_record.related_unit_of_work
         if uow_id is not None:
             uow_obj = unit_of_work_helper.retrieve_by_id(self.logger, ObjectId(uow_id))
-            uow_obj.set_state(uow_obj.STATE_CANCELED)
+            uow_obj.state = uow_obj.STATE_CANCELED
             unit_of_work_helper.update(self.logger, uow_obj)
-            msg = 'Transferred time-record %s in timeperiod %s to %s; Transferred unit_of_work to %s'\
-                    % (tree_node.time_record.document['_id'], tree_node.time_record.get_timestamp(),
-                       tree_node.time_record.get_state(), uow_obj.get_state())
+            msg = 'Transferred time-record %s in timeperiod %s to %s; Transferred unit_of_work to %s' \
+                  % (tree_node.time_record.document['_id'], tree_node.time_record.timeperiod,
+                     tree_node.time_record.state, uow_obj.state)
         else:
-            msg = 'Transferred time-record %s in timeperiod %s to %s;'\
-                    % (tree_node.time_record.document['_id'], tree_node.time_record.get_timestamp(),
-                       tree_node.time_record.get_state())
+            msg = 'Transferred time-record %s in timeperiod %s to %s;' \
+                  % (tree_node.time_record.document['_id'], tree_node.time_record.timeperiod,
+                     tree_node.time_record.state)
 
         self._save_time_record(process_name, tree_node.time_record)
         self.logger.warning(msg)
@@ -185,21 +183,21 @@ class TimeTable:
             del self.reprocess[process_name][timestamp]
 
     @thread_safe
-    def _callback_timetable_record(self, process_name, timestamp, tree_node):
+    def _callback_timetable_record(self, process_name, timeperiod, tree_node):
         """ is called from tree to create timetable record and bind it to the tree node"""
         collection = self._get_timetable_collection(process_name)
-        time_record = collection.find_one({TimeTableEntry.PROCESS_NAME : process_name,
-                                   AbstractModel.TIMESTAMP : timestamp})
+        time_record = collection.find_one({time_table.PROCESS_NAME: process_name,
+                                           base_model.TIMEPERIOD: timeperiod})
 
         if time_record is None:
-            time_record = TimeTableEntry()
-            time_record.set_state(TimeTableEntry.STATE_EMBRYO)
-            time_record.set_timestamp(timestamp)
-            time_record.set_process_name(process_name)
+            time_record = TimeTable()
+            time_record.state = time_table.STATE_EMBRYO
+            time_record.timeperiod = timeperiod
+            time_record.process_name = process_name
 
             tr_id = self._save_time_record(process_name, time_record)
-            self.logger.info('Created time-record %s, with timestamp %s for process %s' \
-                             % (str(tr_id), timestamp, process_name))
+            self.logger.info('Created time-record %s, with timestamp %s for process %s'
+                             % (str(tr_id), timeperiod, process_name))
         tree_node.time_record = time_record
 
     @thread_safe
@@ -210,13 +208,13 @@ class TimeTable:
             self.logger.warning('No TimeTable Records in %s.' % str(collection))
         else:
             for document in cursor:
-                obj = TimeTableEntry(document)
-                tree = self.get_tree(obj.get_process_name())
+                obj = TimeTable(document)
+                tree = self.get_tree(obj.process_name)
                 if tree is not None:
-                    tree.update_node_by_process(obj.get_process_name(), obj)
+                    tree.update_node_by_process(obj.process_name, obj)
                 else:
                     self.logger.warning('Skipping TimeTable record for %s, as no tree is handling it.'
-                                        % obj.get_process_name())
+                                        % obj.process_name)
 
     @thread_safe
     def load_tree(self):
@@ -244,7 +242,7 @@ class TimeTable:
         if _skip_node logic returns True - node is set to STATE_SKIP"""
         tree = self.get_tree(process_name)
         node = tree.get_node_by_process(process_name, timestamp)
-        node.time_record.set_number_of_failures(node.time_record.get_number_of_failures() + 1)
+        node.time_record.number_of_failures += 1
         if tree._skip_the_node(node):
             node.request_skip()
         else:
@@ -271,7 +269,7 @@ class TimeTable:
     def can_finalize_timetable_record(self, process_name, time_record):
         """ @return True, if node and all its children are either in STATE_PROCESSED or STATE_SKIPPED"""
         tree = self.get_tree(process_name)
-        node = tree.get_node_by_process(process_name, time_record.get_timestamp())
+        node = tree.get_node_by_process(process_name, time_record.timeperiod)
         return node.can_finalize_timetable_record()
 
     @thread_safe
@@ -281,12 +279,12 @@ class TimeTable:
                 dependents_are_skipped - indicates that among <dependent on> periods are some in STATE_SKIPPED
         """
         tree = self.get_tree(process_name)
-        node = tree.get_node_by_process(process_name, time_record.get_timestamp())
+        node = tree.get_node_by_process(process_name, time_record.timeperiod)
         return node.is_dependent_on_finalized()
 
     @thread_safe
     def add_log_entry(self, process_name, time_record, msg_dt, msg):
         """ adds a log entry to the tree node. log entries has no persistence """
         tree = self.get_tree(process_name)
-        node = tree.get_node_by_process(process_name, time_record.get_timestamp())
+        node = tree.get_node_by_process(process_name, time_record.timeperiod)
         node.add_log_entry([msg_dt.strftime('%Y-%m-%d %H:%M:%S'), msg])

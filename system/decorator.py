@@ -1,8 +1,5 @@
-"""
-Created on 2012-04-24
+__author__ = 'Bohdan Mushkevych'
 
-@author: Bohdan Mushkevych
-"""
 import functools
 import time
 from pymongo.errors import AutoReconnect

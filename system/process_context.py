@@ -1,8 +1,6 @@
-"""
-Created on 2011-03-11
+__author__ = 'Bohdan Mushkevych'
 
-@author: Bohdan Mushkevych
-"""
+
 import os
 
 from system.data_logging import Logger
@@ -53,6 +51,7 @@ _MQ_EXCHANGE = 'mq_exchange'
 _MQ_ROUTING_KEY = 'mq_routing_key'
 _TIME_QUALIFIER = 'time_qualifier'
 _TYPE = 'type'
+
 
 def _create_context_entry(process_name,
                           classname,
@@ -142,7 +141,7 @@ class ProcessContext:
             time_qualifier=QUALIFIER_HOURLY,
             exchange=EXCHANGE_VERTICAL,
             type=TYPE_VERTICAL_AGGREGATOR,
-            source_collection= 'single_session_collection'),
+            source_collection='single_session_collection'),
 
         PROCESS_SITE_MONTHLY: _create_context_entry(
             process_name=PROCESS_SITE_MONTHLY,

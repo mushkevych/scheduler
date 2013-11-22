@@ -1,11 +1,10 @@
-"""
-Created on 2011-10-21
+__author__ = 'Bohdan Mushkevych'
 
-@author: Bohdan Mushkevych
-"""
+
 from threading import RLock
-from model.abstract_model import AbstractModel
-from model.time_table_entry import TimeTableEntry
+from model.raw_data import *
+from model import time_table
+from model.time_table import TimeTable
 from system.collection_context import CollectionContext, COLLECTION_TIMETABLE_YEARLY, \
     COLLECTION_TIMETABLE_MONTHLY, COLLECTION_TIMETABLE_DAILY, COLLECTION_TIMETABLE_HOURLY
 from system.decorator import thread_safe
@@ -38,27 +37,28 @@ class ProcessingStatements(object):
         resp = dict()
         try:
             if unprocessed_only:
-                query = { AbstractModel.TIMESTAMP : {'$regex': timestamp },
-                          TimeTableEntry.STATE : {'$ne' : TimeTableEntry.STATE_PROCESSED }}
+                query = {TIMESTAMP: {'$regex': timestamp},
+                         time_table.STATE: {'$ne': time_table.STATE_PROCESSED}}
             else:
-                query = { AbstractModel.TIMESTAMP : {'$regex': timestamp }}
+                query = {TIMESTAMP: {'$regex': timestamp}}
 
             cursor = collection.find(query)
             if cursor.count() == 0:
                 self.logger.warning('No TimeTable Records in %s.' % str(collection))
             else:
                 for document in cursor:
-                    obj = TimeTableEntry(document)
-                    key = (obj.get_process_name(), obj.get_timestamp())
+                    obj = TimeTable(document)
+                    key = (obj.process_name, obj.timeperiod)
                     resp[key] = obj
                     print(key)
         except Exception as e:
             self.logger.error('ProcessingStatements error: %s' % str(e))
         return resp
 
-    
+
 if __name__ == '__main__':
     import logging
+
     pd = ProcessingStatements(logging)
     resp = pd.retrieve_for_timestamp('201110', False)
     print('%r' % resp)

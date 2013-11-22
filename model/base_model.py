@@ -4,7 +4,6 @@ import ds_manager
 
 # FIELDS
 KEY = 'domain_name'
-TIMESTAMP = 'timestamp'
 TIMEPERIOD = 'timeperiod'
 
 
