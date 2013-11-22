@@ -367,7 +367,7 @@ class ActionHandler(object):
             self.timestamp = time_helper.cast_to_time_qualifier(self.process_name, self.timestamp)
             node = tree.get_node_by_process(self.process_name, self.timestamp)
 
-            uow_id = node.time_record.get_related_unit_of_work()
+            uow_id = node.time_record.related_unit_of_work
             if uow_id is None:
                 resp = {'response': 'no related unit_of_work'}
             else:

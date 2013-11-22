@@ -62,7 +62,7 @@ class SingleSessionWorker(AbstractWorker):
 
                 session = self.update_session_body(raw_data, session)
                 duration = raw_data.key[1] - time_helper.session_to_epoch(session.key[1])
-                session.set_total_duration(duration)
+                session.total_duration = duration
 
                 index = session.number_of_entries
                 self.add_entry(session, index, raw_data)

@@ -91,7 +91,7 @@ class HadoopPipeline(AbstractPipeline):
 
         try:
             if start_time == actual_time or can_finalize_timerecord is False:
-                if uow_obj.state() in [unit_of_work.STATE_REQUESTED,
+                if uow_obj.state in [unit_of_work.STATE_REQUESTED,
                                        unit_of_work.STATE_IN_PROGRESS,
                                        unit_of_work.STATE_INVALID]:
                     # Hadoop processing takes more than 1 tick of Scheduler

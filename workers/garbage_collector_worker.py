@@ -60,7 +60,7 @@ class GarbageCollectorWorker(AbstractWorker):
         if uow.state == unit_of_work.STATE_INVALID:
             repost = True
 
-        elif uow.state() == unit_of_work.STATE_IN_PROGRESS or uow.state == unit_of_work.STATE_REQUESTED:
+        elif uow.state in [unit_of_work.STATE_IN_PROGRESS, unit_of_work.STATE_REQUESTED]:
             last_activity = uow.started_at
             if last_activity is None:
                 last_activity = uow.created_at

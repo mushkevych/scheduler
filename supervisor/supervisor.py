@@ -96,7 +96,7 @@ class Supervisor(SynergyProcess):
         """ reading box configurations and starting timers to start/monitor/kill processes """
         try:
             box_configuration = helper.retrieve_configuration(self.logger, self.box_id)
-            process_list = box_configuration.get_process_list()
+            process_list = box_configuration.process_list
             for process in process_list:
                 params = [process]
                 handler = RepeatTimer(INTERVAL, self.manage_process, args=params)

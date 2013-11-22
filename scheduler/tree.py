@@ -113,9 +113,9 @@ class AbstractTree(object):
                 return node
             elif self._skip_the_node(node):
                 continue
-            elif node.time_record.state == time_table.STATE_FINAL_RUN \
-                or node.time_record.state == time_table.STATE_IN_PROGRESS \
-                or node.time_record.state == time_table.STATE_EMBRYO:
+            elif node.time_record.state in [time_table.STATE_FINAL_RUN,
+                                            time_table.STATE_IN_PROGRESS,
+                                            time_table.STATE_EMBRYO]:
                 return node
 
         # special case, when all children of the parent node are not suitable for processing
@@ -195,8 +195,7 @@ class TwoLevelTree(AbstractTree):
     def _skip_the_node(self, node):
         """Method is used during _get_next_node calculations.
         Returns True in case node shall be _skipped_"""
-        if node.time_record.state == time_table.STATE_SKIPPED \
-            or node.time_record.state == time_table.STATE_PROCESSED:
+        if node.time_record.state in [time_table.STATE_SKIPPED, time_table.STATE_PROCESSED]:
             return True
         return node.time_record.number_of_failures > MAX_NUMBER_OF_RETRIES
 
@@ -413,8 +412,7 @@ class FourLevelTree(ThreeLevelTree):
         """Method is used during _get_next_node calculations.
         Returns True in case node shall be _skipped_"""
         if node.process_name == self.process_hourly:
-            if node.time_record.state == time_table.STATE_SKIPPED \
-                or node.time_record.state == time_table.STATE_PROCESSED:
+            if node.time_record.state in [time_table.STATE_SKIPPED, time_table.STATE_PROCESSED]:
                 return True
             return node.time_record.number_of_failures > MAX_NUMBER_OF_RETRIES
         else:
