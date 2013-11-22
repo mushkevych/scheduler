@@ -1,15 +1,12 @@
-"""
-Created on 2011-02-01
-
-@author: Bohdan Mushkevych
-"""
+__author__ = 'Bohdan Mushkevych'
 
 from model.single_session import SingleSessionStatistics
 from model.site_statistics import SiteStatistics
-from model.abstract_model import AbstractModel
+from model.base_model import BaseModel
 from settings import settings
 from workers.abstract_vertical_worker import AbstractVerticalWorker
 from system import time_helper
+
 
 class SiteHourlyAggregator(AbstractVerticalWorker):
     """
@@ -35,24 +32,24 @@ class SiteHourlyAggregator(AbstractVerticalWorker):
     def _init_target_object(self, composite_key):
         """ abstract method to instantiate new object that will be holding aggregated data """
         obj = SiteStatistics()
-        obj.composite_key(composite_key[0], composite_key[1])
-        obj.set_number_of_visits(0)
+        obj.key = (composite_key[0], composite_key[1])
+        obj.number_of_visits = 0
         return obj
             
     def _process_single_document(self, document):
         """ abstract method that actually processes the document from source collection"""
         source_obj = self._init_source_object(document)
-        composite_key = self._init_target_key(source_obj.get_key()[0], source_obj.get_key()[1])
+        composite_key = self._init_target_key(source_obj.key[0], source_obj.key[1])
         target_obj = self._get_aggregated_object(composite_key)
 
-        target_obj.set_number_of_visits(target_obj.get_number_of_visits() + 1)
-        target_obj.set_number_of_pageviews(target_obj.get_number_of_visits() + source_obj.get_number_of_pageviews())
-        target_obj.set_total_duration(target_obj.get_total_duration() + source_obj.get_total_duration())
-        AbstractModel._increment_family_property(source_obj.get_os(), target_obj.get_os())
-        AbstractModel._increment_family_property(source_obj.get_browser(), target_obj.get_browsers())
-        AbstractModel._increment_family_property(source_obj.get_screen_res(), target_obj.get_screen_res())
-        AbstractModel._increment_family_property(source_obj.get_language(), target_obj.get_languages())
-        AbstractModel._increment_family_property(source_obj.get_country(), target_obj.get_countries())
+        target_obj.number_of_visits += 1
+        target_obj.number_of_pageviews += source_obj.number_of_pageviews
+        target_obj.total_duration += source_obj.total_duration
+        BaseModel._increment_family_property(source_obj.os, target_obj.os)
+        BaseModel._increment_family_property(source_obj.browser, target_obj.browsers)
+        BaseModel._increment_family_property(source_obj.screen_res, target_obj.screen_res)
+        BaseModel._increment_family_property(source_obj.language, target_obj.languages)
+        BaseModel._increment_family_property(source_obj.country, target_obj.countries)
 
 
 if __name__ == '__main__':

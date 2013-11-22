@@ -1,12 +1,9 @@
-"""
-Created on 2011-03-16
+""" Module contains common logic for aggregators and workers that work on constant flow from DB """
 
-Module contains common logic for aggregators and workers that work on constant flow from DB 
-
-@author: Bohdan Mushkevych
-"""
+__author__ = 'Bohdan Mushkevych'
 
 from workers.abstract_aware_worker import AbstractAwareWorker
+
 
 class AbstractVerticalWorker(AbstractAwareWorker):
     """ Class provides stream-reader for all vertical aggregators """

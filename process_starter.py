@@ -1,19 +1,17 @@
-"""
-Created on 2011-06-15
-
-@author: Bohdan Mushkevych
-"""
+__author__ = 'Bohdan Mushkevych'
 
 from system.process_context import ProcessContext
 import sys
 
+
 def get_class(kls):
     parts = kls.split('.')
     module = ".".join(parts[:-1])
-    m = __import__( module )
+    m = __import__(module)
     for comp in parts[1:]:
         m = getattr(m, comp)
     return m
+
 
 def run(process_name):
     """

@@ -1,18 +1,16 @@
-"""
-Created on 2011-01-24
-Module is responsible for reading MQ queue and updating/inserting data records to the MongoDB
+""" Module is responsible for reading MQ queue and updating/inserting data records to the MongoDB """
 
-@author: Bohdan Mushkevych
-"""
+__author__ = 'Bohdan Mushkevych'
+
 import time
 from pymongo.errors import AutoReconnect
 from model.single_session import SingleSessionStatistics
-from model.raw_data import RawData
-from model.abstract_model import AbstractModel
+from model.raw_data import *
 from system.performance_ticker import SessionPerformanceTicker
 from workers.abstract_worker import AbstractWorker
 from system.collection_context import CollectionContext, COLLECTION_SINGLE_SESSION
 from system import time_helper
+
 
 class SingleSessionWorker(AbstractWorker):
     """
@@ -41,8 +39,8 @@ class SingleSessionWorker(AbstractWorker):
         try:
             single_session_collection = CollectionContext.get_collection(self.logger, COLLECTION_SINGLE_SESSION)
             raw_data = RawData(message.body)
-            query = {AbstractModel.DOMAIN_NAME: raw_data.get_key()[0],
-                     AbstractModel.FAMILY_USER_PROFILE + '.' + AbstractModel.SESSION_ID: raw_data.get_session_id()}
+            query = {DOMAIN_NAME: raw_data.key[0],
+                     FAMILY_USER_PROFILE + '.' + SESSION_ID: raw_data.session_id}
             document = single_session_collection.find_one(query)
 
             if document is None:
@@ -50,10 +48,10 @@ class SingleSessionWorker(AbstractWorker):
                 session = SingleSessionStatistics()
 
                 # input data constraints - both session_id and user_id must be present in MQ message
-                session.key = (raw_data.get_key()[0], time_helper.raw_to_session(raw_data.get_key()[1]))
-                session.set_session_id(raw_data.get_session_id())
-                session.set_ip(raw_data.ip)
-                session.set_total_duration(0)
+                session.key = (raw_data.key[0], time_helper.raw_to_session(raw_data.key[1]))
+                session.session_id = raw_data.session_id
+                session.ip = raw_data.ip
+                session.total_duration = 0
 
                 session = self.update_session_body(raw_data, session)
                 self.add_entry(session, 0, raw_data)
@@ -63,10 +61,10 @@ class SingleSessionWorker(AbstractWorker):
                 session = SingleSessionStatistics(document)
 
                 session = self.update_session_body(raw_data, session)
-                duration = raw_data.get_key()[1] - time_helper.session_to_epoch(session.get_key()[1])
+                duration = raw_data.key[1] - time_helper.session_to_epoch(session.key[1])
                 session.set_total_duration(duration)
 
-                index = session.get_number_of_entries()
+                index = session.number_of_entries
                 self.add_entry(session, index, raw_data)
                 self.performance_ticker.increment_update()
 
@@ -90,29 +88,27 @@ class SingleSessionWorker(AbstractWorker):
             self.consumer.reject(message.delivery_tag)
 
     def update_session_body(self, raw_data, session):
-        if raw_data.get_browser() is not None:
-            session.set_browser(raw_data.get_browser())
-        if raw_data.get_screen_res()[0] is not None and raw_data.get_screen_res()[1] is not None:
-            session.set_screen_res(raw_data.get_screen_res()[0], raw_data.get_screen_res()[1])
-        if raw_data.get_os() is not None:
-            session.set_os(raw_data.get_os())
-        if raw_data.get_language() is not None:
-            session.set_language(raw_data.get_language())
-        if raw_data.get_country() is not None:
-            session.set_country(raw_data.get_country())
+        if raw_data.browser is not None:
+            session.browser = raw_data.browser
+        if raw_data.screen_res[0] is not None and raw_data.screen_res[1] is not None:
+            session.screen_res = (raw_data.screen_res[0], raw_data.screen_res[1])
+        if raw_data.os is not None:
+            session.os = raw_data.os
+        if raw_data.language is not None:
+            session.language = raw_data.language
+        if raw_data.country is not None:
+            session.country = raw_data.country
 
-        number_of_pageviews = session.get_number_of_pageviews()
-        if number_of_pageviews is None:
-            number_of_pageviews = 0
-        if raw_data.is_page_view():
-            number_of_pageviews += 1
-        session.set_number_of_pageviews(number_of_pageviews)
+        if session.number_of_pageviews is None:
+            session.number_of_pageviews = 0
+        if raw_data.is_page_view:
+            session.number_of_pageviews += 1
 
         return session
 
     def add_entry(self, session, index, raw_data):
-        session.set_number_of_entries(index + 1)
-        session.set_entry_timestamp(index, time_helper.raw_to_session(raw_data.get_key()[1]))
+        session.number_of_entries = index + 1
+        session.set_entry_timestamp(index, time_helper.raw_to_session(raw_data.key[1]))
 
 
 if __name__ == '__main__':

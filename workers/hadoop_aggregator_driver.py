@@ -1,9 +1,7 @@
-"""
-Created on 2011-10-19
+__author__ = 'Bohdan Mushkevych'
 
-@author: Bohdan Mushkevych
-"""
 from workers.abstract_hadoop_worker import AbstractHadoopWorker
+
 
 class HadoopAggregatorDriver(AbstractHadoopWorker):
     """Python process that starts Hadoop map/reduce job, supervises its execution and updated unit_of_work"""

@@ -1,15 +1,12 @@
-"""
-Created on 2011-12-12
+""" Module contains logic for YES worker - one that marks any units_of_work as complete """
 
-Module contains logic for YES worker - one that marks any units_of_work as complete
+__author__ = 'Bohdan Mushkevych'
 
-@author: Bohdan Mushkevych
-"""
 from bson.objectid import ObjectId
 from datetime import datetime
 from model import unit_of_work_helper
 
-from model.unit_of_work import UnitOfWork
+from model import unit_of_work
 from workers.abstract_worker import AbstractWorker
 from system.performance_ticker import AggregatorPerformanceTicker
 
@@ -36,16 +33,15 @@ class IdentityWorker(AbstractWorker):
         - catches the exception
         - logs the exception
         - marks unit of work as INVALID"""
-        unit_of_work = None
+        uow = None
         try:
             # @param object_id: ObjectId of the unit_of_work from mq
             object_id = ObjectId(message.body)
-            unit_of_work = unit_of_work_helper.retrieve_by_id(self.logger, object_id)
-            if unit_of_work.get_state() == UnitOfWork.STATE_CANCELED \
-                or unit_of_work.get_state() == UnitOfWork.STATE_PROCESSED:
+            uow = unit_of_work_helper.retrieve_by_id(self.logger, object_id)
+            if uow.state in [unit_of_work.STATE_CANCELED, unit_of_work.STATE_PROCESSED]:
                 # garbage collector might have reposted this UOW
-                self.logger.warning('Skipping unit_of_work: id %s; state %s;' \
-                                    % (str(message.body), unit_of_work.get_state()), exc_info=False)
+                self.logger.warning('Skipping unit_of_work: id %s; state %s;'
+                                    % (str(message.body), uow.state), exc_info=False)
                 self.consumer.acknowledge(message.delivery_tag)
                 return
         except Exception:
@@ -54,19 +50,19 @@ class IdentityWorker(AbstractWorker):
             return
 
         try:
-            self.performance_ticker.start_uow(unit_of_work)
-            unit_of_work.set_state(UnitOfWork.STATE_PROCESSED)
-            unit_of_work.set_number_of_processed_documents(0)
-            unit_of_work.set_started_at(datetime.utcnow())
-            unit_of_work.set_finished_at(datetime.utcnow())
-            unit_of_work_helper.update(self.logger, unit_of_work)
+            self.performance_ticker.start_uow(uow)
+            uow.state = unit_of_work.STATE_PROCESSED
+            uow.number_of_processed_documents = 0
+            uow.started_at = datetime.utcnow()
+            uow.finished_at = datetime.utcnow()
+            unit_of_work_helper.update(self.logger, uow)
             self.performance_ticker.finish_uow()
         except Exception as e:
-            unit_of_work.set_state(UnitOfWork.STATE_INVALID)
-            unit_of_work_helper.update(self.logger, unit_of_work)
+            uow.state = unit_of_work.STATE_INVALID
+            unit_of_work_helper.update(self.logger, uow)
             self.performance_ticker.cancel_uow()
-            self.logger.error('Safety fuse while processing unit_of_work %s in timeperiod %s : %r'\
-                              % (message.body, unit_of_work.get_timeperiod(), e), exc_info=True)
+            self.logger.error('Safety fuse while processing unit_of_work %s in timeperiod %s : %r'
+                              % (message.body, uow.timeperiod, e), exc_info=True)
         finally:
             self.consumer.acknowledge(message.delivery_tag)
             self.consumer.close()

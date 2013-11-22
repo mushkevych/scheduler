@@ -1,8 +1,5 @@
-"""
-Created on 2011-02-01
+__author__ = 'Bohdan Mushkevych'
 
-@author: Bohdan Mushkevych
-"""
 
 from settings import settings
 from flopsy.flopsy import Consumer

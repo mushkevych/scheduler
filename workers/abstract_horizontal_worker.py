@@ -1,12 +1,11 @@
-"""
-Created on 2011-03-16
+""" Module contains common logic for all workers that work with chunks of data from DB """
 
-Module contains common logic for all workers that work with chunks of data from DB
+__author__ = 'Bohdan Mushkevych'
 
-@author: Bohdan Mushkevych
-"""
-from model.abstract_model import AbstractModel
+
+from model import base_model
 from workers.abstract_aware_worker import AbstractAwareWorker
+
 
 class AbstractHorizontalWorker(AbstractAwareWorker):
     """
@@ -33,7 +32,7 @@ class AbstractHorizontalWorker(AbstractAwareWorker):
                 self.performance_ticker.increment()
             if len(bulk_array) > 0:
                 # Mongo funny behaviour - cursor may be empty, with cursor.count != 0
-                self._process_bulk_array(bulk_array, bulk_array[0][AbstractModel.TIMESTAMP])
+                self._process_bulk_array(bulk_array, bulk_array[0][base_model.TIMEPERIOD])
                 shall_continue = True
             del bulk_array
         except LookupError as e:

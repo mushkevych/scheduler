@@ -1,9 +1,6 @@
-"""
-Created on 2011-01-24
-Module re-launches invalid units_of_work
+""" Module re-launches invalid units_of_work """
 
-@author: Bohdan Mushkevych
-"""
+__author__ = 'Bohdan Mushkevych'
 
 from threading import Lock
 from pymongo import ASCENDING
@@ -13,13 +10,15 @@ from flopsy.flopsy import PublishersPool
 from model import unit_of_work_helper
 from system.decorator import thread_safe
 from workers.abstract_worker import AbstractWorker
+from model import unit_of_work
 from model.unit_of_work import UnitOfWork
 from system.collection_context import CollectionContext
 from system.collection_context import COLLECTION_UNITS_OF_WORK
 
 
-LIFE_SUPPORT_HOURS = 48 # number of hours from UOW creation time to keep UOW re-posting to MQ
-REPOST_AFTER_HOURS = 1  # number of hours, GC waits for the worker to pick up the UOW from MQ before re-posting
+LIFE_SUPPORT_HOURS = 48  # number of hours from UOW creation time to keep UOW re-posting to MQ
+REPOST_AFTER_HOURS = 1   # number of hours, GC waits for the worker to pick up the UOW from MQ before re-posting
+
 
 class GarbageCollectorWorker(AbstractWorker):
     """
@@ -39,53 +38,52 @@ class GarbageCollectorWorker(AbstractWorker):
     def _mq_callback(self, message):
         """ method looks for units of work in STATE_INVALID and re-runs them"""
         try:
-            query = { UnitOfWork.STATE : { '$in' : [UnitOfWork.STATE_IN_PROGRESS,
-                                                               UnitOfWork.STATE_INVALID,
-                                                               UnitOfWork.STATE_REQUESTED]}}
+            query = {unit_of_work.STATE: {'$in': [unit_of_work.STATE_IN_PROGRESS,
+                                                  unit_of_work.STATE_INVALID,
+                                                  unit_of_work.STATE_REQUESTED]}}
             cursor = self.collection.find(query).sort('_id', ASCENDING)
-            
+
             if cursor.count() != 0:
                 for document in cursor:
                     self._process_single_document(document)
         except Exception as e:
-            self.logger.error('_mq_callback: %s' % str(e), exc_info = True)
+            self.logger.error('_mq_callback: %s' % str(e), exc_info=True)
         finally:
             self.consumer.acknowledge(message.delivery_tag)
 
     def _process_single_document(self, document):
         """ actually inspects UOW retrieved from the database"""
         repost = False
-        unit_of_work = UnitOfWork(document)
-        process_name = unit_of_work.get_process_name()
+        uow = UnitOfWork(document)
+        process_name = uow.process_name
 
-        if unit_of_work.get_state() == UnitOfWork.STATE_INVALID:
+        if uow.state == unit_of_work.STATE_INVALID:
             repost = True
-        elif unit_of_work.get_state() == UnitOfWork.STATE_IN_PROGRESS \
-            or unit_of_work.get_state() == UnitOfWork.STATE_REQUESTED:
 
-            last_activity = unit_of_work.get_started_at()
+        elif uow.state() == unit_of_work.STATE_IN_PROGRESS or uow.state == unit_of_work.STATE_REQUESTED:
+            last_activity = uow.started_at
             if last_activity is None:
-                last_activity = unit_of_work.get_created_at()
+                last_activity = uow.created_at
 
-            if  datetime.utcnow() - last_activity > timedelta(hours=REPOST_AFTER_HOURS):
+            if datetime.utcnow() - last_activity > timedelta(hours=REPOST_AFTER_HOURS):
                 repost = True
-            
+
         if repost:
-            creation_time = unit_of_work.get_created_at()
-            if  datetime.utcnow() - creation_time < timedelta(hours=LIFE_SUPPORT_HOURS):
-                unit_of_work.set_state(UnitOfWork.STATE_REQUESTED)
-                unit_of_work.set_number_of_retries(unit_of_work.get_number_of_retries() + 1)
-                unit_of_work_helper.update(self.logger, unit_of_work)
+            creation_time = uow.created_at
+            if datetime.utcnow() - creation_time < timedelta(hours=LIFE_SUPPORT_HOURS):
+                uow.state = unit_of_work.STATE_REQUESTED
+                uow.number_of_retries += 1
+                unit_of_work_helper.update(self.logger, uow)
                 self.publishers.get_publisher(process_name).publish(str(document['_id']))
 
-                self.logger.info('UOW marked for re-processing: process %s; id %s; attempt %d' \
-                                 % (process_name, str(document['_id']), unit_of_work.get_number_of_retries()))
+                self.logger.info('UOW marked for re-processing: process %s; id %s; attempt %d'
+                                 % (process_name, str(document['_id']), uow.number_of_retries))
                 self.performance_ticker.increment()
             else:
-                unit_of_work.set_state(UnitOfWork.STATE_CANCELED)
-                unit_of_work_helper.update(self.logger, unit_of_work)
-                self.logger.info('UOW transfered to STATE_CANCELED: process %s; id %s; attempt %d' \
-                                 % (process_name, str(document['_id']), unit_of_work.get_number_of_retries()))
+                uow.state = unit_of_work.STATE_CANCELED
+                unit_of_work_helper.update(self.logger, uow)
+                self.logger.info('UOW transferred to STATE_CANCELED: process %s; id %s; attempt %d'
+                                 % (process_name, str(document['_id']), uow.number_of_retries))
 
 
 if __name__ == '__main__':

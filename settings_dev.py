@@ -1,7 +1,7 @@
 from datetime import datetime
 
 settings = dict(
-    process_cwd = '/tmp',   # daemonized process working directory, where it can create .cache and other folders
+    process_cwd='/tmp',   # daemonized process working directory, where it can create .cache and other folders
 
     # created with: sudo rabbitmqctl add_vhost /hadoop
     # set permissions with: sudo rabbitmqctl set_permissions -p /hadoop guest ".*" ".*" ".*"
