@@ -1,6 +1,4 @@
-
 __author__ = 'Bohdan Mushkevych'
-
 
 from system.process_context import ProcessContext
 from model import time_table
@@ -73,6 +71,7 @@ class AbstractNode(object):
                 dependents_are_finalized - indicates if all <dependent on> periods are in STATE_PROCESSED
                 dependents_are_skipped - indicates that among <dependent on> periods are some in STATE_SKIPPED
              """
+
         def match_time_qualifier(actual_process_name, candidate_process_name):
             if candidate_process_name is None:
                 return False
@@ -133,9 +132,9 @@ class LinearNode(AbstractNode):
         if self.time_record is None:
             self.request_timetable_record()
 
-        if self.time_record.state == time_table.STATE_FINAL_RUN \
-                or self.time_record.state == time_table.STATE_IN_PROGRESS \
-                or self.time_record.state == time_table.STATE_EMBRYO:
+        if self.time_record.state in [time_table.STATE_FINAL_RUN,
+                                      time_table.STATE_IN_PROGRESS,
+                                      time_table.STATE_EMBRYO]:
             return True
         return False
 
@@ -160,9 +159,9 @@ class TreeNode(AbstractNode):
         children_processed = True
         for timestamp in self.children:
             child = self.children[timestamp]
-            if child.time_record.state == time_table.STATE_FINAL_RUN \
-                    or child.time_record.state == time_table.STATE_IN_PROGRESS \
-                    or child.time_record.state == time_table.STATE_EMBRYO:
+            if child.time_record.state in [time_table.STATE_FINAL_RUN,
+                                           time_table.STATE_IN_PROGRESS,
+                                           time_table.STATE_EMBRYO]:
                 children_processed = False
                 break
         return children_processed
@@ -180,23 +179,22 @@ class TreeNode(AbstractNode):
             child = self.children[timestamp]
             children_processed = child.validate()
 
-            if child.time_record.state == time_table.STATE_EMBRYO \
-                    or child.time_record.state == time_table.STATE_IN_PROGRESS \
-                    or child.time_record.state == time_table.STATE_FINAL_RUN:
+            if child.time_record.state in [time_table.STATE_EMBRYO,
+                                           time_table.STATE_IN_PROGRESS,
+                                           time_table.STATE_FINAL_RUN]:
                 children_processed = False
             if child.time_record.state != time_table.STATE_SKIPPED:
                 all_children_skipped = False
 
-        if children_processed == False \
-            and (self.time_record.state == time_table.STATE_FINAL_RUN
-                 or self.time_record.state == time_table.STATE_PROCESSED):
+        if children_processed is False \
+            and self.time_record.state in [time_table.STATE_FINAL_RUN, time_table.STATE_PROCESSED]:
             self.request_reprocess()
 
         # ideally, we should check if our tree holds HOURLY records by running <isinstance(self.tree, FourLevelTree)>
         # however, we can not import FourLevelTree because of self-reference import issue
         # to solve this problem we check presence of <process_hourly> attribute
         if all_children_skipped \
-                and hasattr(self.tree, 'process_hourly') \
-                and self.process_name == self.tree.process_daily \
-                and len(self.children) == TreeNode.HOURS_IN_DAY:
+            and hasattr(self.tree, 'process_hourly') \
+            and self.process_name == self.tree.process_daily \
+            and len(self.children) == TreeNode.HOURS_IN_DAY:
             self.request_skip()

@@ -85,7 +85,7 @@ class AbstractPipeline(object):
             # As soon as among <dependent on> periods are in STATE_SKIPPED
             # there is very little sense in waiting for them to become STATE_PROCESSED
             # Skip this timeperiod itself
-            time_record.set_state(time_table.STATE_SKIPPED)
+            time_record.state = time_table.STATE_SKIPPED
             self.timetable._save_time_record(process_name, time_record)
             tree = self.timetable.get_tree(process_name)
             tree.update_node_by_process(process_name, time_record)
@@ -97,7 +97,6 @@ class AbstractPipeline(object):
             msg = '%s for timeperiod %r is blocked by unprocessed dependencies. Waiting another tick' \
                   % (process_name, time_record.timeperiod)
             self._log_message(INFO, process_name, time_record, msg)
-
 
     def manage_pipeline_for_process(self, process_name, time_record):
         """ method main duty - do _not_ publish another unit_of_work, if previous was not yet processed

@@ -1,6 +1,5 @@
 __author__ = 'Bohdan Mushkevych'
 
-
 from threading import Thread
 from werkzeug.wrappers import Request
 from werkzeug.wsgi import ClosingIterator, SharedDataMiddleware

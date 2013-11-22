@@ -9,15 +9,15 @@ from settings import settings
 from pymongo.connection import Connection as MongoConnection, _str_to_node
 from pymongo.master_slave_connection import MasterSlaveConnection
 
-COLLECTION_SINGLE_SESSION = 'single_session_collection'
-COLLECTION_SCHEDULER_CONFIGURATION = 'scheduler_configuration_collection'
-COLLECTION_UNITS_OF_WORK = 'units_of_work_collection'
-COLLECTION_BOX_CONFIGURATION = 'box_configuration_collection'
+COLLECTION_SINGLE_SESSION = 'single_session'
+COLLECTION_SCHEDULER_CONFIGURATION = 'scheduler_configuration'
+COLLECTION_UNITS_OF_WORK = 'units_of_work'
+COLLECTION_BOX_CONFIGURATION = 'box_configuration'
 
-COLLECTION_TIMETABLE_HOURLY = 'timetable_hourly_collection'
-COLLECTION_TIMETABLE_DAILY = 'timetable_daily_collection'
-COLLECTION_TIMETABLE_MONTHLY = 'timetable_monthly_collection'
-COLLECTION_TIMETABLE_YEARLY = 'timetable_yearly_collection'
+COLLECTION_TIMETABLE_HOURLY = 'timetable_hourly'
+COLLECTION_TIMETABLE_DAILY = 'timetable_daily'
+COLLECTION_TIMETABLE_MONTHLY = 'timetable_monthly'
+COLLECTION_TIMETABLE_YEARLY = 'timetable_yearly'
 
 REPLICA_SET_SSC = 'replica_set_sss'
 REPLICA_SET_SYSTEM = 'replica_set_system'

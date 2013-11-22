@@ -20,6 +20,6 @@ settings = dict(
     log_directory='/var/log/synergy-data/',
     pid_directory='/var/log/synergy-data/',
     perf_ticker_interval=10,                                            # seconds between performance ticker messages
-    synergy_start_timestamp=datetime.utcnow().strftime('%Y%m%d%H'),    # precision is process dependent
+    synergy_start_timeperiod=datetime.utcnow().strftime('%Y%m%d%H'),    # precision is process dependent
     debug=True
 )

@@ -1,21 +1,17 @@
-"""
-Created on 2011-03-17
-
-@author: Bohdan Mushkevych
-"""
+__author__ = 'Bohdan Mushkevych'
 
 import unittest
 from datetime import datetime
 from system import time_helper
-from system import process_context 
+from system import process_context
+
 
 class TestTimeHelper(unittest.TestCase):
-    
     def test_raw_to_session(self):
         timestamp = 1304618357.4482391
         expected_output = '20110505175917'
         assert time_helper.raw_to_session(timestamp) == expected_output
-        
+
     def test_session_to_hour(self):
         timestamp = '20110101161633'
         expected_output = '2011010116'
@@ -39,7 +35,7 @@ class TestTimeHelper(unittest.TestCase):
         timestamp = '2011120000'
         expected_output = '2011000000'
         assert time_helper.month_to_year(timestamp) == expected_output
-    
+
     def test_cast_to_time_qualifier(self):
         processes = [process_context.PROCESS_SITE_HOURLY, process_context.PROCESS_SITE_HOURLY,
                      process_context.PROCESS_SITE_DAILY, process_context.PROCESS_SITE_DAILY,
@@ -55,22 +51,22 @@ class TestTimeHelper(unittest.TestCase):
                     '2010000000', '2010000000']
         for i in range(8):
             assert time_helper.cast_to_time_qualifier(processes[i], params[i]) == expected[i]
-    
+
     def test_datetime_to_synergy(self):
-        dt = datetime(year = 2010, month = 12, day = 31, hour = 23, minute = 50, second = 15)
+        dt = datetime(year=2010, month=12, day=31, hour=23, minute=50, second=15)
 
         processes = [process_context.PROCESS_SESSION_WORKER_00,
                      process_context.PROCESS_SITE_HOURLY,
                      process_context.PROCESS_SITE_DAILY,
                      process_context.PROCESS_SITE_MONTHLY,
                      process_context.PROCESS_SITE_YEARLY]
-        
+
         expected = ['20101231235015',
                     '2010123123',
                     '2010123100',
                     '2010120000',
                     '2010000000']
-        
+
         for i in range(4):
             assert time_helper.datetime_to_synergy(processes[i], dt) == expected[i]
 
@@ -81,17 +77,17 @@ class TestTimeHelper(unittest.TestCase):
                      process_context.PROCESS_SITE_MONTHLY,
                      process_context.PROCESS_SITE_YEARLY]
 
-        expected = [datetime(year = 2010, month = 12, day = 31, hour = 23, minute = 12, second = 34),
-                    datetime(year = 2010, month = 12, day = 31, hour = 23, minute = 00, second = 0),
-                    datetime(year = 2010, month = 12, day = 31, hour = 00, minute = 00, second = 0),
-                    datetime(year = 2010, month = 12, day = 01, hour = 00, minute = 00, second = 0),
-                    datetime(year = 2010, month = 01, day = 01, hour = 00, minute = 00, second = 0),
+        expected = [datetime(year=2010, month=12, day=31, hour=23, minute=12, second=34),
+                    datetime(year=2010, month=12, day=31, hour=23, minute=00, second=0),
+                    datetime(year=2010, month=12, day=31, hour=00, minute=00, second=0),
+                    datetime(year=2010, month=12, day=01, hour=00, minute=00, second=0),
+                    datetime(year=2010, month=01, day=01, hour=00, minute=00, second=0),
         ]
-        params =   ['20101231231234',
-                    '2010123123',
-                    '2010123100',
-                    '2010120000',
-                    '2010000000']
+        params = ['20101231231234',
+                  '2010123123',
+                  '2010123100',
+                  '2010120000',
+                  '2010000000']
 
         for i in range(5):
             assert time_helper.synergy_to_datetime(processes[i], params[i]) == expected[i]
@@ -102,17 +98,17 @@ class TestTimeHelper(unittest.TestCase):
         expected = ['2011010101', '2011010113', '2011010200']
         for i in range(3):
             assert time_helper.increment_time(process_context.PROCESS_SITE_HOURLY, stamps[i]) == expected[i]
-        
+
         stamps = ['2011010100', '2011013100', '2010123100']
         expected = ['2011010200', '2011020100', '2011010100']
         for i in range(3):
             assert time_helper.increment_time(process_context.PROCESS_SITE_DAILY, stamps[i]) == expected[i]
-                                                      
+
         stamps = ['2011010000', '2011120000', '2011100000']
         expected = ['2011020000', '2012010000', '2011110000']
         for i in range(3):
             assert time_helper.increment_time(process_context.PROCESS_SITE_MONTHLY, stamps[i]) == expected[i]
-        
+
         stamps = ['2011000000', '2012000000', '2099000000']
         expected = ['2012000000', '2013000000', '2100000000']
         for i in range(3):

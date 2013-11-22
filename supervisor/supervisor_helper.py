@@ -1,16 +1,15 @@
-"""
-Created on 2011-06-15
+__author__ = 'Bohdan Mushkevych'
 
-@author: Bohdan Mushkevych
-"""
+from model import box_configuration
 from model.box_configuration import BoxConfiguration
 from settings import settings
 from system.collection_context import CollectionContext, COLLECTION_BOX_CONFIGURATION
 
+
 def retrieve_configuration(logger, box_id):
     """ method reads box configuration from the MongoDB"""
     collection = CollectionContext.get_collection(logger, COLLECTION_BOX_CONFIGURATION)
-    document = collection.find_one( { BoxConfiguration.BOX_ID : box_id } )
+    document = collection.find_one({box_configuration.BOX_ID: box_id})
     if document is None:
         raise LookupError('MongoDB has no process list for box_id = %r' % box_id)
     return BoxConfiguration(document)
@@ -42,6 +41,5 @@ def get_box_id(logger):
         if box_id is None:
             raise LookupError('BOX_ID is not defined in %r' % config_file)
 
-    except EnvironmentError: # parent of IOError, OSError
+    except EnvironmentError:  # parent of IOError, OSError
         logger.error('Can not read configuration file.', exc_info=True)
-  

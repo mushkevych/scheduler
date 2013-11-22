@@ -141,7 +141,7 @@ class ProcessContext:
             time_qualifier=QUALIFIER_HOURLY,
             exchange=EXCHANGE_VERTICAL,
             type=TYPE_VERTICAL_AGGREGATOR,
-            source_collection='single_session_collection'),
+            source_collection='single_session'),
 
         PROCESS_SITE_MONTHLY: _create_context_entry(
             process_name=PROCESS_SITE_MONTHLY,
@@ -166,8 +166,8 @@ class ProcessContext:
             time_qualifier=QUALIFIER_BY_SCHEDULE,
             exchange=EXCHANGE_UTILS,
             type=TYPE_GARBAGE_COLLECTOR,
-            source_collection='units_of_work_collection',
-            target_collection='units_of_work_collection'),
+            source_collection='units_of_work',
+            target_collection='units_of_work'),
 
         PROCESS_SESSION_WORKER_00: _create_context_entry(
             process_name=PROCESS_SESSION_WORKER_00,
@@ -177,8 +177,8 @@ class ProcessContext:
             queue=QUEUE_RAW_DATA,
             routing=ROUTING_IRRELEVANT,
             exchange=EXCHANGE_RAW_DATA,
-            source_collection='single_session_collection',
-            target_collection='single_session_collection',
+            source_collection='single_session',
+            target_collection='single_session',
             pid_file='session_worker_00.pid',
             log_file='session_worker_00.log'),
 
@@ -190,8 +190,8 @@ class ProcessContext:
             queue=QUEUE_RAW_DATA,
             routing=ROUTING_IRRELEVANT,
             exchange=EXCHANGE_RAW_DATA,
-            source_collection='single_session_collection',
-            target_collection='single_session_collection',
+            source_collection='single_session',
+            target_collection='single_session',
             pid_file='session_worker_01.pid',
             log_file='session_worker_01.log'),
 

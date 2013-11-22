@@ -58,19 +58,19 @@ class Scheduler(SynergyProcess):
             document = SchedulerConfiguration(entry)
             interval = document.interval
             is_active = document.process_state == scheduler_configuration.STATE_ON
-            type = ProcessContext.get_type(document.process_name)
+            process_type = ProcessContext.get_type(document.process_name)
             parameters = [document.process_name, document]
 
-            if type == TYPE_ALERT:
+            if process_type == TYPE_ALERT:
                 function = self.fire_alert
-            elif type == TYPE_HORIZONTAL_AGGREGATOR:
+            elif process_type == TYPE_HORIZONTAL_AGGREGATOR:
                 function = self.fire_worker
-            elif type == TYPE_VERTICAL_AGGREGATOR:
+            elif process_type == TYPE_VERTICAL_AGGREGATOR:
                 function = self.fire_worker
-            elif type == TYPE_GARBAGE_COLLECTOR:
+            elif process_type == TYPE_GARBAGE_COLLECTOR:
                 function = self.fire_garbage_collector
             else:
-                self.logger.error('Can not start scheduler for %s since it has no processing function' % type)
+                self.logger.error('Can not start scheduler for %s since it has no processing function' % process_type)
                 continue
 
             handler = RepeatTimer(interval, function, args=parameters)
@@ -79,10 +79,10 @@ class Scheduler(SynergyProcess):
             if is_active:
                 handler.start()
                 self.logger.info('Started scheduler for %s:%s, triggering every %d seconds'
-                                 % (type, document.process_name, interval))
+                                 % (process_type, document.process_name, interval))
             else:
                 self.logger.info('Handler for %s:%s registered in Scheduler. Idle until activated.'
-                                 % (type, document.process_name))
+                                 % (process_type, document.process_name))
 
         # as Scheduler is now initialized and running - we can safely start its MX
         self.start_mx()

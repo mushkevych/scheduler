@@ -1,14 +1,11 @@
-"""
-Created on 2011-06-01
-
-@author: Bohdan Mushkevych
-"""
+__author__ = 'Bohdan Mushkevych'
 
 import unittest
 from model import unit_of_work_helper
 from tests import base_fixtures
 from tests.base_fixtures import TestMessage
 from tests.base_fixtures import TestConsumer
+
 
 # pylint: disable=E1002
 def get_test_aggregator(baseclass, process_name):
@@ -24,6 +21,7 @@ def get_test_aggregator(baseclass, process_name):
             pass
 
     return TestAggregator(process_name)
+
 
 # pylint: disable=E1101
 class AbstractWorkerUnitTest(unittest.TestCase):
@@ -45,9 +43,9 @@ class AbstractWorkerUnitTest(unittest.TestCase):
 
         # creating unit_of_work entity, requesting to process created above statistics
         self.uow_id = base_fixtures.create_unit_of_work(self.process_name,
-                                                   str(list_of_stats[0]),
-                                                   str(list_of_stats[-1]))
-        
+                                                        str(list_of_stats[0]),
+                                                        str(list_of_stats[-1]))
+
     def virtual_tear_down(self):
         """Abstract method to be implemented by children"""
         pass
@@ -57,9 +55,9 @@ class AbstractWorkerUnitTest(unittest.TestCase):
         self.virtual_tear_down()
         unit_of_work_helper.remove(self.aggregator.logger, self.uow_id)
         # killing the worker
-#        self.aggregator.__del__()
+        #        self.aggregator.__del__()
         del self.aggregator
-    
+
     def _get_key(self, obj):
         """Abstract method to be implemented by children"""
         pass
@@ -74,7 +72,7 @@ class AbstractWorkerUnitTest(unittest.TestCase):
             for key in self.aggregator.aggregated_objects:
                 print self.output_prefix + '_%02d = %s' % (i, self.aggregator.aggregated_objects[key].document)
                 i += 1
-        
+
         if self.compare_results:
             expected_values = base_fixtures.get_field_starting_with(self.output_prefix, self.output_module)
             if len(expected_values) == 0:

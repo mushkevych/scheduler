@@ -1,13 +1,10 @@
-"""
-Created on 2012-03-15
-
-@author: Bohdan Mushkevych
-"""
+__author__ = 'Bohdan Mushkevych'
 
 import unittest
 from datetime import datetime
 import time
 from system import repeat_timer
+
 
 class TestRepeatTimer(unittest.TestCase):
     INTERVAL = 3
@@ -16,7 +13,8 @@ class TestRepeatTimer(unittest.TestCase):
         print 'YES executed with parameters %s %s' % (str(start_datetime), seconds)
 
     def method_no(self, start_datetime, seconds):
-        raise AssertionError('Assertion failed as NO was executed with parameters %s %s' % (str(start_datetime), seconds))
+        raise AssertionError(
+            'Assertion failed as NO was executed with parameters %s %s' % (str(start_datetime), seconds))
 
     def method_checkpoint(self, start_datetime, seconds):
         print 'Entering method checkpoint with parameters %s %s' % (str(start_datetime), seconds)
@@ -32,7 +30,7 @@ class TestRepeatTimer(unittest.TestCase):
         time.sleep(TestRepeatTimer.INTERVAL)
         self.obj.cancel()
         assert True
-        
+
     def test_cancellation(self):
         self.obj = repeat_timer.RepeatTimer(TestRepeatTimer.INTERVAL,
                                             self.method_no,
@@ -54,13 +52,14 @@ class TestRepeatTimer(unittest.TestCase):
 
     def test_trigger_with_continuation(self):
         self.obj = repeat_timer.RepeatTimer(TestRepeatTimer.INTERVAL - 1,
-            self.method_yes,
-            args=[datetime.utcnow(), 0])
+                                            self.method_yes,
+                                            args=[datetime.utcnow(), 0])
         self.obj.start()
         self.obj.trigger()
         time.sleep(TestRepeatTimer.INTERVAL)
         self.obj.cancel()
         assert True
+
 
 if __name__ == '__main__':
     unittest.main()

@@ -1,8 +1,7 @@
 __author__ = 'Bohdan Mushkevych'
 
-
 from threading import RLock
-from model.raw_data import *
+from model import base_model
 from model import time_table
 from model.time_table import TimeTable
 from system.collection_context import CollectionContext, COLLECTION_TIMETABLE_YEARLY, \
@@ -37,10 +36,10 @@ class ProcessingStatements(object):
         resp = dict()
         try:
             if unprocessed_only:
-                query = {TIMESTAMP: {'$regex': timestamp},
+                query = {base_model.TIMEPERIOD: {'$regex': timestamp},
                          time_table.STATE: {'$ne': time_table.STATE_PROCESSED}}
             else:
-                query = {TIMESTAMP: {'$regex': timestamp}}
+                query = {base_model.TIMEPERIOD: {'$regex': timestamp}}
 
             cursor = collection.find(query)
             if cursor.count() == 0:

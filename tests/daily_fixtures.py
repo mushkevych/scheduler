@@ -1,8 +1,4 @@
-"""
-Created on 2011-02-21
-
-@author: Bohdan Mushkevych
-"""
+__author__ = 'Bohdan Mushkevych'
 
 
 def generate_hourly_vertical_composite_key(index, total):
@@ -21,18 +17,18 @@ def generate_hourly_vertical_composite_key(index, total):
 
         if i == index:
             break
-            
-    return 'domain_name_' + str(site), str(d) + '_%02d'%h
+
+    return 'domain_name_%s' % str(site), str(d) + '_%02d' % h
+
 
 def generate_hourly_horizontal_composite_key(index, total):
     h1 = '20010303_10'
     h2 = '20010303_11'
 
     if index <= total / 2:
-        return 'domain_name_' + str(index), h1
+        return 'domain_name_%s' % str(index), h1
     else:
-        return 'domain_name_' + str(index), h2
-
+        return 'domain_name_%s' % str(index), h2
 
 
 if __name__ == '__main__':

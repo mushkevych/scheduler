@@ -1,8 +1,5 @@
-"""
-Created on 2011-06-15
+__author__ = 'Bohdan Mushkevych'
 
-@author: Bohdan Mushkevych
-"""
 import os
 import psutil
 from threading import Lock
@@ -11,13 +8,14 @@ from psutil import TimeoutExpired
 
 import supervisor_helper as helper
 from launch import get_python, PROJECT_ROOT, PROCESS_STARTER
-from model.box_configuration import BoxConfiguration
+from model import box_configuration
 from system.process_context import ProcessContext
 from system.repeat_timer import RepeatTimer
 from system.synergy_process import SynergyProcess
 from settings import settings
 
 INTERVAL = 5    # seconds between checking process
+
 
 class Supervisor(SynergyProcess):
     def __init__(self, process_name):
@@ -28,13 +26,11 @@ class Supervisor(SynergyProcess):
         self.box_id = helper.get_box_id(self.logger)
         self.logger.info('Started %s with configuration for BOX_ID=%r' % (self.process_name, self.box_id))
 
-
     def __del__(self):
         for handler in self.thread_handlers:
             handler.cancel()
         self.thread_handlers.clear()
         super(Supervisor, self).__del__()
-
 
     # **************** Supervisor Methods ************************
     def _kill_process(self, box_configuration, process_name):
@@ -54,16 +50,15 @@ class Supervisor(SynergyProcess):
         finally:
             self.logger.info('}')
 
-
     def _start_process(self, box_configuration, process_name):
         try:
             self.logger.info('start: %s {' % process_name)
             p = psutil.Popen([get_python(), PROJECT_ROOT + '/' + PROCESS_STARTER, process_name],
-                               close_fds=True,
-                               cwd=settings['process_cwd'],
-                               stdin=PIPE,
-                               stdout=PIPE,
-                               stderr=STDOUT)
+                             close_fds=True,
+                             cwd=settings['process_cwd'],
+                             stdin=PIPE,
+                             stdout=PIPE,
+                             stderr=STDOUT)
             box_configuration.set_process_pid(process_name, p.pid)
             self.logger.info('Started %s with pid = %r' % (process_name, p.pid))
         except Exception:
@@ -73,7 +68,6 @@ class Supervisor(SynergyProcess):
             helper.update_configuration(self.logger, box_configuration)
             self.logger.info('}')
 
-
     def _poll_process(self, box_configuration, process_name):
         """ between killing a process and its actual termination lies poorly documented requirement -
             <purging process' io pipes and reading exit status>.
@@ -82,8 +76,8 @@ class Supervisor(SynergyProcess):
             pid = box_configuration.get_process_pid(process_name)
             p = psutil.Process(pid)
 
-            returncode = p.wait(timeout=0.01)
-            if returncode is None:
+            return_code = p.wait(timeout=0.01)
+            if return_code is None:
                 # process is already terminated
                 self.logger.info('Process %s is terminated' % process_name)
                 return
@@ -98,7 +92,6 @@ class Supervisor(SynergyProcess):
         except Exception:
             self.logger.error('Exception on polling: %s' % process_name, exc_info=True)
 
-
     def start(self):
         """ reading box configurations and starting timers to start/monitor/kill processes """
         try:
@@ -112,7 +105,6 @@ class Supervisor(SynergyProcess):
                 self.logger.info('Started Supervisor for %s, triggering every %d seconds' % (process, INTERVAL))
         except LookupError as e:
             self.logger.error('Supervisor failed to start because of: %r' % e)
-            
 
     def manage_process(self, *args):
         """ reads box configuration and start/kill processes. performs process monitoring """
@@ -120,18 +112,18 @@ class Supervisor(SynergyProcess):
         try:
             self.lock.acquire()
 
-            box_configuration = helper.retrieve_configuration(self.logger, self.box_id)
-            state = box_configuration.get_process_state(process_name)
-            pid = box_configuration.get_process_pid(process_name)
-            if state == BoxConfiguration.STATE_OFF:
+            box_config = helper.retrieve_configuration(self.logger, self.box_id)
+            state = box_config.get_process_state(process_name)
+            pid = box_config.get_process_pid(process_name)
+            if state == box_configuration.STATE_OFF:
                 if pid is not None:
-                    self._kill_process(box_configuration, process_name)
+                    self._kill_process(box_config, process_name)
                 return
 
             if pid is None or not psutil.pid_exists(int(pid)):
-                self._start_process(box_configuration, process_name)
+                self._start_process(box_config, process_name)
             elif pid is not None and psutil.pid_exists(int(pid)):
-                self._poll_process(box_configuration, process_name)
+                self._poll_process(box_config, process_name)
         except Exception as e:
             self.logger.error('Exception: %s' % str(e), exc_info=True)
         finally:

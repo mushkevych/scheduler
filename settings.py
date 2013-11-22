@@ -20,7 +20,7 @@ settings = dict(
     mq_no_ack=False,
 
     ds_type='mongo_db',
-    mongo_db_name='synergy_hadoop',
+    mongo_db_name='scheduler',
     hadoop_command='/usr/bin/hadoop',
     hadoop_jar='/home/bmushkevych/git/synergy-hadoop/dist/synergy-hadoop-02.jar',
 

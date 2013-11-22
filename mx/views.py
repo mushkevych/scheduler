@@ -1,6 +1,5 @@
 __author__ = 'Bohdan Mushkevych'
 
-
 from datetime import datetime, timedelta
 import functools
 import json
@@ -26,18 +25,22 @@ def scheduler_details(request):
     connections = ConnectionDetails(jinja_env.globals['mbean'])
     return render_template('scheduler_details.html', details=details, connections=connections)
 
+
 @expose('/traffic_details/')
 def traffic_details(request):
     return render_template('processing_details.html')
+
 
 @expose('/financial_details/')
 def financial_details(request):
     return render_template('processing_details.html')
 
+
 @expose('/processing_statements/')
 def processing_statements(request):
     details = TimeperiodProcessingStatements(jinja_env.globals['mbean'], request)
     return render_template('processing_statements.html', details=details)
+
 
 @expose('/request_children/')
 def request_children(request):
@@ -45,11 +48,13 @@ def request_children(request):
     return Response(response=json.dumps(details.details),
                     mimetype='application/json')
 
+
 @expose('/request_verticals/')
 def request_verticals(request):
     details = TimeperiodTreeDetails(jinja_env.globals['mbean'], request)
     return Response(response=json.dumps(details.details),
                     mimetype='application/json')
+
 
 @expose('/request_timeperiods/')
 def request_timeperiods(request):
@@ -57,11 +62,13 @@ def request_timeperiods(request):
     return Response(response=json.dumps(details.details),
                     mimetype='application/json')
 
+
 @expose('/action_reprocess/')
 def action_reprocess(request):
     handler = ActionHandler(jinja_env.globals['mbean'], request)
     return Response(response=json.dumps(handler.action_reprocess()),
                     mimetype='application/json')
+
 
 @expose('/action_skip/')
 def action_skip(request):
@@ -69,11 +76,13 @@ def action_skip(request):
     return Response(response=json.dumps(handler.action_skip()),
                     mimetype='application/json')
 
+
 @expose('/action_get_uow/')
 def action_get_uow(request):
     handler = ActionHandler(jinja_env.globals['mbean'], request)
     return Response(response=json.dumps(handler.action_get_uow()),
                     mimetype='application/json')
+
 
 @expose('/action_get_log/')
 def action_get_log(request):
@@ -81,11 +90,13 @@ def action_get_log(request):
     return Response(response=json.dumps(handler.action_get_log()),
                     mimetype='application/json')
 
+
 @expose('/action_change_interval/')
 def action_change_interval(request):
     handler = ActionHandler(jinja_env.globals['mbean'], request)
     handler.action_change_interval()
     return redirect('/')
+
 
 @expose('/action_trigger_now/')
 def action_trigger_now(request):
@@ -93,15 +104,18 @@ def action_trigger_now(request):
     handler.action_trigger_now()
     return redirect('/')
 
+
 @expose('/action_change_process_state/')
 def action_change_process_state(request):
     handler = ActionHandler(jinja_env.globals['mbean'], request)
     handler.action_change_process_state()
     return redirect('/')
 
+
 @expose('/object_viewer/')
 def object_viewer(request):
     return render_template('object_viewer.html')
+
 
 def not_found(request):
     return render_template('not_found.html')
@@ -109,6 +123,7 @@ def not_found(request):
 
 def valid_only(method):
     """ wraps method with verification for _valid_ and """
+
     @functools.wraps(method)
     def _wrapper(self, *args, **kwargs):
         if not self.valid:
@@ -117,6 +132,7 @@ def valid_only(method):
             return method(self, *args, **kwargs)
         except Exception as e:
             self.logger.error('MX Exception: %s' % str(e), exc_info=True)
+
     return _wrapper
 
 
@@ -225,7 +241,7 @@ class NodeDetails(object):
             description['timestamp'] = node.time_record.timeperiod
             description['state'] = node.time_record.state
         except Exception as e:
-            logger.error('MX Exception: ' + str(e), exc_info=True)
+            logger.error('MX Exception: %s' % str(e), exc_info=True)
         finally:
             return description
 
@@ -383,7 +399,7 @@ class ActionHandler(object):
             thread_handler = self.mbean.thread_handlers[self.process_name]
             thread_handler.change_interval(new_interval)
 
-            document = thread_handler.args[1] # of type SchedulerConfigurationEntry
+            document = thread_handler.args[1]  # of type SchedulerConfigurationEntry
             document.interval = new_interval
             scheduler_configuration_helper.update(self.logger, document)
 
@@ -460,8 +476,8 @@ class SchedulerDetails(object):
                 row.append(int(thread_handler.interval_new))
 
                 if not thread_handler.is_alive():
-                    row.append('NA') # Last Triggered
-                    row.append('NA') # Next Run In
+                    row.append('NA')  # Last Triggered
+                    row.append('NA')  # Next Run In
                 else:
                     row.append(thread_handler.activation_dt.strftime('%Y-%m-%d %H:%M:%S %Z'))
                     next_run = timedelta(seconds=thread_handler.interval_current) + thread_handler.activation_dt

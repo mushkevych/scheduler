@@ -1,8 +1,4 @@
-"""
-Created on 2011-03-30
-
-@author: Bohdan Mushkevych
-"""
+__author__ = 'Bohdan Mushkevych'
 
 import unittest
 import workers
@@ -12,7 +8,6 @@ from workers.garbage_collector_worker import GarbageCollectorWorker
 
 
 class GarbageCollectorUnitTest(unittest.TestCase):
-
     def setUp(self):
         hourly_fixtures.clean_session_entries()
         hourly_fixtures.generated_session_entries()

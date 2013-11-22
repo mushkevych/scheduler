@@ -1,15 +1,12 @@
-"""
-Created on 2011-04-25
-
-@author: Bohdan Mushkevych
-"""
+__author__ = 'Bohdan Mushkevych'
 
 import unittest
 from rest_client.restful_lib import Connection
 
 from settings import settings
-from model.time_table import TimeTable
-from system.process_context import PROCESS_SITE_HOURLY, PROCESS_ALERT_DAILY, PROCESS_FINANCIAL_DAILY
+from model import time_table
+from system.process_context import PROCESS_SITE_HOURLY, PROCESS_ALERT_DAILY, PROCESS_CLIENT_DAILY
+
 
 class TestSchedulerMx(unittest.TestCase):
     REQUEST_CHILDREN = '/request_children/'
@@ -26,9 +23,9 @@ class TestSchedulerMx(unittest.TestCase):
 
     def test_request_root(self):
         resp = self.connection.request_get(
-                        self.REQUEST_CHILDREN,
-                        args={TimeTable.PROCESS_NAME: PROCESS_SITE_HOURLY},
-                        headers={'content-type':'application/json', 'accept':'application/json'})
+            self.REQUEST_CHILDREN,
+            args={time_table.PROCESS_NAME: PROCESS_SITE_HOURLY},
+            headers={'content-type': 'application/json', 'accept': 'application/json'})
         status = resp[u'headers']['status']
 
         # check that we either got a successful response (200) or a previously retrieved, but still valid response (304)
@@ -39,10 +36,10 @@ class TestSchedulerMx(unittest.TestCase):
 
     def test_request_4_level_children(self):
         resp = self.connection.request_get(
-                        self.REQUEST_CHILDREN,
-                        args={TimeTable.TIMESTAMP: settings['synergy_start_timestamp'],
-                              TimeTable.PROCESS_NAME: PROCESS_SITE_HOURLY},
-                        headers={'content-type':'application/json', 'accept':'application/json'})
+            self.REQUEST_CHILDREN,
+            args={time_table.TIMEPERIOD: settings['synergy_start_timeperiod'],
+                  time_table.PROCESS_NAME: PROCESS_SITE_HOURLY},
+            headers={'content-type': 'application/json', 'accept': 'application/json'})
         status = resp[u'headers']['status']
 
         # check that we either got a successful response (200) or a previously retrieved, but still valid response (304)
@@ -53,10 +50,10 @@ class TestSchedulerMx(unittest.TestCase):
 
     def test_request_3_level_children(self):
         resp = self.connection.request_get(
-                        self.REQUEST_CHILDREN,
-                        args={TimeTable.TIMESTAMP: settings['synergy_start_timestamp'],
-                              TimeTable.PROCESS_NAME: PROCESS_FINANCIAL_DAILY},
-                        headers={'content-type':'application/json', 'accept':'application/json'})
+            self.REQUEST_CHILDREN,
+            args={time_table.TIMEPERIOD: settings['synergy_start_timeperiod'],
+                  time_table.PROCESS_NAME: PROCESS_CLIENT_DAILY},
+            headers={'content-type': 'application/json', 'accept': 'application/json'})
         status = resp[u'headers']['status']
 
         # check that we either got a successful response (200) or a previously retrieved, but still valid response (304)
@@ -67,9 +64,9 @@ class TestSchedulerMx(unittest.TestCase):
 
     def test_request_1_level_children(self):
         resp = self.connection.request_get(
-                        self.REQUEST_CHILDREN,
-                        args={TimeTable.PROCESS_NAME: PROCESS_ALERT_DAILY},
-                        headers={'content-type':'application/json', 'accept':'application/json'})
+            self.REQUEST_CHILDREN,
+            args={time_table.PROCESS_NAME: PROCESS_ALERT_DAILY},
+            headers={'content-type': 'application/json', 'accept': 'application/json'})
         status = resp[u'headers']['status']
 
         # check that we either got a successful response (200) or a previously retrieved, but still valid response (304)
@@ -80,9 +77,9 @@ class TestSchedulerMx(unittest.TestCase):
 
     def test_request_verticals(self):
         resp = self.connection.request_get(
-                        self.REQUEST_VERTICAL_DETAILS,
-                        args={},
-                        headers={'content-type':'application/json', 'accept':'application/json'})
+            self.REQUEST_VERTICAL_DETAILS,
+            args={},
+            headers={'content-type': 'application/json', 'accept': 'application/json'})
         status = resp[u'headers']['status']
 
         # check that we either got a successful response (200) or a previously retrieved, but still valid response (304)
@@ -91,6 +88,6 @@ class TestSchedulerMx(unittest.TestCase):
         else:
             print('Request failed with status %r' % status)
 
-            
+
 if __name__ == '__main__':
     unittest.main()

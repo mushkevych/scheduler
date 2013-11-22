@@ -1,8 +1,5 @@
-"""
-Created on 2011-02-07
+__author__ = 'Bohdan Mushkevych'
 
-@author: Bohdan Mushkevych
-"""
 from bson.objectid import ObjectId
 
 from pymongo import ASCENDING, DESCENDING
@@ -120,7 +117,6 @@ class RegularPipeline(AbstractPipeline):
                   % (process_name, time_record.timeperiod)
             self._log_message(WARNING, process_name, time_record, msg)
 
-
     def _compute_and_transfer_to_final_run(self, process_name, start_time, end_time, time_record):
         """ method computes new unit_of_work and transfers timeperiod to STATE_FINAL_RUN
         it also shares _fuzzy_ DuplicateKeyError logic from _compute_and_transfer_to_progress method"""
@@ -157,9 +153,9 @@ class RegularPipeline(AbstractPipeline):
         uow_id = time_record.related_unit_of_work
         uow_obj = unit_of_work_helper.retrieve_by_id(self.logger, ObjectId(uow_id))
 
-        if start_time == actual_time or can_finalize_timerecord == False:
-            if uow_obj.state == unit_of_work.STATE_INVALID \
-                or uow_obj.state == unit_of_work.STATE_REQUESTED:
+        if start_time == actual_time or can_finalize_timerecord is False:
+            if uow_obj.state in [unit_of_work.STATE_INVALID,
+                                 unit_of_work.STATE_REQUESTED]:
                 # current uow has not been processed yet. update it
                 self.update_scope_of_processing(process_name, uow_obj, start_time, end_time, time_record)
             else:
@@ -167,7 +163,7 @@ class RegularPipeline(AbstractPipeline):
                 # create new uow to cover new inserts
                 self._compute_and_transfer_to_progress(process_name, start_time, end_time, time_record)
 
-        elif start_time < actual_time and can_finalize_timerecord == True:
+        elif start_time < actual_time and can_finalize_timerecord is True:
             # create new uow for FINAL RUN
             self._compute_and_transfer_to_final_run(process_name, start_time, end_time, time_record)
 
@@ -213,4 +209,3 @@ class RegularPipeline(AbstractPipeline):
         msg = 'Unexpected state %s of time-record %s' % (time_record.state,
                                                          time_record.document['_id'])
         self._log_message(ERROR, process_name, time_record, msg)
-

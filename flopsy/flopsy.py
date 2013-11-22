@@ -116,15 +116,15 @@ class Consumer(SynergyAware):
             self.callback(message)
     
     def acknowledge(self, tag):
-        if DEFAULT_NO_ACK_MODE == False:
+        if DEFAULT_NO_ACK_MODE is False:
             self.channel.basic_ack(delivery_tag=tag)
 
     def reject(self, tag):
-        if DEFAULT_NO_ACK_MODE == False:
+        if DEFAULT_NO_ACK_MODE is False:
             self.channel.basic_reject(delivery_tag=tag, requeue=True)
 
     def cancel(self, tag):
-        if DEFAULT_NO_ACK_MODE == False:
+        if DEFAULT_NO_ACK_MODE is False:
             self.channel.basic_reject(delivery_tag=tag, requeue=False)
 
     def register(self, callback):
@@ -201,4 +201,3 @@ class PublishersPool(object):
                 self.logger.error('exception on closing the publisher for %s: %s' % (process_name, str(e)))
             else:
                 self.logger.info('error trace while closing publisher for %s suppressed' % process_name)
-

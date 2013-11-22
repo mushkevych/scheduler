@@ -10,7 +10,6 @@ from model.unit_of_work import UnitOfWork
 
 
 class TestSystemCollections(unittest.TestCase):
-    
     def setUp(self):
         self.box_configuration = BoxConfiguration()
         self.scheduler_configuration = SchedulerConfiguration()
@@ -26,12 +25,12 @@ class TestSystemCollections(unittest.TestCase):
     def test_box_configuration(self):
         box_id = 'box_1'
         process_list = {
-            'process_1' : {box_configuration.STATE : box_configuration.STATE_ON,
-                           box_configuration.PID : 1001},
-            'process_2' : {box_configuration.STATE : box_configuration.STATE_ON,
-                           box_configuration.PID : 1001},
-            'process_3' : {box_configuration.STATE : box_configuration.STATE_ON,
-                           box_configuration.PID : 1001},
+            'process_1': {box_configuration.STATE: box_configuration.STATE_ON,
+                          box_configuration.PID: 1001},
+            'process_2': {box_configuration.STATE: box_configuration.STATE_ON,
+                          box_configuration.PID: 1001},
+            'process_3': {box_configuration.STATE: box_configuration.STATE_ON,
+                          box_configuration.PID: 1001},
         }
         self.box_configuration.box_id = box_id
         self.box_configuration.process_list = process_list

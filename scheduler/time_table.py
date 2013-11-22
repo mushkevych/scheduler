@@ -1,6 +1,5 @@
 __author__ = 'Bohdan Mushkevych'
 
-
 from datetime import datetime
 from threading import RLock
 from bson.objectid import ObjectId

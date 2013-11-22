@@ -90,15 +90,15 @@ class HadoopPipeline(AbstractPipeline):
         iteration = int(uow_obj.end_id)
 
         try:
-            if start_time == actual_time or can_finalize_timerecord == False:
-                if uow_obj.state() == unit_of_work.STATE_REQUESTED \
-                        or uow_obj.state == unit_of_work.STATE_IN_PROGRESS \
-                        or uow_obj.state == unit_of_work.STATE_INVALID:
+            if start_time == actual_time or can_finalize_timerecord is False:
+                if uow_obj.state() in [unit_of_work.STATE_REQUESTED,
+                                       unit_of_work.STATE_IN_PROGRESS,
+                                       unit_of_work.STATE_INVALID]:
                     # Hadoop processing takes more than 1 tick of Scheduler
                     # Let the Hadoop processing complete - do no updates to Scheduler records
                     pass
-                elif uow_obj.state == unit_of_work.STATE_PROCESSED \
-                        or uow_obj.state == unit_of_work.STATE_CANCELED:
+                elif uow_obj.state in [unit_of_work.STATE_PROCESSED,
+                                       unit_of_work.STATE_CANCELED]:
                     # create new uow to cover new inserts
                     uow_obj = self.insert_uow(process_name, start_time, end_time, iteration + 1, time_record)
                     self.timetable.update_timetable_record(process_name,
@@ -106,15 +106,15 @@ class HadoopPipeline(AbstractPipeline):
                                                            uow_obj,
                                                            time_table.STATE_IN_PROGRESS)
 
-            elif start_time < actual_time and can_finalize_timerecord == True:
-                if uow_obj.state == unit_of_work.STATE_REQUESTED \
-                        or uow_obj.state == unit_of_work.STATE_IN_PROGRESS \
-                        or uow_obj.state == unit_of_work.STATE_INVALID:
+            elif start_time < actual_time and can_finalize_timerecord is True:
+                if uow_obj.state in [unit_of_work.STATE_REQUESTED,
+                                     unit_of_work.STATE_IN_PROGRESS,
+                                     unit_of_work.STATE_INVALID]:
                     # Hadoop processing has not started yet
                     # Let the Hadoop processing complete - do no updates to Scheduler records
                     pass
-                elif uow_obj.state == unit_of_work.STATE_PROCESSED \
-                        or uow_obj.state == unit_of_work.STATE_CANCELED:
+                elif uow_obj.state in [unit_of_work.STATE_PROCESSED,
+                                       unit_of_work.STATE_CANCELED]:
                     # create new uow for FINAL RUN
                     uow_obj = self.insert_uow(process_name, start_time, end_time, iteration + 1, time_record)
                     self.timetable.update_timetable_record(process_name,

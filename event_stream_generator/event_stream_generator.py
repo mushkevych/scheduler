@@ -1,8 +1,5 @@
-"""
-Created on 2011-01-21
+__author__ = 'Bohdan Mushkevych'
 
-@author: Bohdan Mushkevych
-"""
 from flopsy.flopsy import Publisher
 from model.raw_data import RawData
 from system.performance_ticker import WorkerPerformanceTicker
