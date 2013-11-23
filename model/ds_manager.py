@@ -17,12 +17,12 @@ if 'ds_factory' not in globals():
             ds_type = settings['ds_type']
 
             if ds_type not in instances:
-                if type == "mongo_db":
+                if ds_type == "mongo_db":
                     instances[ds_type] = MongoDbManager(logger)
-                elif type == "hbase":
+                elif ds_type == "hbase":
                     instances[ds_type] = HBaseManager(logger)
                 else:
-                    raise ValueError('Unsupported Data Source type')
+                    raise ValueError('Unsupported Data Source type: %s' % ds_type)
             return instances[ds_type]
         return get_instance
 

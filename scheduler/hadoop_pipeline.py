@@ -31,7 +31,7 @@ class HadoopPipeline(AbstractPipeline):
         last_object_id = iteration
 
         uow = UnitOfWork()
-        uow.timestamp = start_time
+        uow.timeperiod = start_time
         uow.start_id = first_object_id
         uow.end_id = last_object_id
         uow.start_timeperiod = start_time
@@ -49,7 +49,7 @@ class HadoopPipeline(AbstractPipeline):
             e.first_object_id = str(first_object_id)
             e.last_object_id = str(last_object_id)
             e.process_name = process_name
-            e.timestamp = start_time
+            e.timeperiod = start_time
             raise e
 
         self.publishers.get_publisher(process_name).publish(str(uow_id))
@@ -122,7 +122,7 @@ class HadoopPipeline(AbstractPipeline):
                                                            uow_obj,
                                                            time_table.STATE_FINAL_RUN)
             else:
-                msg = 'Time-record %s has timestamp from future %s vs current time %s' \
+                msg = 'Time-record %s has timeperiod from future %s vs current time %s' \
                       % (time_record.document['_id'], start_time, actual_time)
                 self._log_message(ERROR, process_name, time_record, msg)
 

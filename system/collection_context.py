@@ -6,7 +6,8 @@ Created on 2011-04-23
 """
 import time
 from settings import settings
-from pymongo.connection import Connection as MongoConnection, _str_to_node
+from pymongo.connection import Connection as MongoConnection
+from pymongo.uri_parser import split_hosts, parse_host
 from pymongo.master_slave_connection import MasterSlaveConnection
 
 COLLECTION_SINGLE_SESSION = 'single_session'
@@ -42,7 +43,7 @@ class ClusterConnection(MasterSlaveConnection):
         slave_log_list = []
         slave_connections = []
         for host in self.host_list:
-            slave_host, slave_port = _str_to_node(host)
+            slave_host, slave_port = split_hosts(host)
 
             # remove master from list of slaves, so no reads are going its way
             # however, allow master to handle reads if its the only node in ReplicaSet
@@ -90,7 +91,7 @@ class ClusterConnection(MasterSlaveConnection):
             return
 
         master_host_port = (self.master._Connection__host, self.master._Connection__port)
-        hosts_ports = [_str_to_node(uri) for uri in self.host_list]
+        hosts_ports = [parse_host(uri) for uri in self.host_list]
 
         # For each connection that is not pointing to a configured slave:
         # - disconnect it and remove from the list.

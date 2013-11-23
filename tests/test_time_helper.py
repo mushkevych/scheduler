@@ -18,23 +18,23 @@ class TestTimeHelper(unittest.TestCase):
         assert time_helper.session_to_hour(timestamp) == expected_output
 
     def test_hour_to_day(self):
-        timestamp = '2011010116'
+        timeperiod = '2011010116'
         expected_output = '2011010100'
-        assert time_helper.hour_to_day(timestamp) == expected_output
+        assert time_helper.hour_to_day(timeperiod) == expected_output
 
     def test_day_to_month(self):
-        timestamp = '2011010100'
+        timeperiod = '2011010100'
         expected_output = '2011010000'
-        assert time_helper.day_to_month(timestamp) == expected_output
+        assert time_helper.day_to_month(timeperiod) == expected_output
 
     def test_month_to_year(self):
-        timestamp = '2011010000'
+        timeperiod = '2011010000'
         expected_output = '2011000000'
-        assert time_helper.month_to_year(timestamp) == expected_output
+        assert time_helper.month_to_year(timeperiod) == expected_output
 
-        timestamp = '2011120000'
+        timeperiod = '2011120000'
         expected_output = '2011000000'
-        assert time_helper.month_to_year(timestamp) == expected_output
+        assert time_helper.month_to_year(timeperiod) == expected_output
 
     def test_cast_to_time_qualifier(self):
         processes = [process_context.PROCESS_SITE_HOURLY, process_context.PROCESS_SITE_HOURLY,
@@ -81,8 +81,8 @@ class TestTimeHelper(unittest.TestCase):
                     datetime(year=2010, month=12, day=31, hour=23, minute=00, second=0),
                     datetime(year=2010, month=12, day=31, hour=00, minute=00, second=0),
                     datetime(year=2010, month=12, day=01, hour=00, minute=00, second=0),
-                    datetime(year=2010, month=01, day=01, hour=00, minute=00, second=0),
-        ]
+                    datetime(year=2010, month=01, day=01, hour=00, minute=00, second=0)]
+
         params = ['20101231231234',
                   '2010123123',
                   '2010123100',
@@ -91,7 +91,6 @@ class TestTimeHelper(unittest.TestCase):
 
         for i in range(5):
             assert time_helper.synergy_to_datetime(processes[i], params[i]) == expected[i]
-
 
     def test_increment_time(self):
         stamps = ['2011010100', '2011010112', '2011010123']

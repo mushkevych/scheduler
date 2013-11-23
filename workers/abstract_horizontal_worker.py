@@ -15,7 +15,7 @@ class AbstractHorizontalWorker(AbstractAwareWorker):
     def __init__(self, process_name):
         super(AbstractHorizontalWorker, self).__init__(process_name)
 
-    def _process_bulk_array(self, array_of_documents, timestamp):
+    def _process_bulk_array(self, array_of_documents, timeperiod):
         """ abstract method to parse the bulk of documents """
         pass
 

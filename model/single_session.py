@@ -5,6 +5,7 @@ from model.raw_data import *
 
 TIMESTAMP = 'timestamp'
 
+
 class SingleSessionStatistics(BaseModel):
     """
     class presents statistics, gathered during the life of the session
@@ -126,11 +127,11 @@ class SingleSessionStatistics(BaseModel):
             for _ in range(entry_id - len(browsing_history[FAMILY_ENTRIES]) + 1):
                 browsing_history[FAMILY_ENTRIES].append(dict())
         return browsing_history[FAMILY_ENTRIES][entry_id]
-        
+
     def set_entry_timestamp(self, entry_id, value):
         entry = self._get_entry(entry_id)
         entry[TIMESTAMP] = value
-    
+
     def get_entry_timestamp(self, entry_id):
         entry = self._get_entry(entry_id)
         return entry[TIMESTAMP]

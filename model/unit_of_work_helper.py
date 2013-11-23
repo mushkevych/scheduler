@@ -18,10 +18,10 @@ def retrieve_by_id(logger, object_id):
     return UnitOfWork(db_entry)
 
 
-def retrieve_by_params(logger, process_name, timestamp, start_obj_id, end_obj_id):
+def retrieve_by_params(logger, process_name, timeperiod, start_obj_id, end_obj_id):
     """ method finds unit_of_work record and returns it to the caller"""
     query = {unit_of_work.PROCESS_NAME: process_name,
-             unit_of_work.TIMESTAMP: timestamp,
+             unit_of_work.TIMEPERIOD: timeperiod,
              unit_of_work.START_OBJ_ID: start_obj_id,
              unit_of_work.END_OBJ_ID: end_obj_id}
     collection = CollectionContext.get_collection(logger, COLLECTION_UNITS_OF_WORK)

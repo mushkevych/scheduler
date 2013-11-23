@@ -128,7 +128,7 @@ class TimeTable:
                 return tree
 
     @thread_safe
-    def _callback_reprocess(self, process_name, timestamp, tree_node):
+    def _callback_reprocess(self, process_name, timeperiod, tree_node):
         """ is called from tree to answer reprocessing request.
         It is possible that timetable record will be transferred to STATE_IN_PROGRESS with no related unit_of_work"""
         uow_id = tree_node.time_record.related_unit_of_work
@@ -155,10 +155,10 @@ class TimeTable:
 
         if process_name not in self.reprocess:
             self.reprocess[process_name] = dict()
-        self.reprocess[process_name][timestamp] = tree_node
+        self.reprocess[process_name][timeperiod] = tree_node
 
     @thread_safe
-    def _callback_skip(self, process_name, timestamp, tree_node):
+    def _callback_skip(self, process_name, timeperiod, tree_node):
         """ is called from tree to answer skip request"""
         tree_node.time_record.state = time_table.STATE_SKIPPED
         uow_id = tree_node.time_record.related_unit_of_work
@@ -178,8 +178,8 @@ class TimeTable:
         self.logger.warning(msg)
         tree_node.add_log_entry([datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S'), msg])
 
-        if process_name in self.reprocess and timestamp in self.reprocess[process_name]:
-            del self.reprocess[process_name][timestamp]
+        if process_name in self.reprocess and timeperiod in self.reprocess[process_name]:
+            del self.reprocess[process_name][timeperiod]
 
     @thread_safe
     def _callback_timetable_record(self, process_name, timeperiod, tree_node):
@@ -195,7 +195,7 @@ class TimeTable:
             time_record.process_name = process_name
 
             tr_id = self._save_time_record(process_name, time_record)
-            self.logger.info('Created time-record %s, with timestamp %s for process %s'
+            self.logger.info('Created time-record %s, with timeperiod %s for process %s'
                              % (str(tr_id), timeperiod, process_name))
         tree_node.time_record = time_record
 
@@ -236,11 +236,11 @@ class TimeTable:
             tree.validate()
 
     @thread_safe
-    def failed_on_processing_timetable_record(self, process_name, timestamp):
+    def failed_on_processing_timetable_record(self, process_name, timeperiod):
         """method increases node's inner counter of failed processing
         if _skip_node logic returns True - node is set to STATE_SKIP"""
         tree = self.get_tree(process_name)
-        node = tree.get_node_by_process(process_name, timestamp)
+        node = tree.get_node_by_process(process_name, timeperiod)
         node.time_record.number_of_failures += 1
         if tree._skip_the_node(node):
             node.request_skip()
@@ -253,9 +253,9 @@ class TimeTable:
     def get_next_timetable_record(self, process_name):
         """returns next time-period to work on for given process"""
         if process_name in self.reprocess and len(self.reprocess[process_name]) > 0:
-            timestamp = sorted(self.reprocess[process_name].keys())[0]
-            node = self.reprocess[process_name][timestamp]
-            del self.reprocess[process_name][timestamp]
+            timeperiod = sorted(self.reprocess[process_name].keys())[0]
+            node = self.reprocess[process_name][timeperiod]
+            del self.reprocess[process_name][timeperiod]
         else:
             tree = self.get_tree(process_name)
             node = tree.get_next_node_by_process(process_name)

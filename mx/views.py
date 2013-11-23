@@ -219,14 +219,14 @@ class NodeDetails(object):
         self.logger = self.mbean.logger
         self.request = request
         self.process_name = request.args.get('process_name')
-        self.timestamp = request.args.get('timestamp')
+        self.timeperiod = request.args.get('timeperiod')
         self.valid = self.mbean is not None
 
     @classmethod
     def _get_nodes_details(cls, logger, node):
         """method returns {
                 process_name : string,
-                timestamp : string,
+                timeperiod : string,
                 number_of_children : integer,
                 number_of_failed_calls : integer,
                 state : STATE_SKIPPED, STATE_IN_PROGRESS, STATE_PROCESSED, STATE_FINAL_RUN, STATE_EMBRYO
@@ -238,7 +238,7 @@ class NodeDetails(object):
             description['time_qualifier'] = ProcessContext.get_time_qualifier(node.process_name)
             description['number_of_children'] = len(node.children)
             description['number_of_failed_calls'] = node.time_record.number_of_failures
-            description['timestamp'] = node.time_record.timeperiod
+            description['timeperiod'] = node.time_record.timeperiod
             description['state'] = node.time_record.state
         except Exception as e:
             logger.error('MX Exception: %s' % str(e), exc_info=True)
@@ -252,15 +252,15 @@ class NodeDetails(object):
         timetable = self.mbean.timetable
         tree = timetable.get_tree(self.process_name)
 
-        if self.timestamp is None and tree is not None:
+        if self.timeperiod is None and tree is not None:
             # return list of yearly nodes
             resp['children'] = dict()
             for key in tree.root.children:
                 child = tree.root.children[key]
                 resp['children'][key] = NodeDetails._get_nodes_details(self.logger, child)
         elif tree is not None:
-            self.timestamp = time_helper.cast_to_time_qualifier(self.process_name, self.timestamp)
-            node = tree.get_node_by_process(self.process_name, self.timestamp)
+            self.timeperiod = time_helper.cast_to_time_qualifier(self.process_name, self.timeperiod)
+            node = tree.get_node_by_process(self.process_name, self.timeperiod)
             resp['node'] = NodeDetails._get_nodes_details(self.logger, node)
             resp['children'] = dict()
             for key in node.children:
@@ -301,8 +301,8 @@ class TimeperiodProcessingStatements(object):
     @valid_only
     def entries(self):
         processor = ProcessingStatements(self.logger)
-        timestamp = self.year + self.month + self.day + self.hour
-        selection = processor.retrieve_for_timestamp(timestamp, self.state)
+        timeperiod = self.year + self.month + self.day + self.hour
+        selection = processor.retrieve_for_timeperiod(timeperiod, self.state)
         sorter_keys = sorted(selection.keys())
 
         resp = []
@@ -320,8 +320,8 @@ class ActionHandler(object):
         self.logger = self.mbean.logger
         self.request = request
         self.process_name = request.args.get('process_name')
-        self.timestamp = request.args.get('timestamp')
-        self.valid = self.mbean is not None and self.process_name is not None and self.timestamp is not None
+        self.timeperiod = request.args.get('timeperiod')
+        self.valid = self.mbean is not None and self.process_name is not None and self.timeperiod is not None
 
     @valid_only
     def action_reprocess(self):
@@ -330,12 +330,12 @@ class ActionHandler(object):
         tree = timetable.get_tree(self.process_name)
 
         if tree is not None:
-            self.timestamp = time_helper.cast_to_time_qualifier(self.process_name, self.timestamp)
-            node = tree.get_node_by_process(self.process_name, self.timestamp)
-            self.logger.info('MX (requesting re-process timeperiod %r for %r) { ' % (self.timestamp, self.process_name))
+            self.timeperiod = time_helper.cast_to_time_qualifier(self.process_name, self.timeperiod)
+            node = tree.get_node_by_process(self.process_name, self.timeperiod)
+            self.logger.info('MX (requesting re-process timeperiod %r for %r) { ' % (self.timeperiod, self.process_name))
             effected_nodes = node.request_reprocess()
             for node in effected_nodes:
-                resp[node.timestamp] = NodeDetails._get_nodes_details(self.logger, node)
+                resp[node.timeperiod] = NodeDetails._get_nodes_details(self.logger, node)
             self.logger.info('}')
 
         return resp
@@ -347,12 +347,12 @@ class ActionHandler(object):
         tree = timetable.get_tree(self.process_name)
 
         if tree is not None:
-            self.timestamp = time_helper.cast_to_time_qualifier(self.process_name, self.timestamp)
-            node = tree.get_node_by_process(self.process_name, self.timestamp)
-            self.logger.info('MX (requesting skip timeperiod %r for %r) { ' % (self.timestamp, self.process_name))
+            self.timeperiod = time_helper.cast_to_time_qualifier(self.process_name, self.timeperiod)
+            node = tree.get_node_by_process(self.process_name, self.timeperiod)
+            self.logger.info('MX (requesting skip timeperiod %r for %r) { ' % (self.timeperiod, self.process_name))
             effected_nodes = node.request_skip()
             for node in effected_nodes:
-                resp[node.timestamp] = NodeDetails._get_nodes_details(self.logger, node)
+                resp[node.timeperiod] = NodeDetails._get_nodes_details(self.logger, node)
             self.logger.info('}')
 
         return resp
@@ -364,8 +364,8 @@ class ActionHandler(object):
         tree = timetable.get_tree(self.process_name)
 
         if tree is not None:
-            self.timestamp = time_helper.cast_to_time_qualifier(self.process_name, self.timestamp)
-            node = tree.get_node_by_process(self.process_name, self.timestamp)
+            self.timeperiod = time_helper.cast_to_time_qualifier(self.process_name, self.timeperiod)
+            node = tree.get_node_by_process(self.process_name, self.timeperiod)
 
             uow_id = node.time_record.related_unit_of_work
             if uow_id is None:
@@ -384,8 +384,8 @@ class ActionHandler(object):
         tree = timetable.get_tree(self.process_name)
 
         if tree is not None:
-            self.timestamp = time_helper.cast_to_time_qualifier(self.process_name, self.timestamp)
-            node = tree.get_node_by_process(self.process_name, self.timestamp)
+            self.timeperiod = time_helper.cast_to_time_qualifier(self.process_name, self.timeperiod)
+            node = tree.get_node_by_process(self.process_name, self.timeperiod)
             resp['log'] = node.time_record.log()
 
         return resp

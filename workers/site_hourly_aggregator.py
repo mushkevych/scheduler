@@ -22,7 +22,7 @@ class SiteHourlyAggregator(AbstractVerticalWorker):
         return settings['tunnel_site_port']
 
     def _init_target_key(self, *args):
-        """ abstract method to create composite key from source domain_name and timestamp"""
+        """ abstract method to create composite key from source domain_name and timeperiod"""
         return args[0], time_helper.session_to_hour(args[1])
     
     def _init_source_object(self, document):

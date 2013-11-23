@@ -20,7 +20,7 @@ class AbstractTree(object):
         @optional @parameter category: is used by MX only as visual vertical name
         @optional @parameter mx_page: is used by MX only as anchor to specific page
         """
-        self.build_timestamp = None
+        self.build_timeperiod = None
         self.validation_timestamp = None
         self.reprocess_callbacks = []
         self.skip_callbacks = []
@@ -74,18 +74,18 @@ class AbstractTree(object):
         """method builds tree by iterating from the synergy_start_timeperiod to current time
         and inserting corresponding nodes"""
 
-        if rebuild or self.build_timestamp is None:
-            timestamp = settings['synergy_start_timeperiod']
-            timestamp = cast_to_time_qualifier(process_name, timestamp)
+        if rebuild or self.build_timeperiod is None:
+            timeperiod = settings['synergy_start_timeperiod']
+            timeperiod = cast_to_time_qualifier(process_name, timeperiod)
         else:
-            timestamp = self.build_timestamp
+            timeperiod = self.build_timeperiod
 
         now = time_helper.datetime_to_synergy(process_name, datetime.utcnow())
-        while now >= timestamp:
-            method_get_node(timestamp)
-            timestamp = time_helper.increment_time(process_name, timestamp)
+        while now >= timeperiod:
+            method_get_node(timeperiod)
+            timeperiod = time_helper.increment_time(process_name, timeperiod)
 
-        self.build_timestamp = now
+        self.build_timeperiod = now
 
     def _get_next_parent_node(self, parent):
         """ Used by _get_next_node, this method is called to find next possible parent.
@@ -97,7 +97,7 @@ class AbstractTree(object):
             return None
 
         sorted_keys = sorted(parent_of_parent.children.keys())
-        index = sorted_keys.index(parent.timestamp)
+        index = sorted_keys.index(parent.timeperiod)
         if index + 1 >= len(sorted_keys):
             return None
         else:
@@ -126,8 +126,8 @@ class AbstractTree(object):
         else:
             # in all valid parents are exploited - return current node
             process_name = parent.children[sorted_keys[0]].process_name
-            timestamp_now = time_helper.datetime_to_synergy(process_name, datetime.utcnow())
-            return self.get_node_by_process(process_name, timestamp_now)
+            timeperiod_now = time_helper.datetime_to_synergy(process_name, datetime.utcnow())
+            return self.get_node_by_process(process_name, timeperiod_now)
 
     # *** INHERITANCE INTERFACE ***
     def build_tree(self, rebuild=False):
@@ -152,15 +152,15 @@ class AbstractTree(object):
         """ method is used to keep consistency with Three/FourLevelTree interface"""
         pass
 
-    def get_node_by_process(self, process_name, timestamp):
+    def get_node_by_process(self, process_name, timeperiod):
         """ method is used to keep consistency with Three/FourLevelTree interface"""
         pass
 
     def validate(self):
         """method starts validation of the tree.
         @see AbstractNode.validate"""
-        for timestamp in self.root.children:
-            child = self.root.children[timestamp]
+        for timeperiod in self.root.children:
+            child = self.root.children[timeperiod]
             child.validate()
         self.validation_dt = datetime.utcnow()
 
@@ -173,12 +173,12 @@ class TwoLevelTree(AbstractTree):
         self.process_name = process_name
 
     # *** SPECIFIC METHODS ***
-    def __get_node(self, timestamp):
-        node = self.root.children.get(timestamp)
+    def __get_node(self, timeperiod):
+        node = self.root.children.get(timeperiod)
         if node is None:
-            node = LinearNode(self, self.root, self.process_name, timestamp, None)
+            node = LinearNode(self, self.root, self.process_name, timeperiod, None)
             node.request_timetable_record()
-            self.root.children[timestamp] = node
+            self.root.children[timeperiod] = node
 
         return node
 
@@ -219,10 +219,10 @@ class TwoLevelTree(AbstractTree):
         else:
             raise ValueError('unknown requested process: %s vs %s' % (process_name, self.process_name))
 
-    def get_node_by_process(self, process_name, timestamp):
+    def get_node_by_process(self, process_name, timeperiod):
         """ method is used to keep consistency with Three/FourLevelTree interface"""
         if process_name == self.process_name:
-            return self.__get_node(timestamp)
+            return self.__get_node(timeperiod)
         else:
             raise ValueError('unknown requested process: %s vs %s' % (process_name, self.process_name))
 
@@ -237,33 +237,33 @@ class ThreeLevelTree(AbstractTree):
         self.process_daily = process_daily
 
     # *** PRIVATE METHODS TO BUILD AND OPERATE TREE ***
-    def __get_yearly_node(self, timestamp):
-        node = self.root.children.get(timestamp)
+    def __get_yearly_node(self, timeperiod):
+        node = self.root.children.get(timeperiod)
         if node is None:
-            node = TreeNode(self, self.root, self.process_yearly, timestamp, None)
-            self.root.children[timestamp] = node
+            node = TreeNode(self, self.root, self.process_yearly, timeperiod, None)
+            self.root.children[timeperiod] = node
 
         return node
 
-    def __get_monthly_node(self, timestamp):
-        timestamp_yearly = cast_to_time_qualifier(self.process_yearly, timestamp)
-        parent = self.__get_yearly_node(timestamp_yearly)
+    def __get_monthly_node(self, timeperiod):
+        timeperiod_yearly = cast_to_time_qualifier(self.process_yearly, timeperiod)
+        parent = self.__get_yearly_node(timeperiod_yearly)
 
-        node = parent.children.get(timestamp)
+        node = parent.children.get(timeperiod)
         if node is None:
-            node = TreeNode(self, parent, self.process_monthly, timestamp, None)
-            parent.children[timestamp] = node
+            node = TreeNode(self, parent, self.process_monthly, timeperiod, None)
+            parent.children[timeperiod] = node
 
         return node
 
-    def __get_daily_node(self, timestamp):
-        timestamp_monthly = cast_to_time_qualifier(self.process_monthly, timestamp)
-        parent = self.__get_monthly_node(timestamp_monthly)
+    def __get_daily_node(self, timeperiod):
+        timeperiod_monthly = cast_to_time_qualifier(self.process_monthly, timeperiod)
+        parent = self.__get_monthly_node(timeperiod_monthly)
 
-        node = parent.children.get(timestamp)
+        node = parent.children.get(timeperiod)
         if node is None:
-            node = TreeNode(self, parent, self.process_daily, timestamp, None)
-            parent.children[timestamp] = node
+            node = TreeNode(self, parent, self.process_daily, timeperiod, None)
+            parent.children[timeperiod] = node
 
         return node
 
@@ -316,7 +316,7 @@ class ThreeLevelTree(AbstractTree):
         if node.process_name == self.process_daily:
             if len(node.children) == 0:
                 # no children - this is a leaf
-                creation_time = time_helper.synergy_to_datetime(node.process_name, node.timestamp)
+                creation_time = time_helper.synergy_to_datetime(node.process_name, node.timeperiod)
                 if datetime.utcnow() - creation_time < timedelta(hours=LIFE_SUPPORT_HOURS):
                     return False
                 else:

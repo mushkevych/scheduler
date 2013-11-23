@@ -11,20 +11,20 @@ SYNERGY_DATE_PATTERN = '%Y%m%d%H'
 SYNERGY_SESSION_PATTERN = '%Y%m%d%H%M%S'
 
 
-def define_pattern(timestamp):
+def define_pattern(timeperiod):
     hasYear = False
     hasMonth = False
     hasDay = False
     hasHour = False
 
-    for index in range(0, len(timestamp)):
-        if index >= 0 and index < 4 and timestamp[index] != '0':
+    for index in range(0, len(timeperiod)):
+        if index >= 0 and index < 4 and timeperiod[index] != '0':
             hasYear = True
-        elif index >= 4 and index < 6 and timestamp[index] != '0':
+        elif index >= 4 and index < 6 and timeperiod[index] != '0':
             hasMonth = True
-        elif index >= 6 and index < 8 and timestamp[index] != '0':
+        elif index >= 6 and index < 8 and timeperiod[index] != '0':
             hasDay = True
-        elif index >= 8 and timestamp[index] != '0':
+        elif index >= 8 and timeperiod[index] != '0':
             hasHour = True
 
     pattern = ''
@@ -62,24 +62,24 @@ def session_to_hour(timestamp):
     return t.strftime(SYNERGY_DATE_PATTERN)
 
 
-def hour_to_day(timestamp):
-    """@param timestamp: as string in YYYYMMDDHH format
+def hour_to_day(timeperiod):
+    """@param timeperiod: as string in YYYYMMDDHH format
     @return string in YYYYMMDD00 format"""
-    t = datetime.strptime(timestamp, SYNERGY_DATE_PATTERN)
+    t = datetime.strptime(timeperiod, SYNERGY_DATE_PATTERN)
     return t.strftime('%Y%m%d00')
 
 
-def day_to_month(timestamp):
-    """@param timestamp: as string in YYYYMMDD00 format
+def day_to_month(timeperiod):
+    """@param timeperiod: as string in YYYYMMDD00 format
     @return string in YYYYMM0000 format"""
-    t = datetime.strptime(timestamp, '%Y%m%d00')
+    t = datetime.strptime(timeperiod, '%Y%m%d00')
     return t.strftime('%Y%m0000')
 
 
-def month_to_year(timestamp):
-    """@param timestamp: as string in YYYYMM0000 format
+def month_to_year(timeperiod):
+    """@param timeperiod: as string in YYYYMM0000 format
     @return string in YYYY000000 format"""
-    t = datetime.strptime(timestamp, '%Y%m0000')
+    t = datetime.strptime(timeperiod, '%Y%m0000')
     return t.strftime('%Y000000')
 
 
@@ -89,15 +89,15 @@ def actual_time(process_name):
     return datetime_to_synergy(process_name, datetime.utcnow())
 
 
-def increment_time(process_name, timestamp):
+def increment_time(process_name, timeperiod):
     """ method is used by Scheduler to define <<next>> time period.
     For hourly, it is next hour: 20100101_19 -> 20100101_20 
     For month - next month: 201001 -> 201002, etc"""
 
     qualifier = ProcessContext.get_time_qualifier(process_name)
 
-    pattern = define_pattern(timestamp)
-    t = datetime.strptime(timestamp, pattern)
+    pattern = define_pattern(timeperiod)
+    t = datetime.strptime(timeperiod, pattern)
 
     if qualifier == ProcessContext.QUALIFIER_HOURLY:
         t = t + timedelta(hours=1)
@@ -123,18 +123,18 @@ def increment_time(process_name, timestamp):
         raise ValueError('unknown time qualifier: %s for %s' % (qualifier, process_name))
 
 
-def cast_to_time_qualifier(process_name, timestamp):
+def cast_to_time_qualifier(process_name, timeperiod):
     """ method is used to cast synergy_time accordingly to process time qualifier.
     For example: for QUALIFIER_HOURLY, it can be either 20100101_19 or 20100101_193412 """
 
     date_format = None
     qualifier = ProcessContext.get_time_qualifier(process_name)
     if qualifier == ProcessContext.QUALIFIER_HOURLY:
-        if len(timestamp) > 10:
-            t = datetime.strptime(timestamp, SYNERGY_SESSION_PATTERN)
+        if len(timeperiod) > 10:
+            t = datetime.strptime(timeperiod, SYNERGY_SESSION_PATTERN)
             return t.strftime(SYNERGY_DATE_PATTERN)
         else:
-            return timestamp
+            return timeperiod
 
     elif qualifier == ProcessContext.QUALIFIER_DAILY:
         date_format = '%Y%m%d00'
@@ -143,8 +143,8 @@ def cast_to_time_qualifier(process_name, timestamp):
     elif qualifier == ProcessContext.QUALIFIER_YEARLY:
         date_format = '%Y000000'
 
-    pattern = define_pattern(timestamp)
-    t = datetime.strptime(timestamp, pattern)
+    pattern = define_pattern(timeperiod)
+    t = datetime.strptime(timeperiod, pattern)
 
     if date_format is not None:
         return t.strftime(date_format)
@@ -171,8 +171,8 @@ def datetime_to_synergy(process_name, dt):
     return dt.strftime(date_format)
 
 
-def synergy_to_datetime(process_name, timestamp):
-    """ method receives timestamp in Synergy format YYYYMMDD_HH and convert it to _naive_ datetime"""
+def synergy_to_datetime(process_name, timeperiod):
+    """ method receives timeperiod in Synergy format YYYYMMDD_HH and convert it to _naive_ datetime"""
     qualifier = ProcessContext.get_time_qualifier(process_name)
     if qualifier == ProcessContext.QUALIFIER_HOURLY:
         date_format = SYNERGY_DATE_PATTERN
@@ -186,7 +186,7 @@ def synergy_to_datetime(process_name, timestamp):
         date_format = SYNERGY_SESSION_PATTERN
     else:
         raise ValueError('unknown time qualifier: %s for %s' % (qualifier, process_name))
-    return datetime.strptime(timestamp, date_format).replace(tzinfo=None)
+    return datetime.strptime(timeperiod, date_format).replace(tzinfo=None)
 
 
 def session_to_epoch(timestamp):

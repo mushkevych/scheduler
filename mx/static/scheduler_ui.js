@@ -48,31 +48,31 @@ OUTPUT_DOCUMENT.construct_table_row = function(k, v, handler) {
 
     var reprocess_button = $('<button>Reprocess</button>').click(function(e) {
         var msg = "You are about to reprocess: \n - "
-            + v.timestamp +" for " + v.process_name
+            + v.timeperiod +" for " + v.process_name
             + " \n - all parents of this time period";
         if (confirm(msg)) {
-            var params = { timestamp : v.timestamp, process_name : v.process_name };
+            var params = { timeperiod : v.timeperiod, process_name : v.process_name };
             $.get('/action_reprocess/', params, function(response) {
                 alert("response is " + response);
             });
         }
     });
     var skip_button = $('<button>Skip</button>').click(function(e) {
-        var msg = "You are about to skip: " + v.timestamp +" for " + v.process_name;
+        var msg = "You are about to skip: " + v.timeperiod +" for " + v.process_name;
         if (confirm(msg)) {
-            var params = { timestamp : v.timestamp, process_name : v.process_name };
+            var params = { timeperiod : v.timeperiod, process_name : v.process_name };
             $.get('/action_skip/', params, function(response) {
                 alert("response is " + response);
             });
         }
     });
     var uow_button = $('<button>Get&nbsp;Uow</button>').click(function(e) {
-        var params = { action : "action_get_uow", timestamp : v.timestamp, process_name : v.process_name };
+        var params = { action : "action_get_uow", timeperiod : v.timeperiod, process_name : v.process_name };
         var viewer_url = '/object_viewer/?' + $.param(params);
         window.open(viewer_url,'Object Viewer','width=400,height=350,screenX=400,screenY=200,scrollbars=1');
     });
     var log_button = $('<button>View&nbsp;Log</button>').click(function(e) {
-        var params = { action : "action_get_log", timestamp : v.timestamp, process_name : v.process_name };
+        var params = { action : "action_get_log", timeperiod : v.timeperiod, process_name : v.process_name };
         var viewer_url = '/object_viewer/?' + $.param(params);
         window.open(viewer_url,'Object Viewer','width=720,height=480,screenX=400,screenY=200,scrollbars=1');
     });
@@ -98,7 +98,7 @@ OUTPUT_DOCUMENT.build_timerecords_panel = function(children) {
 
         var handler = function(e) {
             e.preventDefault();
-            var params = { timestamp: v.timestamp, process_name: v.process_name };
+            var params = { timeperiod: v.timeperiod, process_name: v.process_name };
             $.get('/request_children/', params, function(response) {
                 $('#content').html(OUTPUT_DOCUMENT.build_timerecords_panel(response.children));
                 OUTPUT_DOCUMENT.build_timerecord_entry(k, v, handler);

@@ -14,7 +14,7 @@ class BaseModel(object):
 
     def __init__(self, table, document=None):
         self.table = table
-        self.ds_manager = ds_manager.ds_factory()
+        self.ds_manager = ds_manager.ds_factory(None)
         if document is None:
             self.data = dict()
         else:
@@ -28,7 +28,7 @@ class BaseModel(object):
     def key(self, value):
         """
         @param value: tuple - value[0] id of the template
-        value[1] - timestamp as string in Synergy Data format
+        value[1] - timeperiod as string in Synergy Data format
         """
         self.data[KEY] = value[0]
         self.data[TIMEPERIOD] = value[1]

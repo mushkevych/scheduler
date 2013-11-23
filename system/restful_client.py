@@ -61,14 +61,14 @@ class RestClient(object):
             self.logger.error('Request failed with status %s' % str(status))
             return dict()
 
-    def _sites_membership(self, request, timestamp, list_of_sites):
+    def _sites_membership(self, request, timeperiod, list_of_sites):
         body_as_dict = dict()
-        body_as_dict[self.ARGUMENT_TIMEPERIOD] = timestamp
+        body_as_dict[self.ARGUMENT_TIMEPERIOD] = timeperiod
         body_as_dict[self.ARGUMENT_SITES] = list_of_sites
         return self._perform_communication(request, body_as_dict)
 
-    def get_client_mapping(self, timestamp, list_of_sites):
-        return self._sites_membership(self.REQUEST_CLIENT, timestamp, list_of_sites)
+    def get_client_mapping(self, timeperiod, list_of_sites):
+        return self._sites_membership(self.REQUEST_CLIENT, timeperiod, list_of_sites)
 
 
 if __name__ == '__main__':

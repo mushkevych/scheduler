@@ -11,12 +11,12 @@ from workers.site_daily_aggregator import SiteDailyAggregator
 
 
 class DailySiteAggregatorUnitTest(unittest.TestCase):
-    def create_unit_of_work(self, logger, process_name, first_object_id, last_object_id, timestamp):
+    def create_unit_of_work(self, logger, process_name, first_object_id, last_object_id, timeperiod):
         """ method is used to insert unit_of_work """
         uow = UnitOfWork()
-        uow.timestamp = timestamp
-        uow.start_timeperiod = timestamp
-        uow.end_timeperiod = timestamp
+        uow.timeperiod = timeperiod
+        uow.start_timeperiod = timeperiod
+        uow.end_timeperiod = timeperiod
         uow.start_id = first_object_id
         uow.end_id = last_object_id
         uow.source_collection = None

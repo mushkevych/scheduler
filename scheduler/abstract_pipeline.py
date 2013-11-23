@@ -32,7 +32,7 @@ class AbstractPipeline(object):
         first_object_id = None
         last_object_id = None
         process_name = None
-        timestamp = None
+        timeperiod = None
 
         if hasattr(e, 'first_object_id'):
             first_object_id = e.first_object_id
@@ -40,17 +40,17 @@ class AbstractPipeline(object):
             last_object_id = e.last_object_id
         if hasattr(e, 'process_name'):
             process_name = e.process_name
-        if hasattr(e, 'timestamp'):
-            timestamp = e.timestamp
+        if hasattr(e, 'timeperiod'):
+            timeperiod = e.timeperiod
 
         if first_object_id is not None \
                 and last_object_id is not None \
                 and process_name is not None \
-                and timestamp is not None:
+                and timeperiod is not None:
             try:
                 return unit_of_work_helper.retrieve_by_params(self.logger,
                                                               process_name,
-                                                              timestamp,
+                                                              timeperiod,
                                                               first_object_id,
                                                               last_object_id)
             except LookupError:
@@ -101,13 +101,13 @@ class AbstractPipeline(object):
     def manage_pipeline_for_process(self, process_name, time_record):
         """ method main duty - do _not_ publish another unit_of_work, if previous was not yet processed
         In case Scheduler sees that unit_of_work is pending - it just updates boundaries of the processing"""
-        timestamp_tr = time_record.timeperiod
+        timeperiod_tr = time_record.timeperiod
         try:
             if time_record.state == time_table.STATE_EMBRYO:
-                self._process_state_embryo(process_name, time_record, timestamp_tr)
+                self._process_state_embryo(process_name, time_record, timeperiod_tr)
 
             elif time_record.state == time_table.STATE_IN_PROGRESS:
-                self._process_state_in_progress(process_name, time_record, timestamp_tr)
+                self._process_state_in_progress(process_name, time_record, timeperiod_tr)
 
             elif time_record.state == time_table.STATE_FINAL_RUN:
                 self._process_state_final_run(process_name, time_record)
@@ -124,6 +124,6 @@ class AbstractPipeline(object):
                 self._log_message(ERROR, process_name, time_record, msg)
 
         except LookupError as e:
-            self.timetable.failed_on_processing_timetable_record(process_name, timestamp_tr)
-            msg = 'Increasing fail counter for %s in timeperiod %s, because of: %r' % (process_name, timestamp_tr, e)
+            self.timetable.failed_on_processing_timetable_record(process_name, timeperiod_tr)
+            msg = 'Increasing fail counter for %s in timeperiod %s, because of: %r' % (process_name, timeperiod_tr, e)
             self._log_message(WARNING, process_name, time_record, msg)

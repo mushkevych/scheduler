@@ -5,13 +5,13 @@ from model import time_table
 
 
 class AbstractNode(object):
-    def __init__(self, tree, parent, process_name, timestamp, time_record):
+    def __init__(self, tree, parent, process_name, timeperiod, time_record):
         # initializes the data members
         self.children = dict()
         self.tree = tree
         self.parent = parent
         self.process_name = process_name
-        self.timestamp = timestamp
+        self.timeperiod = timeperiod
         self.time_record = time_record
 
     def request_reprocess(self):
@@ -23,8 +23,8 @@ class AbstractNode(object):
             return effected_nodes
 
         for function in self.tree.reprocess_callbacks:
-            # function signature: process_name, timestamp, tree_node
-            function(self.process_name, self.timestamp, self)
+            # function signature: process_name, timeperiod, tree_node
+            function(self.process_name, self.timeperiod, self)
         effected_nodes.extend(self.parent.request_reprocess())
         effected_nodes.append(self)
         return effected_nodes
@@ -32,15 +32,15 @@ class AbstractNode(object):
     def request_skip(self):
         """ method marks this node as one to skip"""
         for function in self.tree.skip_callbacks:
-            # function signature: process_name, timestamp, tree_node
-            function(self.process_name, self.timestamp, self)
+            # function signature: process_name, timeperiod, tree_node
+            function(self.process_name, self.timeperiod, self)
         return [self]
 
     def request_timetable_record(self):
         """ method is requesting outside functionality to create STATE_EMBRYO timetable record for given tree_node"""
         for function in self.tree.create_timetable_record_callbacks:
-            # function signature: process_name, timestamp, tree_node
-            function(self.process_name, self.timestamp, self)
+            # function signature: process_name, timeperiod, tree_node
+            function(self.process_name, self.timeperiod, self)
 
     def can_finalize_timetable_record(self):
         """method checks all children of the node, and if any is _not_ finalized - refuses to finalize the node"""
@@ -106,7 +106,7 @@ class AbstractNode(object):
                 # for example Financial Monthly has no counterpart in Google Report - so we assume that its not blocked
                 continue
 
-            dep_node = dependent_on.get_node_by_process(dep_proc_name, self.timestamp)
+            dep_node = dependent_on.get_node_by_process(dep_proc_name, self.timeperiod)
             if dep_node.time_record.state != time_table.STATE_PROCESSED:
                 dependents_are_finalized = False
             if dep_node.time_record.state == time_table.STATE_SKIPPED:
@@ -116,8 +116,8 @@ class AbstractNode(object):
 
 
 class LinearNode(AbstractNode):
-    def __init__(self, tree, parent, process_name, timestamp, time_record):
-        super(LinearNode, self).__init__(tree, parent, process_name, timestamp, time_record)
+    def __init__(self, tree, parent, process_name, timeperiod, time_record):
+        super(LinearNode, self).__init__(tree, parent, process_name, timeperiod, time_record)
 
     def can_finalize_timetable_record(self):
         """ method checks the if this particular node can be finalized: i.e. all dependents are finalized
@@ -142,8 +142,8 @@ class LinearNode(AbstractNode):
 class TreeNode(AbstractNode):
     HOURS_IN_DAY = 24
 
-    def __init__(self, tree, parent, process_name, timestamp, time_record):
-        super(TreeNode, self).__init__(tree, parent, process_name, timestamp, time_record)
+    def __init__(self, tree, parent, process_name, timeperiod, time_record):
+        super(TreeNode, self).__init__(tree, parent, process_name, timeperiod, time_record)
 
     def can_finalize_timetable_record(self):
         """method checks:
@@ -157,8 +157,8 @@ class TreeNode(AbstractNode):
             self.request_timetable_record()
 
         children_processed = True
-        for timestamp in self.children:
-            child = self.children[timestamp]
+        for timeperiod in self.children:
+            child = self.children[timeperiod]
             if child.time_record.state in [time_table.STATE_FINAL_RUN,
                                            time_table.STATE_IN_PROGRESS,
                                            time_table.STATE_EMBRYO]:
@@ -175,8 +175,8 @@ class TreeNode(AbstractNode):
 
         all_children_skipped = True
         children_processed = True
-        for timestamp in self.children:
-            child = self.children[timestamp]
+        for timeperiod in self.children:
+            child = self.children[timeperiod]
             children_processed = child.validate()
 
             if child.time_record.state in [time_table.STATE_EMBRYO,

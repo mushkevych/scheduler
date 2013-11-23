@@ -17,29 +17,29 @@ class ProcessingStatements(object):
         self.logger = logger
 
     @thread_safe
-    def retrieve_for_timestamp(self, timestamp, unprocessed_only):
+    def retrieve_for_timeperiod(self, timeperiod, unprocessed_only):
         """ method iterates thru all objects in timetable collections and load them into timetable"""
         resp = dict()
         resp.update(self._search_by_level(CollectionContext.get_collection(self.logger, COLLECTION_TIMETABLE_HOURLY),
-                                          timestamp, unprocessed_only))
+                                          timeperiod, unprocessed_only))
         resp.update(self._search_by_level(CollectionContext.get_collection(self.logger, COLLECTION_TIMETABLE_DAILY),
-                                          timestamp, unprocessed_only))
+                                          timeperiod, unprocessed_only))
         resp.update(self._search_by_level(CollectionContext.get_collection(self.logger, COLLECTION_TIMETABLE_MONTHLY),
-                                          timestamp, unprocessed_only))
+                                          timeperiod, unprocessed_only))
         resp.update(self._search_by_level(CollectionContext.get_collection(self.logger, COLLECTION_TIMETABLE_YEARLY),
-                                          timestamp, unprocessed_only))
+                                          timeperiod, unprocessed_only))
         return resp
 
     @thread_safe
-    def _search_by_level(self, collection, timestamp, unprocessed_only):
+    def _search_by_level(self, collection, timeperiod, unprocessed_only):
         """ method iterated thru all documents in all timetable collections and builds tree of known system state"""
         resp = dict()
         try:
             if unprocessed_only:
-                query = {base_model.TIMEPERIOD: {'$regex': timestamp},
+                query = {base_model.TIMEPERIOD: {'$regex': timeperiod},
                          time_table.STATE: {'$ne': time_table.STATE_PROCESSED}}
             else:
-                query = {base_model.TIMEPERIOD: {'$regex': timestamp}}
+                query = {base_model.TIMEPERIOD: {'$regex': timeperiod}}
 
             cursor = collection.find(query)
             if cursor.count() == 0:
@@ -59,5 +59,5 @@ if __name__ == '__main__':
     import logging
 
     pd = ProcessingStatements(logging)
-    resp = pd.retrieve_for_timestamp('201110', False)
+    resp = pd.retrieve_for_timeperiod('201110', False)
     print('%r' % resp)

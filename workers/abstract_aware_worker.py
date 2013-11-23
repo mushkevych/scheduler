@@ -88,13 +88,13 @@ class AbstractAwareWorker(AbstractWorker):
 
     def _get_aggregated_object(self, composite_key):
         """ method talks with the map of instances of aggregated objects
-        @param composite_key presents tuple, comprising of domain_name and timestamp"""
+        @param composite_key presents tuple, comprising of domain_name and timeperiod"""
         if composite_key not in self.aggregated_objects:
             self.aggregated_objects[composite_key] = self._init_target_object(composite_key)
         return self.aggregated_objects[composite_key]
 
     def _init_target_key(self, *args):
-        """ abstract method to create composite key from source compounds like domain_name and timestamp"""
+        """ abstract method to create composite key from source compounds like domain_name and timeperiod"""
         pass
 
     def _init_target_object(self, composite_key):
@@ -113,7 +113,7 @@ class AbstractAwareWorker(AbstractWorker):
         new_start_id - mongo.ObjectId of the next start point"""
         pass
 
-    def perform_post_processing(self, timestamp):
+    def perform_post_processing(self, timeperiod):
         """ abstract method to perform post-processing (before flushing)"""
         pass
 
