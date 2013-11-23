@@ -371,7 +371,7 @@ class ActionHandler(object):
             if uow_id is None:
                 resp = {'response': 'no related unit_of_work'}
             else:
-                resp = unit_of_work_dao.retrieve_by_id(self.logger, uow_id).document
+                resp = unit_of_work_dao.get_one(self.logger, uow_id).document
                 for key in resp:
                     resp[key] = str(resp[key])
 

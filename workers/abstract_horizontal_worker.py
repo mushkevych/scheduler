@@ -2,7 +2,6 @@
 
 __author__ = 'Bohdan Mushkevych'
 
-
 from model import base_model
 from workers.abstract_aware_worker import AbstractAwareWorker
 

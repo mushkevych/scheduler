@@ -6,19 +6,19 @@ from system.collection_context import COLLECTION_UNITS_OF_WORK
 from system.collection_context import CollectionContext
 
 
-def retrieve_by_id(logger, object_id):
+def get_one(logger, key):
     """ method finds unit_of_work record and returns it to the caller"""
-    query = {'_id': object_id}
+    query = {'_id': key}
     collection = CollectionContext.get_collection(logger, COLLECTION_UNITS_OF_WORK)
     db_entry = collection.find_one(query)
     if db_entry is None:
-        msg = 'Unit_of_work with ID=%s was not found' % str(object_id)
+        msg = 'Unit_of_work with ID=%s was not found' % str(key)
         logger.warning(msg)
         raise LookupError(msg)
     return UnitOfWork(db_entry)
 
 
-def retrieve_by_params(logger, process_name, timeperiod, start_obj_id, end_obj_id):
+def get_by_params(logger, process_name, timeperiod, start_obj_id, end_obj_id):
     """ method finds unit_of_work record and returns it to the caller"""
     query = {unit_of_work.PROCESS_NAME: process_name,
              unit_of_work.TIMEPERIOD: timeperiod,
@@ -41,7 +41,7 @@ def update(logger, unit_of_work):
 
 
 def insert(logger, unit_of_work):
-    """ inserts unit of work to MongoDB. @throws DuplicateKeyError is such record already exists """
+    """ inserts unit of work to MongoDB. @throws DuplicateKeyError if such record already exist """
     w_number = CollectionContext.get_w_number(logger, COLLECTION_UNITS_OF_WORK)
     collection = CollectionContext.get_collection(logger, COLLECTION_UNITS_OF_WORK)
     uow_id = collection.insert(unit_of_work.document, safe=True, w=w_number)

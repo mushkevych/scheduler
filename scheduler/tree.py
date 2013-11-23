@@ -3,7 +3,7 @@ __author__ = 'Bohdan Mushkevych'
 from datetime import datetime, timedelta
 from tree_node import TreeNode, LinearNode
 from settings import settings
-from model import time_table
+from model import time_table_record
 from system import time_helper
 from system.time_helper import cast_to_time_qualifier
 
@@ -113,9 +113,9 @@ class AbstractTree(object):
                 return node
             elif self._skip_the_node(node):
                 continue
-            elif node.time_record.state in [time_table.STATE_FINAL_RUN,
-                                            time_table.STATE_IN_PROGRESS,
-                                            time_table.STATE_EMBRYO]:
+            elif node.time_record.state in [time_table_record.STATE_FINAL_RUN,
+                                            time_table_record.STATE_IN_PROGRESS,
+                                            time_table_record.STATE_EMBRYO]:
                 return node
 
         # special case, when all children of the parent node are not suitable for processing
@@ -195,7 +195,7 @@ class TwoLevelTree(AbstractTree):
     def _skip_the_node(self, node):
         """Method is used during _get_next_node calculations.
         Returns True in case node shall be _skipped_"""
-        if node.time_record.state in [time_table.STATE_SKIPPED, time_table.STATE_PROCESSED]:
+        if node.time_record.state in [time_table_record.STATE_SKIPPED, time_table_record.STATE_PROCESSED]:
             return True
         return node.time_record.number_of_failures > MAX_NUMBER_OF_RETRIES
 
@@ -308,8 +308,8 @@ class ThreeLevelTree(AbstractTree):
         """Method is used during _get_next_node calculations.
         Returns True in case node shall be _skipped_"""
         # case 1: node processing is complete
-        if node.time_record.state in [time_table.STATE_SKIPPED,
-                                      time_table.STATE_PROCESSED]:
+        if node.time_record.state in [time_table_record.STATE_SKIPPED,
+                                      time_table_record.STATE_PROCESSED]:
             return True
 
         # case 2: this is a daily leaf node. retry this time_period for INFINITE_RETRY_HOURS
@@ -331,7 +331,7 @@ class ThreeLevelTree(AbstractTree):
             child = node.children[key]
             if child.time_record is None or \
                     (child.time_record.number_of_failures <= MAX_NUMBER_OF_RETRIES
-                     and child.time_record.state != time_table.STATE_SKIPPED):
+                     and child.time_record.state != time_table_record.STATE_SKIPPED):
                 all_children_spoiled = False
                 break
         return all_children_spoiled
@@ -412,7 +412,7 @@ class FourLevelTree(ThreeLevelTree):
         """Method is used during _get_next_node calculations.
         Returns True in case node shall be _skipped_"""
         if node.process_name == self.process_hourly:
-            if node.time_record.state in [time_table.STATE_SKIPPED, time_table.STATE_PROCESSED]:
+            if node.time_record.state in [time_table_record.STATE_SKIPPED, time_table_record.STATE_PROCESSED]:
                 return True
             return node.time_record.number_of_failures > MAX_NUMBER_OF_RETRIES
         else:

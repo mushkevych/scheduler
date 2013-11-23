@@ -10,12 +10,12 @@ class AbstractVerticalWorker(AbstractAwareWorker):
 
     def __init__(self, process_name):
         super(AbstractVerticalWorker, self).__init__(process_name)
-        
+
     # ********************** thread-related methods ****************************
     def _process_single_document(self, document):
         """ abstract method that actually processes the document from source collection"""
         pass
-    
+
     def _process_not_empty_cursor(self, cursor):
         """ abstract method to process cursor with result set from DB"""
         shall_continue = False

@@ -4,11 +4,11 @@ __author__ = 'Bohdan Mushkevych'
 
 import time
 from pymongo.errors import AutoReconnect
+from model import single_session_dao
 from model.single_session import SingleSessionStatistics
 from model.raw_data import *
 from system.performance_ticker import SessionPerformanceTicker
 from workers.abstract_worker import AbstractWorker
-from system.collection_context import CollectionContext, COLLECTION_SINGLE_SESSION
 from system import time_helper
 
 
@@ -37,13 +37,10 @@ class SingleSessionWorker(AbstractWorker):
         - logs the exception
         - marks unit of work as INVALID"""
         try:
-            single_session_collection = CollectionContext.get_collection(self.logger, COLLECTION_SINGLE_SESSION)
             raw_data = RawData(message.body)
-            query = {DOMAIN_NAME: raw_data.key[0],
-                     FAMILY_USER_PROFILE + '.' + SESSION_ID: raw_data.session_id}
-            document = single_session_collection.find_one(query)
+            session = single_session_dao.get_one(self.logger, raw_data.key[0], raw_data.session_id)
 
-            if document is None:
+            if session is None:
                 # insert the record
                 session = SingleSessionStatistics()
 
@@ -58,8 +55,6 @@ class SingleSessionWorker(AbstractWorker):
                 self.performance_ticker.increment_insert()
             else:
                 # update the click_xxx info
-                session = SingleSessionStatistics(document)
-
                 session = self.update_session_body(raw_data, session)
                 duration = raw_data.key[1] - time_helper.session_to_epoch(session.key[1])
                 session.total_duration = duration
@@ -69,12 +64,12 @@ class SingleSessionWorker(AbstractWorker):
                 self.performance_ticker.increment_update()
 
             if time.time() - self._last_safe_save_time < self.SAFE_SAVE_INTERVAL:
-                isSafe = False
+                is_safe = False
             else:
-                isSafe = True
+                is_safe = True
                 self._last_safe_save_time = time.time()
 
-            single_session_collection.save(session.document, safe=isSafe)
+            single_session_dao.update(self.logger, session, is_safe)
             self.consumer.acknowledge(message.delivery_tag)
         except AutoReconnect as e:
             self.logger.error('MongoDB connection error: %r\nRe-queueing message & exiting the worker' % e)

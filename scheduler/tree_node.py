@@ -1,7 +1,7 @@
 __author__ = 'Bohdan Mushkevych'
 
 from system.process_context import ProcessContext
-from model import time_table
+from model import time_table_record
 
 
 class AbstractNode(object):
@@ -56,7 +56,7 @@ class AbstractNode(object):
         """ time_record holds MAX_NUMBER_OF_LOG_ENTRIES of log entries, that can be accessed by MX
             this method adds record and removes oldest one if necessary """
         log = self.time_record.log
-        if len(log) > time_table.MAX_NUMBER_OF_LOG_ENTRIES:
+        if len(log) > time_table_record.MAX_NUMBER_OF_LOG_ENTRIES:
             del log[-1]
         log.insert(0, entry)
 
@@ -107,9 +107,9 @@ class AbstractNode(object):
                 continue
 
             dep_node = dependent_on.get_node_by_process(dep_proc_name, self.timeperiod)
-            if dep_node.time_record.state != time_table.STATE_PROCESSED:
+            if dep_node.time_record.state != time_table_record.STATE_PROCESSED:
                 dependents_are_finalized = False
-            if dep_node.time_record.state == time_table.STATE_SKIPPED:
+            if dep_node.time_record.state == time_table_record.STATE_SKIPPED:
                 dependents_are_skipped = True
 
         return dependents_are_finalized, dependents_are_skipped
@@ -132,9 +132,9 @@ class LinearNode(AbstractNode):
         if self.time_record is None:
             self.request_timetable_record()
 
-        if self.time_record.state in [time_table.STATE_FINAL_RUN,
-                                      time_table.STATE_IN_PROGRESS,
-                                      time_table.STATE_EMBRYO]:
+        if self.time_record.state in [time_table_record.STATE_FINAL_RUN,
+                                      time_table_record.STATE_IN_PROGRESS,
+                                      time_table_record.STATE_EMBRYO]:
             return True
         return False
 
@@ -159,9 +159,9 @@ class TreeNode(AbstractNode):
         children_processed = True
         for timeperiod in self.children:
             child = self.children[timeperiod]
-            if child.time_record.state in [time_table.STATE_FINAL_RUN,
-                                           time_table.STATE_IN_PROGRESS,
-                                           time_table.STATE_EMBRYO]:
+            if child.time_record.state in [time_table_record.STATE_FINAL_RUN,
+                                           time_table_record.STATE_IN_PROGRESS,
+                                           time_table_record.STATE_EMBRYO]:
                 children_processed = False
                 break
         return children_processed
@@ -179,15 +179,15 @@ class TreeNode(AbstractNode):
             child = self.children[timeperiod]
             children_processed = child.validate()
 
-            if child.time_record.state in [time_table.STATE_EMBRYO,
-                                           time_table.STATE_IN_PROGRESS,
-                                           time_table.STATE_FINAL_RUN]:
+            if child.time_record.state in [time_table_record.STATE_EMBRYO,
+                                           time_table_record.STATE_IN_PROGRESS,
+                                           time_table_record.STATE_FINAL_RUN]:
                 children_processed = False
-            if child.time_record.state != time_table.STATE_SKIPPED:
+            if child.time_record.state != time_table_record.STATE_SKIPPED:
                 all_children_skipped = False
 
         if children_processed is False \
-            and self.time_record.state in [time_table.STATE_FINAL_RUN, time_table.STATE_PROCESSED]:
+            and self.time_record.state in [time_table_record.STATE_FINAL_RUN, time_table_record.STATE_PROCESSED]:
             self.request_reprocess()
 
         # ideally, we should check if our tree holds HOURLY records by running <isinstance(self.tree, FourLevelTree)>

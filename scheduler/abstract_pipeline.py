@@ -5,7 +5,7 @@ from logging import INFO, WARNING, ERROR
 
 from flopsy.flopsy import PublishersPool
 from model import unit_of_work_dao
-from model import time_table
+from model import time_table_record
 from system.decorator import with_reconnect
 
 
@@ -48,7 +48,7 @@ class AbstractPipeline(object):
                 and process_name is not None \
                 and timeperiod is not None:
             try:
-                return unit_of_work_dao.retrieve_by_params(self.logger,
+                return unit_of_work_dao.get_by_params(self.logger,
                                                               process_name,
                                                               timeperiod,
                                                               first_object_id,
@@ -85,7 +85,7 @@ class AbstractPipeline(object):
             # As soon as among <dependent on> periods are in STATE_SKIPPED
             # there is very little sense in waiting for them to become STATE_PROCESSED
             # Skip this timeperiod itself
-            time_record.state = time_table.STATE_SKIPPED
+            time_record.state = time_table_record.STATE_SKIPPED
             self.timetable._save_time_record(process_name, time_record)
             tree = self.timetable.get_tree(process_name)
             tree.update_node_by_process(process_name, time_record)
@@ -103,19 +103,19 @@ class AbstractPipeline(object):
         In case Scheduler sees that unit_of_work is pending - it just updates boundaries of the processing"""
         timeperiod_tr = time_record.timeperiod
         try:
-            if time_record.state == time_table.STATE_EMBRYO:
+            if time_record.state == time_table_record.STATE_EMBRYO:
                 self._process_state_embryo(process_name, time_record, timeperiod_tr)
 
-            elif time_record.state == time_table.STATE_IN_PROGRESS:
+            elif time_record.state == time_table_record.STATE_IN_PROGRESS:
                 self._process_state_in_progress(process_name, time_record, timeperiod_tr)
 
-            elif time_record.state == time_table.STATE_FINAL_RUN:
+            elif time_record.state == time_table_record.STATE_FINAL_RUN:
                 self._process_state_final_run(process_name, time_record)
 
-            elif time_record.state == time_table.STATE_SKIPPED:
+            elif time_record.state == time_table_record.STATE_SKIPPED:
                 self._process_state_skipped(process_name, time_record)
 
-            elif time_record.state == time_table.STATE_PROCESSED:
+            elif time_record.state == time_table_record.STATE_PROCESSED:
                 self._process_state_processed(process_name, time_record)
 
             else:

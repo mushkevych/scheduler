@@ -12,7 +12,7 @@ from model import base_model
 from abstract_pipeline import AbstractPipeline
 from model import unit_of_work
 from model.unit_of_work import UnitOfWork
-from model import time_table
+from model import time_table_record
 from system.decorator import with_reconnect
 from system.process_context import ProcessContext
 from system.collection_context import CollectionContext
@@ -111,7 +111,7 @@ class RegularPipeline(AbstractPipeline):
             self.timetable.update_timetable_record(process_name,
                                                    time_record,
                                                    uow_obj,
-                                                   time_table.STATE_IN_PROGRESS)
+                                                   time_table_record.STATE_IN_PROGRESS)
         else:
             msg = 'MANUAL INTERVENTION REQUIRED! Unable to locate unit_of_work for %s in %s' \
                   % (process_name, time_record.timeperiod)
@@ -131,7 +131,7 @@ class RegularPipeline(AbstractPipeline):
             self.timetable.update_timetable_record(process_name,
                                                    time_record,
                                                    uow_obj,
-                                                   time_table.STATE_FINAL_RUN)
+                                                   time_table_record.STATE_FINAL_RUN)
         else:
             msg = 'MANUAL INTERVENTION REQUIRED! Unable to locate unit_of_work for %s in %s' \
                   % (process_name, time_record.timeperiod)
@@ -151,7 +151,7 @@ class RegularPipeline(AbstractPipeline):
         actual_time = time_helper.actual_time(process_name)
         can_finalize_timerecord = self.timetable.can_finalize_timetable_record(process_name, time_record)
         uow_id = time_record.related_unit_of_work
-        uow_obj = unit_of_work_dao.retrieve_by_id(self.logger, ObjectId(uow_id))
+        uow_obj = unit_of_work_dao.get_one(self.logger, ObjectId(uow_id))
 
         if start_time == actual_time or can_finalize_timerecord is False:
             if uow_obj.state in [unit_of_work.STATE_INVALID,
@@ -175,13 +175,13 @@ class RegularPipeline(AbstractPipeline):
     def _process_state_final_run(self, process_name, time_record):
         """method takes care of processing timetable records in STATE_FINAL_RUN state"""
         uow_id = time_record.related_unit_of_work
-        uow_obj = unit_of_work_dao.retrieve_by_id(self.logger, ObjectId(uow_id))
+        uow_obj = unit_of_work_dao.get_one(self.logger, ObjectId(uow_id))
 
         if uow_obj.state == unit_of_work.STATE_PROCESSED:
             self.timetable.update_timetable_record(process_name,
                                                    time_record,
                                                    uow_obj,
-                                                   time_table.STATE_PROCESSED)
+                                                   time_table_record.STATE_PROCESSED)
             timetable_tree = self.timetable.get_tree(process_name)
             timetable_tree.build_tree()
             msg = 'Transferred time-record %s in timeperiod %s to STATE_PROCESSED for %s' \
@@ -190,7 +190,7 @@ class RegularPipeline(AbstractPipeline):
             self.timetable.update_timetable_record(process_name,
                                                    time_record,
                                                    uow_obj,
-                                                   time_table.STATE_SKIPPED)
+                                                   time_table_record.STATE_SKIPPED)
             msg = 'Transferred time-record %s in timeperiod %s to STATE_SKIPPED for %s' \
                   % (time_record.document['_id'], time_record.timeperiod, process_name)
         else:

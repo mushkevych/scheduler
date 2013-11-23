@@ -5,7 +5,7 @@ from base_fixtures import compare_dictionaries
 from model import box_configuration
 from model.box_configuration import BoxConfiguration
 from model.scheduler_configuration import SchedulerConfiguration
-from model.time_table import TimeTable
+from model.time_table_record import TimeTableRecord
 from model.unit_of_work import UnitOfWork
 
 
@@ -13,7 +13,7 @@ class TestSystemCollections(unittest.TestCase):
     def setUp(self):
         self.box_configuration = BoxConfiguration()
         self.scheduler_configuration = SchedulerConfiguration()
-        self.timetable = TimeTable()
+        self.timetable = TimeTableRecord()
         self.uow = UnitOfWork()
 
     def tearDown(self):

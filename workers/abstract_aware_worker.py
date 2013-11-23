@@ -127,7 +127,7 @@ class AbstractAwareWorker(AbstractWorker):
         try:
             # @param object_id: ObjectId of the unit_of_work from mq
             object_id = ObjectId(message.body)
-            uow = unit_of_work_dao.retrieve_by_id(self.logger, object_id)
+            uow = unit_of_work_dao.get_one(self.logger, object_id)
             if uow.state in [unit_of_work.STATE_CANCELED, unit_of_work.STATE_PROCESSED]:
                 # garbage collector might have reposted this UOW
                 self.logger.warning('Skipping unit_of_work: id %s; state %s;' % (str(message.body), uow.state),

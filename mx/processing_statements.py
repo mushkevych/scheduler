@@ -2,8 +2,8 @@ __author__ = 'Bohdan Mushkevych'
 
 from threading import RLock
 from model import base_model
-from model import time_table
-from model.time_table import TimeTable
+from model import time_table_record
+from model.time_table_record import TimeTableRecord
 from system.collection_context import CollectionContext, COLLECTION_TIMETABLE_YEARLY, \
     COLLECTION_TIMETABLE_MONTHLY, COLLECTION_TIMETABLE_DAILY, COLLECTION_TIMETABLE_HOURLY
 from system.decorator import thread_safe
@@ -37,7 +37,7 @@ class ProcessingStatements(object):
         try:
             if unprocessed_only:
                 query = {base_model.TIMEPERIOD: {'$regex': timeperiod},
-                         time_table.STATE: {'$ne': time_table.STATE_PROCESSED}}
+                         time_table_record.STATE: {'$ne': time_table_record.STATE_PROCESSED}}
             else:
                 query = {base_model.TIMEPERIOD: {'$regex': timeperiod}}
 
@@ -46,7 +46,7 @@ class ProcessingStatements(object):
                 self.logger.warning('No TimeTable Records in %s.' % str(collection))
             else:
                 for document in cursor:
-                    obj = TimeTable(document)
+                    obj = TimeTableRecord(document)
                     key = (obj.process_name, obj.timeperiod)
                     resp[key] = obj
                     print(key)

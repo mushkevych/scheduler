@@ -17,14 +17,14 @@ class SiteHourlyAggregator(AbstractVerticalWorker):
 
     def __init__(self, process_name):
         super(SiteHourlyAggregator, self).__init__(process_name)
-    
+
     def _get_tunnel_port(self):
         return settings['tunnel_site_port']
 
     def _init_target_key(self, *args):
         """ abstract method to create composite key from source domain_name and timeperiod"""
         return args[0], time_helper.session_to_hour(args[1])
-    
+
     def _init_source_object(self, document):
         """ abstract method to initialise object with map from source collection """
         return SingleSessionStatistics(document)
@@ -35,7 +35,7 @@ class SiteHourlyAggregator(AbstractVerticalWorker):
         obj.key = (composite_key[0], composite_key[1])
         obj.number_of_visits = 0
         return obj
-            
+
     def _process_single_document(self, document):
         """ abstract method that actually processes the document from source collection"""
         source_obj = self._init_source_object(document)

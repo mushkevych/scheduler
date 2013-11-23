@@ -1,6 +1,5 @@
 __author__ = 'Bohdan Mushkevych'
 
-
 from settings import settings
 from flopsy.flopsy import Consumer
 from system.performance_ticker import WorkerPerformanceTicker
@@ -37,7 +36,7 @@ class AbstractWorker(SynergyProcess):
     def _init_performance_ticker(self, logger):
         self.performance_ticker = WorkerPerformanceTicker(logger)
         self.performance_ticker.start()
-        
+
     # ********************** thread-related methods ****************************
     def _mq_callback(self, message):
         """ abstract method to process messages from MQ 

@@ -1,6 +1,5 @@
 __author__ = 'Bohdan Mushkevych'
 
-
 from datetime import datetime
 from threading import Lock
 from amqplib.client_0_8 import AMQPException
@@ -8,15 +7,12 @@ from amqplib.client_0_8 import AMQPException
 from flopsy.flopsy import PublishersPool
 from system.decorator import with_reconnect
 from system.synergy_process import SynergyProcess
-from system.collection_context import CollectionContext
-from system.collection_context import COLLECTION_SCHEDULER_CONFIGURATION
 from system.repeat_timer import RepeatTimer
 from system.process_context import *
 
 from hadoop_pipeline import HadoopPipeline
 from regular_pipeline import RegularPipeline
-from model import scheduler_configuration
-from model.scheduler_configuration import SchedulerConfiguration
+from model import scheduler_configuration, scheduler_configuration_dao
 from time_table import TimeTable
 
 
@@ -49,13 +45,9 @@ class Scheduler(SynergyProcess):
     @with_reconnect
     def start(self):
         """ reading scheduler configurations and starting timers to trigger events """
-        collection = CollectionContext.get_collection(self.logger, COLLECTION_SCHEDULER_CONFIGURATION)
-        cursor = collection.find({})
-        if cursor.count() == 0:
-            raise LookupError('MongoDB has no scheduler configuration entries')
+        document_list = scheduler_configuration_dao.get_all(self.logger)
 
-        for entry in cursor:
-            document = SchedulerConfiguration(entry)
+        for document in document_list:
             interval = document.interval
             is_active = document.process_state == scheduler_configuration.STATE_ON
             process_type = ProcessContext.get_type(document.process_name)
