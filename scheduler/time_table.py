@@ -3,7 +3,7 @@ __author__ = 'Bohdan Mushkevych'
 from datetime import datetime
 from threading import RLock
 from bson.objectid import ObjectId
-from model import unit_of_work_helper, time_table, unit_of_work
+from model import unit_of_work_dao, time_table, unit_of_work
 from model import base_model
 from model.time_table import TimeTable
 from system.decorator import thread_safe
@@ -134,11 +134,11 @@ class TimeTable:
         uow_id = tree_node.time_record.related_unit_of_work
         if uow_id is not None:
             tree_node.time_record.state = time_table.STATE_IN_PROGRESS
-            uow_obj = unit_of_work_helper.retrieve_by_id(self.logger, ObjectId(uow_id))
+            uow_obj = unit_of_work_dao.retrieve_by_id(self.logger, ObjectId(uow_id))
             uow_obj.state = unit_of_work.STATE_INVALID
             uow_obj.number_of_retries = 0
             uow_obj.created_at = datetime.utcnow()
-            unit_of_work_helper.update(self.logger, uow_obj)
+            unit_of_work_dao.update(self.logger, uow_obj)
             msg = 'Transferred time-record %s in timeperiod %s to %s; Transferred unit_of_work to %s' \
                   % (tree_node.time_record.document['_id'], tree_node.time_record.timeperiod,
                      tree_node.time_record.state, uow_obj.state)
@@ -163,9 +163,9 @@ class TimeTable:
         tree_node.time_record.state = time_table.STATE_SKIPPED
         uow_id = tree_node.time_record.related_unit_of_work
         if uow_id is not None:
-            uow_obj = unit_of_work_helper.retrieve_by_id(self.logger, ObjectId(uow_id))
+            uow_obj = unit_of_work_dao.retrieve_by_id(self.logger, ObjectId(uow_id))
             uow_obj.state = uow_obj.STATE_CANCELED
-            unit_of_work_helper.update(self.logger, uow_obj)
+            unit_of_work_dao.update(self.logger, uow_obj)
             msg = 'Transferred time-record %s in timeperiod %s to %s; Transferred unit_of_work to %s' \
                   % (tree_node.time_record.document['_id'], tree_node.time_record.timeperiod,
                      tree_node.time_record.state, uow_obj.state)

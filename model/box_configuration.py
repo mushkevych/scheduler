@@ -1,6 +1,5 @@
 __author__ = 'Bohdan Mushkevych'
 
-
 from model.base_model import *
 
 BOX_ID = 'box_id'

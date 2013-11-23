@@ -114,7 +114,7 @@ class UnitOfWork(BaseModel):
         if value not in [STATE_INVALID, STATE_REQUESTED, STATE_IN_PROGRESS, STATE_PROCESSED, STATE_CANCELED]:
             decision = False
         return decision
-    
+
     @property
     def created_at(self):
         return self.data.get(CREATED_AT)

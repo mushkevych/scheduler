@@ -6,7 +6,7 @@ from bson.objectid import ObjectId
 from datetime import datetime
 import psutil
 from psutil.error import TimeoutExpired
-from model import unit_of_work_helper, unit_of_work
+from model import unit_of_work_dao, unit_of_work
 
 from settings import settings
 from workers.abstract_worker import AbstractWorker
@@ -85,7 +85,7 @@ class AbstractHadoopWorker(AbstractWorker):
         try:
             # @param object_id: ObjectId of the unit_of_work from mq
             object_id = ObjectId(message.body)
-            uow = unit_of_work_helper.retrieve_by_id(self.logger, object_id)
+            uow = unit_of_work_dao.retrieve_by_id(self.logger, object_id)
             if uow.state in [unit_of_work.STATE_CANCELED, unit_of_work.STATE_PROCESSED]:
                 # garbage collector might have reposted this UOW
                 self.logger.warning('Skipping unit_of_work: id %s; state %s;'
@@ -103,7 +103,7 @@ class AbstractHadoopWorker(AbstractWorker):
 
             uow.state = unit_of_work.STATE_IN_PROGRESS
             uow.started_at = datetime.utcnow()
-            unit_of_work_helper.update(self.logger, uow)
+            unit_of_work_dao.update(self.logger, uow)
             self.performance_ticker.start_uow(uow)
 
             self._start_process(start_timeperiod, end_timeperiod)
@@ -122,10 +122,10 @@ class AbstractHadoopWorker(AbstractWorker):
                 self.performance_ticker.cancel_uow()
 
             self.logger.info('Hadoop Map/Reduce return code is %r' % code)
-            unit_of_work_helper.update(self.logger, uow)
+            unit_of_work_dao.update(self.logger, uow)
         except Exception as e:
             uow.state = unit_of_work.STATE_INVALID
-            unit_of_work_helper.update(self.logger, uow)
+            unit_of_work_dao.update(self.logger, uow)
             self.performance_ticker.cancel_uow()
             self.logger.error('Safety fuse while processing unit_of_work %s in timeperiod %s : %r'
                               % (message.body, uow.timeperiod, e), exc_info=True)

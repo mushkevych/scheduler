@@ -1,6 +1,5 @@
 __author__ = 'Bohdan Mushkevych'
 
-
 from pymongo import MongoClient
 from settings import settings
 from abc import abstractmethod, ABCMeta
@@ -24,6 +23,7 @@ if 'ds_factory' not in globals():
                 else:
                     raise ValueError('Unsupported Data Source type: %s' % ds_type)
             return instances[ds_type]
+
         return get_instance
 
     global ds_factory

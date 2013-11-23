@@ -4,7 +4,7 @@ __author__ = 'Bohdan Mushkevych'
 
 from bson.objectid import ObjectId
 from datetime import datetime
-from model import unit_of_work_helper
+from model import unit_of_work_dao
 
 from model import unit_of_work
 from workers.abstract_worker import AbstractWorker
@@ -37,7 +37,7 @@ class IdentityWorker(AbstractWorker):
         try:
             # @param object_id: ObjectId of the unit_of_work from mq
             object_id = ObjectId(message.body)
-            uow = unit_of_work_helper.retrieve_by_id(self.logger, object_id)
+            uow = unit_of_work_dao.retrieve_by_id(self.logger, object_id)
             if uow.state in [unit_of_work.STATE_CANCELED, unit_of_work.STATE_PROCESSED]:
                 # garbage collector might have reposted this UOW
                 self.logger.warning('Skipping unit_of_work: id %s; state %s;'
@@ -55,11 +55,11 @@ class IdentityWorker(AbstractWorker):
             uow.number_of_processed_documents = 0
             uow.started_at = datetime.utcnow()
             uow.finished_at = datetime.utcnow()
-            unit_of_work_helper.update(self.logger, uow)
+            unit_of_work_dao.update(self.logger, uow)
             self.performance_ticker.finish_uow()
         except Exception as e:
             uow.state = unit_of_work.STATE_INVALID
-            unit_of_work_helper.update(self.logger, uow)
+            unit_of_work_dao.update(self.logger, uow)
             self.performance_ticker.cancel_uow()
             self.logger.error('Safety fuse while processing unit_of_work %s in timeperiod %s : %r'
                               % (message.body, uow.timeperiod, e), exc_info=True)

@@ -6,7 +6,7 @@ from pymongo import ASCENDING, DESCENDING
 from pymongo.errors import DuplicateKeyError
 from datetime import datetime
 from logging import ERROR, WARNING, INFO
-from model import unit_of_work_helper
+from model import unit_of_work_dao
 
 from model import base_model
 from abstract_pipeline import AbstractPipeline
@@ -59,7 +59,7 @@ class RegularPipeline(AbstractPipeline):
         uow.number_of_retries = 0
 
         try:
-            uow_id = unit_of_work_helper.insert(self.logger, uow)
+            uow_id = unit_of_work_dao.insert(self.logger, uow)
         except DuplicateKeyError as e:
             e.first_object_id = str(first_object_id)
             e.last_object_id = str(last_object_id)
@@ -82,7 +82,7 @@ class RegularPipeline(AbstractPipeline):
         dec_search = source_collection.find(spec=query, fields='_id').sort('_id', DESCENDING).limit(1)
         last_object_id = dec_search[0]['_id']
         unit_of_work.end_id = str(last_object_id)
-        unit_of_work_helper.update(self.logger, unit_of_work)
+        unit_of_work_dao.update(self.logger, unit_of_work)
 
         msg = 'Updated range to process for %s in timeperiod %s for collection %s: [%s : %s]' \
               % (process_name, time_record.timeperiod, source_collection_name,
@@ -151,7 +151,7 @@ class RegularPipeline(AbstractPipeline):
         actual_time = time_helper.actual_time(process_name)
         can_finalize_timerecord = self.timetable.can_finalize_timetable_record(process_name, time_record)
         uow_id = time_record.related_unit_of_work
-        uow_obj = unit_of_work_helper.retrieve_by_id(self.logger, ObjectId(uow_id))
+        uow_obj = unit_of_work_dao.retrieve_by_id(self.logger, ObjectId(uow_id))
 
         if start_time == actual_time or can_finalize_timerecord is False:
             if uow_obj.state in [unit_of_work.STATE_INVALID,
@@ -175,7 +175,7 @@ class RegularPipeline(AbstractPipeline):
     def _process_state_final_run(self, process_name, time_record):
         """method takes care of processing timetable records in STATE_FINAL_RUN state"""
         uow_id = time_record.related_unit_of_work
-        uow_obj = unit_of_work_helper.retrieve_by_id(self.logger, ObjectId(uow_id))
+        uow_obj = unit_of_work_dao.retrieve_by_id(self.logger, ObjectId(uow_id))
 
         if uow_obj.state == unit_of_work.STATE_PROCESSED:
             self.timetable.update_timetable_record(process_name,

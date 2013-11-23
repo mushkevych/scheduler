@@ -89,7 +89,7 @@ class TimeTable(BaseModel):
         if value not in [STATE_IN_PROGRESS, STATE_PROCESSED, STATE_FINAL_RUN, STATE_EMBRYO, STATE_SKIPPED]:
             decision = False
         return decision
-    
+
     @property
     def related_unit_of_work(self):
         return self.data.get(RELATED_UNIT_OF_WORK)

@@ -32,7 +32,7 @@ class ClusterConnection(MasterSlaveConnection):
         - automatic handling of AutoReconnect or Master change
     """
 
-    VALIDATE_INTERVAL = 300 # 5 minutes
+    VALIDATE_INTERVAL = 300  # 5 minutes
 
     def __init__(self, logger, host_list):
         """@param host_list: initial list of nodes in ReplicaSet (can change during the life time)"""

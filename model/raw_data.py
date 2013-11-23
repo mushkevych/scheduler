@@ -47,7 +47,6 @@ FAMILY_LANGUAGES = 'language'
 
 
 class RawData(BaseModel):
-
     def __init__(self, document=None):
         super(RawData, self).__init__(document)
 
@@ -117,4 +116,3 @@ class RawData(BaseModel):
     @is_page_view.setter
     def is_page_view(self, value):
         self.data[PAGE_VIEW] = 1
-

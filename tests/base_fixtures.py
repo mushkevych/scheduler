@@ -3,7 +3,7 @@ __author__ = 'Bohdan Mushkevych'
 import inspect
 import logging
 import random
-from model import unit_of_work_helper
+from model import unit_of_work_dao
 
 from model import unit_of_work
 from model.unit_of_work import UnitOfWork
@@ -105,7 +105,7 @@ def create_unit_of_work(process_name, first_object_id, last_object_id):
     uow.process_name = process_name
     uow.number_of_retries = 0
 
-    uow_id = unit_of_work_helper.insert(logger, uow)
+    uow_id = unit_of_work_dao.insert(logger, uow)
     return uow_id
 
 

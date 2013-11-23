@@ -8,7 +8,7 @@ from system.repeat_timer import RepeatTimer
 
 from werkzeug.utils import cached_property, redirect
 from werkzeug.wrappers import Response
-from model import unit_of_work_helper, scheduler_configuration_helper
+from model import unit_of_work_dao, scheduler_configuration_dao
 from model import scheduler_configuration
 from processing_statements import ProcessingStatements
 from system.collection_context import ReplicaSetContext
@@ -371,7 +371,7 @@ class ActionHandler(object):
             if uow_id is None:
                 resp = {'response': 'no related unit_of_work'}
             else:
-                resp = unit_of_work_helper.retrieve_by_id(self.logger, uow_id).document
+                resp = unit_of_work_dao.retrieve_by_id(self.logger, uow_id).document
                 for key in resp:
                     resp[key] = str(resp[key])
 
@@ -401,7 +401,7 @@ class ActionHandler(object):
 
             document = thread_handler.args[1]  # of type SchedulerConfigurationEntry
             document.interval = new_interval
-            scheduler_configuration_helper.update(self.logger, document)
+            scheduler_configuration_dao.update(self.logger, document)
 
             resp['status'] = 'changed interval for %r to %r' % (self.process_name, new_interval)
 
@@ -450,7 +450,7 @@ class ActionHandler(object):
         else:
             message = 'RepeatTimer for %s is already active. Ignoring request.' % document.process_name
 
-        scheduler_configuration_helper.update(self.logger, document)
+        scheduler_configuration_dao.update(self.logger, document)
         self.logger.info(message)
         resp['status'] = message
         return resp

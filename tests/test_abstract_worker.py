@@ -1,7 +1,7 @@
 __author__ = 'Bohdan Mushkevych'
 
 import unittest
-from model import unit_of_work_helper
+from model import unit_of_work_dao
 from tests import base_fixtures
 from tests.base_fixtures import TestMessage
 from tests.base_fixtures import TestConsumer
@@ -53,7 +53,7 @@ class AbstractWorkerUnitTest(unittest.TestCase):
     def tearDown(self):
         # cleaning up DB
         self.virtual_tear_down()
-        unit_of_work_helper.remove(self.aggregator.logger, self.uow_id)
+        unit_of_work_dao.remove(self.aggregator.logger, self.uow_id)
         # killing the worker
         #        self.aggregator.__del__()
         del self.aggregator

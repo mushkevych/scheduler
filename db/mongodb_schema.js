@@ -9,6 +9,10 @@ db.createCollection('single_session');
 db.single_session.ensureIndex( { domain_name : 1, "user_profile.session_id" : 1}, {unique: true} );
 db.single_session.ensureIndex( { timeperiod : 1 });
 
+db.createCollection('');
+db.single_session.ensureIndex( { domain_name : 1, "user_profile.session_id" : 1}, {unique: true} );
+db.single_session.ensureIndex( { timeperiod : 1 });
+
 // *** SYSTEM ***
 db.createCollection('scheduler_configuration');
 db.scheduler_configuration.ensureIndex( { process_name : 1}, {unique: true} );

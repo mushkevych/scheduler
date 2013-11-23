@@ -7,7 +7,7 @@ from pymongo import ASCENDING
 
 from datetime import datetime, timedelta
 from flopsy.flopsy import PublishersPool
-from model import unit_of_work_helper
+from model import unit_of_work_dao
 from system.decorator import thread_safe
 from workers.abstract_worker import AbstractWorker
 from model import unit_of_work
@@ -73,7 +73,7 @@ class GarbageCollectorWorker(AbstractWorker):
             if datetime.utcnow() - creation_time < timedelta(hours=LIFE_SUPPORT_HOURS):
                 uow.state = unit_of_work.STATE_REQUESTED
                 uow.number_of_retries += 1
-                unit_of_work_helper.update(self.logger, uow)
+                unit_of_work_dao.update(self.logger, uow)
                 self.publishers.get_publisher(process_name).publish(str(document['_id']))
 
                 self.logger.info('UOW marked for re-processing: process %s; id %s; attempt %d'
@@ -81,7 +81,7 @@ class GarbageCollectorWorker(AbstractWorker):
                 self.performance_ticker.increment()
             else:
                 uow.state = unit_of_work.STATE_CANCELED
-                unit_of_work_helper.update(self.logger, uow)
+                unit_of_work_dao.update(self.logger, uow)
                 self.logger.info('UOW transferred to STATE_CANCELED: process %s; id %s; attempt %d'
                                  % (process_name, str(document['_id']), uow.number_of_retries))
 

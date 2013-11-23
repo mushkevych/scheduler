@@ -2,7 +2,6 @@ __author__ = 'Bohdan Mushkevych'
 
 import ds_manager
 
-# FIELDS
 KEY = 'domain_name'
 TIMEPERIOD = 'timeperiod'
 
@@ -12,9 +11,8 @@ class BaseModel(object):
     This class presents common functionality for all Models within the Scheduler project
     """
 
-    def __init__(self, table, document=None):
-        self.table = table
-        self.ds_manager = ds_manager.ds_factory(None)
+    def __init__(self, document=None):
+        self._ds_manager = ds_manager.ds_factory(None)
         if document is None:
             self.data = dict()
         else:

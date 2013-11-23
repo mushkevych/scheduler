@@ -4,7 +4,7 @@ from datetime import datetime
 from logging import INFO, WARNING, ERROR
 
 from flopsy.flopsy import PublishersPool
-from model import unit_of_work_helper
+from model import unit_of_work_dao
 from model import time_table
 from system.decorator import with_reconnect
 
@@ -48,7 +48,7 @@ class AbstractPipeline(object):
                 and process_name is not None \
                 and timeperiod is not None:
             try:
-                return unit_of_work_helper.retrieve_by_params(self.logger,
+                return unit_of_work_dao.retrieve_by_params(self.logger,
                                                               process_name,
                                                               timeperiod,
                                                               first_object_id,
