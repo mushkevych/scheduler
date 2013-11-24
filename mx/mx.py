@@ -78,5 +78,10 @@ class MX(object):
 
 
 if __name__ == '__main__':
-    app = MX(None)
+    from system.process_context import PROCESS_SCHEDULER
+    from scheduler.scheduler import Scheduler
+
+    source = Scheduler(PROCESS_SCHEDULER)
+
+    app = MX(source)
     app.start_mx_thread()

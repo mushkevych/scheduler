@@ -63,10 +63,6 @@ class BaseManager:
 class MongoDbManager(BaseManager):
     QUERY_GET_ALL = {}
 
-    QUERY_GET_BY_TIMEPERIOD_AND_NOT_PROCESSED = \
-        lambda timeperiod: {base_model.TIMEPERIOD: {'$regex': timeperiod},
-                            time_table_record.STATE: {'$ne': time_table_record.STATE_PROCESSED}}
-
     QUERY_GET_INBETWEEN_TIMPERIODS = \
         lambda start_time, end_time: {base_model.TIMEPERIOD: {'$gte': start_time, '$lt': end_time}}
 

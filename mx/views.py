@@ -3,15 +3,14 @@ __author__ = 'Bohdan Mushkevych'
 from datetime import datetime, timedelta
 import functools
 import json
-import time
-from system.repeat_timer import RepeatTimer
 
 from werkzeug.utils import cached_property, redirect
 from werkzeug.wrappers import Response
+
+from system.repeat_timer import RepeatTimer
 from model import unit_of_work_dao, scheduler_configuration_dao
 from model import scheduler_configuration
 from processing_statements import ProcessingStatements
-from system.collection_context import ReplicaSetContext
 from system.process_context import ProcessContext
 from system.performance_ticker import FootprintCalculator
 from system import time_helper
@@ -332,7 +331,7 @@ class ActionHandler(object):
         if tree is not None:
             self.timeperiod = time_helper.cast_to_time_qualifier(self.process_name, self.timeperiod)
             node = tree.get_node_by_process(self.process_name, self.timeperiod)
-            self.logger.info('MX (requesting re-process timeperiod %r for %r) { ' % (self.timeperiod, self.process_name))
+            self.logger.info('MX (requesting re-process timeperiod %r for %r) {' % (self.timeperiod, self.process_name))
             effected_nodes = node.request_reprocess()
             for node in effected_nodes:
                 resp[node.timeperiod] = NodeDetails._get_nodes_details(self.logger, node)
@@ -518,16 +517,4 @@ class ConnectionDetails(object):
     @cached_property
     def entries(self):
         list_of_rows = []
-        try:
-            for key in ReplicaSetContext.connection_pool:
-                row = []
-                conn = ReplicaSetContext.connection_pool[key]
-                row.append(key)
-                row.append('%r' % conn.master)
-                row.append('%r' % conn.slaves)
-                row.append(time.strftime('%Y-%m-%d %H:%M:%S', time.gmtime(conn._last_validate_time)))
-
-                list_of_rows.append(row)
-        except Exception as e:
-            self.logger.error('MX Exception %s' % str(e), exc_info=True)
         return list_of_rows
