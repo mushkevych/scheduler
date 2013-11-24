@@ -44,15 +44,15 @@ class AbstractPipeline(object):
             timeperiod = e.timeperiod
 
         if first_object_id is not None \
-                and last_object_id is not None \
-                and process_name is not None \
-                and timeperiod is not None:
+            and last_object_id is not None \
+            and process_name is not None \
+            and timeperiod is not None:
             try:
                 return unit_of_work_dao.get_by_params(self.logger,
-                                                              process_name,
-                                                              timeperiod,
-                                                              first_object_id,
-                                                              last_object_id)
+                                                      process_name,
+                                                      timeperiod,
+                                                      first_object_id,
+                                                      last_object_id)
             except LookupError:
                 pass
 

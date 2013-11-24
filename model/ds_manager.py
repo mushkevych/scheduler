@@ -1,3 +1,5 @@
+from model import base_model, time_table_record
+
 __author__ = 'Bohdan Mushkevych'
 
 from pymongo import MongoClient
@@ -42,23 +44,32 @@ class BaseManager:
         self.logger = logger
 
     @abstractmethod
-    def get(self, table, primary_key):
+    def get(self, table_name, primary_key):
         pass
 
     @abstractmethod
-    def filter(self, table, query):
+    def filter(self, table_name, query):
         pass
 
     @abstractmethod
-    def update(self, table, instance):
+    def update(self, table_name, instance):
         pass
 
     @abstractmethod
-    def delete(self, table, primary_key):
+    def delete(self, table_name, primary_key):
         pass
 
 
 class MongoDbManager(BaseManager):
+    QUERY_GET_ALL = {}
+
+    QUERY_GET_BY_TIMEPERIOD_AND_NOT_PROCESSED = \
+        lambda timeperiod: {base_model.TIMEPERIOD: {'$regex': timeperiod},
+                            time_table_record.STATE: {'$ne': time_table_record.STATE_PROCESSED}}
+
+    QUERY_GET_INBETWEEN_TIMPERIODS = \
+        lambda start_time, end_time: {base_model.TIMEPERIOD: {'$gte': start_time, '$lt': end_time}}
+
     def __init__(self, logger):
         super(MongoDbManager, self).__init__(logger)
         self._db_client = MongoClient(settings['rs_system_host_list'])
@@ -70,17 +81,20 @@ class MongoDbManager(BaseManager):
         except AttributeError:
             pass
 
-    def filter(self, table, query):
-        conn = self._db[table]
+    def connection(self, table_name):
+        return self._db[table_name]
+
+    def filter(self, table_name, query):
+        conn = self._db[table_name]
         return conn.find(query)
 
-    def delete(self, table, primary_key):
-        conn = self._db[table]
+    def delete(self, table_name, primary_key):
+        conn = self._db[table_name]
         return conn.remove(primary_key, safe=True)
 
-    def get(self, table, primary_key):
+    def get(self, table_name, primary_key):
         query = {'_id': primary_key}
-        conn = self._db[table]
+        conn = self._db[table_name]
         db_entry = conn.find_one(query)
         if db_entry is None:
             msg = 'Instance with ID=%s was not found' % str(primary_key)
@@ -88,8 +102,8 @@ class MongoDbManager(BaseManager):
             raise LookupError(msg)
         return db_entry
 
-    def update(self, table, instance):
-        conn = self._db[table]
+    def update(self, table_name, instance):
+        conn = self._db[table_name]
         conn.save(instance, safe=True)
 
 

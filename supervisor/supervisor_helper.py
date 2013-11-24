@@ -1,25 +1,6 @@
 __author__ = 'Bohdan Mushkevych'
 
-from model import box_configuration
-from model.box_configuration import BoxConfiguration
 from settings import settings
-from system.collection_context import CollectionContext, COLLECTION_BOX_CONFIGURATION
-
-
-def retrieve_configuration(logger, box_id):
-    """ method reads box configuration from the MongoDB"""
-    collection = CollectionContext.get_collection(logger, COLLECTION_BOX_CONFIGURATION)
-    document = collection.find_one({box_configuration.BOX_ID: box_id})
-    if document is None:
-        raise LookupError('MongoDB has no process list for box_id = %r' % box_id)
-    return BoxConfiguration(document)
-
-
-def update_configuration(logger, box_configuration):
-    """ method updates box configuration in the MongoDB"""
-    w_number = CollectionContext.get_w_number(logger, COLLECTION_BOX_CONFIGURATION)
-    collection = CollectionContext.get_collection(logger, COLLECTION_BOX_CONFIGURATION)
-    collection.save(box_configuration.document, safe=True, w=w_number)
 
 
 def get_box_id(logger):

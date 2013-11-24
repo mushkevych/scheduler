@@ -9,6 +9,7 @@ from psutil import TimeoutExpired
 import supervisor_helper as helper
 from launch import get_python, PROJECT_ROOT, PROCESS_STARTER
 from model import box_configuration
+from model import box_configuration_dao
 from system.process_context import ProcessContext
 from system.repeat_timer import RepeatTimer
 from system.synergy_process import SynergyProcess
@@ -43,7 +44,7 @@ class Supervisor(SynergyProcess):
                 p.kill()
                 p.wait()
                 box_configuration.set_process_pid(process_name, None)
-                helper.update_configuration(self.logger, box_configuration)
+                box_configuration_dao.update(self.logger, box_configuration)
                 ProcessContext.remove_pid_file(process_name)
         except Exception:
             self.logger.error('Exception on killing: %s' % process_name, exc_info=True)
@@ -65,7 +66,7 @@ class Supervisor(SynergyProcess):
             box_configuration.set_process_pid(process_name, None)
             self.logger.error('Exception on starting: %s' % process_name, exc_info=True)
         finally:
-            helper.update_configuration(self.logger, box_configuration)
+            box_configuration_dao.update(self.logger, box_configuration)
             self.logger.info('}')
 
     def _poll_process(self, box_configuration, process_name):
@@ -84,7 +85,7 @@ class Supervisor(SynergyProcess):
             else:
                 # process is terminated; possibly by OS
                 box_configuration.set_process_pid(process_name, None)
-                helper.update_configuration(self.logger, box_configuration)
+                box_configuration_dao.update(self.logger, box_configuration)
                 self.logger.info('Process %s got terminated. Cleaning up' % process_name)
         except TimeoutExpired:
             # process is alive and OK
@@ -95,7 +96,7 @@ class Supervisor(SynergyProcess):
     def start(self):
         """ reading box configurations and starting timers to start/monitor/kill processes """
         try:
-            box_configuration = helper.retrieve_configuration(self.logger, self.box_id)
+            box_configuration = box_configuration_dao.get_one(self.logger, self.box_id)
             process_list = box_configuration.process_list
             for process in process_list:
                 params = [process]
@@ -112,7 +113,7 @@ class Supervisor(SynergyProcess):
         try:
             self.lock.acquire()
 
-            box_config = helper.retrieve_configuration(self.logger, self.box_id)
+            box_config = box_configuration_dao.get_one(self.logger, self.box_id)
             state = box_config.get_process_state(process_name)
             pid = box_config.get_process_pid(process_name)
             if state == box_configuration.STATE_OFF:

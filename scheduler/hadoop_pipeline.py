@@ -1,7 +1,5 @@
 __author__ = 'Bohdan Mushkevych'
 
-
-from bson.objectid import ObjectId
 from pymongo.errors import DuplicateKeyError
 from datetime import datetime
 from logging import ERROR, WARNING, INFO
@@ -61,19 +59,18 @@ class HadoopPipeline(AbstractPipeline):
         """ method that takes care of processing timetable records in STATE_EMBRYO state"""
         end_time = time_helper.increment_time(process_name, start_time)
 
-        uow_obj = None
         try:
-            uow_obj = self.insert_uow(process_name, start_time, end_time, 0, time_record)
+            uow = self.insert_uow(process_name, start_time, end_time, 0, time_record)
         except DuplicateKeyError as e:
-            uow_obj = self.recover_from_duplicatekeyerror(e)
+            uow = self.recover_from_duplicatekeyerror(e)
             msg = 'Catching up with latest unit_of_work %s in timeperiod %s, because of: %r' \
                   % (process_name, time_record.timeperiod, e)
             self._log_message(WARNING, process_name, time_record, msg)
 
-        if uow_obj is not None:
+        if uow is not None:
             self.timetable.update_timetable_record(process_name,
                                                    time_record,
-                                                   uow_obj,
+                                                   uow,
                                                    time_table_record.STATE_IN_PROGRESS)
         else:
             msg = 'MANUAL INTERVENTION REQUIRED! Unable to locate unit_of_work for %s in %s' \
@@ -85,41 +82,40 @@ class HadoopPipeline(AbstractPipeline):
         end_time = time_helper.increment_time(process_name, start_time)
         actual_time = time_helper.actual_time(process_name)
         can_finalize_timerecord = self.timetable.can_finalize_timetable_record(process_name, time_record)
-        uow_id = time_record.related_unit_of_work
-        uow_obj = unit_of_work_dao.get_one(self.logger, ObjectId(uow_id))
-        iteration = int(uow_obj.end_id)
+        uow = unit_of_work_dao.get_one(self.logger, time_record.related_unit_of_work)
+        iteration = int(uow.end_id)
 
         try:
             if start_time == actual_time or can_finalize_timerecord is False:
-                if uow_obj.state in [unit_of_work.STATE_REQUESTED,
-                                       unit_of_work.STATE_IN_PROGRESS,
-                                       unit_of_work.STATE_INVALID]:
+                if uow.state in [unit_of_work.STATE_REQUESTED,
+                                 unit_of_work.STATE_IN_PROGRESS,
+                                 unit_of_work.STATE_INVALID]:
                     # Hadoop processing takes more than 1 tick of Scheduler
                     # Let the Hadoop processing complete - do no updates to Scheduler records
                     pass
-                elif uow_obj.state in [unit_of_work.STATE_PROCESSED,
-                                       unit_of_work.STATE_CANCELED]:
+                elif uow.state in [unit_of_work.STATE_PROCESSED,
+                                   unit_of_work.STATE_CANCELED]:
                     # create new uow to cover new inserts
-                    uow_obj = self.insert_uow(process_name, start_time, end_time, iteration + 1, time_record)
+                    uow = self.insert_uow(process_name, start_time, end_time, iteration + 1, time_record)
                     self.timetable.update_timetable_record(process_name,
                                                            time_record,
-                                                           uow_obj,
+                                                           uow,
                                                            time_table_record.STATE_IN_PROGRESS)
 
             elif start_time < actual_time and can_finalize_timerecord is True:
-                if uow_obj.state in [unit_of_work.STATE_REQUESTED,
-                                     unit_of_work.STATE_IN_PROGRESS,
-                                     unit_of_work.STATE_INVALID]:
+                if uow.state in [unit_of_work.STATE_REQUESTED,
+                                 unit_of_work.STATE_IN_PROGRESS,
+                                 unit_of_work.STATE_INVALID]:
                     # Hadoop processing has not started yet
                     # Let the Hadoop processing complete - do no updates to Scheduler records
                     pass
-                elif uow_obj.state in [unit_of_work.STATE_PROCESSED,
-                                       unit_of_work.STATE_CANCELED]:
+                elif uow.state in [unit_of_work.STATE_PROCESSED,
+                                   unit_of_work.STATE_CANCELED]:
                     # create new uow for FINAL RUN
-                    uow_obj = self.insert_uow(process_name, start_time, end_time, iteration + 1, time_record)
+                    uow = self.insert_uow(process_name, start_time, end_time, iteration + 1, time_record)
                     self.timetable.update_timetable_record(process_name,
                                                            time_record,
-                                                           uow_obj,
+                                                           uow,
                                                            time_table_record.STATE_FINAL_RUN)
             else:
                 msg = 'Time-record %s has timeperiod from future %s vs current time %s' \
@@ -127,11 +123,11 @@ class HadoopPipeline(AbstractPipeline):
                 self._log_message(ERROR, process_name, time_record, msg)
 
         except DuplicateKeyError as e:
-            uow_obj = self.recover_from_duplicatekeyerror(e)
-            if uow_obj is not None:
+            uow = self.recover_from_duplicatekeyerror(e)
+            if uow is not None:
                 self.timetable.update_timetable_record(process_name,
                                                        time_record,
-                                                       uow_obj,
+                                                       uow,
                                                        time_record.state)
             else:
                 msg = 'MANUAL INTERVENTION REQUIRED! Unable to identify unit_of_work for %s in %s' \
@@ -140,28 +136,27 @@ class HadoopPipeline(AbstractPipeline):
 
     def _process_state_final_run(self, process_name, time_record):
         """method takes care of processing timetable records in STATE_FINAL_RUN state"""
-        uow_id = time_record.related_unit_of_work
-        uow_obj = unit_of_work_dao.get_one(self.logger, ObjectId(uow_id))
+        uow = unit_of_work_dao.get_one(self.logger, time_record.related_unit_of_work)
 
-        if uow_obj.state == unit_of_work.STATE_PROCESSED:
+        if uow.state == unit_of_work.STATE_PROCESSED:
             self.timetable.update_timetable_record(process_name,
                                                    time_record,
-                                                   uow_obj,
+                                                   uow,
                                                    time_table_record.STATE_PROCESSED)
             timetable_tree = self.timetable.get_tree(process_name)
             timetable_tree.build_tree()
             msg = 'Transferred time-record %s in timeperiod %s to STATE_PROCESSED for %s' \
                   % (time_record.document['_id'], time_record.timeperiod, process_name)
-        elif uow_obj.state == unit_of_work.STATE_CANCELED:
+        elif uow.state == unit_of_work.STATE_CANCELED:
             self.timetable.update_timetable_record(process_name,
                                                    time_record,
-                                                   uow_obj,
+                                                   uow,
                                                    time_table_record.STATE_SKIPPED)
             msg = 'Transferred time-record %s in timeperiod %s to STATE_SKIPPED for %s' \
                   % (time_record.document['_id'], time_record.timeperiod, process_name)
         else:
             msg = 'Suppressed creating uow for %s in timeperiod %s; time_record is in %s; uow is in %s' \
-                  % (process_name, time_record.timeperiod, time_record.state, uow_obj.state)
+                  % (process_name, time_record.timeperiod, time_record.state, uow.state)
         self._log_message(INFO, process_name, time_record, msg)
 
     def _process_state_skipped(self, process_name, time_record):

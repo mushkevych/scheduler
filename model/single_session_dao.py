@@ -11,12 +11,11 @@ def get_one(logger, domain_name, session_id):
              FAMILY_USER_PROFILE + '.' + SESSION_ID: session_id}
     document = single_session_collection.find_one(query)
     if document is None:
-        return None
+        raise LookupError('MongoDB has no single session record for (%s, %s)' % (domain_name, session_id))
     return SingleSessionStatistics(document)
 
 
 def update(logger, instance, is_safe):
     """ method finds scheduler_configuration record and update its DB representation"""
-    w_number = CollectionContext.get_w_number(logger, COLLECTION_SINGLE_SESSION)
     collection = CollectionContext.get_collection(logger, COLLECTION_SINGLE_SESSION)
-    collection.save(instance.document, safe=is_safe, w=w_number)
+    collection.save(instance.document, safe=is_safe)

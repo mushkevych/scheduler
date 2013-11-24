@@ -38,9 +38,18 @@ class SingleSessionWorker(AbstractWorker):
         - marks unit of work as INVALID"""
         try:
             raw_data = RawData(message.body)
-            session = single_session_dao.get_one(self.logger, raw_data.key[0], raw_data.session_id)
+            try:
+                session = single_session_dao.get_one(self.logger, raw_data.key[0], raw_data.session_id)
 
-            if session is None:
+                # update the click_xxx info
+                session = self.update_session_body(raw_data, session)
+                duration = raw_data.key[1] - time_helper.session_to_epoch(session.key[1])
+                session.total_duration = duration
+
+                index = session.number_of_entries
+                self.add_entry(session, index, raw_data)
+                self.performance_ticker.increment_update()
+            except LookupError:
                 # insert the record
                 session = SingleSessionStatistics()
 
@@ -53,15 +62,6 @@ class SingleSessionWorker(AbstractWorker):
                 session = self.update_session_body(raw_data, session)
                 self.add_entry(session, 0, raw_data)
                 self.performance_ticker.increment_insert()
-            else:
-                # update the click_xxx info
-                session = self.update_session_body(raw_data, session)
-                duration = raw_data.key[1] - time_helper.session_to_epoch(session.key[1])
-                session.total_duration = duration
-
-                index = session.number_of_entries
-                self.add_entry(session, index, raw_data)
-                self.performance_ticker.increment_update()
 
             if time.time() - self._last_safe_save_time < self.SAFE_SAVE_INTERVAL:
                 is_safe = False

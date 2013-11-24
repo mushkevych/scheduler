@@ -9,8 +9,8 @@ from system.process_context import ProcessContext
 
 #@thread_safe
 def _get_timetable_collection(logger, process_name):
-    """timetable stores timeperiod in 4 collections: hourly, daily, monthly and yearly; method looks for the
-    proper timetable_collection base on process TIME_QUALIFIER"""
+    """timetable stores timeperiod in 4 collections: hourly, daily, monthly and yearly;
+    method looks for the proper timetable_collection base on process TIME_QUALIFIER"""
     qualifier = ProcessContext.get_time_qualifier(process_name)
     if qualifier == ProcessContext.QUALIFIER_HOURLY:
         collection = CollectionContext.get_collection(logger, COLLECTION_TIMETABLE_HOURLY)
@@ -21,23 +21,24 @@ def _get_timetable_collection(logger, process_name):
     elif qualifier == ProcessContext.QUALIFIER_YEARLY:
         collection = CollectionContext.get_collection(logger, COLLECTION_TIMETABLE_YEARLY)
     else:
-        raise ValueError('unknown time qualifier: %s for %s' % (qualifier, process_name))
+        raise ValueError('Unknown time qualifier: %s for %s' % (qualifier, process_name))
     return collection
 
 
 def get_one(logger, key, timeperiod):
     """ method finds time_table record and returns it to the caller"""
-
     collection = _get_timetable_collection(logger, key)
     document = collection.find_one({time_table_record.PROCESS_NAME: key,
                                     base_model.TIMEPERIOD: timeperiod})
 
     if document is None:
-        return None
+        raise LookupError('MongoDB has no time table record in %s collection for (%s, %s)' %
+                          (collection, key, timeperiod))
     return TimeTableRecord(document)
 
 
 def get_all(logger, table_name):
+    """ method returns all time table records from particular table """
     query = {}
     collection = CollectionContext.get_collection(logger, table_name)
     cursor = collection.find(query)

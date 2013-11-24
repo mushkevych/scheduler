@@ -1,7 +1,5 @@
 __author__ = 'Bohdan Mushkevych'
 
-import ds_manager
-
 KEY = 'domain_name'
 TIMEPERIOD = 'timeperiod'
 
@@ -12,7 +10,6 @@ class BaseModel(object):
     """
 
     def __init__(self, document=None):
-        self._ds_manager = ds_manager.ds_factory(None)
         if document is None:
             self.data = dict()
         else:
