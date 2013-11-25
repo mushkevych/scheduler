@@ -128,7 +128,7 @@ class ProcessContext:
     PROCESS_CONTEXT = {
         PROCESS_SITE_DAILY: _create_context_entry(
             process_name=PROCESS_SITE_DAILY,
-            classname='workers.hadoop_aggregator_driver.HadoopAggregatorDriver',
+            classname='workers.hadoop_aggregator_driver.HadoopAggregatorDriver.start',
             token=_TOKEN_SITE,
             time_qualifier=QUALIFIER_DAILY,
             exchange=EXCHANGE_VERTICAL,
@@ -136,7 +136,7 @@ class ProcessContext:
 
         PROCESS_SITE_HOURLY: _create_context_entry(
             process_name=PROCESS_SITE_HOURLY,
-            classname='workers.site_hourly_aggregator.SiteHourlyAggregator',
+            classname='workers.site_hourly_aggregator.SiteHourlyAggregator.start',
             token=_TOKEN_SITE,
             time_qualifier=QUALIFIER_HOURLY,
             exchange=EXCHANGE_VERTICAL,
@@ -145,7 +145,7 @@ class ProcessContext:
 
         PROCESS_SITE_MONTHLY: _create_context_entry(
             process_name=PROCESS_SITE_MONTHLY,
-            classname='workers.hadoop_aggregator_driver.HadoopAggregatorDriver',
+            classname='workers.hadoop_aggregator_driver.HadoopAggregatorDriver.start',
             token=_TOKEN_SITE,
             time_qualifier=QUALIFIER_MONTHLY,
             exchange=EXCHANGE_VERTICAL,
@@ -153,7 +153,7 @@ class ProcessContext:
 
         PROCESS_SITE_YEARLY: _create_context_entry(
             process_name=PROCESS_SITE_YEARLY,
-            classname='workers.hadoop_aggregator_driver.HadoopAggregatorDriver',
+            classname='workers.hadoop_aggregator_driver.HadoopAggregatorDriver.start',
             token=_TOKEN_SITE,
             time_qualifier=QUALIFIER_YEARLY,
             exchange=EXCHANGE_VERTICAL,
@@ -161,7 +161,7 @@ class ProcessContext:
 
         PROCESS_GC: _create_context_entry(
             process_name=PROCESS_GC,
-            classname='workers.garbage_collector_worker.GarbageCollectorWorker',
+            classname='workers.garbage_collector_worker.GarbageCollectorWorker.start',
             token=_TOKEN_GC,
             time_qualifier=QUALIFIER_BY_SCHEDULE,
             exchange=EXCHANGE_UTILS,
@@ -171,7 +171,7 @@ class ProcessContext:
 
         PROCESS_SESSION_WORKER_00: _create_context_entry(
             process_name=PROCESS_SESSION_WORKER_00,
-            classname='workers.single_session_worker.SingleSessionWorker',
+            classname='workers.single_session_worker.SingleSessionWorker.start',
             token=_TOKEN_SESSION,
             time_qualifier=QUALIFIER_REAL_TIME,
             queue=QUEUE_RAW_DATA,
@@ -182,22 +182,9 @@ class ProcessContext:
             pid_file='session_worker_00.pid',
             log_file='session_worker_00.log'),
 
-        PROCESS_SESSION_WORKER_01: _create_context_entry(
-            process_name=PROCESS_SESSION_WORKER_01,
-            classname='workers.single_session_worker.SingleSessionWorker',
-            token=_TOKEN_SESSION,
-            time_qualifier=QUALIFIER_REAL_TIME,
-            queue=QUEUE_RAW_DATA,
-            routing=ROUTING_IRRELEVANT,
-            exchange=EXCHANGE_RAW_DATA,
-            source_collection='single_session',
-            target_collection='single_session',
-            pid_file='session_worker_01.pid',
-            log_file='session_worker_01.log'),
-
         PROCESS_SCHEDULER: _create_context_entry(
             process_name=PROCESS_SCHEDULER,
-            classname='scheduler.scheduler.Scheduler',
+            classname='scheduler.scheduler.Scheduler.start',
             token=_TOKEN_SCHEDULER,
             time_qualifier='',
             queue='',
@@ -206,7 +193,7 @@ class ProcessContext:
 
         PROCESS_SUPERVISOR: _create_context_entry(
             process_name=PROCESS_SUPERVISOR,
-            classname='supervisor.supervisor.Supervisor',
+            classname='supervisor.supervisor.Supervisor.start',
             token=_TOKEN_SUPERVISOR,
             time_qualifier='',
             queue='',
@@ -215,7 +202,7 @@ class ProcessContext:
 
         PROCESS_STREAM_GEN: _create_context_entry(
             process_name=PROCESS_STREAM_GEN,
-            classname='event_stream_generator.event_stream_generator.EventStreamGenerator',
+            classname='event_stream_generator.event_stream_generator.EventStreamGenerator.start',
             token=_TOKEN_STREAM,
             time_qualifier=QUALIFIER_REAL_TIME,
             queue=QUEUE_RAW_DATA,
@@ -224,7 +211,7 @@ class ProcessContext:
 
         PROCESS_CLIENT_DAILY: _create_context_entry(
             process_name=PROCESS_CLIENT_DAILY,
-            classname='workers.hadoop_aggregator_driver.HadoopAggregatorDriver',
+            classname='workers.hadoop_aggregator_driver.HadoopAggregatorDriver.start',
             token=_TOKEN_CLIENT,
             time_qualifier=QUALIFIER_DAILY,
             exchange=EXCHANGE_HORIZONTAL,
@@ -232,7 +219,7 @@ class ProcessContext:
 
         PROCESS_CLIENT_MONTHLY: _create_context_entry(
             process_name=PROCESS_CLIENT_MONTHLY,
-            classname='workers.hadoop_aggregator_driver.HadoopAggregatorDriver',
+            classname='workers.hadoop_aggregator_driver.HadoopAggregatorDriver.start',
             token=_TOKEN_CLIENT,
             time_qualifier=QUALIFIER_MONTHLY,
             exchange=EXCHANGE_HORIZONTAL,
@@ -240,7 +227,7 @@ class ProcessContext:
 
         PROCESS_CLIENT_YEARLY: _create_context_entry(
             process_name=PROCESS_CLIENT_YEARLY,
-            classname='workers.hadoop_aggregator_driver.HadoopAggregatorDriver',
+            classname='workers.hadoop_aggregator_driver.HadoopAggregatorDriver.start',
             token=_TOKEN_CLIENT,
             time_qualifier=QUALIFIER_YEARLY,
             exchange=EXCHANGE_HORIZONTAL,
@@ -248,7 +235,7 @@ class ProcessContext:
 
         PROCESS_ALERT_DAILY: _create_context_entry(
             process_name=PROCESS_ALERT_DAILY,
-            classname='workers.hadoop_aggregator_driver.HadoopAggregatorDriver',
+            classname='workers.hadoop_aggregator_driver.HadoopAggregatorDriver.start',
             token=_TOKEN_ALERT,
             time_qualifier=QUALIFIER_DAILY,
             exchange=EXCHANGE_ALERT,

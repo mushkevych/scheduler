@@ -1,65 +1,47 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-from os import path
-from optparse import OptionParser
+# framework is available at github: https://github.com/mushkevych/launch.py 
+
+""" 
+    @author Bohdan Mushkevych
+    @author Shawn MacIntyre
+"""
 import shutil
-import os
 import sys
-import time
-import signal
+import traceback
 import subprocess
 
-import virtualenv
-
-from system import process_context
-from system.process_context import ProcessContext
+from optparse import OptionParser
+from os import path
 
 
 PROCESS_STARTER = 'process_starter.py'
 PROJECT_ROOT = path.abspath(path.dirname(__file__))
 
-VE_SCRIPT = path.join(PROJECT_ROOT, 'scripts', 'install_virtualenv')
+# script is run to install virtual environment library into the global interpreter
+VE_GLOBAL_SCRIPT = path.join(PROJECT_ROOT, 'scripts', 'install_ve_globally.sh')
+
+# script creates virtual environment for the project
+VE_SCRIPT = path.join(PROJECT_ROOT, 'scripts', 'install_virtualenv.sh')
 VE_ROOT = path.join(PROJECT_ROOT, '.ve')
 
-# pylint: disable=C0301
-PROCESSES_FOR_XXL = [process_context.PROCESS_STREAM_GEN, process_context.PROCESS_SCHEDULER,
-                     process_context.PROCESS_SESSION_WORKER_00, process_context.PROCESS_SESSION_WORKER_01,
-                     process_context.PROCESS_GC,
-                     process_context.PROCESS_SITE_HOURLY, process_context.PROCESS_SITE_DAILY,
-                     process_context.PROCESS_SITE_MONTHLY, process_context.PROCESS_SITE_YEARLY,
-                     process_context.PROCESS_CLIENT_DAILY, process_context.PROCESS_CLIENT_MONTHLY,
-                     process_context.PROCESS_CLIENT_YEARLY, process_context.PROCESS_ALERT_DAILY]
-# pylint: enable=C0301
 
 def init_parser():
     """Setup our command line options"""
     parser = OptionParser()
-    parser.add_option("-a", "--app", action="store",
-                      help="application to start (process name)")
-    parser.add_option("-n", "--interactive", action="store_true",
-                      help="run in interactive (non-daemon) mode")
-    parser.add_option("-r", "--run", action="store_true",
-                      help="start process supervisor for this box")
-    parser.add_option("-k", "--kill", action="store_true",
-                      help="kill process supervisor for this box")
-    parser.add_option("-q", "--query", action="store_true",
-                      help="query box configuration for current box")
-    parser.add_option("-i", "--install_ve", action="store_true",
-                      help="install a virtualenv for the runtime to use")
-    parser.add_option("-s", "--shell", action="store_true",
-                      help="run an ipython shell within the virtualenv")
-    parser.add_option("-t", "--tests", action="store_true",
-                      help="run tests")
-    parser.add_option("-c", "--continuous", action="store_true",
-                      help="run tests when ever there is a change; with -t")
-    parser.add_option("-x", "--xunit", action="store_true",
-                      help="run tests with coverage and xunit output for hudson")
-    parser.add_option("-l", "--lint", action="store_true",
-                      help="run pylint on project")
-    parser.add_option("-8", "--pep8", action="store_true",
-                      help="run pep8 on project")
-    parser.add_option("-o", "--outfile", action="store",
-                      help="save results from a report to a file")
+    parser.add_option("-n", "--interactive", action="store_true", help="run in interactive (non-daemon) mode")
+    parser.add_option("-r", "--run", action="store_true", help="starts process identified by -app parameter")
+    parser.add_option("-k", "--kill", action="store_true", help="kill process identified by -app parameter")
+    parser.add_option("-a", "--app", action="store", help="application to start (process name)")
+    parser.add_option("-q", "--query", action="store_true", help="query application's state")
+    parser.add_option("-i", "--install_ve", action="store_true", help="install a virtualenv for the runtime to use")
+    parser.add_option("-s", "--shell", action="store_true", help="run an ipython shell within the virtualenv")
+    parser.add_option("-t", "--tests", action="store_true", help="run tests")
+    parser.add_option("-x", "--xunit", action="store_true", help="run tests with coverage and xunit output for Jenkins")
+    parser.add_option("-z", "--analyze", action="store_true", help="run pylint on project")
+    parser.add_option("-l", "--list", action="store_true", help="list available applications")
+    parser.add_option("-v", "--supervisor", action="store_true", help="run within supervisor")
+    parser.add_option("-o", "--outfile", action="store", help="save results from a report to a file")
     return parser
 
 
@@ -73,22 +55,38 @@ def get_python():
 
 
 def go_to_ve():
-    """Rerun this script within the virtualenv with same args"""
+    """Rerun this script within the virtualenv with same args
+    Note: parent process will wait for created subprocess to complete"""
+    # two options are possible
     if not path.abspath(sys.prefix) == VE_ROOT:
+        # Option A: we are in the parental process that was called from command line like
+        # $> ./launch.py --run -app NAME
+        # in this case sys.prefix points to Global Interpreter
         python = get_python()
         retcode = subprocess.call([python, __file__] + sys.argv[1:])
         sys.exit(retcode)
+    else:
+        # Option B: we have already followed Option A and instantiated Virtual Environment command
+        # This mean that sys.prefix points to Virtual Environment
+        pass
 
 
 def install_environment(root):
     """Install our virtual environment; removing the old one if it exists"""
-    print 'Installing virtualenv into %s' % root
+    sys.stdout.write('Installing virtualenv into %s \n' % root)
+    try:
+        import virtualenv
+    except ImportError:
+        sys.stdout.write('Installing virtualenv into global interpreter \n')
+        subprocess.call([VE_GLOBAL_SCRIPT, PROJECT_ROOT])
+        import virtualenv
+
     if path.exists(root):
         shutil.rmtree(root)
     virtualenv.logger = virtualenv.Logger(consumers=[])
     virtualenv.create_environment(root, site_packages=False)
-    retcode = subprocess.call([VE_SCRIPT, PROJECT_ROOT, root])
-    sys.exit(retcode)
+    ret_code = subprocess.call([VE_SCRIPT, PROJECT_ROOT, root])
+    sys.exit(ret_code)
 
 
 def install_or_switch_to_virtualenv(options):
@@ -104,20 +102,17 @@ def install_or_switch_to_virtualenv(options):
 
 def dispatch_options(parser, options, args):
     if options.run:
-        daemonize = True
-        if options.interactive:
-            daemonize = False
-        start_process(options, daemonize)
+        start_process(options, args)
     elif options.kill:
         stop_process(options)
     elif options.query:
         query_configuration(options)
     elif options.shell:
         run_shell(options)
-    elif options.lint:
+    elif options.analyze:
         run_lint(options)
-    elif options.pep8:
-        run_pep8(options)
+    elif options.list:
+        list_processes(options)
     elif options.tests:
         run_tests(options)
     elif options.xunit:
@@ -126,116 +121,121 @@ def dispatch_options(parser, options, args):
         parser.print_help()
 
 
+def valid_process_name(function):
+    """ Decorator validates if the --app parameter is registered in the process_context
+        :raise #ValueError otherwise """
+    from system.process_context import ProcessContext
+
+    def _wrapper(options, *args, **kwargs):
+        if options.app not in ProcessContext.PROCESS_CONTEXT:
+            msg = 'Aborting: application <%r> defined by --app option is unknown. \n' % options.app
+            sys.stdout.write(msg)
+            raise ValueError(msg)
+        return function(options, *args, **kwargs)
+
+    return _wrapper
+
+
+@valid_process_name
 def query_configuration(options):
-    """ reads current box configuration and prints it to the console """
-    import logging
-    from db.dao.box_configuration_dao import BoxConfigurationDao
-    from supervisor import supervisor_helper as helper
+    """ Queries process state """
+    from system import process_helper
 
-    box_id = helper.get_box_id(logging)
-    bc_dao = BoxConfigurationDao(logging)
-    sys.stdout.write('\nConfiguration for BOX_ID=%r:\n' % box_id)
-    box_configuration = bc_dao.get_one(box_id)
-    process_list = box_configuration.get_process_list()
-    i = 1
-    for process in process_list:
-        sys.stdout.write('%d\t%r:%r \n' % (i, process, process_list[process]))
-        i += 1
-    sys.stdout.write('\n')
+    if not options.supervisor:
+        # reads status of one process only
+        process_helper.poll_process(options.app)
+    else:
+        # reads current box configuration and prints it to the console
+        import logging
+        from db.dao.box_configuration_dao import BoxConfigurationDao
+        from supervisor import supervisor_helper as helper
 
-
-def _get_supervisor_pid():
-    """ check for supervisor's pid file and returns pid from there """
-    try:
-        pid_filename = ProcessContext.get_pid_filename(process_context.PROCESS_SUPERVISOR)
-        pf = file(pid_filename, 'r')
-        pid = int(pf.read().strip())
-        pf.close()
-    except IOError:
-        pid = None
-    return pid
+        box_id = helper.get_box_id(logging)
+        bc_dao = BoxConfigurationDao(logging)
+        sys.stdout.write('\nConfiguration for BOX_ID=%r:\n' % box_id)
+        box_configuration = bc_dao.get_one(box_id)
+        process_list = box_configuration.get_process_list()
+        i = 1
+        for process in process_list:
+            sys.stdout.write('%d\t%r:%r \n' % (i, process, process_list[process]))
+            i += 1
+        sys.stdout.write('\n')
 
 
-def start_process(options, daemonize):
-    """Start up supervisor and proper synergy-data daemons"""
+@valid_process_name
+def start_process(options, args):
+    """Start up specific daemon """
     import logging
     import psutil
-    from settings import settings
+    import process_starter
+    from system import process_helper
     from supervisor import supervisor_helper as helper
-    from db.model import box_configuration
-    from db.dao.box_configuration_dao import BoxConfigurationDao
+    from system.process_context import PROCESS_SUPERVISOR
 
     box_id = helper.get_box_id(logging)
-    if options.app is not None and options.app != process_context.PROCESS_SUPERVISOR:
-        # mark individual process for execution
-        # real work is performed by Supervisor
-        if options.app not in PROCESSES_FOR_XXL:
-            sys.stdout.write('ERROR: requested process must be withing allowed list of: %r \n' % PROCESSES_FOR_XXL)
-            sys.exit(1)
+    if options.supervisor is True and options.app != PROCESS_SUPERVISOR:
+        from db.model import box_configuration
+        from db.dao.box_configuration_dao import BoxConfigurationDao
+
+        message = 'INFO: Marking %r to be managed by Supervisor \n' % options.app
+        sys.stdout.write(message)
 
         bc_dao = BoxConfigurationDao(logging)
         box_config = bc_dao.get_one(box_id)
         box_config.set_process_state(options.app, box_configuration.STATE_ON)
         bc_dao.update(box_config)
-    else:
-        # start Supervisor
-        try:
-            pid = _get_supervisor_pid()
-            if pid is not None:
-                if psutil.pid_exists(pid):
-                    message = 'ERROR: Supervisor is already running with pid %r\n' % pid
-                    sys.stderr.write(message)
-                    sys.exit(1)
+        return
 
-            p = psutil.Popen([get_python(), PROJECT_ROOT + '/' + PROCESS_STARTER, process_context.PROCESS_SUPERVISOR],
-                             close_fds=True,
-                             cwd=settings['process_cwd'],
-                             stdin=subprocess.PIPE,
-                             stdout=subprocess.PIPE,
-                             stderr=subprocess.STDOUT)
-            sys.stdout.write('Started %s with pid = %r with configuration for BOX_ID=%r \n' \
-                             % (process_context.PROCESS_SUPERVISOR, p.pid, box_id))
-        except Exception as e:
-            sys.stderr.write('Exception on starting %s : %s \n' % (process_context.PROCESS_SUPERVISOR, str(e)))
+    try:
+        pid = process_helper.get_process_pid(options.app)
+        if pid is not None:
+            if psutil.pid_exists(pid):
+                message = 'ERROR: Process %r is already running with pid %r\n' % (options.app, pid)
+                sys.stderr.write(message)
+                sys.exit(1)
+
+        if not options.interactive:
+            # this block triggers if the options.interactive is not defined or is False
+            process_helper.start_process(options.app, args)
+        else:
+            process_starter.start_by_process_name(options.app, args)
+    except Exception as e:
+        sys.stderr.write('Exception on starting %s : %s \n' % (options.app, str(e)))
+        traceback.print_exc(file=sys.stderr)
 
 
+@valid_process_name
 def stop_process(options):
-    """Stop the synergy-data daemons"""
+    """Stop specific daemon"""
     import logging
+    from system import process_helper
     from supervisor import supervisor_helper as helper
-    from db.model import box_configuration
-    from db.dao.box_configuration_dao import BoxConfigurationDao
+    from system.process_context import PROCESS_SUPERVISOR
 
-    if options.app is not None and options.app != process_context.PROCESS_SUPERVISOR:
-        # mark individual process for termination
-        # real work is performed by Supervisor
-        if options.app not in PROCESSES_FOR_XXL:
-            sys.stdout.write('ERROR: requested process must be withing allowed list of: %r \n' % PROCESSES_FOR_XXL)
-            sys.exit(1)
+    box_id = helper.get_box_id(logging)
+    if options.supervisor is True and options.app != PROCESS_SUPERVISOR:
+        from db.model import box_configuration
+        from db.dao.box_configuration_dao import BoxConfigurationDao
 
-        box_id = helper.get_box_id(logging)
+        message = 'INFO: Marking %r to be managed by Supervisor \n' % options.app
+        sys.stdout.write(message)
+
         bc_dao = BoxConfigurationDao(logging)
         box_config = bc_dao.get_one(box_id)
         box_config.set_process_state(options.app, box_configuration.STATE_OFF)
         bc_dao.update(box_config)
-    else:
-        # stop Supervisor
-        try:
-            pid = _get_supervisor_pid()
-            if pid is None:
-                message = 'ERROR: Can not find Supervisor pidfile. Supervisor not running?\n'
-                sys.stderr.write(message)
-                sys.exit(1)
+        return
+    try:
+        pid = process_helper.get_process_pid(options.app)
+        if pid is None or process_helper.poll_process(options.app) is False:
+            message = 'ERROR: Process %r is already terminated %r\n' % (options.app, pid)
+            sys.stderr.write(message)
+            sys.exit(1)
 
-            # Try killing the daemon process
-            sys.stdout.write('INFO: Killing %r \n' % process_context.PROCESS_SUPERVISOR)
-            while 1:
-                os.kill(pid, signal.SIGTERM)
-                time.sleep(0.1)
-            ProcessContext.remove_pid_file(process_context.PROCESS_SUPERVISOR)
-        except Exception as e:
-            sys.stderr.write('Exception on killing %s : %s \n' % (process_context.PROCESS_SUPERVISOR, str(e)))
-            sys.exit(0)
+        process_helper.kill_process(options.app)
+    except Exception as e:
+        sys.stderr.write('Exception on killing %s : %s \n' % (options.app, str(e)))
+        traceback.print_exc(file=sys.stderr)
 
 
 def run_shell(options):
@@ -263,15 +263,10 @@ def run_lint(options):
              reporter=ParseableTextReporter(output=output), exit=False)
 
 
-def run_pep8(options):
-    import pep8
-    from settings import testable_modules as modules
-
-    # alas, pep8 can out go to stdout
-    arglist = ['-r'] + modules
-    pep8.process_options(arglist)
-    for module in modules:
-        pep8.input_dir(module, runner=pep8.input_file)
+def list_processes(options):
+    from system.process_context import ProcessContext
+    msg = 'List of registered applications: %r \n' % ProcessContext.PROCESS_CONTEXT.keys()
+    sys.stdout.write(msg)
 
 
 def load_all_tests():
@@ -298,10 +293,6 @@ def run_tests(options):
         else:
             logging.error('FAIL')
             raise
-        if not options.continuous:
-            raise
-    if options.continuous:
-        sys.stdout.write('WARNING: continuous test run not implemented for synergy-data\n')
 
 
 def run_xunit(options):

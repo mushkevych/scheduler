@@ -103,7 +103,7 @@ class EventStreamGenerator(SynergyProcess):
             except Exception as e:
                 self.logger.info('safety fuse: %s' % str(e))
 
-    def start(self):
+    def start(self, *args):
         self.main_thread = Thread(target=self._run_stream_generation)
         self.main_thread.start()
 

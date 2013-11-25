@@ -54,6 +54,6 @@ class AbstractWorker(SynergyProcess):
             self.__del__()
             self.logger.info('Exiting main thread. All auxiliary threads stopped.')
 
-    def start(self):
+    def start(self, *args):
         self.main_thread = Thread(target=self._run_mq_listener)
         self.main_thread.start()

@@ -45,7 +45,7 @@ class Scheduler(SynergyProcess):
 
     # **************** Scheduler Methods ************************
     @with_reconnect
-    def start(self):
+    def start(self, *args):
         """ reading scheduler configurations and starting timers to trigger events """
         document_list = self.sc_dao.get_all()
 
