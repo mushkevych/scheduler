@@ -1,11 +1,13 @@
-from db.manager import ds_manager
-from db.model import unit_of_work
-
 __author__ = 'Bohdan Mushkevych'
 
-from db.model.unit_of_work import UnitOfWork
+from pymongo.errors import DuplicateKeyError as MongoDuplicateKeyError
 from bson.objectid import ObjectId
+
 from system.collection_context import COLLECTION_UNITS_OF_WORK
+from db.error import DuplicateKeyError
+from db.manager import ds_manager
+from db.model import unit_of_work
+from db.model.unit_of_work import UnitOfWork
 
 
 def get_one(logger, key):
@@ -52,7 +54,10 @@ def insert(logger, unit_of_work):
     """ inserts unit of work to MongoDB. @throws DuplicateKeyError if such record already exist """
     ds = ds_manager.ds_factory(logger)
     collection = ds.connection(COLLECTION_UNITS_OF_WORK)
-    return collection.insert(unit_of_work.document, safe=True)
+    try:
+        return collection.insert(unit_of_work.document, safe=True)
+    except MongoDuplicateKeyError as e:
+        raise DuplicateKeyError(e)
 
 
 def remove(logger, uow_id):

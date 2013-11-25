@@ -2,7 +2,7 @@ from db.model import time_table_record, unit_of_work, unit_of_work_dao
 
 __author__ = 'Bohdan Mushkevych'
 
-from pymongo.errors import DuplicateKeyError
+from db.error import DuplicateKeyError
 from datetime import datetime
 from logging import ERROR, WARNING, INFO
 
