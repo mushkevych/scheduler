@@ -1,8 +1,8 @@
-from db.model import time_table_record_dao
-
 __author__ = 'Bohdan Mushkevych'
 
 from threading import RLock
+from db.dao import time_table_record_dao
+from db.dao.time_table_record_dao import TimeTableRecordDao
 from system.collection_context import COLLECTION_TIMETABLE_YEARLY, \
     COLLECTION_TIMETABLE_MONTHLY, COLLECTION_TIMETABLE_DAILY, COLLECTION_TIMETABLE_HOURLY
 from system.decorator import thread_safe
@@ -14,6 +14,7 @@ class ProcessingStatements(object):
     def __init__(self, logger):
         self.lock = RLock()
         self.logger = logger
+        self.ttr_dao = TimeTableRecordDao(self.logger)
 
     @thread_safe
     def retrieve_for_timeperiod(self, timeperiod, unprocessed_only):
@@ -35,7 +36,7 @@ class ProcessingStatements(object):
             else:
                 query = time_table_record_dao.QUERY_GET_LIKE_TIMEPERIOD(timeperiod)
 
-            time_record_list = time_table_record_dao.run_query(self.logger, collection_name, query)
+            time_record_list = self.ttr_dao.run_query(collection_name, query)
             if len(time_record_list) == 0:
                 self.logger.warning('No TimeTable Records in %s.' % str(collection_name))
 

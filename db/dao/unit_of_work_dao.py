@@ -11,10 +11,10 @@ from db.model import unit_of_work
 from db.model.unit_of_work import UnitOfWork
 
 
-class BoxConfigurationDao(object):
+class UnitOfWorkDao(object):
     """ Thread-safe Data Access Object for box_configuration table/collection """
     def __init__(self, logger):
-        super(BoxConfigurationDao, self).__init__()
+        super(UnitOfWorkDao, self).__init__()
         self.logger = logger
         self.lock = RLock()
         self.ds = ds_manager.ds_factory(logger)

@@ -1,6 +1,8 @@
-from db.model import time_table_record, time_table_record_dao, unit_of_work, unit_of_work_dao
-
 __author__ = 'Bohdan Mushkevych'
+
+from db.model import time_table_record, unit_of_work
+from db.dao.unit_of_work_dao import UnitOfWorkDao
+from db.dao.time_table_record_dao import TimeTableRecordDao
 
 from datetime import datetime
 from threading import RLock
@@ -21,6 +23,8 @@ class TimeTable:
     def __init__(self, logger):
         self.lock = RLock()
         self.logger = logger
+        self.uow_dao = UnitOfWorkDao(self.logger)
+        self.ttr_dao = TimeTableRecordDao(self.logger)
         self.reprocess = dict()
 
         # self.trees contain all of the trees and manages much of their life cycle
@@ -84,7 +88,7 @@ class TimeTable:
         time_record.related_unit_of_work = uow.document['_id']
         time_record.start_id = uow.start_id
         time_record.end_id = uow.end_id
-        time_table_record_dao.update(self.logger, time_record)
+        self.ttr_dao.update(time_record)
 
         tree = self.get_tree(process_name)
         tree.update_node_by_process(process_name, time_record)
@@ -106,11 +110,11 @@ class TimeTable:
         uow_id = tree_node.time_record.related_unit_of_work
         if uow_id is not None:
             tree_node.time_record.state = time_table_record.STATE_IN_PROGRESS
-            uow_obj = unit_of_work_dao.get_one(self.logger, uow_id)
+            uow_obj = self.uow_dao.get_one(uow_id)
             uow_obj.state = unit_of_work.STATE_INVALID
             uow_obj.number_of_retries = 0
             uow_obj.created_at = datetime.utcnow()
-            unit_of_work_dao.update(self.logger, uow_obj)
+            self.uow_dao.update(uow_obj)
             msg = 'Transferred time-record %s in timeperiod %s to %s; Transferred unit_of_work to %s' \
                   % (tree_node.time_record.document['_id'], tree_node.time_record.timeperiod,
                      tree_node.time_record.state, uow_obj.state)
@@ -121,7 +125,7 @@ class TimeTable:
                      tree_node.time_record.state)
 
         tree_node.time_record.number_of_failures = 0
-        time_table_record_dao.update(self.logger, tree_node.time_record)
+        self.ttr_dao.update(tree_node.time_record)
         self.logger.warning(msg)
         tree_node.add_log_entry([datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S'), msg])
 
@@ -135,9 +139,9 @@ class TimeTable:
         tree_node.time_record.state = time_table_record.STATE_SKIPPED
         uow_id = tree_node.time_record.related_unit_of_work
         if uow_id is not None:
-            uow_obj = unit_of_work_dao.get_one(self.logger, uow_id)
+            uow_obj = self.uow_dao.get_one(uow_id)
             uow_obj.state = uow_obj.STATE_CANCELED
-            unit_of_work_dao.update(self.logger, uow_obj)
+            self.uow_dao.update(uow_obj)
             msg = 'Transferred time-record %s in timeperiod %s to %s; Transferred unit_of_work to %s' \
                   % (tree_node.time_record.document['_id'], tree_node.time_record.timeperiod,
                      tree_node.time_record.state, uow_obj.state)
@@ -146,7 +150,7 @@ class TimeTable:
                   % (tree_node.time_record.document['_id'], tree_node.time_record.timeperiod,
                      tree_node.time_record.state)
 
-        time_table_record_dao.update(self.logger, tree_node.time_record)
+        self.ttr_dao.update(tree_node.time_record)
         self.logger.warning(msg)
         tree_node.add_log_entry([datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S'), msg])
 
@@ -158,14 +162,14 @@ class TimeTable:
         """ is called from tree to create timetable record and bind it to the tree node"""
 
         try:
-            time_record = time_table_record_dao.get_one(self.logger, property, timeperiod)
+            time_record = self.ttr_dao.get_one(property, timeperiod)
         except LookupError:
             time_record = TimeTableRecord()
             time_record.state = time_table_record.STATE_EMBRYO
             time_record.timeperiod = timeperiod
             time_record.process_name = process_name
 
-            tr_id = time_table_record_dao.update(self.logger, time_record)
+            tr_id = self.ttr_dao.update(time_record)
             self.logger.info('Created time-record %s, with timeperiod %s for process %s'
                              % (str(tr_id), timeperiod, process_name))
         tree_node.time_record = time_record
@@ -175,7 +179,7 @@ class TimeTable:
         """ method iterated thru all documents in all timetable collections and builds tree of known system state"""
 
         try:
-            document_list = time_table_record_dao.get_all(self.logger, collection_name)
+            document_list = self.ttr_dao.get_all(collection_name)
             for document in document_list:
                 tree = self.get_tree(document.process_name)
                 if tree is not None:
@@ -218,7 +222,7 @@ class TimeTable:
         else:
             # time_record is automatically updated in request_skip()
             # so if node was not skipped - time_record have to be updated explicitly
-            time_table_record_dao.update(self.logger, node.time_record)
+            self.ttr_dao.update(node.time_record)
 
     @thread_safe
     def get_next_timetable_record(self, process_name):

@@ -1,8 +1,10 @@
 """ Module contains common logic for aggregators and workers that work with unit_of_work """
-from bson.objectid import ObjectId
-from db.model import base_model, unit_of_work, unit_of_work_dao
 
 __author__ = 'Bohdan Mushkevych'
+
+from bson.objectid import ObjectId
+from db.model import base_model, unit_of_work
+from db.dao.unit_of_work_dao import UnitOfWorkDao
 
 import gc
 import json
@@ -26,6 +28,7 @@ class AbstractAwareWorker(AbstractWorker):
     def __init__(self, process_name):
         super(AbstractAwareWorker, self).__init__(process_name)
         self.aggregated_objects = dict()
+        self.uow_dao = UnitOfWorkDao(self.logger)
 
     def __del__(self):
         self._flush_aggregated_objects()
@@ -126,7 +129,7 @@ class AbstractAwareWorker(AbstractWorker):
         try:
             # @param object_id: ObjectId of the unit_of_work from mq
             object_id = message.body
-            uow = unit_of_work_dao.get_one(self.logger, object_id)
+            uow = self.uow_dao.get_one(object_id)
             if uow.state in [unit_of_work.STATE_CANCELED, unit_of_work.STATE_PROCESSED]:
                 # garbage collector might have reposted this UOW
                 self.logger.warning('Skipping unit_of_work: id %s; state %s;' % (str(message.body), uow.state),
@@ -146,7 +149,7 @@ class AbstractAwareWorker(AbstractWorker):
 
             uow.state = unit_of_work.STATE_IN_PROGRESS
             uow.started_at = datetime.utcnow()
-            unit_of_work_dao.update(self.logger, uow)
+            self.uow_dao.update(uow)
             self.performance_ticker.start_uow(uow)
 
             bulk_threshold = settings['bulk_threshold']
@@ -186,11 +189,11 @@ class AbstractAwareWorker(AbstractWorker):
             uow.number_of_processed_documents = self.performance_ticker.posts_per_job
             uow.finished_at = datetime.utcnow()
             uow.state = unit_of_work.STATE_PROCESSED
-            unit_of_work_dao.update(self.logger, uow)
+            self.uow_dao.update(uow)
             self.performance_ticker.finish_uow()
         except Exception as e:
             uow.state = unit_of_work.STATE_INVALID
-            unit_of_work_dao.update(self.logger, uow)
+            self.uow_dao.update(uow)
             self.performance_ticker.cancel_uow()
 
             del self.aggregated_objects

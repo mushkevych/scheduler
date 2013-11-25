@@ -1,5 +1,3 @@
-from db.model import time_table_record, unit_of_work, unit_of_work_dao
-
 __author__ = 'Bohdan Mushkevych'
 
 from db.error import DuplicateKeyError
@@ -8,6 +6,7 @@ from logging import ERROR, WARNING, INFO
 
 from abstract_pipeline import AbstractPipeline
 from db.model.unit_of_work import UnitOfWork
+from db.model import time_table_record, unit_of_work
 from system import time_helper
 from system.decorator import with_reconnect
 
@@ -42,7 +41,7 @@ class HadoopPipeline(AbstractPipeline):
         uow.number_of_retries = 0
 
         try:
-            uow_id = unit_of_work_dao.insert(self.logger, uow)
+            uow_id = self.uow_dao.insert(uow)
         except DuplicateKeyError as e:
             e.first_object_id = str(first_object_id)
             e.last_object_id = str(last_object_id)
@@ -82,7 +81,7 @@ class HadoopPipeline(AbstractPipeline):
         end_time = time_helper.increment_time(process_name, start_time)
         actual_time = time_helper.actual_time(process_name)
         can_finalize_timerecord = self.timetable.can_finalize_timetable_record(process_name, time_record)
-        uow = unit_of_work_dao.get_one(self.logger, time_record.related_unit_of_work)
+        uow = self.uow_dao.get_one(time_record.related_unit_of_work)
         iteration = int(uow.end_id)
 
         try:
@@ -136,7 +135,7 @@ class HadoopPipeline(AbstractPipeline):
 
     def _process_state_final_run(self, process_name, time_record):
         """method takes care of processing timetable records in STATE_FINAL_RUN state"""
-        uow = unit_of_work_dao.get_one(self.logger, time_record.related_unit_of_work)
+        uow = self.uow_dao.get_one(time_record.related_unit_of_work)
 
         if uow.state == unit_of_work.STATE_PROCESSED:
             self.timetable.update_timetable_record(process_name,

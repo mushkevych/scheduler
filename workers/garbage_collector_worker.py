@@ -1,5 +1,4 @@
 """ Module re-launches invalid units_of_work """
-from db.model import unit_of_work, unit_of_work_dao
 
 __author__ = 'Bohdan Mushkevych'
 
@@ -11,6 +10,8 @@ from flopsy.flopsy import PublishersPool
 from system.decorator import thread_safe
 from workers.abstract_worker import AbstractWorker
 from db.model.unit_of_work import UnitOfWork
+from db.model import unit_of_work
+from db.dao.unit_of_work_dao import UnitOfWorkDao
 from system.collection_context import CollectionContext
 from system.collection_context import COLLECTION_UNITS_OF_WORK
 
@@ -29,6 +30,7 @@ class GarbageCollectorWorker(AbstractWorker):
         self.publishers = PublishersPool(self.logger)
         self.collection = CollectionContext.get_collection(self.logger, COLLECTION_UNITS_OF_WORK)
         self.lock = Lock()
+        self.uow_dao = UnitOfWorkDao(self.logger)
 
     def __del__(self):
         super(GarbageCollectorWorker, self).__del__()
@@ -72,7 +74,7 @@ class GarbageCollectorWorker(AbstractWorker):
             if datetime.utcnow() - creation_time < timedelta(hours=LIFE_SUPPORT_HOURS):
                 uow.state = unit_of_work.STATE_REQUESTED
                 uow.number_of_retries += 1
-                unit_of_work_dao.update(self.logger, uow)
+                self.uow_dao.update(uow)
                 self.publishers.get_publisher(process_name).publish(str(document['_id']))
 
                 self.logger.info('UOW marked for re-processing: process %s; id %s; attempt %d'
@@ -80,7 +82,7 @@ class GarbageCollectorWorker(AbstractWorker):
                 self.performance_ticker.increment()
             else:
                 uow.state = unit_of_work.STATE_CANCELED
-                unit_of_work_dao.update(self.logger, uow)
+                self.uow_dao.update(uow)
                 self.logger.info('UOW transferred to STATE_CANCELED: process %s; id %s; attempt %d'
                                  % (process_name, str(document['_id']), uow.number_of_retries))
 

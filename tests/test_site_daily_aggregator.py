@@ -1,9 +1,9 @@
-from db.model import unit_of_work, unit_of_work_dao
-
 __author__ = 'Bohdan Mushkevych'
 
 import unittest
 from flopsy.flopsy import PublishersPool
+from db.dao.unit_of_work_dao import UnitOfWorkDao
+from db.model import unit_of_work
 from db.model.unit_of_work import UnitOfWork
 from system.process_context import PROCESS_SITE_DAILY
 from tests.base_fixtures import TestMessage
@@ -25,7 +25,8 @@ class DailySiteAggregatorUnitTest(unittest.TestCase):
         uow.process_name = process_name
         uow.number_of_retries = 0
 
-        uow_id = unit_of_work_dao.insert(logger, uow)
+        uow_dao = UnitOfWorkDao(logger)
+        uow_id = uow_dao.insert(uow)
         return uow_id
 
     def setUp(self):
@@ -40,7 +41,8 @@ class DailySiteAggregatorUnitTest(unittest.TestCase):
 
     def tearDown(self):
         # cleaning up DB
-        unit_of_work_dao.remove(self.aggregator.logger, self.uow_id)
+        uow_dao = UnitOfWorkDao(self.aggregator.logger)
+        uow_dao.remove(self.uow_id)
         del self.aggregator
 
     def test_aggregation(self):

@@ -1,9 +1,8 @@
-from db.model import raw_data
-
 __author__ = 'Bohdan Mushkevych'
 
 import logging
 from tests import base_fixtures
+from db.model import raw_data
 from system.collection_context import CollectionContext, COLLECTION_SINGLE_SESSION
 
 # pylint: disable=C0301

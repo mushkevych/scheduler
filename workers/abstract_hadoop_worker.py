@@ -1,12 +1,14 @@
 """ Module contains common logic for Hadoop Callers.
 It calls Hadoop Map/Reduce and updates unit_of_work base on Hadoop return code """
 
+__author__ = 'Bohdan Mushkevych'
+
 from subprocess import PIPE
 from datetime import datetime
 import psutil
 from psutil.error import TimeoutExpired
-from db.model import unit_of_work_dao
 from db.model import unit_of_work
+from db.dao.unit_of_work_dao import UnitOfWorkDao
 
 from settings import settings
 from workers.abstract_worker import AbstractWorker
@@ -18,8 +20,9 @@ class AbstractHadoopWorker(AbstractWorker):
     that are aware of unit_of_work and capable of processing it"""
 
     def __init__(self, process_name):
-        self.hadoop_process = None
         super(AbstractHadoopWorker, self).__init__(process_name)
+        self.hadoop_process = None
+        self.uow_dao = UnitOfWorkDao(self.logger)
 
     def __del__(self):
         super(AbstractHadoopWorker, self).__del__()
@@ -84,7 +87,7 @@ class AbstractHadoopWorker(AbstractWorker):
         try:
             # @param object_id: ObjectId of the unit_of_work from mq
             object_id = message.body
-            uow = unit_of_work_dao.get_one(self.logger, object_id)
+            uow = self.uow_dao.get_one(object_id)
             if uow.state in [unit_of_work.STATE_CANCELED, unit_of_work.STATE_PROCESSED]:
                 # garbage collector might have reposted this UOW
                 self.logger.warning('Skipping unit_of_work: id %s; state %s;'
@@ -102,7 +105,7 @@ class AbstractHadoopWorker(AbstractWorker):
 
             uow.state = unit_of_work.STATE_IN_PROGRESS
             uow.started_at = datetime.utcnow()
-            unit_of_work_dao.update(self.logger, uow)
+            self.uow_dao.update(uow)
             self.performance_ticker.start_uow(uow)
 
             self._start_process(start_timeperiod, end_timeperiod)
@@ -121,10 +124,10 @@ class AbstractHadoopWorker(AbstractWorker):
                 self.performance_ticker.cancel_uow()
 
             self.logger.info('Hadoop Map/Reduce return code is %r' % code)
-            unit_of_work_dao.update(self.logger, uow)
+            self.uow_dao.update(uow)
         except Exception as e:
             uow.state = unit_of_work.STATE_INVALID
-            unit_of_work_dao.update(self.logger, uow)
+            self.uow_dao.update(uow)
             self.performance_ticker.cancel_uow()
             self.logger.error('Safety fuse while processing unit_of_work %s in timeperiod %s : %r'
                               % (message.body, uow.timeperiod, e), exc_info=True)

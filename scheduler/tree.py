@@ -1,7 +1,6 @@
-from db.model import time_table_record
-
 __author__ = 'Bohdan Mushkevych'
 
+from db.model import time_table_record
 from datetime import datetime, timedelta
 from tree_node import TreeNode, LinearNode
 from settings import settings

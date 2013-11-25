@@ -1,7 +1,7 @@
-from db.model import scheduler_configuration, scheduler_configuration_dao
-
 __author__ = 'Bohdan Mushkevych'
 
+from db.model import scheduler_configuration
+from db.dao.scheduler_configuration_dao import SchedulerConfigurationDao
 from datetime import datetime
 from threading import Lock
 from amqplib.client_0_8 import AMQPException
@@ -30,6 +30,7 @@ class Scheduler(SynergyProcess):
         self.regular_pipeline = RegularPipeline(self, self.timetable)
         self.hadoop_pipeline = HadoopPipeline(self, self.timetable)
         self.logger.info('Started %s' % self.process_name)
+        self.sc_dao = SchedulerConfigurationDao(self.logger)
 
     def __del__(self):
         for handler in self.thread_handlers:
@@ -46,7 +47,7 @@ class Scheduler(SynergyProcess):
     @with_reconnect
     def start(self):
         """ reading scheduler configurations and starting timers to trigger events """
-        document_list = scheduler_configuration_dao.get_all(self.logger)
+        document_list = self.sc_dao.get_all()
 
         for document in document_list:
             interval = document.interval

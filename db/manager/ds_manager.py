@@ -68,7 +68,7 @@ class MongoDbManager(BaseManager):
 
     def __init__(self, logger):
         super(MongoDbManager, self).__init__(logger)
-        self._db_client = MongoClient(settings['rs_system_host_list'])
+        self._db_client = MongoClient(settings['mongodb_host_list'])
         self._db = self._db_client[settings['mongo_db_name']]
 
     def __del__(self):

@@ -1,7 +1,7 @@
-from db.model import time_table_record, unit_of_work_dao
-
 __author__ = 'Bohdan Mushkevych'
 
+from db.model import time_table_record
+from db.dao.unit_of_work_dao import UnitOfWorkDao
 from datetime import datetime
 from logging import INFO, WARNING, ERROR
 
@@ -17,6 +17,7 @@ class AbstractPipeline(object):
         self.publishers = PublishersPool(self.logger)
         self.scheduler = scheduler
         self.timetable = timetable
+        self.uow_dao = UnitOfWorkDao(self.logger)
 
     def __del__(self):
         pass
@@ -48,11 +49,10 @@ class AbstractPipeline(object):
             and process_name is not None \
             and timeperiod is not None:
             try:
-                return unit_of_work_dao.get_by_params(self.logger,
-                                                      process_name,
-                                                      timeperiod,
-                                                      first_object_id,
-                                                      last_object_id)
+                return self.uow_dao.get_by_params(process_name,
+                                                  timeperiod,
+                                                  first_object_id,
+                                                  last_object_id)
             except LookupError:
                 pass
 

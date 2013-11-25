@@ -1,5 +1,4 @@
 """ Module is responsible for reading MQ queue and updating/inserting data records to the MongoDB """
-from db.model import single_session_dao
 
 __author__ = 'Bohdan Mushkevych'
 
@@ -7,6 +6,7 @@ import time
 from pymongo.errors import AutoReconnect
 from db.model.single_session import SingleSessionStatistics
 from db.model.raw_data import *
+from db.dao.single_session_dao import SingleSessionDao
 from system.performance_ticker import SessionPerformanceTicker
 from workers.abstract_worker import AbstractWorker
 from system import time_helper
@@ -23,6 +23,7 @@ class SingleSessionWorker(AbstractWorker):
 
     def __init__(self, process_name):
         super(SingleSessionWorker, self).__init__(process_name)
+        self.ss_dao = SingleSessionDao(self.logger)
 
     # ********************** abstract methods ****************************
     def _init_performance_ticker(self, logger):
@@ -39,7 +40,7 @@ class SingleSessionWorker(AbstractWorker):
         try:
             raw_data = RawData(message.body)
             try:
-                session = single_session_dao.get_one(self.logger, raw_data.key[0], raw_data.session_id)
+                session = self.ss_dao.get_one(raw_data.key[0], raw_data.session_id)
 
                 # update the click_xxx info
                 session = self.update_session_body(raw_data, session)
@@ -69,7 +70,7 @@ class SingleSessionWorker(AbstractWorker):
                 is_safe = True
                 self._last_safe_save_time = time.time()
 
-            single_session_dao.update(self.logger, session, is_safe)
+            self.ss_dao.update(session, is_safe)
             self.consumer.acknowledge(message.delivery_tag)
         except AutoReconnect as e:
             self.logger.error('MongoDB connection error: %r\nRe-queueing message & exiting the worker' % e)

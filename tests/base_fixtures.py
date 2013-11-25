@@ -1,11 +1,11 @@
-from db.model import unit_of_work, unit_of_work_dao
-
 __author__ = 'Bohdan Mushkevych'
 
 import inspect
 import logging
 import random
 
+from db.model import unit_of_work
+from db.dao.unit_of_work_dao import UnitOfWorkDao
 from db.model.unit_of_work import UnitOfWork
 from db.model.single_session import SingleSessionStatistics
 from system.process_context import ProcessContext
@@ -105,7 +105,8 @@ def create_unit_of_work(process_name, first_object_id, last_object_id):
     uow.process_name = process_name
     uow.number_of_retries = 0
 
-    uow_id = unit_of_work_dao.insert(logger, uow)
+    uow_dao = UnitOfWorkDao(logger)
+    uow_id = uow_dao.insert(uow)
     return uow_id
 
 

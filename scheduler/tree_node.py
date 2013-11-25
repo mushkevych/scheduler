@@ -1,7 +1,6 @@
-from db.model import time_table_record
-
 __author__ = 'Bohdan Mushkevych'
 
+from db.model import time_table_record
 from system.process_context import ProcessContext
 
 

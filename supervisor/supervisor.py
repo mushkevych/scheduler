@@ -1,5 +1,3 @@
-from db.model import box_configuration_dao, box_configuration
-
 __author__ = 'Bohdan Mushkevych'
 
 import os
@@ -9,6 +7,8 @@ from subprocess import PIPE, STDOUT
 from psutil import TimeoutExpired
 
 import supervisor_helper as helper
+from db.model import box_configuration
+from db.dao.box_configuration_dao import BoxConfigurationDao
 from launch import get_python, PROJECT_ROOT, PROCESS_STARTER
 from system.process_context import ProcessContext
 from system.repeat_timer import RepeatTimer
@@ -25,6 +25,7 @@ class Supervisor(SynergyProcess):
         self.thread_handlers = dict()
         self.lock = Lock()
         self.box_id = helper.get_box_id(self.logger)
+        self.bc_dao = BoxConfigurationDao(self.logger)
         self.logger.info('Started %s with configuration for BOX_ID=%r' % (self.process_name, self.box_id))
 
     def __del__(self):
@@ -44,7 +45,7 @@ class Supervisor(SynergyProcess):
                 p.kill()
                 p.wait()
                 box_configuration.set_process_pid(process_name, None)
-                box_configuration_dao.update(self.logger, box_configuration)
+                self.bc_dao.update(box_configuration)
                 ProcessContext.remove_pid_file(process_name)
         except Exception:
             self.logger.error('Exception on killing: %s' % process_name, exc_info=True)
@@ -66,7 +67,7 @@ class Supervisor(SynergyProcess):
             box_configuration.set_process_pid(process_name, None)
             self.logger.error('Exception on starting: %s' % process_name, exc_info=True)
         finally:
-            box_configuration_dao.update(self.logger, box_configuration)
+            self.bc_dao.update(box_configuration)
             self.logger.info('}')
 
     def _poll_process(self, box_configuration, process_name):
@@ -85,7 +86,7 @@ class Supervisor(SynergyProcess):
             else:
                 # process is terminated; possibly by OS
                 box_configuration.set_process_pid(process_name, None)
-                box_configuration_dao.update(self.logger, box_configuration)
+                self.bc_dao.update(box_configuration)
                 self.logger.info('Process %s got terminated. Cleaning up' % process_name)
         except TimeoutExpired:
             # process is alive and OK
@@ -96,7 +97,7 @@ class Supervisor(SynergyProcess):
     def start(self):
         """ reading box configurations and starting timers to start/monitor/kill processes """
         try:
-            box_configuration = box_configuration_dao.get_one(self.logger, self.box_id)
+            box_configuration = self.bc_dao.get_one(self.box_id)
             process_list = box_configuration.process_list
             for process in process_list:
                 params = [process]
@@ -113,7 +114,7 @@ class Supervisor(SynergyProcess):
         try:
             self.lock.acquire()
 
-            box_config = box_configuration_dao.get_one(self.logger, self.box_id)
+            box_config = self.bc_dao.get_one(self.box_id)
             state = box_config.get_process_state(process_name)
             pid = box_config.get_process_pid(process_name)
             if state == box_configuration.STATE_OFF:

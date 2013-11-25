@@ -1,7 +1,9 @@
-from db.model import scheduler_configuration, scheduler_configuration_dao, unit_of_work_dao
-
 __author__ = 'Bohdan Mushkevych'
 
+
+from db.model import scheduler_configuration
+from db.dao.scheduler_configuration_dao import SchedulerConfigurationDao
+from db.dao.unit_of_work_dao import UnitOfWorkDao
 from datetime import datetime, timedelta
 import functools
 import json
@@ -321,6 +323,8 @@ class ActionHandler(object):
         self.process_name = request.args.get('process_name')
         self.timeperiod = request.args.get('timeperiod')
         self.valid = self.mbean is not None and self.process_name is not None and self.timeperiod is not None
+        self.uow_dao = UnitOfWorkDao(self.logger)
+        self.sc_dao = SchedulerConfigurationDao(self.logger)
 
     @valid_only
     def action_reprocess(self):
@@ -370,7 +374,7 @@ class ActionHandler(object):
             if uow_id is None:
                 resp = {'response': 'no related unit_of_work'}
             else:
-                resp = unit_of_work_dao.get_one(self.logger, uow_id).document
+                resp = self.uow_dao.get_one(uow_id).document
                 for key in resp:
                     resp[key] = str(resp[key])
 
@@ -400,7 +404,7 @@ class ActionHandler(object):
 
             document = thread_handler.args[1]  # of type SchedulerConfigurationEntry
             document.interval = new_interval
-            scheduler_configuration_dao.update(self.logger, document)
+            self.sc_dao.update(document)
 
             resp['status'] = 'changed interval for %r to %r' % (self.process_name, new_interval)
 
@@ -449,7 +453,7 @@ class ActionHandler(object):
         else:
             message = 'RepeatTimer for %s is already active. Ignoring request.' % document.process_name
 
-        scheduler_configuration_dao.update(self.logger, document)
+        self.sc_dao.update(document)
         self.logger.info(message)
         resp['status'] = message
         return resp

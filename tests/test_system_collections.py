@@ -1,9 +1,8 @@
-from db.model import box_configuration
-
 __author__ = 'Bohdan Mushkevych'
 
 import unittest
 from base_fixtures import compare_dictionaries
+from db.model import box_configuration
 from db.model.box_configuration import BoxConfiguration
 from db.model.scheduler_configuration import SchedulerConfiguration
 from db.model.time_table_record import TimeTableRecord

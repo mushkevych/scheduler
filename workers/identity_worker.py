@@ -1,10 +1,10 @@
 """ Module contains logic for YES worker - one that marks any units_of_work as complete """
-from db.model import unit_of_work, unit_of_work_dao
 
 __author__ = 'Bohdan Mushkevych'
 
 from datetime import datetime
-
+from db.model import unit_of_work
+from db.dao.unit_of_work_dao import UnitOfWorkDao
 from workers.abstract_worker import AbstractWorker
 from system.performance_ticker import AggregatorPerformanceTicker
 
@@ -13,8 +13,9 @@ class IdentityWorker(AbstractWorker):
     """ Marks all unit_of_work as <complete>"""
 
     def __init__(self, process_name):
-        self.hadoop_process = None
         super(IdentityWorker, self).__init__(process_name)
+        self.hadoop_process = None
+        self.uow_dao = UnitOfWorkDao(self.logger)
 
     def __del__(self):
         super(IdentityWorker, self).__del__()
@@ -34,7 +35,7 @@ class IdentityWorker(AbstractWorker):
         try:
             # @param object_id: ObjectId of the unit_of_work from mq
             object_id = message.body
-            uow = unit_of_work_dao.get_one(self.logger, object_id)
+            uow = self.uow_dao.get_one(object_id)
             if uow.state in [unit_of_work.STATE_CANCELED, unit_of_work.STATE_PROCESSED]:
                 # garbage collector might have reposted this UOW
                 self.logger.warning('Skipping unit_of_work: id %s; state %s;'
@@ -52,11 +53,11 @@ class IdentityWorker(AbstractWorker):
             uow.number_of_processed_documents = 0
             uow.started_at = datetime.utcnow()
             uow.finished_at = datetime.utcnow()
-            unit_of_work_dao.update(self.logger, uow)
+            self.uow_dao.update(uow)
             self.performance_ticker.finish_uow()
         except Exception as e:
             uow.state = unit_of_work.STATE_INVALID
-            unit_of_work_dao.update(self.logger, uow)
+            self.uow_dao.update(uow)
             self.performance_ticker.cancel_uow()
             self.logger.error('Safety fuse while processing unit_of_work %s in timeperiod %s : %r'
                               % (message.body, uow.timeperiod, e), exc_info=True)
