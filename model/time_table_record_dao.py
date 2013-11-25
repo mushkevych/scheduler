@@ -35,6 +35,7 @@ def _get_timetable_collection(logger, process_name):
     return collection
 
 
+#@thread_safe
 def get_one(logger, key, timeperiod):
     """ method finds time_table record and returns it to the caller"""
     collection = _get_timetable_collection(logger, key)
@@ -47,6 +48,7 @@ def get_one(logger, key, timeperiod):
     return TimeTableRecord(document)
 
 
+#@thread_safe
 def get_all(logger, table_name):
     """ method returns all time table records from particular table """
     query = {}
@@ -56,7 +58,15 @@ def get_all(logger, table_name):
     cursor = collection.find(query)
     if cursor.count() == 0:
         raise LookupError('MongoDB has no time table records in %s collection' % table_name)
-    return [TimeTableRecord(entry) for entry in cursor]
+    return [TimeTableRecord(document) for document in cursor]
+
+
+#@thread_safe
+def run_query(logger, collection_name, query):
+    """ method runs query on specified table and return list of filtered TimeTableRecords """
+    ds = ds_manager.ds_factory(logger)
+    cursor = ds.filter(collection_name, query)
+    return [TimeTableRecord(document) for document in cursor]
 
 
 #@thread_safe

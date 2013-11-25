@@ -2,7 +2,6 @@
 
 __author__ = 'Bohdan Mushkevych'
 
-from bson.objectid import ObjectId
 from datetime import datetime
 from model import unit_of_work_dao
 
@@ -33,10 +32,9 @@ class IdentityWorker(AbstractWorker):
         - catches the exception
         - logs the exception
         - marks unit of work as INVALID"""
-        uow = None
         try:
             # @param object_id: ObjectId of the unit_of_work from mq
-            object_id = ObjectId(message.body)
+            object_id = message.body
             uow = unit_of_work_dao.get_one(self.logger, object_id)
             if uow.state in [unit_of_work.STATE_CANCELED, unit_of_work.STATE_PROCESSED]:
                 # garbage collector might have reposted this UOW

@@ -1,4 +1,5 @@
 """ Module contains common logic for aggregators and workers that work with unit_of_work """
+from bson.objectid import ObjectId
 
 __author__ = 'Bohdan Mushkevych'
 
@@ -7,7 +8,6 @@ import json
 import socket
 from datetime import datetime
 
-from bson.objectid import ObjectId
 from pymongo import ASCENDING
 
 from model import unit_of_work_dao, unit_of_work
@@ -126,7 +126,7 @@ class AbstractAwareWorker(AbstractWorker):
         uow = None
         try:
             # @param object_id: ObjectId of the unit_of_work from mq
-            object_id = ObjectId(message.body)
+            object_id = message.body
             uow = unit_of_work_dao.get_one(self.logger, object_id)
             if uow.state in [unit_of_work.STATE_CANCELED, unit_of_work.STATE_PROCESSED]:
                 # garbage collector might have reposted this UOW

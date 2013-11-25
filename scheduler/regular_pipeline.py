@@ -1,7 +1,5 @@
 __author__ = 'Bohdan Mushkevych'
 
-from bson.objectid import ObjectId
-
 from pymongo import ASCENDING, DESCENDING
 from pymongo.errors import DuplicateKeyError
 from datetime import datetime
@@ -97,7 +95,6 @@ class RegularPipeline(AbstractPipeline):
         -- in case units of work can be located - we update time_record, and proceed normally
         -- in case unit_of_work can not be located (what is equal to fatal data corruption) - we log exception and
         expect for manual intervention"""
-        uow_obj = None
         try:
             uow_obj = self.compute_scope_of_processing(process_name, start_time, end_time, time_record)
         except DuplicateKeyError as e:
@@ -150,14 +147,13 @@ class RegularPipeline(AbstractPipeline):
         end_time = time_helper.increment_time(process_name, start_time)
         actual_time = time_helper.actual_time(process_name)
         can_finalize_timerecord = self.timetable.can_finalize_timetable_record(process_name, time_record)
-        uow_id = time_record.related_unit_of_work
-        uow_obj = unit_of_work_dao.get_one(self.logger, ObjectId(uow_id))
+        uow = unit_of_work_dao.get_one(self.logger, time_record.related_unit_of_work)
 
         if start_time == actual_time or can_finalize_timerecord is False:
-            if uow_obj.state in [unit_of_work.STATE_INVALID,
-                                 unit_of_work.STATE_REQUESTED]:
+            if uow.state in [unit_of_work.STATE_INVALID,
+                             unit_of_work.STATE_REQUESTED]:
                 # current uow has not been processed yet. update it
-                self.update_scope_of_processing(process_name, uow_obj, start_time, end_time, time_record)
+                self.update_scope_of_processing(process_name, uow, start_time, end_time, time_record)
             else:
                 # cls.STATE_IN_PROGRESS, cls.STATE_PROCESSED, cls.STATE_CANCELED
                 # create new uow to cover new inserts
@@ -174,28 +170,27 @@ class RegularPipeline(AbstractPipeline):
 
     def _process_state_final_run(self, process_name, time_record):
         """method takes care of processing timetable records in STATE_FINAL_RUN state"""
-        uow_id = time_record.related_unit_of_work
-        uow_obj = unit_of_work_dao.get_one(self.logger, ObjectId(uow_id))
+        uow = unit_of_work_dao.get_one(self.logger, time_record.related_unit_of_work)
 
-        if uow_obj.state == unit_of_work.STATE_PROCESSED:
+        if uow.state == unit_of_work.STATE_PROCESSED:
             self.timetable.update_timetable_record(process_name,
                                                    time_record,
-                                                   uow_obj,
+                                                   uow,
                                                    time_table_record.STATE_PROCESSED)
             timetable_tree = self.timetable.get_tree(process_name)
             timetable_tree.build_tree()
             msg = 'Transferred time-record %s in timeperiod %s to STATE_PROCESSED for %s' \
                   % (time_record.document['_id'], time_record.timeperiod, process_name)
-        elif uow_obj.state == unit_of_work.STATE_CANCELED:
+        elif uow.state == unit_of_work.STATE_CANCELED:
             self.timetable.update_timetable_record(process_name,
                                                    time_record,
-                                                   uow_obj,
+                                                   uow,
                                                    time_table_record.STATE_SKIPPED)
             msg = 'Transferred time-record %s in timeperiod %s to STATE_SKIPPED for %s' \
                   % (time_record.document['_id'], time_record.timeperiod, process_name)
         else:
             msg = 'Suppressed creating uow for %s in timeperiod %s; time_record is in %s; uow is in %s' \
-                  % (process_name, time_record.timeperiod, time_record.state, uow_obj.state)
+                  % (process_name, time_record.timeperiod, time_record.state, uow.state)
         self._log_message(INFO, process_name, time_record, msg)
 
     def _process_state_skipped(self, process_name, time_record):

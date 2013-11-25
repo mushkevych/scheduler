@@ -2,7 +2,6 @@
 It calls Hadoop Map/Reduce and updates unit_of_work base on Hadoop return code """
 
 from subprocess import PIPE
-from bson.objectid import ObjectId
 from datetime import datetime
 import psutil
 from psutil.error import TimeoutExpired
@@ -81,10 +80,9 @@ class AbstractHadoopWorker(AbstractWorker):
         - catches the exception
         - logs the exception
         - marks unit of work as INVALID"""
-        uow = None
         try:
             # @param object_id: ObjectId of the unit_of_work from mq
-            object_id = ObjectId(message.body)
+            object_id = message.body
             uow = unit_of_work_dao.get_one(self.logger, object_id)
             if uow.state in [unit_of_work.STATE_CANCELED, unit_of_work.STATE_PROCESSED]:
                 # garbage collector might have reposted this UOW

@@ -1,16 +1,14 @@
 __author__ = 'Bohdan Mushkevych'
 
 from threading import RLock
-from model import ds_manager
 from model import time_table_record_dao
-from model.time_table_record import TimeTableRecord
 from system.collection_context import COLLECTION_TIMETABLE_YEARLY, \
     COLLECTION_TIMETABLE_MONTHLY, COLLECTION_TIMETABLE_DAILY, COLLECTION_TIMETABLE_HOURLY
 from system.decorator import thread_safe
 
 
 class ProcessingStatements(object):
-    """ Reads from MongoDB status of timeperiods and their processing status """
+    """ Reads from DB status of timeperiods and their processing status """
 
     def __init__(self, logger):
         self.lock = RLock()
@@ -29,8 +27,6 @@ class ProcessingStatements(object):
     @thread_safe
     def _search_by_level(self, collection_name, timeperiod, unprocessed_only):
         """ method iterated thru all documents in all timetable collections and builds tree of known system state"""
-        ds = ds_manager.ds_factory(self.logger)
-
         resp = dict()
         try:
             if unprocessed_only:
@@ -38,14 +34,12 @@ class ProcessingStatements(object):
             else:
                 query = time_table_record_dao.QUERY_GET_LIKE_TIMEPERIOD(timeperiod)
 
-            cursor = ds.filter(collection_name, query)
-            if cursor.count() == 0:
+            time_record_list = time_table_record_dao.run_query(self.logger, collection_name, query)
+            if len(time_record_list) == 0:
                 self.logger.warning('No TimeTable Records in %s.' % str(collection_name))
 
-            for document in cursor:
-                obj = TimeTableRecord(document)
-                key = (obj.process_name, obj.timeperiod)
-                resp[key] = obj
+            for time_table_rec in time_record_list:
+                resp[time_table_rec.key] = time_table_rec
         except Exception as e:
             self.logger.error('ProcessingStatements error: %s' % str(e))
         return resp

@@ -42,6 +42,19 @@ class TimeTableRecord(BaseModel):
         super(TimeTableRecord, self).__init__(document)
 
     @property
+    def key(self):
+        return self.data[PROCESS_NAME], self.data[TIMEPERIOD]
+
+    @key.setter
+    def key(self, value):
+        """
+        @param value: tuple - value[0] - name of the process
+        value[1] - timeperiod as string in Synergy Data format
+        """
+        self.data[PROCESS_NAME] = value[0]
+        self.data[TIMEPERIOD] = value[1]
+
+    @property
     def process_name(self):
         return self.data[PROCESS_NAME]
 
