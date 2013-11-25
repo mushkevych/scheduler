@@ -1,12 +1,12 @@
 """ Module is responsible for reading MQ queue and updating/inserting data records to the MongoDB """
+from db.model import single_session_dao
 
 __author__ = 'Bohdan Mushkevych'
 
 import time
 from pymongo.errors import AutoReconnect
-from model import single_session_dao
-from model.single_session import SingleSessionStatistics
-from model.raw_data import *
+from db.model.single_session import SingleSessionStatistics
+from db.model.raw_data import *
 from system.performance_ticker import SessionPerformanceTicker
 from workers.abstract_worker import AbstractWorker
 from system import time_helper

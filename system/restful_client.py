@@ -1,8 +1,9 @@
+from db.model import base_model
+
 __author__ = 'Bohdan Mushkevych'
 
 import json
 from rest_client.restful_lib import Connection
-from model import base_model
 
 from settings import settings
 

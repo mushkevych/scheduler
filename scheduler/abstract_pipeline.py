@@ -1,11 +1,11 @@
+from db.model import time_table_record, unit_of_work_dao
+
 __author__ = 'Bohdan Mushkevych'
 
 from datetime import datetime
 from logging import INFO, WARNING, ERROR
 
 from flopsy.flopsy import PublishersPool
-from model import unit_of_work_dao
-from model import time_table_record
 from system.decorator import with_reconnect
 
 

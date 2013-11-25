@@ -1,6 +1,6 @@
 __author__ = 'Bohdan Mushkevych'
 
-from model.base_model import *
+from db.model.base_model import *
 
 MAX_NUMBER_OF_LOG_ENTRIES = 32
 PROCESS_NAME = 'process_name'

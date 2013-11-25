@@ -1,11 +1,10 @@
 """ Module contains logic for YES worker - one that marks any units_of_work as complete """
+from db.model import unit_of_work, unit_of_work_dao
 
 __author__ = 'Bohdan Mushkevych'
 
 from datetime import datetime
-from model import unit_of_work_dao
 
-from model import unit_of_work
 from workers.abstract_worker import AbstractWorker
 from system.performance_ticker import AggregatorPerformanceTicker
 

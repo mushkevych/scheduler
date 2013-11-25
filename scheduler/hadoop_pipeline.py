@@ -1,3 +1,5 @@
+from db.model import time_table_record, unit_of_work, unit_of_work_dao
+
 __author__ = 'Bohdan Mushkevych'
 
 from pymongo.errors import DuplicateKeyError
@@ -5,9 +7,7 @@ from datetime import datetime
 from logging import ERROR, WARNING, INFO
 
 from abstract_pipeline import AbstractPipeline
-from model import unit_of_work_dao, unit_of_work
-from model.unit_of_work import UnitOfWork
-from model import time_table_record
+from db.model.unit_of_work import UnitOfWork
 from system import time_helper
 from system.decorator import with_reconnect
 

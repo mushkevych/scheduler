@@ -1,7 +1,8 @@
+from db.model import raw_data
+
 __author__ = 'Bohdan Mushkevych'
 
 import logging
-from model import raw_data
 from tests import base_fixtures
 from system.collection_context import CollectionContext, COLLECTION_SINGLE_SESSION
 

@@ -1,13 +1,13 @@
+from db.model import unit_of_work, unit_of_work_dao
+
 __author__ = 'Bohdan Mushkevych'
 
 import inspect
 import logging
 import random
-from model import unit_of_work_dao
 
-from model import unit_of_work
-from model.unit_of_work import UnitOfWork
-from model.single_session import SingleSessionStatistics
+from db.model.unit_of_work import UnitOfWork
+from db.model.single_session import SingleSessionStatistics
 from system.process_context import ProcessContext
 from system.collection_context import CollectionContext, COLLECTION_SINGLE_SESSION
 

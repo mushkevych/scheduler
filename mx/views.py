@@ -1,3 +1,5 @@
+from db.model import scheduler_configuration, scheduler_configuration_dao, unit_of_work_dao
+
 __author__ = 'Bohdan Mushkevych'
 
 from datetime import datetime, timedelta
@@ -8,8 +10,6 @@ from werkzeug.utils import cached_property, redirect
 from werkzeug.wrappers import Response
 
 from system.repeat_timer import RepeatTimer
-from model import unit_of_work_dao, scheduler_configuration_dao
-from model import scheduler_configuration
 from processing_statements import ProcessingStatements
 from system.process_context import ProcessContext
 from system.performance_ticker import FootprintCalculator

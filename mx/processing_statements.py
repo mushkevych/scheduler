@@ -1,7 +1,8 @@
+from db.model import time_table_record_dao
+
 __author__ = 'Bohdan Mushkevych'
 
 from threading import RLock
-from model import time_table_record_dao
 from system.collection_context import COLLECTION_TIMETABLE_YEARLY, \
     COLLECTION_TIMETABLE_MONTHLY, COLLECTION_TIMETABLE_DAILY, COLLECTION_TIMETABLE_HOURLY
 from system.decorator import thread_safe

@@ -1,7 +1,9 @@
+from db.manager import ds_manager
+from db.model import unit_of_work
+
 __author__ = 'Bohdan Mushkevych'
 
-from model import unit_of_work, ds_manager
-from model.unit_of_work import UnitOfWork
+from db.model.unit_of_work import UnitOfWork
 from bson.objectid import ObjectId
 from system.collection_context import COLLECTION_UNITS_OF_WORK
 

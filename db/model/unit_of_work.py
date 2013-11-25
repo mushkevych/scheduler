@@ -1,7 +1,7 @@
 __author__ = 'Bohdan Mushkevych'
 
-from model.base_model import BaseModel
-from model.raw_data import *
+from db.model.base_model import BaseModel
+from db.model.raw_data import *
 
 START_TIMEPERIOD = 'start_timeperiod'  # lower boundary (as Synergy date) of the period that needs to be processed
 END_TIMEPERIOD = 'end_timeperiod'      # upper boundary (as Synergy date) of the period that needs to be processed

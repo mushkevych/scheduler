@@ -1,16 +1,14 @@
+from db.model import base_model, time_table_record, unit_of_work, unit_of_work_dao
+
 __author__ = 'Bohdan Mushkevych'
 
 from pymongo import ASCENDING, DESCENDING
 from pymongo.errors import DuplicateKeyError
 from datetime import datetime
 from logging import ERROR, WARNING, INFO
-from model import unit_of_work_dao
 
-from model import base_model
 from abstract_pipeline import AbstractPipeline
-from model import unit_of_work
-from model.unit_of_work import UnitOfWork
-from model import time_table_record
+from db.model.unit_of_work import UnitOfWork
 from system.decorator import with_reconnect
 from system.process_context import ProcessContext
 from system.collection_context import CollectionContext

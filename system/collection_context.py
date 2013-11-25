@@ -1,7 +1,6 @@
+from db.manager import ds_manager
+
 __author__ = 'Bohdan Mushkevych'
-
-from model import ds_manager
-
 
 COLLECTION_SINGLE_SESSION = 'single_session'
 COLLECTION_SCHEDULER_CONFIGURATION = 'scheduler_configuration'

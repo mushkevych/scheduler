@@ -1,8 +1,8 @@
 """ Module contains common logic for all workers that work with chunks of data from DB """
+from db.model import base_model
 
 __author__ = 'Bohdan Mushkevych'
 
-from model import base_model
 from workers.abstract_aware_worker import AbstractAwareWorker
 
 

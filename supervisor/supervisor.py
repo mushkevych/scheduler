@@ -1,3 +1,5 @@
+from db.model import box_configuration_dao, box_configuration
+
 __author__ = 'Bohdan Mushkevych'
 
 import os
@@ -8,8 +10,6 @@ from psutil import TimeoutExpired
 
 import supervisor_helper as helper
 from launch import get_python, PROJECT_ROOT, PROCESS_STARTER
-from model import box_configuration
-from model import box_configuration_dao
 from system.process_context import ProcessContext
 from system.repeat_timer import RepeatTimer
 from system.synergy_process import SynergyProcess

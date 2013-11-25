@@ -1,8 +1,9 @@
+from db.manager import ds_manager
+
 __author__ = 'Bohdan Mushkevych'
 
-from model import ds_manager
-from model.raw_data import *
-from model.single_session import SingleSessionStatistics
+from db.model.raw_data import *
+from db.model.single_session import SingleSessionStatistics
 from system.collection_context import COLLECTION_SINGLE_SESSION
 
 

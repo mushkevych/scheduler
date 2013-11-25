@@ -1,5 +1,6 @@
 """ Module contains common logic for aggregators and workers that work with unit_of_work """
 from bson.objectid import ObjectId
+from db.model import base_model, unit_of_work, unit_of_work_dao
 
 __author__ = 'Bohdan Mushkevych'
 
@@ -10,8 +11,6 @@ from datetime import datetime
 
 from pymongo import ASCENDING
 
-from model import unit_of_work_dao, unit_of_work
-from model import base_model
 from settings import settings
 from system.decimal_encoder import DecimalEncoder
 from system.process_context import ProcessContext

@@ -1,6 +1,6 @@
 __author__ = 'Bohdan Mushkevych'
 
-from model.base_model import *
+from db.model.base_model import *
 
 BOX_ID = 'box_id'
 PROCESS_LIST = 'process_list'

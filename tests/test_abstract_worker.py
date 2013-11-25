@@ -1,7 +1,7 @@
 __author__ = 'Bohdan Mushkevych'
 
 import unittest
-from model import unit_of_work_dao
+from db.model import unit_of_work_dao
 from tests import base_fixtures
 from tests.base_fixtures import TestMessage
 from tests.base_fixtures import TestConsumer

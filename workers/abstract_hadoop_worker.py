@@ -5,7 +5,8 @@ from subprocess import PIPE
 from datetime import datetime
 import psutil
 from psutil.error import TimeoutExpired
-from model import unit_of_work_dao, unit_of_work
+from db.model import unit_of_work_dao
+from db.model import unit_of_work
 
 from settings import settings
 from workers.abstract_worker import AbstractWorker

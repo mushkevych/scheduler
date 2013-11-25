@@ -1,7 +1,9 @@
+from db.manager import ds_manager
+from db.model import base_model, time_table_record
+
 __author__ = 'Bohdan Mushkevych'
 
-from model import time_table_record, base_model, ds_manager
-from model.time_table_record import TimeTableRecord
+from db.model.time_table_record import TimeTableRecord
 from system.collection_context import COLLECTION_TIMETABLE_HOURLY, COLLECTION_TIMETABLE_DAILY, \
     COLLECTION_TIMETABLE_MONTHLY, COLLECTION_TIMETABLE_YEARLY
 from system.process_context import ProcessContext

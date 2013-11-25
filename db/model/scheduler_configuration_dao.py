@@ -1,7 +1,8 @@
+from db.manager import ds_manager
+
 __author__ = 'Bohdan Mushkevych'
 
-from model import ds_manager
-from model.scheduler_configuration import SchedulerConfiguration
+from db.model.scheduler_configuration import SchedulerConfiguration
 from system.collection_context import COLLECTION_SCHEDULER_CONFIGURATION
 
 

@@ -1,4 +1,5 @@
 """ Module re-launches invalid units_of_work """
+from db.model import unit_of_work, unit_of_work_dao
 
 __author__ = 'Bohdan Mushkevych'
 
@@ -7,11 +8,9 @@ from pymongo import ASCENDING
 
 from datetime import datetime, timedelta
 from flopsy.flopsy import PublishersPool
-from model import unit_of_work_dao
 from system.decorator import thread_safe
 from workers.abstract_worker import AbstractWorker
-from model import unit_of_work
-from model.unit_of_work import UnitOfWork
+from db.model.unit_of_work import UnitOfWork
 from system.collection_context import CollectionContext
 from system.collection_context import COLLECTION_UNITS_OF_WORK
 

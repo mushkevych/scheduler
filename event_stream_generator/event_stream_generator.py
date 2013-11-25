@@ -1,16 +1,18 @@
 __author__ = 'Bohdan Mushkevych'
 
-from flopsy.flopsy import Publisher
-from model.raw_data import RawData
-from system.performance_ticker import WorkerPerformanceTicker
-from system.synergy_process import SynergyProcess
-
-from amqplib.client_0_8.exceptions import AMQPException
 from threading import Thread
 import datetime
 import random
 import time
 import math
+
+from amqplib.client_0_8.exceptions import AMQPException
+
+from flopsy.flopsy import Publisher
+from db.model.raw_data import RawData
+from system.performance_ticker import WorkerPerformanceTicker
+from system.synergy_process import SynergyProcess
+
 
 SLEEP_TIME = 0.03
 TICK_INTERVAL = 10

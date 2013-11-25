@@ -7,11 +7,13 @@ import os
 import sys
 import time
 import signal
-import virtualenv
 import subprocess
+
+import virtualenv
 
 from system import process_context
 from system.process_context import ProcessContext
+
 
 PROCESS_STARTER = 'process_starter.py'
 PROJECT_ROOT = path.abspath(path.dirname(__file__))
@@ -157,7 +159,7 @@ def start_process(options, daemonize):
     import psutil
     from settings import settings
     from supervisor import supervisor_helper as helper
-    from model.box_configuration import BoxConfiguration
+    from db.model.box_configuration import BoxConfiguration
 
     box_id = helper.get_box_id(logging)
     if options.app is not None and options.app != process_context.PROCESS_SUPERVISOR:
@@ -195,7 +197,7 @@ def stop_process(options):
     """Stop the synergy-data daemons"""
     import logging
     from supervisor import supervisor_helper as helper
-    from model.box_configuration import BoxConfiguration
+    from db.model.box_configuration import BoxConfiguration
 
     if options.app is not None and options.app != process_context.PROCESS_SUPERVISOR:
         # mark individual process for termination

@@ -1,7 +1,7 @@
 __author__ = 'Bohdan Mushkevych'
 
-from model.base_model import *
-from model.raw_data import *
+from db.model.base_model import *
+from db.model.raw_data import *
 
 TIMESTAMP = 'timestamp'
 

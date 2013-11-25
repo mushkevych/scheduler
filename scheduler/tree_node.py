@@ -1,7 +1,8 @@
+from db.model import time_table_record
+
 __author__ = 'Bohdan Mushkevych'
 
 from system.process_context import ProcessContext
-from model import time_table_record
 
 
 class AbstractNode(object):

@@ -1,7 +1,7 @@
 __author__ = 'Bohdan Mushkevych'
 
 import unittest
-from model.single_session import SingleSessionStatistics
+from db.model.single_session import SingleSessionStatistics
 
 
 class TestSingleSessionStatistics(unittest.TestCase):

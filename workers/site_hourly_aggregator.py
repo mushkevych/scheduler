@@ -1,8 +1,8 @@
 __author__ = 'Bohdan Mushkevych'
 
-from model.single_session import SingleSessionStatistics
-from model.site_statistics import SiteStatistics
-from model.base_model import BaseModel
+from db.model.single_session import SingleSessionStatistics
+from db.model.site_statistics import SiteStatistics
+from db.model.base_model import BaseModel
 from settings import settings
 from workers.abstract_vertical_worker import AbstractVerticalWorker
 from system import time_helper

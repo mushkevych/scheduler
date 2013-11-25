@@ -1,10 +1,10 @@
+from db.model import unit_of_work, unit_of_work_dao
+
 __author__ = 'Bohdan Mushkevych'
 
 import unittest
 from flopsy.flopsy import PublishersPool
-from model import unit_of_work_dao
-from model import unit_of_work
-from model.unit_of_work import UnitOfWork
+from db.model.unit_of_work import UnitOfWork
 from system.process_context import PROCESS_SITE_DAILY
 from tests.base_fixtures import TestMessage
 from workers.site_daily_aggregator import SiteDailyAggregator

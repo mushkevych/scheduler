@@ -1,9 +1,10 @@
+from db.model import time_table_record, time_table_record_dao, unit_of_work, unit_of_work_dao
+
 __author__ = 'Bohdan Mushkevych'
 
 from datetime import datetime
 from threading import RLock
-from model import unit_of_work_dao, time_table_record, unit_of_work, time_table_record_dao
-from model.time_table_record import TimeTableRecord
+from db.model.time_table_record import TimeTableRecord
 from system.decorator import thread_safe
 from system.collection_context import COLLECTION_TIMETABLE_HOURLY, COLLECTION_TIMETABLE_DAILY, \
     COLLECTION_TIMETABLE_MONTHLY, COLLECTION_TIMETABLE_YEARLY

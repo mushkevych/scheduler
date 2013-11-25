@@ -1,8 +1,9 @@
+from db.manager import ds_manager
+from db.model import box_configuration
+
 __author__ = 'Bohdan Mushkevych'
 
-from model import box_configuration
-from model.box_configuration import BoxConfiguration
-from model import ds_manager
+from db.model.box_configuration import BoxConfiguration
 from system.collection_context import COLLECTION_BOX_CONFIGURATION
 
 

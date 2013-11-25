@@ -1,7 +1,8 @@
+from db.model import base_model
+
 __author__ = 'Bohdan Mushkevych'
 
 import unittest
-from model import base_model
 from tests import hourly_fixtures
 from system.process_context import PROCESS_SITE_HOURLY
 from tests.test_abstract_worker import AbstractWorkerUnitTest

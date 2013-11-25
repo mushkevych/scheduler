@@ -1,3 +1,5 @@
+from db.model import scheduler_configuration, scheduler_configuration_dao
+
 __author__ = 'Bohdan Mushkevych'
 
 from datetime import datetime
@@ -12,7 +14,6 @@ from system.process_context import *
 
 from hadoop_pipeline import HadoopPipeline
 from regular_pipeline import RegularPipeline
-from model import scheduler_configuration, scheduler_configuration_dao
 from time_table import TimeTable
 
 

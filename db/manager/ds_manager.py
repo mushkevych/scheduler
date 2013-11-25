@@ -1,4 +1,4 @@
-from model import base_model, time_table_record
+from db.model import base_model
 
 __author__ = 'Bohdan Mushkevych'
 
