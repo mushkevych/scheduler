@@ -114,5 +114,5 @@ class RawData(BaseModel):
         return False
 
     @is_page_view.setter
-    def is_page_view(self, value):
+    def is_page_view(self, _):
         self.data[PAGE_VIEW] = 1

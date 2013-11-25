@@ -60,7 +60,7 @@ def _create_context_entry(process_name,
                           exchange,
                           queue=None,
                           routing=None,
-                          type=None,
+                          process_type=None,
                           source_collection=_VOID,
                           target_collection=_VOID,
                           pid_file=None,
@@ -87,7 +87,7 @@ def _create_context_entry(process_name,
         _MQ_EXCHANGE: exchange,
         _MQ_ROUTING_KEY: routing,
         _TIME_QUALIFIER: time_qualifier,
-        _TYPE: type
+        _TYPE: process_type
     }
 
 
@@ -132,7 +132,7 @@ class ProcessContext:
             token=_TOKEN_SITE,
             time_qualifier=QUALIFIER_DAILY,
             exchange=EXCHANGE_VERTICAL,
-            type=TYPE_VERTICAL_AGGREGATOR),
+            process_type=TYPE_VERTICAL_AGGREGATOR),
 
         PROCESS_SITE_HOURLY: _create_context_entry(
             process_name=PROCESS_SITE_HOURLY,
@@ -140,7 +140,7 @@ class ProcessContext:
             token=_TOKEN_SITE,
             time_qualifier=QUALIFIER_HOURLY,
             exchange=EXCHANGE_VERTICAL,
-            type=TYPE_VERTICAL_AGGREGATOR,
+            process_type=TYPE_VERTICAL_AGGREGATOR,
             source_collection='single_session'),
 
         PROCESS_SITE_MONTHLY: _create_context_entry(
@@ -149,7 +149,7 @@ class ProcessContext:
             token=_TOKEN_SITE,
             time_qualifier=QUALIFIER_MONTHLY,
             exchange=EXCHANGE_VERTICAL,
-            type=TYPE_VERTICAL_AGGREGATOR),
+            process_type=TYPE_VERTICAL_AGGREGATOR),
 
         PROCESS_SITE_YEARLY: _create_context_entry(
             process_name=PROCESS_SITE_YEARLY,
@@ -157,7 +157,7 @@ class ProcessContext:
             token=_TOKEN_SITE,
             time_qualifier=QUALIFIER_YEARLY,
             exchange=EXCHANGE_VERTICAL,
-            type=TYPE_VERTICAL_AGGREGATOR),
+            process_type=TYPE_VERTICAL_AGGREGATOR),
 
         PROCESS_GC: _create_context_entry(
             process_name=PROCESS_GC,
@@ -165,7 +165,7 @@ class ProcessContext:
             token=_TOKEN_GC,
             time_qualifier=QUALIFIER_BY_SCHEDULE,
             exchange=EXCHANGE_UTILS,
-            type=TYPE_GARBAGE_COLLECTOR,
+            process_type=TYPE_GARBAGE_COLLECTOR,
             source_collection='units_of_work',
             target_collection='units_of_work'),
 
@@ -228,7 +228,7 @@ class ProcessContext:
             token=_TOKEN_CLIENT,
             time_qualifier=QUALIFIER_DAILY,
             exchange=EXCHANGE_HORIZONTAL,
-            type=TYPE_HORIZONTAL_AGGREGATOR),
+            process_type=TYPE_HORIZONTAL_AGGREGATOR),
 
         PROCESS_CLIENT_MONTHLY: _create_context_entry(
             process_name=PROCESS_CLIENT_MONTHLY,
@@ -236,7 +236,7 @@ class ProcessContext:
             token=_TOKEN_CLIENT,
             time_qualifier=QUALIFIER_MONTHLY,
             exchange=EXCHANGE_HORIZONTAL,
-            type=TYPE_HORIZONTAL_AGGREGATOR),
+            process_type=TYPE_HORIZONTAL_AGGREGATOR),
 
         PROCESS_CLIENT_YEARLY: _create_context_entry(
             process_name=PROCESS_CLIENT_YEARLY,
@@ -244,7 +244,7 @@ class ProcessContext:
             token=_TOKEN_CLIENT,
             time_qualifier=QUALIFIER_YEARLY,
             exchange=EXCHANGE_HORIZONTAL,
-            type=TYPE_HORIZONTAL_AGGREGATOR),
+            process_type=TYPE_HORIZONTAL_AGGREGATOR),
 
         PROCESS_ALERT_DAILY: _create_context_entry(
             process_name=PROCESS_ALERT_DAILY,
@@ -252,7 +252,7 @@ class ProcessContext:
             token=_TOKEN_ALERT,
             time_qualifier=QUALIFIER_DAILY,
             exchange=EXCHANGE_ALERT,
-            type=TYPE_HORIZONTAL_AGGREGATOR),
+            process_type=TYPE_HORIZONTAL_AGGREGATOR),
 
         'TestAggregator': _create_context_entry(
             process_name='TestAggregator',

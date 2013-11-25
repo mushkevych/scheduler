@@ -129,17 +129,20 @@ def dispatch_options(parser, options, args):
 def query_configuration(options):
     """ reads current box configuration and prints it to the console """
     import logging
+    from db.dao.box_configuration_dao import BoxConfigurationDao
     from supervisor import supervisor_helper as helper
 
     box_id = helper.get_box_id(logging)
+    bc_dao = BoxConfigurationDao(logging)
     sys.stdout.write('\nConfiguration for BOX_ID=%r:\n' % box_id)
-    box_configuration = helper.retrieve_configuration(logging, box_id)
+    box_configuration = bc_dao.get_one(box_id)
     process_list = box_configuration.get_process_list()
     i = 1
     for process in process_list:
         sys.stdout.write('%d\t%r:%r \n' % (i, process, process_list[process]))
         i += 1
     sys.stdout.write('\n')
+
 
 def _get_supervisor_pid():
     """ check for supervisor's pid file and returns pid from there """
@@ -159,7 +162,8 @@ def start_process(options, daemonize):
     import psutil
     from settings import settings
     from supervisor import supervisor_helper as helper
-    from db.model.box_configuration import BoxConfiguration
+    from db.model import box_configuration
+    from db.dao.box_configuration_dao import BoxConfigurationDao
 
     box_id = helper.get_box_id(logging)
     if options.app is not None and options.app != process_context.PROCESS_SUPERVISOR:
@@ -169,9 +173,10 @@ def start_process(options, daemonize):
             sys.stdout.write('ERROR: requested process must be withing allowed list of: %r \n' % PROCESSES_FOR_XXL)
             sys.exit(1)
 
-        box_configuration = helper.retrieve_configuration(logging, box_id)
-        box_configuration.set_process_state(options.app, BoxConfiguration.STATE_ON)
-        helper.update_configuration(logging, box_configuration)
+        bc_dao = BoxConfigurationDao(logging)
+        box_config = bc_dao.get_one(box_id)
+        box_config.set_process_state(options.app, box_configuration.STATE_ON)
+        bc_dao.update(box_config)
     else:
         # start Supervisor
         try:
@@ -183,21 +188,23 @@ def start_process(options, daemonize):
                     sys.exit(1)
 
             p = psutil.Popen([get_python(), PROJECT_ROOT + '/' + PROCESS_STARTER, process_context.PROCESS_SUPERVISOR],
-                               close_fds=True,
-                               cwd=settings['process_cwd'],
-                               stdin=subprocess.PIPE,
-                               stdout=subprocess.PIPE,
-                               stderr=subprocess.STDOUT)
+                             close_fds=True,
+                             cwd=settings['process_cwd'],
+                             stdin=subprocess.PIPE,
+                             stdout=subprocess.PIPE,
+                             stderr=subprocess.STDOUT)
             sys.stdout.write('Started %s with pid = %r with configuration for BOX_ID=%r \n' \
-                            % (process_context.PROCESS_SUPERVISOR, p.pid, box_id))
+                             % (process_context.PROCESS_SUPERVISOR, p.pid, box_id))
         except Exception as e:
             sys.stderr.write('Exception on starting %s : %s \n' % (process_context.PROCESS_SUPERVISOR, str(e)))
+
 
 def stop_process(options):
     """Stop the synergy-data daemons"""
     import logging
     from supervisor import supervisor_helper as helper
-    from db.model.box_configuration import BoxConfiguration
+    from db.model import box_configuration
+    from db.dao.box_configuration_dao import BoxConfigurationDao
 
     if options.app is not None and options.app != process_context.PROCESS_SUPERVISOR:
         # mark individual process for termination
@@ -207,9 +214,10 @@ def stop_process(options):
             sys.exit(1)
 
         box_id = helper.get_box_id(logging)
-        box_configuration = helper.retrieve_configuration(logging, box_id)
-        box_configuration.set_process_state(options.app, BoxConfiguration.STATE_OFF)
-        helper.update_configuration(logging, box_configuration)
+        bc_dao = BoxConfigurationDao(logging)
+        box_config = bc_dao.get_one(box_id)
+        box_config.set_process_state(options.app, box_configuration.STATE_OFF)
+        bc_dao.update(box_config)
     else:
         # stop Supervisor
         try:

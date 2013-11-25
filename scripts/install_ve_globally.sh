@@ -6,5 +6,5 @@ if [ -z "$1" ]; then
 fi
 
 vendor=$1/vendors
-cd $vendor
-sudo easy_install $vendor/virtualenv-1.10.1.tar.gz
+cd ${vendor}
+sudo easy_install ${vendor}/virtualenv-1.10.1.tar.gz

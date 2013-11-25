@@ -154,7 +154,6 @@ def cast_to_time_qualifier(process_name, timeperiod):
 
 def datetime_to_synergy(process_name, dt):
     """ method parses datetime and returns Synergy Date"""
-    date_format = None
     qualifier = ProcessContext.get_time_qualifier(process_name)
     if qualifier == ProcessContext.QUALIFIER_HOURLY:
         date_format = SYNERGY_DATE_PATTERN

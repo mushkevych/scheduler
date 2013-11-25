@@ -18,10 +18,11 @@
 
 <script type="text/javascript">
     $(document).ready(function() {
+        var url;
         if (window.location.search.search("action_get_uow") != -1) {
-            var url = "/action_get_uow/" + window.location.search;
+            url = "/action_get_uow/" + window.location.search;
         } else {
-            var url = "/action_get_log/" + window.location.search;
+            url = "/action_get_log/" + window.location.search;
         }
 
         $.get(url, function(data) {

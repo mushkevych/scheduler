@@ -125,7 +125,6 @@ class AbstractAwareWorker(AbstractWorker):
         - catches the exception
         - logs the exception
         - marks unit of work as INVALID"""
-        uow = None
         try:
             # @param object_id: ObjectId of the unit_of_work from mq
             object_id = message.body
