@@ -5,6 +5,21 @@ import time
 from pymongo.errors import AutoReconnect
 
 
+def current_process_aware(class_method):
+    """
+    this decorator is used in ProcessContext to handle case where callers have no notion of the process they run within
+    @param class_method: method to wrap
+    """
+
+    @functools.wraps(class_method)
+    def _class_method(cls, process_name):
+        if process_name is None:
+            process_name = cls.get_current_process()
+            return class_method(cls, process_name)
+
+    return _class_method
+
+
 def thread_safe(method):
     """ wraps function with lock acquire/release cycle """
 
@@ -15,6 +30,7 @@ def thread_safe(method):
             return method(self, *args, **kwargs)
         finally:
             self.lock.release()
+
     return _locker
 
 
@@ -39,6 +55,7 @@ def with_reconnect(func):
             except AutoReconnect:
                 time.sleep(0.250)
         raise
+
     return _reconnector
 
 
@@ -56,4 +73,5 @@ def singleton(cls):
         if cls not in instances:
             instances[cls] = cls()
         return instances[cls]
+
     return get_instance
