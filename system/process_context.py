@@ -277,6 +277,7 @@ class ProcessContext:
             cls.get_logger(process_name).error('Unable to create pid file at: %s, because of: %r' % (pid_filename, e))
 
     @classmethod
+    @current_process_aware
     def remove_pid_file(cls, process_name=None):
         """ removes pid file """
         pid_filename = cls.get_pid_filename(process_name)
@@ -287,6 +288,7 @@ class ProcessContext:
             cls.get_logger(process_name).error('Unable to remove pid file at: %s, because of: %r' % (pid_filename, e))
 
     @classmethod
+    @current_process_aware
     def get_logger(cls, process_name=None):
         """ method returns initiated logger"""
         if process_name not in cls.logger_pool:
@@ -296,64 +298,76 @@ class ProcessContext:
         return cls.logger_pool[process_name].get_logger()
 
     @classmethod
+    @current_process_aware
     def get_record(cls, process_name=None):
         """ method returns dictionary of strings, preset
         source collection, target collection, queue name, exchange, routing, etc"""
         return cls.PROCESS_CONTEXT[process_name]
 
     @classmethod
+    @current_process_aware
     def get_pid_filename(cls, process_name=None):
         """method returns path for the PID FILENAME """
         return cls.PROCESS_CONTEXT[process_name][_PID_FILENAME]
 
     @classmethod
+    @current_process_aware
     def get_classname(cls, process_name=None):
         """ method returns fully qualified classname of the instance running as process"""
         return cls.PROCESS_CONTEXT[process_name][_CLASSNAME]
 
     @classmethod
+    @current_process_aware
     def get_log_filename(cls, process_name=None):
         """method returns path for the Log filename"""
         return cls.PROCESS_CONTEXT[process_name][_LOG_FILENAME]
 
     @classmethod
+    @current_process_aware
     def get_log_tag(cls, process_name=None):
         """method returns tag that all logging messages will be marked with"""
         return cls.PROCESS_CONTEXT[process_name][_LOG_TAG]
 
     @classmethod
+    @current_process_aware
     def get_time_qualifier(cls, process_name=None):
         """ method returns worker/aggregator time scale (like daily or yearly)"""
         return cls.PROCESS_CONTEXT[process_name][_TIME_QUALIFIER]
 
     @classmethod
+    @current_process_aware
     def get_routing(cls, process_name=None):
         """ method returns routing; it is used to segregate traffic within the queue
         for instance: routing_hourly for hourly reports, while routing_yearly for yearly reports"""
         return cls.PROCESS_CONTEXT[process_name][_MQ_ROUTING_KEY]
 
     @classmethod
+    @current_process_aware
     def get_exchange(cls, process_name=None):
         """ method returns exchange for this classname.
         Exchange is a component that sits between queue and the publisher"""
         return cls.PROCESS_CONTEXT[process_name][_MQ_EXCHANGE]
 
     @classmethod
+    @current_process_aware
     def get_queue(cls, process_name=None):
         """ method returns queue that is applicable for the worker/aggregator, specified by classname"""
         return cls.PROCESS_CONTEXT[process_name][_MQ_QUEUE]
 
     @classmethod
+    @current_process_aware
     def get_target_collection(cls, process_name=None):
         """ method returns target collection - the one where aggregated data will be placed in """
         return cls.PROCESS_CONTEXT[process_name][_TARGET_COLLECTION]
 
     @classmethod
+    @current_process_aware
     def get_source_collection(cls, process_name=None):
         """ method returns source collection - the one where data is taken from for analysis"""
         return cls.PROCESS_CONTEXT[process_name][_SOURCE_COLLECTION]
 
     @classmethod
+    @current_process_aware
     def get_type(cls, process_name=None):
         """ method returns process type
         Supported types are listed in process_context starting with TYPE_ prefix and are enumerated in

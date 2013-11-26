@@ -61,20 +61,20 @@ class MX(object):
         extra_files = None      # extra_files: optional list of extra files to track for reloading.
         ssl_context = None      # ssl_context: optional SSL context for running server in HTTPS mode.
 
-        mx_thread = Thread(target=run_simple(hostname=hostname,
-                                             port=port,
-                                             application=self,
-                                             use_debugger=debugger,
-                                             use_evalex=evalex,
-                                             extra_files=extra_files,
-                                             use_reloader=reloader,
-                                             reloader_interval=reloader_interval,
-                                             threaded=threaded,
-                                             processes=processes,
-                                             static_files=static_files,
-                                             ssl_context=ssl_context))
-        mx_thread.daemon = True
-        mx_thread.start()
+        self.mx_thread = Thread(target=run_simple(hostname=hostname,
+                                                  port=port,
+                                                  application=self,
+                                                  use_debugger=debugger,
+                                                  use_evalex=evalex,
+                                                  extra_files=extra_files,
+                                                  use_reloader=reloader,
+                                                  reloader_interval=reloader_interval,
+                                                  threaded=threaded,
+                                                  processes=processes,
+                                                  static_files=static_files,
+                                                  ssl_context=ssl_context))
+        self.mx_thread.daemon = True
+        self.mx_thread.start()
 
 
 if __name__ == '__main__':

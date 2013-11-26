@@ -38,9 +38,9 @@ class Scheduler(SynergyProcess):
         self.thread_handlers.clear()
         super(Scheduler, self).__del__()
 
-    def _log_message(self, level, process_name, time_record, msg):
+    def _log_message(self, level, process_name, timetable_record, msg):
         """ method performs logging into log file and TimeTable node"""
-        self.timetable.add_log_entry(process_name, time_record, datetime.utcnow(), msg)
+        self.timetable.add_log_entry(process_name, timetable_record, datetime.utcnow(), msg)
         self.logger.log(level, msg)
 
     # **************** Scheduler Methods ************************
@@ -94,13 +94,13 @@ class Scheduler(SynergyProcess):
             process_name = args[0]
             self.lock.acquire()
             self.logger.info('%s {' % process_name)
-            time_record = self.timetable.get_next_timetable_record(process_name)
+            timetable_record = self.timetable.get_next_timetable_record(process_name)
             time_qualifier = ProcessContext.get_time_qualifier(process_name)
 
             if time_qualifier == ProcessContext.QUALIFIER_HOURLY:
-                self.regular_pipeline.manage_pipeline_for_process(process_name, time_record)
+                self.regular_pipeline.manage_pipeline_for_process(process_name, timetable_record)
             else:
-                self.hadoop_pipeline.manage_pipeline_for_process(process_name, time_record)
+                self.hadoop_pipeline.manage_pipeline_for_process(process_name, timetable_record)
 
         except (AMQPException, IOError) as e:
             self.logger.error('AMQPException: %s' % str(e), exc_info=True)
@@ -119,8 +119,8 @@ class Scheduler(SynergyProcess):
             self.lock.acquire()
             self.logger.info('%s {' % process_name)
 
-            time_record = self.timetable.get_next_timetable_record(process_name)
-            self.hadoop_pipeline.manage_pipeline_with_blocking_dependencies(process_name, time_record)
+            timetable_record = self.timetable.get_next_timetable_record(process_name)
+            self.hadoop_pipeline.manage_pipeline_with_blocking_dependencies(process_name, timetable_record)
         except (AMQPException, IOError) as e:
             self.logger.error('AMQPException: %s' % str(e), exc_info=True)
             self.publishers.reset_all_publishers(suppress_logging=True)

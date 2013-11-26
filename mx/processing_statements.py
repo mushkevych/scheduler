@@ -36,12 +36,12 @@ class ProcessingStatements(object):
             else:
                 query = time_table_record_dao.QUERY_GET_LIKE_TIMEPERIOD(timeperiod)
 
-            time_record_list = self.ttr_dao.run_query(collection_name, query)
-            if len(time_record_list) == 0:
+            tt_record_list = self.ttr_dao.run_query(collection_name, query)
+            if len(tt_record_list) == 0:
                 self.logger.warning('No TimeTable Records in %s.' % str(collection_name))
 
-            for time_table_rec in time_record_list:
-                resp[time_table_rec.key] = time_table_rec
+            for timetable_record in tt_record_list:
+                resp[timetable_record.key] = timetable_record
         except Exception as e:
             self.logger.error('ProcessingStatements error: %s' % str(e))
         return resp

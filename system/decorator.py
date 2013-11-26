@@ -15,7 +15,7 @@ def current_process_aware(class_method):
     def _class_method(cls, process_name):
         if process_name is None:
             process_name = cls.get_current_process()
-            return class_method(cls, process_name)
+        return class_method(cls, process_name)
 
     return _class_method
 

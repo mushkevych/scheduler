@@ -5,14 +5,14 @@ from system.process_context import ProcessContext
 
 
 class AbstractNode(object):
-    def __init__(self, tree, parent, process_name, timeperiod, time_record):
+    def __init__(self, tree, parent, process_name, timeperiod, timetable_record):
         # initializes the data members
         self.children = dict()
         self.tree = tree
         self.parent = parent
         self.process_name = process_name
         self.timeperiod = timeperiod
-        self.time_record = time_record
+        self.timetable_record = timetable_record
 
     def request_reprocess(self):
         """ method marks this and all parents node as such that requires reprocessing
@@ -49,13 +49,13 @@ class AbstractNode(object):
     def validate(self):
         """method traverse tree and:
         * requests for STATE_EMBRYO timetable records """
-        if self.time_record is None:
+        if self.timetable_record is None:
             self.request_timetable_record()
 
     def add_log_entry(self, entry):
-        """ time_record holds MAX_NUMBER_OF_LOG_ENTRIES of log entries, that can be accessed by MX
+        """ timetable_record holds MAX_NUMBER_OF_LOG_ENTRIES of log entries, that can be accessed by MX
             this method adds record and removes oldest one if necessary """
-        log = self.time_record.log
+        log = self.timetable_record.log
         if len(log) > time_table_record.MAX_NUMBER_OF_LOG_ENTRIES:
             del log[-1]
         log.insert(0, entry)
@@ -107,17 +107,17 @@ class AbstractNode(object):
                 continue
 
             dep_node = dependent_on.get_node_by_process(dep_proc_name, self.timeperiod)
-            if dep_node.time_record.state != time_table_record.STATE_PROCESSED:
+            if dep_node.timetable_record.state != time_table_record.STATE_PROCESSED:
                 dependents_are_finalized = False
-            if dep_node.time_record.state == time_table_record.STATE_SKIPPED:
+            if dep_node.timetable_record.state == time_table_record.STATE_SKIPPED:
                 dependents_are_skipped = True
 
         return dependents_are_finalized, dependents_are_skipped
 
 
 class LinearNode(AbstractNode):
-    def __init__(self, tree, parent, process_name, timeperiod, time_record):
-        super(LinearNode, self).__init__(tree, parent, process_name, timeperiod, time_record)
+    def __init__(self, tree, parent, process_name, timeperiod, timetable_record):
+        super(LinearNode, self).__init__(tree, parent, process_name, timeperiod, timetable_record)
 
     def can_finalize_timetable_record(self):
         """ method checks the if this particular node can be finalized: i.e. all dependents are finalized
@@ -129,12 +129,12 @@ class LinearNode(AbstractNode):
         if not self.is_dependent_on_finalized():
             return False
 
-        if self.time_record is None:
+        if self.timetable_record is None:
             self.request_timetable_record()
 
-        if self.time_record.state in [time_table_record.STATE_FINAL_RUN,
-                                      time_table_record.STATE_IN_PROGRESS,
-                                      time_table_record.STATE_EMBRYO]:
+        if self.timetable_record.state in [time_table_record.STATE_FINAL_RUN,
+                                           time_table_record.STATE_IN_PROGRESS,
+                                           time_table_record.STATE_EMBRYO]:
             return True
         return False
 
@@ -142,8 +142,8 @@ class LinearNode(AbstractNode):
 class TreeNode(AbstractNode):
     HOURS_IN_DAY = 24
 
-    def __init__(self, tree, parent, process_name, timeperiod, time_record):
-        super(TreeNode, self).__init__(tree, parent, process_name, timeperiod, time_record)
+    def __init__(self, tree, parent, process_name, timeperiod, timetable_record):
+        super(TreeNode, self).__init__(tree, parent, process_name, timeperiod, timetable_record)
 
     def can_finalize_timetable_record(self):
         """method checks:
@@ -153,15 +153,15 @@ class TreeNode(AbstractNode):
         if not self.is_dependent_on_finalized():
             return False
 
-        if self.time_record is None:
+        if self.timetable_record is None:
             self.request_timetable_record()
 
         children_processed = True
         for timeperiod in self.children:
             child = self.children[timeperiod]
-            if child.time_record.state in [time_table_record.STATE_FINAL_RUN,
-                                           time_table_record.STATE_IN_PROGRESS,
-                                           time_table_record.STATE_EMBRYO]:
+            if child.timetable_record.state in [time_table_record.STATE_FINAL_RUN,
+                                                time_table_record.STATE_IN_PROGRESS,
+                                                time_table_record.STATE_EMBRYO]:
                 children_processed = False
                 break
         return children_processed
@@ -179,15 +179,15 @@ class TreeNode(AbstractNode):
             child = self.children[timeperiod]
             children_processed = child.validate()
 
-            if child.time_record.state in [time_table_record.STATE_EMBRYO,
-                                           time_table_record.STATE_IN_PROGRESS,
-                                           time_table_record.STATE_FINAL_RUN]:
+            if child.timetable_record.state in [time_table_record.STATE_EMBRYO,
+                                                time_table_record.STATE_IN_PROGRESS,
+                                                time_table_record.STATE_FINAL_RUN]:
                 children_processed = False
-            if child.time_record.state != time_table_record.STATE_SKIPPED:
+            if child.timetable_record.state != time_table_record.STATE_SKIPPED:
                 all_children_skipped = False
 
         if children_processed is False \
-            and self.time_record.state in [time_table_record.STATE_FINAL_RUN, time_table_record.STATE_PROCESSED]:
+            and self.timetable_record.state in [time_table_record.STATE_FINAL_RUN, time_table_record.STATE_PROCESSED]:
             self.request_reprocess()
 
         # ideally, we should check if our tree holds HOURLY records by running <isinstance(self.tree, FourLevelTree)>

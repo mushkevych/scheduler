@@ -21,7 +21,7 @@ class HadoopPipeline(AbstractPipeline):
         super(HadoopPipeline, self).__del__()
 
     @with_reconnect
-    def insert_uow(self, process_name, start_time, end_time, iteration, time_record):
+    def insert_uow(self, process_name, start_time, end_time, iteration, timetable_record):
         """ creates unit_of_work and inserts it into the MongoDB
             @raise DuplicateKeyError if unit_of_work with given parameters already exists """
         first_object_id = 0
@@ -51,37 +51,37 @@ class HadoopPipeline(AbstractPipeline):
 
         self.publishers.get_publisher(process_name).publish(str(uow_id))
         msg = 'Published: UOW %r for %r in timeperiod %r.' % (uow_id, process_name, start_time)
-        self._log_message(INFO, process_name, time_record, msg)
+        self._log_message(INFO, process_name, timetable_record, msg)
         return uow
 
-    def _process_state_embryo(self, process_name, time_record, start_time):
+    def _process_state_embryo(self, process_name, timetable_record, start_time):
         """ method that takes care of processing timetable records in STATE_EMBRYO state"""
         end_time = time_helper.increment_time(process_name, start_time)
 
         try:
-            uow = self.insert_uow(process_name, start_time, end_time, 0, time_record)
+            uow = self.insert_uow(process_name, start_time, end_time, 0, timetable_record)
         except DuplicateKeyError as e:
             uow = self.recover_from_duplicatekeyerror(e)
             msg = 'Catching up with latest unit_of_work %s in timeperiod %s, because of: %r' \
-                  % (process_name, time_record.timeperiod, e)
-            self._log_message(WARNING, process_name, time_record, msg)
+                  % (process_name, timetable_record.timeperiod, e)
+            self._log_message(WARNING, process_name, timetable_record, msg)
 
         if uow is not None:
             self.timetable.update_timetable_record(process_name,
-                                                   time_record,
+                                                   timetable_record,
                                                    uow,
                                                    time_table_record.STATE_IN_PROGRESS)
         else:
             msg = 'MANUAL INTERVENTION REQUIRED! Unable to locate unit_of_work for %s in %s' \
-                  % (process_name, time_record.timeperiod)
-            self._log_message(WARNING, process_name, time_record, msg)
+                  % (process_name, timetable_record.timeperiod)
+            self._log_message(WARNING, process_name, timetable_record, msg)
 
-    def _process_state_in_progress(self, process_name, time_record, start_time):
+    def _process_state_in_progress(self, process_name, timetable_record, start_time):
         """ method that takes care of processing timetable records in STATE_IN_PROGRESS state"""
         end_time = time_helper.increment_time(process_name, start_time)
         actual_time = time_helper.actual_time(process_name)
-        can_finalize_timerecord = self.timetable.can_finalize_timetable_record(process_name, time_record)
-        uow = self.uow_dao.get_one(time_record.related_unit_of_work)
+        can_finalize_timerecord = self.timetable.can_finalize_timetable_record(process_name, timetable_record)
+        uow = self.uow_dao.get_one(timetable_record.related_unit_of_work)
         iteration = int(uow.end_id)
 
         try:
@@ -95,9 +95,9 @@ class HadoopPipeline(AbstractPipeline):
                 elif uow.state in [unit_of_work.STATE_PROCESSED,
                                    unit_of_work.STATE_CANCELED]:
                     # create new uow to cover new inserts
-                    uow = self.insert_uow(process_name, start_time, end_time, iteration + 1, time_record)
+                    uow = self.insert_uow(process_name, start_time, end_time, iteration + 1, timetable_record)
                     self.timetable.update_timetable_record(process_name,
-                                                           time_record,
+                                                           timetable_record,
                                                            uow,
                                                            time_table_record.STATE_IN_PROGRESS)
 
@@ -111,61 +111,61 @@ class HadoopPipeline(AbstractPipeline):
                 elif uow.state in [unit_of_work.STATE_PROCESSED,
                                    unit_of_work.STATE_CANCELED]:
                     # create new uow for FINAL RUN
-                    uow = self.insert_uow(process_name, start_time, end_time, iteration + 1, time_record)
+                    uow = self.insert_uow(process_name, start_time, end_time, iteration + 1, timetable_record)
                     self.timetable.update_timetable_record(process_name,
-                                                           time_record,
+                                                           timetable_record,
                                                            uow,
                                                            time_table_record.STATE_FINAL_RUN)
             else:
-                msg = 'Time-record %s has timeperiod from future %s vs current time %s' \
-                      % (time_record.document['_id'], start_time, actual_time)
-                self._log_message(ERROR, process_name, time_record, msg)
+                msg = 'Time-table-record %s has timeperiod from future %s vs current time %s' \
+                      % (timetable_record.document['_id'], start_time, actual_time)
+                self._log_message(ERROR, process_name, timetable_record, msg)
 
         except DuplicateKeyError as e:
             uow = self.recover_from_duplicatekeyerror(e)
             if uow is not None:
                 self.timetable.update_timetable_record(process_name,
-                                                       time_record,
+                                                       timetable_record,
                                                        uow,
-                                                       time_record.state)
+                                                       timetable_record.state)
             else:
                 msg = 'MANUAL INTERVENTION REQUIRED! Unable to identify unit_of_work for %s in %s' \
-                      % (process_name, time_record.timeperiod)
-                self._log_message(ERROR, process_name, time_record, msg)
+                      % (process_name, timetable_record.timeperiod)
+                self._log_message(ERROR, process_name, timetable_record, msg)
 
-    def _process_state_final_run(self, process_name, time_record):
+    def _process_state_final_run(self, process_name, timetable_record):
         """method takes care of processing timetable records in STATE_FINAL_RUN state"""
-        uow = self.uow_dao.get_one(time_record.related_unit_of_work)
+        uow = self.uow_dao.get_one(timetable_record.related_unit_of_work)
 
         if uow.state == unit_of_work.STATE_PROCESSED:
             self.timetable.update_timetable_record(process_name,
-                                                   time_record,
+                                                   timetable_record,
                                                    uow,
                                                    time_table_record.STATE_PROCESSED)
             timetable_tree = self.timetable.get_tree(process_name)
             timetable_tree.build_tree()
-            msg = 'Transferred time-record %s in timeperiod %s to STATE_PROCESSED for %s' \
-                  % (time_record.document['_id'], time_record.timeperiod, process_name)
+            msg = 'Transferred time-table-record %s in timeperiod %s to STATE_PROCESSED for %s' \
+                  % (timetable_record.document['_id'], timetable_record.timeperiod, process_name)
         elif uow.state == unit_of_work.STATE_CANCELED:
             self.timetable.update_timetable_record(process_name,
-                                                   time_record,
+                                                   timetable_record,
                                                    uow,
                                                    time_table_record.STATE_SKIPPED)
-            msg = 'Transferred time-record %s in timeperiod %s to STATE_SKIPPED for %s' \
-                  % (time_record.document['_id'], time_record.timeperiod, process_name)
+            msg = 'Transferred time-table-record %s in timeperiod %s to STATE_SKIPPED for %s' \
+                  % (timetable_record.document['_id'], timetable_record.timeperiod, process_name)
         else:
-            msg = 'Suppressed creating uow for %s in timeperiod %s; time_record is in %s; uow is in %s' \
-                  % (process_name, time_record.timeperiod, time_record.state, uow.state)
-        self._log_message(INFO, process_name, time_record, msg)
+            msg = 'Suppressed creating uow for %s in timeperiod %s; timetable_record is in %s; uow is in %s' \
+                  % (process_name, timetable_record.timeperiod, timetable_record.state, uow.state)
+        self._log_message(INFO, process_name, timetable_record, msg)
 
-    def _process_state_skipped(self, process_name, time_record):
+    def _process_state_skipped(self, process_name, timetable_record):
         """method takes care of processing timetable records in STATE_SKIPPED state"""
-        msg = 'Skipping time-record %s in timeperiod %s. Apparently its most current timeperiod as of %s UTC' \
-              % (time_record.document['_id'], time_record.timeperiod, str(datetime.utcnow()))
-        self._log_message(WARNING, process_name, time_record, msg)
+        msg = 'Skipping time-table-record %s in timeperiod %s. Apparently its most current timeperiod as of %s UTC' \
+              % (timetable_record.document['_id'], timetable_record.timeperiod, str(datetime.utcnow()))
+        self._log_message(WARNING, process_name, timetable_record, msg)
 
-    def _process_state_processed(self, process_name, time_record):
+    def _process_state_processed(self, process_name, timetable_record):
         """method takes care of processing timetable records in STATE_PROCESSED state"""
-        msg = 'Unexpected state %s of time-record %s' % (time_record.state,
-                                                         time_record.document['_id'])
-        self._log_message(ERROR, process_name, time_record, msg)
+        msg = 'Unexpected state %s of time-table-record %s' % (timetable_record.state,
+                                                               timetable_record.document['_id'])
+        self._log_message(ERROR, process_name, timetable_record, msg)

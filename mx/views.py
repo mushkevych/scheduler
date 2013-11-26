@@ -238,9 +238,9 @@ class NodeDetails(object):
             description['process_name'] = node.process_name
             description['time_qualifier'] = ProcessContext.get_time_qualifier(node.process_name)
             description['number_of_children'] = len(node.children)
-            description['number_of_failed_calls'] = node.time_record.number_of_failures
-            description['timeperiod'] = node.time_record.timeperiod
-            description['state'] = node.time_record.state
+            description['number_of_failed_calls'] = node.timetable_record.number_of_failures
+            description['timeperiod'] = node.timetable_record.timeperiod
+            description['state'] = node.timetable_record.state
         except Exception as e:
             logger.error('MX Exception: %s' % str(e), exc_info=True)
         finally:
@@ -370,7 +370,7 @@ class ActionHandler(object):
             self.timeperiod = time_helper.cast_to_time_qualifier(self.process_name, self.timeperiod)
             node = tree.get_node_by_process(self.process_name, self.timeperiod)
 
-            uow_id = node.time_record.related_unit_of_work
+            uow_id = node.timetable_record.related_unit_of_work
             if uow_id is None:
                 resp = {'response': 'no related unit_of_work'}
             else:
@@ -389,7 +389,7 @@ class ActionHandler(object):
         if tree is not None:
             self.timeperiod = time_helper.cast_to_time_qualifier(self.process_name, self.timeperiod)
             node = tree.get_node_by_process(self.process_name, self.timeperiod)
-            resp['log'] = node.time_record.log()
+            resp['log'] = node.timetable_record.log()
 
         return resp
 
@@ -489,8 +489,8 @@ class SchedulerDetails(object):
 
                 timetable = self.mbean.timetable
                 if timetable.get_tree(process_name) is not None:
-                    time_record = timetable.get_next_timetable_record(process_name)
-                    row.append(time_record.timeperiod)
+                    timetable_record = timetable.get_next_timetable_record(process_name)
+                    row.append(timetable_record.timeperiod)
                 else:
                     row.append('NA')
 
