@@ -1,9 +1,11 @@
+
 __author__ = 'Bohdan Mushkevych'
 
 import logging
 from tests import base_fixtures
 from db.model import raw_data
-from system.collection_context import CollectionContext, COLLECTION_SINGLE_SESSION
+from db.manager import ds_manager
+from system.collection_context import COLLECTION_SINGLE_SESSION
 
 # pylint: disable=C0301
 EXPECTED_HOURLY_SITE_00 = {
@@ -249,7 +251,8 @@ def generate_session_composite_key(index, total):
 
 
 def clean_session_entries():
-    connection = CollectionContext.get_collection(logging, COLLECTION_SINGLE_SESSION)
+    ds = ds_manager.ds_factory(logging)
+    connection = ds.connection(COLLECTION_SINGLE_SESSION)
     for i in range(base_fixtures.TOTAL_ENTRIES):
         key = generate_session_composite_key(i, base_fixtures.TOTAL_ENTRIES)
         connection.remove({

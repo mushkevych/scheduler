@@ -162,7 +162,7 @@ class AbstractTree(object):
         for timeperiod in self.root.children:
             child = self.root.children[timeperiod]
             child.validate()
-        self.validation_dt = datetime.utcnow()
+        self.validation_timestamp = datetime.utcnow()
 
 
 class TwoLevelTree(AbstractTree):

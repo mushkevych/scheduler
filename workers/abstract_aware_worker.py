@@ -4,6 +4,7 @@ __author__ = 'Bohdan Mushkevych'
 
 from bson.objectid import ObjectId
 from db.model import base_model, unit_of_work
+from db.manager import ds_manager
 from db.dao.unit_of_work_dao import UnitOfWorkDao
 
 import gc
@@ -16,7 +17,6 @@ from pymongo import ASCENDING
 from settings import settings
 from system.decimal_encoder import DecimalEncoder
 from system.process_context import ProcessContext
-from system.collection_context import CollectionContext
 from workers.abstract_worker import AbstractWorker
 from system.performance_ticker import AggregatorPerformanceTicker
 
@@ -29,6 +29,7 @@ class AbstractAwareWorker(AbstractWorker):
         super(AbstractAwareWorker, self).__init__(process_name)
         self.aggregated_objects = dict()
         self.uow_dao = UnitOfWorkDao(self.logger)
+        self.ds = ds_manager.ds_factory(self.logger)
 
     def __del__(self):
         self._flush_aggregated_objects()
@@ -45,11 +46,11 @@ class AbstractAwareWorker(AbstractWorker):
 
     def _get_source_collection(self):
         """collection with data for processing"""
-        return CollectionContext.get_collection(self.logger, ProcessContext.get_source_collection(self.process_name))
+        return self.ds.connection(ProcessContext.get_source_collection(self.process_name))
 
     def _get_target_collection(self):
         """collection to store aggregated documents"""
-        return CollectionContext.get_collection(self.logger, ProcessContext.get_target_collection(self.process_name))
+        return self.ds.connection(ProcessContext.get_target_collection(self.process_name))
 
     def _flush_aggregated_objects(self):
         """ method inserts aggregated objects to HBaseTunnel
@@ -167,8 +168,7 @@ class AbstractAwareWorker(AbstractWorker):
                 cursor = source_collection.find(queue).sort('_id', ASCENDING).limit(bulk_threshold)
                 count = cursor.count(with_limit_and_skip=True)
                 if count == 0 and iteration == 0:
-                    msg = 'No entries in %s at range [%s : %s]' % (
-                    str(source_collection.name), uow.start_id, uow.end_id)
+                    msg = 'No entries in %s at range [%s : %s]' % (source_collection.name, uow.start_id, uow.end_id)
                     self.logger.warning(msg)
                     break
                 else:

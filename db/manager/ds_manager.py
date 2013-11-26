@@ -1,11 +1,11 @@
-from db.model import base_model
-
 __author__ = 'Bohdan Mushkevych'
 
-from pymongo import MongoClient
+from pymongo import MongoClient, ASCENDING, DESCENDING
 from settings import settings
+from db.model import base_model
 from abc import abstractmethod, ABCMeta
 
+QUERY_GET_ALL = {}
 
 if 'ds_factory' not in globals():
     # this block defines global variable ds_factory
@@ -59,13 +59,15 @@ class BaseManager:
     def delete(self, table_name, primary_key):
         pass
 
+    @abstractmethod
+    def highest_primary_key(self, table_name, timeperiod_low, timeperiod_high):
+        pass
+
+    @abstractmethod
+    def lowest_primary_key(self, table_name, timeperiod_low, timeperiod_high):
+        pass
 
 class MongoDbManager(BaseManager):
-    QUERY_GET_ALL = {}
-
-    QUERY_GET_INBETWEEN_TIMPERIODS = \
-        lambda start_time, end_time: {base_model.TIMEPERIOD: {'$gte': start_time, '$lt': end_time}}
-
     def __init__(self, logger):
         super(MongoDbManager, self).__init__(logger)
         self._db_client = MongoClient(settings['mongodb_host_list'])
@@ -98,9 +100,29 @@ class MongoDbManager(BaseManager):
             raise LookupError(msg)
         return db_entry
 
+    def insert(self, table_name, instance):
+        conn = self._db[table_name]
+        return conn.insert(instance, safe=True)
+
     def update(self, table_name, instance):
         conn = self._db[table_name]
         conn.save(instance, safe=True)
+
+    def highest_primary_key(self, table_name, timeperiod_low, timeperiod_high):
+        query = {base_model.TIMEPERIOD: {'$gte': timeperiod_low, '$lt': timeperiod_high}}
+        conn = self._db[table_name]
+        asc_search = conn.find(spec=query, fields='_id').sort('_id', ASCENDING).limit(1)
+        if asc_search.count() == 0:
+            raise LookupError('No messages in timeperiod: %s:%s in collection %s'
+                              % (timeperiod_low, timeperiod_high, table_name))
+        return asc_search[0]['_id']
+
+    def lowest_primary_key(self, table_name, timeperiod_low, timeperiod_high):
+        query = {base_model.TIMEPERIOD: {'$gte': timeperiod_low, '$lt': timeperiod_high}}
+        conn = self._db[table_name]
+        dec_search = conn.find(spec=query, fields='_id').sort('_id', DESCENDING).limit(1)
+        last_object_id = dec_search[0]['_id']
+        return last_object_id
 
 
 class HBaseManager(BaseManager):

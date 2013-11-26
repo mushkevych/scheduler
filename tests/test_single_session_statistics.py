@@ -1,12 +1,12 @@
 __author__ = 'Bohdan Mushkevych'
 
 import unittest
-from db.model.single_session import SingleSessionStatistics
+from db.model.single_session import SingleSession
 
 
 class TestSingleSessionStatistics(unittest.TestCase):
     def setUp(self):
-        self.obj = SingleSessionStatistics()
+        self.obj = SingleSession()
 
     def tearDown(self):
         del self.obj

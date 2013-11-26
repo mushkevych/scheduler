@@ -4,12 +4,13 @@ import inspect
 import logging
 import random
 
-from db.model import unit_of_work
+from db.manager import ds_manager
+from db.dao.single_session_dao import SingleSessionDao
 from db.dao.unit_of_work_dao import UnitOfWorkDao
+from db.model import unit_of_work
 from db.model.unit_of_work import UnitOfWork
-from db.model.single_session import SingleSessionStatistics
+from db.model.single_session import SingleSession
 from system.process_context import ProcessContext
-from system.collection_context import CollectionContext, COLLECTION_SINGLE_SESSION
 
 TOTAL_ENTRIES = 101
 
@@ -111,13 +112,13 @@ def create_unit_of_work(process_name, first_object_id, last_object_id):
 
 
 def create_session_stats(composite_key_function, seed='RANDOM_SEED_OBJECT'):
+    ss_dao = SingleSessionDao(logging)
     time_array = ['20010303102210', '20010303102212', '20010303102215', '20010303102250']
-    connection = CollectionContext.get_collection(logging, COLLECTION_SINGLE_SESSION)
     random.seed(seed)
     object_ids = []
     for i in range(TOTAL_ENTRIES):
         key = composite_key_function(i, TOTAL_ENTRIES)
-        session = SingleSessionStatistics()
+        session = SingleSession()
         session.key = (key[0], key[1])
         session.session_id = 'session_id_%s' % str(i)
         session.ip = '192.168.0.2'
@@ -146,7 +147,7 @@ def create_session_stats(composite_key_function, seed='RANDOM_SEED_OBJECT'):
             session.number_of_entries = index + 1
             session.set_entry_timestamp(index, time_array[index])
 
-        sess_id = connection.insert(session.document, safe=True)
+        sess_id = ss_dao.insert(session.document)
         object_ids.append(sess_id)
 
     return object_ids
@@ -160,7 +161,7 @@ def _generate_entries(token, number, value):
 
 
 def create_site_stats(collection, composite_key_function, statistics_klass, seed='RANDOM_SEED_OBJECT'):
-    connection = CollectionContext.get_collection(logging, collection)
+    ds = ds_manager.ds_factory(logging)
     random.seed(seed)
     object_ids = []
     for i in range(TOTAL_ENTRIES):
@@ -197,7 +198,7 @@ def create_site_stats(collection, composite_key_function, statistics_klass, seed
         items['us'] = 9
         site_stat.countries = items
 
-        stat_id = connection.insert(site_stat.document, safe=True)
+        stat_id = ds.insert(site_stat.document)
         object_ids.append(stat_id)
 
     return object_ids

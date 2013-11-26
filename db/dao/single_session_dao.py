@@ -3,7 +3,7 @@ __author__ = 'Bohdan Mushkevych'
 from threading import RLock
 from db.manager import ds_manager
 from db.model.raw_data import *
-from db.model.single_session import SingleSessionStatistics
+from db.model.single_session import SingleSession
 from system.decorator import thread_safe
 from system.collection_context import COLLECTION_SINGLE_SESSION
 
@@ -25,10 +25,16 @@ class SingleSessionDao(object):
         document = collection.find_one(query)
         if document is None:
             raise LookupError('MongoDB has no single session record for (%s, %s)' % (domain_name, session_id))
-        return SingleSessionStatistics(document)
+        return SingleSession(document)
+
+    @thread_safe
+    def insert(self, instance):
+        """ method inserts new Single Session"""
+        collection = self.ds.connection(COLLECTION_SINGLE_SESSION)
+        collection.insert(instance.document, safe=True)
 
     @thread_safe
     def update(self, instance, is_safe):
-        """ method finds scheduler_configuration record and update its DB representation"""
+        """ method finds Single Session record and update its DB representation"""
         collection = self.ds.connection(COLLECTION_SINGLE_SESSION)
         collection.save(instance.document, safe=is_safe)

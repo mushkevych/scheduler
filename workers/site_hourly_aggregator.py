@@ -1,6 +1,6 @@
 __author__ = 'Bohdan Mushkevych'
 
-from db.model.single_session import SingleSessionStatistics
+from db.model.single_session import SingleSession
 from db.model.site_statistics import SiteStatistics
 from db.model.base_model import BaseModel
 from settings import settings
@@ -27,7 +27,7 @@ class SiteHourlyAggregator(AbstractVerticalWorker):
 
     def _init_source_object(self, document):
         """ abstract method to initialise object with map from source collection """
-        return SingleSessionStatistics(document)
+        return SingleSession(document)
 
     def _init_target_object(self, composite_key):
         """ abstract method to instantiate new object that will be holding aggregated data """

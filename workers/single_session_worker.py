@@ -4,7 +4,7 @@ __author__ = 'Bohdan Mushkevych'
 
 import time
 from pymongo.errors import AutoReconnect
-from db.model.single_session import SingleSessionStatistics
+from db.model.single_session import SingleSession
 from db.model.raw_data import *
 from db.dao.single_session_dao import SingleSessionDao
 from system.performance_ticker import SessionPerformanceTicker
@@ -52,7 +52,7 @@ class SingleSessionWorker(AbstractWorker):
                 self.performance_ticker.increment_update()
             except LookupError:
                 # insert the record
-                session = SingleSessionStatistics()
+                session = SingleSession()
 
                 # input data constraints - both session_id and user_id must be present in MQ message
                 session.key = (raw_data.key[0], time_helper.raw_to_session(raw_data.key[1]))

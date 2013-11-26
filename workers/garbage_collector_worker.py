@@ -3,17 +3,13 @@
 __author__ = 'Bohdan Mushkevych'
 
 from threading import Lock
-from pymongo import ASCENDING
 
 from datetime import datetime, timedelta
 from flopsy.flopsy import PublishersPool
 from system.decorator import thread_safe
 from workers.abstract_worker import AbstractWorker
-from db.model.unit_of_work import UnitOfWork
 from db.model import unit_of_work
 from db.dao.unit_of_work_dao import UnitOfWorkDao
-from system.collection_context import CollectionContext
-from system.collection_context import COLLECTION_UNITS_OF_WORK
 
 
 LIFE_SUPPORT_HOURS = 48  # number of hours from UOW creation time to keep UOW re-posting to MQ
@@ -27,9 +23,8 @@ class GarbageCollectorWorker(AbstractWorker):
 
     def __init__(self, process_name):
         super(GarbageCollectorWorker, self).__init__(process_name)
-        self.publishers = PublishersPool(self.logger)
-        self.collection = CollectionContext.get_collection(self.logger, COLLECTION_UNITS_OF_WORK)
         self.lock = Lock()
+        self.publishers = PublishersPool(self.logger)
         self.uow_dao = UnitOfWorkDao(self.logger)
 
     def __del__(self):
@@ -39,23 +34,19 @@ class GarbageCollectorWorker(AbstractWorker):
     def _mq_callback(self, message):
         """ method looks for units of work in STATE_INVALID and re-runs them"""
         try:
-            query = {unit_of_work.STATE: {'$in': [unit_of_work.STATE_IN_PROGRESS,
-                                                  unit_of_work.STATE_INVALID,
-                                                  unit_of_work.STATE_REQUESTED]}}
-            cursor = self.collection.find(query).sort('_id', ASCENDING)
-
-            if cursor.count() != 0:
-                for document in cursor:
-                    self._process_single_document(document)
+            uow_list = self.uow_dao.get_reprocessing_candidates()
+            for uow in uow_list:
+                self._process_single_document(uow)
+        except LookupError as e:
+            self.logger.info('Normal behaviour. %r' % e)
         except Exception as e:
             self.logger.error('_mq_callback: %s' % str(e), exc_info=True)
         finally:
             self.consumer.acknowledge(message.delivery_tag)
 
-    def _process_single_document(self, document):
+    def _process_single_document(self, uow):
         """ actually inspects UOW retrieved from the database"""
         repost = False
-        uow = UnitOfWork(document)
         process_name = uow.process_name
 
         if uow.state == unit_of_work.STATE_INVALID:
@@ -75,16 +66,16 @@ class GarbageCollectorWorker(AbstractWorker):
                 uow.state = unit_of_work.STATE_REQUESTED
                 uow.number_of_retries += 1
                 self.uow_dao.update(uow)
-                self.publishers.get_publisher(process_name).publish(str(document['_id']))
+                self.publishers.get_publisher(process_name).publish(str(uow.document['_id']))
 
                 self.logger.info('UOW marked for re-processing: process %s; id %s; attempt %d'
-                                 % (process_name, str(document['_id']), uow.number_of_retries))
+                                 % (process_name, str(uow.document['_id']), uow.number_of_retries))
                 self.performance_ticker.increment()
             else:
                 uow.state = unit_of_work.STATE_CANCELED
                 self.uow_dao.update(uow)
                 self.logger.info('UOW transferred to STATE_CANCELED: process %s; id %s; attempt %d'
-                                 % (process_name, str(document['_id']), uow.number_of_retries))
+                                 % (process_name, str(uow.document['_id']), uow.number_of_retries))
 
 
 if __name__ == '__main__':

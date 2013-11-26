@@ -2,11 +2,10 @@ __author__ = 'Bohdan Mushkevych'
 
 import unittest
 from rest_client.restful_lib import Connection
-from system import process_helper
 
 from settings import settings
 from db.model import time_table_record
-from system.process_context import PROCESS_SCHEDULER, PROCESS_SITE_HOURLY, PROCESS_ALERT_DAILY, PROCESS_CLIENT_DAILY
+from system.process_context import PROCESS_SITE_HOURLY, PROCESS_ALERT_DAILY, PROCESS_CLIENT_DAILY
 
 
 class TestSchedulerMx(unittest.TestCase):
@@ -15,14 +14,12 @@ class TestSchedulerMx(unittest.TestCase):
     REQUEST_VERTICAL_DETAILS = '/request_verticals/'
 
     def setUp(self):
-        process_helper.start_process(PROCESS_SCHEDULER)
-
         host = settings['mx_host']
         port = settings['mx_port']
         self.connection = Connection(base_url='http://' + host + ':' + str(port))
 
     def tearDown(self):
-        process_helper.kill_process(PROCESS_SCHEDULER)
+        pass
 
     def test_request_root(self):
         resp = self.connection.request_get(

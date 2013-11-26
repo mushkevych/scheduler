@@ -29,8 +29,8 @@ class Scheduler(SynergyProcess):
         self.timetable = TimeTable(self.logger)
         self.regular_pipeline = RegularPipeline(self, self.timetable)
         self.hadoop_pipeline = HadoopPipeline(self, self.timetable)
-        self.logger.info('Started %s' % self.process_name)
         self.sc_dao = SchedulerConfigurationDao(self.logger)
+        self.logger.info('Started %s' % self.process_name)
 
     def __del__(self):
         for handler in self.thread_handlers:

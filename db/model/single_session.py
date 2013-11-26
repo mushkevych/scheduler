@@ -6,13 +6,13 @@ from db.model.raw_data import *
 TIMESTAMP = 'timestamp'
 
 
-class SingleSessionStatistics(BaseModel):
+class SingleSession(BaseModel):
     """
     class presents statistics, gathered during the life of the session
     """
 
     def __init__(self, document=None):
-        super(SingleSessionStatistics, self).__init__(document)
+        super(SingleSession, self).__init__(document)
 
     @property
     def session_id(self):

@@ -1,16 +1,16 @@
+from db.manager import ds_manager
+
 __author__ = 'Bohdan Mushkevych'
 
-from pymongo import ASCENDING, DESCENDING
 from datetime import datetime
 from logging import ERROR, WARNING, INFO
 
 from abstract_pipeline import AbstractPipeline
 from db.error import DuplicateKeyError
-from db.model import base_model, time_table_record, unit_of_work
+from db.model import time_table_record, unit_of_work
 from db.model.unit_of_work import UnitOfWork
 from system.decorator import with_reconnect
 from system.process_context import ProcessContext
-from system.collection_context import CollectionContext
 from system import time_helper
 
 
@@ -19,6 +19,7 @@ class RegularPipeline(AbstractPipeline):
 
     def __init__(self, scheduler, timetable):
         super(RegularPipeline, self).__init__(scheduler, timetable)
+        self.ds = ds_manager.ds_factory(self.logger)
 
     def __del__(self):
         super(RegularPipeline, self).__del__()
@@ -28,17 +29,9 @@ class RegularPipeline(AbstractPipeline):
         """method reads collection and identify slice for processing"""
         source_collection_name = ProcessContext.get_source_collection(process_name)
         target_collection_name = ProcessContext.get_target_collection(process_name)
-        source_collection = CollectionContext.get_collection(self.logger, source_collection_name)
 
-        query = {base_model.TIMEPERIOD: {'$gte': start_time, '$lt': end_time}}
-        asc_search = source_collection.find(spec=query, fields='_id').sort('_id', ASCENDING).limit(1)
-        if asc_search.count() == 0:
-            raise LookupError('No messages in timeperiod: %s:%s in collection %s'
-                              % (start_time, end_time, source_collection_name))
-        first_object_id = asc_search[0]['_id']
-
-        dec_search = source_collection.find(spec=query, fields='_id').sort('_id', DESCENDING).limit(1)
-        last_object_id = dec_search[0]['_id']
+        first_object_id = self.ds.highest_primary_key(source_collection_name, start_time, end_time)
+        last_object_id = self.ds.lowest_primary_key(source_collection_name, start_time, end_time)
 
         uow = UnitOfWork()
         uow.timeperiod = start_time
@@ -71,11 +64,7 @@ class RegularPipeline(AbstractPipeline):
     def update_scope_of_processing(self, process_name, unit_of_work, start_time, end_time, timetable_record):
         """method reads collection and refine slice upper bound for processing"""
         source_collection_name = unit_of_work.source_collection
-        source_collection = CollectionContext.get_collection(self.logger, source_collection_name)
-
-        query = {base_model.TIMEPERIOD: {'$gte': start_time, '$lt': end_time}}
-        dec_search = source_collection.find(spec=query, fields='_id').sort('_id', DESCENDING).limit(1)
-        last_object_id = dec_search[0]['_id']
+        last_object_id = self.ds.lowest_primary_key(source_collection_name, start_time, end_time)
         unit_of_work.end_id = str(last_object_id)
         self.uow_dao.update(unit_of_work)
 
