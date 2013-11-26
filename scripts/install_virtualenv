@@ -29,6 +29,7 @@ easy_install $vendor/pip-1.4.1.tar.gz
 easy_install $vendor/ipython-1.1.0.tar.gz
 
 easy_install $vendor/unittest2-0.5.1.tar.gz
+easy_install $vendor/mockito-0.5.2.tar.gz
 easy_install $vendor/logilab-common-0.60.0.tar.gz
 easy_install $vendor/logilab-astng-0.24.3.tar.gz
 easy_install $vendor/astroid-1.0.1.tar.gz
