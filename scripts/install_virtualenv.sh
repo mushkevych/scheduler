@@ -10,14 +10,6 @@ if [ -z "$2" ]; then
     exit 1
 fi
 
-if [ `uname` == "Darwin" ]; then
-    export ARCHFLAGS="-arch i386 -arch x86_64"
-fi
-which ccache > /dev/null 2>&1
-if [ $? == 0 ]; then
-    export CC='ccache gcc'
-fi
-
 . $2/bin/activate
 
 vendor=$1/vendors
@@ -29,6 +21,8 @@ easy_install $vendor/pip-1.4.1.tar.gz
 easy_install $vendor/ipython-1.1.0.tar.gz
 
 easy_install $vendor/unittest2-0.5.1.tar.gz
+easy_install $vendor/nose-1.3.0.tar.gz
+easy_install $vendor/distribute-0.7.3.zip
 easy_install $vendor/mockito-0.5.2.tar.gz
 easy_install $vendor/logilab-common-0.60.0.tar.gz
 easy_install $vendor/logilab-astng-0.24.3.tar.gz

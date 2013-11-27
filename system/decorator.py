@@ -2,7 +2,6 @@ __author__ = 'Bohdan Mushkevych'
 
 import functools
 import time
-from pymongo.errors import AutoReconnect
 
 
 def current_process_aware(class_method):
@@ -46,6 +45,7 @@ def with_reconnect(func):
     small sleep and iteration count gives us a couple of seconds before we fail
     completely.
     """
+    from pymongo.errors import AutoReconnect
 
     @functools.wraps(func)
     def _reconnector(*args, **kwargs):
