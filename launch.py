@@ -146,12 +146,13 @@ def query_configuration(options):
         process_helper.poll_process(options.app)
     else:
         # reads current box configuration and prints it to the console
-        import logging
         from db.dao.box_configuration_dao import BoxConfigurationDao
         from supervisor import supervisor_helper as helper
+        from system.process_context import ProcessContext, PROCESS_LAUNCH_PY
 
-        box_id = helper.get_box_id(logging)
-        bc_dao = BoxConfigurationDao(logging)
+        logger = ProcessContext.get_logger(PROCESS_LAUNCH_PY)
+        box_id = helper.get_box_id(logger)
+        bc_dao = BoxConfigurationDao(logger)
         sys.stdout.write('\nConfiguration for BOX_ID=%r:\n' % box_id)
         box_configuration = bc_dao.get_one(box_id)
         process_list = box_configuration.get_process_list()
@@ -165,14 +166,14 @@ def query_configuration(options):
 @valid_process_name
 def start_process(options, args):
     """Start up specific daemon """
-    import logging
     import psutil
     import process_starter
     from system import process_helper
     from supervisor import supervisor_helper as helper
-    from system.process_context import PROCESS_SUPERVISOR
+    from system.process_context import ProcessContext, PROCESS_SUPERVISOR, PROCESS_LAUNCH_PY
 
-    box_id = helper.get_box_id(logging)
+    logger = ProcessContext.get_logger(PROCESS_LAUNCH_PY)
+    box_id = helper.get_box_id(logger)
     if options.supervisor is True and options.app != PROCESS_SUPERVISOR:
         from db.model import box_configuration
         from db.dao.box_configuration_dao import BoxConfigurationDao
@@ -207,12 +208,12 @@ def start_process(options, args):
 @valid_process_name
 def stop_process(options):
     """Stop specific daemon"""
-    import logging
     from system import process_helper
     from supervisor import supervisor_helper as helper
-    from system.process_context import PROCESS_SUPERVISOR
+    from system.process_context import ProcessContext, PROCESS_SUPERVISOR, PROCESS_LAUNCH_PY
 
-    box_id = helper.get_box_id(logging)
+    logger = ProcessContext.get_logger(PROCESS_LAUNCH_PY)
+    box_id = helper.get_box_id(logger)
     if options.supervisor is True and options.app != PROCESS_SUPERVISOR:
         from db.model import box_configuration
         from db.dao.box_configuration_dao import BoxConfigurationDao
@@ -220,7 +221,7 @@ def stop_process(options):
         message = 'INFO: Marking %r to be managed by Supervisor \n' % options.app
         sys.stdout.write(message)
 
-        bc_dao = BoxConfigurationDao(logging)
+        bc_dao = BoxConfigurationDao(logger)
         box_config = bc_dao.get_one(box_id)
         box_config.set_process_state(options.app, box_configuration.STATE_OFF)
         bc_dao.update(box_config)
@@ -278,20 +279,20 @@ def load_all_tests():
 
 def run_tests(options):
     import unittest
-    import logging
     import settings
 
     settings.enable_test_mode()
-
     argv = [sys.argv[0]] + args
     try:
         unittest.main(module=None, defaultTest='__main__.load_all_tests',
                       argv=argv)
-    except SystemExit, e:
+    except SystemExit as e:
+        from system.process_context import ProcessContext, PROCESS_LAUNCH_PY
+        logger = ProcessContext.get_logger(PROCESS_LAUNCH_PY)
         if e.code == 0:
-            logging.info('PASS')
+            logger.info('PASS')
         else:
-            logging.error('FAIL')
+            logger.error('FAIL')
             raise
 
 

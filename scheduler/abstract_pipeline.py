@@ -13,10 +13,9 @@ from system.decorator import with_reconnect
 class AbstractPipeline(object):
     """ Scheduler encapsulate logic for initiating worker processes """
 
-    def __init__(self, scheduler, timetable):
-        self.logger = scheduler.logger
+    def __init__(self, logger, timetable):
+        self.logger = logger
         self.publishers = PublishersPool(self.logger)
-        self.scheduler = scheduler
         self.timetable = timetable
         self.uow_dao = UnitOfWorkDao(self.logger)
         self.ttr_dao = TimeTableRecordDao(self.logger)

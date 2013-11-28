@@ -1,11 +1,10 @@
-
 __author__ = 'Bohdan Mushkevych'
 
-import logging
 from tests import base_fixtures
 from db.model import raw_data
 from db.manager import ds_manager
 from system.collection_context import COLLECTION_SINGLE_SESSION
+from system.process_context import PROCESS_UNIT_TEST, ProcessContext
 
 # pylint: disable=C0301
 EXPECTED_HOURLY_SITE_00 = {
@@ -251,7 +250,8 @@ def generate_session_composite_key(index, total):
 
 
 def clean_session_entries():
-    ds = ds_manager.ds_factory(logging)
+    logger = ProcessContext.get_logger(PROCESS_UNIT_TEST)
+    ds = ds_manager.ds_factory(logger)
     connection = ds.connection(COLLECTION_SINGLE_SESSION)
     for i in range(base_fixtures.TOTAL_ENTRIES):
         key = generate_session_composite_key(i, base_fixtures.TOTAL_ENTRIES)

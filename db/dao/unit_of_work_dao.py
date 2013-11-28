@@ -69,7 +69,7 @@ class UnitOfWorkDao(object):
     def update(self, unit_of_work):
         """ method finds unit_of_work record and change its status"""
         collection = self.ds.connection(COLLECTION_UNITS_OF_WORK)
-        collection.save(unit_of_work.document, safe=True)
+        return collection.save(unit_of_work.document, safe=True)
 
     @thread_safe
     def insert(self, unit_of_work):
@@ -83,4 +83,4 @@ class UnitOfWorkDao(object):
     @thread_safe
     def remove(self, uow_id):
         collection = self.ds.connection(COLLECTION_UNITS_OF_WORK)
-        collection.remove(uow_id, safe=True)
+        return collection.remove(uow_id, safe=True)

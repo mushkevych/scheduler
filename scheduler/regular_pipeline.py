@@ -17,8 +17,8 @@ from system import time_helper
 class RegularPipeline(AbstractPipeline):
     """ Regular pipeline triggers Python-based aggregators """
 
-    def __init__(self, scheduler, timetable):
-        super(RegularPipeline, self).__init__(scheduler, timetable)
+    def __init__(self, logger, timetable):
+        super(RegularPipeline, self).__init__(logger, timetable)
         self.ds = ds_manager.ds_factory(self.logger)
 
     def __del__(self):

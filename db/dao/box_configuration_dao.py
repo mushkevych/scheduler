@@ -29,4 +29,4 @@ class BoxConfigurationDao(object):
     def update(self, instance):
         """ method updates box configuration in the MongoDB"""
         collection = self.ds.connection(COLLECTION_BOX_CONFIGURATION)
-        collection.save(instance.document, safe=True)
+        return collection.save(instance.document, safe=True)

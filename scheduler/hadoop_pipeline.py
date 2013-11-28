@@ -14,8 +14,8 @@ from system.decorator import with_reconnect
 class HadoopPipeline(AbstractPipeline):
     """ Pipeline to handle Hadoop mapreduce jobs """
 
-    def __init__(self, scheduler, timetable):
-        super(HadoopPipeline, self).__init__(scheduler, timetable)
+    def __init__(self, logger, timetable):
+        super(HadoopPipeline, self).__init__(logger, timetable)
 
     def __del__(self):
         super(HadoopPipeline, self).__del__()

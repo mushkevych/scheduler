@@ -28,6 +28,12 @@ PROCESS_CLIENT_MONTHLY = 'ClientMonthlyAggregator'
 PROCESS_CLIENT_YEARLY = 'ClientYearlyAggregator'
 PROCESS_ALERT_DAILY = 'AlertDailyWorker'
 
+# process provides <process context> to unit testing: such as logger, queue, etc
+PROCESS_UNIT_TEST = 'UnitTest'
+
+# process provides <process context> to the launch.py script
+PROCESS_LAUNCH_PY = 'LaunchPy'
+
 _TOKEN_SCHEDULER = 'scheduler'
 _TOKEN_SUPERVISOR = 'supervisor'
 _TOKEN_STREAM = 'stream'
@@ -245,12 +251,21 @@ class ProcessContext:
             exchange=EXCHANGE_ALERT,
             process_type=TYPE_HORIZONTAL_AGGREGATOR),
 
-        'TestAggregator': _create_context_entry(
-            process_name='TestAggregator',
+        PROCESS_UNIT_TEST: _create_context_entry(
+            process_name=PROCESS_UNIT_TEST,
             classname='',
-            token='test',
-            time_qualifier='',
-            exchange=''),
+            token='unit_test',
+            time_qualifier=QUALIFIER_REAL_TIME,
+            routing=ROUTING_IRRELEVANT,
+            exchange=EXCHANGE_UTILS),
+
+        PROCESS_LAUNCH_PY: _create_context_entry(
+            process_name=PROCESS_LAUNCH_PY,
+            classname='',
+            token='launch_py',
+            time_qualifier=QUALIFIER_REAL_TIME,
+            routing=ROUTING_IRRELEVANT,
+            exchange=EXCHANGE_UTILS),
     }
 
     @classmethod

@@ -1,7 +1,6 @@
 __author__ = 'Bohdan Mushkevych'
 
 import inspect
-import logging
 import random
 
 from db.manager import ds_manager
@@ -10,7 +9,7 @@ from db.dao.unit_of_work_dao import UnitOfWorkDao
 from db.model import unit_of_work
 from db.model.unit_of_work import UnitOfWork
 from db.model.single_session import SingleSession
-from system.process_context import ProcessContext
+from system.process_context import ProcessContext, PROCESS_UNIT_TEST
 
 TOTAL_ENTRIES = 101
 
@@ -112,7 +111,8 @@ def create_unit_of_work(process_name, first_object_id, last_object_id):
 
 
 def create_session_stats(composite_key_function, seed='RANDOM_SEED_OBJECT'):
-    ss_dao = SingleSessionDao(logging)
+    logger = ProcessContext.get_logger(PROCESS_UNIT_TEST)
+    ss_dao = SingleSessionDao(logger)
     time_array = ['20010303102210', '20010303102212', '20010303102215', '20010303102250']
     random.seed(seed)
     object_ids = []
@@ -147,7 +147,7 @@ def create_session_stats(composite_key_function, seed='RANDOM_SEED_OBJECT'):
             session.number_of_entries = index + 1
             session.set_entry_timestamp(index, time_array[index])
 
-        sess_id = ss_dao.insert(session.document)
+        sess_id = ss_dao.insert(session)
         object_ids.append(sess_id)
 
     return object_ids
@@ -161,7 +161,8 @@ def _generate_entries(token, number, value):
 
 
 def create_site_stats(collection, composite_key_function, statistics_klass, seed='RANDOM_SEED_OBJECT'):
-    ds = ds_manager.ds_factory(logging)
+    logger = ProcessContext.get_logger(PROCESS_UNIT_TEST)
+    ds = ds_manager.ds_factory(logger)
     random.seed(seed)
     object_ids = []
     for i in range(TOTAL_ENTRIES):

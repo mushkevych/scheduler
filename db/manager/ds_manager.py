@@ -67,6 +67,7 @@ class BaseManager:
     def lowest_primary_key(self, table_name, timeperiod_low, timeperiod_high):
         pass
 
+
 class MongoDbManager(BaseManager):
     def __init__(self, logger):
         super(MongoDbManager, self).__init__(logger)

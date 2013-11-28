@@ -27,8 +27,8 @@ class Scheduler(SynergyProcess):
         self.thread_handlers = dict()
         self.lock = Lock()
         self.timetable = TimeTable(self.logger)
-        self.regular_pipeline = RegularPipeline(self, self.timetable)
-        self.hadoop_pipeline = HadoopPipeline(self, self.timetable)
+        self.regular_pipeline = RegularPipeline(self.logger, self.timetable)
+        self.hadoop_pipeline = HadoopPipeline(self.logger, self.timetable)
         self.sc_dao = SchedulerConfigurationDao(self.logger)
         self.logger.info('Started %s' % self.process_name)
 

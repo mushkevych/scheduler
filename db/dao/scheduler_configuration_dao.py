@@ -41,4 +41,4 @@ class SchedulerConfigurationDao(object):
     def update(self, instance):
         """ method finds scheduler_configuration record and update its DB representation"""
         collection = self.ds.connection(COLLECTION_SCHEDULER_CONFIGURATION)
-        collection.save(instance.document, safe=True)
+        return collection.save(instance.document, safe=True)
