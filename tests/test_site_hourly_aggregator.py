@@ -14,7 +14,7 @@ class HourlySiteAggregatorUnitTest(AbstractWorkerUnitTest):
                                                               PROCESS_SITE_HOURLY,
                                                               'EXPECTED_HOURLY_SITE',
                                                               hourly_fixtures,
-                                                              True,
+                                                              False,
                                                               True)
         hourly_fixtures.clean_session_entries()
         return hourly_fixtures.generated_session_entries()
