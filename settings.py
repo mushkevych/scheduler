@@ -56,6 +56,7 @@ testable_modules = [
 ]
 
 test_cases = [
+    'tests.test_regular_pipeline',
     'tests.test_system_collections',
     'tests.test_raw_data',
     'tests.test_site_statistics',
