@@ -12,18 +12,18 @@ from mockito.matchers import any
 from system import time_helper
 from system.process_context import PROCESS_UNIT_TEST, PROCESS_SITE_HOURLY, ProcessContext
 from scheduler.time_table import TimeTable
-from scheduler.regular_pipeline import RegularPipeline
+from scheduler.hadoop_pipeline import HadoopPipeline
 
 TEST_PRESET_TIMEPERIOD = '2013010122'
 TEST_ACTUAL_TIMEPERIOD = time_helper.actual_time(PROCESS_SITE_HOURLY)
 TEST_FUTURE_TIMEPERIOD = time_helper.increment_time(PROCESS_SITE_HOURLY, TEST_ACTUAL_TIMEPERIOD)
 
 
-def thenRaise(process_name, start_time, end_time, timetable_record):
+def thenRaise(process_name, start_time, end_time, iteration, timetable_record):
     raise DuplicateKeyError('Simulated Exception')
 
 
-def thenReturnUOW(process_name, start_time, end_time, timetable_record):
+def thenReturnUOW(process_name, start_time, end_time, iteration, timetable_record):
     return get_uow(unit_of_work.STATE_REQUESTED)
 
 
@@ -39,6 +39,7 @@ def get_timetable_record(state, timeperiod, process_name):
 def get_uow(state):
     uow = UnitOfWork()
     uow.state = state
+    uow.end_id = 1
     return uow
 
 
@@ -47,14 +48,14 @@ class RegularPipelineUnitTest(unittest.TestCase):
         self.logger = ProcessContext.get_logger(PROCESS_UNIT_TEST)
         self.time_table_mocked = mock(TimeTable)
         when(self.time_table_mocked).get_tree(any(str)).thenReturn(mock())
-        self.pipeline_real = RegularPipeline(self.logger, self.time_table_mocked)
+        self.pipeline_real = HadoopPipeline(self.logger, self.time_table_mocked)
 
     def tearDown(self):
         pass
 
     def test_state_embryo(self):
         """ method tests timetable records in STATE_EMBRYO state"""
-        self.pipeline_real.compute_scope_of_processing = thenReturnUOW
+        self.pipeline_real.insert_uow = thenReturnUOW
         pipeline = spy(self.pipeline_real)
 
         timetable_record = get_timetable_record(time_table_record.STATE_EMBRYO,
@@ -67,7 +68,7 @@ class RegularPipelineUnitTest(unittest.TestCase):
 
     def test_duplicatekeyerror_state_embryo(self):
         """ method tests timetable records in STATE_EMBRYO state"""
-        self.pipeline_real.compute_scope_of_processing = thenRaise
+        self.pipeline_real.insert_uow = thenRaise
         pipeline = spy(self.pipeline_real)
 
         timetable_record = get_timetable_record(time_table_record.STATE_EMBRYO,
@@ -82,7 +83,7 @@ class RegularPipelineUnitTest(unittest.TestCase):
         """ method tests timetable records in STATE_IN_PROGRESS state"""
         when(self.time_table_mocked).can_finalize_timetable_record(any(str), any(TimeTableRecord)).thenReturn(True)
         uow_dao_mock = mock(UnitOfWorkDao)
-        when(uow_dao_mock).get_one(any(str)).thenReturn(get_uow(unit_of_work.STATE_REQUESTED))
+        when(uow_dao_mock).get_one(any()).thenReturn(get_uow(unit_of_work.STATE_REQUESTED))
         self.pipeline_real.uow_dao = uow_dao_mock
 
         self.pipeline_real.compute_scope_of_processing = thenRaise
@@ -100,9 +101,7 @@ class RegularPipelineUnitTest(unittest.TestCase):
         """ method tests timetable records in STATE_IN_PROGRESS state"""
         when(self.time_table_mocked).can_finalize_timetable_record(any(str), any(TimeTableRecord)).thenReturn(True)
         uow_dao_mock = mock(UnitOfWorkDao)
-        when(uow_dao_mock).get_one(any()).\
-            thenReturn(get_uow(unit_of_work.STATE_REQUESTED)).\
-            thenReturn(get_uow(unit_of_work.STATE_PROCESSED))
+        when(uow_dao_mock).get_one(any()).thenReturn(get_uow(unit_of_work.STATE_REQUESTED))
         self.pipeline_real.uow_dao = uow_dao_mock
 
         self.pipeline_real.compute_scope_of_processing = thenReturnUOW
@@ -113,7 +112,7 @@ class RegularPipelineUnitTest(unittest.TestCase):
                                                 PROCESS_SITE_HOURLY)
 
         pipeline.manage_pipeline_for_process(timetable_record.process_name, timetable_record)
-        verify(self.time_table_mocked, times=1).\
+        verify(self.time_table_mocked, times=0).\
             update_timetable_record(any(str), any(TimeTableRecord), any(UnitOfWork), any(str))
         # verify(pipeline, times=1).\
         #     _compute_and_transfer_to_final_run(any(str), any(str), any(str), any(TimeTableRecord))
@@ -124,9 +123,7 @@ class RegularPipelineUnitTest(unittest.TestCase):
         """ method tests timetable records in STATE_IN_PROGRESS state"""
         when(self.time_table_mocked).can_finalize_timetable_record(any(str), any(TimeTableRecord)).thenReturn(True)
         uow_dao_mock = mock(UnitOfWorkDao)
-        when(uow_dao_mock).get_one(any()).\
-            thenReturn(get_uow(unit_of_work.STATE_REQUESTED)).\
-            thenReturn(get_uow(unit_of_work.STATE_PROCESSED))
+        when(uow_dao_mock).get_one(any()).thenReturn(get_uow(unit_of_work.STATE_PROCESSED))
         self.pipeline_real.uow_dao = uow_dao_mock
 
         self.pipeline_real.compute_scope_of_processing = thenRaise
