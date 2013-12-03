@@ -100,7 +100,30 @@ class RegularPipelineUnitTest(unittest.TestCase):
 
     def test_preset_timeperiod_state_in_progress(self):
         """ method tests timetable records in STATE_IN_PROGRESS state"""
+        when(self.time_table_mocked).can_finalize_timetable_record(any(str), any(TimeTableRecord)).thenReturn(True)
+        uow_dao_mock = mock(UnitOfWorkDao)
+        when(uow_dao_mock).get_one(any()).\
+            thenReturn(get_uow(unit_of_work.STATE_REQUESTED)).\
+            thenReturn(get_uow(unit_of_work.STATE_PROCESSED))
+        self.pipeline_real.uow_dao = uow_dao_mock
+
         self.pipeline_real.compute_scope_of_processing = thenReturnUOW
+        pipeline = spy(self.pipeline_real)
+
+        timetable_record = get_timetable_record(time_table_record.STATE_IN_PROGRESS,
+                                                TEST_PRESET_TIMEPERIOD,
+                                                PROCESS_SITE_HOURLY)
+
+        pipeline.manage_pipeline_for_process(timetable_record.process_name, timetable_record)
+        verify(self.time_table_mocked, times=1).\
+            update_timetable_record(any(str), any(TimeTableRecord), any(UnitOfWork), any(str))
+        # verify(pipeline, times=1).\
+        #     _compute_and_transfer_to_final_run(any(str), any(str), any(str), any(TimeTableRecord))
+        # verify(pipeline, times=0).\
+        #     _process_state_final_run(any(str), any(TimeTableRecord))
+
+    def test_transfer_to_final_timeperiod_state_in_progress(self):
+        """ method tests timetable records in STATE_IN_PROGRESS state"""
         when(self.time_table_mocked).can_finalize_timetable_record(any(str), any(TimeTableRecord)).thenReturn(True)
         uow_dao_mock = mock(UnitOfWorkDao)
         when(uow_dao_mock).get_one(any()).\
@@ -120,41 +143,65 @@ class RegularPipelineUnitTest(unittest.TestCase):
             update_timetable_record(any(str), any(TimeTableRecord), any(UnitOfWork), any(str))
         # verify(pipeline, times=1).\
         #     _compute_and_transfer_to_final_run(any(str), any(str), any(str), any(TimeTableRecord))
-        # verify(pipeline, times=0).\
+        # verify(pipeline, times=1).\
         #     _process_state_final_run(any(str), any(TimeTableRecord))
 
-    def test_transfer_to_final_timeperiod_state_in_progress(self):
-        """ method tests timetable records in STATE_IN_PROGRESS state"""
-        self.pipeline_real.compute_scope_of_processing = thenRaise
-        when(self.time_table_mocked).can_finalize_timetable_record(any(str), any(TimeTableRecord)).thenReturn(True)
+    def test_processed_state_final_run(self):
+        """method tests timetable records in STATE_FINAL_RUN state"""
         uow_dao_mock = mock(UnitOfWorkDao)
-        when(uow_dao_mock).get_one(any()).\
-            thenReturn(get_uow(unit_of_work.STATE_REQUESTED)).\
-            thenReturn(get_uow(unit_of_work.STATE_PROCESSED))
+        when(uow_dao_mock).get_one(any()).thenReturn(get_uow(unit_of_work.STATE_PROCESSED))
         self.pipeline_real.uow_dao = uow_dao_mock
 
-        self.pipeline_real.compute_scope_of_processing = thenRaise
         pipeline = spy(self.pipeline_real)
 
-        timetable_record = get_timetable_record(time_table_record.STATE_IN_PROGRESS,
+        timetable_record = get_timetable_record(time_table_record.STATE_FINAL_RUN,
                                                 TEST_PRESET_TIMEPERIOD,
                                                 PROCESS_SITE_HOURLY)
 
         pipeline.manage_pipeline_for_process(timetable_record.process_name, timetable_record)
-        verify(self.time_table_mocked, times=1).\
+        verify(self.time_table_mocked, times=1). \
             update_timetable_record(any(str), any(TimeTableRecord), any(UnitOfWork), any(str))
+        verify(self.time_table_mocked, times=1).get_tree(any(str))
 
-    def test_state_final_run(self):
+    def test_cancelled_state_final_run(self):
         """method tests timetable records in STATE_FINAL_RUN state"""
-        pass
+        uow_dao_mock = mock(UnitOfWorkDao)
+        when(uow_dao_mock).get_one(any()).thenReturn(get_uow(unit_of_work.STATE_CANCELED))
+        self.pipeline_real.uow_dao = uow_dao_mock
+
+        pipeline = spy(self.pipeline_real)
+        timetable_record = get_timetable_record(time_table_record.STATE_FINAL_RUN,
+                                                TEST_PRESET_TIMEPERIOD,
+                                                PROCESS_SITE_HOURLY)
+
+        pipeline.manage_pipeline_for_process(timetable_record.process_name, timetable_record)
+        verify(self.time_table_mocked, times=1). \
+            update_timetable_record(any(str), any(TimeTableRecord), any(UnitOfWork), any(str))
+        verify(self.time_table_mocked, times=0).get_tree(any(str))
 
     def test_state_skipped(self):
-        """method tests timetable records in STATE_FINAL_SKIPPED state"""
-        pass
+        """method tests timetable records in STATE_SKIPPED state"""
+        pipeline = spy(self.pipeline_real)
+        timetable_record = get_timetable_record(time_table_record.STATE_SKIPPED,
+                                                TEST_PRESET_TIMEPERIOD,
+                                                PROCESS_SITE_HOURLY)
+
+        pipeline.manage_pipeline_for_process(timetable_record.process_name, timetable_record)
+        verify(self.time_table_mocked, times=0). \
+            update_timetable_record(any(str), any(TimeTableRecord), any(UnitOfWork), any(str))
+        verify(self.time_table_mocked, times=0).get_tree(any(str))
 
     def test_state_processed(self):
-        """method tests timetable records in STATE_FINAL_SKIPPED state"""
-        pass
+        """method tests timetable records in STATE_PROCESSED state"""
+        pipeline = spy(self.pipeline_real)
+        timetable_record = get_timetable_record(time_table_record.STATE_PROCESSED,
+                                                TEST_PRESET_TIMEPERIOD,
+                                                PROCESS_SITE_HOURLY)
+
+        pipeline.manage_pipeline_for_process(timetable_record.process_name, timetable_record)
+        verify(self.time_table_mocked, times=0). \
+            update_timetable_record(any(str), any(TimeTableRecord), any(UnitOfWork), any(str))
+        verify(self.time_table_mocked, times=0).get_tree(any(str))
 
 
 if __name__ == '__main__':
