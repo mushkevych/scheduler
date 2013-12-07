@@ -1,4 +1,3 @@
-//Created on 2011-06-14
 //@author: Bohdan Mushkevych
 
 conn = new Mongo('localhost:27017');
@@ -46,7 +45,7 @@ db.scheduler_configuration.insert({'process_name': 'SiteDailyAggregator', 'state
 db.scheduler_configuration.insert({'process_name': 'SiteMonthlyAggregator', 'state' : 'state_on', 'interval_seconds': 10800});
 db.scheduler_configuration.insert({'process_name': 'SiteYearlyAggregator', 'state' : 'state_on', 'interval_seconds': 21600});
 
-db.scheduler_configuration.insert({'process_name': 'ClientMonthlyAggregator', 'state' : 'state_on', 'interval_seconds': 10800});
+db.scheduler_configuration.insert({'process_name': 'ClientDailyAggregator', 'state' : 'state_on', 'interval_seconds': 10800});
 db.scheduler_configuration.insert({'process_name': 'ClientMonthlyAggregator', 'state' : 'state_on', 'interval_seconds': 21600});
 db.scheduler_configuration.insert({'process_name': 'ClientYearlyAggregator', 'state' : 'state_on', 'interval_seconds': 43200});
 

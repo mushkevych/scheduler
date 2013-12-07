@@ -114,7 +114,6 @@ class ProcessContext:
     # }
     __CURRENT_PROCESS_TAG = '__CURRENT_PROCESS'
 
-
     QUEUE_RAW_DATA = 'queue_raw_data'
     ROUTING_IRRELEVANT = 'routing_irrelevant'
 
@@ -269,7 +268,8 @@ class ProcessContext:
     @classmethod
     def set_current_process(cls, process_name):
         if ProcessContext.__CURRENT_PROCESS_TAG in cls.__dict__:
-            raise AttributeError('Current process %s is already set' % cls.__dict__[ProcessContext.__CURRENT_PROCESS_TAG])
+            raise AttributeError('Current process %s is already set'
+                                 % cls.__dict__[ProcessContext.__CURRENT_PROCESS_TAG])
         cls.__dict__[ProcessContext.__CURRENT_PROCESS_TAG] = process_name
 
     @classmethod

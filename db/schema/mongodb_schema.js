@@ -1,4 +1,3 @@
-//Created on 2011-02-25
 //@author: Bohdan Mushkevych
 
 conn = new Mongo('localhost:27017');

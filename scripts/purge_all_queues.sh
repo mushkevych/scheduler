@@ -1,7 +1,6 @@
 #!/bin/bash
 
-#Created on 2011-04-11
-#author: Bohdan Mushkevych
+# author: Bohdan Mushkevych
 # script clears all the queues in the Rabbit MQ
 
 # List of queues to purge
