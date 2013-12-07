@@ -4,7 +4,7 @@ ENVIRONMENT = '%ENVIRONMENT%'
 settings = dict(
     process_prefix='Synergy',  # global prefix that is added to every process name started for synergy-data
     process_cwd='/mnt/tmp',    # daemonized process working directory, where it can create .cache and other folders
-    config_file='/etc/synergy-data.conf',
+    config_file='/etc/synergy-scheduler.conf',
 
     log_directory='/mnt/log/synergy-data/', 
     pid_directory='/mnt/log/synergy-data/',

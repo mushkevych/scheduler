@@ -57,11 +57,11 @@ class AbstractPipeline(object):
             except LookupError:
                 pass
 
-    def _process_state_embryo(self, process_name, timetable_record, start_time):
+    def _process_state_embryo(self, process_name, timetable_record, start_timeperiod):
         """ method that takes care of processing timetable records in STATE_EMBRYO state"""
         pass
 
-    def _process_state_in_progress(self, process_name, timetable_record, start_time):
+    def _process_state_in_progress(self, process_name, timetable_record, start_timeperiod):
         """ method that takes care of processing timetable records in STATE_IN_PROGRESS state"""
         pass
 

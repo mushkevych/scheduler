@@ -18,11 +18,11 @@ def define_pattern(timeperiod):
     hasHour = False
 
     for index in range(0, len(timeperiod)):
-        if index >= 0 and index < 4 and timeperiod[index] != '0':
+        if 0 <= index < 4 and timeperiod[index] != '0':
             hasYear = True
-        elif index >= 4 and index < 6 and timeperiod[index] != '0':
+        elif 4 <= index < 6 and timeperiod[index] != '0':
             hasMonth = True
-        elif index >= 6 and index < 8 and timeperiod[index] != '0':
+        elif 6 <= index < 8 and timeperiod[index] != '0':
             hasDay = True
         elif index >= 8 and timeperiod[index] != '0':
             hasHour = True
@@ -83,31 +83,29 @@ def month_to_year(timeperiod):
     return t.strftime('%Y000000')
 
 
-def actual_time(process_name):
-    """ method receives process_name and retrieves its time qualification (hourly/daily/monthly/yearly)
+def actual_timeperiod(time_qualifier):
+    """ method receives process' time qualifier (hourly/daily/monthly/yearly)
     @return: string representing current datetime (utc now) in proper Synergy Date format """
-    return datetime_to_synergy(process_name, datetime.utcnow())
+    return datetime_to_synergy(time_qualifier, datetime.utcnow())
 
 
-def increment_time(process_name, timeperiod):
+def increment_timeperiod(time_qualifier, timeperiod):
     """ method is used by Scheduler to define <<next>> time period.
     For hourly, it is next hour: 20100101_19 -> 20100101_20 
     For month - next month: 201001 -> 201002, etc"""
 
-    qualifier = ProcessContext.get_time_qualifier(process_name)
-
     pattern = define_pattern(timeperiod)
     t = datetime.strptime(timeperiod, pattern)
 
-    if qualifier == ProcessContext.QUALIFIER_HOURLY:
+    if time_qualifier == ProcessContext.QUALIFIER_HOURLY:
         t = t + timedelta(hours=1)
         return t.strftime('%Y%m%d%H')
 
-    elif qualifier == ProcessContext.QUALIFIER_DAILY:
+    elif time_qualifier == ProcessContext.QUALIFIER_DAILY:
         t = t + timedelta(days=1)
         return t.strftime('%Y%m%d00')
 
-    elif qualifier == ProcessContext.QUALIFIER_MONTHLY:
+    elif time_qualifier == ProcessContext.QUALIFIER_MONTHLY:
         if t.month + 1 > 12:
             new_month = 1
             new_year = t.year + 1
@@ -116,31 +114,30 @@ def increment_time(process_name, timeperiod):
             t = t.replace(month=t.month + 1)
         return t.strftime('%Y%m0000')
 
-    elif qualifier == ProcessContext.QUALIFIER_YEARLY:
+    elif time_qualifier == ProcessContext.QUALIFIER_YEARLY:
         t = t.replace(year=t.year + 1)
         return t.strftime('%Y000000')
     else:
-        raise ValueError('unknown time qualifier: %s for %s' % (qualifier, process_name))
+        raise ValueError('unknown time qualifier: %s' % time_qualifier)
 
 
-def cast_to_time_qualifier(process_name, timeperiod):
-    """ method is used to cast synergy_time accordingly to process time qualifier.
+def cast_to_time_qualifier(time_qualifier, timeperiod):
+    """ method is used to cast synergy_time accordingly to process' time qualifier.
     For example: for QUALIFIER_HOURLY, it can be either 20100101_19 or 20100101_193412 """
 
     date_format = None
-    qualifier = ProcessContext.get_time_qualifier(process_name)
-    if qualifier == ProcessContext.QUALIFIER_HOURLY:
+    if time_qualifier == ProcessContext.QUALIFIER_HOURLY:
         if len(timeperiod) > 10:
             t = datetime.strptime(timeperiod, SYNERGY_SESSION_PATTERN)
             return t.strftime(SYNERGY_DATE_PATTERN)
         else:
             return timeperiod
 
-    elif qualifier == ProcessContext.QUALIFIER_DAILY:
+    elif time_qualifier == ProcessContext.QUALIFIER_DAILY:
         date_format = '%Y%m%d00'
-    elif qualifier == ProcessContext.QUALIFIER_MONTHLY:
+    elif time_qualifier == ProcessContext.QUALIFIER_MONTHLY:
         date_format = '%Y%m0000'
-    elif qualifier == ProcessContext.QUALIFIER_YEARLY:
+    elif time_qualifier == ProcessContext.QUALIFIER_YEARLY:
         date_format = '%Y000000'
 
     pattern = define_pattern(timeperiod)
@@ -149,42 +146,40 @@ def cast_to_time_qualifier(process_name, timeperiod):
     if date_format is not None:
         return t.strftime(date_format)
     else:
-        raise ValueError('unknown time qualifier: %s for %s' % (qualifier, process_name))
+        raise ValueError('unknown time qualifier: %s' % time_qualifier)
 
 
-def datetime_to_synergy(process_name, dt):
+def datetime_to_synergy(time_qualifier, dt):
     """ method parses datetime and returns Synergy Date"""
-    qualifier = ProcessContext.get_time_qualifier(process_name)
-    if qualifier == ProcessContext.QUALIFIER_HOURLY:
+    if time_qualifier == ProcessContext.QUALIFIER_HOURLY:
         date_format = SYNERGY_DATE_PATTERN
-    elif qualifier == ProcessContext.QUALIFIER_DAILY:
+    elif time_qualifier == ProcessContext.QUALIFIER_DAILY:
         date_format = '%Y%m%d00'
-    elif qualifier == ProcessContext.QUALIFIER_MONTHLY:
+    elif time_qualifier == ProcessContext.QUALIFIER_MONTHLY:
         date_format = '%Y%m0000'
-    elif qualifier == ProcessContext.QUALIFIER_YEARLY:
+    elif time_qualifier == ProcessContext.QUALIFIER_YEARLY:
         date_format = '%Y000000'
-    elif qualifier == ProcessContext.QUALIFIER_REAL_TIME:
+    elif time_qualifier == ProcessContext.QUALIFIER_REAL_TIME:
         date_format = SYNERGY_SESSION_PATTERN
     else:
-        raise ValueError('unknown time qualifier: %s for %s' % (qualifier, process_name))
+        raise ValueError('unknown time qualifier: %s' % time_qualifier)
     return dt.strftime(date_format)
 
 
-def synergy_to_datetime(process_name, timeperiod):
+def synergy_to_datetime(time_qualifier, timeperiod):
     """ method receives timeperiod in Synergy format YYYYMMDD_HH and convert it to _naive_ datetime"""
-    qualifier = ProcessContext.get_time_qualifier(process_name)
-    if qualifier == ProcessContext.QUALIFIER_HOURLY:
+    if time_qualifier == ProcessContext.QUALIFIER_HOURLY:
         date_format = SYNERGY_DATE_PATTERN
-    elif qualifier == ProcessContext.QUALIFIER_DAILY:
+    elif time_qualifier == ProcessContext.QUALIFIER_DAILY:
         date_format = '%Y%m%d00'
-    elif qualifier == ProcessContext.QUALIFIER_MONTHLY:
+    elif time_qualifier == ProcessContext.QUALIFIER_MONTHLY:
         date_format = '%Y%m0000'
-    elif qualifier == ProcessContext.QUALIFIER_YEARLY:
+    elif time_qualifier == ProcessContext.QUALIFIER_YEARLY:
         date_format = '%Y000000'
-    elif qualifier == ProcessContext.QUALIFIER_REAL_TIME:
+    elif time_qualifier == ProcessContext.QUALIFIER_REAL_TIME:
         date_format = SYNERGY_SESSION_PATTERN
     else:
-        raise ValueError('unknown time qualifier: %s for %s' % (qualifier, process_name))
+        raise ValueError('unknown time qualifier: %s' % time_qualifier)
     return datetime.strptime(timeperiod, date_format).replace(tzinfo=None)
 
 

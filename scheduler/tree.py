@@ -6,6 +6,7 @@ from tree_node import TreeNode, LinearNode
 from settings import settings
 from system import time_helper
 from system.time_helper import cast_to_time_qualifier
+from system.process_context import ProcessContext
 
 MAX_NUMBER_OF_RETRIES = 3    # number of times a node is re-run before it is considered STATE_SKIPPED
 LIFE_SUPPORT_HOURS = 48      # number of hours that node is retried infinite number of times
@@ -73,19 +74,19 @@ class AbstractTree(object):
     def _build_tree(self, rebuild, process_name, method_get_node):
         """method builds tree by iterating from the synergy_start_timeperiod to current time
         and inserting corresponding nodes"""
-
+        time_qualifier = ProcessContext.get_time_qualifier(process_name)
         if rebuild or self.build_timeperiod is None:
             timeperiod = settings['synergy_start_timeperiod']
-            timeperiod = cast_to_time_qualifier(process_name, timeperiod)
+            timeperiod = cast_to_time_qualifier(time_qualifier, timeperiod)
         else:
             timeperiod = self.build_timeperiod
 
-        now = time_helper.datetime_to_synergy(process_name, datetime.utcnow())
-        while now >= timeperiod:
+        actual_timeperiod = time_helper.actual_timeperiod(time_qualifier)
+        while actual_timeperiod >= timeperiod:
             method_get_node(timeperiod)
-            timeperiod = time_helper.increment_time(process_name, timeperiod)
+            timeperiod = time_helper.increment_timeperiod(time_qualifier, timeperiod)
 
-        self.build_timeperiod = now
+        self.build_timeperiod = actual_timeperiod
 
     def _get_next_parent_node(self, parent):
         """ Used by _get_next_node, this method is called to find next possible parent.
@@ -126,8 +127,9 @@ class AbstractTree(object):
         else:
             # in all valid parents are exploited - return current node
             process_name = parent.children[sorted_keys[0]].process_name
-            timeperiod_now = time_helper.datetime_to_synergy(process_name, datetime.utcnow())
-            return self.get_node_by_process(process_name, timeperiod_now)
+            time_qualifier = ProcessContext.get_time_qualifier(process_name)
+            actual_timeperiod = time_helper.actual_timeperiod(time_qualifier)
+            return self.get_node_by_process(process_name, actual_timeperiod)
 
     # *** INHERITANCE INTERFACE ***
     def build_tree(self, rebuild=False):
@@ -246,7 +248,8 @@ class ThreeLevelTree(AbstractTree):
         return node
 
     def __get_monthly_node(self, timeperiod):
-        timeperiod_yearly = cast_to_time_qualifier(self.process_yearly, timeperiod)
+        time_qualifier = ProcessContext.get_time_qualifier(self.process_yearly)
+        timeperiod_yearly = cast_to_time_qualifier(time_qualifier, timeperiod)
         parent = self.__get_yearly_node(timeperiod_yearly)
 
         node = parent.children.get(timeperiod)
@@ -257,7 +260,8 @@ class ThreeLevelTree(AbstractTree):
         return node
 
     def __get_daily_node(self, timeperiod):
-        timeperiod_monthly = cast_to_time_qualifier(self.process_monthly, timeperiod)
+        time_qualifier = ProcessContext.get_time_qualifier(self.process_monthly)
+        timeperiod_monthly = cast_to_time_qualifier(time_qualifier, timeperiod)
         parent = self.__get_monthly_node(timeperiod_monthly)
 
         node = parent.children.get(timeperiod)
@@ -316,7 +320,8 @@ class ThreeLevelTree(AbstractTree):
         if node.process_name == self.process_daily:
             if len(node.children) == 0:
                 # no children - this is a leaf
-                creation_time = time_helper.synergy_to_datetime(node.process_name, node.timeperiod)
+                time_qualifier = ProcessContext.get_time_qualifier(node.process_name)
+                creation_time = time_helper.synergy_to_datetime(time_qualifier, node.timeperiod)
                 if datetime.utcnow() - creation_time < timedelta(hours=LIFE_SUPPORT_HOURS):
                     return False
                 else:
@@ -363,7 +368,8 @@ class FourLevelTree(ThreeLevelTree):
 
     # *** PRIVATE METHODS ***
     def __get_hourly_node(self, timeperiod):
-        timeperiod_daily = cast_to_time_qualifier(self.process_daily, timeperiod)
+        time_qualifier = ProcessContext.get_time_qualifier(self.process_daily)
+        timeperiod_daily = cast_to_time_qualifier(time_qualifier, timeperiod)
         parent = self._ThreeLevelTree__get_daily_node(timeperiod_daily)
 
         node = parent.children.get(timeperiod)

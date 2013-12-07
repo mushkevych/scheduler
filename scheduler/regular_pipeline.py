@@ -25,20 +25,20 @@ class RegularPipeline(AbstractPipeline):
         super(RegularPipeline, self).__del__()
 
     @with_reconnect
-    def compute_scope_of_processing(self, process_name, start_time, end_time, timetable_record):
+    def compute_scope_of_processing(self, process_name, start_timeperiod, end_timeperiod, timetable_record):
         """method reads collection and identify slice for processing"""
         source_collection_name = ProcessContext.get_source_collection(process_name)
         target_collection_name = ProcessContext.get_target_collection(process_name)
 
-        first_object_id = self.ds.highest_primary_key(source_collection_name, start_time, end_time)
-        last_object_id = self.ds.lowest_primary_key(source_collection_name, start_time, end_time)
+        first_object_id = self.ds.highest_primary_key(source_collection_name, start_timeperiod, end_timeperiod)
+        last_object_id = self.ds.lowest_primary_key(source_collection_name, start_timeperiod, end_timeperiod)
 
         uow = UnitOfWork()
-        uow.timeperiod = start_time
+        uow.timeperiod = start_timeperiod
         uow.start_id = str(first_object_id)
         uow.end_id = str(last_object_id)
-        uow.start_timeperiod = start_time
-        uow.end_timeperiod = end_time
+        uow.start_timeperiod = start_timeperiod
+        uow.end_timeperiod = end_timeperiod
         uow.created_at = datetime.utcnow()
         uow.source_collection = source_collection_name
         uow.target_collection = target_collection_name
@@ -52,19 +52,19 @@ class RegularPipeline(AbstractPipeline):
             e.first_object_id = str(first_object_id)
             e.last_object_id = str(last_object_id)
             e.process_name = process_name
-            e.timeperiod = start_time
+            e.timeperiod = start_timeperiod
             raise e
 
         self.publishers.get_publisher(process_name).publish(str(uow_id))
-        msg = 'Published: UOW %r for %r in timeperiod %r.' % (uow_id, process_name, start_time)
+        msg = 'Published: UOW %r for %r in timeperiod %r.' % (uow_id, process_name, start_timeperiod)
         self._log_message(INFO, process_name, timetable_record, msg)
         return uow
 
     @with_reconnect
-    def update_scope_of_processing(self, process_name, unit_of_work, start_time, end_time, timetable_record):
+    def update_scope_of_processing(self, process_name, unit_of_work, start_timeperiod, end_timeperiod, timetable_record):
         """method reads collection and refine slice upper bound for processing"""
         source_collection_name = unit_of_work.source_collection
-        last_object_id = self.ds.lowest_primary_key(source_collection_name, start_time, end_time)
+        last_object_id = self.ds.lowest_primary_key(source_collection_name, start_timeperiod, end_timeperiod)
         unit_of_work.end_id = str(last_object_id)
         self.uow_dao.update(unit_of_work)
 
@@ -73,7 +73,7 @@ class RegularPipeline(AbstractPipeline):
                  unit_of_work.start_id, str(last_object_id))
         self._log_message(INFO, process_name, timetable_record, msg)
 
-    def _compute_and_transfer_to_progress(self, process_name, start_time, end_time, timetable_record):
+    def _compute_and_transfer_to_progress(self, process_name, start_timeperiod, end_timeperiod, timetable_record):
         """ method computes new unit_of_work for time-table-record in STATE_IN_PROGRESS
         it also contains _fuzzy_ logic regard the DuplicateKeyError:
         - we try to compute new scope of processing
@@ -82,7 +82,7 @@ class RegularPipeline(AbstractPipeline):
         -- in case unit_of_work can not be located (what is equal to fatal data corruption) - we log exception and
         expect for manual intervention"""
         try:
-            uow_obj = self.compute_scope_of_processing(process_name, start_time, end_time, timetable_record)
+            uow_obj = self.compute_scope_of_processing(process_name, start_timeperiod, end_timeperiod, timetable_record)
         except DuplicateKeyError as e:
             uow_obj = self.recover_from_duplicatekeyerror(e)
             msg = 'No new data to process by %s in timeperiod %s, because of: %r' \
@@ -100,12 +100,12 @@ class RegularPipeline(AbstractPipeline):
                   % (process_name, timetable_record.timeperiod)
             self._log_message(WARNING, process_name, timetable_record, msg)
 
-    def _compute_and_transfer_to_final_run(self, process_name, start_time, end_time, timetable_record):
+    def _compute_and_transfer_to_final_run(self, process_name, start_timeperiod, end_timeperiod, timetable_record):
         """ method computes new unit_of_work and transfers timeperiod to STATE_FINAL_RUN
         it also shares _fuzzy_ DuplicateKeyError logic from _compute_and_transfer_to_progress method"""
         transfer_to_final = False
         try:
-            uow_obj = self.compute_scope_of_processing(process_name, start_time, end_time, timetable_record)
+            uow_obj = self.compute_scope_of_processing(process_name, start_timeperiod, end_timeperiod, timetable_record)
         except DuplicateKeyError as e:
             transfer_to_final = True
             uow_obj = self.recover_from_duplicatekeyerror(e)
@@ -123,35 +123,37 @@ class RegularPipeline(AbstractPipeline):
         if transfer_to_final:
             self._process_state_final_run(process_name, timetable_record)
 
-    def _process_state_embryo(self, process_name, timetable_record, start_time):
+    def _process_state_embryo(self, process_name, timetable_record, start_timeperiod):
         """ method that takes care of processing timetable records in STATE_EMBRYO state"""
-        end_time = time_helper.increment_time(process_name, start_time)
-        self._compute_and_transfer_to_progress(process_name, start_time, end_time, timetable_record)
+        time_qualifier = ProcessContext.get_time_qualifier(process_name)
+        end_timeperiod = time_helper.increment_timeperiod(time_qualifier, start_timeperiod)
+        self._compute_and_transfer_to_progress(process_name, start_timeperiod, end_timeperiod, timetable_record)
 
-    def _process_state_in_progress(self, process_name, timetable_record, start_time):
+    def _process_state_in_progress(self, process_name, timetable_record, start_timeperiod):
         """ method that takes care of processing timetable records in STATE_IN_PROGRESS state"""
-        end_time = time_helper.increment_time(process_name, start_time)
-        actual_time = time_helper.actual_time(process_name)
+        time_qualifier = ProcessContext.get_time_qualifier(process_name)
+        end_timeperiod = time_helper.increment_timeperiod(time_qualifier, start_timeperiod)
+        actual_timeperiod = time_helper.actual_timeperiod(time_qualifier)
         can_finalize_timerecord = self.timetable.can_finalize_timetable_record(process_name, timetable_record)
         uow = self.uow_dao.get_one(timetable_record.related_unit_of_work)
 
-        if start_time == actual_time or can_finalize_timerecord is False:
+        if start_timeperiod == actual_timeperiod or can_finalize_timerecord is False:
             if uow.state in [unit_of_work.STATE_INVALID,
                              unit_of_work.STATE_REQUESTED]:
                 # current uow has not been processed yet. update it
-                self.update_scope_of_processing(process_name, uow, start_time, end_time, timetable_record)
+                self.update_scope_of_processing(process_name, uow, start_timeperiod, end_timeperiod, timetable_record)
             else:
                 # cls.STATE_IN_PROGRESS, cls.STATE_PROCESSED, cls.STATE_CANCELED
                 # create new uow to cover new inserts
-                self._compute_and_transfer_to_progress(process_name, start_time, end_time, timetable_record)
+                self._compute_and_transfer_to_progress(process_name, start_timeperiod, end_timeperiod, timetable_record)
 
-        elif start_time < actual_time and can_finalize_timerecord is True:
+        elif start_timeperiod < actual_timeperiod and can_finalize_timerecord is True:
             # create new uow for FINAL RUN
-            self._compute_and_transfer_to_final_run(process_name, start_time, end_time, timetable_record)
+            self._compute_and_transfer_to_final_run(process_name, start_timeperiod, end_timeperiod, timetable_record)
 
         else:
             msg = 'time-table-record %s has timeperiod from future %s vs current time %s' \
-                  % (timetable_record.document['_id'], start_time, actual_time)
+                  % (timetable_record.document['_id'], start_timeperiod, actual_timeperiod)
             self._log_message(ERROR, process_name, timetable_record, msg)
 
     def _process_state_final_run(self, process_name, timetable_record):

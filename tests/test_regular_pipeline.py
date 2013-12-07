@@ -15,15 +15,15 @@ from scheduler.time_table import TimeTable
 from scheduler.regular_pipeline import RegularPipeline
 
 TEST_PRESET_TIMEPERIOD = '2013010122'
-TEST_ACTUAL_TIMEPERIOD = time_helper.actual_time(PROCESS_SITE_HOURLY)
-TEST_FUTURE_TIMEPERIOD = time_helper.increment_time(PROCESS_SITE_HOURLY, TEST_ACTUAL_TIMEPERIOD)
+TEST_ACTUAL_TIMEPERIOD = time_helper.actual_timeperiod(ProcessContext.QUALIFIER_HOURLY)
+TEST_FUTURE_TIMEPERIOD = time_helper.increment_timeperiod(ProcessContext.QUALIFIER_HOURLY, TEST_ACTUAL_TIMEPERIOD)
 
 
-def then_raise(process_name, start_time, end_time, timetable_record):
+def then_raise(process_name, start_timeperiod, end_timeperiod, timetable_record):
     raise DuplicateKeyError('Simulated Exception')
 
 
-def then_return_uow(process_name, start_time, end_time, timetable_record):
+def then_return_uow(process_name, start_timeperiod, end_timeperiod, timetable_record):
     return get_uow(unit_of_work.STATE_REQUESTED)
 
 

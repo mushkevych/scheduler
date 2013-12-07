@@ -1,11 +1,9 @@
-from system.decorator import current_process_aware
-
 __author__ = 'Bohdan Mushkevych'
-
 
 import os
 
 from system.data_logging import Logger
+from system.decorator import current_process_aware
 from settings import settings
 
 TYPE_ALERT = 'type_alert'
