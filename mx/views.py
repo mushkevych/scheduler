@@ -236,7 +236,7 @@ class NodeDetails(object):
         description = dict()
         try:
             description['process_name'] = node.process_name
-            description['time_qualifier'] = ProcessContext.get_time_qualifier(node.process_name)
+            description['time_qualifier'] = node.time_qualifier
             description['number_of_children'] = len(node.children)
             description['number_of_failed_calls'] = node.timetable_record.number_of_failures
             description['timeperiod'] = node.timetable_record.timeperiod

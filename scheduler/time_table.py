@@ -1,17 +1,17 @@
 __author__ = 'Bohdan Mushkevych'
 
-from db.model import time_table_record, unit_of_work
 from db.dao.unit_of_work_dao import UnitOfWorkDao
 from db.dao.time_table_record_dao import TimeTableRecordDao
+from db.model import time_table_record, unit_of_work
+from db.model.time_table_record import TimeTableRecord
 
 from datetime import datetime
 from threading import RLock
-from db.model.time_table_record import TimeTableRecord
+from system import process_context
 from system.decorator import thread_safe
 from system.collection_context import COLLECTION_TIMETABLE_HOURLY, COLLECTION_TIMETABLE_DAILY, \
     COLLECTION_TIMETABLE_MONTHLY, COLLECTION_TIMETABLE_YEARLY
 from tree import TwoLevelTree, ThreeLevelTree, FourLevelTree
-from system import process_context
 
 # make sure MX_PAGE_TRAFFIC refers to mx.views.py page
 MX_PAGE_TRAFFIC = 'traffic_details'

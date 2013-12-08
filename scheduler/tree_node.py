@@ -11,6 +11,7 @@ class AbstractNode(object):
         self.tree = tree
         self.parent = parent
         self.process_name = process_name
+        self.time_qualifier = ProcessContext.get_time_qualifier(self.process_name)
         self.timeperiod = timeperiod
         self.timetable_record = timetable_record
 
@@ -72,10 +73,10 @@ class AbstractNode(object):
                 dependents_are_skipped - indicates that among <dependent on> periods are some in STATE_SKIPPED
              """
 
-        def match_time_qualifier(actual_process_name, candidate_process_name):
+        def match_time_qualifier(time_qualifier, candidate_process_name):
+            """ :return: True if candidate_process has the same time qualifier as given """
             if candidate_process_name is None:
                 return False
-            time_qualifier = ProcessContext.get_time_qualifier(actual_process_name)
             candidate_qualifier = ProcessContext.get_time_qualifier(candidate_process_name)
             return time_qualifier == candidate_qualifier
 
@@ -88,15 +89,15 @@ class AbstractNode(object):
             dep_process_hourly = getattr(dependent_on, 'process_hourly', None)
             dep_process_linear = getattr(dependent_on, 'process_name', None)
 
-            if match_time_qualifier(self.process_name, dep_process_yearly):
+            if match_time_qualifier(self.time_qualifier, dep_process_yearly):
                 dep_proc_name = dependent_on.process_yearly
-            elif match_time_qualifier(self.process_name, dep_process_monthly):
+            elif match_time_qualifier(self.time_qualifier, dep_process_monthly):
                 dep_proc_name = dependent_on.process_monthly
-            elif match_time_qualifier(self.process_name, dep_process_daily):
+            elif match_time_qualifier(self.time_qualifier, dep_process_daily):
                 dep_proc_name = dependent_on.process_daily
-            elif match_time_qualifier(self.process_name, dep_process_hourly):
+            elif match_time_qualifier(self.time_qualifier, dep_process_hourly):
                 dep_proc_name = dependent_on.process_hourly
-            elif match_time_qualifier(self.process_name, dep_process_linear):
+            elif match_time_qualifier(self.time_qualifier, dep_process_linear):
                 dep_proc_name = dependent_on.process_name
             else:
                 # special case when tree with more levels depends on the tree with smaller amount of levels

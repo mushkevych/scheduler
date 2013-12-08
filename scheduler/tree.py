@@ -127,7 +127,7 @@ class AbstractTree(object):
         else:
             # in all valid parents are exploited - return current node
             process_name = parent.children[sorted_keys[0]].process_name
-            time_qualifier = ProcessContext.get_time_qualifier(process_name)
+            time_qualifier = parent.children[sorted_keys[0]].time_qualifier
             actual_timeperiod = time_helper.actual_timeperiod(time_qualifier)
             return self.get_node_by_process(process_name, actual_timeperiod)
 
@@ -320,8 +320,7 @@ class ThreeLevelTree(AbstractTree):
         if node.process_name == self.process_daily:
             if len(node.children) == 0:
                 # no children - this is a leaf
-                time_qualifier = ProcessContext.get_time_qualifier(node.process_name)
-                creation_time = time_helper.synergy_to_datetime(time_qualifier, node.timeperiod)
+                creation_time = time_helper.synergy_to_datetime(node.time_qualifier, node.timeperiod)
                 if datetime.utcnow() - creation_time < timedelta(hours=LIFE_SUPPORT_HOURS):
                     return False
                 else:

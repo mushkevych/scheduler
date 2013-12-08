@@ -45,10 +45,6 @@ def get_current_time():
     return datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S %Z')
 
 
-def get_current_time():
-    return datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S %Z')
-
-
 jinja_env = Environment(loader=FileSystemLoader(TEMPLATE_PATH))
 jinja_env.globals['url_for'] = url_for
 jinja_env.globals['local'] = local
