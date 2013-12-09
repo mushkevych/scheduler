@@ -17,9 +17,7 @@ REPOST_AFTER_HOURS = 1   # number of hours, GC waits for the worker to pick up t
 
 
 class GarbageCollectorWorker(AbstractWorker):
-    """
-    this class reads stream of messages from RabbitMQ and dump them to the MongoDB
-    """
+    """ instance receives an empty message from RabbitMQ and triggers re-start of failed tasks """
 
     def __init__(self, process_name):
         super(GarbageCollectorWorker, self).__init__(process_name)
