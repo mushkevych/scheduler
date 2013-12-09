@@ -21,7 +21,7 @@ TEST_FUTURE_TIMEPERIOD = time_helper.increment_timeperiod(ProcessContext.QUALIFI
 
 
 def override_recover_function(e):
-    return create_unit_of_work(PROCESS_UNIT_TEST, 1, 1, None)
+    return create_unit_of_work(PROCESS_UNIT_TEST, 0, 1, None)
 
 
 def then_raise(process_name, start_timeperiod, end_timeperiod, iteration, timetable_record):
@@ -29,7 +29,7 @@ def then_raise(process_name, start_timeperiod, end_timeperiod, iteration, timeta
 
 
 def then_return_uow(process_name, start_timeperiod, end_timeperiod, iteration, timetable_record):
-    return create_unit_of_work(PROCESS_UNIT_TEST, 1, 1, None)
+    return create_unit_of_work(PROCESS_UNIT_TEST, 0, 1, None)
 
 
 def get_timetable_record(state, timeperiod, process_name):
@@ -81,7 +81,7 @@ class RegularHadoopUnitTest(unittest.TestCase):
         """ method tests timetable records in STATE_IN_PROGRESS state"""
         when(self.time_table_mocked).can_finalize_timetable_record(any(str), any(TimeTableRecord)).thenReturn(True)
         uow_dao_mock = mock(UnitOfWorkDao)
-        when(uow_dao_mock).get_one(any()).thenReturn(create_unit_of_work(PROCESS_UNIT_TEST, 1, 1, None))
+        when(uow_dao_mock).get_one(any()).thenReturn(create_unit_of_work(PROCESS_UNIT_TEST, 0, 1, None))
         self.pipeline_real.uow_dao = uow_dao_mock
 
         self.pipeline_real.insert_uow = then_raise
@@ -99,7 +99,7 @@ class RegularHadoopUnitTest(unittest.TestCase):
         """ method tests timetable records in STATE_IN_PROGRESS state"""
         when(self.time_table_mocked).can_finalize_timetable_record(any(str), any(TimeTableRecord)).thenReturn(True)
         uow_dao_mock = mock(UnitOfWorkDao)
-        when(uow_dao_mock).get_one(any()).thenReturn(create_unit_of_work(PROCESS_UNIT_TEST, 1, 1, None))
+        when(uow_dao_mock).get_one(any()).thenReturn(create_unit_of_work(PROCESS_UNIT_TEST, 0, 1, None))
         self.pipeline_real.uow_dao = uow_dao_mock
 
         self.pipeline_real.insert_uow = then_return_uow

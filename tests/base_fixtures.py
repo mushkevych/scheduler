@@ -1,9 +1,8 @@
-from datetime import datetime
-
 __author__ = 'Bohdan Mushkevych'
 
 import inspect
 import random
+from datetime import datetime
 
 from db.manager import ds_manager
 from db.dao.single_session_dao import SingleSessionDao
