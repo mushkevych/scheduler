@@ -7,6 +7,7 @@ from db.model.time_table_record import TimeTableRecord
 from db.model.unit_of_work import UnitOfWork
 
 import unittest
+from tests.base_fixtures import create_unit_of_work
 from mockito import spy, verify, mock, when
 from mockito.matchers import any
 from system import time_helper
@@ -24,7 +25,7 @@ def then_raise(process_name, start_timeperiod, end_timeperiod, timetable_record)
 
 
 def then_return_uow(process_name, start_timeperiod, end_timeperiod, timetable_record):
-    return get_uow(unit_of_work.STATE_REQUESTED)
+    return create_unit_of_work(PROCESS_UNIT_TEST, 1, 1, None)
 
 
 def get_timetable_record(state, timeperiod, process_name):
@@ -34,12 +35,6 @@ def get_timetable_record(state, timeperiod, process_name):
     timetable_record.process_name = process_name
     timetable_record.document['_id'] = 'alpha_id'
     return timetable_record
-
-
-def get_uow(state):
-    uow = UnitOfWork()
-    uow.state = state
-    return uow
 
 
 class RegularPipelineUnitTest(unittest.TestCase):
@@ -82,7 +77,7 @@ class RegularPipelineUnitTest(unittest.TestCase):
         """ method tests timetable records in STATE_IN_PROGRESS state"""
         when(self.time_table_mocked).can_finalize_timetable_record(any(str), any(TimeTableRecord)).thenReturn(True)
         uow_dao_mock = mock(UnitOfWorkDao)
-        when(uow_dao_mock).get_one(any(str)).thenReturn(get_uow(unit_of_work.STATE_REQUESTED))
+        when(uow_dao_mock).get_one(any(str)).thenReturn(create_unit_of_work(PROCESS_UNIT_TEST, 1, 1, None))
         self.pipeline_real.uow_dao = uow_dao_mock
 
         self.pipeline_real.compute_scope_of_processing = then_raise
@@ -101,8 +96,8 @@ class RegularPipelineUnitTest(unittest.TestCase):
         when(self.time_table_mocked).can_finalize_timetable_record(any(str), any(TimeTableRecord)).thenReturn(True)
         uow_dao_mock = mock(UnitOfWorkDao)
         when(uow_dao_mock).get_one(any()).\
-            thenReturn(get_uow(unit_of_work.STATE_REQUESTED)).\
-            thenReturn(get_uow(unit_of_work.STATE_PROCESSED))
+            thenReturn(create_unit_of_work(PROCESS_UNIT_TEST, 1, 1, None, unit_of_work.STATE_REQUESTED)).\
+            thenReturn(create_unit_of_work(PROCESS_UNIT_TEST, 1, 1, None, unit_of_work.STATE_PROCESSED))
         self.pipeline_real.uow_dao = uow_dao_mock
 
         self.pipeline_real.compute_scope_of_processing = then_return_uow
@@ -125,8 +120,8 @@ class RegularPipelineUnitTest(unittest.TestCase):
         when(self.time_table_mocked).can_finalize_timetable_record(any(str), any(TimeTableRecord)).thenReturn(True)
         uow_dao_mock = mock(UnitOfWorkDao)
         when(uow_dao_mock).get_one(any()).\
-            thenReturn(get_uow(unit_of_work.STATE_REQUESTED)).\
-            thenReturn(get_uow(unit_of_work.STATE_PROCESSED))
+            thenReturn(create_unit_of_work(PROCESS_UNIT_TEST, 1, 1, None, unit_of_work.STATE_REQUESTED)).\
+            thenReturn(create_unit_of_work(PROCESS_UNIT_TEST, 1, 1, None, unit_of_work.STATE_PROCESSED))
         self.pipeline_real.uow_dao = uow_dao_mock
 
         self.pipeline_real.compute_scope_of_processing = then_raise
@@ -147,7 +142,8 @@ class RegularPipelineUnitTest(unittest.TestCase):
     def test_processed_state_final_run(self):
         """method tests timetable records in STATE_FINAL_RUN state"""
         uow_dao_mock = mock(UnitOfWorkDao)
-        when(uow_dao_mock).get_one(any()).thenReturn(get_uow(unit_of_work.STATE_PROCESSED))
+        when(uow_dao_mock).get_one(any()).thenReturn(
+            create_unit_of_work(PROCESS_UNIT_TEST, 1, 1, None, unit_of_work.STATE_PROCESSED))
         self.pipeline_real.uow_dao = uow_dao_mock
 
         pipeline = spy(self.pipeline_real)
@@ -164,7 +160,8 @@ class RegularPipelineUnitTest(unittest.TestCase):
     def test_cancelled_state_final_run(self):
         """method tests timetable records in STATE_FINAL_RUN state"""
         uow_dao_mock = mock(UnitOfWorkDao)
-        when(uow_dao_mock).get_one(any()).thenReturn(get_uow(unit_of_work.STATE_CANCELED))
+        when(uow_dao_mock).get_one(any()).thenReturn(
+            create_unit_of_work(PROCESS_UNIT_TEST, 1, 1, None, unit_of_work.STATE_CANCELED))
         self.pipeline_real.uow_dao = uow_dao_mock
 
         pipeline = spy(self.pipeline_real)

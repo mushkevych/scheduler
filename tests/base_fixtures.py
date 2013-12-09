@@ -1,3 +1,5 @@
+from datetime import datetime
+
 __author__ = 'Bohdan Mushkevych'
 
 import inspect
@@ -89,22 +91,45 @@ def compare_dictionaries(dict_actual, dict_expected):
             assert 1 == 0, 'key %r: actual %r vs expected %r' % (expected_key, actual_value, expected_value)
 
 
-def create_unit_of_work(process_name, first_object_id, last_object_id):
-    """ method is used to insert unit_of_work """
-    source_collection = ProcessContext.get_source_collection(process_name)
-    target_collection = ProcessContext.get_target_collection(process_name)
-    logger = ProcessContext.get_logger(process_name)
+def create_unit_of_work(process_name,
+                        first_object_id,
+                        last_object_id,
+                        timeperiod='INVALID_TIMEPERIOD',
+                        state=unit_of_work.STATE_REQUESTED,
+                        creation_at=datetime.utcnow(),
+                        uow_id=None):
+    """ method creates and returns unit_of_work """
+    try:
+        source_collection = ProcessContext.get_source_collection(process_name)
+        target_collection = ProcessContext.get_target_collection(process_name)
+    except KeyError:
+        source_collection = None
+        target_collection = None
 
     uow = UnitOfWork()
-    uow.timeperiod = 'UNIT_TEST'
+    uow.timeperiod = timeperiod
+    uow.start_timeperiod = timeperiod
+    uow.end_timeperiod = timeperiod
     uow.start_id = first_object_id
     uow.end_id = last_object_id
     uow.source_collection = source_collection
     uow.target_collection = target_collection
-    uow.state = unit_of_work.STATE_REQUESTED
+    uow.state = state
+    uow.created_at = creation_at
     uow.process_name = process_name
     uow.number_of_retries = 0
 
+    if uow_id is not None:
+        uow.document['_id'] = uow_id
+
+    return uow
+
+
+def create_and_insert_unit_of_work(process_name, first_object_id, last_object_id, timeperiod='INVALID_TIMEPERIOD'):
+    """ method creates and inserts a unit_of_work into DB
+    :return id of the created object in the db"""
+    uow = create_unit_of_work(process_name, first_object_id, last_object_id, timeperiod)
+    logger = ProcessContext.get_logger(process_name)
     uow_dao = UnitOfWorkDao(logger)
     uow_id = uow_dao.insert(uow)
     return uow_id

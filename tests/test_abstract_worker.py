@@ -42,9 +42,10 @@ class AbstractWorkerUnitTest(unittest.TestCase):
         self.aggregator = get_test_aggregator(self.baseclass, self.process_name)
 
         # creating unit_of_work entity, requesting to process created above statistics
-        self.uow_id = base_fixtures.create_unit_of_work(self.process_name,
-                                                        str(list_of_stats[0]),
-                                                        str(list_of_stats[-1]))
+        self.uow_id = base_fixtures.create_and_insert_unit_of_work(self.process_name,
+                                                                   str(list_of_stats[0]),
+                                                                   str(list_of_stats[-1]),
+                                                                   timeperiod=None)
 
     def virtual_tear_down(self):
         """Abstract method to be implemented by children"""

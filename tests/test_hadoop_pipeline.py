@@ -7,6 +7,7 @@ from db.model.time_table_record import TimeTableRecord
 from db.model.unit_of_work import UnitOfWork
 
 import unittest
+from tests.base_fixtures import create_unit_of_work
 from mockito import spy, verify, mock, when
 from mockito.matchers import any
 from system import time_helper
@@ -20,7 +21,7 @@ TEST_FUTURE_TIMEPERIOD = time_helper.increment_timeperiod(ProcessContext.QUALIFI
 
 
 def override_recover_function(e):
-    return get_uow(unit_of_work.STATE_REQUESTED)
+    return create_unit_of_work(PROCESS_UNIT_TEST, 1, 1, None)
 
 
 def then_raise(process_name, start_timeperiod, end_timeperiod, iteration, timetable_record):
@@ -28,7 +29,7 @@ def then_raise(process_name, start_timeperiod, end_timeperiod, iteration, timeta
 
 
 def then_return_uow(process_name, start_timeperiod, end_timeperiod, iteration, timetable_record):
-    return get_uow(unit_of_work.STATE_REQUESTED)
+    return create_unit_of_work(PROCESS_UNIT_TEST, 1, 1, None)
 
 
 def get_timetable_record(state, timeperiod, process_name):
@@ -38,13 +39,6 @@ def get_timetable_record(state, timeperiod, process_name):
     timetable_record.process_name = process_name
     timetable_record.document['_id'] = 'alpha_id'
     return timetable_record
-
-
-def get_uow(state):
-    uow = UnitOfWork()
-    uow.state = state
-    uow.end_id = 1
-    return uow
 
 
 class RegularHadoopUnitTest(unittest.TestCase):
@@ -87,7 +81,7 @@ class RegularHadoopUnitTest(unittest.TestCase):
         """ method tests timetable records in STATE_IN_PROGRESS state"""
         when(self.time_table_mocked).can_finalize_timetable_record(any(str), any(TimeTableRecord)).thenReturn(True)
         uow_dao_mock = mock(UnitOfWorkDao)
-        when(uow_dao_mock).get_one(any()).thenReturn(get_uow(unit_of_work.STATE_REQUESTED))
+        when(uow_dao_mock).get_one(any()).thenReturn(create_unit_of_work(PROCESS_UNIT_TEST, 1, 1, None))
         self.pipeline_real.uow_dao = uow_dao_mock
 
         self.pipeline_real.insert_uow = then_raise
@@ -105,7 +99,7 @@ class RegularHadoopUnitTest(unittest.TestCase):
         """ method tests timetable records in STATE_IN_PROGRESS state"""
         when(self.time_table_mocked).can_finalize_timetable_record(any(str), any(TimeTableRecord)).thenReturn(True)
         uow_dao_mock = mock(UnitOfWorkDao)
-        when(uow_dao_mock).get_one(any()).thenReturn(get_uow(unit_of_work.STATE_REQUESTED))
+        when(uow_dao_mock).get_one(any()).thenReturn(create_unit_of_work(PROCESS_UNIT_TEST, 1, 1, None))
         self.pipeline_real.uow_dao = uow_dao_mock
 
         self.pipeline_real.insert_uow = then_return_uow
@@ -127,7 +121,8 @@ class RegularHadoopUnitTest(unittest.TestCase):
         """ method tests timetable records in STATE_IN_PROGRESS state"""
         when(self.time_table_mocked).can_finalize_timetable_record(any(str), any(TimeTableRecord)).thenReturn(True)
         uow_dao_mock = mock(UnitOfWorkDao)
-        when(uow_dao_mock).get_one(any()).thenReturn(get_uow(unit_of_work.STATE_PROCESSED))
+        when(uow_dao_mock).get_one(any()).thenReturn(
+            create_unit_of_work(PROCESS_UNIT_TEST, 1, 1, None, unit_of_work.STATE_PROCESSED))
         self.pipeline_real.uow_dao = uow_dao_mock
 
         self.pipeline_real.insert_uow = then_return_uow
@@ -149,7 +144,8 @@ class RegularHadoopUnitTest(unittest.TestCase):
         """ method tests timetable records in STATE_IN_PROGRESS state"""
         when(self.time_table_mocked).can_finalize_timetable_record(any(str), any(TimeTableRecord)).thenReturn(True)
         uow_dao_mock = mock(UnitOfWorkDao)
-        when(uow_dao_mock).get_one(any()).thenReturn(get_uow(unit_of_work.STATE_PROCESSED))
+        when(uow_dao_mock).get_one(any()).thenReturn(
+            create_unit_of_work(PROCESS_UNIT_TEST, 1, 1, None, unit_of_work.STATE_PROCESSED))
         self.pipeline_real.uow_dao = uow_dao_mock
 
         self.pipeline_real.insert_uow = then_raise
@@ -171,7 +167,8 @@ class RegularHadoopUnitTest(unittest.TestCase):
     def test_processed_state_final_run(self):
         """method tests timetable records in STATE_FINAL_RUN state"""
         uow_dao_mock = mock(UnitOfWorkDao)
-        when(uow_dao_mock).get_one(any()).thenReturn(get_uow(unit_of_work.STATE_PROCESSED))
+        when(uow_dao_mock).get_one(any()).thenReturn(
+            create_unit_of_work(PROCESS_UNIT_TEST, 1, 1, None, unit_of_work.STATE_PROCESSED))
         self.pipeline_real.uow_dao = uow_dao_mock
 
         pipeline = spy(self.pipeline_real)
@@ -188,7 +185,8 @@ class RegularHadoopUnitTest(unittest.TestCase):
     def test_cancelled_state_final_run(self):
         """method tests timetable records in STATE_FINAL_RUN state"""
         uow_dao_mock = mock(UnitOfWorkDao)
-        when(uow_dao_mock).get_one(any()).thenReturn(get_uow(unit_of_work.STATE_CANCELED))
+        when(uow_dao_mock).get_one(any()).thenReturn(
+            create_unit_of_work(PROCESS_UNIT_TEST, 1, 1, None, unit_of_work.STATE_CANCELED))
         self.pipeline_real.uow_dao = uow_dao_mock
 
         pipeline = spy(self.pipeline_real)

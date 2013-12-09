@@ -58,6 +58,7 @@ testable_modules = [
 test_cases = [
     'tests.test_regular_pipeline',
     'tests.test_hadoop_pipeline',
+    'tests.test_garbage_collector',
     'tests.test_system_collections',
     'tests.test_raw_data',
     'tests.test_site_statistics',
