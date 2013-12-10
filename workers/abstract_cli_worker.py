@@ -1,31 +1,28 @@
-""" Module contains common logic for Hadoop Callers.
-It calls Hadoop Map/Reduce and updates unit_of_work base on Hadoop return code """
+""" Module contains common logic for Command Line Callers.
+It executes shell command and updates unit_of_work base on command's return code """
 
 __author__ = 'Bohdan Mushkevych'
 
-from subprocess import PIPE
 from datetime import datetime
-import psutil
 from psutil.error import TimeoutExpired
 from db.model import unit_of_work
 from db.dao.unit_of_work_dao import UnitOfWorkDao
 
-from settings import settings
 from workers.abstract_worker import AbstractWorker
 from system.performance_ticker import AggregatorPerformanceTicker
 
 
-class AbstractHadoopWorker(AbstractWorker):
+class AbstractCliWorker(AbstractWorker):
     """ Abstract class is inherited by all workers/aggregators
     that are aware of unit_of_work and capable of processing it"""
 
     def __init__(self, process_name):
-        super(AbstractHadoopWorker, self).__init__(process_name)
-        self.hadoop_process = None
+        super(AbstractCliWorker, self).__init__(process_name)
+        self.cli_process = None
         self.uow_dao = UnitOfWorkDao(self.logger)
 
     def __del__(self):
-        super(AbstractHadoopWorker, self).__del__()
+        super(AbstractCliWorker, self).__del__()
 
     # **************** Abstract Methods ************************
     def _init_performance_ticker(self, logger):
@@ -34,24 +31,7 @@ class AbstractHadoopWorker(AbstractWorker):
 
     # **************** Process Supervisor Methods ************************
     def _start_process(self, start_timeperiod, end_timeperiod):
-        try:
-            self.logger.info('start: %s {' % self.process_name)
-            p = psutil.Popen([settings['hadoop_command'],
-                              'jar', settings['hadoop_jar'],
-                              '-D', 'process.name=' + self.process_name,
-                              '-D', 'timeperiod.working=' + str(start_timeperiod),
-                              '-D', 'timeperiod.next=' + str(end_timeperiod)],
-                             close_fds=True,
-                             cwd=settings['process_cwd'],
-                             stdin=PIPE,
-                             stdout=PIPE,
-                             stderr=PIPE)
-            self.hadoop_process = p
-            self.logger.info('Started %s with pid = %r' % (self.process_name, p.pid))
-        except Exception:
-            self.logger.error('Exception on starting: %s' % self.process_name, exc_info=True)
-        finally:
-            self.logger.info('}')
+        pass
 
     def _poll_process(self):
         """ between death of a process and its actual termination lies poorly documented requirement -
@@ -59,16 +39,16 @@ class AbstractHadoopWorker(AbstractWorker):
             this can be done either by os.wait() or process.wait()
             @return tuple (boolean: alive, int: return_code) """
         try:
-            self.logger.warn(self.hadoop_process.stderr.read())
-            self.logger.info(self.hadoop_process.stdout.read())
-            returncode = self.hadoop_process.wait(timeout=0.01)
+            self.logger.warn(self.cli_process.stderr.read())
+            self.logger.info(self.cli_process.stdout.read())
+            returncode = self.cli_process.wait(timeout=0.01)
             if returncode is None:
                 # process is already terminated
                 self.logger.info('Process %s is terminated' % self.process_name)
             else:
                 # process is terminated; possibly by OS
                 self.logger.info('Process %s got terminated. Cleaning up' % self.process_name)
-            self.hadoop_process = None
+            self.cli_process = None
             return False, returncode
         except TimeoutExpired:
             # process is alive and OK

@@ -1,25 +1,28 @@
 __author__ = 'Bohdan Mushkevych'
 
-from subprocess import PIPE
 import psutil
+from subprocess import PIPE
 from settings import settings
+from system import time_helper
+from system.process_context import PROCESS_SITE_HOURLY, ProcessContext
 from workers.abstract_cli_worker import AbstractCliWorker
 
 
-class HadoopAggregatorDriver(AbstractCliWorker):
-    """Python process that starts Hadoop map/reduce job, supervises its execution and updated unit_of_work"""
+class PigDriver(AbstractCliWorker):
+    """Python process that starts Pig processing job, supervises its execution and updated unit_of_work"""
 
     def __init__(self, process_name):
-        super(HadoopAggregatorDriver, self).__init__(process_name)
+        super(PigDriver, self).__init__(process_name)
 
     def _start_process(self, start_timeperiod, end_timeperiod):
         try:
+            input_file = ProcessContext.get_source_collection()
+
             self.logger.info('start: %s {' % self.process_name)
-            p = psutil.Popen([settings['hadoop_command'],
-                              'jar', settings['hadoop_jar'],
-                              '-D', 'process.name=' + self.process_name,
-                              '-D', 'timeperiod.working=' + str(start_timeperiod),
-                              '-D', 'timeperiod.next=' + str(end_timeperiod)],
+            p = psutil.Popen([settings['bash_shell'],
+                              settings['pig_command'],
+                              '-p', 'input_file=' + input_file + '/' + start_timeperiod,
+                              '-p', 'timeperiod=' + start_timeperiod],
                              close_fds=True,
                              cwd=settings['process_cwd'],
                              stdin=PIPE,
