@@ -11,9 +11,13 @@ class AbstractNode(object):
         self.tree = tree
         self.parent = parent
         self.process_name = process_name
-        self.time_qualifier = ProcessContext.get_time_qualifier(self.process_name)
         self.timeperiod = timeperiod
         self.timetable_record = timetable_record
+        if parent is None and process_name is None and timeperiod is None and timetable_record is None:
+            # special case - node is TREE ROOT
+            self.time_qualifier = None
+        else:
+            self.time_qualifier = ProcessContext.get_time_qualifier(self.process_name)
 
     def request_reprocess(self):
         """ method marks this and all parents node as such that requires reprocessing
