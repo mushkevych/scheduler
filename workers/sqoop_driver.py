@@ -9,7 +9,7 @@ from workers.abstract_cli_worker import AbstractCliWorker
 
 
 class SqoopDriver(AbstractCliWorker):
-    """Python process that starts Sqoop import job, supervises its execution and updated unit_of_work"""
+    """Process starts Sqoop import job, supervises its execution and updated unit_of_work"""
 
     SQOOP_DATE_FORMAT = '%Y-%m-%d %H:%M:%S.000'
 
@@ -18,7 +18,7 @@ class SqoopDriver(AbstractCliWorker):
 
     def _start_process(self, start_timeperiod, end_timeperiod):
         try:
-            start_dt = time_helper.synergy_to_datetime(PROCESS_SITE_HOURLY, start_timeperiod)
+            start_dt = time_helper.synergy_to_datetime(ProcessContext.QUALIFIER_HOURLY, start_timeperiod)
             sqoop_slice_starttime = start_dt.strftime(SqoopDriver.SQOOP_DATE_FORMAT)
 
             end_dt = time_helper.synergy_to_datetime(PROCESS_SITE_HOURLY, end_timeperiod)
@@ -43,4 +43,3 @@ class SqoopDriver(AbstractCliWorker):
             self.logger.error('Exception on starting: %s' % self.process_name, exc_info=True)
         finally:
             self.logger.info('}')
-

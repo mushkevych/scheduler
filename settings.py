@@ -22,6 +22,8 @@ settings = dict(
     ds_type='mongo_db',
     mongo_db_name='scheduler',
     hadoop_command='/usr/bin/hadoop',
+    pig_command='/usr/bin/pig',
+    bash_command='/bin/bash',
     hadoop_jar='/home/bmushkevych/git/synergy-hadoop/dist/synergy-hadoop-02.jar',
 
     tunnel_host='***SURUS_HOST***',

@@ -13,11 +13,11 @@ settings = dict(
 
     mongodb_host_list=['mongodb://127.0.0.1:27017'],
 
-    construction_hosts=['https://***REST_INTERFACE_URL***'],         # production access
-    construction_login='***REST_INTERFACE_LOGIN***',                           # production access ONLY
-    construction_password='***REST_INTERFACE_PWD***',                        # production access ONLY
-    log_directory='/var/log/synergy-data/',
-    pid_directory='/var/log/synergy-data/',
+    construction_hosts=['https://***REST_INTERFACE_URL***'],            # production access
+    construction_login='***REST_INTERFACE_LOGIN***',                    # production access ONLY
+    construction_password='***REST_INTERFACE_PWD***',                   # production access ONLY
+    log_directory='/var/log/synergy-scheduler/',
+    pid_directory='/var/log/synergy-scheduler/',
     perf_ticker_interval=10,                                            # seconds between performance ticker messages
     synergy_start_timeperiod=datetime.utcnow().strftime('%Y%m%d%H'),    # precision is process dependent
     debug=True
