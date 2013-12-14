@@ -32,21 +32,21 @@ class TestTwoLevelTree(unittest.TestCase):
     def setUp(self):
         self.initial_actual_timeperiod = time_helper.actual_timeperiod
         self.initial_synergy_start_time = settings['synergy_start_timeperiod']
-        self.obj = TwoLevelTree(PROCESS_SITE_HOURLY, _TOKEN_SITE, 'some_mx_page')
+        self.tree = TwoLevelTree(PROCESS_SITE_HOURLY, _TOKEN_SITE, 'some_mx_page')
 
     def tearDown(self):
-        del self.obj
+        del self.tree
         settings['synergy_start_timeperiod'] = self.initial_synergy_start_time
         time_helper.actual_timeperiod = self.initial_actual_timeperiod
 
     def test_simple_build_tree(self):
-        self.obj.build_tree()
-        assert len(self.obj.root.children) == 1
+        self.tree.build_tree()
+        assert len(self.tree.root.children) == 1
 
         actual_timeperiod = time_helper.actual_timeperiod(ProcessContext.QUALIFIER_HOURLY)
-        assert actual_timeperiod in self.obj.root.children
+        assert actual_timeperiod in self.tree.root.children
 
-        assert self.obj.root.children[actual_timeperiod].timeperiod == actual_timeperiod
+        assert self.tree.root.children[actual_timeperiod].timeperiod == actual_timeperiod
 
     def test_less_simple_build_tree(self):
         delta = 5
@@ -55,14 +55,14 @@ class TestTwoLevelTree(unittest.TestCase):
                                                -delta)
         settings['synergy_start_timeperiod'] = new_synergy_start_time
 
-        self.obj.build_tree()
-        assert len(self.obj.root.children) == delta + 1, 'Expected number of child nodes was %d, while actual is %d' \
-                                                         % (delta + 1, len(self.obj.root.children))
+        self.tree.build_tree()
+        assert len(self.tree.root.children) == delta + 1, 'Expected number of child nodes was %d, while actual is %d' \
+                                                         % (delta + 1, len(self.tree.root.children))
 
         loop_timeperiod = new_synergy_start_time
         for _ in range(delta + 1):
-            assert loop_timeperiod in self.obj.root.children
-            assert self.obj.root.children[loop_timeperiod].timeperiod == loop_timeperiod
+            assert loop_timeperiod in self.tree.root.children
+            assert self.tree.root.children[loop_timeperiod].timeperiod == loop_timeperiod
             loop_timeperiod = time_helper.increment_timeperiod(ProcessContext.QUALIFIER_HOURLY, loop_timeperiod)
 
     def test_catching_up_time_build_tree(self):
@@ -72,7 +72,7 @@ class TestTwoLevelTree(unittest.TestCase):
                                                -delta)
         settings['synergy_start_timeperiod'] = new_synergy_start_time
 
-        self.obj.build_tree()
+        self.tree.build_tree()
         new_actual_timeperiod = wind_the_time(ProcessContext.QUALIFIER_HOURLY,
                                               self.initial_synergy_start_time,
                                               delta)
@@ -80,16 +80,20 @@ class TestTwoLevelTree(unittest.TestCase):
         time_helper.actual_timeperiod = \
             wind_actual_timeperiod(time_helper.synergy_to_datetime(ProcessContext.QUALIFIER_HOURLY,
                                                                    new_actual_timeperiod))
-        self.obj.build_tree()
+        self.tree.build_tree()
 
-        assert len(self.obj.root.children) == 2 * delta + 1, 'Expected number of child nodes was %d, while actual is %d' \
-                                                             % (2 * delta + 1, len(self.obj.root.children))
+        assert len(self.tree.root.children) == 2 * delta + 1, 'Expected number of child nodes was %d, while actual is %d' \
+                                                             % (2 * delta + 1, len(self.tree.root.children))
 
         loop_timeperiod = new_synergy_start_time
         for _ in range(2 * delta + 1):
-            assert loop_timeperiod in self.obj.root.children
-            assert self.obj.root.children[loop_timeperiod].timeperiod == loop_timeperiod
+            assert loop_timeperiod in self.tree.root.children
+            assert self.tree.root.children[loop_timeperiod].timeperiod == loop_timeperiod
             loop_timeperiod = time_helper.increment_timeperiod(ProcessContext.QUALIFIER_HOURLY, loop_timeperiod)
+
+    def test_is_managing_process(self):
+        self.assertTrue(self.tree.is_managing_process(PROCESS_SITE_HOURLY))
+        self.assertFalse(self.tree.is_managing_process('AnyOtherProcess'))
 
 
 if __name__ == '__main__':
