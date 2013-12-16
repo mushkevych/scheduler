@@ -83,7 +83,7 @@ class TestTwoLevelTree(unittest.TestCase):
         self.tree.build_tree()
 
         assert len(self.tree.root.children) == 2 * delta + 1, 'Expected number of child nodes was %d, while actual is %d' \
-                                                             % (2 * delta + 1, len(self.tree.root.children))
+                                                              % (2 * delta + 1, len(self.tree.root.children))
 
         loop_timeperiod = new_synergy_start_time
         for _ in range(2 * delta + 1):
