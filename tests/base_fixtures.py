@@ -2,7 +2,7 @@ __author__ = 'Bohdan Mushkevych'
 
 import inspect
 import random
-from datetime import datetime
+from datetime import datetime, timedelta
 
 from db.manager import ds_manager
 from db.dao.single_session_dao import SingleSessionDao
@@ -10,6 +10,7 @@ from db.dao.unit_of_work_dao import UnitOfWorkDao
 from db.model import unit_of_work
 from db.model.unit_of_work import UnitOfWork
 from db.model.single_session import SingleSession
+from system import time_helper
 from system.process_context import ProcessContext, PROCESS_UNIT_TEST
 
 TOTAL_ENTRIES = 101
@@ -227,6 +228,27 @@ def create_site_stats(collection, composite_key_function, statistics_klass, seed
         object_ids.append(stat_id)
 
     return object_ids
+
+
+def wind_actual_timeperiod(new_time):
+    def actual_timeperiod(time_qualifier):
+        return time_helper.datetime_to_synergy(time_qualifier, new_time)
+
+    return actual_timeperiod
+
+
+def wind_the_time(time_qualifier, timeperiod, delta):
+    pattern = time_helper.define_pattern(timeperiod)
+    t = datetime.strptime(timeperiod, pattern)
+
+    if time_qualifier == ProcessContext.QUALIFIER_HOURLY:
+        t = t + timedelta(hours=delta)
+        return t.strftime('%Y%m%d%H')
+    elif time_qualifier == ProcessContext.QUALIFIER_DAILY:
+        t = t + timedelta(days=delta)
+        return t.strftime('%Y%m%d00')
+    raise ValueError('unsupported time_qualifier')
+
 
 
 if __name__ == '__main__':

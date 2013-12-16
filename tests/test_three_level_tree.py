@@ -1,32 +1,12 @@
 __author__ = 'Bohdan Mushkevych'
 
 import unittest
-from datetime import datetime, timedelta
+from tests import base_fixtures
 from system.process_context import PROCESS_SITE_HOURLY, _TOKEN_SITE, ProcessContext, PROCESS_SITE_YEARLY, \
     PROCESS_SITE_MONTHLY, PROCESS_SITE_DAILY
 from system import time_helper
 from scheduler.tree import ThreeLevelTree
 from settings import settings
-
-
-def wind_actual_timeperiod(new_time):
-    def actual_timeperiod(time_qualifier):
-        return time_helper.datetime_to_synergy(time_qualifier, new_time)
-
-    return actual_timeperiod
-
-
-def wind_the_time(time_qualifier, timeperiod, delta):
-    pattern = time_helper.define_pattern(timeperiod)
-    t = datetime.strptime(timeperiod, pattern)
-
-    if time_qualifier == ProcessContext.QUALIFIER_HOURLY:
-        t = t + timedelta(hours=delta)
-        return t.strftime('%Y%m%d%H')
-    elif time_qualifier == ProcessContext.QUALIFIER_DAILY:
-        t = t + timedelta(days=delta)
-        return t.strftime('%Y%m%d00')
-    raise ValueError('unsupported time_qualifier')
 
 
 class TestThreeLevelTree(unittest.TestCase):
@@ -78,7 +58,7 @@ class TestThreeLevelTree(unittest.TestCase):
         self.assertEqual(self.tree.get_node_by_process(PROCESS_SITE_DAILY, actual_daily_timeperiod).time_qualifier,
                          ProcessContext.QUALIFIER_DAILY)
 
-    def _perform_assertions(self, start_timeperiod, delta_days):
+    def _perform_assertions(self, start_timeperiod, delta):
         yearly_timeperiod = time_helper.cast_to_time_qualifier(ProcessContext.QUALIFIER_YEARLY,
                                                                start_timeperiod)
         monthly_timeperiod = time_helper.cast_to_time_qualifier(ProcessContext.QUALIFIER_MONTHLY,
@@ -87,13 +67,13 @@ class TestThreeLevelTree(unittest.TestCase):
                                                               start_timeperiod)
 
         number_of_leafs = 0
-        for yt, yearly_root in sorted(self.tree.root.children.items(), key=lambda x: x[1]):
+        for yt, yearly_root in sorted(self.tree.root.children.items(), key=lambda x: x[0]):
             self.assertEqual(yearly_timeperiod, yt)
 
-            for mt, monthly_root in sorted(yearly_root.children.items(), key=lambda x: x[1]):
+            for mt, monthly_root in sorted(yearly_root.children.items(), key=lambda x: x[0]):
                 self.assertEqual(monthly_timeperiod, mt)
 
-                for dt, daily_root in sorted(monthly_root.children.items(), key=lambda x: x[1]):
+                for dt, daily_root in sorted(monthly_root.children.items(), key=lambda x: x[0]):
                     self.assertEqual(daily_timeperiod, dt)
                     number_of_leafs += 1
 
@@ -106,14 +86,14 @@ class TestThreeLevelTree(unittest.TestCase):
             yearly_timeperiod = time_helper.increment_timeperiod(ProcessContext.QUALIFIER_YEARLY,
                                                                  yearly_timeperiod)
 
-        self.assertEqual(number_of_leafs, delta_days + 1, 'Expected number of daily nodes was %d, while actual is %d'
-                                                          % (delta_days + 1, number_of_leafs))
+        self.assertEqual(number_of_leafs, delta + 1, 'Expected number of daily nodes was %d, while actual is %d'
+                                                     % (delta + 1, number_of_leafs))
 
     def test_less_simple_build_tree(self):
         delta = 5 * 24  # 5 days
-        new_synergy_start_time = wind_the_time(ProcessContext.QUALIFIER_HOURLY,
-                                               self.initial_synergy_start_time,
-                                               -delta)
+        new_synergy_start_time = base_fixtures.wind_the_time(ProcessContext.QUALIFIER_HOURLY,
+                                                             self.initial_synergy_start_time,
+                                                             -delta)
 
         settings['synergy_start_timeperiod'] = new_synergy_start_time
         self.tree.build_tree()
@@ -121,21 +101,21 @@ class TestThreeLevelTree(unittest.TestCase):
 
     def test_catching_up_time_build_tree(self):
         delta = 5 * 24
-        new_synergy_start_time = wind_the_time(ProcessContext.QUALIFIER_HOURLY,
-                                               self.initial_synergy_start_time,
-                                               -delta)
+        new_synergy_start_time = base_fixtures.wind_the_time(ProcessContext.QUALIFIER_HOURLY,
+                                                             self.initial_synergy_start_time,
+                                                             -delta)
         settings['synergy_start_timeperiod'] = new_synergy_start_time
 
         self.tree.build_tree()
         self._perform_assertions(new_synergy_start_time, delta / 24)
 
-        new_actual_timeperiod = wind_the_time(ProcessContext.QUALIFIER_HOURLY,
-                                              self.initial_synergy_start_time,
-                                              delta)
+        new_actual_timeperiod = base_fixtures.wind_the_time(ProcessContext.QUALIFIER_HOURLY,
+                                                            self.initial_synergy_start_time,
+                                                            delta)
 
         time_helper.actual_timeperiod = \
-            wind_actual_timeperiod(time_helper.synergy_to_datetime(ProcessContext.QUALIFIER_HOURLY,
-                                                                   new_actual_timeperiod))
+            base_fixtures.wind_actual_timeperiod(time_helper.synergy_to_datetime(ProcessContext.QUALIFIER_HOURLY,
+                                                                                 new_actual_timeperiod))
         self.tree.build_tree()
         self._perform_assertions(new_synergy_start_time, 2 * delta / 24)
 
