@@ -231,6 +231,7 @@ def create_site_stats(collection, composite_key_function, statistics_klass, seed
 
 
 def wind_actual_timeperiod(new_time):
+    """ method is used to overload actual_timeperiod method from the time_helper """
     def actual_timeperiod(time_qualifier):
         return time_helper.datetime_to_synergy(time_qualifier, new_time)
 
@@ -238,6 +239,7 @@ def wind_actual_timeperiod(new_time):
 
 
 def wind_the_time(time_qualifier, timeperiod, delta):
+    """ method is used to calculate new timeperiod, shifted by number of units (hours or days)"""
     pattern = time_helper.define_pattern(timeperiod)
     t = datetime.strptime(timeperiod, pattern)
 
