@@ -1,6 +1,7 @@
 __author__ = 'Bohdan Mushkevych'
 
 from pymongo import MongoClient, ASCENDING, DESCENDING
+from bson.objectid import ObjectId
 from settings import settings
 from db.model import base_model
 from abc import abstractmethod, ABCMeta
@@ -67,6 +68,17 @@ class BaseManager:
     def lowest_primary_key(self, table_name, timeperiod_low, timeperiod_high):
         pass
 
+    @abstractmethod
+    def cursor_for(self,
+                   table_name,
+                   start_id_obj,
+                   end_id_obj,
+                   iteration,
+                   start_timeperiod,
+                   end_timeperiod,
+                   bulk_threshold):
+        pass
+
 
 class MongoDbManager(BaseManager):
     def __init__(self, logger):
@@ -124,6 +136,31 @@ class MongoDbManager(BaseManager):
         dec_search = conn.find(spec=query, fields='_id').sort('_id', DESCENDING).limit(1)
         last_object_id = dec_search[0]['_id']
         return last_object_id
+
+    def cursor_for(self,
+                   table_name,
+                   start_id_obj,
+                   end_id_obj,
+                   iteration,
+                   start_timeperiod,
+                   end_timeperiod,
+                   bulk_threshold):
+        if not isinstance(start_id_obj, ObjectId):
+            start_id_obj = ObjectId(start_id_obj)
+        if not isinstance(end_id_obj, ObjectId):
+            end_id_obj = ObjectId(end_id_obj)
+
+        if iteration == 0:
+            queue = {'_id': {'$gte': start_id_obj, '$lte': end_id_obj}}
+        else:
+            queue = {'_id': {'$gt': start_id_obj, '$lte': end_id_obj}}
+
+        if start_timeperiod is not None and end_timeperiod is not None:
+            # remove all accident objects that may be in [start_id_obj : end_id_obj] range
+            queue[base_model.TIMEPERIOD] = {'$gte': start_timeperiod, '$lt': end_timeperiod}
+
+        conn = self._db[table_name]
+        return conn.find(queue).sort('_id', ASCENDING).limit(bulk_threshold)
 
 
 class HBaseManager(BaseManager):

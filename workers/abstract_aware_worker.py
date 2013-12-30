@@ -2,8 +2,7 @@
 
 __author__ = 'Bohdan Mushkevych'
 
-from bson.objectid import ObjectId
-from db.model import base_model, unit_of_work
+from db.model import unit_of_work
 from db.manager import ds_manager
 from db.dao.unit_of_work_dao import UnitOfWorkDao
 
@@ -11,8 +10,6 @@ import gc
 import json
 import socket
 from datetime import datetime
-
-from pymongo import ASCENDING
 
 from settings import settings
 from system.decimal_encoder import DecimalEncoder
@@ -43,14 +40,6 @@ class AbstractAwareWorker(AbstractWorker):
     def _get_tunnel_port(self):
         """ abstract method to retrieve Python-HBase tunnel port"""
         pass
-
-    def _get_source_collection(self):
-        """collection with data for processing"""
-        return self.ds.connection(ProcessContext.get_source_collection(self.process_name))
-
-    def _get_target_collection(self):
-        """collection to store aggregated documents"""
-        return self.ds.connection(ProcessContext.get_target_collection(self.process_name))
 
     def _flush_aggregated_objects(self):
         """ method inserts aggregated objects to HBaseTunnel
@@ -142,8 +131,8 @@ class AbstractAwareWorker(AbstractWorker):
             return
 
         try:
-            start_id_obj = ObjectId(uow.start_id)
-            end_id_obj = ObjectId(uow.end_id)
+            start_id_obj = uow.start_id
+            end_id_obj = uow.end_id
             start_timeperiod = uow.start_timeperiod
             end_timeperiod = uow.end_timeperiod
 
@@ -155,20 +144,17 @@ class AbstractAwareWorker(AbstractWorker):
             bulk_threshold = settings['bulk_threshold']
             iteration = 0
             while True:
-                source_collection = self._get_source_collection()
-                if iteration == 0:
-                    queue = {'_id': {'$gte': start_id_obj, '$lte': end_id_obj}}
-                else:
-                    queue = {'_id': {'$gt': start_id_obj, '$lte': end_id_obj}}
-
-                if start_timeperiod is not None and end_timeperiod is not None:
-                    # remove all accident objects that may be in [start_id_obj : end_id_obj] range
-                    queue[base_model.TIMEPERIOD] = {'$gte': start_timeperiod, '$lt': end_timeperiod}
-
-                cursor = source_collection.find(queue).sort('_id', ASCENDING).limit(bulk_threshold)
+                collection_name = ProcessContext.get_source_collection(self.process_name)
+                cursor = self.ds.cursor_for(collection_name,
+                                            start_id_obj,
+                                            end_id_obj,
+                                            iteration,
+                                            start_timeperiod,
+                                            end_timeperiod,
+                                            bulk_threshold)
                 count = cursor.count(with_limit_and_skip=True)
                 if count == 0 and iteration == 0:
-                    msg = 'No entries in %s at range [%s : %s]' % (source_collection.name, uow.start_id, uow.end_id)
+                    msg = 'No entries in %s at range [%s : %s]' % (collection_name, uow.start_id, uow.end_id)
                     self.logger.warning(msg)
                     break
                 else:
