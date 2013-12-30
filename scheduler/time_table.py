@@ -1,3 +1,4 @@
+
 __author__ = 'Bohdan Mushkevych'
 
 from db.dao.unit_of_work_dao import UnitOfWorkDao
@@ -7,7 +8,9 @@ from db.model.time_table_record import TimeTableRecord
 
 from datetime import datetime
 from threading import RLock
-from system import process_context
+from settings import settings
+from system import process_context, time_helper
+from system.process_context import ProcessContext
 from system.decorator import thread_safe
 from system.collection_context import COLLECTION_TIMETABLE_HOURLY, COLLECTION_TIMETABLE_DAILY, \
     COLLECTION_TIMETABLE_MONTHLY, COLLECTION_TIMETABLE_YEARLY
@@ -184,11 +187,11 @@ class TimeTable:
         tree_node.timetable_record = timetable_record
 
     @thread_safe
-    def _build_tree_by_level(self, collection_name):
+    def _build_tree_by_level(self, collection_name, since):
         """ method iterated thru all documents in all timetable collections and builds tree of known system state"""
 
         try:
-            document_list = self.ttr_dao.get_all(collection_name)
+            document_list = self.ttr_dao.get_all(collection_name, since)
             for document in document_list:
                 tree = self.get_tree(document.process_name)
                 if tree is not None:
@@ -201,11 +204,18 @@ class TimeTable:
 
     @thread_safe
     def load_tree(self):
-        """ method iterates thru all objects in timetable collections and load them into timetable"""
-        self._build_tree_by_level(COLLECTION_TIMETABLE_HOURLY)
-        self._build_tree_by_level(COLLECTION_TIMETABLE_DAILY)
-        self._build_tree_by_level(COLLECTION_TIMETABLE_MONTHLY)
-        self._build_tree_by_level(COLLECTION_TIMETABLE_YEARLY)
+        """ method iterates thru all objects older than synergy_start_timeperiod parameter in timetable collections
+        and load them into timetable"""
+        timeperiod = settings['synergy_start_timeperiod']
+        yearly_timeperiod = time_helper.cast_to_time_qualifier(ProcessContext.QUALIFIER_YEARLY, timeperiod)
+        monthly_timeperiod = time_helper.cast_to_time_qualifier(ProcessContext.QUALIFIER_MONTHLY, timeperiod)
+        daily_timeperiod = time_helper.cast_to_time_qualifier(ProcessContext.QUALIFIER_DAILY, timeperiod)
+        hourly_timeperiod = time_helper.cast_to_time_qualifier(ProcessContext.QUALIFIER_HOURLY, timeperiod)
+
+        self._build_tree_by_level(COLLECTION_TIMETABLE_HOURLY, since=hourly_timeperiod)
+        self._build_tree_by_level(COLLECTION_TIMETABLE_DAILY, since=daily_timeperiod)
+        self._build_tree_by_level(COLLECTION_TIMETABLE_MONTHLY, since=monthly_timeperiod)
+        self._build_tree_by_level(COLLECTION_TIMETABLE_YEARLY, since=yearly_timeperiod)
 
     @thread_safe
     def build_tree(self):

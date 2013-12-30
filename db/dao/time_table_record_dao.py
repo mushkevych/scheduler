@@ -57,14 +57,17 @@ class TimeTableRecordDao(object):
         return TimeTableRecord(document)
 
     @thread_safe
-    def get_all(self, table_name):
-        """ method returns all time table records from particular table """
-        query = {}
+    def get_all(self, table_name, since=None):
+        """ method returns all time table records from particular table that are older than <since> """
+        if since is None:
+            query = {}
+        else:
+            query = {base_model.TIMEPERIOD: {'$gte': since}}
         collection = self.ds.connection(table_name)
 
         cursor = collection.find(query)
         if cursor.count() == 0:
-            raise LookupError('MongoDB has no time table records in %s collection' % table_name)
+            raise LookupError('MongoDB has no time table records in %s collection since %r' % (table_name, since))
         return [TimeTableRecord(document) for document in cursor]
 
     @thread_safe
