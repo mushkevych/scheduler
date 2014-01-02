@@ -191,14 +191,18 @@ class TimeTable:
         """ method iterated thru all documents in all timetable collections and builds tree of known system state"""
 
         try:
+            unsupported_records = dict()
             document_list = self.ttr_dao.get_all(collection_name, since)
             for document in document_list:
                 tree = self.get_tree(document.process_name)
                 if tree is not None:
                     tree.update_node_by_process(document.process_name, document)
                 else:
-                    self.logger.warning('Skipping TimeTable record for %s, as no tree is handling it.'
-                                        % document.process_name)
+                    unsupported_records[document.process_name] = unsupported_records.get(document.process_name, 0) + 1
+
+            for name, counter in unsupported_records.items():
+                self.logger.warning('Skipping %r TimeTable records for %s as no tree is handling it.' % (counter, name))
+
         except LookupError:
             self.logger.warning('No TimeTable Records in %s.' % str(collection_name))
 
