@@ -91,8 +91,8 @@ def actual_timeperiod(time_qualifier):
 
 def increment_timeperiod(time_qualifier, timeperiod):
     """ method is used by Scheduler to define <<next>> time period.
-    For hourly, it is next hour: 20100101_19 -> 20100101_20 
-    For month - next month: 201001 -> 201002, etc"""
+    For hourly, it is next hour: 2010010119 -> 2010010120
+    For month - next month:      2010010000 -> 2010020000, etc"""
 
     pattern = define_pattern(timeperiod)
     t = datetime.strptime(timeperiod, pattern)

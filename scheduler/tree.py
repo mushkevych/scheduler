@@ -125,7 +125,7 @@ class AbstractTree(object):
             # in case all nodes are processed or blocked - look for next valid parent node
             return self._get_next_node(new_parent)
         else:
-            # in all valid parents are exploited - return current node
+            # if all valid parents are exploited - return current node
             process_name = parent.children[sorted_keys[0]].process_name
             time_qualifier = parent.children[sorted_keys[0]].time_qualifier
             actual_timeperiod = time_helper.actual_timeperiod(time_qualifier)
