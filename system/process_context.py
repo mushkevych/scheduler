@@ -24,6 +24,9 @@ PROCESS_SITE_YEARLY = 'SiteYearlyAggregator'
 PROCESS_CLIENT_DAILY = 'ClientDailyAggregator'
 PROCESS_CLIENT_MONTHLY = 'ClientMonthlyAggregator'
 PROCESS_CLIENT_YEARLY = 'ClientYearlyAggregator'
+PROCESS_IDENTITY_DAILY = 'IdentityDailyWorker'
+PROCESS_IDENTITY_MONTHLY = 'IdentityMonthlyWorker'
+PROCESS_IDENTITY_YEARLY = 'IdentityYearlyWorker'
 PROCESS_ALERT_DAILY = 'AlertDailyWorker'
 
 # process provides <process context> to unit testing: such as logger, queue, etc
@@ -39,6 +42,7 @@ _TOKEN_SESSION = 'session'
 _TOKEN_GC = 'gc'
 _TOKEN_SITE = 'site'
 _TOKEN_CLIENT = 'client'
+_TOKEN_IDENTITY = 'identity'
 _TOKEN_ALERT = 'alert'
 
 _ROUTING_PREFIX = 'routing_'
@@ -239,6 +243,30 @@ class ProcessContext:
             time_qualifier=QUALIFIER_YEARLY,
             exchange=EXCHANGE_HORIZONTAL,
             process_type=TYPE_HORIZONTAL_AGGREGATOR),
+
+        PROCESS_IDENTITY_DAILY: _create_context_entry(
+            process_name=PROCESS_IDENTITY_DAILY,
+            classname='workers.identity_worker.IdentityWorker.start',
+            token=_TOKEN_IDENTITY,
+            time_qualifier=QUALIFIER_DAILY,
+            exchange=EXCHANGE_UTILS,
+            process_type=TYPE_VERTICAL_AGGREGATOR),
+
+        PROCESS_IDENTITY_MONTHLY: _create_context_entry(
+            process_name=PROCESS_IDENTITY_MONTHLY,
+            classname='workers.identity_worker.IdentityWorker.start',
+            token=_TOKEN_IDENTITY,
+            time_qualifier=QUALIFIER_MONTHLY,
+            exchange=EXCHANGE_UTILS,
+            process_type=TYPE_VERTICAL_AGGREGATOR),
+
+        PROCESS_IDENTITY_YEARLY: _create_context_entry(
+            process_name=PROCESS_IDENTITY_YEARLY,
+            classname='workers.identity_worker.IdentityWorker.start',
+            token=_TOKEN_IDENTITY,
+            time_qualifier=QUALIFIER_YEARLY,
+            exchange=EXCHANGE_UTILS,
+            process_type=TYPE_VERTICAL_AGGREGATOR),
 
         PROCESS_ALERT_DAILY: _create_context_entry(
             process_name=PROCESS_ALERT_DAILY,

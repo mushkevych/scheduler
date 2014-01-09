@@ -1,19 +1,21 @@
 __author__ = 'Bohdan Mushkevych'
 
-from db.model import time_table_record
 from datetime import datetime, timedelta
+
+from db.model import time_table_record
 from tree_node import TreeNode, LinearNode
 from settings import settings
 from system import time_helper
 from system.time_helper import cast_to_time_qualifier
 from system.process_context import ProcessContext
 
+
 MAX_NUMBER_OF_RETRIES = 3    # number of times a node is re-run before it is considered STATE_SKIPPED
 LIFE_SUPPORT_HOURS = 48      # number of hours that node is retried infinite number of times
 
 
 class AbstractTree(object):
-    """Linear timeline structure, presenting array of timetable_records"""
+    """Abstract Tree structure """
 
     def __init__(self, node_klass, category=None, mx_page=None):
         """
@@ -29,7 +31,7 @@ class AbstractTree(object):
         self.category = category
         self.mx_page = mx_page
         self.node_klass = node_klass
-        self.root = node_klass(self, None, None, None, None)
+        self.root = self.node_klass(self, None, None, None, None)
         self.dependent_on = []
 
     # *** PUBLIC METHODS ***
@@ -170,15 +172,15 @@ class AbstractTree(object):
 class TwoLevelTree(AbstractTree):
     """Linear timeline structure, presenting array of timetable_records"""
 
-    def __init__(self, process_name, category=None, mx_page=None):
-        super(TwoLevelTree, self).__init__(LinearNode, category, mx_page)
+    def __init__(self, process_name, category=None, mx_page=None, node_klass=LinearNode):
+        super(TwoLevelTree, self).__init__(node_klass, category, mx_page)
         self.process_name = process_name
 
     # *** SPECIFIC METHODS ***
     def __get_node(self, timeperiod):
         node = self.root.children.get(timeperiod)
         if node is None:
-            node = LinearNode(self, self.root, self.process_name, timeperiod, None)
+            node = self.node_klass(self, self.root, self.process_name, timeperiod, None)
             node.request_timetable_record()
             self.root.children[timeperiod] = node
 
@@ -232,8 +234,13 @@ class TwoLevelTree(AbstractTree):
 class ThreeLevelTree(AbstractTree):
     """Three level tree present structure, monitoring: yearly, monthly and daily time-periods"""
 
-    def __init__(self, process_yearly, process_monthly, process_daily, category=None, mx_page=None):
-        super(ThreeLevelTree, self).__init__(TreeNode, category, mx_page)
+    def __init__(self, process_yearly,
+                 process_monthly,
+                 process_daily,
+                 category=None,
+                 mx_page=None,
+                 node_klass=TreeNode):
+        super(ThreeLevelTree, self).__init__(node_klass, category, mx_page)
         self.process_yearly = process_yearly
         self.process_monthly = process_monthly
         self.process_daily = process_daily
@@ -242,31 +249,29 @@ class ThreeLevelTree(AbstractTree):
     def __get_yearly_node(self, timeperiod):
         node = self.root.children.get(timeperiod)
         if node is None:
-            node = TreeNode(self, self.root, self.process_yearly, timeperiod, None)
+            node = self.node_klass(self, self.root, self.process_yearly, timeperiod, None)
             self.root.children[timeperiod] = node
 
         return node
 
     def __get_monthly_node(self, timeperiod):
-        time_qualifier = ProcessContext.get_time_qualifier(self.process_yearly)
-        timeperiod_yearly = cast_to_time_qualifier(time_qualifier, timeperiod)
+        timeperiod_yearly = cast_to_time_qualifier(ProcessContext.QUALIFIER_YEARLY, timeperiod)
         parent = self.__get_yearly_node(timeperiod_yearly)
 
         node = parent.children.get(timeperiod)
         if node is None:
-            node = TreeNode(self, parent, self.process_monthly, timeperiod, None)
+            node = self.node_klass(self, parent, self.process_monthly, timeperiod, None)
             parent.children[timeperiod] = node
 
         return node
 
     def __get_daily_node(self, timeperiod):
-        time_qualifier = ProcessContext.get_time_qualifier(self.process_monthly)
-        timeperiod_monthly = cast_to_time_qualifier(time_qualifier, timeperiod)
+        timeperiod_monthly = cast_to_time_qualifier(ProcessContext.QUALIFIER_MONTHLY, timeperiod)
         parent = self.__get_monthly_node(timeperiod_monthly)
 
         node = parent.children.get(timeperiod)
         if node is None:
-            node = TreeNode(self, parent, self.process_daily, timeperiod, None)
+            node = self.node_klass(self, parent, self.process_daily, timeperiod, None)
             parent.children[timeperiod] = node
 
         return node
@@ -292,10 +297,12 @@ class ThreeLevelTree(AbstractTree):
     def get_node_by_process(self, process_name, timeperiod):
         if process_name == self.process_yearly:
             return self.__get_yearly_node(timeperiod)
-        if process_name == self.process_monthly:
+        elif process_name == self.process_monthly:
             return self.__get_monthly_node(timeperiod)
-        if process_name == self.process_daily:
+        elif process_name == self.process_daily:
             return self.__get_daily_node(timeperiod)
+        else:
+            raise ValueError('unable to retrieve the node due to unknown process: %s' % process_name)
 
     def update_node_by_process(self, process_name, timetable_record):
         if process_name == self.process_yearly:
@@ -343,10 +350,12 @@ class ThreeLevelTree(AbstractTree):
     def get_next_node_by_process(self, process_name):
         if process_name == self.process_yearly:
             return self.__get_next_yearly_node()
-        if process_name == self.process_monthly:
+        elif process_name == self.process_monthly:
             return self.__get_next_monthly_node()
-        if process_name == self.process_daily:
+        elif process_name == self.process_daily:
             return self.__get_next_daily_node()
+        else:
+            raise ValueError('unable to compute the next_node due to unknown process: %s' % process_name)
 
     def is_managing_process(self, process_name):
         """method returns True if process_name is among processes (yearly/monthly/daily etc),
@@ -361,14 +370,24 @@ class ThreeLevelTree(AbstractTree):
 class FourLevelTree(ThreeLevelTree):
     """Four level tree present structure, monitoring: yearly, monthly, daily and hourly time-periods"""
 
-    def __init__(self, process_yearly, process_monthly, process_daily, process_hourly, category=None, mx_page=None):
-        super(FourLevelTree, self).__init__(process_yearly, process_monthly, process_daily, category, mx_page)
+    def __init__(self, process_yearly,
+                 process_monthly,
+                 process_daily,
+                 process_hourly,
+                 category=None,
+                 mx_page=None,
+                 node_klass=TreeNode):
+        super(FourLevelTree, self).__init__(process_yearly,
+                                            process_monthly,
+                                            process_daily,
+                                            category=category,
+                                            mx_page=mx_page,
+                                            node_klass=node_klass)
         self.process_hourly = process_hourly
 
     # *** PRIVATE METHODS ***
     def __get_hourly_node(self, timeperiod):
-        time_qualifier = ProcessContext.get_time_qualifier(self.process_daily)
-        timeperiod_daily = cast_to_time_qualifier(time_qualifier, timeperiod)
+        timeperiod_daily = cast_to_time_qualifier(ProcessContext.QUALIFIER_DAILY, timeperiod)
         parent = self._ThreeLevelTree__get_daily_node(timeperiod_daily)
 
         node = parent.children.get(timeperiod)

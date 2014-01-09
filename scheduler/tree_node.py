@@ -1,6 +1,7 @@
 __author__ = 'Bohdan Mushkevych'
 
 from db.model import time_table_record
+from system import time_helper
 from system.process_context import ProcessContext
 
 
@@ -53,7 +54,7 @@ class AbstractNode(object):
 
     def validate(self):
         """method traverse tree and:
-        * requests for STATE_EMBRYO timetable records """
+        * requests for timetable records in STATE_EMBRYO if no timetable record is currently assigned"""
         if self.timetable_record is None:
             self.request_timetable_record()
 
@@ -70,8 +71,8 @@ class AbstractNode(object):
             - horizontal nodes to verify that particular time period has been finalized in verticals
             prior to finalization of the horizontal time-period
             - alerts to make sure they are run only when all data is present and finalized
-            - financial daily nodes to make sure that Google Domain and Google Channel data is available
-            - financial post processing timperiods to track completion of both financial and traffic data
+            - financial daily nodes to make sure that input data is available
+            - financial post processing timeperiods to track completion of both financial and traffic data
             @return tuple (dependents_are_finalized, dependents_are_skipped) indicating
                 dependents_are_finalized - indicates if all <dependent on> periods are in STATE_PROCESSED
                 dependents_are_skipped - indicates that among <dependent on> periods are some in STATE_SKIPPED
@@ -145,7 +146,9 @@ class LinearNode(AbstractNode):
 
 
 class TreeNode(AbstractNode):
-    HOURS_IN_DAY = 24
+    """ TreeNode is used to operate a node in a tree where all levels are equal and are represented by fully-operational
+        processes.
+        For instance: ThreeLevelTree, FourLevelTree"""
 
     def __init__(self, tree, parent, process_name, timeperiod, timetable_record):
         super(TreeNode, self).__init__(tree, parent, process_name, timeperiod, timetable_record)
@@ -172,34 +175,45 @@ class TreeNode(AbstractNode):
         return children_processed
 
     def validate(self):
-        """method traverse tree and kicks two types of events:
-        * requests for STATE_EMBRYO timetable records
+        """method traverse tree and performs following activities:
+        * requests for timetable records in STATE_EMBRYO if no timetable record is currently assigned
         * requests nodes for reprocessing, if STATE_PROCESSED node relies on unfinalized nodes
         * requests node for skipping if it is daily node and all 24 of its Hourly nodes are in STATE_SKIPPED state"""
         super(TreeNode, self).validate()
 
+        # step 1: define if current node has a younger sibling
+        next_timeperiod = time_helper.increment_timeperiod(self.time_qualifier, self.timeperiod)
+        has_younger_sibling = next_timeperiod in self.parent.children
+
+        # step 2: define if all children are done and if perhaps they all are in STATE_SKIPPED
         all_children_skipped = True
-        children_processed = True
+        all_children_done = True
         for timeperiod in self.children:
             child = self.children[timeperiod]
-            children_processed = child.validate()
+            child.validate()
 
             if child.timetable_record.state in [time_table_record.STATE_EMBRYO,
                                                 time_table_record.STATE_IN_PROGRESS,
                                                 time_table_record.STATE_FINAL_RUN]:
-                children_processed = False
+                all_children_done = False
             if child.timetable_record.state != time_table_record.STATE_SKIPPED:
                 all_children_skipped = False
 
-        if children_processed is False \
+        # step 3: request this node's reprocessing if it is enroute to STATE_PROCESSED
+        # while some of its children are still performing processing
+        if all_children_done is False \
             and self.timetable_record.state in [time_table_record.STATE_FINAL_RUN, time_table_record.STATE_PROCESSED]:
             self.request_reprocess()
 
-        # ideally, we should check if our tree holds HOURLY records by running <isinstance(self.tree, FourLevelTree)>
-        # however, we can not import FourLevelTree because of self-reference import issue
-        # to solve this problem we check presence of <process_hourly> attribute
-        if all_children_skipped \
-            and hasattr(self.tree, 'process_hourly') \
-            and self.process_name == self.tree.process_daily \
-            and len(self.children) == TreeNode.HOURS_IN_DAY:
+        # step 4: verify if this node should be transferred to STATE_SKIPPED
+        # algorithm is following:
+        # point a: node must have children
+        # point b: existence of a younger sibling means that the tree contains another node of the same level
+        # thus - should the tree.build_timeperiod be not None - the children level of this node is fully constructed
+        # point c: if all children of this node are in STATE_SKIPPED then we will set this node state to STATE_SKIPPED
+        if len(self.children) != 0 \
+            and all_children_skipped \
+            and self.tree.build_timeperiod is not None \
+            and has_younger_sibling is True \
+            and self.timetable_record.state != time_table_record.STATE_SKIPPED:
             self.request_skip()

@@ -1,4 +1,3 @@
-
 __author__ = 'Bohdan Mushkevych'
 
 from db.dao.unit_of_work_dao import UnitOfWorkDao
