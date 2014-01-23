@@ -91,8 +91,7 @@ OUTPUT_DOCUMENT.construct_table_row = function(k, v, handler) {
 };
 
 // recursive method builds timerecords table on the right
-OUTPUT_DOCUMENT.build_timerecords_panel = function(children) {
-    var table = OUTPUT_DOCUMENT.get_empty_table();
+OUTPUT_DOCUMENT.build_timerecords_panel = function(children, is_linear) {
     var tbody = $('<tbody></tbody>');
     $.each(children, function(k, v) {
 
@@ -100,15 +99,19 @@ OUTPUT_DOCUMENT.build_timerecords_panel = function(children) {
             e.preventDefault();
             var params = { timeperiod: v.timeperiod, process_name: v.process_name };
             $.get('/request_children/', params, function(response) {
-                $('#content').html(OUTPUT_DOCUMENT.build_timerecords_panel(response.children));
+                $('#content').html(OUTPUT_DOCUMENT.build_timerecords_panel(response.children, is_linear));
                 OUTPUT_DOCUMENT.build_timerecord_entry(k, v, handler);
             });
         };
         var tr = OUTPUT_DOCUMENT.construct_table_row(k, v, handler);
         tbody.append(tr);
     });
+
+    var table = OUTPUT_DOCUMENT.get_empty_table();
     table.append(tbody);
-    table.dataTable({"bPaginate":false});
+    table.dataTable({"bPaginate": is_linear,
+                     "iDisplayLength": 36,
+                     "bLengthChange": false});
     return table;
 
 };
@@ -159,7 +162,7 @@ OUTPUT_DOCUMENT.build_navigational_panel = function(vertical_json) {
                 $('#level').empty();
                 $('#content').empty();
                 if (response.children) {
-                    var right_ul = OUTPUT_DOCUMENT.build_timerecords_panel(response.children);
+                    var right_ul = OUTPUT_DOCUMENT.build_timerecords_panel(response.children, v.number_of_levels == 1);
                     $('#content').hide().html(right_ul).fadeIn('1500');
                 } else {
                     $('#content').hide().html("No report to show at this moment.").fadeIn('1500');
