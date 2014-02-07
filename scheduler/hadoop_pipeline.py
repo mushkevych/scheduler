@@ -4,12 +4,12 @@ from db.error import DuplicateKeyError
 from datetime import datetime
 from logging import ERROR, WARNING, INFO
 
-from abstract_pipeline import AbstractPipeline
 from db.model.unit_of_work import UnitOfWork
 from db.model import time_table_record, unit_of_work
 from system import time_helper
 from system.decorator import with_reconnect
 from system.process_context import ProcessContext
+from scheduler.abstract_pipeline import AbstractPipeline
 
 
 class HadoopPipeline(AbstractPipeline):

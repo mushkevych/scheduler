@@ -1,8 +1,8 @@
-import json as simplejson
+import json
 import uuid
-from system.process_context import ProcessContext
-from settings import settings
 from amqplib import client_0_8 as amqp
+from settings import settings
+from system.process_context import ProcessContext
 
 DEFAULT_HOST = settings['mq_host']
 DEFAULT_USER_ID = settings['mq_user_id']
@@ -110,7 +110,7 @@ class Consumer(SynergyAware):
             self.channel.wait()
 
     def dispatch(self, message):
-        decoded = simplejson.loads(message.body)
+        decoded = json.loads(message.body)
         message.body = decoded['data']
         if self.callback is not None:
             self.callback(message)
@@ -145,7 +145,7 @@ class Publisher(SynergyAware):
         self.delivery_mode = delivery_mode
 
     def publish(self, message_data):
-        encoded = simplejson.dumps({'data' : message_data})
+        encoded = json.dumps({'data' : message_data})
         message = amqp.Message(encoded)
         message.properties['delivery_mode'] = self.delivery_mode
         self.channel.basic_publish(

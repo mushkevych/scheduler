@@ -1,7 +1,7 @@
 __author__ = 'Bohdan Mushkevych'
 
 import unittest
-from flopsy.flopsy import PublishersPool
+from mq.flopsy import PublishersPool
 from db.dao.unit_of_work_dao import UnitOfWorkDao
 from tests.base_fixtures import create_and_insert_unit_of_work
 from system.process_context import PROCESS_SITE_DAILY

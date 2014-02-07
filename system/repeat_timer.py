@@ -1,6 +1,4 @@
 """
-Created on 2011-02-10
-
 @author: Bohdan Mushkevych
 @author: Brian Curtin
 http://code.activestate.com/lists/python-ideas/8982/

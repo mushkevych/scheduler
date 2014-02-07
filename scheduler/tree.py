@@ -2,9 +2,9 @@ __author__ = 'Bohdan Mushkevych'
 
 from datetime import datetime, timedelta
 
-from db.model import time_table_record
-from tree_node import TreeNode, LinearNode
 from settings import settings
+from db.model import time_table_record
+from scheduler.tree_node import TreeNode, LinearNode
 from system import time_helper
 from system.time_helper import cast_to_time_qualifier
 from system.process_context import ProcessContext

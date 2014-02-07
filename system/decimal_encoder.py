@@ -1,6 +1,4 @@
 """
-Created on 2011-09-30
-
 Decimal Encoder enhance regular JSON package with Decimal support
 @author: Michal Marczyk
 http://stackoverflow.com/questions/1960516/python-json-serialize-a-decimal-object

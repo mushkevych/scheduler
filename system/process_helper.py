@@ -1,8 +1,5 @@
-"""
-Created on 2011-06-15
+__author__ = 'Bohdan Mushkevych'
 
-@author: Bohdan Mushkevych
-"""
 from subprocess import PIPE, STDOUT
 import sys
 

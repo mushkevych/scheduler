@@ -7,8 +7,8 @@ from werkzeug.exceptions import HTTPException, NotFound
 from werkzeug.serving import run_simple
 from settings import settings
 
-from utils import STATIC_PATH, local, local_manager, url_map, jinja_env
-import views
+from mx.utils import STATIC_PATH, local, local_manager, url_map, jinja_env
+from mx import views
 
 
 class MX(object):
@@ -79,7 +79,7 @@ class MX(object):
 
 if __name__ == '__main__':
     from system.process_context import PROCESS_SCHEDULER
-    from scheduler.scheduler import Scheduler
+    from scheduler.synergy_scheduler import Scheduler
 
     source = Scheduler(PROCESS_SCHEDULER)
 

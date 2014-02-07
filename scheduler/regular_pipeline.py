@@ -1,17 +1,16 @@
-from db.manager import ds_manager
-
 __author__ = 'Bohdan Mushkevych'
 
 from datetime import datetime
 from logging import ERROR, WARNING, INFO
 
-from abstract_pipeline import AbstractPipeline
+from db.manager import ds_manager
 from db.error import DuplicateKeyError
 from db.model import time_table_record, unit_of_work
 from db.model.unit_of_work import UnitOfWork
 from system.decorator import with_reconnect
 from system.process_context import ProcessContext
 from system import time_helper
+from scheduler.abstract_pipeline import AbstractPipeline
 
 
 class RegularPipeline(AbstractPipeline):

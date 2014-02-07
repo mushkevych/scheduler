@@ -13,7 +13,7 @@ from system.process_context import ProcessContext
 from system.decorator import thread_safe
 from system.collection_context import COLLECTION_TIMETABLE_HOURLY, COLLECTION_TIMETABLE_DAILY, \
     COLLECTION_TIMETABLE_MONTHLY, COLLECTION_TIMETABLE_YEARLY
-from tree import TwoLevelTree, ThreeLevelTree, FourLevelTree
+from scheduler.tree import TwoLevelTree, ThreeLevelTree, FourLevelTree
 
 # make sure MX_PAGE_TRAFFIC refers to mx.views.py page
 MX_PAGE_TRAFFIC = 'traffic_details'

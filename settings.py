@@ -1,3 +1,5 @@
+from datetime import datetime
+
 ENVIRONMENT = '%ENVIRONMENT%'
 
 # folder locations, connection properties etc
@@ -32,6 +34,7 @@ settings = dict(
     bulk_threshold=1024,
     mx_host='0.0.0.0',                              # management extension host (0.0.0.0 opens all interfaces)
     mx_port=5000,                                   # management extension port
+    mx_children_limit=168,                          # maximum number of children at any given level returned by MX
     perf_ticker_interval=30,                        # seconds between performance ticker messages
     debug=False,                                    # if True - logger is given additional "console" adapter
     under_test=False
@@ -50,7 +53,7 @@ settings.update(overrides.settings)
 testable_modules = [
     'model',
     'event_stream_generator',
-    'flopsy',
+    'mq',
     'supervisor',
     'scheduler',
     'system',
@@ -81,6 +84,7 @@ def enable_test_mode():
         mq_vhost='/unit_test',
         debug=True,
         under_test=True,
+        synergy_start_timeperiod=datetime.utcnow().strftime('%Y%m%d%H'),
         bulk_threshold=512
     )
     settings.update(test_settings)

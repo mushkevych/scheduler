@@ -5,7 +5,7 @@ __author__ = 'Bohdan Mushkevych'
 from threading import Lock
 
 from datetime import datetime, timedelta
-from flopsy.flopsy import PublishersPool
+from mq.flopsy import PublishersPool
 from system.decorator import thread_safe
 from workers.abstract_worker import AbstractWorker
 from db.model import unit_of_work

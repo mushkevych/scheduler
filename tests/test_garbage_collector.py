@@ -6,7 +6,7 @@ from mockito import spy, verify, mock, when
 from mockito.matchers import any
 
 from db.model import unit_of_work
-from flopsy.flopsy import PublishersPool
+from mq.flopsy import PublishersPool
 from tests.base_fixtures import create_unit_of_work
 from system.process_context import PROCESS_GC, PROCESS_UNIT_TEST
 from workers.garbage_collector_worker import GarbageCollectorWorker, LIFE_SUPPORT_HOURS

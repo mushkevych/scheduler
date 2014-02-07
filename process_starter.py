@@ -1,8 +1,4 @@
-"""
-Created on 2011-06-15
-
-@author: Bohdan Mushkevych
-"""
+__author__ = 'Bohdan Mushkevych'
 
 import sys
 import types

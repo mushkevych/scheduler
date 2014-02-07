@@ -1,7 +1,7 @@
 __author__ = 'Bohdan Mushkevych'
 
 from settings import settings
-from flopsy.flopsy import Consumer
+from mq.flopsy import Consumer
 from system.performance_ticker import WorkerPerformanceTicker
 from system.synergy_process import SynergyProcess
 

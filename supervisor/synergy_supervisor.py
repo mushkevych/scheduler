@@ -6,10 +6,10 @@ from threading import Lock
 from subprocess import PIPE, STDOUT
 from psutil import TimeoutExpired
 
-import supervisor_helper as helper
+from launch import get_python, PROJECT_ROOT, PROCESS_STARTER
 from db.model import box_configuration
 from db.dao.box_configuration_dao import BoxConfigurationDao
-from launch import get_python, PROJECT_ROOT, PROCESS_STARTER
+from supervisor import supervisor_helper as helper
 from system.process_context import ProcessContext
 from system.repeat_timer import RepeatTimer
 from system.synergy_process import SynergyProcess

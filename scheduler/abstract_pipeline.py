@@ -6,7 +6,7 @@ from db.dao.time_table_record_dao import TimeTableRecordDao
 from datetime import datetime
 from logging import INFO, WARNING, ERROR
 
-from flopsy.flopsy import PublishersPool
+from mq.flopsy import PublishersPool
 from system.decorator import with_reconnect
 
 

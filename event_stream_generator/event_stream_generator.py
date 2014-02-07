@@ -8,7 +8,7 @@ import math
 
 from amqplib.client_0_8.exceptions import AMQPException
 
-from flopsy.flopsy import Publisher
+from mq.flopsy import Publisher
 from db.model.raw_data import RawData
 from system.performance_ticker import WorkerPerformanceTicker
 from system.synergy_process import SynergyProcess
