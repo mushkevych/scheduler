@@ -240,13 +240,11 @@ def stop_process(options):
 
 
 def run_shell(options):
-    """Run IPython in the virtualenv"""
-    import IPython
-    # Stolen from django
-    # Explicitly pass an empty list as arguments, because otherwise IPython
-    # would use sys.argv from this script.
-    shell = IPython.Shell.IPShell(argv=[])
-    shell.mainloop()
+    """Run IPython in the virtualenv
+    http://ipython.org/ipython-doc/stable/interactive/reference.html
+    """
+    from IPython import embed
+    embed()
 
 
 def run_lint(options):
