@@ -181,7 +181,7 @@ def start_process(options, args):
         message = 'INFO: Marking %r to be managed by Supervisor \n' % options.app
         sys.stdout.write(message)
 
-        bc_dao = BoxConfigurationDao(logging)
+        bc_dao = BoxConfigurationDao(logger)
         box_config = bc_dao.get_one(box_id)
         box_config.set_process_state(options.app, box_configuration.STATE_ON)
         bc_dao.update(box_config)

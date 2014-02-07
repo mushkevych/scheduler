@@ -4,7 +4,7 @@ import psutil
 from subprocess import PIPE
 from settings import settings
 from system import time_helper
-from system.process_context import PROCESS_SITE_HOURLY, ProcessContext
+from system.process_context import ProcessContext
 from workers.abstract_cli_worker import AbstractCliWorker
 
 

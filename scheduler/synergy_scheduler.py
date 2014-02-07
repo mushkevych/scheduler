@@ -6,7 +6,7 @@ from datetime import datetime
 from threading import Lock
 from amqplib.client_0_8 import AMQPException
 
-from flopsy.flopsy import PublishersPool
+from mq.flopsy import PublishersPool
 from system.decorator import with_reconnect
 from system.synergy_process import SynergyProcess
 from system.repeat_timer import RepeatTimer
@@ -87,7 +87,7 @@ class Scheduler(SynergyProcess):
 
     def start_mx(self):
         """ method's only purpose: import MX module (which has back-reference import to scheduler) and start it """
-        from mx.mx import MX
+        from mx.synergy_mx import MX
 
         self.mx = MX(self)
         self.mx.start_mx_thread()

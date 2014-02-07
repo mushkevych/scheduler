@@ -191,7 +191,7 @@ class ProcessContext:
 
         PROCESS_SCHEDULER: _create_context_entry(
             process_name=PROCESS_SCHEDULER,
-            classname='scheduler.scheduler.Scheduler.start',
+            classname='scheduler.synergy_scheduler.Scheduler.start',
             token=_TOKEN_SCHEDULER,
             time_qualifier='',
             queue='',
