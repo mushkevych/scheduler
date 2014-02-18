@@ -394,7 +394,7 @@ class ActionHandler(object):
             time_qualifier = ProcessContext.get_time_qualifier(self.process_name)
             self.timeperiod = time_helper.cast_to_time_qualifier(time_qualifier, self.timeperiod)
             node = tree.get_node_by_process(self.process_name, self.timeperiod)
-            resp['log'] = node.timetable_record.log()
+            resp['log'] = node.timetable_record.log
 
         return resp
 
