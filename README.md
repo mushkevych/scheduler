@@ -15,6 +15,25 @@ License:
 BSD license. Refer to LICENSE for details.
 
 
+Metafile:
+---------
+
+    /launch.py            main executing file  
+    /process_starter.py   utility to start worker in daemon mode  
+    /settings.py          configuration management  
+    /scripts/             folder contains shell scripts  
+    /system/              folder contains system-level modules  
+    /tests/               folder contains unit test  
+    /vendors/             folder contains Python libraries required for the project and installed in Python Virtual Environment  
+    /worker/              folder of actual project's code  
+    /db/                  root folder for database components - data source manager, data access objects, schema, etc
+    /mq/                  module provides RabbitMq Connection, Consumer, Publisher, etc functionality
+    /mx/                  module provides HTML front-end for the Synergy Scheduler
+    /scheduler/           folder contains Synergy Scheduler and related components
+    /supervisor/          folder contains module that starts/stops Scheduler processes
+    /event_stream_generator/  legacy tool. folder contains test stream generator.
+
+
 Wiki Links
 ---------
 [Wiki Home Page](https://github.com/mushkevych/scheduler/wiki)
@@ -31,5 +50,4 @@ Installation Instructions
 ---------
 1. install required dev libraries  
 in ubuntu terms: apt-get install python-setuptools python-dev build-essential checkinstall  
-1. mongodb: [linux installation instructions](http://docs.mongodb.org/manual/administration/install-on-linux/)  
-1. rabbitmq  [linux installation instructions](http://www.rabbitmq.com/download.html)  
+1. refer to Wiki
