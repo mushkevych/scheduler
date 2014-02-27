@@ -10,23 +10,26 @@ Synergy Scheduler is in fact a **state-machine**, that supervises job's life-cyc
 Synergy Scheduler hides all of this complexity from the user under its hood. In most cases, user would have to set "synergy_start_timperiod", write actual job and register it in the process_context to be able to run the job and the Synergy Scheduler.
 
 
+License:
+---------
+BSD license. Refer to LICENSE for details.
+
+
 Wiki Links
-=========
+---------
 [Wiki Home Page](https://github.com/mushkevych/scheduler/wiki)
 
 
 Os-Level Dependencies
-=========
+---------
 1. linux/unix  
 1. python 2.7+  
 1. kernel dev headers  
 
 
 Installation Instructions
-=========
+---------
 1. install required dev libraries  
 in ubuntu terms: apt-get install python-setuptools python-dev build-essential checkinstall  
 1. mongodb: [linux installation instructions](http://docs.mongodb.org/manual/administration/install-on-linux/)  
 1. rabbitmq  [linux installation instructions](http://www.rabbitmq.com/download.html)  
-
-
