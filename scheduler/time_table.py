@@ -1,12 +1,13 @@
 __author__ = 'Bohdan Mushkevych'
 
+from datetime import datetime
+from threading import RLock
+
 from db.dao.unit_of_work_dao import UnitOfWorkDao
 from db.dao.time_table_record_dao import TimeTableRecordDao
 from db.model import time_table_record, unit_of_work
 from db.model.time_table_record import TimeTableRecord
 
-from datetime import datetime
-from threading import RLock
 from settings import settings
 from system import process_context, time_helper
 from system.process_context import ProcessContext

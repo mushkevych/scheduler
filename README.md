@@ -15,10 +15,15 @@ License:
 BSD license. Refer to LICENSE for details.
 
 
+Git repository:
+---------
+[GitHub project page](https://github.com/mushkevych/scheduler)
+
+
 Metafile:
 ---------
 
-    /launch.py            main executing file  
+    /launch.py            launcher file
     /process_starter.py   utility to start worker in daemon mode  
     /settings.py          configuration management  
     /scripts/             folder contains shell scripts  
@@ -44,10 +49,3 @@ Os-Level Dependencies
 1. linux/unix  
 1. python 2.7+  
 1. kernel dev headers  
-
-
-Installation Instructions
----------
-1. install required dev libraries  
-in ubuntu terms: apt-get install python-setuptools python-dev build-essential checkinstall  
-1. refer to Wiki

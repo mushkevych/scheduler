@@ -20,7 +20,8 @@ def current_process_aware(class_method):
 
 
 def thread_safe(method):
-    """ wraps function with lock acquire/release cycle """
+    """ wraps function with lock acquire/release cycle
+     decorator requires class instance to have field self.lock of type threading.Lock or threading.RLock """
 
     @functools.wraps(method)
     def _locker(self, *args, **kwargs):

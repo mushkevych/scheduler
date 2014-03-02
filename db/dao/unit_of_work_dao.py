@@ -39,12 +39,16 @@ class UnitOfWorkDao(object):
         return UnitOfWork(document)
 
     @thread_safe
-    def get_reprocessing_candidates(self):
-        """ method queries all Unit Of Work records that could be candidates for re-processing """
+    def get_reprocessing_candidates(self, since=None):
+        """ method queries Unit Of Work whose <start_timeperiod> is older than <since>
+        and who could be candidates for re-processing """
         collection = self.ds.connection(COLLECTION_UNITS_OF_WORK)
         query = {unit_of_work.STATE: {'$in': [unit_of_work.STATE_IN_PROGRESS,
                                               unit_of_work.STATE_INVALID,
                                               unit_of_work.STATE_REQUESTED]}}
+
+        if since is not None:
+            query[unit_of_work.START_TIMEPERIOD] = {'$gte': since}
 
         cursor = collection.find(query).sort('_id', ASCENDING)
         if cursor.count() == 0:

@@ -1,4 +1,5 @@
 """ Module re-launches invalid units_of_work """
+from settings import settings
 
 __author__ = 'Bohdan Mushkevych'
 
@@ -30,9 +31,10 @@ class GarbageCollectorWorker(AbstractWorker):
 
     @thread_safe
     def _mq_callback(self, message):
-        """ method looks for units of work in STATE_INVALID and re-runs them"""
+        """ method looks for stale or invalid units of work re-runs them if needed"""
         try:
-            uow_list = self.uow_dao.get_reprocessing_candidates()
+            since = settings['synergy_start_timeperiod']
+            uow_list = self.uow_dao.get_reprocessing_candidates(since)
             for uow in uow_list:
                 self._process_single_document(uow)
         except LookupError as e:
