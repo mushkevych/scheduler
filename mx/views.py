@@ -11,12 +11,15 @@ from db.model import scheduler_configuration
 from db.dao.scheduler_configuration_dao import SchedulerConfigurationDao
 from db.dao.unit_of_work_dao import UnitOfWorkDao
 
+from settings import settings
 from system import time_helper
 from system.repeat_timer import RepeatTimer
 from system.process_context import ProcessContext
 from system.performance_ticker import FootprintCalculator
+
 from mx.processing_statements import ProcessingStatements
 from mx.utils import render_template, expose, jinja_env
+from scheduler.tree import FourLevelTree, ThreeLevelTree, TwoLevelTree
 
 
 @expose('/')
@@ -160,8 +163,7 @@ class TimeperiodTreeDetails(object):
         description['processes'] = dict()
         description['next_timeperiods'] = dict()
         try:
-            # workaround for importing "scheduler" package
-            if type(tree).__name__ == 'FourLevelTree':
+            if isinstance(tree, FourLevelTree):
                 description['number_of_levels'] = 4
                 description['reprocessing_queues']['yearly'] = self._get_reprocessing_details(tree.process_yearly)
                 description['reprocessing_queues']['monthly'] = self._get_reprocessing_details(tree.process_monthly)
@@ -176,7 +178,7 @@ class TimeperiodTreeDetails(object):
                 description['next_timeperiods']['daily'] = timetable.get_next_timetable_record(tree.process_daily).timeperiod
                 description['next_timeperiods']['hourly'] = timetable.get_next_timetable_record(tree.process_hourly).timeperiod
                 description['type'] = ProcessContext.get_type(tree.process_yearly)
-            elif type(tree).__name__ == 'ThreeLevelTree':
+            elif isinstance(tree, ThreeLevelTree):
                 description['number_of_levels'] = 3
                 description['reprocessing_queues']['yearly'] = self._get_reprocessing_details(tree.process_yearly)
                 description['reprocessing_queues']['monthly'] = self._get_reprocessing_details(tree.process_monthly)
@@ -188,12 +190,14 @@ class TimeperiodTreeDetails(object):
                 description['next_timeperiods']['monthly'] = timetable.get_next_timetable_record(tree.process_monthly).timeperiod
                 description['next_timeperiods']['daily'] = timetable.get_next_timetable_record(tree.process_daily).timeperiod
                 description['type'] = ProcessContext.get_type(tree.process_yearly)
-            elif type(tree).__name__ == 'TwoLevelTree':
+            elif isinstance(tree, TwoLevelTree):
                 description['number_of_levels'] = 1
                 description['reprocessing_queues']['linear'] = self._get_reprocessing_details(tree.process_name)
                 description['processes']['linear'] = tree.process_name
                 description['next_timeperiods']['daily'] = timetable.get_next_timetable_record(tree.process_name).timeperiod
                 description['type'] = ProcessContext.get_type(tree.process_name)
+            else:
+                raise ValueError('Tree type %s has no support within MX module.' % type(tree).__name__)
         except Exception as e:
             self.logger.error('MX Exception: ' + str(e), exc_info=True)
         finally:
@@ -232,7 +236,7 @@ class NodeDetails(object):
                 number_of_failed_calls : integer,
                 state : STATE_SKIPPED, STATE_IN_PROGRESS, STATE_PROCESSED, STATE_FINAL_RUN, STATE_EMBRYO
             }
-         """
+        """
         description = dict()
         try:
             description['process_name'] = node.process_name
@@ -254,11 +258,16 @@ class NodeDetails(object):
         tree = timetable.get_tree(self.process_name)
 
         if self.timeperiod is None and tree is not None:
-            # return list of yearly nodes
+            # return list of yearly nodes OR leafs for linear tree
             resp['children'] = dict()
-            for key in tree.root.children:
+
+            # limit number of children to return, since linear tree can holds thousands of nodes
+            sorted_keys = sorted(tree.root.children.keys(), reverse=True)
+            sorted_keys = sorted_keys[:settings['mx_children_limit']]
+            for key in sorted_keys:
                 child = tree.root.children[key]
                 resp['children'][key] = NodeDetails._get_nodes_details(self.logger, child)
+
         elif tree is not None:
             time_qualifier = ProcessContext.get_time_qualifier(self.process_name)
             self.timeperiod = time_helper.cast_to_time_qualifier(time_qualifier, self.timeperiod)
