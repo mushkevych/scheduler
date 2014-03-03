@@ -12,7 +12,7 @@ Synergy Scheduler hides all of this complexity from the user under its hood. In 
 
 License:
 ---------
-BSD license. Refer to LICENSE for details.
+Modified BSD License. Refer to LICENSE for details.
 
 
 Git repository:
