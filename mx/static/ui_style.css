@@ -163,7 +163,7 @@ ul.menu, ul.menu ul {
 
 ul.menu a {
     display: block;
-    text-decoration: none;   
+    text-decoration: none;
 }
 
 ul.menu li {
@@ -172,7 +172,7 @@ ul.menu li {
 
 ul.menu li a, ul.menu ul.menu li a {
     background: #333;
-    color: #fff;   
+    color: #fff;
     padding: 0.5em;
 }
 
@@ -275,10 +275,10 @@ ul.menu div.panel a:hover {
  */
 
 .dataTables_wrapper {
+    /*min-height: 302px;*/
+    /*height: 302px;*/
    position: relative;
-   min-height: 302px;
    clear: both;
-   height: 302px;
    zoom: 1; /* Feeling sorry for IE */
 }
 
@@ -315,7 +315,7 @@ ul.menu div.panel a:hover {
 }
 
 .dataTables_paginate {
-   width: 44px;
+   /*width: 44px;*/
    float: right;
    text-align: right;
 }
@@ -323,27 +323,57 @@ ul.menu div.panel a:hover {
 /* Pagination nested */
 .paginate_disabled_previous, .paginate_enabled_previous, .paginate_disabled_next, .paginate_enabled_next {
    height: 19px;
-   width: 19px;
-   margin-left: 3px;
+   /*width: 19px;*/
+   /*margin-left: 3px;*/
    float: left;
+   cursor: pointer;
+   *cursor: hand;
 }
 
+/* copied from the  */
+.paginate_disabled_previous:hover, .paginate_enabled_previous:hover,
+.paginate_disabled_next:hover, .paginate_enabled_next:hover {
+	text-decoration: none !important;
+}
+.paginate_disabled_previous:active, .paginate_enabled_previous:active,
+.paginate_disabled_next:active, .paginate_enabled_next:active {
+	outline: none;
+}
+
+.paginate_disabled_previous,
+.paginate_disabled_next {
+	color: #666 !important;
+}
+.paginate_disabled_previous, .paginate_enabled_previous {
+	padding-left: 23px;
+}
+.paginate_disabled_next, .paginate_enabled_next {
+	padding-right: 23px;
+	margin-left: 10px;
+}
+/* end of new insert */
+
 .paginate_disabled_previous {
-   background-image: url('images/back_disabled.jpg');
+	background: url('images/back_disabled.png') no-repeat top left;
 }
 
 .paginate_enabled_previous {
-   background-image: url('images/back_enabled.jpg');
+	background: url('images/back_enabled.png') no-repeat top left;
+}
+.paginate_enabled_previous:hover {
+	background: url('images/back_enabled_hover.png') no-repeat top left;
 }
 
 .paginate_disabled_next {
-   background-image: url('images/forward_disabled.jpg');
+	background: url('images/forward_disabled.png') no-repeat top right;
 }
 
 .paginate_enabled_next {
-   background-image: url('images/forward_enabled.jpg');
+	background: url('images/forward_enabled.png') no-repeat top right;
 }
-
+.paginate_enabled_next:hover {
+	background: url('images/forward_enabled_hover.png') no-repeat top right;
+}
 
 
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
@@ -353,9 +383,9 @@ table.display {
    margin: 0 auto;
    clear: both;
    width: 100%;
-   
+
    /* Note Firefox 3.5 and before have a bug with border-collapse
-    * ( https://bugzilla.mozilla.org/show%5Fbug.cgi?id=155955 ) 
+    * ( https://bugzilla.mozilla.org/show%5Fbug.cgi?id=155955 )
     * border-spacing: 0; is one possible option. Conditional-css.com is
     * useful for this kind of thing
     *
@@ -363,7 +393,7 @@ table.display {
     * It subtracts one px relative to the other browsers from the first column, and
     * adds one to the end...
     *
-    * If you want that effect I'd suggest setting a border-top/left on th/td's and 
+    * If you want that effect I'd suggest setting a border-top/left on th/td's and
     * then filling in the gaps with other borders.
     */
 }
@@ -373,6 +403,7 @@ table.display thead th {
    border-bottom: 1px solid black;
    font-weight: bold;
    cursor: pointer;
+   * cursor: hand;
 }
 
 table.display tfoot th {
@@ -471,7 +502,8 @@ tr.state_skipped td {
 }
 
 .dataTables_scrollBody {
-   margin-top: -1px;
+   	*margin-top: -1px;
+	-webkit-overflow-scrolling: touch;
 }
 
 .top, .bottom {

@@ -36,8 +36,8 @@ OUTPUT_DOCUMENT._to_td = function(text) {
 // method constructs HTML Table row with data and controls presenting timetable record
 OUTPUT_DOCUMENT.construct_table_row = function(k, v, handler) {
     var tr = $('<tr></tr>').addClass(v.state);
-    var tda = new Object();
-    var timestamp_a = new Object();
+    var tda = {};
+    var timestamp_a = {};
 
     if (v.number_of_children > 0) {
         timestamp_a = $('<a href="#">' + k + '</a>').click(handler);
@@ -110,8 +110,11 @@ OUTPUT_DOCUMENT.build_timerecords_panel = function(children, is_linear) {
     var table = OUTPUT_DOCUMENT.get_empty_table();
     table.append(tbody);
     table.dataTable({"bPaginate": is_linear,
+                     "bSort": true,
                      "iDisplayLength": 36,
-                     "bLengthChange": false});
+                     "bLengthChange": false,
+                     "aaSorting": [[ 0, "desc" ]]
+    });
     return table;
 
 };
