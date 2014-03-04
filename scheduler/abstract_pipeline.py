@@ -77,11 +77,23 @@ class AbstractPipeline(object):
         """method takes care of processing timetable records in STATE_FINAL_SKIPPED state"""
         pass
 
-    def manage_pipeline_with_blocking_dependencies(self, process_name, timetable_record):
-        """ method holds logic for triggering/holding processing
-        of timetable_record if its dependencies are not processed"""
-        green_light, skipped_present = self.timetable.is_dependent_on_finalized(process_name, timetable_record)
+    def manage_pipeline_with_blocking_children(self, process_name, timetable_record):
+        """ method will trigger timeperiod processing only if all children are in STATE_PROCESSED or STATE_SKIPPED
+         and if all external dependencies are finalized (i.e. in STATE_PROCESSED or STATE_SKIPPED) """
+        green_light = self.timetable.can_finalize_timetable_record(process_name, timetable_record)
         if green_light:
+            self.manage_pipeline_for_process(process_name, timetable_record)
+        else:
+            msg = '%s for timeperiod %r is blocked by unprocessed children/dependencies. Waiting another tick' \
+                  % (process_name, timetable_record.timeperiod)
+            self._log_message(INFO, process_name, timetable_record, msg)
+
+    def manage_pipeline_with_blocking_dependencies(self, process_name, timetable_record):
+        """ method will trigger timeperiod processing only if _all_ dependencies are in STATE_PROCESSED
+         method will mark current timeperiod as skipped if any dependency is in or STATE_SKIPPED """
+        all_finalized, all_processed, skipped_present = self.timetable.is_dependent_on_finalized(process_name,
+                                                                                                 timetable_record)
+        if all_processed:
             self.manage_pipeline_for_process(process_name, timetable_record)
         elif skipped_present:
             # As soon as among <dependent on> periods are in STATE_SKIPPED

@@ -271,9 +271,10 @@ class TimeTable:
 
     @thread_safe
     def is_dependent_on_finalized(self, process_name, timetable_record):
-        """ @return tuple (dependents_are_finalized, dependents_are_skipped) indicating
-                dependents_are_finalized - indicates if all <dependent on> periods are in STATE_PROCESSED
-                dependents_are_skipped - indicates that among <dependent on> periods are some in STATE_SKIPPED
+        """ @return tuple (all_finalized, all_processed, skipped_present) indicating
+                all_finalized - True if all <dependent on> periods are in STATE_PROCESSED or STATE_SKIPPED
+                all_processed - True if all <dependent on> periods are in STATE_PROCESSED
+                skipped_present - True if among <dependent on> periods are some in STATE_SKIPPED
         """
         tree = self.get_tree(process_name)
         node = tree.get_node_by_process(process_name, timetable_record.timeperiod)
