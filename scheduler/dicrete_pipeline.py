@@ -4,26 +4,27 @@ from db.error import DuplicateKeyError
 from datetime import datetime
 from logging import ERROR, WARNING, INFO
 
+from abstract_pipeline import AbstractPipeline
 from db.model.unit_of_work import UnitOfWork
 from db.model import time_table_record, unit_of_work
 from system import time_helper
 from system.decorator import with_reconnect
 from system.process_context import ProcessContext
-from scheduler.abstract_pipeline import AbstractPipeline
 
 
-class HadoopPipeline(AbstractPipeline):
-    """ Pipeline to handle Hadoop mapreduce jobs """
+class DiscretePipeline(AbstractPipeline):
+    """ Pipeline to handle discrete timeperiod boundaries for mapreduce hadoop and other batch jobs
+    in comparison to RegularPipeline this one does not re-compute processing boundaries"""
 
     def __init__(self, logger, timetable):
-        super(HadoopPipeline, self).__init__(logger, timetable)
+        super(DiscretePipeline, self).__init__(logger, timetable)
 
     def __del__(self):
-        super(HadoopPipeline, self).__del__()
+        super(DiscretePipeline, self).__del__()
 
     @with_reconnect
     def insert_uow(self, process_name, start_timeperiod, end_timeperiod, iteration, timetable_record):
-        """ creates unit_of_work and inserts it into the MongoDB
+        """ creates unit_of_work and inserts it into the DB
             @raise DuplicateKeyError if unit_of_work with given parameters already exists """
         first_object_id = 0
         last_object_id = iteration

@@ -11,6 +11,10 @@ settings = dict(
     log_directory='/mnt/log/synergy-scheduler/', 
     pid_directory='/mnt/log/synergy-scheduler/',
 
+    remote_source_host_list=['user@f.q.h.n'],
+    remote_source_password={'user@f.q.h.n': '***SSH_PASSWORD***'},
+    remote_source_folder='/mnt/remote_folder/',
+
     mq_insist=False,
     mq_queue='default_queue',
     mq_routing_key='default_routing_key',
@@ -62,7 +66,7 @@ testable_modules = [
 
 test_cases = [
     'tests.test_regular_pipeline',
-    'tests.test_hadoop_pipeline',
+    'tests.test_discrete_pipeline',
     'tests.test_garbage_collector',
     'tests.test_system_collections',
     'tests.test_two_level_tree',

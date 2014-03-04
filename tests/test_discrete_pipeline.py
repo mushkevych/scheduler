@@ -13,7 +13,7 @@ from mockito.matchers import any
 from system import time_helper
 from system.process_context import PROCESS_UNIT_TEST, PROCESS_SITE_HOURLY, ProcessContext
 from scheduler.time_table import TimeTable
-from scheduler.hadoop_pipeline import HadoopPipeline
+from scheduler.dicrete_pipeline import DiscretePipeline
 
 TEST_PRESET_TIMEPERIOD = '2013010122'
 TEST_ACTUAL_TIMEPERIOD = time_helper.actual_timeperiod(ProcessContext.QUALIFIER_HOURLY)
@@ -41,12 +41,12 @@ def get_timetable_record(state, timeperiod, process_name):
     return timetable_record
 
 
-class RegularHadoopUnitTest(unittest.TestCase):
+class DiscretePipelineUnitTest(unittest.TestCase):
     def setUp(self):
         self.logger = ProcessContext.get_logger(PROCESS_UNIT_TEST)
         self.time_table_mocked = mock(TimeTable)
         when(self.time_table_mocked).get_tree(any(str)).thenReturn(mock())
-        self.pipeline_real = HadoopPipeline(self.logger, self.time_table_mocked)
+        self.pipeline_real = DiscretePipeline(self.logger, self.time_table_mocked)
 
     def tearDown(self):
         pass

@@ -12,7 +12,7 @@ from system.synergy_process import SynergyProcess
 from system.repeat_timer import RepeatTimer
 from system.process_context import *
 
-from hadoop_pipeline import HadoopPipeline
+from dicrete_pipeline import DiscretePipeline
 from regular_pipeline import RegularPipeline
 from time_table import TimeTable
 
@@ -28,7 +28,7 @@ class Scheduler(SynergyProcess):
         self.lock = Lock()
         self.timetable = TimeTable(self.logger)
         self.regular_pipeline = RegularPipeline(self.logger, self.timetable)
-        self.hadoop_pipeline = HadoopPipeline(self.logger, self.timetable)
+        self.discrete_pipeline = DiscretePipeline(self.logger, self.timetable)
         self.sc_dao = SchedulerConfigurationDao(self.logger)
         self.logger.info('Started %s' % self.process_name)
 
@@ -104,7 +104,7 @@ class Scheduler(SynergyProcess):
             if time_qualifier == ProcessContext.QUALIFIER_HOURLY:
                 self.regular_pipeline.manage_pipeline_for_process(process_name, timetable_record)
             else:
-                self.hadoop_pipeline.manage_pipeline_for_process(process_name, timetable_record)
+                self.discrete_pipeline.manage_pipeline_for_process(process_name, timetable_record)
 
         except (AMQPException, IOError) as e:
             self.logger.error('AMQPException: %s' % str(e), exc_info=True)
@@ -124,7 +124,7 @@ class Scheduler(SynergyProcess):
             self.logger.info('%s {' % process_name)
 
             timetable_record = self.timetable.get_next_timetable_record(process_name)
-            self.hadoop_pipeline.manage_pipeline_with_blocking_dependencies(process_name, timetable_record)
+            self.discrete_pipeline.manage_pipeline_with_blocking_dependencies(process_name, timetable_record)
         except (AMQPException, IOError) as e:
             self.logger.error('AMQPException: %s' % str(e), exc_info=True)
             self.publishers.reset_all_publishers(suppress_logging=True)

@@ -41,6 +41,12 @@ easy_install $vendor/pdbpp-0.7.2.tar.gz
 easy_install $vendor/docutils-0.11.tar.gz
 easy_install $vendor/pysmell-0.7.3.zip
 
+# Fabric section
+easy_install $vendor/ecdsa-0.10.tar.gz
+easy_install $vendor/pycrypto-2.6.1.tar.gz
+easy_install $vendor/paramiko-1.12.1.tar.gz
+easy_install $vendor/Fabric-1.8.1.tar.gz
+
 easy_install $vendor/pymongo-2.6.3.tar.gz
 easy_install $vendor/ftputil-3.0.tar.gz
 easy_install $vendor/setproctitle-1.1.8.tar.gz
