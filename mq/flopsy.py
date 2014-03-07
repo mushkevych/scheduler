@@ -1,8 +1,11 @@
 import json
 import uuid
+
 from amqplib import client_0_8 as amqp
-from settings import settings
+
 from system.process_context import ProcessContext
+from settings import settings
+
 
 DEFAULT_HOST = settings['mq_host']
 DEFAULT_USER_ID = settings['mq_user_id']
@@ -28,21 +31,20 @@ class SynergyAware(object):
 
 
 class Connection(object):
-    def __init__(self, 
-                 host=DEFAULT_HOST, 
+    def __init__(self,
+                 host=DEFAULT_HOST,
                  user_id=DEFAULT_USER_ID,
-                 password=DEFAULT_PASSWORD, 
-                 vhost=DEFAULT_VHOST, 
+                 password=DEFAULT_PASSWORD,
+                 vhost=DEFAULT_VHOST,
                  port=DEFAULT_PORT,
                  insist=DEFAULT_INSIST):
-
         self.db_host = host
         self.user_id = user_id
         self.password = password
         self.vhost = vhost
         self.port = port
         self.insist = insist
-        
+
         self.connect()
 
     def connect(self):
@@ -53,21 +55,22 @@ class Connection(object):
             virtual_host=self.vhost,
             insist=self.insist
         )
-    
+
     def close(self):
         if getattr(self, 'connection'):
             self.connection.close()
 
 
 class Consumer(SynergyAware):
-    def __init__(self, 
+    def __init__(self,
                  process_name,
-                 durable=DEFAULT_DURABLE, 
+                 durable=DEFAULT_DURABLE,
                  exclusive=DEFAULT_EXCLUSIVE,
-                 auto_delete=DEFAULT_AUTO_DELETE, 
+                 auto_delete=DEFAULT_AUTO_DELETE,
                  connection=None):
         super(Consumer, self).__init__(process_name)
         self.callback = None
+        self.is_running = True
 
         self.durable = durable
         self.exclusive = exclusive
@@ -104,9 +107,10 @@ class Consumer(SynergyAware):
             self.channel.close()
         if getattr(self, 'connection'):
             self.connection.close()
+        self.is_running = False
 
     def wait(self):
-        while True:
+        while self.is_running:
             self.channel.wait()
 
     def dispatch(self, message):
@@ -114,7 +118,7 @@ class Consumer(SynergyAware):
         message.body = decoded['data']
         if self.callback is not None:
             self.callback(message)
-    
+
     def acknowledge(self, tag):
         if DEFAULT_NO_ACK_MODE is False:
             self.channel.basic_ack(delivery_tag=tag)
@@ -135,7 +139,7 @@ class Consumer(SynergyAware):
 
 
 class Publisher(SynergyAware):
-    def __init__(self, 
+    def __init__(self,
                  process_name,
                  connection=None,
                  delivery_mode=DEFAULT_DELIVERY_MODE):
@@ -145,7 +149,7 @@ class Publisher(SynergyAware):
         self.delivery_mode = delivery_mode
 
     def publish(self, message_data):
-        encoded = json.dumps({'data' : message_data})
+        encoded = json.dumps({'data': message_data})
         message = amqp.Message(encoded)
         message.properties['delivery_mode'] = self.delivery_mode
         self.channel.basic_publish(
@@ -166,7 +170,7 @@ class PublishersPool(object):
     def __init__(self, logger):
         self.publishers = dict()
         self.logger = logger
-    
+
     def __del__(self):
         for every in self.publishers:
             self.close_publisher(every)
@@ -177,7 +181,7 @@ class PublishersPool(object):
         if process_name not in self.publishers:
             self.publishers[process_name] = Publisher(process_name)
         return self.publishers[process_name]
-    
+
     def reset_all_publishers(self, suppress_logging=False):
         """ iterates thru the list of established connections and resets them by disconnecting and reconnecting """
         list_of_processes = self.publishers.keys()
@@ -190,7 +194,7 @@ class PublishersPool(object):
         self.close_publisher(process_name, suppress_logging)
         del self.publishers[process_name]
         self.get_publisher(process_name)
-        
+
     def close_publisher(self, process_name, suppress_logging=False):
         """ method closes ampq connection (disconnects) """
         try:

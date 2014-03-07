@@ -149,7 +149,7 @@ class TimeTable:
         uow_id = tree_node.timetable_record.related_unit_of_work
         if uow_id is not None:
             uow_obj = self.uow_dao.get_one(uow_id)
-            uow_obj.state = uow_obj.STATE_CANCELED
+            uow_obj.state = unit_of_work.STATE_CANCELED
             self.uow_dao.update(uow_obj)
             msg = 'Transferred time-table-record %s in timeperiod %s to %s; Transferred unit_of_work to %s' \
                   % (tree_node.timetable_record.document['_id'],
