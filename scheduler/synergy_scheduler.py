@@ -7,14 +7,16 @@ from threading import Lock
 from amqplib.client_0_8 import AMQPException
 
 from mq.flopsy import PublishersPool
+from mx.synergy_mx import MX
+
 from system.decorator import with_reconnect
 from system.synergy_process import SynergyProcess
 from system.repeat_timer import RepeatTimer
 from system.process_context import *
 
-from dicrete_pipeline import DiscretePipeline
-from regular_pipeline import RegularPipeline
-from time_table import TimeTable
+from scheduler.dicrete_pipeline import DiscretePipeline
+from scheduler.regular_pipeline import RegularPipeline
+from scheduler.time_table import TimeTable
 
 
 class Scheduler(SynergyProcess):
@@ -83,12 +85,6 @@ class Scheduler(SynergyProcess):
                                  % (process_type, document.process_name))
 
         # as Scheduler is now initialized and running - we can safely start its MX
-        self.start_mx()
-
-    def start_mx(self):
-        """ method's only purpose: import MX module (which has back-reference import to scheduler) and start it """
-        from mx.synergy_mx import MX
-
         self.mx = MX(self)
         self.mx.start_mx_thread()
 

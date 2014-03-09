@@ -11,8 +11,8 @@ $(document).ready(function() {
 });
 
 // method returns empty table for timetable records (panel on the right)
-OUTPUT_DOCUMENT.get_empty_table = function() {
-    return $('<table style="width: 60%" class="one-column-emphasis">\
+OUTPUT_DOCUMENT.get_empty_table = function(table_id) {
+    return $('<table style="width: 60%" class="one-column-emphasis" id="' + table_id + '">\
                     <thead>\
                         <tr class="oce-first">\
                             <th scope="col">Time Period</th>\
@@ -92,8 +92,10 @@ OUTPUT_DOCUMENT.construct_table_row = function(k, v, handler) {
 
 // recursive method builds timerecords table on the right
 OUTPUT_DOCUMENT.build_timerecords_panel = function(children, is_linear) {
+    var table_id = 'unknown_process';
     var tbody = $('<tbody></tbody>');
     $.each(children, function(k, v) {
+        table_id = v.process_name
 
         var handler = function(e) {
             e.preventDefault();
@@ -107,7 +109,7 @@ OUTPUT_DOCUMENT.build_timerecords_panel = function(children, is_linear) {
         tbody.append(tr);
     });
 
-    var table = OUTPUT_DOCUMENT.get_empty_table();
+    var table = OUTPUT_DOCUMENT.get_empty_table(table_id);
     table.append(tbody);
     table.dataTable({"bPaginate": is_linear,
                      "bSort": true,
@@ -115,24 +117,24 @@ OUTPUT_DOCUMENT.build_timerecords_panel = function(children, is_linear) {
                      "bLengthChange": false,
                      "aaSorting": [[ 0, "desc" ]]
     });
-    return table;
 
+    return table;
 };
 
 // method builds single timerecord entry
 OUTPUT_DOCUMENT.build_timerecord_entry = function (k, v, handler) {
     var tr = OUTPUT_DOCUMENT.construct_table_row(k, v, handler);
     tr.addClass(v.time_qualifier);
-    if (typeof $('#level table').val() == 'undefined') {
-        var table = OUTPUT_DOCUMENT.get_empty_table();
+    if (typeof $('#level').find('table').val() == 'undefined') {
+        var table = OUTPUT_DOCUMENT.get_empty_table(v.process_name);
         var tbody = $('<tbody></tbody>');
         tbody.append(tr);
         table.append(tbody);
         $('#level').append(table);
     } else {
-        var the_tr = $('#level table tr.' + v.time_qualifier);
+        var the_tr = $('#level').find('table tr.' + v.time_qualifier);
         if (typeof the_tr.val() == 'undefined') {
-            $('#level tbody').append(tr);
+            $('#level').find('tbody').append(tr);
         } else {
             the_tr.nextAll().empty();
             the_tr.replaceWith(tr);
@@ -199,4 +201,3 @@ OUTPUT_DOCUMENT.build_navigational_panel = function(vertical_json) {
     }
     return ul;
 };
-
