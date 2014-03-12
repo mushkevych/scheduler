@@ -200,7 +200,7 @@ class ProcessContext:
 
         PROCESS_SUPERVISOR: _create_context_entry(
             process_name=PROCESS_SUPERVISOR,
-            classname='supervisor.supervisor.Supervisor.start',
+            classname='supervisor.synergy_supervisor.Supervisor.start',
             token=_TOKEN_SUPERVISOR,
             time_qualifier='',
             queue='',
