@@ -12,35 +12,35 @@ SYNERGY_SESSION_PATTERN = '%Y%m%d%H%M%S'
 
 
 def define_pattern(timeperiod):
-    hasYear = False
-    hasMonth = False
-    hasDay = False
-    hasHour = False
+    has_year = False
+    has_month = False
+    has_day = False
+    has_hour = False
 
     for index in range(0, len(timeperiod)):
         if 0 <= index < 4 and timeperiod[index] != '0':
-            hasYear = True
+            has_year = True
         elif 4 <= index < 6 and timeperiod[index] != '0':
-            hasMonth = True
+            has_month = True
         elif 6 <= index < 8 and timeperiod[index] != '0':
-            hasDay = True
+            has_day = True
         elif index >= 8 and timeperiod[index] != '0':
-            hasHour = True
+            has_hour = True
 
     pattern = ''
-    if hasYear:
+    if has_year:
         pattern += '%Y'
     else:
         pattern += '0000'
-    if hasMonth:
+    if has_month:
         pattern += '%m'
     else:
         pattern += '00'
-    if hasDay:
+    if has_day:
         pattern += '%d'
     else:
         pattern += '00'
-    if hasHour:
+    if has_hour:
         pattern += '%H'
     else:
         pattern += '00'
@@ -89,7 +89,7 @@ def actual_timeperiod(time_qualifier):
     return datetime_to_synergy(time_qualifier, datetime.utcnow())
 
 
-def increment_timeperiod(time_qualifier, timeperiod):
+def increment_timeperiod(time_qualifier, timeperiod, delta=1):
     """ method is used by Scheduler to define <<next>> time period.
     For hourly, it is next hour: 2010010119 -> 2010010120
     For month - next month:      2010010000 -> 2010020000, etc"""
@@ -98,24 +98,31 @@ def increment_timeperiod(time_qualifier, timeperiod):
     t = datetime.strptime(timeperiod, pattern)
 
     if time_qualifier == ProcessContext.QUALIFIER_HOURLY:
-        t = t + timedelta(hours=1)
+        t = t + timedelta(hours=delta)
         return t.strftime('%Y%m%d%H')
 
     elif time_qualifier == ProcessContext.QUALIFIER_DAILY:
-        t = t + timedelta(days=1)
+        t = t + timedelta(days=delta)
         return t.strftime('%Y%m%d00')
 
     elif time_qualifier == ProcessContext.QUALIFIER_MONTHLY:
-        if t.month + 1 > 12:
+        if delta not in [-1, 1]:
+            raise ValueError('For QUALIFIER_MONTHLY delta can be only +/- 1')
+
+        if t.month + delta > 12:
             new_month = 1
             new_year = t.year + 1
             t = t.replace(year=new_year, month=new_month)
+        elif t.month + delta < 1:
+            new_month = 12
+            new_year = t.year - 1
+            t = t.replace(year=new_year, month=new_month)
         else:
-            t = t.replace(month=t.month + 1)
+            t = t.replace(month=t.month + delta)
         return t.strftime('%Y%m0000')
 
     elif time_qualifier == ProcessContext.QUALIFIER_YEARLY:
-        t = t.replace(year=t.year + 1)
+        t = t.replace(year=t.year + delta)
         return t.strftime('%Y000000')
     else:
         raise ValueError('unknown time qualifier: %s' % time_qualifier)
