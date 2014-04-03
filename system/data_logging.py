@@ -58,6 +58,14 @@ class Logger(object):
         """ method implements stream flush interface, allowing to redirect stdout to logger """
         for handler in self.logger.handlers:
             handler.flush()
+            
+    def isatty(self):
+        """ is the sys.stdout attached to the terminal?
+        python -c "import sys; print(sys.stdout.isatty())" (should write True)
+        python -c "import sys; print(sys.stdout.isatty())" | grep . (should write False).
+        @return: False, indicating that the output is pipped or redirected
+        """
+        return False
 
 
 if __name__ == '__main__':
