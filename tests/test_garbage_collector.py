@@ -65,7 +65,6 @@ class GarbageCollectorUnitTest(unittest.TestCase):
 
     def tearDown(self):
         # killing the worker
-        self.worker.__del__()
         del self.worker
 
     def test_invalid_and_fresh_uow(self):
