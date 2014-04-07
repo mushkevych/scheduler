@@ -99,7 +99,9 @@ class FileCollectorUnitTest(unittest.TestCase):
         settings['remote_source_host_list'] = self.original_source_host_list
         settings['remote_source_folder'] = self.original_source_folder
 
-        self.worker.__del__()
+        # killing the worker
+        del self.worker
+
         if self.tempdir_copying:
             self.logger.info('Cleaning up %r' % self.tempdir_copying)
             shutil.rmtree(self.tempdir_copying, True)
