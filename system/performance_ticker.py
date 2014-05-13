@@ -47,13 +47,16 @@ class WorkerPerformanceTicker(object):
         self.mark_24_hours = time.time()
         self.mark_footprint = time.time()
         self.footprint = FootprintCalculator()
+        self.timer = RepeatTimer(self.interval, self._run_tick_thread)
 
     def start(self):
-        self.timer = RepeatTimer(self.interval, self._run_tick_thread)
         self.timer.start()
 
     def cancel(self):
         self.timer.cancel()
+
+    def is_alive(self):
+        return self.timer.is_alive()
 
     def _print_footprint(self):
         if time.time() - self.mark_footprint > self.TICKS_BETWEEN_FOOTPRINTS * self.interval:
