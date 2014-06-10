@@ -456,7 +456,7 @@ class ActionHandler(object):
             document.process_state = scheduler_configuration.STATE_ON
 
             thread_handler = RepeatTimer(thread_handler.interval_current,
-                                         thread_handler.callable,
+                                         thread_handler.call_back,
                                          thread_handler.args,
                                          thread_handler.kwargs)
             thread_handler.start()
