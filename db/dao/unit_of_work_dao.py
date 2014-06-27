@@ -4,8 +4,10 @@ from bson.objectid import ObjectId
 from pymongo import ASCENDING
 from pymongo.errors import DuplicateKeyError as MongoDuplicateKeyError
 from threading import RLock
+from system import time_helper
 from system.decorator import thread_safe
 from system.collection_context import COLLECTION_UNITS_OF_WORK
+from system.process_context import ProcessContext
 from db.error import DuplicateKeyError
 from db.manager import ds_manager
 from db.model import unit_of_work
@@ -40,20 +42,35 @@ class UnitOfWorkDao(object):
 
     @thread_safe
     def get_reprocessing_candidates(self, since=None):
-        """ method queries Unit Of Work whose <start_timeperiod> is older than <since>
+        """ method queries Unit Of Work whose <start_timeperiod> is younger than <since>
         and who could be candidates for re-processing """
         collection = self.ds.connection(COLLECTION_UNITS_OF_WORK)
+
         query = {unit_of_work.STATE: {'$in': [unit_of_work.STATE_IN_PROGRESS,
                                               unit_of_work.STATE_INVALID,
                                               unit_of_work.STATE_REQUESTED]}}
 
-        if since is not None:
-            query[unit_of_work.START_TIMEPERIOD] = {'$gte': since}
+        if since is None:
+            cursor = collection.find(query).sort('_id', ASCENDING)
+            candidates = [UnitOfWork(document) for document in cursor]
+        else:
+            candidates = []
+            yearly_timeperiod = time_helper.cast_to_time_qualifier(ProcessContext.QUALIFIER_YEARLY, since)
+            query[unit_of_work.START_TIMEPERIOD] = {'$gte': yearly_timeperiod}
 
-        cursor = collection.find(query).sort('_id', ASCENDING)
-        if cursor.count() == 0:
+            cursor = collection.find(query).sort('_id', ASCENDING)
+            for document in cursor:
+                uow = UnitOfWork(document)
+                time_qualifier = ProcessContext.get_time_qualifier(uow.process_name)
+                process_specific_since = time_helper.cast_to_time_qualifier(time_qualifier, since)
+
+                if process_specific_since <= uow.start_timeperiod:
+                    candidates.append(uow)
+
+        if len(candidates) == 0:
             raise LookupError('MongoDB has no reprocessing candidates units of work')
-        return [UnitOfWork(document) for document in cursor]
+        return candidates
+
 
     @thread_safe
     def get_by_params(self, process_name, timeperiod, start_obj_id, end_obj_id):
