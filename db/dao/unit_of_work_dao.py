@@ -61,6 +61,10 @@ class UnitOfWorkDao(object):
             cursor = collection.find(query).sort('_id', ASCENDING)
             for document in cursor:
                 uow = UnitOfWork(document)
+                if uow.process_name not in ProcessContext.PROCESS_CONTEXT:
+                    # this is a decommissioned process
+                    continue
+
                 time_qualifier = ProcessContext.get_time_qualifier(uow.process_name)
                 if time_qualifier == ProcessContext.QUALIFIER_REAL_TIME:
                     time_qualifier = ProcessContext.QUALIFIER_HOURLY
