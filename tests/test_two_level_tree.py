@@ -3,7 +3,8 @@ __author__ = 'Bohdan Mushkevych'
 import unittest
 from tests import base_fixtures
 from system import time_helper
-from system.process_context import PROCESS_SITE_HOURLY, _TOKEN_SITE, ProcessContext
+from system.process_context import ProcessContext
+from tests.ut_process_context import PROCESS_SITE_HOURLY, _TOKEN_SITE
 from scheduler.tree import TwoLevelTree
 from settings import settings
 

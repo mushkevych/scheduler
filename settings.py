@@ -92,3 +92,6 @@ def enable_test_mode():
         bulk_threshold=512
     )
     settings.update(test_settings)
+
+    from tests.ut_process_context import register_unit_test_context
+    register_unit_test_context()

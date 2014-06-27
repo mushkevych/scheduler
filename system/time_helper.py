@@ -130,7 +130,7 @@ def increment_timeperiod(time_qualifier, timeperiod, delta=1):
 
 def cast_to_time_qualifier(time_qualifier, timeperiod):
     """ method is used to cast synergy_time accordingly to process' time qualifier.
-    For example: for QUALIFIER_HOURLY, it can be either 20100101_19 or 20100101_193412 """
+    For example: for QUALIFIER_HOURLY, it can be either 2010010119 or 20100101193412 """
 
     date_format = None
     if time_qualifier == ProcessContext.QUALIFIER_HOURLY:

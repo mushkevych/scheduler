@@ -58,7 +58,7 @@ class Logger(object):
         """ method implements stream flush interface, allowing to redirect stdout to logger """
         for handler in self.logger.handlers:
             handler.flush()
-            
+
     def isatty(self):
         """ is the sys.stdout attached to the terminal?
         python -c "import sys; print(sys.stdout.isatty())" (should write True)

@@ -4,7 +4,8 @@ from tests import base_fixtures
 from db.model import raw_data
 from db.manager import ds_manager
 from system.collection_context import COLLECTION_SINGLE_SESSION
-from system.process_context import PROCESS_UNIT_TEST, ProcessContext
+from system.process_context import ProcessContext
+from tests.ut_process_context import PROCESS_UNIT_TEST
 
 # pylint: disable=C0301
 EXPECTED_HOURLY_SITE_00 = {

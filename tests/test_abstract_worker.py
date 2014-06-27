@@ -56,8 +56,6 @@ class AbstractWorkerUnitTest(unittest.TestCase):
         self.virtual_tear_down()
         uow_dao = UnitOfWorkDao(self.aggregator.logger)
         uow_dao.remove(self.uow_id)
-        # killing the worker
-        #        self.aggregator.__del__()
         del self.aggregator
 
     def _get_key(self, obj):

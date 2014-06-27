@@ -62,6 +62,8 @@ class UnitOfWorkDao(object):
             for document in cursor:
                 uow = UnitOfWork(document)
                 time_qualifier = ProcessContext.get_time_qualifier(uow.process_name)
+                if time_qualifier == ProcessContext.QUALIFIER_REAL_TIME:
+                    time_qualifier = ProcessContext.QUALIFIER_HOURLY
                 process_specific_since = time_helper.cast_to_time_qualifier(time_qualifier, since)
 
                 if process_specific_since <= uow.start_timeperiod:

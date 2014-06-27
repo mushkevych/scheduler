@@ -5,7 +5,8 @@ from rest_client.restful_lib import Connection
 
 from settings import settings
 from db.model import time_table_record
-from system.process_context import PROCESS_SITE_HOURLY, PROCESS_ALERT_DAILY, PROCESS_CLIENT_DAILY
+from system.process_context import PROCESS_ALERT_DAILY
+from tests.ut_process_context import PROCESS_SITE_HOURLY, PROCESS_CLIENT_DAILY
 
 
 class TestSchedulerMx(unittest.TestCase):

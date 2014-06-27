@@ -103,7 +103,7 @@ class AbstractCliWorker(AbstractWorker):
                 uow.state = unit_of_work.STATE_INVALID
                 self.performance_ticker.cancel_uow()
 
-            self.logger.info('Hadoop Map/Reduce return code is %r' % code)
+            self.logger.info('Command Line Command return code is %r' % code)
             self.uow_dao.update(uow)
         except Exception as e:
             uow.state = unit_of_work.STATE_INVALID

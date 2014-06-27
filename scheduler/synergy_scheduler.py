@@ -32,6 +32,7 @@ class Scheduler(SynergyProcess):
         self.regular_pipeline = RegularPipeline(self.logger, self.timetable)
         self.discrete_pipeline = DiscretePipeline(self.logger, self.timetable)
         self.sc_dao = SchedulerConfigurationDao(self.logger)
+        self.mx = None
         self.logger.info('Started %s' % self.process_name)
 
     def __del__(self):
@@ -47,7 +48,7 @@ class Scheduler(SynergyProcess):
 
     # **************** Scheduler Methods ************************
     @with_reconnect
-    def start(self, *args):
+    def start(self, *_):
         """ reading scheduler configurations and starting timers to trigger events """
         document_list = self.sc_dao.get_all()
 

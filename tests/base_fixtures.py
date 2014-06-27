@@ -11,7 +11,8 @@ from db.model import unit_of_work
 from db.model.unit_of_work import UnitOfWork
 from db.model.single_session import SingleSession
 from system import time_helper
-from system.process_context import ProcessContext, PROCESS_UNIT_TEST
+from system.process_context import ProcessContext
+from tests.ut_process_context import PROCESS_UNIT_TEST
 
 TOTAL_ENTRIES = 101
 
@@ -125,10 +126,11 @@ def create_unit_of_work(process_name,
     return uow
 
 
-def create_and_insert_unit_of_work(process_name, first_object_id, last_object_id, timeperiod='INVALID_TIMEPERIOD'):
+def create_and_insert_unit_of_work(process_name, first_object_id, last_object_id, state=unit_of_work.STATE_REQUESTED,
+                                   timeperiod='INVALID_TIMEPERIOD'):
     """ method creates and inserts a unit_of_work into DB
     :return id of the created object in the db"""
-    uow = create_unit_of_work(process_name, first_object_id, last_object_id, timeperiod)
+    uow = create_unit_of_work(process_name, first_object_id, last_object_id, timeperiod, state)
     logger = ProcessContext.get_logger(process_name)
     uow_dao = UnitOfWorkDao(logger)
     uow_id = uow_dao.insert(uow)
@@ -250,7 +252,6 @@ def wind_the_time(time_qualifier, timeperiod, delta):
         t = t + timedelta(days=delta)
         return t.strftime('%Y%m%d00')
     raise ValueError('unsupported time_qualifier')
-
 
 
 if __name__ == '__main__':

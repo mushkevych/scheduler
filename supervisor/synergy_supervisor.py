@@ -35,24 +35,24 @@ class Supervisor(SynergyProcess):
         super(Supervisor, self).__del__()
 
     # **************** Supervisor Methods ************************
-    def _kill_process(self, box_configuration, process_name):
+    def _kill_process(self, box_config, process_name):
         """ method is called to kill a running process """
         try:
             self.logger.info('kill: %s {' % process_name)
-            pid = box_configuration.get_process_pid(process_name)
+            pid = box_config.get_process_pid(process_name)
             if pid is not None and psutil.pid_exists(int(pid)):
                 p = psutil.Process(pid)
                 p.kill()
                 p.wait()
-                box_configuration.set_process_pid(process_name, None)
-                self.bc_dao.update(box_configuration)
+                box_config.set_process_pid(process_name, None)
+                self.bc_dao.update(box_config)
                 ProcessContext.remove_pid_file(process_name)
         except Exception:
             self.logger.error('Exception on killing: %s' % process_name, exc_info=True)
         finally:
             self.logger.info('}')
 
-    def _start_process(self, box_configuration, process_name):
+    def _start_process(self, box_config, process_name):
         try:
             self.logger.info('start: %s {' % process_name)
             p = psutil.Popen([get_python(), PROJECT_ROOT + '/' + PROCESS_STARTER, process_name],
@@ -61,21 +61,21 @@ class Supervisor(SynergyProcess):
                              stdin=PIPE,
                              stdout=PIPE,
                              stderr=STDOUT)
-            box_configuration.set_process_pid(process_name, p.pid)
+            box_config.set_process_pid(process_name, p.pid)
             self.logger.info('Started %s with pid = %r' % (process_name, p.pid))
         except Exception:
-            box_configuration.set_process_pid(process_name, None)
+            box_config.set_process_pid(process_name, None)
             self.logger.error('Exception on starting: %s' % process_name, exc_info=True)
         finally:
-            self.bc_dao.update(box_configuration)
+            self.bc_dao.update(box_config)
             self.logger.info('}')
 
-    def _poll_process(self, box_configuration, process_name):
+    def _poll_process(self, box_config, process_name):
         """ between killing a process and its actual termination lies poorly documented requirement -
             <purging process' io pipes and reading exit status>.
             this can be done either by os.wait() or process.wait() """
         try:
-            pid = box_configuration.get_process_pid(process_name)
+            pid = box_config.get_process_pid(process_name)
             p = psutil.Process(pid)
 
             return_code = p.wait(timeout=0.01)
@@ -85,8 +85,8 @@ class Supervisor(SynergyProcess):
                 return
             else:
                 # process is terminated; possibly by OS
-                box_configuration.set_process_pid(process_name, None)
-                self.bc_dao.update(box_configuration)
+                box_config.set_process_pid(process_name, None)
+                self.bc_dao.update(box_config)
                 self.logger.info('Process %s got terminated. Cleaning up' % process_name)
         except TimeoutExpired:
             # process is alive and OK
@@ -97,8 +97,8 @@ class Supervisor(SynergyProcess):
     def start(self, *args):
         """ reading box configurations and starting timers to start/monitor/kill processes """
         try:
-            box_configuration = self.bc_dao.get_one(self.box_id)
-            process_list = box_configuration.process_list
+            box_config = self.bc_dao.get_one(self.box_id)
+            process_list = box_config.process_list
             for process in process_list:
                 params = [process]
                 handler = RepeatTimer(INTERVAL, self.manage_process, args=params)

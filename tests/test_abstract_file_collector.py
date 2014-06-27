@@ -11,7 +11,8 @@ import socket
 from system import time_helper
 from settings import settings
 from workers.abstract_file_collector_worker import AbstractFileCollectorWorker
-from system.process_context import PROCESS_UNIT_TEST, ProcessContext
+from system.process_context import ProcessContext
+from tests.ut_process_context import PROCESS_UNIT_TEST
 
 
 def string_generator(size=6, chars=string.ascii_uppercase + string.digits):
@@ -92,7 +93,7 @@ class FileCollectorUnitTest(unittest.TestCase):
             output.write(','.join(['column_%r' % x for x in range(5)]))
             output.close()
 
-        settings['remote_source_host_list'] = [socket.getfqdn()]
+        settings['remote_source_host_list'] = {socket.getfqdn(): ''}
         settings['remote_source_folder'] = self.tempdir_copying
 
     def tearDown(self):

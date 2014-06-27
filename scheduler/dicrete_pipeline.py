@@ -4,16 +4,16 @@ from db.error import DuplicateKeyError
 from datetime import datetime
 from logging import ERROR, WARNING, INFO
 
+from scheduler.abstract_pipeline import AbstractPipeline
 from db.model.unit_of_work import UnitOfWork
 from db.model import time_table_record, unit_of_work
 from system import time_helper
 from system.decorator import with_reconnect
 from system.process_context import ProcessContext
-from scheduler.abstract_pipeline import AbstractPipeline
 
 
 class DiscretePipeline(AbstractPipeline):
-    """ Pipeline to handle discrete timeperiod boundaries for mapreduce hadoop and other batch jobs
+    """ Pipeline to handle discrete timeperiod boundaries for batch jobs
     in comparison to RegularPipeline this one does not re-compute processing boundaries"""
 
     def __init__(self, logger, timetable):
@@ -93,8 +93,8 @@ class DiscretePipeline(AbstractPipeline):
                 if uow.state in [unit_of_work.STATE_REQUESTED,
                                  unit_of_work.STATE_IN_PROGRESS,
                                  unit_of_work.STATE_INVALID]:
-                    # Hadoop processing takes more than 1 tick of Scheduler
-                    # Let the Hadoop processing complete - do no updates to Scheduler records
+                    # Large Job processing takes more than 1 tick of Scheduler
+                    # Let the Job processing complete - do no updates to Scheduler records
                     pass
                 elif uow.state in [unit_of_work.STATE_PROCESSED,
                                    unit_of_work.STATE_CANCELED]:
@@ -109,8 +109,8 @@ class DiscretePipeline(AbstractPipeline):
                 if uow.state in [unit_of_work.STATE_REQUESTED,
                                  unit_of_work.STATE_IN_PROGRESS,
                                  unit_of_work.STATE_INVALID]:
-                    # Hadoop processing has not started yet
-                    # Let the Hadoop processing complete - do no updates to Scheduler records
+                    # Large Job processing has not started yet
+                    # Let the Job processing complete - do no updates to Scheduler records
                     pass
                 elif uow.state in [unit_of_work.STATE_PROCESSED,
                                    unit_of_work.STATE_CANCELED]:
