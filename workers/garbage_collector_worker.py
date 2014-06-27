@@ -1,10 +1,10 @@
 """ Module re-launches invalid units_of_work """
-from settings import settings
 
 __author__ = 'Bohdan Mushkevych'
 
 from threading import Lock
 
+from settings import settings
 from datetime import datetime, timedelta
 from mq.flopsy import PublishersPool
 from system.decorator import thread_safe
