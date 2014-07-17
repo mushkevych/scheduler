@@ -31,31 +31,36 @@ class AbstractPipeline(object):
     @with_reconnect
     def recover_from_duplicatekeyerror(self, e):
         """ try to recover from DuplicateKeyError """
-        first_object_id = None
-        last_object_id = None
+        start_id = None
+        end_id = None
         process_name = None
         timeperiod = None
 
-        if hasattr(e, 'first_object_id'):
-            first_object_id = e.first_object_id
-        if hasattr(e, 'last_object_id'):
-            last_object_id = e.last_object_id
+        if hasattr(e, 'start_id'):
+            start_id = e.start_id
+        if hasattr(e, 'end_id'):
+            end_id = e.end_id
         if hasattr(e, 'process_name'):
             process_name = e.process_name
         if hasattr(e, 'timeperiod'):
             timeperiod = e.timeperiod
 
-        if first_object_id is not None \
-            and last_object_id is not None \
+        if start_id is not None \
+            and end_id is not None \
             and process_name is not None \
             and timeperiod is not None:
             try:
                 return self.uow_dao.get_by_params(process_name,
                                                   timeperiod,
-                                                  first_object_id,
-                                                  last_object_id)
-            except LookupError:
-                pass
+                                                  start_id,
+                                                  end_id)
+            except LookupError as e:
+                self.logger.error('Unable to recover from DB error due to %s' % e.message, exc_info=True)
+        else:
+            msg = 'Unable to locate unit_of_work due to incomplete primary key ' \
+                  '(process_name=%s, timeperiod=%s, start_id=%s, end_id=%s)' \
+                  % (process_name, timeperiod, start_id, end_id)
+            self.logger.error(msg)
 
     def _process_state_embryo(self, process_name, timetable_record, start_timeperiod):
         """ method that takes care of processing timetable records in STATE_EMBRYO state"""

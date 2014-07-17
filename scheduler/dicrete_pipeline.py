@@ -26,13 +26,13 @@ class DiscretePipeline(AbstractPipeline):
     def insert_uow(self, process_name, start_timeperiod, end_timeperiod, iteration, timetable_record):
         """ creates unit_of_work and inserts it into the DB
             @raise DuplicateKeyError if unit_of_work with given parameters already exists """
-        first_object_id = 0
-        last_object_id = iteration
+        start_id = 0
+        end_id = iteration
 
         uow = UnitOfWork()
         uow.timeperiod = start_timeperiod
-        uow.start_id = first_object_id
-        uow.end_id = last_object_id
+        uow.start_id = start_id
+        uow.end_id = end_id
         uow.start_timeperiod = start_timeperiod
         uow.end_timeperiod = end_timeperiod
         uow.created_at = datetime.utcnow()
@@ -41,15 +41,7 @@ class DiscretePipeline(AbstractPipeline):
         uow.state = unit_of_work.STATE_REQUESTED
         uow.process_name = process_name
         uow.number_of_retries = 0
-
-        try:
-            uow_id = self.uow_dao.insert(uow)
-        except DuplicateKeyError as e:
-            e.first_object_id = str(first_object_id)
-            e.last_object_id = str(last_object_id)
-            e.process_name = process_name
-            e.timeperiod = start_timeperiod
-            raise e
+        uow_id = self.uow_dao.insert(uow)
 
         self.publishers.get_publisher(process_name).publish(str(uow_id))
         msg = 'Published: UOW %r for %r in timeperiod %r.' % (uow_id, process_name, start_timeperiod)
@@ -64,10 +56,10 @@ class DiscretePipeline(AbstractPipeline):
         try:
             uow = self.insert_uow(process_name, start_timeperiod, end_timeperiod, 0, timetable_record)
         except DuplicateKeyError as e:
-            uow = self.recover_from_duplicatekeyerror(e)
             msg = 'Catching up with latest unit_of_work %s in timeperiod %s, because of: %r' \
                   % (process_name, timetable_record.timeperiod, e)
             self._log_message(WARNING, process_name, timetable_record, msg)
+            uow = self.recover_from_duplicatekeyerror(e)
 
         if uow is not None:
             self.timetable.update_timetable_record(process_name,

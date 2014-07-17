@@ -93,8 +93,8 @@ def compare_dictionaries(dict_actual, dict_expected):
 
 
 def create_unit_of_work(process_name,
-                        first_object_id,
-                        last_object_id,
+                        start_id,
+                        end_id,
                         timeperiod='INVALID_TIMEPERIOD',
                         state=unit_of_work.STATE_REQUESTED,
                         creation_at=datetime.utcnow(),
@@ -111,8 +111,8 @@ def create_unit_of_work(process_name,
     uow.timeperiod = timeperiod
     uow.start_timeperiod = timeperiod
     uow.end_timeperiod = timeperiod
-    uow.start_id = first_object_id
-    uow.end_id = last_object_id
+    uow.start_id = start_id
+    uow.end_id = end_id
     uow.source_collection = source_collection
     uow.target_collection = target_collection
     uow.state = state
@@ -126,11 +126,11 @@ def create_unit_of_work(process_name,
     return uow
 
 
-def create_and_insert_unit_of_work(process_name, first_object_id, last_object_id, state=unit_of_work.STATE_REQUESTED,
+def create_and_insert_unit_of_work(process_name, start_id, end_id, state=unit_of_work.STATE_REQUESTED,
                                    timeperiod='INVALID_TIMEPERIOD'):
     """ method creates and inserts a unit_of_work into DB
     :return id of the created object in the db"""
-    uow = create_unit_of_work(process_name, first_object_id, last_object_id, timeperiod, state)
+    uow = create_unit_of_work(process_name, start_id, end_id, timeperiod, state)
     logger = ProcessContext.get_logger(process_name)
     uow_dao = UnitOfWorkDao(logger)
     uow_id = uow_dao.insert(uow)

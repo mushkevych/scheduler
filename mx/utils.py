@@ -7,6 +7,7 @@ from jinja2 import Environment, FileSystemLoader
 from werkzeug.local import Local, LocalManager
 from werkzeug.wrappers import Response
 from werkzeug.routing import Map, Rule
+from settings import settings
 
 TEMPLATE_PATH = path.join(path.dirname(__file__), 'templates')
 STATIC_PATH = path.join(path.dirname(__file__), 'static')
@@ -45,7 +46,12 @@ def get_current_time():
     return datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S %Z')
 
 
+def get_version():
+    return settings['version']
+
+
 jinja_env = Environment(loader=FileSystemLoader(TEMPLATE_PATH))
 jinja_env.globals['url_for'] = url_for
 jinja_env.globals['local'] = local
 jinja_env.globals['get_current_time'] = get_current_time
+jinja_env.globals['get_version'] = get_version

@@ -1,12 +1,13 @@
-from datetime import datetime
-
 ENVIRONMENT = '%ENVIRONMENT%'
+
+from datetime import datetime
 
 # folder locations, connection properties etc
 settings = dict(
     process_prefix='Synergy',  # global prefix that is added to every process name started for synergy-scheduler
     process_cwd='/mnt/tmp',    # daemonized process working directory, where it can create .cache and other folders
     config_file='/etc/synergy-scheduler.conf',
+    version='%BUILD_NUMBER%-%SVN_REVISION%',
 
     log_directory='/mnt/log/synergy-scheduler/', 
     pid_directory='/mnt/log/synergy-scheduler/',
@@ -83,6 +84,10 @@ test_cases = [
 
 
 def enable_test_mode():
+    if settings['under_test']:
+        # test mode is already enabled
+        return
+
     test_settings = dict(
         mongo_db_name=settings['mongo_db_name'] + '_test',
         mq_vhost='/unit_test',

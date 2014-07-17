@@ -61,6 +61,10 @@ class UnitOfWorkDao(object):
             cursor = collection.find(query).sort('_id', ASCENDING)
             for document in cursor:
                 uow = UnitOfWork(document)
+                if uow.process_name not in ProcessContext.PROCESS_CONTEXT:
+                    # this is a decommissioned process
+                    continue
+
                 time_qualifier = ProcessContext.get_time_qualifier(uow.process_name)
                 if time_qualifier == ProcessContext.QUALIFIER_REAL_TIME:
                     time_qualifier = ProcessContext.QUALIFIER_HOURLY
@@ -89,19 +93,24 @@ class UnitOfWorkDao(object):
         return UnitOfWork(document)
 
     @thread_safe
-    def update(self, unit_of_work):
+    def update(self, uow):
         """ method finds unit_of_work record and change its status"""
         collection = self.ds.connection(COLLECTION_UNITS_OF_WORK)
-        return collection.save(unit_of_work.document, safe=True)
+        return collection.save(uow.document, safe=True)
 
     @thread_safe
-    def insert(self, unit_of_work):
+    def insert(self, uow):
         """ inserts unit of work to MongoDB. @throws DuplicateKeyError if such record already exist """
         collection = self.ds.connection(COLLECTION_UNITS_OF_WORK)
         try:
-            return collection.insert(unit_of_work.document, safe=True)
+            return collection.insert(uow.document, safe=True)
         except MongoDuplicateKeyError as e:
-            raise DuplicateKeyError(e)
+            exc = DuplicateKeyError(e)
+            exc.start_id = uow.start_id
+            exc.start_id = uow.end_id
+            exc.process_name = uow.process_name
+            exc.timeperiod = uow.start_timeperiod
+            raise exc
 
     @thread_safe
     def remove(self, uow_id):

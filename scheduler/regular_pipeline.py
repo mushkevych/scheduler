@@ -29,13 +29,13 @@ class RegularPipeline(AbstractPipeline):
         source_collection_name = ProcessContext.get_source_collection(process_name)
         target_collection_name = ProcessContext.get_target_collection(process_name)
 
-        first_object_id = self.ds.highest_primary_key(source_collection_name, start_timeperiod, end_timeperiod)
-        last_object_id = self.ds.lowest_primary_key(source_collection_name, start_timeperiod, end_timeperiod)
+        start_id = self.ds.highest_primary_key(source_collection_name, start_timeperiod, end_timeperiod)
+        end_id = self.ds.lowest_primary_key(source_collection_name, start_timeperiod, end_timeperiod)
 
         uow = UnitOfWork()
         uow.timeperiod = start_timeperiod
-        uow.start_id = str(first_object_id)
-        uow.end_id = str(last_object_id)
+        uow.start_id = str(start_id)
+        uow.end_id = str(end_id)
         uow.start_timeperiod = start_timeperiod
         uow.end_timeperiod = end_timeperiod
         uow.created_at = datetime.utcnow()
@@ -44,15 +44,7 @@ class RegularPipeline(AbstractPipeline):
         uow.state = unit_of_work.STATE_REQUESTED
         uow.process_name = process_name
         uow.number_of_retries = 0
-
-        try:
-            uow_id = self.uow_dao.insert(uow)
-        except DuplicateKeyError as e:
-            e.first_object_id = str(first_object_id)
-            e.last_object_id = str(last_object_id)
-            e.process_name = process_name
-            e.timeperiod = start_timeperiod
-            raise e
+        uow_id = self.uow_dao.insert(uow)
 
         self.publishers.get_publisher(process_name).publish(str(uow_id))
         msg = 'Published: UOW %r for %r in timeperiod %r.' % (uow_id, process_name, start_timeperiod)

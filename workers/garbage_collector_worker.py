@@ -1,10 +1,10 @@
 """ Module re-launches invalid units_of_work """
-from settings import settings
 
 __author__ = 'Bohdan Mushkevych'
 
 from threading import Lock
 
+from settings import settings
 from datetime import datetime, timedelta
 from mq.flopsy import PublishersPool
 from system.decorator import thread_safe
@@ -68,14 +68,14 @@ class GarbageCollectorWorker(AbstractWorker):
                 self.uow_dao.update(uow)
                 self.publishers.get_publisher(process_name).publish(str(uow.document['_id']))
 
-                self.logger.info('UOW marked for re-processing: process %s; id %s; attempt %d'
-                                 % (process_name, str(uow.document['_id']), uow.number_of_retries))
+                self.logger.info('UOW marked for re-processing: process %s; timeperiod %s; id %s; attempt %d'
+                                 % (process_name, uow.timeperiod, str(uow.document['_id']), uow.number_of_retries))
                 self.performance_ticker.increment()
             else:
                 uow.state = unit_of_work.STATE_CANCELED
                 self.uow_dao.update(uow)
-                self.logger.info('UOW transferred to STATE_CANCELED: process %s; id %s; attempt %d'
-                                 % (process_name, str(uow.document['_id']), uow.number_of_retries))
+                self.logger.info('UOW transferred to STATE_CANCELED: process %s; timeperiod %s; id %s; attempt %d'
+                                 % (process_name, uow.timeperiod, str(uow.document['_id']), uow.number_of_retries))
 
 
 if __name__ == '__main__':

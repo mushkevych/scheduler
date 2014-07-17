@@ -94,7 +94,7 @@ class Supervisor(SynergyProcess):
         except Exception:
             self.logger.error('Exception on polling: %s' % process_name, exc_info=True)
 
-    def start(self, *args):
+    def start(self, *_):
         """ reading box configurations and starting timers to start/monitor/kill processes """
         try:
             box_config = self.bc_dao.get_one(self.box_id)
