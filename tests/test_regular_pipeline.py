@@ -22,7 +22,12 @@ TEST_FUTURE_TIMEPERIOD = time_helper.increment_timeperiod(ProcessContext.QUALIFI
 
 
 def then_raise(process_name, start_timeperiod, end_timeperiod, timetable_record):
-    raise DuplicateKeyError('Simulated Exception')
+    exc = DuplicateKeyError('Simulated Exception')
+    exc.start_id = '0'
+    exc.end_id = '1'
+    exc.process_name = process_name
+    exc.timeperiod = start_timeperiod
+    raise exc
 
 
 def then_return_uow(process_name, start_timeperiod, end_timeperiod, timetable_record):
