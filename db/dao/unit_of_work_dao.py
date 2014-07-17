@@ -77,7 +77,6 @@ class UnitOfWorkDao(object):
             raise LookupError('MongoDB has no reprocessing candidates units of work')
         return candidates
 
-
     @thread_safe
     def get_by_params(self, process_name, timeperiod, start_obj_id, end_obj_id):
         """ method finds unit_of_work record and returns it to the caller"""
@@ -107,7 +106,7 @@ class UnitOfWorkDao(object):
         except MongoDuplicateKeyError as e:
             exc = DuplicateKeyError(e)
             exc.start_id = uow.start_id
-            exc.start_id = uow.end_id
+            exc.end_id = uow.end_id
             exc.process_name = uow.process_name
             exc.timeperiod = uow.start_timeperiod
             raise exc
