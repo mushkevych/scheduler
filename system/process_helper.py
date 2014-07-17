@@ -68,9 +68,13 @@ def poll_process(process_name):
         :return True if the process is alive and OK and False is the process was terminated """
     try:
         pid = get_process_pid(process_name)
-        p = psutil.Process(pid)
+        if pid is None:
+            sys.stdout.write('PID file was not found. Process %s is likely terminated.\n' % process_name)
+            return False
 
+        p = psutil.Process(pid)
         return_code = p.wait(timeout=0.01)
+
         if return_code is None:
             # process is already terminated
             sys.stdout.write('Process %s is terminated \n' % process_name)
