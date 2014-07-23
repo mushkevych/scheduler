@@ -11,10 +11,10 @@ from tests.base_fixtures import create_unit_of_work
 from mockito import spy, verify, mock, when
 from mockito.matchers import any
 from system import time_helper
-from system.process_context import ProcessContext
+from system.process_context import ProcessContext, PROCESS_SITE_HOURLY
 from scheduler.time_table import TimeTable
 from scheduler.regular_pipeline import RegularPipeline
-from tests.ut_process_context import PROCESS_UNIT_TEST, PROCESS_SITE_HOURLY
+from tests.ut_process_context import PROCESS_UNIT_TEST
 
 TEST_PRESET_TIMEPERIOD = '2013010122'
 TEST_ACTUAL_TIMEPERIOD = time_helper.actual_timeperiod(ProcessContext.QUALIFIER_HOURLY)

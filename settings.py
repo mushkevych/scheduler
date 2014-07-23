@@ -9,8 +9,8 @@ settings = dict(
     config_file='/etc/synergy-scheduler.conf',
     version='%BUILD_NUMBER%-%SVN_REVISION%',
 
-    log_directory='/mnt/log/synergy-scheduler/', 
-    pid_directory='/mnt/log/synergy-scheduler/',
+    log_directory='/mnt/logs/synergy-scheduler/', 
+    pid_directory='/mnt/logs/synergy-scheduler/',
 
     remote_source_host_list=['user@f.q.h.n'],
     remote_source_password={'user@f.q.h.n': '***SSH_PASSWORD***'},
@@ -31,12 +31,7 @@ settings = dict(
     hadoop_command='/usr/bin/hadoop',
     pig_command='/usr/bin/pig',
     bash_command='/bin/bash',
-    hadoop_jar='/home/bmushkevych/git/synergy-hadoop/dist/synergy-hadoop-02.jar',
 
-    tunnel_host='***SURUS_HOST***',
-    tunnel_site_port=9988,  # SURUS PORTS
-
-    bulk_threshold=1024,
     mx_host='0.0.0.0',                              # management extension host (0.0.0.0 opens all interfaces)
     mx_port=5000,                                   # management extension port
     mx_children_limit=168,                          # maximum number of children at any given level returned by MX
@@ -95,7 +90,15 @@ def enable_test_mode():
         debug=True,
         under_test=True,
         synergy_start_timeperiod=datetime.utcnow().strftime('%Y%m%d%H'),
-        bulk_threshold=512
+
+        # legacy settings
+        hadoop_jar='/home/bmushkevych/git/synergy-hadoop/dist/synergy-hadoop-02.jar',
+        construction_hosts=['https://***REST_INTERFACE_URL***'],            # production access
+        construction_login='***REST_INTERFACE_LOGIN***',                    # production access ONLY
+        construction_password='***REST_INTERFACE_PWD***',                   # production access ONLY
+        tunnel_host='***SURUS_HOST***',
+        tunnel_site_port=9988,  # SURUS PORTS
+        bulk_threshold=1024,
     )
     settings.update(test_settings)
 

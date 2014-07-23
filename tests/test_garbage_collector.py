@@ -11,7 +11,7 @@ from db.dao.unit_of_work_dao import UnitOfWorkDao
 
 from mq.flopsy import PublishersPool
 from tests.base_fixtures import create_unit_of_work, create_and_insert_unit_of_work
-from system.process_context import PROCESS_GC
+from system.process_context import *
 from tests.ut_process_context import *
 from workers.garbage_collector_worker import GarbageCollectorWorker, LIFE_SUPPORT_HOURS
 import settings as module_settings

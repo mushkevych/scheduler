@@ -5,7 +5,7 @@ from db.model import base_model
 from tests import hourly_fixtures
 from tests.test_abstract_worker import AbstractWorkerUnitTest
 from workers.site_hourly_aggregator import SiteHourlyAggregator
-from tests.ut_process_context import PROCESS_SITE_HOURLY
+from system.process_context import PROCESS_SITE_HOURLY
 
 
 class HourlySiteAggregatorUnitTest(AbstractWorkerUnitTest):

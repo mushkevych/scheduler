@@ -3,7 +3,7 @@ __author__ = 'Bohdan Mushkevych'
 import unittest
 
 import settings as settings_module
-from tests.ut_process_context import _TOKEN_SITE, _TOKEN_CLIENT, PROCESS_SITE_YEARLY, PROCESS_SITE_MONTHLY, \
+from system.process_context import _TOKEN_SITE, _TOKEN_CLIENT, PROCESS_SITE_YEARLY, PROCESS_SITE_MONTHLY, \
     PROCESS_SITE_DAILY, PROCESS_SITE_HOURLY, PROCESS_CLIENT_MONTHLY
 from system import time_helper
 from system.process_context import ProcessContext

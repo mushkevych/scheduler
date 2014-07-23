@@ -19,16 +19,20 @@ def register_unit_test_context():
         process_name=PROCESS_SCRIPT_EXAMPLE,
         classname='workers.example_script_worker.main',
         token=_TOKEN_SCRIPT_EXAMPLE,
-        time_qualifier=ProcessContext.QUALIFIER_REAL_TIME)
+        time_qualifier=ProcessContext.QUALIFIER_REAL_TIME,
+        exchange=ProcessContext.EXCHANGE_UTILS)
 
     ProcessContext.PROCESS_CONTEXT[PROCESS_CLASS_EXAMPLE] = _create_context_entry(
         process_name=PROCESS_CLASS_EXAMPLE,
         classname='workers.abstract_worker.AbstractWorker.start',
         token=_TOKEN_CLASS_EXAMPLE,
-        time_qualifier=ProcessContext.QUALIFIER_DAILY)
+        time_qualifier=ProcessContext.QUALIFIER_DAILY,
+        exchange=ProcessContext.EXCHANGE_UTILS)
 
     ProcessContext.PROCESS_CONTEXT[PROCESS_UNIT_TEST] = _create_context_entry(
         process_name=PROCESS_UNIT_TEST,
         classname='',
         token='unit_test',
-        time_qualifier=ProcessContext.QUALIFIER_REAL_TIME)
+        time_qualifier=ProcessContext.QUALIFIER_REAL_TIME,
+        routing=ProcessContext.ROUTING_IRRELEVANT,
+        exchange=ProcessContext.EXCHANGE_UTILS)
