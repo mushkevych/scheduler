@@ -138,15 +138,17 @@ class TimeTable(object):
             uow_obj.number_of_retries = 0
             uow_obj.created_at = datetime.utcnow()
             self.uow_dao.update(uow_obj)
-            msg = 'Transferred time-table-record %s in timeperiod %s to %s; Transferred unit_of_work to %s' \
+            msg = 'Transferred time-table-record %s for %s in timeperiod %s to %s; Transferred unit_of_work to %s' \
                   % (tree_node.timetable_record.document['_id'],
+                     tree_node.process_name,
                      tree_node.timetable_record.timeperiod,
                      tree_node.timetable_record.state,
                      uow_obj.state)
         else:
             tree_node.timetable_record.state = time_table_record.STATE_EMBRYO
-            msg = 'Transferred time-table-record %s in timeperiod %s to %s;' \
+            msg = 'Transferred time-table-record %s for %s in timeperiod %s to %s;' \
                   % (tree_node.timetable_record.document['_id'],
+                     tree_node.process_name,
                      tree_node.timetable_record.timeperiod,
                      tree_node.timetable_record.state)
 
@@ -166,7 +168,8 @@ class TimeTable(object):
         uow_id = tree_node.timetable_record.related_unit_of_work
         if uow_id is not None:
             uow_obj = self.uow_dao.get_one(uow_id)
-            if uow_obj.state == unit_of_work.STATE_INVALID:
+            if uow_obj.state == unit_of_work.STATE_INVALID \
+                    and tree_node.timetable_record.state == time_table_record.STATE_IN_PROGRESS:
                 # corresponding unit_of_work does not need to be marked for re-processing
                 pass
             else:
