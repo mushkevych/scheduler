@@ -15,12 +15,13 @@ from system.decorator import thread_safe
 from system.collection_context import COLLECTION_TIMETABLE_HOURLY, COLLECTION_TIMETABLE_DAILY, \
     COLLECTION_TIMETABLE_MONTHLY, COLLECTION_TIMETABLE_YEARLY
 from scheduler.tree import TwoLevelTree, ThreeLevelTree, FourLevelTree
+from scheduler.tree_node import AbstractNode
 
 # make sure MX_PAGE_TRAFFIC refers to mx.views.py page
 MX_PAGE_TRAFFIC = 'traffic_details'
 
 
-class TimeTable:
+class TimeTable(object):
     """ Timetable present a tree, where every node presents a time-period """
 
     def __init__(self, logger):
@@ -55,12 +56,12 @@ class TimeTable:
         self.trees.append(self.linear_daily_alert)
 
         self._register_callbacks()
-        self._register_dependents()
+        self._register_dependencies()
         self.load_tree()
         self.build_tree()
         self.validate()
 
-    def _register_dependents(self):
+    def _register_dependencies(self):
         """ register dependencies between trees"""
         #        self.horizontal_client.register_dependent_on(self.vertical_site)
         #        self.horizontal_client.register_dependent_on(self.vertical_visitor)
@@ -109,8 +110,24 @@ class TimeTable:
             if tree.is_managing_process(process_name):
                 return tree
 
-    @thread_safe
-    def _callback_reprocess(self, process_name, timeperiod, tree_node):
+    def _find_dependant_trees(self, tree_obj):
+        """ returns list of trees that are dependent_on the given tree_obj """
+        dependant_trees = []
+        for tree in self.trees:
+            if tree_obj in tree.dependent_on:
+                dependant_trees.append(tree)
+        return dependant_trees
+
+    def _find_dependant_tree_nodes(self, node_a):
+        dependant_nodes = set()
+        for tree_b in self._find_dependant_trees(node_a.tree):
+            node_b = AbstractNode.find_counterpart_for(node_a, tree_b)
+            if node_b is None:
+                continue
+            dependant_nodes.add(node_b)
+        return dependant_nodes
+
+    def _reprocess_single_tree_node(self, tree_node):
         """ is called from tree to answer reprocessing request.
         It is possible that timetable record will be transferred to STATE_IN_PROGRESS with no related unit_of_work"""
         uow_id = tree_node.timetable_record.related_unit_of_work
@@ -138,12 +155,29 @@ class TimeTable:
         self.logger.warning(msg)
         tree_node.add_log_entry([datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S'), msg])
 
-        if process_name not in self.reprocess:
-            self.reprocess[process_name] = dict()
-        self.reprocess[process_name][timeperiod] = tree_node
+        if tree_node.process_name not in self.reprocess:
+            self.reprocess[tree_node.process_name] = dict()
+        self.reprocess[tree_node.process_name][tree_node.timeperiod] = tree_node
 
     @thread_safe
-    def _callback_skip(self, process_name, timeperiod, tree_node):
+    def _callback_reprocess(self, tree_node):
+        """ is called from tree to answer reprocessing request.
+        It is possible that timetable record will be transferred to STATE_IN_PROGRESS with no related unit_of_work"""
+        uow_id = tree_node.timetable_record.related_unit_of_work
+        if uow_id is not None:
+            uow_obj = self.uow_dao.get_one(uow_id)
+            if uow_obj.state == unit_of_work.STATE_INVALID:
+                # corresponding unit_of_work does not need to be marked for re-processing
+                pass
+            else:
+                self._reprocess_single_tree_node(tree_node)
+
+        reprocessing_nodes = self._find_dependant_tree_nodes(tree_node)
+        for node in reprocessing_nodes:
+            node.request_reprocess()
+
+    @thread_safe
+    def _callback_skip(self, tree_node):
         """ is called from tree to answer skip request"""
         tree_node.timetable_record.state = time_table_record.STATE_SKIPPED
         uow_id = tree_node.timetable_record.related_unit_of_work
@@ -166,24 +200,25 @@ class TimeTable:
         self.logger.warning(msg)
         tree_node.add_log_entry([datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S'), msg])
 
-        if process_name in self.reprocess and timeperiod in self.reprocess[process_name]:
-            del self.reprocess[process_name][timeperiod]
+        if tree_node.process_name in self.reprocess \
+                and tree_node.timeperiod in self.reprocess[tree_node.process_name]:
+            del self.reprocess[tree_node.process_name][tree_node.timeperiod]
 
     @thread_safe
-    def _callback_timetable_record(self, process_name, timeperiod, tree_node):
+    def _callback_timetable_record(self, tree_node):
         """ is called from tree to create timetable record and bind it to the tree node"""
 
         try:
-            timetable_record = self.ttr_dao.get_one(process_name, timeperiod)
+            timetable_record = self.ttr_dao.get_one(tree_node.process_name, tree_node.timeperiod)
         except LookupError:
             timetable_record = TimeTableRecord()
             timetable_record.state = time_table_record.STATE_EMBRYO
-            timetable_record.timeperiod = timeperiod
-            timetable_record.process_name = process_name
+            timetable_record.timeperiod = tree_node.timeperiod
+            timetable_record.process_name = tree_node.process_name
 
             tr_id = self.ttr_dao.update(timetable_record)
             self.logger.info('Created time-table-record %s, with timeperiod %s for process %s'
-                             % (str(tr_id), timeperiod, process_name))
+                             % (str(tr_id), tree_node.timeperiod, tree_node.process_name))
         tree_node.timetable_record = timetable_record
 
     @thread_safe

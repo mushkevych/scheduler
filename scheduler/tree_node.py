@@ -29,8 +29,8 @@ class AbstractNode(object):
             return effected_nodes
 
         for function in self.tree.reprocess_callbacks:
-            # function signature: process_name, timeperiod, tree_node
-            function(self.process_name, self.timeperiod, self)
+            # function signature: tree_node
+            function(self)
         effected_nodes.extend(self.parent.request_reprocess())
         effected_nodes.append(self)
         return effected_nodes
@@ -38,15 +38,15 @@ class AbstractNode(object):
     def request_skip(self):
         """ method marks this node as one to skip"""
         for function in self.tree.skip_callbacks:
-            # function signature: process_name, timeperiod, tree_node
-            function(self.process_name, self.timeperiod, self)
+            # function signature: tree_node
+            function(self)
         return [self]
 
     def request_timetable_record(self):
         """ method is requesting outside functionality to create STATE_EMBRYO timetable record for given tree_node"""
         for function in self.tree.create_timetable_record_callbacks:
-            # function signature: process_name, timeperiod, tree_node
-            function(self.process_name, self.timeperiod, self)
+            # function signature: tree_node
+            function(self)
 
     def can_finalize_timetable_record(self):
         """method checks all children of the node, and if any is _not_ finalized - refuses to finalize the node"""
@@ -66,6 +66,52 @@ class AbstractNode(object):
             del log[-1]
         log.insert(0, entry)
 
+    @staticmethod
+    def find_counterpart_for(node_a, tree_b):
+        """ Finds a counterpart TreeNode from tree_b to node_a from tree_a
+        @param node_a: source node from tree_a
+        @param tree_b: target tree that hosts counterpart to node_a
+        @return: TreeNode from tree_b that has the same timeperiod as the node_a, or None if no counterpart ware found
+        """
+
+        def match_time_qualifier(time_qualifier, candidate_process_name):
+            """ :return: True if candidate_process has the same time qualifier as given """
+            if candidate_process_name is None:
+                return False
+            candidate_qualifier = ProcessContext.get_time_qualifier(candidate_process_name)
+            return time_qualifier == candidate_qualifier
+
+        tree_b_process_yearly = getattr(tree_b, 'process_yearly', None)
+        tree_b_process_monthly = getattr(tree_b, 'process_monthly', None)
+        tree_b_process_daily = getattr(tree_b, 'process_daily', None)
+        tree_b_process_hourly = getattr(tree_b, 'process_hourly', None)
+        tree_b_process_linear = getattr(tree_b, 'process_name', None)
+
+        if match_time_qualifier(node_a.time_qualifier, tree_b_process_yearly):
+            tree_b_process_name = tree_b_process_yearly
+        elif match_time_qualifier(node_a.time_qualifier, tree_b_process_monthly):
+            tree_b_process_name = tree_b_process_monthly
+        elif match_time_qualifier(node_a.time_qualifier, tree_b_process_daily):
+            tree_b_process_name = tree_b_process_daily
+        elif match_time_qualifier(node_a.time_qualifier, tree_b_process_hourly):
+            tree_b_process_name = tree_b_process_hourly
+        elif match_time_qualifier(node_a.time_qualifier, tree_b_process_linear):
+            tree_b_process_name = tree_b_process_linear
+        else:
+            # special case when tree with more levels depends on the tree with smaller amount of levels
+            # for example ThreeLevel Financial tree depends on TwoLevel Google Channel
+            # in this case - we just verify time-periods that matches in both trees;
+            # for levels that have no match, we assume that dependency does not exists
+            # for example Financial Monthly has no counterpart in Google Daily Report -
+            # so we assume that its not blocked
+            tree_b_process_name = None
+
+        if tree_b_process_name is not None:
+            node_b = tree_b.get_node_by_process(tree_b_process_name, node_a.timeperiod)
+        else:
+            node_b = None
+        return node_b
+
     def is_dependent_on_finalized(self):
         """ method is used by:
             - horizontal nodes to verify that particular time period has been finalized in verticals
@@ -79,48 +125,24 @@ class AbstractNode(object):
                 skipped_present - True if among <dependent on> periods are some in STATE_SKIPPED
              """
 
-        def match_time_qualifier(time_qualifier, candidate_process_name):
-            """ :return: True if candidate_process has the same time qualifier as given """
-            if candidate_process_name is None:
-                return False
-            candidate_qualifier = ProcessContext.get_time_qualifier(candidate_process_name)
-            return time_qualifier == candidate_qualifier
-
         all_finalized = True   # True if all dependent_on periods are either in STATE_PROCESSED or STATE_SKIPPED
         all_processed = True   # True if all dependent_on periods are in STATE_PROCESSED
         skipped_present = False   # True if among dependent_on periods are some in STATE_SKIPPED
         for dependent_on in self.tree.dependent_on:
-            dep_process_yearly = getattr(dependent_on, 'process_yearly', None)
-            dep_process_monthly = getattr(dependent_on, 'process_monthly', None)
-            dep_process_daily = getattr(dependent_on, 'process_daily', None)
-            dep_process_hourly = getattr(dependent_on, 'process_hourly', None)
-            dep_process_linear = getattr(dependent_on, 'process_name', None)
+            node_b = AbstractNode.find_counterpart_for(self, dependent_on)
 
-            if match_time_qualifier(self.time_qualifier, dep_process_yearly):
-                dep_proc_name = dependent_on.process_yearly
-            elif match_time_qualifier(self.time_qualifier, dep_process_monthly):
-                dep_proc_name = dependent_on.process_monthly
-            elif match_time_qualifier(self.time_qualifier, dep_process_daily):
-                dep_proc_name = dependent_on.process_daily
-            elif match_time_qualifier(self.time_qualifier, dep_process_hourly):
-                dep_proc_name = dependent_on.process_hourly
-            elif match_time_qualifier(self.time_qualifier, dep_process_linear):
-                dep_proc_name = dependent_on.process_name
-            else:
-                # special case when tree with more levels depends on the tree with smaller amount of levels
-                # for example ThreeLevel Financial tree depends on TwoLevel Google Channel
-                # in this case - we just verify time-periods that matches in both trees;
-                # for levels that have no match, we assume that dependency does not exists
-                # for example Financial Monthly has no counterpart in Google Report - so we assume that its not blocked
+            if node_b is None:
+                # special case when counterpart tree has no process with corresponding time_qualifier
+                # for example Financial Monthly has no counterpart in Google Daily Report -
+                # so we assume that its not blocked
                 continue
 
-            dep_node = dependent_on.get_node_by_process(dep_proc_name, self.timeperiod)
-            if dep_node.timetable_record.state not in [time_table_record.STATE_PROCESSED,
-                                                       time_table_record.STATE_SKIPPED]:
+            if node_b.timetable_record.state not in [time_table_record.STATE_PROCESSED,
+                                                     time_table_record.STATE_SKIPPED]:
                 all_finalized = False
-            if dep_node.timetable_record.state != time_table_record.STATE_PROCESSED:
+            if node_b.timetable_record.state != time_table_record.STATE_PROCESSED:
                 all_processed = False
-            if dep_node.timetable_record.state == time_table_record.STATE_SKIPPED:
+            if node_b.timetable_record.state == time_table_record.STATE_SKIPPED:
                 skipped_present = True
 
         return all_finalized, all_processed, skipped_present

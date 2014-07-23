@@ -80,6 +80,7 @@ test_cases = [
     'tests.test_repeat_timer',
     'tests.test_process_context',
     'tests.test_site_hourly_aggregator',
+    'tests.test_tree_node',
 ]
 
 
