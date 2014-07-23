@@ -144,6 +144,11 @@ class TimeTable(object):
                      tree_node.timetable_record.timeperiod,
                      tree_node.timetable_record.state,
                      uow_obj.state)
+
+            if tree_node.process_name not in self.reprocess:
+                self.reprocess[tree_node.process_name] = dict()
+            self.reprocess[tree_node.process_name][tree_node.timeperiod] = tree_node
+
         else:
             tree_node.timetable_record.state = time_table_record.STATE_EMBRYO
             msg = 'Transferred time-table-record %s for %s in timeperiod %s to %s;' \
@@ -157,23 +162,11 @@ class TimeTable(object):
         self.logger.warning(msg)
         tree_node.add_log_entry([datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S'), msg])
 
-        if tree_node.process_name not in self.reprocess:
-            self.reprocess[tree_node.process_name] = dict()
-        self.reprocess[tree_node.process_name][tree_node.timeperiod] = tree_node
-
     @thread_safe
     def _callback_reprocess(self, tree_node):
         """ is called from tree to answer reprocessing request.
         It is possible that timetable record will be transferred to STATE_IN_PROGRESS with no related unit_of_work"""
-        uow_id = tree_node.timetable_record.related_unit_of_work
-        if uow_id is not None:
-            uow_obj = self.uow_dao.get_one(uow_id)
-            if uow_obj.state == unit_of_work.STATE_INVALID \
-                    and tree_node.timetable_record.state == time_table_record.STATE_IN_PROGRESS:
-                # corresponding unit_of_work does not need to be marked for re-processing
-                pass
-            else:
-                self._reprocess_single_tree_node(tree_node)
+        self._reprocess_single_tree_node(tree_node)
 
         reprocessing_nodes = self._find_dependant_tree_nodes(tree_node)
         for node in reprocessing_nodes:
