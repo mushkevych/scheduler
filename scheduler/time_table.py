@@ -166,7 +166,14 @@ class TimeTable(object):
     def _callback_reprocess(self, tree_node):
         """ is called from tree to answer reprocessing request.
         It is possible that timetable record will be transferred to STATE_IN_PROGRESS with no related unit_of_work"""
-        self._reprocess_single_tree_node(tree_node)
+        if (tree_node.timetable_record.state == time_table_record.STATE_EMBRYO
+                and tree_node.timetable_record.number_of_failures == 0) \
+            or (tree_node.process_name in self.reprocess
+                and tree_node.timeperiod in self.reprocess[tree_node.process_name]):
+            # the node has already been marked for re-processing or does not require one
+            pass
+        else:
+            self._reprocess_single_tree_node(tree_node)
 
         reprocessing_nodes = self._find_dependant_tree_nodes(tree_node)
         for node in reprocessing_nodes:
