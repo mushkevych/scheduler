@@ -26,6 +26,12 @@ class TestConsumer(object):
     def close(self):
         pass
 
+    def reject(self, delivery_tag):
+        pass
+
+    def cancel(self, delivery_tag):
+        pass
+
 
 class TestMessage(object):
     """ empty class that should substitute MQ Message. Used for testing only """
