@@ -43,7 +43,7 @@ class DiscretePipeline(AbstractPipeline):
         uow.number_of_retries = 0
         uow_id = self.uow_dao.insert(uow)
 
-        self.publishers.get_publisher(process_name).publish(str(uow_id))
+        self.publishers.get(process_name).publish(str(uow_id))
         msg = 'Published: UOW %r for %r in timeperiod %r.' % (uow_id, process_name, start_timeperiod)
         self._log_message(INFO, process_name, timetable_record, msg)
         return uow

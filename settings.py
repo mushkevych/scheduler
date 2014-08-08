@@ -62,9 +62,11 @@ testable_modules = [
 
 test_cases = [
     'tests.test_regular_pipeline',
+    #'tests.test_decorator',
     'tests.test_discrete_pipeline',
     'tests.test_garbage_collector',
     'tests.test_system_collections',
+    'tests.test_system_utils',
     'tests.test_two_level_tree',
     'tests.test_three_level_tree',
     'tests.test_four_level_tree',

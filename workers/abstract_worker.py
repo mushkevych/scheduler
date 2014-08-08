@@ -18,6 +18,9 @@ class AbstractWorker(SynergyProcess):
     def __init__(self, process_name):
         """@param process_name: id of the process, the worker will be performing """
         super(AbstractWorker, self).__init__(process_name)
+        self.consumer = None
+        self.performance_ticker = None
+        self.main_thread = None
         self._init_performance_ticker(self.logger)
 
         msg_suffix = 'in Production Mode'
@@ -39,7 +42,7 @@ class AbstractWorker(SynergyProcess):
 
     # ********************** thread-related methods ****************************
     def _mq_callback(self, message):
-        """ abstract method to process messages from MQ 
+        """ abstract method to process messages from MQ
         @param message: mq message"""
         pass
 
@@ -54,6 +57,6 @@ class AbstractWorker(SynergyProcess):
             self.__del__()
             self.logger.info('Exiting main thread. All auxiliary threads stopped.')
 
-    def start(self, *args):
+    def start(self, *_):
         self.main_thread = Thread(target=self._run_mq_listener)
         self.main_thread.start()

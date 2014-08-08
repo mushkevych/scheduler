@@ -105,7 +105,7 @@ class Scheduler(SynergyProcess):
 
         except (AMQPException, IOError) as e:
             self.logger.error('AMQPException: %s' % str(e), exc_info=True)
-            self.publishers.reset_all_publishers(suppress_logging=True)
+            self.publishers.reset_all(suppress_logging=True)
         except Exception as e:
             self.logger.error('Exception: %s' % str(e), exc_info=True)
         finally:
@@ -124,7 +124,7 @@ class Scheduler(SynergyProcess):
             self.discrete_pipeline.manage_pipeline_with_blocking_dependencies(process_name, timetable_record)
         except (AMQPException, IOError) as e:
             self.logger.error('AMQPException: %s' % str(e), exc_info=True)
-            self.publishers.reset_all_publishers(suppress_logging=True)
+            self.publishers.reset_all(suppress_logging=True)
         except Exception as e:
             self.logger.error('Exception: %s' % str(e), exc_info=True)
         finally:
@@ -138,14 +138,14 @@ class Scheduler(SynergyProcess):
             self.lock.acquire()
             self.logger.info('%s {' % process_name)
 
-            self.publishers.get_publisher(process_name).publish({})
+            self.publishers.get(process_name).publish({})
             self.logger.info('Publishing trigger for garbage_collector')
             self.timetable.build_tree()
             self.timetable.validate()
             self.logger.info('Validated Timetable for all trees')
         except (AMQPException, IOError) as e:
             self.logger.error('AMQPException: %s' % str(e), exc_info=True)
-            self.publishers.reset_all_publishers(suppress_logging=True)
+            self.publishers.reset_all(suppress_logging=True)
         except Exception as e:
             self.logger.error('fire_garbage_collector: %s' % str(e))
         finally:

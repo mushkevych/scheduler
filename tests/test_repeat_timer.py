@@ -9,12 +9,18 @@ from system import repeat_timer
 class TestRepeatTimer(unittest.TestCase):
     INTERVAL = 3
 
-    def method_yes(self, start_datetime, seconds):
-        print 'YES executed with parameters %s %s' % (str(start_datetime), seconds)
+    def make_method_yes(self, initial_multiplication=1):
+        # the only way to implement nonlocal closure variables in Python 2.X
+        cycle = {'index': initial_multiplication}
+
+        def method_yes(start_datetime, seconds):
+            delta = datetime.utcnow() - start_datetime
+            assert delta.seconds == cycle['index'] * seconds
+            cycle['index'] += 1
+        return method_yes
 
     def method_no(self, start_datetime, seconds):
-        raise AssertionError(
-            'Assertion failed as NO was executed with parameters %s %s' % (str(start_datetime), seconds))
+        raise AssertionError('Assertion failed as NO was executed with parameters %s %s' % (str(start_datetime), seconds))
 
     def method_checkpoint(self, start_datetime, seconds):
         print 'Entering method checkpoint with parameters %s %s' % (str(start_datetime), seconds)
@@ -42,7 +48,7 @@ class TestRepeatTimer(unittest.TestCase):
 
     def test_trigger(self):
         self.obj = repeat_timer.RepeatTimer(TestRepeatTimer.INTERVAL,
-                                            self.method_yes,
+                                            self.make_method_yes(),
                                             args=[datetime.utcnow(), 0])
         self.obj.start()
         self.obj.trigger()
@@ -52,8 +58,8 @@ class TestRepeatTimer(unittest.TestCase):
 
     def test_trigger_with_continuation(self):
         self.obj = repeat_timer.RepeatTimer(TestRepeatTimer.INTERVAL - 1,
-                                            self.method_yes,
-                                            args=[datetime.utcnow(), 0])
+                                            self.make_method_yes(initial_multiplication=0),
+                                            args=[datetime.utcnow(), TestRepeatTimer.INTERVAL - 1])
         self.obj.start()
         self.obj.trigger()
         time.sleep(TestRepeatTimer.INTERVAL)

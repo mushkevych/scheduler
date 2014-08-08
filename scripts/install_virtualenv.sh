@@ -14,7 +14,7 @@ fi
 
 vendor=$1/vendors
 cd $vendor
-easy_install $vendor/amqplib-1.0.2.tgz
+easy_install $vendor/amqp-1.4.5.tar.gz
 easy_install $vendor/virtualenv-1.10.1.tar.gz
 easy_install $vendor/setuptools-1.4.tar.gz
 easy_install $vendor/pip-1.4.1.tar.gz
@@ -22,6 +22,7 @@ easy_install $vendor/ipython-1.1.0.tar.gz
 
 easy_install $vendor/unittest2-0.5.1.tar.gz
 easy_install $vendor/nose-1.3.0.tar.gz
+easy_install $vendor/mock-1.0.1.tar.gz
 easy_install $vendor/distribute-0.7.3.zip
 easy_install $vendor/mockito-0.5.2.tar.gz
 easy_install $vendor/logilab-common-0.60.0.tar.gz

@@ -97,6 +97,20 @@ def _create_context_entry(process_name,
     }
 
 
+def _create_queue_entry(exchange,
+                        queue_name,
+                        routing=None):
+    """ forms queue's context entry """
+    if routing is None:
+        routing = queue_name
+
+    return {
+        _MQ_EXCHANGE: exchange,
+        _MQ_QUEUE: queue_name,
+        _MQ_ROUTING_KEY: routing,
+    }
+
+
 class ProcessContext:
     # process_context format: "process_name": {
     # process_name
@@ -114,6 +128,7 @@ class ProcessContext:
     # }
     __CURRENT_PROCESS_TAG = '__CURRENT_PROCESS'
 
+    QUEUE_REQUESTED_PACKAGES = 'q_requested_package'
     QUEUE_RAW_DATA = 'queue_raw_data'
     ROUTING_IRRELEVANT = 'routing_irrelevant'
 
@@ -131,6 +146,12 @@ class ProcessContext:
     EXCHANGE_UTILS = 'exchange_utils'
 
     logger_pool = dict()
+
+    QUEUE_CONTEXT = {
+        QUEUE_REQUESTED_PACKAGES: _create_queue_entry(
+            exchange=EXCHANGE_HORIZONTAL,
+            queue_name=QUEUE_REQUESTED_PACKAGES),
+    }
 
     PROCESS_CONTEXT = {
         PROCESS_SITE_DAILY: _create_context_entry(
@@ -366,6 +387,17 @@ class ProcessContext:
     def get_queue(cls, process_name=None):
         """ method returns queue that is applicable for the worker/aggregator, specified by classname"""
         return cls.PROCESS_CONTEXT[process_name][_MQ_QUEUE]
+
+    @classmethod
+    def get_routing_for_q(cls, queue_name):
+        """ method returns routing; it is used to segregate traffic within the queue"""
+        return cls.QUEUE_CONTEXT[queue_name][_MQ_ROUTING_KEY]
+
+    @classmethod
+    def get_exchange_for_q(cls, queue_name):
+        """ method returns exchange for this queue_name.
+        Exchange is a component that sits between queue and the publisher"""
+        return cls.QUEUE_CONTEXT[queue_name][_MQ_EXCHANGE]
 
     @classmethod
     @current_process_aware
