@@ -164,3 +164,109 @@ class AggregatorPerformanceTicker(WorkerPerformanceTicker):
         self.uow_obj = None
         self.state_triggered_at = time.time()
         self.posts_per_job = 0
+
+
+class Tracker(object):
+    def __init__(self, name):
+        self.name = name
+        self.per_24h = 0
+        self.per_tick = 0
+
+    def increment(self, delta=1):
+        self.per_24h += delta
+        self.per_tick += delta
+
+    def reset_tick(self):
+        self.per_tick = 0
+
+    def reset_24h(self):
+        self.per_24h = 0
+
+
+class TrackerPair(object):
+    def __init__(self, name, up_name='Success', down_name='Failure'):
+        self.name = name
+        self.tracker_up = Tracker(down_name)
+        self.tracker_down = Tracker(up_name)
+
+    def increment_up(self):
+        self.tracker_down.increment()
+
+    def increment_down(self):
+        self.tracker_up.increment()
+
+    def reset_tick(self):
+        self.tracker_up.reset_tick()
+        self.tracker_down.reset_tick()
+
+    def reset_24h(self):
+        self.tracker_up.reset_24h()
+        self.tracker_down.reset_24h()
+
+    def to_string(self, tick_interval_seconds, show_header=True):
+        header = self.name + ' : ' + self.tracker_down.name + '/' + self.tracker_up.name + '.' if show_header else ''
+        return header + 'In last {0:d} seconds: {1:d}/{2:d}. In last 24 hours: {3:d}/{4:d}'.format(
+            tick_interval_seconds,
+            self.tracker_down.per_tick,
+            self.tracker_up.per_tick,
+            self.tracker_down.per_24h,
+            self.tracker_up.per_24h)
+
+
+class TickerThread(object):
+    SECONDS_IN_24_HOURS = 86400
+    TICKS_BETWEEN_FOOTPRINTS = 10
+
+    def __init__(self, logger):
+        self.logger = logger
+        self.trackers = dict()
+        self.interval = settings['perf_ticker_interval']
+        self.mark_24_hours = time.time()
+        self.mark_footprint = time.time()
+        self.footprint = FootprintCalculator()
+        self.timer = RepeatTimer(self.interval, self._run_tick_thread)
+
+    def add_tracker(self, tracker):
+        self.trackers[tracker.name] = tracker
+
+    def get_tracker(self, name):
+        return self.trackers[name]
+
+    def start(self):
+        self.timer.start()
+
+    def cancel(self):
+        self.timer.cancel()
+
+    def is_alive(self):
+        return self.timer.is_alive()
+
+    def _print_footprint(self):
+        if time.time() - self.mark_footprint > self.TICKS_BETWEEN_FOOTPRINTS * self.interval:
+            self.logger.info(self.footprint.get_snapshot())
+            self.mark_footprint = time.time()
+
+    def _run_tick_thread(self):
+        self._print_footprint()
+
+        summary_output = ''
+        for tracker_name, tracker in self.trackers.iteritems():
+            summary_output += tracker.to_string(self.interval) + '\n'
+        self.logger.info(summary_output)
+
+        for tracker_name, tracker in self.trackers.iteritems():
+            tracker.reset_tick()
+            if time.time() - self.mark_24_hours > self.SECONDS_IN_24_HOURS:
+                tracker.reset_24h()
+
+
+class SimpleTracker(TickerThread):
+    TRACKER_PERFORMANCE = 'Performance'
+
+    def __init__(self, logger):
+        super(SimpleTracker, self).__init__(logger)
+        self.add_tracker(TrackerPair(self.TRACKER_PERFORMANCE))
+
+    @property
+    def tracker(self):
+        return self.get_tracker(self.TRACKER_PERFORMANCE)
