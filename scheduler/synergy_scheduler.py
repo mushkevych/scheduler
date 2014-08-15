@@ -138,7 +138,10 @@ class Scheduler(SynergyProcess):
             self.lock.acquire()
             self.logger.info('%s {' % process_name)
 
-            self.publishers.get(process_name).publish({})
+            publisher = self.publishers.get(process_name)
+            publisher.publish({})
+            publisher.release()
+
             self.logger.info('Publishing trigger for garbage_collector')
             self.timetable.build_tree()
             self.timetable.validate()

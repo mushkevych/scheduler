@@ -27,6 +27,12 @@ class GarbageCollectorWorker(AbstractWorker):
         self.uow_dao = UnitOfWorkDao(self.logger)
 
     def __del__(self):
+        try:
+            self.logger.info('Closing Flopsy Publishers Pool...')
+            self.publishers.close()
+        except Exception as e:
+            self.logger.error('Exception caught while closing Flopsy Publishers Pool: %s' % str(e))
+
         super(GarbageCollectorWorker, self).__del__()
 
     @thread_safe
@@ -66,11 +72,14 @@ class GarbageCollectorWorker(AbstractWorker):
                 uow.state = unit_of_work.STATE_REQUESTED
                 uow.number_of_retries += 1
                 self.uow_dao.update(uow)
-                self.publishers.get_publisher(process_name).publish(str(uow.document['_id']))
+
+                publisher = self.publishers.get(process_name)
+                publisher.publish(str(uow.document['_id']))
+                publisher.release()
 
                 self.logger.info('UOW marked for re-processing: process %s; timeperiod %s; id %s; attempt %d'
                                  % (process_name, uow.timeperiod, str(uow.document['_id']), uow.number_of_retries))
-                self.performance_ticker.increment()
+                self.performance_ticker.tracker.increment_success()
             else:
                 uow.state = unit_of_work.STATE_CANCELED
                 self.uow_dao.update(uow)

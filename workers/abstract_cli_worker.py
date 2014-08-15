@@ -9,7 +9,7 @@ from db.model import unit_of_work
 from db.dao.unit_of_work_dao import UnitOfWorkDao
 
 from workers.abstract_worker import AbstractWorker
-from system.performance_ticker import AggregatorPerformanceTicker
+from system.performance_tracker import AggregatorPerformanceTicker
 
 
 class AbstractCliWorker(AbstractWorker):
@@ -95,7 +95,7 @@ class AbstractCliWorker(AbstractWorker):
                 alive, code = self._poll_process()
 
             if code == 0:
-                uow.number_of_processed_documents = self.performance_ticker.posts_per_job
+                uow.number_of_processed_documents = self.performance_ticker.per_job
                 uow.finished_at = datetime.utcnow()
                 uow.state = unit_of_work.STATE_PROCESSED
                 self.performance_ticker.finish_uow()

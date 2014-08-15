@@ -10,7 +10,7 @@ from datetime import datetime
 
 from settings import settings
 from workers.abstract_worker import AbstractWorker
-from system.performance_ticker import AggregatorPerformanceTicker
+from system.performance_tracker import AggregatorPerformanceTicker
 
 from db.model import unit_of_work
 from db.manager import ds_manager
@@ -172,7 +172,7 @@ class AbstractFileCollectorWorker(AbstractWorker):
             self.perform_post_processing(uow.start_timeperiod)
 
             uow.number_of_aggregated_documents = number_of_aggregated_objects
-            uow.number_of_processed_documents = self.performance_ticker.posts_per_job
+            uow.number_of_processed_documents = self.performance_ticker.per_job
             uow.finished_at = datetime.utcnow()
             uow.state = unit_of_work.STATE_PROCESSED
             self.uow_dao.update(uow)

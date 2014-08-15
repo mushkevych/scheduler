@@ -21,7 +21,11 @@ class AbstractPipeline(object):
         self.ttr_dao = TimeTableRecordDao(self.logger)
 
     def __del__(self):
-        pass
+        try:
+            self.logger.info('Closing Flopsy Publishers Pool...')
+            self.publishers.close()
+        except Exception as e:
+            self.logger.error('Exception caught while closing Flopsy Publishers Pool: %s' % str(e))
 
     def _log_message(self, level, process_name, timetable_record, msg):
         """ method performs logging into log file and TimeTable node"""

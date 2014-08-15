@@ -16,7 +16,7 @@ settings = dict(
     remote_source_password={'user@f.q.h.n': '***SSH_PASSWORD***'},
     remote_source_folder='/mnt/remote_folder/',
 
-    mq_insist=False,
+    mq_timeout_sec=300.0,
     mq_queue='default_queue',
     mq_routing_key='default_routing_key',
     mq_exchange='default_exchange',
@@ -63,6 +63,7 @@ testable_modules = [
 test_cases = [
     'tests.test_regular_pipeline',
     #'tests.test_decorator',
+    'tests.test_publishers_pool',
     'tests.test_discrete_pipeline',
     'tests.test_garbage_collector',
     'tests.test_system_collections',

@@ -2,10 +2,11 @@ __author__ = 'Bohdan Mushkevych'
 
 from settings import settings
 from mq.flopsy import Consumer
-from system.performance_ticker import WorkerPerformanceTicker
+from system.performance_tracker import SimpleTracker
 from system.synergy_process import SynergyProcess
 
-from amqplib.client_0_8 import AMQPException
+import socket
+from amqp import AMQPError
 from threading import Thread
 
 
@@ -19,8 +20,10 @@ class AbstractWorker(SynergyProcess):
         """@param process_name: id of the process, the worker will be performing """
         super(AbstractWorker, self).__init__(process_name)
         self.consumer = None
-        self.performance_ticker = None
         self.main_thread = None
+        self.performance_ticker = None
+
+        self._init_mq_consumer()
         self._init_performance_ticker(self.logger)
 
         msg_suffix = 'in Production Mode'
@@ -30,15 +33,26 @@ class AbstractWorker(SynergyProcess):
 
     def __del__(self):
         try:
+            self.logger.info('Closing Flopsy Consumer...')
+            self.consumer.close()
+        except Exception as e:
+            self.logger.error('Exception caught while closing Flopsy Consumer: %s' % str(e))
+
+        try:
+            self.logger.info('Canceling Performance Tracker...')
             self.performance_ticker.cancel()
         except Exception as e:
             self.logger.error('Exception caught while cancelling the performance_ticker: %s' % str(e))
+
         super(AbstractWorker, self).__del__()
 
     # ********************** abstract methods ****************************
     def _init_performance_ticker(self, logger):
-        self.performance_ticker = WorkerPerformanceTicker(logger)
+        self.performance_ticker = SimpleTracker(logger)
         self.performance_ticker.start()
+
+    def _init_mq_consumer(self):
+        self.consumer = Consumer(self.process_name)
 
     # ********************** thread-related methods ****************************
     def _mq_callback(self, message):
@@ -48,10 +62,11 @@ class AbstractWorker(SynergyProcess):
 
     def _run_mq_listener(self):
         try:
-            self.consumer = Consumer(self.process_name)
             self.consumer.register(self._mq_callback)
-            self.consumer.wait()
-        except (AMQPException, IOError) as e:
+            self.consumer.wait(settings['mq_timeout_sec'])
+        except socket.timeout as e:
+            self.logger.warn('Queue %s is likely empty. Worker exits due to: %s' % (self.consumer.queue, str(e)))
+        except (AMQPError, IOError) as e:
             self.logger.error('AMQPException: %s' % str(e))
         finally:
             self.__del__()

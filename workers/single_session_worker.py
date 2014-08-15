@@ -7,7 +7,7 @@ from pymongo.errors import AutoReconnect
 from db.model.single_session import SingleSession
 from db.model.raw_data import *
 from db.dao.single_session_dao import SingleSessionDao
-from system.performance_ticker import SessionPerformanceTicker
+from system.performance_tracker import SessionPerformanceTracker
 from workers.abstract_worker import AbstractWorker
 from system import time_helper
 
@@ -27,7 +27,7 @@ class SingleSessionWorker(AbstractWorker):
 
     # ********************** abstract methods ****************************
     def _init_performance_ticker(self, logger):
-        self.performance_ticker = SessionPerformanceTicker(logger)
+        self.performance_ticker = SessionPerformanceTracker(logger)
         self.performance_ticker.start()
         self._last_safe_save_time = time.time()
 
@@ -49,7 +49,7 @@ class SingleSessionWorker(AbstractWorker):
 
                 index = session.number_of_entries
                 self.add_entry(session, index, raw_data)
-                self.performance_ticker.increment_update()
+                self.performance_ticker.update.increment_success()
             except LookupError:
                 # insert the record
                 session = SingleSession()
@@ -62,7 +62,7 @@ class SingleSessionWorker(AbstractWorker):
 
                 session = self.update_session_body(raw_data, session)
                 self.add_entry(session, 0, raw_data)
-                self.performance_ticker.increment_insert()
+                self.performance_ticker.insert.increment_success()
 
             if time.time() - self._last_safe_save_time < self.SAFE_SAVE_INTERVAL:
                 is_safe = False

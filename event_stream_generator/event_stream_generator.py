@@ -10,7 +10,7 @@ from amqplib.client_0_8.exceptions import AMQPException
 
 from mq.flopsy import Publisher
 from db.model.raw_data import RawData
-from system.performance_ticker import WorkerPerformanceTicker
+from system.performance_tracker import WorkerPerformanceTicker
 from system.synergy_process import SynergyProcess
 
 

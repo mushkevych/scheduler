@@ -40,11 +40,13 @@ load-plugins=
 # W0212 Access to a protected member %s of a client class
 # W0613 Unused argument %r Used when a function or method argument is not used.
 # W0702 No exception's type specified Used when an except clause doesn't specify exceptions type to catch.
+# W0703 Catching too general exception Exception
 # W0614 Unused import XYZ from wildcard import
+# R0201 Method could be a function
+# R0904 Too many public methods
 # R0914 Too many local variables
 # R0913 Too many arguments
-# R0904 Too many public methods
-disable=C0111,I0011,I0012,W0142,W0212,W0613,W0702,W0614,R0914,R0913,R0904,R0801
+disable=C0111,I0011,I0012,W0142,W0212,W0613,W0702,W0703,W0614,R0914,R0913,R0904,R0801,R0201
 
 [REPORTS]
 
@@ -204,7 +206,7 @@ max-locals=15
 max-returns=6
 
 # Maximum number of branch for function / method body
-max-branchs=12
+max-branches=12
 
 # Maximum number of statements in function / method body
 max-statements=50
@@ -213,10 +215,10 @@ max-statements=50
 max-parents=7
 
 # Maximum number of attributes for a class (see R0902).
-max-attributes=7
+max-attributes=10
 
 # Minimum number of public methods for a class (see R0903).
-min-public-methods=2
+min-public-methods=1
 
 # Maximum number of public methods for a class (see R0904).
 max-public-methods=20

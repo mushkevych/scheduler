@@ -15,7 +15,7 @@ from settings import settings
 from system.decimal_encoder import DecimalEncoder
 from system.process_context import ProcessContext
 from workers.abstract_worker import AbstractWorker
-from system.performance_ticker import AggregatorPerformanceTicker
+from system.performance_tracker import AggregatorPerformanceTicker
 
 
 class AbstractAwareWorker(AbstractWorker):
@@ -171,7 +171,7 @@ class AbstractAwareWorker(AbstractWorker):
             self.perform_post_processing(uow.timeperiod)
             number_of_aggregated_objects = self._flush_aggregated_objects()
             uow.number_of_aggregated_documents = number_of_aggregated_objects
-            uow.number_of_processed_documents = self.performance_ticker.posts_per_job
+            uow.number_of_processed_documents = self.performance_ticker.per_job
             uow.finished_at = datetime.utcnow()
             uow.state = unit_of_work.STATE_PROCESSED
             self.uow_dao.update(uow)

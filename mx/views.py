@@ -15,7 +15,7 @@ from settings import settings
 from system import time_helper
 from system.repeat_timer import RepeatTimer
 from system.process_context import ProcessContext
-from system.performance_ticker import FootprintCalculator
+from system.performance_tracker import FootprintCalculator
 
 from mx.processing_statements import ProcessingStatements
 from mx.utils import render_template, expose, jinja_env
