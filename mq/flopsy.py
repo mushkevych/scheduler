@@ -100,13 +100,13 @@ class Consumer(SynergyAware):
         self.close()
 
     def close(self):
+        self.is_running = False
+
         if getattr(self, 'channel'):
             self.channel.close()
 
         if getattr(self, 'connection'):
             self.connection.close()
-
-        self.is_running = False
 
     def wait(self, timeout=None):
         while self.is_running:
@@ -168,7 +168,7 @@ class Publisher(SynergyAware):
         return message
 
     def release(self):
-        if self.parent_pool is not None:
+        if getattr(self, 'parent_pool'):
             self.parent_pool.put(self)
         else:
             self.close()
@@ -179,6 +179,9 @@ class Publisher(SynergyAware):
 
         if getattr(self, 'connection'):
             self.connection.close()
+
+        if getattr(self, 'parent_pool'):
+            del self.parent_pool
 
 
 class _Pool(object):
@@ -206,61 +209,65 @@ class _Pool(object):
     @thread_safe
     def close(self, suppress_logging=False):
         """ purges all connections. method closes ampq connection (disconnects) """
-        for el in self.publishers:
+        for publisher in self.publishers:
             try:
-                el.close()
+                publisher.close()
             except Exception as e:
                 if not suppress_logging:
-                    self.logger.error('exception on closing the publisher %s: %s' % (self.name, str(e)))
+                    self.logger.error('Exception on closing Flopsy Publisher %s: %s' % (self.name, str(e)))
                 else:
-                    self.logger.info('error trace while closing publisher %s suppressed' % self.name)
+                    self.logger.info('Error trace while closing Flopsy Publisher %s suppressed' % self.name)
         self.publishers.clear()
 
 
 class PublishersPool(object):
     def __init__(self, logger):
-        self.publishers = dict()
+        self.pools = dict()
         self.logger = logger
 
     def __del__(self):
-        publisher_names = self.publishers.keys()
-        for name in publisher_names:
-            self.close(name, suppress_logging=True)
+        self.close(suppress_logging=True)
 
     def get(self, name):
         """ creates connection to the MQ with process-specific settings
         :return :mq::flopsy::Publisher instance"""
-        if name not in self.publishers:
-            self.publishers[name] = _Pool(logger=self.logger, name=name)
-        return self.publishers[name].get()
+        if name not in self.pools:
+            self.pools[name] = _Pool(logger=self.logger, name=name)
+        return self.pools[name].get()
 
     def put(self, publisher):
         """ releases the Publisher instance for reuse"""
-        if publisher.name not in self.publishers:
-            self.publishers[publisher.name] = _Pool(logger=self.logger, name=publisher.name)
-        self.publishers[publisher.name].put(publisher)
+        if publisher.name not in self.pools:
+            self.pools[publisher.name] = _Pool(logger=self.logger, name=publisher.name)
+        self.pools[publisher.name].put(publisher)
 
     def reset_all(self, suppress_logging=False):
         """ iterates thru the list of established connections and resets them by disconnecting and reconnecting """
-        publisher_names = self.publishers.keys()
-        for name in publisher_names:
+        pool_names = self.pools.keys()
+        for name in pool_names:
             self.reset(name, suppress_logging)
 
     def reset(self, name, suppress_logging=False):
         """ resets established connection by disconnecting and reconnecting """
-        self.close(name, suppress_logging)
+        self._close(name, suppress_logging)
         self.get(name)
-        self.logger.info('Reset AMPQ publisher for %s' % name)
+        self.logger.info('Reset Flopsy Pool for %s' % name)
 
-    def close(self, name, suppress_logging=False):
-        """ iterates thru all pooled publishers and closes them (closes amqp connection) """
+    def _close(self, name, suppress_logging):
+        """ closes one particular pool and all its amqp amqp connections """
         try:
-            publisher_names = self.publishers.keys()
-            if name in publisher_names:
-                self.publishers[name].close()
-                del self.publishers[name]
+            pool_names = self.pools.keys()
+            if name in pool_names:
+                self.pools[name].close()
+                del self.pools[name]
         except Exception as e:
             if not suppress_logging:
-                self.logger.error('exception on closing the publisher for %s: %s' % (name, str(e)))
+                self.logger.error('Exception on closing Flopsy Pool for %s: %s' % (name, str(e)))
             else:
-                self.logger.info('error trace while closing publisher for %s suppressed' % name)
+                self.logger.info('Error trace while closing Flopsy Pool for %s suppressed' % name)
+
+    def close(self, suppress_logging=False):
+        """ iterates thru all publisher pools and closes them """
+        pool_names = self.pools.keys()
+        for name in pool_names:
+            self._close(name, suppress_logging)
