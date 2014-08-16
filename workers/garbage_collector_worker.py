@@ -51,14 +51,14 @@ class GarbageCollectorWorker(AbstractWorker):
             uow_list = self.uow_dao.get_reprocessing_candidates(since)
             for uow in uow_list:
                 if uow.process_name not in self.scheduler_configuration:
-                    self.logger.debug('Process name %r is not known by Synergy Scheduler. Skipping its unit_of_work.'
+                    self.logger.debug('Process %r is not known to Synergy Scheduler. Skipping its unit_of_work.'
                                       % uow.process_name)
                     continue
 
                 process_config = self.scheduler_configuration[uow.process_name]
                 assert isinstance(process_config, SchedulerConfiguration)
                 if process_config.process_state != scheduler_configuration.STATE_ON:
-                    self.logger.debug('Process name %r is disabled by the Scheduler. Skipping its unit_of_work.'
+                    self.logger.debug('Process %r is inactive at the Synergy Scheduler. Skipping its unit_of_work.'
                                       % uow.process_name)
                     continue
 
