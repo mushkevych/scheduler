@@ -101,6 +101,7 @@ class FileCollectorUnitTest(unittest.TestCase):
         settings['remote_source_folder'] = self.original_source_folder
 
         # killing the worker
+        self.worker.performance_ticker.cancel()
         del self.worker
 
         if self.tempdir_copying:

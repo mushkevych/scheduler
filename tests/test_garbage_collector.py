@@ -1,3 +1,4 @@
+# coding=utf-8
 __author__ = 'Bohdan Mushkevych'
 
 import unittest
@@ -71,10 +72,11 @@ class GarbageCollectorUnitTest(unittest.TestCase):
         self.worker = GarbageCollectorWorker(PROCESS_GC)
         self.worker.publishers = mock(PublishersPool)
         self.publisher = mock()
-        when(self.worker.publishers).get_publisher(any(str)).thenReturn(self.publisher)
+        when(self.worker.publishers).get(any(str)).thenReturn(self.publisher)
 
     def tearDown(self):
         # killing the worker
+        self.worker.performance_ticker.cancel()
         del self.worker
 
     def test_invalid_and_fresh_uow(self):

@@ -3,14 +3,17 @@
 __author__ = 'Bohdan Mushkevych'
 
 from threading import Lock
+from datetime import datetime, timedelta
 
 from settings import settings
-from datetime import datetime, timedelta
 from mq.flopsy import PublishersPool
 from system.decorator import thread_safe
 from workers.abstract_worker import AbstractWorker
 from db.model import unit_of_work
+from db.model import scheduler_configuration
 from db.dao.unit_of_work_dao import UnitOfWorkDao
+from db.model.scheduler_configuration import SchedulerConfiguration
+from db.dao.scheduler_configuration_dao import SchedulerConfigurationDao
 
 
 LIFE_SUPPORT_HOURS = 48  # number of hours from UOW creation time to keep UOW re-posting to MQ
@@ -25,6 +28,8 @@ class GarbageCollectorWorker(AbstractWorker):
         self.lock = Lock()
         self.publishers = PublishersPool(self.logger)
         self.uow_dao = UnitOfWorkDao(self.logger)
+        self.sc_dao = SchedulerConfigurationDao(self.logger)
+        self.scheduler_configuration = dict()
 
     def __del__(self):
         try:
@@ -39,10 +44,26 @@ class GarbageCollectorWorker(AbstractWorker):
     def _mq_callback(self, message):
         """ method looks for stale or invalid units of work re-runs them if needed"""
         try:
+            sc_list = self.sc_dao.get_all()
+            self._update_scheduler_configuration(sc_list)
+
             since = settings['synergy_start_timeperiod']
             uow_list = self.uow_dao.get_reprocessing_candidates(since)
             for uow in uow_list:
+                if uow.process_name not in self.scheduler_configuration:
+                    self.logger.debug('Process name %r is not known by Synergy Scheduler. Skipping its unit_of_work.'
+                                      % uow.process_name)
+                    continue
+
+                process_config = self.scheduler_configuration[uow.process_name]
+                assert isinstance(process_config, SchedulerConfiguration)
+                if process_config.process_state != scheduler_configuration.STATE_ON:
+                    self.logger.debug('Process name %r is disabled by the Scheduler. Skipping its unit_of_work.'
+                                      % uow.process_name)
+                    continue
+
                 self._process_single_document(uow)
+
         except LookupError as e:
             self.logger.info('Normal behaviour. %r' % e)
         except Exception as e:
@@ -50,11 +71,12 @@ class GarbageCollectorWorker(AbstractWorker):
         finally:
             self.consumer.acknowledge(message.delivery_tag)
 
+    def _update_scheduler_configuration(self, sc_list):
+        self.scheduler_configuration = {sc.process_name : sc for sc in sc_list}
+
     def _process_single_document(self, uow):
         """ actually inspects UOW retrieved from the database"""
         repost = False
-        process_name = uow.process_name
-
         if uow.state == unit_of_work.STATE_INVALID:
             repost = True
 
@@ -73,18 +95,18 @@ class GarbageCollectorWorker(AbstractWorker):
                 uow.number_of_retries += 1
                 self.uow_dao.update(uow)
 
-                publisher = self.publishers.get(process_name)
+                publisher = self.publishers.get(uow.process_name)
                 publisher.publish(str(uow.document['_id']))
                 publisher.release()
 
                 self.logger.info('UOW marked for re-processing: process %s; timeperiod %s; id %s; attempt %d'
-                                 % (process_name, uow.timeperiod, str(uow.document['_id']), uow.number_of_retries))
+                                 % (uow.process_name, uow.timeperiod, str(uow.document['_id']), uow.number_of_retries))
                 self.performance_ticker.tracker.increment_success()
             else:
                 uow.state = unit_of_work.STATE_CANCELED
                 self.uow_dao.update(uow)
                 self.logger.info('UOW transferred to STATE_CANCELED: process %s; timeperiod %s; id %s; attempt %d'
-                                 % (process_name, uow.timeperiod, str(uow.document['_id']), uow.number_of_retries))
+                                 % (uow.process_name, uow.timeperiod, str(uow.document['_id']), uow.number_of_retries))
 
 
 if __name__ == '__main__':
