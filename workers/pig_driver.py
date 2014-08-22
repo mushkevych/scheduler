@@ -16,7 +16,7 @@ class PigDriver(AbstractCliWorker):
 
     def _start_process(self, start_timeperiod, end_timeperiod):
         try:
-            input_file = ProcessContext.get_source_collection(self.process_name)
+            input_file = ProcessContext.get_source(self.process_name)
 
             self.logger.info('start: %s {' % self.process_name)
             p = psutil.Popen([settings['bash_shell'],

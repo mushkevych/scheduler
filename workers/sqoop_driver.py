@@ -24,7 +24,7 @@ class SqoopDriver(AbstractCliWorker):
             end_dt = time_helper.synergy_to_datetime(ProcessContext.QUALIFIER_HOURLY, end_timeperiod)
             sqoop_slice_endtime = end_dt.strftime(SqoopDriver.SQOOP_DATE_FORMAT)
 
-            sink_path = ProcessContext.get_target_collection(self.process_name)
+            sink_path = ProcessContext.get_sink(self.process_name)
 
             self.logger.info('start: %s {' % self.process_name)
             p = psutil.Popen([settings['bash_shell'],

@@ -1,7 +1,7 @@
 __author__ = 'Bohdan Mushkevych'
 
-from db.model import scheduler_configuration
-from db.dao.scheduler_configuration_dao import SchedulerConfigurationDao
+from db.model import scheduler_entry
+from db.dao.scheduler_entry_dao import SchedulerEntryDao
 from datetime import datetime
 from threading import Lock
 from amqplib.client_0_8 import AMQPException
@@ -31,7 +31,7 @@ class Scheduler(SynergyProcess):
         self.timetable = TimeTable(self.logger)
         self.regular_pipeline = RegularPipeline(self.logger, self.timetable)
         self.discrete_pipeline = DiscretePipeline(self.logger, self.timetable)
-        self.sc_dao = SchedulerConfigurationDao(self.logger)
+        self.sc_dao = SchedulerEntryDao(self.logger)
         self.mx = None
         self.logger.info('Started %s' % self.process_name)
 
@@ -58,8 +58,8 @@ class Scheduler(SynergyProcess):
                 continue
 
             interval = document.interval
-            is_active = document.process_state == scheduler_configuration.STATE_ON
-            process_type = ProcessContext.get_type(document.process_name)
+            is_active = document.process_state == scheduler_entry.STATE_ON
+            process_type = ProcessContext.get_process_type(document.process_name)
             parameters = [document.process_name, document]
 
             if process_type == TYPE_ALERT:

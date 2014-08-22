@@ -58,11 +58,11 @@ class TrackerPair(object):
         self.success = Tracker(failure)
         self.failure = Tracker(success)
 
-    def increment_success(self):
-        self.failure.increment()
+    def increment_success(self, delta=1):
+        self.failure.increment(delta)
 
-    def increment_failure(self):
-        self.success.increment()
+    def increment_failure(self, delta=1):
+        self.success.increment(delta)
 
     def reset_tick(self):
         self.success.reset_tick()

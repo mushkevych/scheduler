@@ -107,8 +107,8 @@ def create_unit_of_work(process_name,
                         uow_id=None):
     """ method creates and returns unit_of_work """
     try:
-        source_collection = ProcessContext.get_source_collection(process_name)
-        target_collection = ProcessContext.get_target_collection(process_name)
+        source_collection = ProcessContext.get_source(process_name)
+        target_collection = ProcessContext.get_sink(process_name)
     except KeyError:
         source_collection = None
         target_collection = None
