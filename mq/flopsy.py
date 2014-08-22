@@ -214,9 +214,10 @@ class _Pool(object):
                 publisher.close()
             except Exception as e:
                 if not suppress_logging:
-                    self.logger.error('Exception on closing Flopsy Publisher %s: %s' % (self.name, str(e)))
+                    self.logger.error('Exception on closing Flopsy Publisher %s: %s' % self.name, exc_info=True)
                 else:
-                    self.logger.info('Error trace while closing Flopsy Publisher %s suppressed' % self.name)
+                    self.logger.info('Error while closing Flopsy Publisher for %s: %s. Full trace suppressed.'
+                                     % (self.name, str(e)))
         self.publishers.clear()
 
 
@@ -262,9 +263,9 @@ class PublishersPool(object):
                 del self.pools[name]
         except Exception as e:
             if not suppress_logging:
-                self.logger.error('Exception on closing Flopsy Pool for %s: %s' % (name, str(e)))
+                self.logger.error('Exception on closing Flopsy Pool for %s' % name, exc_info=True)
             else:
-                self.logger.info('Error trace while closing Flopsy Pool for %s suppressed' % name)
+                self.logger.info('Error while closing Flopsy Pool for %s: %s. Full trace suppressed.' % (name, str(e)))
 
     def close(self, suppress_logging=False):
         """ iterates thru all publisher pools and closes them """

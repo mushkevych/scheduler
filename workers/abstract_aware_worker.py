@@ -144,7 +144,7 @@ class AbstractAwareWorker(AbstractWorker):
             bulk_threshold = settings['bulk_threshold']
             iteration = 0
             while True:
-                collection_name = ProcessContext.get_source_collection(self.process_name)
+                collection_name = ProcessContext.get_source(self.process_name)
                 cursor = self.ds.cursor_for(collection_name,
                                             start_id_obj,
                                             end_id_obj,

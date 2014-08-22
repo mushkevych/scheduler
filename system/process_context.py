@@ -1,10 +1,13 @@
+from settings import settings
+
 __author__ = 'Bohdan Mushkevych'
 
 import os
 
 from system.data_logging import Logger
 from system.decorator import current_process_aware
-from settings import settings
+from db.model.process_context_entry import ProcessContextEntry
+from db.model.queue_context_entry import QueueContextEntry
 
 TYPE_ALERT = 'type_alert'
 TYPE_HORIZONTAL_AGGREGATOR = 'type_horizontal'
@@ -45,32 +48,19 @@ _ROUTING_PREFIX = 'routing_'
 _QUEUE_PREFIX = 'queue_'
 _VOID = 'VOID'
 
-_NAME = 'process_name'
-_LOG_FILENAME = 'log_filename'
-_LOG_TAG = 'log_tag'
-_PID_FILENAME = 'pid_filename'
-_CLASSNAME = 'classname'
-_SOURCE_COLLECTION = 'source_collection'
-_TARGET_COLLECTION = 'target_collection'
-_MQ_QUEUE = 'mq_queue'
-_MQ_EXCHANGE = 'mq_exchange'
-_MQ_ROUTING_KEY = 'mq_routing_key'
-_TIME_QUALIFIER = 'time_qualifier'
-_TYPE = 'type'
 
-
-def _create_context_entry(process_name,
-                          classname,
-                          token,
-                          time_qualifier,
-                          exchange,
-                          queue=None,
-                          routing=None,
-                          process_type=None,
-                          source_collection=_VOID,
-                          target_collection=_VOID,
-                          pid_file=None,
-                          log_file=None):
+def _process_context_entry(process_name,
+                           classname,
+                           token,
+                           time_qualifier,
+                           exchange,
+                           queue=None,
+                           routing=None,
+                           process_type=None,
+                           source=_VOID,
+                           sink=_VOID,
+                           pid_file=None,
+                           log_file=None):
     """ forms process context entry """
     if queue is None:
         queue = _QUEUE_PREFIX + token + time_qualifier
@@ -81,34 +71,34 @@ def _create_context_entry(process_name,
     if log_file is None:
         log_file = token + time_qualifier + '.log'
 
-    return {
-        _NAME: process_name,
-        _PID_FILENAME: settings['pid_directory'] + pid_file,
-        _CLASSNAME: classname,
-        _LOG_FILENAME: settings['log_directory'] + log_file,
-        _LOG_TAG: token + time_qualifier,
-        _SOURCE_COLLECTION: source_collection,
-        _TARGET_COLLECTION: target_collection,
-        _MQ_QUEUE: queue,
-        _MQ_EXCHANGE: exchange,
-        _MQ_ROUTING_KEY: routing,
-        _TIME_QUALIFIER: time_qualifier,
-        _TYPE: process_type
-    }
+    process_entry = ProcessContextEntry()
+    process_entry.process_name = process_name
+    process_entry.classname = classname
+    process_entry.token = token
+    process_entry.source = source
+    process_entry.sink = sink
+    process_entry.mq_queue = queue
+    process_entry.mq_routing_key = routing
+    process_entry.mq_exchange = exchange
+    process_entry.time_qualifier = time_qualifier
+    process_entry.process_type = process_type
+    process_entry.log_filename = log_file
+    process_entry.pid_filename = pid_file
+    return process_entry
 
 
-def _create_queue_entry(exchange,
-                        queue_name,
-                        routing=None):
+def _queue_context_entry(exchange,
+                         queue_name,
+                         routing=None):
     """ forms queue's context entry """
     if routing is None:
         routing = queue_name
 
-    return {
-        _MQ_EXCHANGE: exchange,
-        _MQ_QUEUE: queue_name,
-        _MQ_ROUTING_KEY: routing,
-    }
+    queue_entry = QueueContextEntry()
+    queue_entry.mq_queue = queue_name
+    queue_entry.mq_exchange = exchange
+    queue_entry.mq_routing_key = routing
+    return queue_entry
 
 
 class ProcessContext:
@@ -148,13 +138,13 @@ class ProcessContext:
     logger_pool = dict()
 
     QUEUE_CONTEXT = {
-        QUEUE_REQUESTED_PACKAGES: _create_queue_entry(
+        QUEUE_REQUESTED_PACKAGES: _queue_context_entry(
             exchange=EXCHANGE_HORIZONTAL,
             queue_name=QUEUE_REQUESTED_PACKAGES),
     }
 
     PROCESS_CONTEXT = {
-        PROCESS_SITE_DAILY: _create_context_entry(
+        PROCESS_SITE_DAILY: _process_context_entry(
             process_name=PROCESS_SITE_DAILY,
             classname='workers.hadoop_aggregator_driver.HadoopAggregatorDriver.start',
             token=_TOKEN_SITE,
@@ -162,16 +152,16 @@ class ProcessContext:
             exchange=EXCHANGE_VERTICAL,
             process_type=TYPE_VERTICAL_AGGREGATOR),
 
-        PROCESS_SITE_HOURLY: _create_context_entry(
+        PROCESS_SITE_HOURLY: _process_context_entry(
             process_name=PROCESS_SITE_HOURLY,
             classname='workers.site_hourly_aggregator.SiteHourlyAggregator.start',
             token=_TOKEN_SITE,
             time_qualifier=QUALIFIER_HOURLY,
             exchange=EXCHANGE_VERTICAL,
             process_type=TYPE_VERTICAL_AGGREGATOR,
-            source_collection='single_session'),
+            source='single_session'),
 
-        PROCESS_SITE_MONTHLY: _create_context_entry(
+        PROCESS_SITE_MONTHLY: _process_context_entry(
             process_name=PROCESS_SITE_MONTHLY,
             classname='workers.hadoop_aggregator_driver.HadoopAggregatorDriver.start',
             token=_TOKEN_SITE,
@@ -179,7 +169,7 @@ class ProcessContext:
             exchange=EXCHANGE_VERTICAL,
             process_type=TYPE_VERTICAL_AGGREGATOR),
 
-        PROCESS_SITE_YEARLY: _create_context_entry(
+        PROCESS_SITE_YEARLY: _process_context_entry(
             process_name=PROCESS_SITE_YEARLY,
             classname='workers.hadoop_aggregator_driver.HadoopAggregatorDriver.start',
             token=_TOKEN_SITE,
@@ -187,17 +177,17 @@ class ProcessContext:
             exchange=EXCHANGE_VERTICAL,
             process_type=TYPE_VERTICAL_AGGREGATOR),
 
-        PROCESS_GC: _create_context_entry(
+        PROCESS_GC: _process_context_entry(
             process_name=PROCESS_GC,
             classname='workers.garbage_collector_worker.GarbageCollectorWorker.start',
             token=_TOKEN_GC,
             time_qualifier=QUALIFIER_BY_SCHEDULE,
             exchange=EXCHANGE_UTILS,
             process_type=TYPE_GARBAGE_COLLECTOR,
-            source_collection='units_of_work',
-            target_collection='units_of_work'),
+            source='units_of_work',
+            sink='units_of_work'),
 
-        PROCESS_SESSION_WORKER_00: _create_context_entry(
+        PROCESS_SESSION_WORKER_00: _process_context_entry(
             process_name=PROCESS_SESSION_WORKER_00,
             classname='workers.single_session_worker.SingleSessionWorker.start',
             token=_TOKEN_SESSION,
@@ -205,12 +195,12 @@ class ProcessContext:
             queue=QUEUE_RAW_DATA,
             routing=ROUTING_IRRELEVANT,
             exchange=EXCHANGE_RAW_DATA,
-            source_collection='single_session',
-            target_collection='single_session',
+            source='single_session',
+            sink='single_session',
             pid_file='session_worker_00.pid',
             log_file='session_worker_00.log'),
 
-        PROCESS_SCHEDULER: _create_context_entry(
+        PROCESS_SCHEDULER: _process_context_entry(
             process_name=PROCESS_SCHEDULER,
             classname='scheduler.synergy_scheduler.Scheduler.start',
             token=_TOKEN_SCHEDULER,
@@ -219,7 +209,7 @@ class ProcessContext:
             routing='',
             exchange=''),
 
-        PROCESS_SUPERVISOR: _create_context_entry(
+        PROCESS_SUPERVISOR: _process_context_entry(
             process_name=PROCESS_SUPERVISOR,
             classname='supervisor.synergy_supervisor.Supervisor.start',
             token=_TOKEN_SUPERVISOR,
@@ -228,7 +218,7 @@ class ProcessContext:
             routing='',
             exchange=''),
 
-        PROCESS_STREAM_GEN: _create_context_entry(
+        PROCESS_STREAM_GEN: _process_context_entry(
             process_name=PROCESS_STREAM_GEN,
             classname='event_stream_generator.event_stream_generator.EventStreamGenerator.start',
             token=_TOKEN_STREAM,
@@ -237,7 +227,7 @@ class ProcessContext:
             routing=ROUTING_IRRELEVANT,
             exchange=EXCHANGE_RAW_DATA),
 
-        PROCESS_CLIENT_DAILY: _create_context_entry(
+        PROCESS_CLIENT_DAILY: _process_context_entry(
             process_name=PROCESS_CLIENT_DAILY,
             classname='workers.hadoop_aggregator_driver.HadoopAggregatorDriver.start',
             token=_TOKEN_CLIENT,
@@ -245,7 +235,7 @@ class ProcessContext:
             exchange=EXCHANGE_HORIZONTAL,
             process_type=TYPE_HORIZONTAL_AGGREGATOR),
 
-        PROCESS_CLIENT_MONTHLY: _create_context_entry(
+        PROCESS_CLIENT_MONTHLY: _process_context_entry(
             process_name=PROCESS_CLIENT_MONTHLY,
             classname='workers.hadoop_aggregator_driver.HadoopAggregatorDriver.start',
             token=_TOKEN_CLIENT,
@@ -253,7 +243,7 @@ class ProcessContext:
             exchange=EXCHANGE_HORIZONTAL,
             process_type=TYPE_HORIZONTAL_AGGREGATOR),
 
-        PROCESS_CLIENT_YEARLY: _create_context_entry(
+        PROCESS_CLIENT_YEARLY: _process_context_entry(
             process_name=PROCESS_CLIENT_YEARLY,
             classname='workers.hadoop_aggregator_driver.HadoopAggregatorDriver.start',
             token=_TOKEN_CLIENT,
@@ -261,7 +251,7 @@ class ProcessContext:
             exchange=EXCHANGE_HORIZONTAL,
             process_type=TYPE_HORIZONTAL_AGGREGATOR),
 
-        PROCESS_ALERT_DAILY: _create_context_entry(
+        PROCESS_ALERT_DAILY: _process_context_entry(
             process_name=PROCESS_ALERT_DAILY,
             classname='workers.hadoop_aggregator_driver.HadoopAggregatorDriver.start',
             token=_TOKEN_ALERT,
@@ -269,7 +259,7 @@ class ProcessContext:
             exchange=EXCHANGE_ALERT,
             process_type=TYPE_HORIZONTAL_AGGREGATOR),
 
-        PROCESS_UNIT_TEST: _create_context_entry(
+        PROCESS_UNIT_TEST: _process_context_entry(
             process_name=PROCESS_UNIT_TEST,
             classname='',
             token='unit_test',
@@ -277,7 +267,7 @@ class ProcessContext:
             routing=ROUTING_IRRELEVANT,
             exchange=EXCHANGE_UTILS),
 
-        PROCESS_LAUNCH_PY: _create_context_entry(
+        PROCESS_LAUNCH_PY: _process_context_entry(
             process_name=PROCESS_LAUNCH_PY,
             classname='',
             token='launch_py',
@@ -342,82 +332,83 @@ class ProcessContext:
     @current_process_aware
     def get_pid_filename(cls, process_name=None):
         """method returns path for the PID FILENAME """
-        return cls.PROCESS_CONTEXT[process_name][_PID_FILENAME]
+        return settings['pid_directory'] + cls.PROCESS_CONTEXT[process_name].pid_filename
 
     @classmethod
     @current_process_aware
     def get_classname(cls, process_name=None):
         """ method returns fully qualified classname of the instance running as process"""
-        return cls.PROCESS_CONTEXT[process_name][_CLASSNAME]
+        return cls.PROCESS_CONTEXT[process_name].classname
 
     @classmethod
     @current_process_aware
     def get_log_filename(cls, process_name=None):
         """method returns path for the Log filename"""
-        return cls.PROCESS_CONTEXT[process_name][_LOG_FILENAME]
+        return settings['log_directory'] + cls.PROCESS_CONTEXT[process_name].log_filename
 
     @classmethod
     @current_process_aware
     def get_log_tag(cls, process_name=None):
         """method returns tag that all logging messages will be marked with"""
-        return cls.PROCESS_CONTEXT[process_name][_LOG_TAG]
+        return cls.PROCESS_CONTEXT[process_name].log_tag
 
     @classmethod
     @current_process_aware
     def get_time_qualifier(cls, process_name=None):
         """ method returns worker/aggregator time scale (like daily or yearly)"""
-        return cls.PROCESS_CONTEXT[process_name][_TIME_QUALIFIER]
+        return cls.PROCESS_CONTEXT[process_name].time_qualifier
 
     @classmethod
     @current_process_aware
     def get_routing(cls, process_name=None):
         """ method returns routing; it is used to segregate traffic within the queue
         for instance: routing_hourly for hourly reports, while routing_yearly for yearly reports"""
-        return cls.PROCESS_CONTEXT[process_name][_MQ_ROUTING_KEY]
+        return cls.PROCESS_CONTEXT[process_name].mq_routing_key
 
     @classmethod
     @current_process_aware
     def get_exchange(cls, process_name=None):
         """ method returns exchange for this classname.
         Exchange is a component that sits between queue and the publisher"""
-        return cls.PROCESS_CONTEXT[process_name][_MQ_EXCHANGE]
+        return cls.PROCESS_CONTEXT[process_name].mq_exchange
 
     @classmethod
     @current_process_aware
     def get_queue(cls, process_name=None):
         """ method returns queue that is applicable for the worker/aggregator, specified by classname"""
-        return cls.PROCESS_CONTEXT[process_name][_MQ_QUEUE]
+        return cls.PROCESS_CONTEXT[process_name].mq_queue
 
     @classmethod
     def get_routing_for_q(cls, queue_name):
         """ method returns routing; it is used to segregate traffic within the queue"""
-        return cls.QUEUE_CONTEXT[queue_name][_MQ_ROUTING_KEY]
+        return cls.QUEUE_CONTEXT[queue_name].mq_routing_key
 
     @classmethod
     def get_exchange_for_q(cls, queue_name):
         """ method returns exchange for this queue_name.
         Exchange is a component that sits between queue and the publisher"""
-        return cls.QUEUE_CONTEXT[queue_name][_MQ_EXCHANGE]
+        return cls.QUEUE_CONTEXT[queue_name].mq_exchange
 
     @classmethod
     @current_process_aware
-    def get_target_collection(cls, process_name=None):
-        """ method returns target collection - the one where aggregated data will be placed in """
-        return cls.PROCESS_CONTEXT[process_name][_TARGET_COLLECTION]
+    def get_sink(cls, process_name=None):
+        """ method returns name of the data sink, as specified for the process"""
+        return cls.PROCESS_CONTEXT[process_name].sink
 
     @classmethod
     @current_process_aware
-    def get_source_collection(cls, process_name=None):
-        """ method returns source collection - the one where data is taken from for analysis"""
-        return cls.PROCESS_CONTEXT[process_name][_SOURCE_COLLECTION]
+    def get_source(cls, process_name=None):
+        """ method returns name of the data source, as specified for the process"""
+        return cls.PROCESS_CONTEXT[process_name].source
 
     @classmethod
     @current_process_aware
-    def get_type(cls, process_name=None):
+    def get_process_type(cls, process_name=None):
         """ method returns process type
         Supported types are listed in process_context starting with TYPE_ prefix and are enumerated in
         scheduler.start() method"""
-        return cls.PROCESS_CONTEXT[process_name][_TYPE]
+        return cls.PROCESS_CONTEXT[process_name].process_type
+
 
 if __name__ == '__main__':
     pass

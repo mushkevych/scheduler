@@ -26,8 +26,8 @@ class RegularPipeline(AbstractPipeline):
     @with_reconnect
     def compute_scope_of_processing(self, process_name, start_timeperiod, end_timeperiod, timetable_record):
         """method reads collection and identify slice for processing"""
-        source_collection_name = ProcessContext.get_source_collection(process_name)
-        target_collection_name = ProcessContext.get_target_collection(process_name)
+        source_collection_name = ProcessContext.get_source(process_name)
+        target_collection_name = ProcessContext.get_sink(process_name)
 
         start_id = self.ds.highest_primary_key(source_collection_name, start_timeperiod, end_timeperiod)
         end_id = self.ds.lowest_primary_key(source_collection_name, start_timeperiod, end_timeperiod)

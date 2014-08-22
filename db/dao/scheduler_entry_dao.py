@@ -2,16 +2,16 @@ __author__ = 'Bohdan Mushkevych'
 
 from threading import RLock
 from db.manager import ds_manager
-from db.model.scheduler_configuration import SchedulerConfiguration
+from db.model.scheduler_entry import SchedulerEntry
 from system.decorator import thread_safe
 from system.collection_context import COLLECTION_SCHEDULER_CONFIGURATION
 
 
-class SchedulerConfigurationDao(object):
+class SchedulerEntryDao(object):
     """ Thread-safe Data Access Object for scheduler_configuration table/collection """
 
     def __init__(self, logger):
-        super(SchedulerConfigurationDao, self).__init__()
+        super(SchedulerEntryDao, self).__init__()
         self.logger = logger
         self.lock = RLock()
         self.ds = ds_manager.ds_factory(logger)
@@ -25,7 +25,7 @@ class SchedulerConfigurationDao(object):
         document = collection.find_one(query)
         if document is None:
             raise LookupError('SchedulerConfiguration for process=%s was not found' % str(key))
-        return SchedulerConfiguration(document)
+        return SchedulerEntry(document)
 
     @thread_safe
     def get_all(self):
@@ -35,7 +35,7 @@ class SchedulerConfigurationDao(object):
         cursor = collection.find(query)
         if cursor.count() == 0:
             raise LookupError('MongoDB has no scheduler configuration entries')
-        return [SchedulerConfiguration(entry) for entry in cursor]
+        return [SchedulerEntry(entry) for entry in cursor]
 
     @thread_safe
     def update(self, instance):

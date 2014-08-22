@@ -4,7 +4,7 @@ import unittest
 from base_fixtures import compare_dictionaries
 from db.model import box_configuration
 from db.model.box_configuration import BoxConfiguration
-from db.model.scheduler_configuration import SchedulerConfiguration
+from db.model.scheduler_entry import SchedulerEntry
 from db.model.time_table_record import TimeTableRecord
 from db.model.unit_of_work import UnitOfWork
 
@@ -12,7 +12,7 @@ from db.model.unit_of_work import UnitOfWork
 class TestSystemCollections(unittest.TestCase):
     def setUp(self):
         self.box_configuration = BoxConfiguration()
-        self.scheduler_configuration = SchedulerConfiguration()
+        self.scheduler_configuration = SchedulerEntry()
         self.timetable = TimeTableRecord()
         self.uow = UnitOfWork()
 

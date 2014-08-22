@@ -7,8 +7,8 @@ import json
 from werkzeug.utils import cached_property, redirect
 from werkzeug.wrappers import Response
 
-from db.model import scheduler_configuration
-from db.dao.scheduler_configuration_dao import SchedulerConfigurationDao
+from db.model import scheduler_entry
+from db.dao.scheduler_entry_dao import SchedulerEntryDao
 from db.dao.unit_of_work_dao import UnitOfWorkDao
 
 from settings import settings
@@ -177,7 +177,7 @@ class TimeperiodTreeDetails(object):
                 description['next_timeperiods']['monthly'] = timetable.get_next_timetable_record(tree.process_monthly).timeperiod
                 description['next_timeperiods']['daily'] = timetable.get_next_timetable_record(tree.process_daily).timeperiod
                 description['next_timeperiods']['hourly'] = timetable.get_next_timetable_record(tree.process_hourly).timeperiod
-                description['type'] = ProcessContext.get_type(tree.process_yearly)
+                description['type'] = ProcessContext.get_process_type(tree.process_yearly)
             elif isinstance(tree, ThreeLevelTree):
                 description['number_of_levels'] = 3
                 description['reprocessing_queues']['yearly'] = self._get_reprocessing_details(tree.process_yearly)
@@ -189,13 +189,13 @@ class TimeperiodTreeDetails(object):
                 description['next_timeperiods']['yearly'] = timetable.get_next_timetable_record(tree.process_yearly).timeperiod
                 description['next_timeperiods']['monthly'] = timetable.get_next_timetable_record(tree.process_monthly).timeperiod
                 description['next_timeperiods']['daily'] = timetable.get_next_timetable_record(tree.process_daily).timeperiod
-                description['type'] = ProcessContext.get_type(tree.process_yearly)
+                description['type'] = ProcessContext.get_process_type(tree.process_yearly)
             elif isinstance(tree, TwoLevelTree):
                 description['number_of_levels'] = 1
                 description['reprocessing_queues']['linear'] = self._get_reprocessing_details(tree.process_name)
                 description['processes']['linear'] = tree.process_name
                 description['next_timeperiods']['daily'] = timetable.get_next_timetable_record(tree.process_name).timeperiod
-                description['type'] = ProcessContext.get_type(tree.process_name)
+                description['type'] = ProcessContext.get_process_type(tree.process_name)
             else:
                 raise ValueError('Tree type %s has no support within MX module.' % type(tree).__name__)
         except Exception as e:
@@ -334,7 +334,7 @@ class ActionHandler(object):
         self.timeperiod = request.args.get('timeperiod')
         self.valid = self.mbean is not None and self.process_name is not None and self.timeperiod is not None
         self.uow_dao = UnitOfWorkDao(self.logger)
-        self.sc_dao = SchedulerConfigurationDao(self.logger)
+        self.sc_dao = SchedulerEntryDao(self.logger)
 
     @valid_only
     def action_reprocess(self):
@@ -450,10 +450,10 @@ class ActionHandler(object):
             # request was performed with undefined "state", what means that checkbox was unselected
             # thus - turning off the process
             thread_handler.cancel()
-            document.process_state = scheduler_configuration.STATE_OFF
+            document.process_state = scheduler_entry.STATE_OFF
             message = 'Stopped RepeatTimer for %s' % document.process_name
         elif not thread_handler.is_alive():
-            document.process_state = scheduler_configuration.STATE_ON
+            document.process_state = scheduler_entry.STATE_ON
 
             thread_handler = RepeatTimer(thread_handler.interval_current,
                                          thread_handler.call_back,
@@ -510,7 +510,7 @@ class SchedulerDetails(object):
 
                 # indicate whether process is in active or passive state
                 # parameters are set in Scheduler.run() method
-                row.append(thread_handler.args[1].process_state == scheduler_configuration.STATE_ON)
+                row.append(thread_handler.args[1].process_state == scheduler_entry.STATE_ON)
                 list_of_rows.append(row)
         except Exception as e:
             self.logger.error('MX Exception %s' % str(e), exc_info=True)
