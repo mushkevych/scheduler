@@ -15,7 +15,7 @@ from system.repeat_timer import RepeatTimer
 from system.process_context import *
 
 from scheduler.dicrete_pipeline import DiscretePipeline
-from scheduler.regular_pipeline import RegularPipeline
+from scheduler.continuous_pipeline import ContinuousPipeline
 from scheduler.time_table import TimeTable
 
 
@@ -29,7 +29,7 @@ class Scheduler(SynergyProcess):
         self.thread_handlers = dict()
         self.lock = Lock()
         self.timetable = TimeTable(self.logger)
-        self.regular_pipeline = RegularPipeline(self.logger, self.timetable)
+        self.regular_pipeline = ContinuousPipeline(self.logger, self.timetable)
         self.discrete_pipeline = DiscretePipeline(self.logger, self.timetable)
         self.sc_dao = SchedulerEntryDao(self.logger)
         self.mx = None

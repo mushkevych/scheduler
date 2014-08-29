@@ -16,8 +16,8 @@ class DiscretePipeline(AbstractPipeline):
     """ Pipeline to handle discrete timeperiod boundaries for batch jobs
     in comparison to RegularPipeline this one does not re-compute processing boundaries"""
 
-    def __init__(self, logger, timetable):
-        super(DiscretePipeline, self).__init__(logger, timetable)
+    def __init__(self, logger, timetable, name='discrete'):
+        super(DiscretePipeline, self).__init__(logger, timetable, name)
 
     def __del__(self):
         super(DiscretePipeline, self).__del__()

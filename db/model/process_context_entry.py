@@ -13,6 +13,7 @@ TIME_QUALIFIER = 'time_qualifier'
 ARGUMENTS = 'arguments'
 TOKEN = 'token'
 PROCESS_TYPE = 'process_type'
+PIPELINE_NAME = 'pipeline_name'
 LOG_FILENAME = 'log_filename'
 LOG_TAG = 'log_tag'
 PID_FILENAME = 'pid_filename'
@@ -122,6 +123,14 @@ class ProcessContextEntry(BaseModel):
     @process_type.setter
     def process_type(self, value):
         self.data[PROCESS_TYPE] = value
+
+    @property
+    def state_machine_name(self):
+        return self.data[PIPELINE_NAME]
+
+    @state_machine_name.setter
+    def state_machine_name(self, value):
+        self.data[PIPELINE_NAME] = value
 
     @property
     def log_tag(self):

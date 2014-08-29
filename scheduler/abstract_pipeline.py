@@ -11,9 +11,10 @@ from system.decorator import with_reconnect
 
 
 class AbstractPipeline(object):
-    """ Scheduler encapsulate logic for initiating worker processes """
+    """ Abstract state machine used to govern all processes and their states """
 
-    def __init__(self, logger, timetable):
+    def __init__(self, logger, timetable, name):
+        self.name = name
         self.logger = logger
         self.publishers = PublishersPool(self.logger)
         self.timetable = timetable

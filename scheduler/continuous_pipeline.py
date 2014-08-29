@@ -13,15 +13,16 @@ from system import time_helper
 from scheduler.abstract_pipeline import AbstractPipeline
 
 
-class RegularPipeline(AbstractPipeline):
-    """ Regular pipeline triggers Python-based aggregators """
+class ContinuousPipeline(AbstractPipeline):
+    """ Continuous State Machine re-run process for timeperiod A until A+1, and the transfers the timeperiod to
+     STATE_FINAL_RUN """
 
     def __init__(self, logger, timetable):
-        super(RegularPipeline, self).__init__(logger, timetable)
+        super(ContinuousPipeline, self).__init__(logger, timetable, 'continuous')
         self.ds = ds_manager.ds_factory(self.logger)
 
     def __del__(self):
-        super(RegularPipeline, self).__del__()
+        super(ContinuousPipeline, self).__del__()
 
     @with_reconnect
     def compute_scope_of_processing(self, process_name, start_timeperiod, end_timeperiod, timetable_record):
@@ -55,16 +56,16 @@ class RegularPipeline(AbstractPipeline):
         return uow
 
     @with_reconnect
-    def update_scope_of_processing(self, process_name, unit_of_work, start_timeperiod, end_timeperiod, timetable_record):
+    def update_scope_of_processing(self, process_name, uow, start_timeperiod, end_timeperiod, timetable_record):
         """method reads collection and refine slice upper bound for processing"""
-        source_collection_name = unit_of_work.source_collection
+        source_collection_name = uow.source_collection
         last_object_id = self.ds.lowest_primary_key(source_collection_name, start_timeperiod, end_timeperiod)
-        unit_of_work.end_id = str(last_object_id)
-        self.uow_dao.update(unit_of_work)
+        uow.end_id = str(last_object_id)
+        self.uow_dao.update(uow)
 
         msg = 'Updated range to process for %s in timeperiod %s for collection %s: [%s : %s]' \
               % (process_name, timetable_record.timeperiod, source_collection_name,
-                 unit_of_work.start_id, str(last_object_id))
+                 uow.start_id, str(last_object_id))
         self._log_message(INFO, process_name, timetable_record, msg)
 
     def _compute_and_transfer_to_progress(self, process_name, start_timeperiod, end_timeperiod, timetable_record):

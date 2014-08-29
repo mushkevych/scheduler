@@ -13,7 +13,7 @@ from mockito.matchers import any
 from system import time_helper
 from system.process_context import ProcessContext, PROCESS_SITE_HOURLY
 from scheduler.time_table import TimeTable
-from scheduler.regular_pipeline import RegularPipeline
+from scheduler.continuous_pipeline import ContinuousPipeline
 from tests.ut_process_context import PROCESS_UNIT_TEST
 
 TEST_PRESET_TIMEPERIOD = '2013010122'
@@ -48,7 +48,7 @@ class RegularPipelineUnitTest(unittest.TestCase):
         self.logger = ProcessContext.get_logger(PROCESS_UNIT_TEST)
         self.time_table_mocked = mock(TimeTable)
         when(self.time_table_mocked).get_tree(any(str)).thenReturn(mock())
-        self.pipeline_real = RegularPipeline(self.logger, self.time_table_mocked)
+        self.pipeline_real = ContinuousPipeline(self.logger, self.time_table_mocked)
 
     def tearDown(self):
         pass

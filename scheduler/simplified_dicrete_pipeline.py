@@ -14,7 +14,7 @@ class SimplifiedDiscretePipeline(DiscretePipeline):
     in comparison to DiscretePipeline this one does not transfer to STATE_FINAL_RUN"""
 
     def __init__(self, logger, timetable):
-        super(SimplifiedDiscretePipeline, self).__init__(logger, timetable)
+        super(SimplifiedDiscretePipeline, self).__init__(logger, timetable, 'simplified_discrete')
 
     def __del__(self):
         super(SimplifiedDiscretePipeline, self).__del__()
