@@ -55,7 +55,7 @@ class UnitOfWorkDao(object):
             candidates = [UnitOfWork(document) for document in cursor]
         else:
             candidates = []
-            yearly_timeperiod = time_helper.cast_to_time_qualifier(ProcessContext.QUALIFIER_YEARLY, since)
+            yearly_timeperiod = time_helper.cast_to_time_qualifier(QUALIFIER_YEARLY, since)
             query[unit_of_work.START_TIMEPERIOD] = {'$gte': yearly_timeperiod}
 
             cursor = collection.find(query).sort('_id', ASCENDING)
@@ -66,8 +66,8 @@ class UnitOfWorkDao(object):
                     continue
 
                 time_qualifier = ProcessContext.get_time_qualifier(uow.process_name)
-                if time_qualifier == ProcessContext.QUALIFIER_REAL_TIME:
-                    time_qualifier = ProcessContext.QUALIFIER_HOURLY
+                if time_qualifier == QUALIFIER_REAL_TIME:
+                    time_qualifier = QUALIFIER_HOURLY
                 process_specific_since = time_helper.cast_to_time_qualifier(time_qualifier, since)
 
                 if process_specific_since <= uow.start_timeperiod:

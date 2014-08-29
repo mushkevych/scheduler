@@ -6,7 +6,7 @@ from logging import ERROR, WARNING, INFO
 
 from scheduler.abstract_pipeline import AbstractPipeline
 from db.model.unit_of_work import UnitOfWork
-from db.model import time_table_record, unit_of_work
+from db.model import job, unit_of_work
 from system import time_helper
 from system.decorator import with_reconnect
 from system.process_context import ProcessContext
@@ -68,7 +68,7 @@ class DiscretePipeline(AbstractPipeline):
             self.timetable.update_timetable_record(process_name,
                                                    timetable_record,
                                                    uow,
-                                                   time_table_record.STATE_IN_PROGRESS)
+                                                   job.STATE_IN_PROGRESS)
         else:
             msg = 'MANUAL INTERVENTION REQUIRED! Unable to locate unit_of_work for %s in %s' \
                   % (process_name, timetable_record.timeperiod)
@@ -98,7 +98,7 @@ class DiscretePipeline(AbstractPipeline):
                     self.timetable.update_timetable_record(process_name,
                                                            timetable_record,
                                                            uow,
-                                                           time_table_record.STATE_IN_PROGRESS)
+                                                           job.STATE_IN_PROGRESS)
 
             elif start_timeperiod < actual_timeperiod and can_finalize_timerecord is True:
                 if uow.state in [unit_of_work.STATE_REQUESTED,
@@ -114,7 +114,7 @@ class DiscretePipeline(AbstractPipeline):
                     self.timetable.update_timetable_record(process_name,
                                                            timetable_record,
                                                            uow,
-                                                           time_table_record.STATE_FINAL_RUN)
+                                                           job.STATE_FINAL_RUN)
             else:
                 msg = 'Time-table-record %s has timeperiod from future %s vs current time %s' \
                       % (timetable_record.document['_id'], start_timeperiod, actual_timeperiod)
@@ -140,7 +140,7 @@ class DiscretePipeline(AbstractPipeline):
             self.timetable.update_timetable_record(process_name,
                                                    timetable_record,
                                                    uow,
-                                                   time_table_record.STATE_PROCESSED)
+                                                   job.STATE_PROCESSED)
             timetable_tree = self.timetable.get_tree(process_name)
             timetable_tree.build_tree()
             msg = 'Transferred time-table-record %s in timeperiod %s to STATE_PROCESSED for %s' \
@@ -149,7 +149,7 @@ class DiscretePipeline(AbstractPipeline):
             self.timetable.update_timetable_record(process_name,
                                                    timetable_record,
                                                    uow,
-                                                   time_table_record.STATE_SKIPPED)
+                                                   job.STATE_SKIPPED)
             msg = 'Transferred time-table-record %s in timeperiod %s to STATE_SKIPPED for %s' \
                   % (timetable_record.document['_id'], timetable_record.timeperiod, process_name)
         else:

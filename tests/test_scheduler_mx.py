@@ -4,7 +4,7 @@ import unittest
 from rest_client.restful_lib import Connection
 
 from settings import settings
-from db.model import time_table_record
+from db.model import job
 from system.process_context import PROCESS_ALERT_DAILY, PROCESS_SITE_HOURLY, PROCESS_CLIENT_DAILY
 
 
@@ -24,7 +24,7 @@ class TestSchedulerMx(unittest.TestCase):
     def test_request_root(self):
         resp = self.connection.request_get(
             self.REQUEST_CHILDREN,
-            args={time_table_record.PROCESS_NAME: PROCESS_SITE_HOURLY},
+            args={job.PROCESS_NAME: PROCESS_SITE_HOURLY},
             headers={'content-type': 'application/json', 'accept': 'application/json'})
         status = resp[u'headers']['status']
 
@@ -37,8 +37,8 @@ class TestSchedulerMx(unittest.TestCase):
     def test_request_4_level_children(self):
         resp = self.connection.request_get(
             self.REQUEST_CHILDREN,
-            args={time_table_record.TIMEPERIOD: settings['synergy_start_timeperiod'],
-                  time_table_record.PROCESS_NAME: PROCESS_SITE_HOURLY},
+            args={job.TIMEPERIOD: settings['synergy_start_timeperiod'],
+                  job.PROCESS_NAME: PROCESS_SITE_HOURLY},
             headers={'content-type': 'application/json', 'accept': 'application/json'})
         status = resp[u'headers']['status']
 
@@ -51,8 +51,8 @@ class TestSchedulerMx(unittest.TestCase):
     def test_request_3_level_children(self):
         resp = self.connection.request_get(
             self.REQUEST_CHILDREN,
-            args={time_table_record.TIMEPERIOD: settings['synergy_start_timeperiod'],
-                  time_table_record.PROCESS_NAME: PROCESS_CLIENT_DAILY},
+            args={job.TIMEPERIOD: settings['synergy_start_timeperiod'],
+                  job.PROCESS_NAME: PROCESS_CLIENT_DAILY},
             headers={'content-type': 'application/json', 'accept': 'application/json'})
         status = resp[u'headers']['status']
 
@@ -65,7 +65,7 @@ class TestSchedulerMx(unittest.TestCase):
     def test_request_1_level_children(self):
         resp = self.connection.request_get(
             self.REQUEST_CHILDREN,
-            args={time_table_record.PROCESS_NAME: PROCESS_ALERT_DAILY},
+            args={job.PROCESS_NAME: PROCESS_ALERT_DAILY},
             headers={'content-type': 'application/json', 'accept': 'application/json'})
         status = resp[u'headers']['status']
 

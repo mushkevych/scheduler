@@ -47,3 +47,17 @@ class QueueContextEntry(BaseModel):
     @mq_routing_key.setter
     def mq_routing_key(self, value):
         self.data[MQ_ROUTING_KEY] = value
+
+
+def _queue_context_entry(exchange,
+                         queue_name,
+                         routing=None):
+    """ forms queue's context entry """
+    if routing is None:
+        routing = queue_name
+
+    queue_entry = QueueContextEntry()
+    queue_entry.mq_queue = queue_name
+    queue_entry.mq_exchange = exchange
+    queue_entry.mq_routing_key = routing
+    return queue_entry

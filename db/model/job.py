@@ -35,11 +35,11 @@ STATE_IN_PROGRESS = 'state_in_progress'
 STATE_EMBRYO = 'state_embryo'
 
 
-class TimeTableRecord(BaseModel):
-    """ This class presents status for the time-period, and indicates whether data was process by particular process """
+class Job(BaseModel):
+    """ class presents status for the time-period, and indicates whether data was process by particular process"""
 
     def __init__(self, document=None):
-        super(TimeTableRecord, self).__init__(document)
+        super(Job, self).__init__(document)
 
     @property
     def key(self):
@@ -92,7 +92,7 @@ class TimeTableRecord(BaseModel):
 
     @state.setter
     def state(self, value):
-        if not TimeTableRecord.is_state_valid(value):
+        if not Job.is_state_valid(value):
             raise ValueError('unit of work is in incorrect state')
         self.data[STATE] = value
 

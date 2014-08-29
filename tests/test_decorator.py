@@ -1,6 +1,7 @@
 __author__ = 'Bohdan Mushkevych'
 
 import unittest
+from types import NoneType
 
 from model.web_scrape import WebScrape
 from model.app_package_state import AppPackageState
@@ -34,6 +35,17 @@ class TestDecorator(unittest.TestCase):
         self.assertIsInstance(mq_scrape_wrapper.scrape_content, WebScrape)
         self.assertIsInstance(mq_scrape_wrapper.data[FIELD_APP_PACKAGE_STATE], dict)
         self.assertIsInstance(mq_scrape_wrapper.data[FIELD_SCRAPE_CONTENT], dict)
+
+    def test_none(self):
+        mq_scrape_wrapper = MqScrapeWrapper()
+        app_package_state = create_app_package_state()
+
+        mq_scrape_wrapper.app_package_state = app_package_state.data
+
+        self.assertIsInstance(mq_scrape_wrapper.app_package_state, AppPackageState)
+        self.assertIsNone(mq_scrape_wrapper.scrape_content)
+        self.assertIsInstance(mq_scrape_wrapper.data[FIELD_APP_PACKAGE_STATE], dict)
+        self.assertTrue(FIELD_SCRAPE_CONTENT not in mq_scrape_wrapper.data)
 
 
 if __name__ == '__main__':

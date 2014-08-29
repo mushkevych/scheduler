@@ -12,7 +12,8 @@ from db.model.unit_of_work import UnitOfWork
 from db.model.single_session import SingleSession
 from system import time_helper
 from system.process_context import ProcessContext
-from tests.ut_process_context import PROCESS_UNIT_TEST
+from system.time_qualifier import *
+from tests.ut_context import PROCESS_UNIT_TEST
 
 TOTAL_ENTRIES = 101
 
@@ -251,10 +252,10 @@ def wind_the_time(time_qualifier, timeperiod, delta):
     pattern = time_helper.define_pattern(timeperiod)
     t = datetime.strptime(timeperiod, pattern)
 
-    if time_qualifier == ProcessContext.QUALIFIER_HOURLY:
+    if time_qualifier == QUALIFIER_HOURLY:
         t = t + timedelta(hours=delta)
         return t.strftime('%Y%m%d%H')
-    elif time_qualifier == ProcessContext.QUALIFIER_DAILY:
+    elif time_qualifier == QUALIFIER_DAILY:
         t = t + timedelta(days=delta)
         return t.strftime('%Y%m%d00')
     raise ValueError('unsupported time_qualifier')

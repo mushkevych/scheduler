@@ -5,8 +5,8 @@ from threading import RLock
 
 from db.dao.unit_of_work_dao import UnitOfWorkDao
 from db.dao.time_table_record_dao import TimeTableRecordDao
-from db.model import time_table_record, unit_of_work
-from db.model.time_table_record import TimeTableRecord
+from db.model import job, unit_of_work
+from db.model.job import Job
 
 from settings import settings
 from system import process_context, time_helper
@@ -21,7 +21,7 @@ from scheduler.tree_node import AbstractNode
 MX_PAGE_TRAFFIC = 'traffic_details'
 
 
-class TimeTable(object):
+class Timetable(object):
     """ Timetable present a tree, where every node presents a time-period """
 
     def __init__(self, logger):
@@ -132,7 +132,7 @@ class TimeTable(object):
         It is possible that timetable record will be transferred to STATE_IN_PROGRESS with no related unit_of_work"""
         uow_id = tree_node.timetable_record.related_unit_of_work
         if uow_id is not None:
-            tree_node.timetable_record.state = time_table_record.STATE_IN_PROGRESS
+            tree_node.timetable_record.state = job.STATE_IN_PROGRESS
             uow_obj = self.uow_dao.get_one(uow_id)
             uow_obj.state = unit_of_work.STATE_INVALID
             uow_obj.number_of_retries = 0
@@ -150,7 +150,7 @@ class TimeTable(object):
             self.reprocess[tree_node.process_name][tree_node.timeperiod] = tree_node
 
         else:
-            tree_node.timetable_record.state = time_table_record.STATE_EMBRYO
+            tree_node.timetable_record.state = job.STATE_EMBRYO
             msg = 'Transferred time-table-record %s for %s in timeperiod %s to %s;' \
                   % (tree_node.timetable_record.document['_id'],
                      tree_node.process_name,
@@ -166,7 +166,7 @@ class TimeTable(object):
     def _callback_reprocess(self, tree_node):
         """ is called from tree to answer reprocessing request.
         It is possible that timetable record will be transferred to STATE_IN_PROGRESS with no related unit_of_work"""
-        if (tree_node.timetable_record.state == time_table_record.STATE_EMBRYO
+        if (tree_node.timetable_record.state == job.STATE_EMBRYO
                 and tree_node.timetable_record.number_of_failures == 0) \
             or (tree_node.process_name in self.reprocess
                 and tree_node.timeperiod in self.reprocess[tree_node.process_name]):
@@ -182,7 +182,7 @@ class TimeTable(object):
     @thread_safe
     def _callback_skip(self, tree_node):
         """ is called from tree to answer skip request"""
-        tree_node.timetable_record.state = time_table_record.STATE_SKIPPED
+        tree_node.timetable_record.state = job.STATE_SKIPPED
         uow_id = tree_node.timetable_record.related_unit_of_work
         if uow_id is not None:
             uow_obj = self.uow_dao.get_one(uow_id)
@@ -214,8 +214,8 @@ class TimeTable(object):
         try:
             timetable_record = self.ttr_dao.get_one(tree_node.process_name, tree_node.timeperiod)
         except LookupError:
-            timetable_record = TimeTableRecord()
-            timetable_record.state = time_table_record.STATE_EMBRYO
+            timetable_record = Job()
+            timetable_record.state = job.STATE_EMBRYO
             timetable_record.timeperiod = tree_node.timeperiod
             timetable_record.process_name = tree_node.process_name
 
@@ -249,10 +249,10 @@ class TimeTable(object):
         """ method iterates thru all objects older than synergy_start_timeperiod parameter in timetable collections
         and load them into timetable"""
         timeperiod = settings['synergy_start_timeperiod']
-        yearly_timeperiod = time_helper.cast_to_time_qualifier(ProcessContext.QUALIFIER_YEARLY, timeperiod)
-        monthly_timeperiod = time_helper.cast_to_time_qualifier(ProcessContext.QUALIFIER_MONTHLY, timeperiod)
-        daily_timeperiod = time_helper.cast_to_time_qualifier(ProcessContext.QUALIFIER_DAILY, timeperiod)
-        hourly_timeperiod = time_helper.cast_to_time_qualifier(ProcessContext.QUALIFIER_HOURLY, timeperiod)
+        yearly_timeperiod = time_helper.cast_to_time_qualifier(QUALIFIER_YEARLY, timeperiod)
+        monthly_timeperiod = time_helper.cast_to_time_qualifier(QUALIFIER_MONTHLY, timeperiod)
+        daily_timeperiod = time_helper.cast_to_time_qualifier(QUALIFIER_DAILY, timeperiod)
+        hourly_timeperiod = time_helper.cast_to_time_qualifier(QUALIFIER_HOURLY, timeperiod)
 
         self._build_tree_by_level(COLLECTION_TIMETABLE_HOURLY, since=hourly_timeperiod)
         self._build_tree_by_level(COLLECTION_TIMETABLE_DAILY, since=daily_timeperiod)

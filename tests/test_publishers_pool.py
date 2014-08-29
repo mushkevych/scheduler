@@ -5,14 +5,14 @@ import mock
 
 from mq.flopsy import PublishersPool, _Pool, Publisher
 from system.process_context import ProcessContext
-from tests.ut_process_context import PROCESS_UNIT_TEST, register_unit_test_context
+from tests.ut_context import PROCESS_UNIT_TEST, register_processes
 
 
 class TestPublishersPool(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         super(TestPublishersPool, cls).setUpClass()
-        register_unit_test_context()
+        register_processes()
 
     def setUp(self):
         super(TestPublishersPool, self).setUp()

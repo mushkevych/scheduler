@@ -12,7 +12,8 @@ from system import time_helper
 from settings import settings
 from workers.abstract_file_collector_worker import AbstractFileCollectorWorker
 from system.process_context import ProcessContext
-from tests.ut_process_context import PROCESS_UNIT_TEST
+from system.time_qualifier import *
+from tests.ut_context import PROCESS_UNIT_TEST
 
 
 def string_generator(size=6, chars=string.ascii_uppercase + string.digits):
@@ -48,7 +49,7 @@ class FileCollectorUnitTest(unittest.TestCase):
     3. Paste copied key into authorized_keys2
 
     """
-    ACTUAL_TIMEPERIOD = time_helper.actual_timeperiod(ProcessContext.QUALIFIER_HOURLY)
+    ACTUAL_TIMEPERIOD = time_helper.actual_timeperiod(QUALIFIER_HOURLY)
     TABLES = ['table_alpha', 'table_beta', 'table_gama']
     TEST_FILE_SIZE = 1024
     TEST_FILE_LIST = []

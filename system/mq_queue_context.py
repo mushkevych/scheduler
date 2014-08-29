@@ -2,38 +2,15 @@ __author__ = 'Bohdan Mushkevych'
 
 from system.decorator import singleton
 from db.model.queue_context_entry import QueueContextEntry
-
-_ROUTING_PREFIX = 'routing_'
-_QUEUE_PREFIX = 'queue_'
-
-QUEUE_REQUESTED_PACKAGES = 'q_requested_package'
-QUEUE_RAW_DATA = 'queue_raw_data'
-ROUTING_IRRELEVANT = 'routing_irrelevant'
-
-EXCHANGE_RAW_DATA = 'exchange_raw_data'
-EXCHANGE_VERTICAL = 'exchange_vertical'
-EXCHANGE_HORIZONTAL = 'exchange_horizontal'
-EXCHANGE_ALERT = 'exchange_alert'
-EXCHANGE_UTILS = 'exchange_utils'
-
-
-def _queue_context_entry(exchange,
-                         queue_name,
-                         routing=None):
-    """ forms queue's context entry """
-    if routing is None:
-        routing = queue_name
-
-    queue_entry = QueueContextEntry()
-    queue_entry.mq_queue = queue_name
-    queue_entry.mq_exchange = exchange
-    queue_entry.mq_routing_key = routing
-    return queue_entry
+from context import register_queues
 
 
 @singleton
 class QueueContext(object):
-    logger_pool = dict()
+    # registers mq queues
+    register_queues()
+
+    # holds all registered queues
     QUEUE_CONTEXT = dict()
 
     def __init__(self):
@@ -77,12 +54,3 @@ class QueueContext(object):
         """ method returns exchange for this queue_name.
         Exchange is a component that sits between queue and the publisher"""
         return cls.QUEUE_CONTEXT[queue_name].mq_exchange
-
-
-queue_entry = _queue_context_entry(exchange=QueueContext.EXCHANGE_HORIZONTAL,
-                                   queue_name=QUEUE_REQUESTED_PACKAGES)
-QueueContext.put_context_entry(queue_entry)
-
-
-if __name__ == '__main__':
-    pass

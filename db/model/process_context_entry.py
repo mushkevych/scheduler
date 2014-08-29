@@ -13,7 +13,6 @@ TIME_QUALIFIER = 'time_qualifier'
 ARGUMENTS = 'arguments'
 TOKEN = 'token'
 PROCESS_TYPE = 'process_type'
-PIPELINE_NAME = 'pipeline_name'
 LOG_FILENAME = 'log_filename'
 LOG_TAG = 'log_tag'
 PID_FILENAME = 'pid_filename'
@@ -125,14 +124,6 @@ class ProcessContextEntry(BaseModel):
         self.data[PROCESS_TYPE] = value
 
     @property
-    def state_machine_name(self):
-        return self.data[PIPELINE_NAME]
-
-    @state_machine_name.setter
-    def state_machine_name(self, value):
-        self.data[PIPELINE_NAME] = value
-
-    @property
     def log_tag(self):
         return self.token + self.time_qualifier
 
@@ -151,3 +142,46 @@ class ProcessContextEntry(BaseModel):
     @pid_filename.setter
     def pid_filename(self, value):
         self.data[PID_FILENAME] = value
+
+
+def _process_context_entry(process_name,
+                           classname,
+                           token,
+                           time_qualifier,
+                           exchange,
+                           arguments=None,
+                           queue=None,
+                           routing=None,
+                           process_type=None,
+                           source=None,
+                           sink=None,
+                           pid_file=None,
+                           log_file=None):
+    """ forms process context entry """
+    _ROUTING_PREFIX = 'routing_'
+    _QUEUE_PREFIX = 'queue_'
+
+    if queue is None:
+        queue = _QUEUE_PREFIX + token + time_qualifier
+    if routing is None:
+        routing = _ROUTING_PREFIX + token + time_qualifier
+    if pid_file is None:
+        pid_file = token + time_qualifier + '.pid'
+    if log_file is None:
+        log_file = token + time_qualifier + '.log'
+
+    process_entry = ProcessContextEntry()
+    process_entry.process_name = process_name
+    process_entry.classname = classname
+    process_entry.token = token
+    process_entry.source = source
+    process_entry.sink = sink
+    process_entry.mq_queue = queue
+    process_entry.mq_routing_key = routing
+    process_entry.mq_exchange = exchange
+    process_entry.arguments = arguments
+    process_entry.time_qualifier = time_qualifier
+    process_entry.process_type = process_type
+    process_entry.log_filename = log_file
+    process_entry.pid_filename = pid_file
+    return process_entry

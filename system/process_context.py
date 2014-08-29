@@ -3,102 +3,23 @@ __author__ = 'Bohdan Mushkevych'
 import os
 
 from settings import settings
+from context import register_processes
 from system.data_logging import Logger
 from system.decorator import current_process_aware, singleton
 from db.model.process_context_entry import ProcessContextEntry
-
-TYPE_ALERT = 'type_alert'
-TYPE_HORIZONTAL_AGGREGATOR = 'type_horizontal'
-TYPE_VERTICAL_AGGREGATOR = 'type_vertical'
-TYPE_GARBAGE_COLLECTOR = 'type_gc'
-
-PROCESS_SCHEDULER = 'Scheduler'
-PROCESS_SUPERVISOR = 'Supervisor'
-PROCESS_STREAM_GEN = 'EventStreamGenerator'
-PROCESS_SESSION_WORKER_00 = 'SingleSessionWorker_00'
-PROCESS_SESSION_WORKER_01 = 'SingleSessionWorker_01'
-PROCESS_GC = 'GarbageCollectorWorker'
-PROCESS_SITE_HOURLY = 'SiteHourlyAggregator'
-PROCESS_SITE_DAILY = 'SiteDailyAggregator'
-PROCESS_SITE_MONTHLY = 'SiteMonthlyAggregator'
-PROCESS_SITE_YEARLY = 'SiteYearlyAggregator'
-PROCESS_CLIENT_DAILY = 'ClientDailyAggregator'
-PROCESS_CLIENT_MONTHLY = 'ClientMonthlyAggregator'
-PROCESS_CLIENT_YEARLY = 'ClientYearlyAggregator'
-PROCESS_ALERT_DAILY = 'AlertDailyWorker'
-
-# process provides <process context> to unit testing: such as logger, queue, etc
-PROCESS_UNIT_TEST = 'UnitTest'
-
-# process provides <process context> to the launch.py script
-PROCESS_LAUNCH_PY = 'LaunchPy'
-
-_TOKEN_SCHEDULER = 'scheduler'
-_TOKEN_SUPERVISOR = 'supervisor'
-_TOKEN_STREAM = 'stream'
-_TOKEN_SESSION = 'session'
-_TOKEN_GC = 'gc'
-_TOKEN_SITE = 'site'
-_TOKEN_CLIENT = 'client'
-_TOKEN_ALERT = 'alert'
-
-_ROUTING_PREFIX = 'routing_'
-_QUEUE_PREFIX = 'queue_'
-
-
-def _process_context_entry(process_name,
-                           classname,
-                           token,
-                           time_qualifier,
-                           exchange,
-                           arguments=None,
-                           queue=None,
-                           routing=None,
-                           process_type=None,
-                           source=None,
-                           sink=None,
-                           pid_file=None,
-                           log_file=None):
-    """ forms process context entry """
-    if queue is None:
-        queue = _QUEUE_PREFIX + token + time_qualifier
-    if routing is None:
-        routing = _ROUTING_PREFIX + token + time_qualifier
-    if pid_file is None:
-        pid_file = token + time_qualifier + '.pid'
-    if log_file is None:
-        log_file = token + time_qualifier + '.log'
-
-    process_entry = ProcessContextEntry()
-    process_entry.process_name = process_name
-    process_entry.classname = classname
-    process_entry.token = token
-    process_entry.source = source
-    process_entry.sink = sink
-    process_entry.mq_queue = queue
-    process_entry.mq_routing_key = routing
-    process_entry.mq_exchange = exchange
-    process_entry.arguments = arguments
-    process_entry.time_qualifier = time_qualifier
-    process_entry.process_type = process_type
-    process_entry.log_filename = log_file
-    process_entry.pid_filename = pid_file
-    return process_entry
 
 
 @singleton
 class ProcessContext(object):
     __CURRENT_PROCESS_TAG = '__CURRENT_PROCESS'
 
-    QUALIFIER_REAL_TIME = '_real_time'
-    QUALIFIER_BY_SCHEDULE = '_by_schedule'
-    QUALIFIER_HOURLY = '_hourly'
-    QUALIFIER_DAILY = '_daily'
-    QUALIFIER_MONTHLY = '_monthly'
-    QUALIFIER_YEARLY = '_yearly'
+    # register processes for particular environment
+    register_processes()
 
+    # holds Logger instance per process name (and optional suffix)
     logger_pool = dict()
 
+    # holds all registered processes
     PROCESS_CONTEXT = dict()
 
     def __init__(self):

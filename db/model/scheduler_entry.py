@@ -5,6 +5,7 @@ from db.model.base_model import *
 PROCESS_NAME = 'process_name'
 STATE = 'state'
 INTERVAL = 'interval_seconds'
+PIPELINE_NAME = 'pipeline_name'
 
 STATE_ON = 'state_on'
 STATE_OFF = 'state_off'
@@ -49,3 +50,11 @@ class SchedulerEntry(BaseModel):
         if value not in [STATE_ON, STATE_OFF]:
             raise ValueError('incorrect state for process %r' % value)
         self.data[STATE] = value
+
+    @property
+    def state_machine_name(self):
+        return self.data[PIPELINE_NAME]
+
+    @state_machine_name.setter
+    def state_machine_name(self, value):
+        self.data[PIPELINE_NAME] = value

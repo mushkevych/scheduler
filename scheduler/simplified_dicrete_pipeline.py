@@ -5,7 +5,7 @@ from logging import ERROR, INFO
 from system import time_helper
 from system.process_context import ProcessContext
 from db.error import DuplicateKeyError
-from db.model import time_table_record, unit_of_work
+from db.model import job, unit_of_work
 from scheduler.dicrete_pipeline import DiscretePipeline
 
 
@@ -43,7 +43,7 @@ class SimplifiedDiscretePipeline(DiscretePipeline):
                     self.timetable.update_timetable_record(process_name,
                                                            timetable_record,
                                                            uow,
-                                                           time_table_record.STATE_IN_PROGRESS)
+                                                           job.STATE_IN_PROGRESS)
 
             elif start_timeperiod < actual_timeperiod and can_finalize_timerecord is True:
                 if uow.state in [unit_of_work.STATE_REQUESTED,
@@ -57,7 +57,7 @@ class SimplifiedDiscretePipeline(DiscretePipeline):
                     self.timetable.update_timetable_record(process_name,
                                                            timetable_record,
                                                            uow,
-                                                           time_table_record.STATE_PROCESSED)
+                                                           job.STATE_PROCESSED)
                     timetable_tree = self.timetable.get_tree(process_name)
                     timetable_tree.build_tree()
                     msg = 'Transferred time-table-record %s in timeperiod %s to STATE_PROCESSED for %s' \
@@ -66,7 +66,7 @@ class SimplifiedDiscretePipeline(DiscretePipeline):
                     self.timetable.update_timetable_record(process_name,
                                                            timetable_record,
                                                            uow,
-                                                           time_table_record.STATE_SKIPPED)
+                                                           job.STATE_SKIPPED)
                     msg = 'Transferred time-table-record %s in timeperiod %s to STATE_SKIPPED for %s' \
                           % (timetable_record.document['_id'], timetable_record.timeperiod, process_name)
                 else:

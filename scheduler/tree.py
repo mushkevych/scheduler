@@ -3,7 +3,7 @@ __author__ = 'Bohdan Mushkevych'
 from datetime import datetime, timedelta
 
 from settings import settings
-from db.model import time_table_record
+from db.model import job
 from scheduler.tree_node import TreeNode, LinearNode
 from system import time_helper
 from system.time_helper import cast_to_time_qualifier
@@ -116,9 +116,9 @@ class AbstractTree(object):
                 return node
             elif self._skip_the_node(node):
                 continue
-            elif node.timetable_record.state in [time_table_record.STATE_FINAL_RUN,
-                                                 time_table_record.STATE_IN_PROGRESS,
-                                                 time_table_record.STATE_EMBRYO]:
+            elif node.timetable_record.state in [job.STATE_FINAL_RUN,
+                                                 job.STATE_IN_PROGRESS,
+                                                 job.STATE_EMBRYO]:
                 return node
 
         # special case, when all children of the parent node are not suitable for processing
@@ -199,7 +199,7 @@ class TwoLevelTree(AbstractTree):
     def _skip_the_node(self, node):
         """Method is used during _get_next_node calculations.
         Returns True in case node shall be _skipped_"""
-        if node.timetable_record.state in [time_table_record.STATE_SKIPPED, time_table_record.STATE_PROCESSED]:
+        if node.timetable_record.state in [job.STATE_SKIPPED, job.STATE_PROCESSED]:
             return True
         return node.timetable_record.number_of_failures > MAX_NUMBER_OF_RETRIES
 
@@ -255,7 +255,7 @@ class ThreeLevelTree(AbstractTree):
         return node
 
     def __get_monthly_node(self, timeperiod):
-        timeperiod_yearly = cast_to_time_qualifier(ProcessContext.QUALIFIER_YEARLY, timeperiod)
+        timeperiod_yearly = cast_to_time_qualifier(QUALIFIER_YEARLY, timeperiod)
         parent = self.__get_yearly_node(timeperiod_yearly)
 
         node = parent.children.get(timeperiod)
@@ -266,7 +266,7 @@ class ThreeLevelTree(AbstractTree):
         return node
 
     def __get_daily_node(self, timeperiod):
-        timeperiod_monthly = cast_to_time_qualifier(ProcessContext.QUALIFIER_MONTHLY, timeperiod)
+        timeperiod_monthly = cast_to_time_qualifier(QUALIFIER_MONTHLY, timeperiod)
         parent = self.__get_monthly_node(timeperiod_monthly)
 
         node = parent.children.get(timeperiod)
@@ -319,8 +319,8 @@ class ThreeLevelTree(AbstractTree):
         """Method is used during _get_next_node calculations.
         Returns True in case node shall be _skipped_"""
         # case 1: node processing is complete
-        if node.timetable_record.state in [time_table_record.STATE_SKIPPED,
-                                           time_table_record.STATE_PROCESSED]:
+        if node.timetable_record.state in [job.STATE_SKIPPED,
+                                           job.STATE_PROCESSED]:
             return True
 
         # case 2: this is a daily leaf node. retry this time_period for INFINITE_RETRY_HOURS
@@ -342,7 +342,7 @@ class ThreeLevelTree(AbstractTree):
             child = node.children[key]
             if child.timetable_record is None or \
                     (child.timetable_record.number_of_failures <= MAX_NUMBER_OF_RETRIES
-                     and child.timetable_record.state != time_table_record.STATE_SKIPPED):
+                     and child.timetable_record.state != job.STATE_SKIPPED):
                 all_children_spoiled = False
                 break
         return all_children_spoiled
@@ -387,7 +387,7 @@ class FourLevelTree(ThreeLevelTree):
 
     # *** PRIVATE METHODS ***
     def __get_hourly_node(self, timeperiod):
-        timeperiod_daily = cast_to_time_qualifier(ProcessContext.QUALIFIER_DAILY, timeperiod)
+        timeperiod_daily = cast_to_time_qualifier(QUALIFIER_DAILY, timeperiod)
         parent = self._ThreeLevelTree__get_daily_node(timeperiod_daily)
 
         node = parent.children.get(timeperiod)
@@ -436,7 +436,7 @@ class FourLevelTree(ThreeLevelTree):
         """Method is used during _get_next_node calculations.
         Returns True in case node shall be _skipped_"""
         if node.process_name == self.process_hourly:
-            if node.timetable_record.state in [time_table_record.STATE_SKIPPED, time_table_record.STATE_PROCESSED]:
+            if node.timetable_record.state in [job.STATE_SKIPPED, job.STATE_PROCESSED]:
                 return True
             return node.timetable_record.number_of_failures > MAX_NUMBER_OF_RETRIES
         else:

@@ -55,11 +55,11 @@ class TestProcessStarter(unittest.TestCase):
         assert isinstance(instance, (type, types.MethodType))
 
     def test_starting_method(self):
-        from tests.ut_process_context import PROCESS_CLASS_EXAMPLE
+        from tests.ut_context import PROCESS_CLASS_EXAMPLE
         process_starter.start_by_process_name(PROCESS_CLASS_EXAMPLE, None)
 
     def test_starting_function(self):
-        from tests.ut_process_context import PROCESS_SCRIPT_EXAMPLE
+        from tests.ut_context import PROCESS_SCRIPT_EXAMPLE
         process_starter.start_by_process_name(PROCESS_SCRIPT_EXAMPLE, 'parameters')
 
 

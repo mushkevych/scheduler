@@ -28,9 +28,9 @@ class TestThreeLevelTree(unittest.TestCase):
     def test_simple_build_tree(self):
         self.tree.build_tree()
 
-        actual_yearly_timeperiod = time_helper.actual_timeperiod(ProcessContext.QUALIFIER_YEARLY)
-        actual_monthly_timeperiod = time_helper.actual_timeperiod(ProcessContext.QUALIFIER_MONTHLY)
-        actual_daily_timeperiod = time_helper.actual_timeperiod(ProcessContext.QUALIFIER_DAILY)
+        actual_yearly_timeperiod = time_helper.actual_timeperiod(QUALIFIER_YEARLY)
+        actual_monthly_timeperiod = time_helper.actual_timeperiod(QUALIFIER_MONTHLY)
+        actual_daily_timeperiod = time_helper.actual_timeperiod(QUALIFIER_DAILY)
         assert len(self.tree.root.children) == 1
         assert actual_yearly_timeperiod in self.tree.root.children
         self.assertEqual(self.tree.get_node_by_process(PROCESS_SITE_YEARLY, actual_yearly_timeperiod).process_name,
@@ -38,7 +38,7 @@ class TestThreeLevelTree(unittest.TestCase):
         self.assertEqual(self.tree.get_node_by_process(PROCESS_SITE_YEARLY, actual_yearly_timeperiod).timeperiod,
                          actual_yearly_timeperiod)
         self.assertEqual(self.tree.get_node_by_process(PROCESS_SITE_YEARLY, actual_yearly_timeperiod).time_qualifier,
-                         ProcessContext.QUALIFIER_YEARLY)
+                         QUALIFIER_YEARLY)
 
         assert len(self.tree.root.children[actual_yearly_timeperiod].children) == 1
         assert actual_monthly_timeperiod in self.tree.root.children[actual_yearly_timeperiod].children
@@ -47,7 +47,7 @@ class TestThreeLevelTree(unittest.TestCase):
         self.assertEqual(self.tree.get_node_by_process(PROCESS_SITE_MONTHLY, actual_monthly_timeperiod).timeperiod,
                          actual_monthly_timeperiod)
         self.assertEqual(self.tree.get_node_by_process(PROCESS_SITE_MONTHLY, actual_monthly_timeperiod).time_qualifier,
-                         ProcessContext.QUALIFIER_MONTHLY)
+                         QUALIFIER_MONTHLY)
 
         assert len(self.tree.root.children[actual_yearly_timeperiod].children[actual_monthly_timeperiod].children) == 1
         assert actual_daily_timeperiod in self.tree.root.children[actual_yearly_timeperiod].children[
@@ -57,14 +57,14 @@ class TestThreeLevelTree(unittest.TestCase):
         self.assertEqual(self.tree.get_node_by_process(PROCESS_SITE_DAILY, actual_daily_timeperiod).timeperiod,
                          actual_daily_timeperiod)
         self.assertEqual(self.tree.get_node_by_process(PROCESS_SITE_DAILY, actual_daily_timeperiod).time_qualifier,
-                         ProcessContext.QUALIFIER_DAILY)
+                         QUALIFIER_DAILY)
 
     def _perform_assertions(self, start_timeperiod, delta):
-        yearly_timeperiod = time_helper.cast_to_time_qualifier(ProcessContext.QUALIFIER_YEARLY,
+        yearly_timeperiod = time_helper.cast_to_time_qualifier(QUALIFIER_YEARLY,
                                                                start_timeperiod)
-        monthly_timeperiod = time_helper.cast_to_time_qualifier(ProcessContext.QUALIFIER_MONTHLY,
+        monthly_timeperiod = time_helper.cast_to_time_qualifier(QUALIFIER_MONTHLY,
                                                                 start_timeperiod)
-        daily_timeperiod = time_helper.cast_to_time_qualifier(ProcessContext.QUALIFIER_DAILY,
+        daily_timeperiod = time_helper.cast_to_time_qualifier(QUALIFIER_DAILY,
                                                               start_timeperiod)
 
         number_of_leafs = 0
@@ -78,13 +78,13 @@ class TestThreeLevelTree(unittest.TestCase):
                     self.assertEqual(daily_timeperiod, dt)
                     number_of_leafs += 1
 
-                    daily_timeperiod = time_helper.increment_timeperiod(ProcessContext.QUALIFIER_DAILY,
+                    daily_timeperiod = time_helper.increment_timeperiod(QUALIFIER_DAILY,
                                                                         daily_timeperiod)
 
-                monthly_timeperiod = time_helper.increment_timeperiod(ProcessContext.QUALIFIER_MONTHLY,
+                monthly_timeperiod = time_helper.increment_timeperiod(QUALIFIER_MONTHLY,
                                                                       monthly_timeperiod)
 
-            yearly_timeperiod = time_helper.increment_timeperiod(ProcessContext.QUALIFIER_YEARLY,
+            yearly_timeperiod = time_helper.increment_timeperiod(QUALIFIER_YEARLY,
                                                                  yearly_timeperiod)
 
         self.assertEqual(number_of_leafs, delta + 1, 'Expected number of daily nodes was %d, while actual is %d'
@@ -92,7 +92,7 @@ class TestThreeLevelTree(unittest.TestCase):
 
     def test_less_simple_build_tree(self):
         delta = 5 * 24  # 5 days
-        new_synergy_start_time = base_fixtures.wind_the_time(ProcessContext.QUALIFIER_HOURLY,
+        new_synergy_start_time = base_fixtures.wind_the_time(QUALIFIER_HOURLY,
                                                              self.initial_synergy_start_time,
                                                              -delta)
 
@@ -102,7 +102,7 @@ class TestThreeLevelTree(unittest.TestCase):
 
     def test_catching_up_time_build_tree(self):
         delta = 5 * 24
-        new_synergy_start_time = base_fixtures.wind_the_time(ProcessContext.QUALIFIER_HOURLY,
+        new_synergy_start_time = base_fixtures.wind_the_time(QUALIFIER_HOURLY,
                                                              self.initial_synergy_start_time,
                                                              -delta)
         settings['synergy_start_timeperiod'] = new_synergy_start_time
@@ -110,12 +110,12 @@ class TestThreeLevelTree(unittest.TestCase):
         self.tree.build_tree()
         self._perform_assertions(new_synergy_start_time, delta / 24)
 
-        new_actual_timeperiod = base_fixtures.wind_the_time(ProcessContext.QUALIFIER_HOURLY,
+        new_actual_timeperiod = base_fixtures.wind_the_time(QUALIFIER_HOURLY,
                                                             self.initial_synergy_start_time,
                                                             delta)
 
         time_helper.actual_timeperiod = \
-            base_fixtures.wind_actual_timeperiod(time_helper.synergy_to_datetime(ProcessContext.QUALIFIER_HOURLY,
+            base_fixtures.wind_actual_timeperiod(time_helper.synergy_to_datetime(QUALIFIER_HOURLY,
                                                                                  new_actual_timeperiod))
         self.tree.build_tree()
         self._perform_assertions(new_synergy_start_time, 2 * delta / 24)

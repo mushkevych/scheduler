@@ -148,7 +148,8 @@ def query_configuration(options):
         # reads current box configuration and prints it to the console
         from db.dao.box_configuration_dao import BoxConfigurationDao
         from supervisor import supervisor_helper as helper
-        from system.process_context import ProcessContext, PROCESS_LAUNCH_PY
+        from system.process_context import ProcessContext
+        from constants import PROCESS_LAUNCH_PY
 
         logger = ProcessContext.get_logger(PROCESS_LAUNCH_PY)
         box_id = helper.get_box_id(logger)
@@ -170,7 +171,8 @@ def start_process(options, args):
     import process_starter
     from system import process_helper
     from supervisor import supervisor_helper as helper
-    from system.process_context import ProcessContext, PROCESS_SUPERVISOR, PROCESS_LAUNCH_PY
+    from system.process_context import ProcessContext
+    from constants import PROCESS_SUPERVISOR, PROCESS_LAUNCH_PY
 
     logger = ProcessContext.get_logger(PROCESS_LAUNCH_PY)
     box_id = helper.get_box_id(logger)
@@ -210,7 +212,8 @@ def stop_process(options):
     """Stop specific daemon"""
     from system import process_helper
     from supervisor import supervisor_helper as helper
-    from system.process_context import ProcessContext, PROCESS_SUPERVISOR, PROCESS_LAUNCH_PY
+    from system.process_context import ProcessContext
+    from constants import PROCESS_SUPERVISOR, PROCESS_LAUNCH_PY
 
     logger = ProcessContext.get_logger(PROCESS_LAUNCH_PY)
     box_id = helper.get_box_id(logger)
@@ -285,7 +288,9 @@ def run_tests(options):
         unittest.main(module=None, defaultTest='__main__.load_all_tests',
                       argv=argv)
     except SystemExit as e:
-        from system.process_context import ProcessContext, PROCESS_LAUNCH_PY
+        from system.process_context import ProcessContext
+        from constants import PROCESS_LAUNCH_PY
+
         logger = ProcessContext.get_logger(PROCESS_LAUNCH_PY)
         if e.code == 0:
             logger.info('PASS')

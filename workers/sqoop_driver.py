@@ -18,10 +18,10 @@ class SqoopDriver(AbstractCliWorker):
 
     def _start_process(self, start_timeperiod, end_timeperiod):
         try:
-            start_dt = time_helper.synergy_to_datetime(ProcessContext.QUALIFIER_HOURLY, start_timeperiod)
+            start_dt = time_helper.synergy_to_datetime(QUALIFIER_HOURLY, start_timeperiod)
             sqoop_slice_starttime = start_dt.strftime(SqoopDriver.SQOOP_DATE_FORMAT)
 
-            end_dt = time_helper.synergy_to_datetime(ProcessContext.QUALIFIER_HOURLY, end_timeperiod)
+            end_dt = time_helper.synergy_to_datetime(QUALIFIER_HOURLY, end_timeperiod)
             sqoop_slice_endtime = end_dt.strftime(SqoopDriver.SQOOP_DATE_FORMAT)
 
             sink_path = ProcessContext.get_sink(self.process_name)

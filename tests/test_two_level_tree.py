@@ -23,7 +23,7 @@ class TestTwoLevelTree(unittest.TestCase):
         self.tree.build_tree()
         assert len(self.tree.root.children) == 1
 
-        actual_timeperiod = time_helper.actual_timeperiod(ProcessContext.QUALIFIER_HOURLY)
+        actual_timeperiod = time_helper.actual_timeperiod(QUALIFIER_HOURLY)
         assert actual_timeperiod in self.tree.root.children
 
         assert self.tree.root.children[actual_timeperiod].timeperiod == actual_timeperiod
@@ -36,11 +36,11 @@ class TestTwoLevelTree(unittest.TestCase):
         for _ in range(delta + 1):
             assert loop_timeperiod in self.tree.root.children
             assert self.tree.root.children[loop_timeperiod].timeperiod == loop_timeperiod
-            loop_timeperiod = time_helper.increment_timeperiod(ProcessContext.QUALIFIER_HOURLY, loop_timeperiod)
+            loop_timeperiod = time_helper.increment_timeperiod(QUALIFIER_HOURLY, loop_timeperiod)
 
     def test_less_simple_build_tree(self):
         delta = 5
-        new_synergy_start_time = base_fixtures.wind_the_time(ProcessContext.QUALIFIER_HOURLY,
+        new_synergy_start_time = base_fixtures.wind_the_time(QUALIFIER_HOURLY,
                                                              self.initial_synergy_start_time,
                                                              -delta)
         settings['synergy_start_timeperiod'] = new_synergy_start_time
@@ -50,7 +50,7 @@ class TestTwoLevelTree(unittest.TestCase):
 
     def test_catching_up_time_build_tree(self):
         delta = 5
-        new_synergy_start_time = base_fixtures.wind_the_time(ProcessContext.QUALIFIER_HOURLY,
+        new_synergy_start_time = base_fixtures.wind_the_time(QUALIFIER_HOURLY,
                                                              self.initial_synergy_start_time,
                                                              -delta)
         settings['synergy_start_timeperiod'] = new_synergy_start_time
@@ -58,12 +58,12 @@ class TestTwoLevelTree(unittest.TestCase):
         self.tree.build_tree()
         self._perform_assertions(new_synergy_start_time, delta)
 
-        new_actual_timeperiod = base_fixtures.wind_the_time(ProcessContext.QUALIFIER_HOURLY,
+        new_actual_timeperiod = base_fixtures.wind_the_time(QUALIFIER_HOURLY,
                                                             self.initial_synergy_start_time,
                                                             delta)
 
         time_helper.actual_timeperiod = \
-            base_fixtures.wind_actual_timeperiod(time_helper.synergy_to_datetime(ProcessContext.QUALIFIER_HOURLY,
+            base_fixtures.wind_actual_timeperiod(time_helper.synergy_to_datetime(QUALIFIER_HOURLY,
                                                                                  new_actual_timeperiod))
         self.tree.build_tree()
         self._perform_assertions(new_synergy_start_time, 2 * delta)

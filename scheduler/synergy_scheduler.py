@@ -16,7 +16,7 @@ from system.process_context import *
 
 from scheduler.dicrete_pipeline import DiscretePipeline
 from scheduler.continuous_pipeline import ContinuousPipeline
-from scheduler.time_table import TimeTable
+from scheduler.time_table import Timetable
 
 
 class Scheduler(SynergyProcess):
@@ -28,7 +28,7 @@ class Scheduler(SynergyProcess):
         self.publishers = PublishersPool(self.logger)
         self.thread_handlers = dict()
         self.lock = Lock()
-        self.timetable = TimeTable(self.logger)
+        self.timetable = Timetable(self.logger)
         self.regular_pipeline = ContinuousPipeline(self.logger, self.timetable)
         self.discrete_pipeline = DiscretePipeline(self.logger, self.timetable)
         self.sc_dao = SchedulerEntryDao(self.logger)
@@ -98,7 +98,7 @@ class Scheduler(SynergyProcess):
             timetable_record = self.timetable.get_next_timetable_record(process_name)
             time_qualifier = ProcessContext.get_time_qualifier(process_name)
 
-            if time_qualifier == ProcessContext.QUALIFIER_HOURLY:
+            if time_qualifier == QUALIFIER_HOURLY:
                 self.regular_pipeline.manage_pipeline_for_process(process_name, timetable_record)
             else:
                 self.discrete_pipeline.manage_pipeline_for_process(process_name, timetable_record)

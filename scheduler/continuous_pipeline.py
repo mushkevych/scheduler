@@ -5,7 +5,7 @@ from logging import ERROR, WARNING, INFO
 
 from db.manager import ds_manager
 from db.error import DuplicateKeyError
-from db.model import time_table_record, unit_of_work
+from db.model import job, unit_of_work
 from db.model.unit_of_work import UnitOfWork
 from system.decorator import with_reconnect
 from system.process_context import ProcessContext
@@ -89,7 +89,7 @@ class ContinuousPipeline(AbstractPipeline):
             self.timetable.update_timetable_record(process_name,
                                                    timetable_record,
                                                    uow_obj,
-                                                   time_table_record.STATE_IN_PROGRESS)
+                                                   job.STATE_IN_PROGRESS)
         else:
             msg = 'MANUAL INTERVENTION REQUIRED! Unable to locate unit_of_work for %s in %s' \
                   % (process_name, timetable_record.timeperiod)
@@ -109,7 +109,7 @@ class ContinuousPipeline(AbstractPipeline):
             self.timetable.update_timetable_record(process_name,
                                                    timetable_record,
                                                    uow_obj,
-                                                   time_table_record.STATE_FINAL_RUN)
+                                                   job.STATE_FINAL_RUN)
         else:
             msg = 'MANUAL INTERVENTION REQUIRED! Unable to locate unit_of_work for %s in %s' \
                   % (process_name, timetable_record.timeperiod)
@@ -159,7 +159,7 @@ class ContinuousPipeline(AbstractPipeline):
             self.timetable.update_timetable_record(process_name,
                                                    timetable_record,
                                                    uow,
-                                                   time_table_record.STATE_PROCESSED)
+                                                   job.STATE_PROCESSED)
             timetable_tree = self.timetable.get_tree(process_name)
             timetable_tree.build_tree()
             msg = 'Transferred time-table-record %s in timeperiod %s to STATE_PROCESSED for %s' \
@@ -168,7 +168,7 @@ class ContinuousPipeline(AbstractPipeline):
             self.timetable.update_timetable_record(process_name,
                                                    timetable_record,
                                                    uow,
-                                                   time_table_record.STATE_SKIPPED)
+                                                   job.STATE_SKIPPED)
             msg = 'Transferred time-table-record %s in timeperiod %s to STATE_SKIPPED for %s' \
                   % (timetable_record.document['_id'], timetable_record.timeperiod, process_name)
         else:

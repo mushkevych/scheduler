@@ -1,6 +1,6 @@
 __author__ = 'Bohdan Mushkevych'
 
-from db.model import time_table_record
+from db.model import job
 from db.dao.unit_of_work_dao import UnitOfWorkDao
 from db.dao.time_table_record_dao import TimeTableRecordDao
 from datetime import datetime
@@ -109,7 +109,7 @@ class AbstractPipeline(object):
             # As soon as among <dependent on> periods are in STATE_SKIPPED
             # there is very little sense in waiting for them to become STATE_PROCESSED
             # Skip this timeperiod itself
-            timetable_record.state = time_table_record.STATE_SKIPPED
+            timetable_record.state = job.STATE_SKIPPED
             self.ttr_dao.update(timetable_record)
             tree = self.timetable.get_tree(process_name)
             tree.update_node_by_process(process_name, timetable_record)
@@ -127,19 +127,19 @@ class AbstractPipeline(object):
         In case Scheduler sees that unit_of_work is pending - it just updates boundaries of the processing"""
         timeperiod_tr = timetable_record.timeperiod
         try:
-            if timetable_record.state == time_table_record.STATE_EMBRYO:
+            if timetable_record.state == job.STATE_EMBRYO:
                 self._process_state_embryo(process_name, timetable_record, timeperiod_tr)
 
-            elif timetable_record.state == time_table_record.STATE_IN_PROGRESS:
+            elif timetable_record.state == job.STATE_IN_PROGRESS:
                 self._process_state_in_progress(process_name, timetable_record, timeperiod_tr)
 
-            elif timetable_record.state == time_table_record.STATE_FINAL_RUN:
+            elif timetable_record.state == job.STATE_FINAL_RUN:
                 self._process_state_final_run(process_name, timetable_record)
 
-            elif timetable_record.state == time_table_record.STATE_SKIPPED:
+            elif timetable_record.state == job.STATE_SKIPPED:
                 self._process_state_skipped(process_name, timetable_record)
 
-            elif timetable_record.state == time_table_record.STATE_PROCESSED:
+            elif timetable_record.state == job.STATE_PROCESSED:
                 self._process_state_processed(process_name, timetable_record)
 
             else:

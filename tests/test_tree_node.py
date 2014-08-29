@@ -38,10 +38,10 @@ class TestTreeNode(unittest.TestCase):
         self.tree_four_level.build_tree()
         self.tree_two_level.build_tree()
 
-        actual_yearly_timeperiod = time_helper.actual_timeperiod(ProcessContext.QUALIFIER_YEARLY)
-        actual_monthly_timeperiod = time_helper.actual_timeperiod(ProcessContext.QUALIFIER_MONTHLY)
-        actual_daily_timeperiod = time_helper.actual_timeperiod(ProcessContext.QUALIFIER_DAILY)
-        actual_hourly_timeperiod = time_helper.actual_timeperiod(ProcessContext.QUALIFIER_HOURLY)
+        actual_yearly_timeperiod = time_helper.actual_timeperiod(QUALIFIER_YEARLY)
+        actual_monthly_timeperiod = time_helper.actual_timeperiod(QUALIFIER_MONTHLY)
+        actual_daily_timeperiod = time_helper.actual_timeperiod(QUALIFIER_DAILY)
+        actual_hourly_timeperiod = time_helper.actual_timeperiod(QUALIFIER_HOURLY)
 
         # case 1 - left-to-right successful comparison
         node_a = self.tree_two_level.get_node_by_process(PROCESS_CLIENT_MONTHLY, actual_monthly_timeperiod)

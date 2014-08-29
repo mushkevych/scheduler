@@ -1,6 +1,6 @@
 __author__ = 'Bohdan Mushkevych'
 
-from db.model import time_table_record
+from db.model import job
 from system import time_helper
 from system.process_context import ProcessContext
 
@@ -62,7 +62,7 @@ class AbstractNode(object):
         """ timetable_record holds MAX_NUMBER_OF_LOG_ENTRIES of log entries, that can be accessed by MX
             this method adds record and removes oldest one if necessary """
         log = self.timetable_record.log
-        if len(log) > time_table_record.MAX_NUMBER_OF_LOG_ENTRIES:
+        if len(log) > job.MAX_NUMBER_OF_LOG_ENTRIES:
             del log[-1]
         log.insert(0, entry)
 
@@ -137,12 +137,12 @@ class AbstractNode(object):
                 # so we assume that its not blocked
                 continue
 
-            if node_b.timetable_record.state not in [time_table_record.STATE_PROCESSED,
-                                                     time_table_record.STATE_SKIPPED]:
+            if node_b.timetable_record.state not in [job.STATE_PROCESSED,
+                                                     job.STATE_SKIPPED]:
                 all_finalized = False
-            if node_b.timetable_record.state != time_table_record.STATE_PROCESSED:
+            if node_b.timetable_record.state != job.STATE_PROCESSED:
                 all_processed = False
-            if node_b.timetable_record.state == time_table_record.STATE_SKIPPED:
+            if node_b.timetable_record.state == job.STATE_SKIPPED:
                 skipped_present = True
 
         return all_finalized, all_processed, skipped_present
@@ -166,9 +166,9 @@ class LinearNode(AbstractNode):
         if self.timetable_record is None:
             self.request_timetable_record()
 
-        if self.timetable_record.state in [time_table_record.STATE_FINAL_RUN,
-                                           time_table_record.STATE_IN_PROGRESS,
-                                           time_table_record.STATE_EMBRYO]:
+        if self.timetable_record.state in [job.STATE_FINAL_RUN,
+                                           job.STATE_IN_PROGRESS,
+                                           job.STATE_EMBRYO]:
             return True
         return False
 
@@ -196,9 +196,9 @@ class TreeNode(AbstractNode):
         children_processed = True
         for timeperiod in self.children:
             child = self.children[timeperiod]
-            if child.timetable_record.state in [time_table_record.STATE_FINAL_RUN,
-                                                time_table_record.STATE_IN_PROGRESS,
-                                                time_table_record.STATE_EMBRYO]:
+            if child.timetable_record.state in [job.STATE_FINAL_RUN,
+                                                job.STATE_IN_PROGRESS,
+                                                job.STATE_EMBRYO]:
                 children_processed = False
                 break
         return children_processed
@@ -221,17 +221,17 @@ class TreeNode(AbstractNode):
             child = self.children[timeperiod]
             child.validate()
 
-            if child.timetable_record.state in [time_table_record.STATE_EMBRYO,
-                                                time_table_record.STATE_IN_PROGRESS,
-                                                time_table_record.STATE_FINAL_RUN]:
+            if child.timetable_record.state in [job.STATE_EMBRYO,
+                                                job.STATE_IN_PROGRESS,
+                                                job.STATE_FINAL_RUN]:
                 all_children_done = False
-            if child.timetable_record.state != time_table_record.STATE_SKIPPED:
+            if child.timetable_record.state != job.STATE_SKIPPED:
                 all_children_skipped = False
 
         # step 3: request this node's reprocessing if it is enroute to STATE_PROCESSED
         # while some of its children are still performing processing
         if all_children_done is False \
-            and self.timetable_record.state in [time_table_record.STATE_FINAL_RUN, time_table_record.STATE_PROCESSED]:
+            and self.timetable_record.state in [job.STATE_FINAL_RUN, job.STATE_PROCESSED]:
             self.request_reprocess()
 
         # step 4: verify if this node should be transferred to STATE_SKIPPED
@@ -244,5 +244,5 @@ class TreeNode(AbstractNode):
             and all_children_skipped \
             and self.tree.build_timeperiod is not None \
             and has_younger_sibling is True \
-            and self.timetable_record.state != time_table_record.STATE_SKIPPED:
+            and self.timetable_record.state != job.STATE_SKIPPED:
             self.request_skip()

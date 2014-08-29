@@ -7,7 +7,7 @@ from system.utils import unicode_truncate
 from db.model import box_configuration
 from db.model.box_configuration import BoxConfiguration
 from db.model.scheduler_entry import SchedulerEntry
-from db.model.time_table_record import TimeTableRecord
+from db.model.job import Job
 from db.model.unit_of_work import UnitOfWork
 
 

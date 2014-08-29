@@ -5,7 +5,7 @@ __author__ = 'Bohdan Mushkevych'
 import calendar
 
 from datetime import datetime, timedelta
-from system.process_context import ProcessContext
+from system.time_qualifier import *
 
 SYNERGY_DATE_PATTERN = '%Y%m%d%H'
 SYNERGY_SESSION_PATTERN = '%Y%m%d%H%M%S'
@@ -97,15 +97,15 @@ def increment_timeperiod(time_qualifier, timeperiod, delta=1):
     pattern = define_pattern(timeperiod)
     t = datetime.strptime(timeperiod, pattern)
 
-    if time_qualifier == ProcessContext.QUALIFIER_HOURLY:
+    if time_qualifier == QUALIFIER_HOURLY:
         t = t + timedelta(hours=delta)
         return t.strftime('%Y%m%d%H')
 
-    elif time_qualifier == ProcessContext.QUALIFIER_DAILY:
+    elif time_qualifier == QUALIFIER_DAILY:
         t = t + timedelta(days=delta)
         return t.strftime('%Y%m%d00')
 
-    elif time_qualifier == ProcessContext.QUALIFIER_MONTHLY:
+    elif time_qualifier == QUALIFIER_MONTHLY:
         if delta not in [-1, 1]:
             raise ValueError('For QUALIFIER_MONTHLY delta can be only +/- 1')
 
@@ -121,7 +121,7 @@ def increment_timeperiod(time_qualifier, timeperiod, delta=1):
             t = t.replace(month=t.month + delta)
         return t.strftime('%Y%m0000')
 
-    elif time_qualifier == ProcessContext.QUALIFIER_YEARLY:
+    elif time_qualifier == QUALIFIER_YEARLY:
         t = t.replace(year=t.year + delta)
         return t.strftime('%Y000000')
     else:
@@ -133,18 +133,18 @@ def cast_to_time_qualifier(time_qualifier, timeperiod):
     For example: for QUALIFIER_HOURLY, it can be either 2010010119 or 20100101193412 """
 
     date_format = None
-    if time_qualifier == ProcessContext.QUALIFIER_HOURLY:
+    if time_qualifier == QUALIFIER_HOURLY:
         if len(timeperiod) > 10:
             t = datetime.strptime(timeperiod, SYNERGY_SESSION_PATTERN)
             return t.strftime(SYNERGY_DATE_PATTERN)
         else:
             return timeperiod
 
-    elif time_qualifier == ProcessContext.QUALIFIER_DAILY:
+    elif time_qualifier == QUALIFIER_DAILY:
         date_format = '%Y%m%d00'
-    elif time_qualifier == ProcessContext.QUALIFIER_MONTHLY:
+    elif time_qualifier == QUALIFIER_MONTHLY:
         date_format = '%Y%m0000'
-    elif time_qualifier == ProcessContext.QUALIFIER_YEARLY:
+    elif time_qualifier == QUALIFIER_YEARLY:
         date_format = '%Y000000'
 
     pattern = define_pattern(timeperiod)
@@ -158,15 +158,15 @@ def cast_to_time_qualifier(time_qualifier, timeperiod):
 
 def datetime_to_synergy(time_qualifier, dt):
     """ method parses datetime and returns Synergy Date"""
-    if time_qualifier == ProcessContext.QUALIFIER_HOURLY:
+    if time_qualifier == QUALIFIER_HOURLY:
         date_format = SYNERGY_DATE_PATTERN
-    elif time_qualifier == ProcessContext.QUALIFIER_DAILY:
+    elif time_qualifier == QUALIFIER_DAILY:
         date_format = '%Y%m%d00'
-    elif time_qualifier == ProcessContext.QUALIFIER_MONTHLY:
+    elif time_qualifier == QUALIFIER_MONTHLY:
         date_format = '%Y%m0000'
-    elif time_qualifier == ProcessContext.QUALIFIER_YEARLY:
+    elif time_qualifier == QUALIFIER_YEARLY:
         date_format = '%Y000000'
-    elif time_qualifier == ProcessContext.QUALIFIER_REAL_TIME:
+    elif time_qualifier == QUALIFIER_REAL_TIME:
         date_format = SYNERGY_SESSION_PATTERN
     else:
         raise ValueError('unknown time qualifier: %s' % time_qualifier)
@@ -175,15 +175,15 @@ def datetime_to_synergy(time_qualifier, dt):
 
 def synergy_to_datetime(time_qualifier, timeperiod):
     """ method receives timeperiod in Synergy format YYYYMMDD_HH and convert it to _naive_ datetime"""
-    if time_qualifier == ProcessContext.QUALIFIER_HOURLY:
+    if time_qualifier == QUALIFIER_HOURLY:
         date_format = SYNERGY_DATE_PATTERN
-    elif time_qualifier == ProcessContext.QUALIFIER_DAILY:
+    elif time_qualifier == QUALIFIER_DAILY:
         date_format = '%Y%m%d00'
-    elif time_qualifier == ProcessContext.QUALIFIER_MONTHLY:
+    elif time_qualifier == QUALIFIER_MONTHLY:
         date_format = '%Y%m0000'
-    elif time_qualifier == ProcessContext.QUALIFIER_YEARLY:
+    elif time_qualifier == QUALIFIER_YEARLY:
         date_format = '%Y000000'
-    elif time_qualifier == ProcessContext.QUALIFIER_REAL_TIME:
+    elif time_qualifier == QUALIFIER_REAL_TIME:
         date_format = SYNERGY_SESSION_PATTERN
     else:
         raise ValueError('unknown time qualifier: %s' % time_qualifier)
