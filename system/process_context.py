@@ -20,7 +20,7 @@ class ProcessContext(object):
     logger_pool = dict()
 
     # holds all registered processes
-    PROCESS_CONTEXT = dict()
+    CONTEXT = dict()
 
     def __init__(self):
         super(ProcessContext, self).__init__()
@@ -28,14 +28,14 @@ class ProcessContext(object):
     @classmethod
     def put_context_entry(cls, context_entry):
         assert isinstance(context_entry, ProcessContextEntry)
-        cls.PROCESS_CONTEXT[context_entry.process_name] = context_entry
+        cls.CONTEXT[context_entry.process_name] = context_entry
 
     @classmethod
     @current_process_aware
     def get_context_entry(cls, process_name=None):
         """ method returns dictionary of strings, preset
         source collection, target collection, queue name, exchange, routing, etc"""
-        return cls.PROCESS_CONTEXT[process_name]
+        return cls.CONTEXT[process_name]
 
     @classmethod
     def set_current_process(cls, process_name):
@@ -86,63 +86,63 @@ class ProcessContext(object):
     @current_process_aware
     def get_pid_filename(cls, process_name=None):
         """method returns path for the PID FILENAME """
-        return settings['pid_directory'] + cls.PROCESS_CONTEXT[process_name].pid_filename
+        return settings['pid_directory'] + cls.CONTEXT[process_name].pid_filename
 
     @classmethod
     @current_process_aware
     def get_classname(cls, process_name=None):
         """ method returns fully qualified classname of the instance running as process"""
-        return cls.PROCESS_CONTEXT[process_name].classname
+        return cls.CONTEXT[process_name].classname
 
     @classmethod
     @current_process_aware
     def get_log_filename(cls, process_name=None):
         """method returns path for the Log filename"""
-        return settings['log_directory'] + cls.PROCESS_CONTEXT[process_name].log_filename
+        return settings['log_directory'] + cls.CONTEXT[process_name].log_filename
 
     @classmethod
     @current_process_aware
     def get_log_tag(cls, process_name=None):
         """method returns tag that all logging messages will be marked with"""
-        return cls.PROCESS_CONTEXT[process_name].log_tag
+        return cls.CONTEXT[process_name].log_tag
 
     @classmethod
     @current_process_aware
     def get_time_qualifier(cls, process_name=None):
         """ method returns worker/aggregator time scale (like daily or yearly)"""
-        return cls.PROCESS_CONTEXT[process_name].time_qualifier
+        return cls.CONTEXT[process_name].time_qualifier
 
     @classmethod
     @current_process_aware
     def get_routing(cls, process_name=None):
         """ method returns routing; it is used to segregate traffic within the queue
         for instance: routing_hourly for hourly reports, while routing_yearly for yearly reports"""
-        return cls.PROCESS_CONTEXT[process_name].mq_routing_key
+        return cls.CONTEXT[process_name].mq_routing_key
 
     @classmethod
     @current_process_aware
     def get_exchange(cls, process_name=None):
         """ method returns exchange for this classname.
         Exchange is a component that sits between queue and the publisher"""
-        return cls.PROCESS_CONTEXT[process_name].mq_exchange
+        return cls.CONTEXT[process_name].mq_exchange
 
     @classmethod
     @current_process_aware
     def get_queue(cls, process_name=None):
         """ method returns queue that is applicable for the worker/aggregator, specified by classname"""
-        return cls.PROCESS_CONTEXT[process_name].mq_queue
+        return cls.CONTEXT[process_name].mq_queue
 
     @classmethod
     @current_process_aware
     def get_sink(cls, process_name=None):
         """ method returns name of the data sink, as specified for the process"""
-        return cls.PROCESS_CONTEXT[process_name].sink
+        return cls.CONTEXT[process_name].sink
 
     @classmethod
     @current_process_aware
     def get_source(cls, process_name=None):
         """ method returns name of the data source, as specified for the process"""
-        return cls.PROCESS_CONTEXT[process_name].source
+        return cls.CONTEXT[process_name].source
 
     @classmethod
     @current_process_aware
@@ -150,7 +150,7 @@ class ProcessContext(object):
         """ method returns process type
         Supported types are listed in process_context starting with TYPE_ prefix and are enumerated in
         scheduler.start() method"""
-        return cls.PROCESS_CONTEXT[process_name].process_type
+        return cls.CONTEXT[process_name].process_type
 
 
 if __name__ == '__main__':

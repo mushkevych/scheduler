@@ -53,7 +53,7 @@ class Scheduler(SynergyProcess):
         document_list = self.sc_dao.get_all()
 
         for document in document_list:
-            if document.process_name not in ProcessContext.PROCESS_CONTEXT:
+            if document.process_name not in ProcessContext.CONTEXT:
                 self.logger.error('Process %r is not known to the system. Skipping it.' % document.process_name)
                 continue
 

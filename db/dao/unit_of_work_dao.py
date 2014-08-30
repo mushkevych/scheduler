@@ -61,7 +61,7 @@ class UnitOfWorkDao(object):
             cursor = collection.find(query).sort('_id', ASCENDING)
             for document in cursor:
                 uow = UnitOfWork(document)
-                if uow.process_name not in ProcessContext.PROCESS_CONTEXT:
+                if uow.process_name not in ProcessContext.CONTEXT:
                     # this is a decommissioned process
                     continue
 

@@ -127,7 +127,7 @@ def valid_process_name(function):
     from system.process_context import ProcessContext
 
     def _wrapper(options, *args, **kwargs):
-        if options.app not in ProcessContext.PROCESS_CONTEXT:
+        if options.app not in ProcessContext.CONTEXT:
             msg = 'Aborting: application <%r> defined by --app option is unknown. \n' % options.app
             sys.stdout.write(msg)
             raise ValueError(msg)
@@ -267,7 +267,7 @@ def run_lint(options):
 
 def list_processes(options):
     from system.process_context import ProcessContext
-    msg = 'List of registered applications: %r \n' % ProcessContext.PROCESS_CONTEXT.keys()
+    msg = 'List of registered applications: %r \n' % ProcessContext.CONTEXT.keys()
     sys.stdout.write(msg)
 
 
