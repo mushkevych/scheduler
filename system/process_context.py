@@ -2,8 +2,8 @@ __author__ = 'Bohdan Mushkevych'
 
 import os
 
+import context
 from settings import settings
-from context import register_processes
 from system.data_logging import Logger
 from system.decorator import current_process_aware, singleton
 from db.model.process_context_entry import ProcessContextEntry
@@ -13,14 +13,11 @@ from db.model.process_context_entry import ProcessContextEntry
 class ProcessContext(object):
     __CURRENT_PROCESS_TAG = '__CURRENT_PROCESS'
 
-    # register processes for particular environment
-    register_processes()
-
     # holds Logger instance per process name (and optional suffix)
     logger_pool = dict()
 
-    # holds all registered processes
-    CONTEXT = dict()
+    # holds all registered processes, environment-aware
+    CONTEXT = context.process_context
 
     def __init__(self):
         super(ProcessContext, self).__init__()

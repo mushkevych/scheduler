@@ -1,17 +1,14 @@
 __author__ = 'Bohdan Mushkevych'
 
+import context
 from system.decorator import singleton
 from db.model.queue_context_entry import QueueContextEntry
-from context import register_queues
 
 
 @singleton
 class QueueContext(object):
-    # registers mq queues
-    register_queues()
-
-    # holds all registered queues
-    CONTEXT = dict()
+    # holds all registered queues. environment-aware
+    CONTEXT = context.queue_context
 
     def __init__(self):
         super(QueueContext, self).__init__()
