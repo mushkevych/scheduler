@@ -27,6 +27,10 @@ TYPE_VERTICAL_AGGREGATOR = 'type_vertical'
 TYPE_GARBAGE_COLLECTOR = 'type_gc'
 TYPE_ALERT = 'type_alert'
 
+TREE_SITE_VERTICAL = 'tree_site_vertical'
+TREE_CLIENT_HORIZONTAL = 'tree_client_horizontal'
+TREE_LINEAR_DAILY = 'tree_linear_daily'
+
 TOKEN_SCHEDULER = 'scheduler'
 TOKEN_SUPERVISOR = 'supervisor'
 TOKEN_GC = 'gc'

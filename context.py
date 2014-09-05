@@ -2,6 +2,7 @@ __author__ = 'Bohdan Mushkevych'
 
 from db.model.queue_context_entry import _queue_context_entry
 from db.model.process_context_entry import _process_context_entry
+from db.model.timetable_entry import _timetable_entry
 from system.time_qualifier import *
 from constants import *
 
@@ -58,6 +59,31 @@ process_context = {
 }
 
 
+timetable_context = {
+    TREE_SITE_VERTICAL: _timetable_entry(
+        tree_name=TREE_SITE_VERTICAL,
+        tree_classname='scheduler.four_level_tree.FourLevelTree',
+        enclosed_processes=[PROCESS_SITE_YEARLY, PROCESS_SITE_MONTHLY, PROCESS_SITE_DAILY, PROCESS_SITE_HOURLY],
+        dependent_on=[],
+        token=TOKEN_SITE,
+        mx_page=MX_PAGE_TRAFFIC),
+
+    TREE_CLIENT_HORIZONTAL: _timetable_entry(
+        tree_name=TREE_CLIENT_HORIZONTAL,
+        tree_classname='scheduler.three_level_tree.ThreeLevelTree',
+        enclosed_processes=[PROCESS_SITE_YEARLY, PROCESS_SITE_MONTHLY, PROCESS_SITE_DAILY, PROCESS_SITE_HOURLY],
+        dependent_on=[],
+        token=TOKEN_SITE,
+        mx_page=MX_PAGE_TRAFFIC),
+
+    TREE_LINEAR_DAILY: _timetable_entry(
+        tree_name=TREE_CLIENT_HORIZONTAL,
+        tree_classname='scheduler.two_level_tree.TwoLevelTree',
+        enclosed_processes=[PROCESS_ALERT_DAILY],
+        dependent_on=[],
+        token=TOKEN_SITE,
+        mx_page=MX_PAGE_TRAFFIC)
+}
 
 
 try:
