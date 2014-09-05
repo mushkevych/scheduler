@@ -1,3 +1,4 @@
+
 __author__ = 'Bohdan Mushkevych'
 
 from db.model import scheduler_entry
@@ -9,6 +10,7 @@ from amqplib.client_0_8 import AMQPException
 from mq.flopsy import PublishersPool
 from mx.synergy_mx import MX
 
+from constants import *
 from system.decorator import with_reconnect
 from system.synergy_process import SynergyProcess
 from system.repeat_timer import RepeatTimer
@@ -16,7 +18,7 @@ from system.process_context import *
 
 from scheduler.dicrete_pipeline import DiscretePipeline
 from scheduler.continuous_pipeline import ContinuousPipeline
-from scheduler.time_table import Timetable
+from scheduler.timetable import Timetable
 
 
 class Scheduler(SynergyProcess):
@@ -157,7 +159,7 @@ class Scheduler(SynergyProcess):
 
 
 if __name__ == '__main__':
-    from system.process_context import PROCESS_SCHEDULER
+    from constants import PROCESS_SCHEDULER
 
     source = Scheduler(PROCESS_SCHEDULER)
     source.start()

@@ -12,7 +12,7 @@ from mockito import spy, verify, mock, when
 from mockito.matchers import any
 from system import time_helper
 from system.process_context import ProcessContext, PROCESS_SITE_HOURLY
-from scheduler.time_table import Timetable
+from scheduler.timetable import Timetable
 from scheduler.continuous_pipeline import ContinuousPipeline
 from tests.ut_context import PROCESS_UNIT_TEST
 

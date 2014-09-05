@@ -9,8 +9,9 @@ from db.model import job, unit_of_work
 from db.model.job import Job
 
 from settings import settings
-from system import process_context, time_helper
-from system.process_context import ProcessContext
+from system.time_qualifier import *
+from system import time_helper
+from constants import *
 from system.decorator import thread_safe
 from system.collection_context import COLLECTION_TIMETABLE_HOURLY, COLLECTION_TIMETABLE_DAILY, \
     COLLECTION_TIMETABLE_MONTHLY, COLLECTION_TIMETABLE_YEARLY
@@ -35,23 +36,23 @@ class Timetable(object):
         # remember to enlist there all trees the system is working with
         self.trees = list()
 
-        self.vertical_site = FourLevelTree(process_context.PROCESS_SITE_YEARLY,
-                                           process_context.PROCESS_SITE_MONTHLY,
-                                           process_context.PROCESS_SITE_DAILY,
-                                           process_context.PROCESS_SITE_HOURLY,
-                                           process_context._TOKEN_SITE,
+        self.vertical_site = FourLevelTree(PROCESS_SITE_YEARLY,
+                                           PROCESS_SITE_MONTHLY,
+                                           PROCESS_SITE_DAILY,
+                                           PROCESS_SITE_HOURLY,
+                                           TOKEN_SITE,
                                            MX_PAGE_TRAFFIC)
         self.trees.append(self.vertical_site)
 
-        self.horizontal_client = ThreeLevelTree(process_context.PROCESS_CLIENT_YEARLY,
-                                                process_context.PROCESS_CLIENT_MONTHLY,
-                                                process_context.PROCESS_CLIENT_DAILY,
-                                                process_context._TOKEN_CLIENT,
+        self.horizontal_client = ThreeLevelTree(PROCESS_CLIENT_YEARLY,
+                                                PROCESS_CLIENT_MONTHLY,
+                                                PROCESS_CLIENT_DAILY,
+                                                TOKEN_CLIENT,
                                                 MX_PAGE_TRAFFIC)
         self.trees.append(self.horizontal_client)
 
-        self.linear_daily_alert = TwoLevelTree(process_context.PROCESS_ALERT_DAILY,
-                                               process_context._TOKEN_ALERT,
+        self.linear_daily_alert = TwoLevelTree(PROCESS_ALERT_DAILY,
+                                               TOKEN_ALERT,
                                                MX_PAGE_TRAFFIC)
         self.trees.append(self.linear_daily_alert)
 
