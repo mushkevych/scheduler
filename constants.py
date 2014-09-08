@@ -22,10 +22,14 @@ PROCESS_UNIT_TEST = 'UnitTest'
 # process provides <process context> to the launch.py script
 PROCESS_LAUNCH_PY = 'LaunchPy'
 
-TYPE_HORIZONTAL_AGGREGATOR = 'type_horizontal'
-TYPE_VERTICAL_AGGREGATOR = 'type_vertical'
+PIPELINE_CONTINUOUS = 'continuous'
+PIPELINE_DISCRETE = 'continuous'
+PIPELINE_SIMPLIFIED_DISCRETE = 'simplified_discrete'
+
+TYPE_MANAGED_WORKER = 'type_managed_worker'
+TYPE_FREERUN_WORKER = 'type_freerun_worker'
 TYPE_GARBAGE_COLLECTOR = 'type_gc'
-TYPE_ALERT = 'type_alert'
+TYPE_BLOCKING_AWARE_WORKER = 'type_blocking_aware_worker'
 
 TREE_SITE_VERTICAL = 'tree_site_vertical'
 TREE_CLIENT_HORIZONTAL = 'tree_client_horizontal'

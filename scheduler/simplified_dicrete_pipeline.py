@@ -2,6 +2,7 @@ __author__ = 'Bohdan Mushkevych'
 
 from logging import ERROR, INFO
 
+from constants import PIPELINE_SIMPLIFIED_DISCRETE
 from system import time_helper
 from system.process_context import ProcessContext
 from db.error import DuplicateKeyError
@@ -14,7 +15,7 @@ class SimplifiedDiscretePipeline(DiscretePipeline):
     in comparison to DiscretePipeline this one does not transfer to STATE_FINAL_RUN"""
 
     def __init__(self, logger, timetable):
-        super(SimplifiedDiscretePipeline, self).__init__(logger, timetable, 'simplified_discrete')
+        super(SimplifiedDiscretePipeline, self).__init__(logger, timetable, name=PIPELINE_SIMPLIFIED_DISCRETE)
 
     def __del__(self):
         super(SimplifiedDiscretePipeline, self).__del__()

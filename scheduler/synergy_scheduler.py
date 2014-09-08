@@ -10,13 +10,14 @@ from mq.flopsy import PublishersPool
 from mx.synergy_mx import MX
 
 from constants import *
-from system.decorator import with_reconnect
+from system.decorator import with_reconnect, thread_safe
 from system.synergy_process import SynergyProcess
 from system.repeat_timer import RepeatTimer
 from system.process_context import *
 
-from scheduler.dicrete_pipeline import DiscretePipeline
 from scheduler.continuous_pipeline import ContinuousPipeline
+from scheduler.dicrete_pipeline import DiscretePipeline
+from scheduler.simplified_dicrete_pipeline import SimplifiedDiscretePipeline
 from scheduler.timetable import Timetable
 
 
@@ -25,13 +26,13 @@ class Scheduler(SynergyProcess):
 
     def __init__(self, process_name):
         super(Scheduler, self).__init__(process_name)
+        self.lock = Lock()
         self.logger.info('Starting %s' % self.process_name)
         self.publishers = PublishersPool(self.logger)
         self.thread_handlers = dict()
-        self.lock = Lock()
         self.timetable = Timetable(self.logger)
-        self.regular_pipeline = ContinuousPipeline(self.logger, self.timetable)
-        self.discrete_pipeline = DiscretePipeline(self.logger, self.timetable)
+        self.pipelines = self._construct_pipelines()
+
         self.sc_dao = SchedulerEntryDao(self.logger)
         self.mx = None
         self.logger.info('Started %s' % self.process_name)
@@ -46,6 +47,15 @@ class Scheduler(SynergyProcess):
         """ method performs logging into log file and TimeTable node"""
         self.timetable.add_log_entry(process_name, timetable_record, datetime.utcnow(), msg)
         self.logger.log(level, msg)
+
+    def _construct_pipelines(self):
+        """ :return: dict in format <state_machine_common_name: instance_of_the_state_machine> """
+        pipelines = dict()
+        for pipe in [ContinuousPipeline(self.logger, self.timetable),
+                     DiscretePipeline(self.logger, self.timetable),
+                     SimplifiedDiscretePipeline(self.logger, self.timetable)]:
+            pipelines[pipe.name] = pipe
+        return pipelines
 
     # **************** Scheduler Methods ************************
     @with_reconnect
@@ -63,11 +73,11 @@ class Scheduler(SynergyProcess):
             process_type = ProcessContext.get_process_type(document.process_name)
             parameters = [document.process_name, document]
 
-            if process_type == TYPE_ALERT:
+            if process_type == TYPE_BLOCKING_AWARE_WORKER:
                 function = self.fire_alert
-            elif process_type == TYPE_HORIZONTAL_AGGREGATOR:
-                function = self.fire_worker
-            elif process_type == TYPE_VERTICAL_AGGREGATOR:
+            elif process_type == TYPE_FREERUN_WORKER:
+                function = self.fire_freerun_worker
+            elif process_type == TYPE_MANAGED_WORKER:
                 function = self.fire_worker
             elif process_type == TYPE_GARBAGE_COLLECTOR:
                 function = self.fire_garbage_collector
@@ -90,19 +100,18 @@ class Scheduler(SynergyProcess):
         self.mx = MX(self)
         self.mx.start_mx_thread()
 
+    @thread_safe
     def fire_worker(self, *args):
         """requests vertical aggregator (hourly site, daily variant, etc) to start up"""
         try:
             process_name = args[0]
-            self.lock.acquire()
+            entry_document = args[1]
             self.logger.info('%s {' % process_name)
-            timetable_record = self.timetable.get_next_timetable_record(process_name)
-            time_qualifier = ProcessContext.get_time_qualifier(process_name)
 
-            if time_qualifier == QUALIFIER_HOURLY:
-                self.regular_pipeline.manage_pipeline_for_process(process_name, timetable_record)
-            else:
-                self.discrete_pipeline.manage_pipeline_for_process(process_name, timetable_record)
+            pipeline = self.pipelines[entry_document.state_machine_name]
+            timetable_record = self.timetable.get_next_timetable_record(process_name)
+
+            pipeline.manage_pipeline_for_process(process_name, timetable_record)
 
         except (AMQPException, IOError) as e:
             self.logger.error('AMQPException: %s' % str(e), exc_info=True)
@@ -111,14 +120,13 @@ class Scheduler(SynergyProcess):
             self.logger.error('Exception: %s' % str(e), exc_info=True)
         finally:
             self.logger.info('}')
-            self.lock.release()
 
+    @thread_safe
     def fire_alert(self, *args):
         """ Triggers AlertWorker. Makes sure its <dependent on> trees have
             finalized corresponding timeperiods prior to that"""
         try:
             process_name = args[0]
-            self.lock.acquire()
             self.logger.info('%s {' % process_name)
 
             timetable_record = self.timetable.get_next_timetable_record(process_name)
@@ -130,13 +138,12 @@ class Scheduler(SynergyProcess):
             self.logger.error('Exception: %s' % str(e), exc_info=True)
         finally:
             self.logger.info('}')
-            self.lock.release()
 
+    @thread_safe
     def fire_garbage_collector(self, *args):
         """fires garbage collector to re-run all invalid records"""
         try:
             process_name = args[0]
-            self.lock.acquire()
             self.logger.info('%s {' % process_name)
 
             publisher = self.publishers.get(process_name)
@@ -152,6 +159,27 @@ class Scheduler(SynergyProcess):
             self.publishers.reset_all(suppress_logging=True)
         except Exception as e:
             self.logger.error('fire_garbage_collector: %s' % str(e))
+        finally:
+            self.logger.info('}')
+            self.lock.release()
+
+    @thread_safe
+    def fire_freerun_worker(self, *args):
+        """fires free-run worker with no dependencies to track"""
+        try:
+            process_name = args[0]
+            self.logger.info('%s {' % process_name)
+
+            publisher = self.publishers.get(process_name)
+            publisher.publish({})
+            publisher.release()
+
+            self.logger.info('Publishing trigger for %s' % process_name)
+        except (AMQPException, IOError) as e:
+            self.logger.error('AMQPException: %s' % str(e), exc_info=True)
+            self.publishers.reset_all(suppress_logging=True)
+        except Exception as e:
+            self.logger.error('fire_freerun_worker: %s' % str(e))
         finally:
             self.logger.info('}')
             self.lock.release()

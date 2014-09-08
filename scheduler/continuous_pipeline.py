@@ -3,6 +3,7 @@ __author__ = 'Bohdan Mushkevych'
 from datetime import datetime
 from logging import ERROR, WARNING, INFO
 
+from constants import PIPELINE_CONTINUOUS
 from db.manager import ds_manager
 from db.error import DuplicateKeyError
 from db.model import job, unit_of_work
@@ -18,7 +19,7 @@ class ContinuousPipeline(AbstractPipeline):
      STATE_FINAL_RUN """
 
     def __init__(self, logger, timetable):
-        super(ContinuousPipeline, self).__init__(logger, timetable, 'continuous')
+        super(ContinuousPipeline, self).__init__(logger, timetable, name=PIPELINE_CONTINUOUS)
         self.ds = ds_manager.ds_factory(self.logger)
 
     def __del__(self):

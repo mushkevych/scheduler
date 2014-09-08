@@ -16,7 +16,7 @@ process_context = {
         token=TOKEN_SITE,
         time_qualifier=QUALIFIER_DAILY,
         exchange=EXCHANGE_VERTICAL,
-        process_type=TYPE_VERTICAL_AGGREGATOR),
+        process_type=TYPE_MANAGED_WORKER),
 
     PROCESS_SITE_HOURLY: _process_context_entry(
         process_name=PROCESS_SITE_HOURLY,
@@ -24,7 +24,7 @@ process_context = {
         token=TOKEN_SITE,
         time_qualifier=QUALIFIER_HOURLY,
         exchange=EXCHANGE_VERTICAL,
-        process_type=TYPE_VERTICAL_AGGREGATOR,
+        process_type=TYPE_MANAGED_WORKER,
         source='single_session'),
 
     PROCESS_SITE_MONTHLY: _process_context_entry(
@@ -33,7 +33,7 @@ process_context = {
         token=TOKEN_SITE,
         time_qualifier=QUALIFIER_MONTHLY,
         exchange=EXCHANGE_VERTICAL,
-        process_type=TYPE_VERTICAL_AGGREGATOR),
+        process_type=TYPE_MANAGED_WORKER),
 
     PROCESS_SITE_YEARLY: _process_context_entry(
         process_name=PROCESS_SITE_YEARLY,
@@ -41,7 +41,7 @@ process_context = {
         token=TOKEN_SITE,
         time_qualifier=QUALIFIER_YEARLY,
         exchange=EXCHANGE_VERTICAL,
-        process_type=TYPE_VERTICAL_AGGREGATOR),
+        process_type=TYPE_MANAGED_WORKER),
 
     PROCESS_SESSION_WORKER_00: _process_context_entry(
         process_name=PROCESS_SESSION_WORKER_00,
@@ -71,7 +71,7 @@ process_context = {
         token=TOKEN_CLIENT,
         time_qualifier=QUALIFIER_DAILY,
         exchange=EXCHANGE_HORIZONTAL,
-        process_type=TYPE_HORIZONTAL_AGGREGATOR),
+        process_type=TYPE_MANAGED_WORKER),
 
     PROCESS_CLIENT_MONTHLY: _process_context_entry(
         process_name=PROCESS_CLIENT_MONTHLY,
@@ -79,7 +79,7 @@ process_context = {
         token=TOKEN_CLIENT,
         time_qualifier=QUALIFIER_MONTHLY,
         exchange=EXCHANGE_HORIZONTAL,
-        process_type=TYPE_HORIZONTAL_AGGREGATOR),
+        process_type=TYPE_MANAGED_WORKER),
 
     PROCESS_CLIENT_YEARLY: _process_context_entry(
         process_name=PROCESS_CLIENT_YEARLY,
@@ -87,7 +87,7 @@ process_context = {
         token=TOKEN_CLIENT,
         time_qualifier=QUALIFIER_YEARLY,
         exchange=EXCHANGE_HORIZONTAL,
-        process_type=TYPE_HORIZONTAL_AGGREGATOR),
+        process_type=TYPE_MANAGED_WORKER),
 
     PROCESS_ALERT_DAILY: _process_context_entry(
         process_name=PROCESS_ALERT_DAILY,
@@ -95,7 +95,7 @@ process_context = {
         token=TOKEN_ALERT,
         time_qualifier=QUALIFIER_DAILY,
         exchange=EXCHANGE_ALERT,
-        process_type=TYPE_ALERT)
+        process_type=TYPE_BLOCKING_AWARE_WORKER)
 }
 
 

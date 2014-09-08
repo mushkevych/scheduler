@@ -4,6 +4,7 @@ from db.error import DuplicateKeyError
 from datetime import datetime
 from logging import ERROR, WARNING, INFO
 
+from constants import PIPELINE_DISCRETE
 from scheduler.abstract_pipeline import AbstractPipeline
 from db.model.unit_of_work import UnitOfWork
 from db.model import job, unit_of_work
@@ -16,7 +17,7 @@ class DiscretePipeline(AbstractPipeline):
     """ Pipeline to handle discrete timeperiod boundaries for batch jobs
     in comparison to RegularPipeline this one does not re-compute processing boundaries"""
 
-    def __init__(self, logger, timetable, name='discrete'):
+    def __init__(self, logger, timetable, name=PIPELINE_DISCRETE):
         super(DiscretePipeline, self).__init__(logger, timetable, name)
 
     def __del__(self):
