@@ -1,4 +1,3 @@
-
 __author__ = 'Bohdan Mushkevych'
 
 from db.model import scheduler_entry
@@ -145,7 +144,7 @@ class Scheduler(SynergyProcess):
             publisher.release()
 
             self.logger.info('Publishing trigger for garbage_collector')
-            self.timetable.build_tree()
+            self.timetable.build_trees()
             self.timetable.validate()
             self.logger.info('Validated Timetable for all trees')
         except (AMQPException, IOError) as e:

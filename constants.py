@@ -53,3 +53,7 @@ EXCHANGE_VERTICAL = 'exchange_vertical'
 EXCHANGE_HORIZONTAL = 'exchange_horizontal'
 EXCHANGE_ALERT = 'exchange_alert'
 EXCHANGE_UTILS = 'exchange_utils'
+
+# make sure MX_PAGE_XXX refers to exposed URLs from mx.views.py module
+MX_PAGE_TRAFFIC = 'traffic_details'
+MX_PAGE_FINANCIAL = 'financial_details'

@@ -6,6 +6,7 @@ from settings import settings
 from db.model import job
 from scheduler.tree_node import TreeNode, LinearNode
 from system import time_helper
+from system.time_qualifier import *
 from system.time_helper import cast_to_time_qualifier
 from system.process_context import ProcessContext
 
@@ -17,10 +18,10 @@ LIFE_SUPPORT_HOURS = 48      # number of hours that node is retried infinite num
 class AbstractTree(object):
     """Abstract Tree structure """
 
-    def __init__(self, node_klass, category=None, mx_page=None):
+    def __init__(self, node_klass, mx_name=None, mx_page=None):
         """
         @parameter node_klass: presents descendant of the AbstractNode class, that is used to instantiate nodes of the tree
-        @optional @parameter category: is used by MX only as visual vertical name
+        @optional @parameter mx_name: is used by MX only as visual vertical name
         @optional @parameter mx_page: is used by MX only as anchor to specific page
         """
         self.build_timeperiod = None
@@ -28,7 +29,7 @@ class AbstractTree(object):
         self.reprocess_callbacks = []
         self.skip_callbacks = []
         self.create_timetable_record_callbacks = []
-        self.category = category
+        self.mx_name = mx_name
         self.mx_page = mx_page
         self.node_klass = node_klass
         self.root = self.node_klass(self, None, None, None, None)
@@ -172,8 +173,8 @@ class AbstractTree(object):
 class TwoLevelTree(AbstractTree):
     """Linear timeline structure, presenting array of timetable_records"""
 
-    def __init__(self, process_name, category=None, mx_page=None, node_klass=LinearNode):
-        super(TwoLevelTree, self).__init__(node_klass, category, mx_page)
+    def __init__(self, process_name, mx_name=None, mx_page=None, node_klass=LinearNode):
+        super(TwoLevelTree, self).__init__(node_klass, mx_name, mx_page)
         self.process_name = process_name
 
     # *** SPECIFIC METHODS ***
@@ -237,10 +238,10 @@ class ThreeLevelTree(AbstractTree):
     def __init__(self, process_yearly,
                  process_monthly,
                  process_daily,
-                 category=None,
+                 mx_name=None,
                  mx_page=None,
                  node_klass=TreeNode):
-        super(ThreeLevelTree, self).__init__(node_klass, category, mx_page)
+        super(ThreeLevelTree, self).__init__(node_klass, mx_name, mx_page)
         self.process_yearly = process_yearly
         self.process_monthly = process_monthly
         self.process_daily = process_daily
@@ -374,13 +375,13 @@ class FourLevelTree(ThreeLevelTree):
                  process_monthly,
                  process_daily,
                  process_hourly,
-                 category=None,
+                 mx_name=None,
                  mx_page=None,
                  node_klass=TreeNode):
         super(FourLevelTree, self).__init__(process_yearly,
                                             process_monthly,
                                             process_daily,
-                                            category=category,
+                                            mx_name=mx_name,
                                             mx_page=mx_page,
                                             node_klass=node_klass)
         self.process_hourly = process_hourly

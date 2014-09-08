@@ -211,9 +211,9 @@ class TimeperiodTreeDetails(object):
         resp = dict()
         timetable = self.mbean.timetable
 
-        for tree in timetable.trees:
+        for tree_name, tree in timetable.trees.iteritems():
             if tree.mx_page in self.referrer:
-                resp[tree.category] = self._get_nodes_details(tree)
+                resp[tree.mx_name] = self._get_nodes_details(tree)
 
         return resp
 

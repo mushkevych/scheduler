@@ -8,22 +8,22 @@ from db.dao.time_table_record_dao import TimeTableRecordDao
 from db.model import job, unit_of_work
 from db.model.job import Job
 
+import context
+from process_starter import get_class
 from settings import settings
 from system.time_qualifier import *
 from system import time_helper
-from constants import *
 from system.decorator import thread_safe
 from system.collection_context import COLLECTION_TIMETABLE_HOURLY, COLLECTION_TIMETABLE_DAILY, \
     COLLECTION_TIMETABLE_MONTHLY, COLLECTION_TIMETABLE_YEARLY
-from scheduler.tree import TwoLevelTree, ThreeLevelTree, FourLevelTree
+from scheduler.tree import AbstractTree
 from scheduler.tree_node import AbstractNode
-
-# make sure MX_PAGE_TRAFFIC refers to mx.views.py page
-MX_PAGE_TRAFFIC = 'traffic_details'
 
 
 class Timetable(object):
-    """ Timetable present a tree, where every node presents a time-period """
+    """ Timetable holds all known process trees, where every node presents a timeperiod-driven job"""
+
+    CONTEXT = context.timetable_context
 
     def __init__(self, logger):
         self.lock = RLock()
@@ -34,56 +34,46 @@ class Timetable(object):
 
         # self.trees contain all of the trees and manages much of their life cycle
         # remember to enlist there all trees the system is working with
-        self.trees = list()
-
-        self.vertical_site = FourLevelTree(PROCESS_SITE_YEARLY,
-                                           PROCESS_SITE_MONTHLY,
-                                           PROCESS_SITE_DAILY,
-                                           PROCESS_SITE_HOURLY,
-                                           TOKEN_SITE,
-                                           MX_PAGE_TRAFFIC)
-        self.trees.append(self.vertical_site)
-
-        self.horizontal_client = ThreeLevelTree(PROCESS_CLIENT_YEARLY,
-                                                PROCESS_CLIENT_MONTHLY,
-                                                PROCESS_CLIENT_DAILY,
-                                                TOKEN_CLIENT,
-                                                MX_PAGE_TRAFFIC)
-        self.trees.append(self.horizontal_client)
-
-        self.linear_daily_alert = TwoLevelTree(PROCESS_ALERT_DAILY,
-                                               TOKEN_ALERT,
-                                               MX_PAGE_TRAFFIC)
-        self.trees.append(self.linear_daily_alert)
+        self.trees = self._construct_trees_from_context()
 
         self._register_callbacks()
         self._register_dependencies()
         self.load_tree()
-        self.build_tree()
+        self.build_trees()
         self.validate()
+
+    def _construct_trees_from_context(self):
+        for tree_name, context_entry in self.CONTEXT.iteritems():
+            _, tree_klass, _ = get_class(context_entry.tree_classname)
+            tree = tree_klass(*context_entry.enclosed_processes,
+                              context_entry.mx_name,
+                              context_entry.mx_page)
+            self.trees[tree_name] = tree
 
     def _register_dependencies(self):
         """ register dependencies between trees"""
-        #        self.horizontal_client.register_dependent_on(self.vertical_site)
-        #        self.horizontal_client.register_dependent_on(self.vertical_visitor)
-        #        self.linear_daily_alert.register_dependent_on(self.post_proc_site)
-        #        self.linear_daily_alert.register_dependent_on(self.vertical_visitor)
-        pass
+        for tree_name, context_entry in self.CONTEXT.iteritems():
+            tree = self.trees[tree_name]
+            assert isinstance(tree, AbstractTree)
+            for dependent_on in context_entry.dependent_on:
+                dependent_on_tree = self.trees[dependent_on]
+                assert isinstance(dependent_on_tree, AbstractTree)
+                tree.register_dependent_on(dependent_on_tree)
 
     def _register_callbacks(self):
         """ register logic that reacts on reprocessing request
         and create embryo timetable record request"""
 
         # reprocessing request
-        for tree in self.trees:
+        for tree_name, tree in self.trees.iteritems():
             tree.register_reprocess_callback(self._callback_reprocess)
 
         # skip request
-        for tree in self.trees:
+        for tree_name, tree in self.trees.iteritems():
             tree.register_skip_callback(self._callback_skip)
 
         # callbacks register
-        for tree in self.trees:
+        for tree_name, tree in self.trees.iteritems():
             tree.register_timetable_callbacks(self._callback_timetable_record)
 
     @thread_safe
@@ -107,14 +97,14 @@ class Timetable(object):
     @thread_safe
     def get_tree(self, process_name):
         """ return tree that is managing time-periods for given process"""
-        for tree in self.trees:
+        for tree_name, tree in self.trees.iteritems():
             if tree.is_managing_process(process_name):
                 return tree
 
     def _find_dependant_trees(self, tree_obj):
         """ returns list of trees that are dependent_on the given tree_obj """
         dependant_trees = []
-        for tree in self.trees:
+        for tree_name, tree in self.trees.iteritems():
             if tree_obj in tree.dependent_on:
                 dependant_trees.append(tree)
         return dependant_trees
@@ -261,15 +251,15 @@ class Timetable(object):
         self._build_tree_by_level(COLLECTION_TIMETABLE_YEARLY, since=yearly_timeperiod)
 
     @thread_safe
-    def build_tree(self):
+    def build_trees(self):
         """ method iterates thru all trees and ensures that all time-period nodes are created up till <utc_now>"""
-        for tree in self.trees:
+        for tree_name, tree in self.trees.iteritems():
             tree.build_tree()
 
     @thread_safe
     def validate(self):
         """validates that none of nodes in tree is improperly finalized and that every node has timetable_record"""
-        for tree in self.trees:
+        for tree_name, tree in self.trees.iteritems():
             tree.validate()
 
     @thread_safe

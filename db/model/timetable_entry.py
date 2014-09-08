@@ -6,6 +6,8 @@ TREE_NAME = 'tree_name'
 TREE_CLASSNAME = 'tree_classname'
 DEPENDENT_ON = 'dependent_on'
 ENCLOSED_PROCESSES = 'enclosed_processes'
+MX_PAGE = 'mx_page'
+MX_NAME = 'mx_name'
 
 
 class TimetableEntry(BaseModel):
@@ -54,12 +56,28 @@ class TimetableEntry(BaseModel):
     def enclosed_processes(self, value):
         self.data[ENCLOSED_PROCESSES] = value
 
+    @property
+    def mx_name(self):
+        return self.data[MX_NAME]
+
+    @mx_name.setter
+    def mx_name(self, value):
+        self.data[MX_NAME] = value
+
+    @property
+    def mx_page(self):
+        return self.data[MX_PAGE]
+
+    @mx_page.setter
+    def mx_page(self, value):
+        self.data[MX_PAGE] = value
+
 
 def _timetable_entry(tree_name,
                      tree_classname,
                      enclosed_processes,
                      dependent_on=None,
-                     token=None,
+                     mx_name=None,
                      mx_page=None):
     """ forms timetable context entry """
     assert enclosed_processes is not None and not isinstance(enclosed_processes, str)
@@ -70,4 +88,6 @@ def _timetable_entry(tree_name,
     timetable_entry.tree_classname = tree_classname
     timetable_entry.enclosed_processes = enclosed_processes
     timetable_entry.dependent_on = dependent_on
+    timetable_entry.mx_name = mx_name
+    timetable_entry.mx_page = mx_page
     return timetable_entry

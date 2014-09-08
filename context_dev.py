@@ -58,7 +58,7 @@ process_context = {
 
     PROCESS_STREAM_GEN: _process_context_entry(
         process_name=PROCESS_STREAM_GEN,
-        classname='event_stream_generator.event_stream_generator.EventStreamGenerator.start',
+        classname='workers.event_stream_generator.EventStreamGenerator.start',
         token=TOKEN_STREAM,
         time_qualifier=QUALIFIER_REAL_TIME,
         queue=QUEUE_RAW_DATA,
@@ -96,4 +96,8 @@ process_context = {
         time_qualifier=QUALIFIER_DAILY,
         exchange=EXCHANGE_ALERT,
         process_type=TYPE_ALERT)
+}
+
+
+timetable_context = {
 }

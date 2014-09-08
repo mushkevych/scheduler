@@ -65,7 +65,7 @@ timetable_context = {
         tree_classname='scheduler.four_level_tree.FourLevelTree',
         enclosed_processes=[PROCESS_SITE_YEARLY, PROCESS_SITE_MONTHLY, PROCESS_SITE_DAILY, PROCESS_SITE_HOURLY],
         dependent_on=[],
-        token=TOKEN_SITE,
+        mx_name=TOKEN_SITE,
         mx_page=MX_PAGE_TRAFFIC),
 
     TREE_CLIENT_HORIZONTAL: _timetable_entry(
@@ -73,7 +73,7 @@ timetable_context = {
         tree_classname='scheduler.three_level_tree.ThreeLevelTree',
         enclosed_processes=[PROCESS_SITE_YEARLY, PROCESS_SITE_MONTHLY, PROCESS_SITE_DAILY, PROCESS_SITE_HOURLY],
         dependent_on=[],
-        token=TOKEN_SITE,
+        mx_name=TOKEN_SITE,
         mx_page=MX_PAGE_TRAFFIC),
 
     TREE_LINEAR_DAILY: _timetable_entry(
@@ -81,16 +81,17 @@ timetable_context = {
         tree_classname='scheduler.two_level_tree.TwoLevelTree',
         enclosed_processes=[PROCESS_ALERT_DAILY],
         dependent_on=[],
-        token=TOKEN_SITE,
+        mx_name=TOKEN_SITE,
         mx_page=MX_PAGE_TRAFFIC)
 }
 
 
 try:
     from settings import ENVIRONMENT
-
     overrides = __import__('context_' + ENVIRONMENT)
 except:
     overrides = __import__('context_dev')
+
 process_context.update(overrides.process_context)
 queue_context.update(overrides.queue_context)
+timetable_context.update(overrides.timetable_context)
