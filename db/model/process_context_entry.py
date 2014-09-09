@@ -16,6 +16,7 @@ PROCESS_TYPE = 'process_type'
 LOG_FILENAME = 'log_filename'
 LOG_TAG = 'log_tag'
 PID_FILENAME = 'pid_filename'
+RUN_ON_ACTIVE_TIMEPERIOD = 'run_on_active_timeperiod'
 
 
 class ProcessContextEntry(BaseModel):
@@ -143,6 +144,14 @@ class ProcessContextEntry(BaseModel):
     def pid_filename(self, value):
         self.data[PID_FILENAME] = value
 
+    @property
+    def run_on_active_timeperiod(self):
+        return self.data[RUN_ON_ACTIVE_TIMEPERIOD]
+
+    @run_on_active_timeperiod.setter
+    def run_on_active_timeperiod(self, value):
+        self.data[RUN_ON_ACTIVE_TIMEPERIOD] = value
+
 
 def _process_context_entry(process_name,
                            classname,
@@ -156,7 +165,8 @@ def _process_context_entry(process_name,
                            source=None,
                            sink=None,
                            pid_file=None,
-                           log_file=None):
+                           log_file=None,
+                           run_on_active_timeperiod=False):
     """ forms process context entry """
     _ROUTING_PREFIX = 'routing_'
     _QUEUE_PREFIX = 'queue_'
@@ -188,4 +198,5 @@ def _process_context_entry(process_name,
     process_entry.process_type = process_type
     process_entry.log_filename = log_file
     process_entry.pid_filename = pid_file
+    process_entry.run_on_active_timeperiod = run_on_active_timeperiod
     return process_entry

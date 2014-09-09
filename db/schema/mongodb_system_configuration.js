@@ -40,7 +40,7 @@ db.box_configuration.insert({'box_id': 'HADOOP',
 
 
 // *** Scheduler Settings ***
-db.scheduler_configuration.insert({'process_name': 'SiteHourlyAggregator', 'state' : 'state_on', 'interval_seconds': 20});
+db.scheduler_configuration.insert({'process_name': 'SiteHourlyAggregator', 'state' : 'state_on', 'interval_seconds': 20, 'pipeline_name': '', 'process_type': ''});
 db.scheduler_configuration.insert({'process_name': 'SiteDailyAggregator', 'state' : 'state_on', 'interval_seconds': 40});
 db.scheduler_configuration.insert({'process_name': 'SiteMonthlyAggregator', 'state' : 'state_on', 'interval_seconds': 10800});
 db.scheduler_configuration.insert({'process_name': 'SiteYearlyAggregator', 'state' : 'state_on', 'interval_seconds': 21600});

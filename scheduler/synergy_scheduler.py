@@ -1,4 +1,3 @@
-
 __author__ = 'Bohdan Mushkevych'
 
 from db.model import scheduler_entry
@@ -110,6 +109,12 @@ class Scheduler(SynergyProcess):
             timetable_record = self.timetable.get_next_timetable_record(process_name)
             pipeline = self.pipelines[entry_document.state_machine_name]
 
+            run_on_active_timeperiod = ProcessContext.run_on_active_timeperiod(entry_document.process_name)
+            if not run_on_active_timeperiod:
+                # get timeperiod + 1 + 5 min
+                # run the job
+                pass
+
             process_type = ProcessContext.get_process_type(entry_document.process_name)
             if process_type == TYPE_BLOCKING_DEPENDENCIES_WORKER:
                 pipeline.manage_pipeline_with_blocking_dependencies(process_name, timetable_record)
@@ -117,7 +122,6 @@ class Scheduler(SynergyProcess):
                 pipeline.manage_pipeline_with_blocking_children(process_name, timetable_record)
             elif process_type == TYPE_MANAGED_WORKER:
                 pipeline.manage_pipeline_for_process(process_name, timetable_record)
-
 
         except (AMQPError, IOError) as e:
             self.logger.error('AMQPError: %s' % str(e), exc_info=True)
@@ -129,7 +133,7 @@ class Scheduler(SynergyProcess):
 
     @thread_safe
     def fire_freerun_worker(self, *args):
-        """fires free-run worker with no dependencies to track"""
+        """fires free-run worker with no dependencies and history to track"""
         try:
             process_name = args[0]
             entry_document = args[1]
@@ -152,7 +156,7 @@ class Scheduler(SynergyProcess):
 
     @thread_safe
     def fire_garbage_collector(self, *args):
-        """fires garbage collector to re-run all invalid records"""
+        """fires garbage collector to re-trigger invalid unit_of_work"""
         try:
             process_name = args[0]
             self.logger.info('%s {' % process_name)
