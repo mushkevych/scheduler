@@ -1,9 +1,11 @@
+
 __author__ = 'Bohdan Mushkevych'
 
 import psutil
 from subprocess import PIPE
 from settings import settings
 from system import time_helper
+from system.time_qualifier import QUALIFIER_HOURLY
 from system.process_context import ProcessContext
 from workers.abstract_cli_worker import AbstractCliWorker
 

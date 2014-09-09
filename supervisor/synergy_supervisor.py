@@ -6,7 +6,8 @@ from threading import Lock
 from subprocess import PIPE, STDOUT
 from psutil import TimeoutExpired
 
-from launch import get_python, PROJECT_ROOT, PROCESS_STARTER
+from launch import get_python, PROJECT_ROOT
+from system.process_starter import PROCESS_STARTER
 from db.model import box_configuration
 from db.dao.box_configuration_dao import BoxConfigurationDao
 from supervisor import supervisor_helper as helper

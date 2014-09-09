@@ -9,7 +9,7 @@ import fabric.operations
 from datetime import datetime
 
 from settings import settings
-from workers.abstract_worker import AbstractWorker
+from workers.abstract_mq_worker import AbstractMqWorker
 from system.performance_tracker import AggregatorPerformanceTicker
 
 from db.model import unit_of_work
@@ -17,7 +17,7 @@ from db.manager import ds_manager
 from db.dao.unit_of_work_dao import UnitOfWorkDao
 
 
-class AbstractFileCollectorWorker(AbstractWorker):
+class AbstractFileCollectorWorker(AbstractMqWorker):
     """
     module holds common logic to process unit_of_work, access remote locations and copy files to temporary local folder
     individual files are later passed to child classes for processing

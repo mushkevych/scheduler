@@ -14,11 +14,11 @@ from datetime import datetime
 from settings import settings
 from system.decimal_encoder import DecimalEncoder
 from system.process_context import ProcessContext
-from workers.abstract_worker import AbstractWorker
+from workers.abstract_mq_worker import AbstractMqWorker
 from system.performance_tracker import AggregatorPerformanceTicker
 
 
-class AbstractAwareWorker(AbstractWorker):
+class AbstractAwareWorker(AbstractMqWorker):
     """ Abstract class is inherited by all workers/aggregators
     that are aware of unit_of_work and capable of processing it"""
 

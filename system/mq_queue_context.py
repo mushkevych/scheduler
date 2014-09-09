@@ -5,7 +5,6 @@ from system.decorator import singleton
 from db.model.queue_context_entry import QueueContextEntry
 
 
-@singleton
 class QueueContext(object):
     # holds all registered queues. environment-aware
     CONTEXT = context.queue_context

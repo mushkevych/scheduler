@@ -95,7 +95,7 @@ process_context = {
         token=TOKEN_ALERT,
         time_qualifier=QUALIFIER_DAILY,
         exchange=EXCHANGE_ALERT,
-        process_type=TYPE_BLOCKING_AWARE_WORKER)
+        process_type=TYPE_BLOCKING_DEPENDENCIES_WORKER)
 }
 
 

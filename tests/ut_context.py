@@ -24,7 +24,7 @@ def register_processes():
         token=_TOKEN_SCRIPT_EXAMPLE,
         time_qualifier=QUALIFIER_REAL_TIME,
         exchange=EXCHANGE_UTILS)
-    ProcessContext.put_process_entry(process_entry)
+    ProcessContext.put_context_entry(process_entry)
 
     process_entry = _process_context_entry(
         process_name=PROCESS_CLASS_EXAMPLE,
@@ -32,7 +32,7 @@ def register_processes():
         token=_TOKEN_CLASS_EXAMPLE,
         time_qualifier=QUALIFIER_DAILY,
         exchange=EXCHANGE_UTILS)
-    ProcessContext.put_process_entry(process_entry)
+    ProcessContext.put_context_entry(process_entry)
 
     process_entry = _process_context_entry(
         process_name=PROCESS_UNIT_TEST,
@@ -41,4 +41,4 @@ def register_processes():
         time_qualifier=QUALIFIER_REAL_TIME,
         routing=ROUTING_IRRELEVANT,
         exchange=EXCHANGE_UTILS)
-    ProcessContext.put_process_entry(process_entry)
+    ProcessContext.put_context_entry(process_entry)

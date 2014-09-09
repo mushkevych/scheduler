@@ -10,12 +10,12 @@ import shutil
 import sys
 import traceback
 import subprocess
-
 from optparse import OptionParser
 from os import path
 
+from system import process_starter
 
-PROCESS_STARTER = 'process_starter.py'
+
 PROJECT_ROOT = path.abspath(path.dirname(__file__))
 
 # script is run to install virtual environment library into the global interpreter
@@ -168,7 +168,6 @@ def query_configuration(options):
 def start_process(options, args):
     """Start up specific daemon """
     import psutil
-    import process_starter
     from system import process_helper
     from supervisor import supervisor_helper as helper
     from system.process_context import ProcessContext

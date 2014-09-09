@@ -9,7 +9,6 @@ from system.decorator import current_process_aware, singleton
 from db.model.process_context_entry import ProcessContextEntry
 
 
-@singleton
 class ProcessContext(object):
     __CURRENT_PROCESS_TAG = '__CURRENT_PROCESS'
 
@@ -148,6 +147,20 @@ class ProcessContext(object):
         Supported types are listed in process_context starting with TYPE_ prefix and are enumerated in
         scheduler.start() method"""
         return cls.CONTEXT[process_name].process_type
+
+    @classmethod
+    @current_process_aware
+    def get_arguments(cls, process_name=None):
+        """ method returns process-specific arguments, defined during declaration\
+         arguments are presented as key-value dictionary """
+        return cls.CONTEXT[process_name].arguments
+
+    @classmethod
+    @current_process_aware
+    def run_on_active_timeperiod(cls, process_name=None):
+        """ method returns True if the process should wait for the timeperiod to complete before it starts
+        and False if the process could start as soon as the timeperiod arrives """
+        return cls.CONTEXT[process_name].run_on_active_timeperiod
 
 
 if __name__ == '__main__':

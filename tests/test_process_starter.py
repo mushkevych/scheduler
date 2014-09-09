@@ -2,7 +2,9 @@ __author__ = 'Bohdan Mushkevych'
 
 import types
 import unittest
-import process_starter
+
+from system import process_starter
+from tests.ut_context import register_processes
 
 
 def main_function(*args):
@@ -20,6 +22,11 @@ class NewClass(object):
 
 
 class TestProcessStarter(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        super(TestProcessStarter, cls).setUpClass()
+        register_processes()
+
     def test_type_old_class(self):
         t, m, starter = process_starter.get_class('tests.test_process_starter.OldClass')
         assert isinstance(m, (type, types.ClassType))
@@ -61,7 +68,6 @@ class TestProcessStarter(unittest.TestCase):
     def test_starting_function(self):
         from tests.ut_context import PROCESS_SCRIPT_EXAMPLE
         process_starter.start_by_process_name(PROCESS_SCRIPT_EXAMPLE, 'parameters')
-
 
 
 if __name__ == '__main__':

@@ -53,7 +53,7 @@ class SiteHourlyAggregator(AbstractVerticalWorker):
 
 
 if __name__ == '__main__':
-    from system.process_context import PROCESS_SITE_HOURLY
+    from constants import PROCESS_SITE_HOURLY
 
     source = SiteHourlyAggregator(PROCESS_SITE_HOURLY)
     source.start()

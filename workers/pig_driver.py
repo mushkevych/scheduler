@@ -35,4 +35,3 @@ class PigDriver(AbstractCliWorker):
             self.logger.error('Exception on starting: %s' % self.process_name, exc_info=True)
         finally:
             self.logger.info('}')
-

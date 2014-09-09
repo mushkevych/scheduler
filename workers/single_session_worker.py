@@ -8,11 +8,11 @@ from db.model.single_session import SingleSession
 from db.model.raw_data import *
 from db.dao.single_session_dao import SingleSessionDao
 from system.performance_tracker import SessionPerformanceTracker
-from workers.abstract_worker import AbstractWorker
+from workers.abstract_mq_worker import AbstractMqWorker
 from system import time_helper
 
 
-class SingleSessionWorker(AbstractWorker):
+class SingleSessionWorker(AbstractMqWorker):
     """
     this class reads stream of messages from RabbitMQ and dump them to the MongoDB
     """
@@ -108,7 +108,7 @@ class SingleSessionWorker(AbstractWorker):
 
 
 if __name__ == '__main__':
-    from system.process_context import PROCESS_SESSION_WORKER_00
+    from constants import PROCESS_SESSION_WORKER_00
 
     source = SingleSessionWorker(PROCESS_SESSION_WORKER_00)
     source.start()

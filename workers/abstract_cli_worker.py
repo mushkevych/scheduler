@@ -8,7 +8,7 @@ from psutil.error import TimeoutExpired
 from db.model import unit_of_work
 from db.dao.unit_of_work_dao import UnitOfWorkDao
 
-from workers.abstract_worker import AbstractWorker
+from workers.abstract_mq_worker import AbstractMqWorker
 from system.performance_tracker import AggregatorPerformanceTicker
 
 

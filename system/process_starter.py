@@ -5,6 +5,8 @@ import types
 
 from system.process_context import ProcessContext
 
+PROCESS_STARTER = 'system/process_starter.py'
+
 
 def get_class(kls):
     """

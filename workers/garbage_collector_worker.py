@@ -8,7 +8,7 @@ from datetime import datetime, timedelta
 from settings import settings
 from mq.flopsy import PublishersPool
 from system.decorator import thread_safe
-from workers.abstract_worker import AbstractWorker
+from workers.abstract_mq_worker import AbstractMqWorker
 from db.model import unit_of_work
 from db.model import scheduler_entry
 from db.dao.unit_of_work_dao import UnitOfWorkDao
@@ -20,7 +20,7 @@ LIFE_SUPPORT_HOURS = 48  # number of hours from UOW creation time to keep UOW re
 REPOST_AFTER_HOURS = 1   # number of hours, GC waits for the worker to pick up the UOW from MQ before re-posting
 
 
-class GarbageCollectorWorker(AbstractWorker):
+class GarbageCollectorWorker(AbstractMqWorker):
     """ instance receives an empty message from RabbitMQ and triggers re-start of failed tasks """
 
     def __init__(self, process_name):
@@ -72,7 +72,7 @@ class GarbageCollectorWorker(AbstractWorker):
             self.consumer.acknowledge(message.delivery_tag)
 
     def _update_scheduler_configuration(self, sc_list):
-        self.scheduler_configuration = {sc.process_name : sc for sc in sc_list}
+        self.scheduler_configuration = {sc.process_name: sc for sc in sc_list}
 
     def _process_single_document(self, uow):
         """ actually inspects UOW retrieved from the database"""
@@ -110,7 +110,7 @@ class GarbageCollectorWorker(AbstractWorker):
 
 
 if __name__ == '__main__':
-    from system.process_context import PROCESS_GC
+    from constants import PROCESS_GC
 
     source = GarbageCollectorWorker(PROCESS_GC)
     source.start()

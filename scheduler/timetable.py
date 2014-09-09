@@ -7,7 +7,6 @@ from db.dao.unit_of_work_dao import UnitOfWorkDao
 from db.dao.time_table_record_dao import TimeTableRecordDao
 from db.model import job, unit_of_work
 from db.model.job import Job
-
 import context
 from process_starter import get_class
 from settings import settings

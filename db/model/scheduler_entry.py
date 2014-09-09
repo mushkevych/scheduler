@@ -6,6 +6,7 @@ PROCESS_NAME = 'process_name'
 STATE = 'state'
 INTERVAL = 'interval_seconds'
 PIPELINE_NAME = 'pipeline_name'
+PROCESS_TYPE = 'process_type'
 
 STATE_ON = 'state_on'
 STATE_OFF = 'state_off'
@@ -58,3 +59,11 @@ class SchedulerEntry(BaseModel):
     @state_machine_name.setter
     def state_machine_name(self, value):
         self.data[PIPELINE_NAME] = value
+
+    @property
+    def process_type(self):
+        return self.data[PROCESS_TYPE]
+
+    @process_type.setter
+    def process_type(self, value):
+        self.data[PROCESS_TYPE] = value

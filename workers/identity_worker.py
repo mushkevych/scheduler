@@ -5,11 +5,11 @@ __author__ = 'Bohdan Mushkevych'
 from datetime import datetime
 from db.model import unit_of_work
 from db.dao.unit_of_work_dao import UnitOfWorkDao
-from workers.abstract_worker import AbstractWorker
+from workers.abstract_mq_worker import AbstractMqWorker
 from system.performance_tracker import AggregatorPerformanceTicker
 
 
-class IdentityWorker(AbstractWorker):
+class IdentityWorker(AbstractMqWorker):
     """ Marks all unit_of_work as <complete>"""
 
     def __init__(self, process_name):

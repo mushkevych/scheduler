@@ -169,6 +169,10 @@ def _process_context_entry(process_name,
         pid_file = token + time_qualifier + '.pid'
     if log_file is None:
         log_file = token + time_qualifier + '.log'
+    if arguments is None:
+        arguments = dict()
+    else:
+        assert isinstance(arguments, dict)
 
     process_entry = ProcessContextEntry()
     process_entry.process_name = process_name

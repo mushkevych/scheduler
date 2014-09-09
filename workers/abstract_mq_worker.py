@@ -2,15 +2,16 @@ __author__ = 'Bohdan Mushkevych'
 
 from settings import settings
 from mq.flopsy import Consumer
+from system.process_context import ProcessContext
 from system.performance_tracker import SimpleTracker
 from system.synergy_process import SynergyProcess
 
-import socket
 from amqp import AMQPError
 from threading import Thread
+import socket
 
 
-class AbstractWorker(SynergyProcess):
+class AbstractMqWorker(SynergyProcess):
     """
     class works as an abstract basement for all workers and aggregators
     it registers in the mq and awaits for the messages
@@ -18,12 +19,14 @@ class AbstractWorker(SynergyProcess):
 
     def __init__(self, process_name):
         """@param process_name: id of the process, the worker will be performing """
-        super(AbstractWorker, self).__init__(process_name)
+        super(AbstractMqWorker, self).__init__(process_name)
+        self.queue_source = ProcessContext.get_source(self.process_name)
+        self.queue_sink = ProcessContext.get_sink(self.process_name)
         self.consumer = None
+        self._init_mq_consumer()
+
         self.main_thread = None
         self.performance_ticker = None
-
-        self._init_mq_consumer()
         self._init_performance_ticker(self.logger)
 
         msg_suffix = 'in Production Mode'
@@ -43,8 +46,7 @@ class AbstractWorker(SynergyProcess):
             self.performance_ticker.cancel()
         except Exception as e:
             self.logger.error('Exception caught while cancelling the performance_ticker: %s' % str(e))
-
-        super(AbstractWorker, self).__del__()
+        super(AbstractMqWorker, self).__del__()
 
     # ********************** abstract methods ****************************
     def _init_performance_ticker(self, logger):
@@ -67,7 +69,7 @@ class AbstractWorker(SynergyProcess):
         except socket.timeout as e:
             self.logger.warn('Queue %s is likely empty. Worker exits due to: %s' % (self.consumer.queue, str(e)))
         except (AMQPError, IOError) as e:
-            self.logger.error('AMQPException: %s' % str(e))
+            self.logger.error('AMQPError: %s' % str(e))
         finally:
             self.__del__()
             self.logger.info('Exiting main thread. All auxiliary threads stopped.')

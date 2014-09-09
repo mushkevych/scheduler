@@ -6,11 +6,11 @@ import random
 import time
 import math
 
-from amqplib.client_0_8.exceptions import AMQPException
+from amqp import AMQPError
 
 from mq.flopsy import Publisher
 from db.model.raw_data import RawData
-from system.performance_tracker import WorkerPerformanceTicker
+from system.performance_tracker import SimpleTracker
 from system.synergy_process import SynergyProcess
 
 
@@ -21,8 +21,9 @@ TICK_INTERVAL = 10
 class EventStreamGenerator(SynergyProcess):
     def __init__(self, process_name):
         super(EventStreamGenerator, self).__init__(process_name)
+        self.main_thread = None
         self.publisher = Publisher(process_name)
-        self.performance_ticker = WorkerPerformanceTicker(self.logger)
+        self.performance_ticker = SimpleTracker(self.logger)
         self.previous_tick = time.time()
         self.thread_is_running = True
 
@@ -71,17 +72,17 @@ class EventStreamGenerator(SynergyProcess):
 
                 document.screen_res = (random.randrange(340, 1080, 100), random.randrange(240, 980, 100))
 
-                if self.performance_ticker.posts_per_tick % 7 == 0:
+                if self.performance_ticker.tracker.success.per_tick % 7 == 0:
                     document.os = 'OSX'
                     document.browser = 'Safari-1.0'
                     document.language = 'en_us'
                     document.country = 'usa'
-                elif self.performance_ticker.posts_per_tick % 5 == 0:
+                elif self.performance_ticker.tracker.success.per_tick % 5 == 0:
                     document.os = 'Linux'
                     document.browser = 'FireFox-4.0'
                     document.language = 'en_ca'
                     document.country = 'canada'
-                elif self.performance_ticker.posts_per_tick % 3 == 0:
+                elif self.performance_ticker.tracker.success.per_tick % 3 == 0:
                     document.os = 'Windows'
                     document.browser = 'IE-6.0'
                     document.language = 'ge_de'
@@ -94,16 +95,17 @@ class EventStreamGenerator(SynergyProcess):
 
                 document.is_page_view = True
                 self.publisher.publish(document.document)
-                self.performance_ticker.increment()
+                self.performance_ticker.tracker.increment_success()
                 time.sleep(SLEEP_TIME)
-            except (AMQPException, IOError) as e:
+            except (AMQPError, IOError) as e:
                 self.thread_is_running = False
                 self.performance_ticker.cancel()
-                self.logger.error('AMQPException: %s' % str(e))
+                self.logger.error('AMQPError: %s' % str(e))
             except Exception as e:
+                self.performance_ticker.tracker.increment_failure()
                 self.logger.info('safety fuse: %s' % str(e))
 
-    def start(self, *args):
+    def start(self, *_):
         self.main_thread = Thread(target=self._run_stream_generation)
         self.main_thread.start()
 
@@ -112,7 +114,7 @@ class EventStreamGenerator(SynergyProcess):
 
 
 if __name__ == '__main__':
-    from system.process_context import PROCESS_STREAM_GEN
+    from constants import PROCESS_STREAM_GEN
 
     generator = EventStreamGenerator(PROCESS_STREAM_GEN)
     generator.start()
