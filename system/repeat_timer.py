@@ -9,11 +9,12 @@ import threading
 
 
 class RepeatTimer(threading.Thread):
+    """ This class triggers every number of seconds """
     def __init__(self, interval, call_back, args=[], kwargs={}):
         threading.Thread.__init__(self)
-        # interval_current shows number of milliseconds in currently triggered <tick>
+        # interval_current shows number of seconds in currently triggered <tick>
         self.interval_current = interval
-        # interval_new shows number of milliseconds for next <tick>
+        # interval_new shows number of seconds for next <tick>
         self.interval_new = interval
         self.call_back = call_back
         self.args = args

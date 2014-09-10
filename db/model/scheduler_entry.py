@@ -4,7 +4,7 @@ from db.model.base_model import *
 
 PROCESS_NAME = 'process_name'
 STATE = 'state'
-INTERVAL = 'interval_seconds'
+TRIGGER_TIME = 'trigger_time'
 PIPELINE_NAME = 'pipeline_name'
 PROCESS_TYPE = 'process_type'
 
@@ -35,12 +35,12 @@ class SchedulerEntry(BaseModel):
         self.data[PROCESS_NAME] = value
 
     @property
-    def interval(self):
-        return self.data[INTERVAL]
+    def trigger_time(self):
+        return self.data[TRIGGER_TIME]
 
-    @interval.setter
-    def interval(self, value):
-        self.data[INTERVAL] = value
+    @trigger_time.setter
+    def trigger_time(self, value):
+        self.data[TRIGGER_TIME] = value
 
     @property
     def process_state(self):

@@ -40,15 +40,15 @@ db.box_configuration.insert({'box_id': 'HADOOP',
 
 
 // *** Scheduler Settings ***
-db.scheduler_configuration.insert({'process_name': 'SiteHourlyAggregator', 'state' : 'state_on', 'interval_seconds': 20, 'pipeline_name': 'continuous', 'process_type': 'type_managed'});
-db.scheduler_configuration.insert({'process_name': 'SiteDailyAggregator', 'state' : 'state_on', 'interval_seconds': 40, 'pipeline_name': 'continuous', 'process_type': 'type_blocking_children'});
-db.scheduler_configuration.insert({'process_name': 'SiteMonthlyAggregator', 'state' : 'state_on', 'interval_seconds': 10800, 'pipeline_name': 'discrete', 'process_type': 'type_blocking_children'});
-db.scheduler_configuration.insert({'process_name': 'SiteYearlyAggregator', 'state' : 'state_on', 'interval_seconds': 21600, 'pipeline_name': 'discrete', 'process_type': 'type_blocking_children'});
+db.scheduler_configuration.insert({'process_name': 'SiteHourlyAggregator', 'state' : 'state_on', 'trigger_time': 'every 20', 'pipeline_name': 'continuous', 'process_type': 'type_managed'});
+db.scheduler_configuration.insert({'process_name': 'SiteDailyAggregator', 'state' : 'state_on', 'trigger_time': 'every 40', 'pipeline_name': 'continuous', 'process_type': 'type_blocking_children'});
+db.scheduler_configuration.insert({'process_name': 'SiteMonthlyAggregator', 'state' : 'state_on', 'trigger_time': 'every 10800', 'pipeline_name': 'discrete', 'process_type': 'type_blocking_children'});
+db.scheduler_configuration.insert({'process_name': 'SiteYearlyAggregator', 'state' : 'state_on', 'trigger_time': 'every 21600', 'pipeline_name': 'discrete', 'process_type': 'type_blocking_children'});
 
-db.scheduler_configuration.insert({'process_name': 'ClientDailyAggregator', 'state' : 'state_on', 'interval_seconds': 10800, 'pipeline_name': 'simplified_discrete', 'process_type': 'type_blocking_dependencies'});
-db.scheduler_configuration.insert({'process_name': 'ClientMonthlyAggregator', 'state' : 'state_on', 'interval_seconds': 21600, 'pipeline_name': 'simplified_discrete', 'process_type': 'type_blocking_children'});
-db.scheduler_configuration.insert({'process_name': 'ClientYearlyAggregator', 'state' : 'state_on', 'interval_seconds': 43200, 'pipeline_name': 'simplified_discrete', 'process_type': 'type_blocking_children'});
+db.scheduler_configuration.insert({'process_name': 'ClientDailyAggregator', 'state' : 'state_on', 'trigger_time': 'every 10800', 'pipeline_name': 'simplified_discrete', 'process_type': 'type_blocking_dependencies'});
+db.scheduler_configuration.insert({'process_name': 'ClientMonthlyAggregator', 'state' : 'state_on', 'trigger_time': 'every 21600', 'pipeline_name': 'simplified_discrete', 'process_type': 'type_blocking_children'});
+db.scheduler_configuration.insert({'process_name': 'ClientYearlyAggregator', 'state' : 'state_on', 'trigger_time': 'every 43200', 'pipeline_name': 'simplified_discrete', 'process_type': 'type_blocking_children'});
 
-db.scheduler_configuration.insert({'process_name': 'AlertDailyWorker', 'state' : 'state_on', 'interval_seconds': 10800, 'pipeline_name': 'simplified_discrete', 'process_type': 'type_blocking_dependencies'});
-db.scheduler_configuration.insert({'process_name': 'GarbageCollectorWorker', 'state' : 'state_on', 'interval_seconds': 900, 'pipeline_name': 'simplified_discrete', 'process_type': 'type_gc'});
+db.scheduler_configuration.insert({'process_name': 'AlertDailyWorker', 'state' : 'state_on', 'trigger_time': 'every 10800', 'pipeline_name': 'simplified_discrete', 'process_type': 'type_blocking_dependencies'});
+db.scheduler_configuration.insert({'process_name': 'GarbageCollectorWorker', 'state' : 'state_on', 'trigger_time': 'every 900', 'pipeline_name': 'simplified_discrete', 'process_type': 'type_gc'});
 

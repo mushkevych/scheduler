@@ -1,7 +1,5 @@
 __author__ = 'Bohdan Mushkevych'
 
-from db.model import scheduler_entry
-from db.dao.scheduler_entry_dao import SchedulerEntryDao
 from datetime import datetime, timedelta
 from threading import Lock
 from amqp import AMQPError
@@ -9,13 +7,17 @@ from amqp import AMQPError
 from mq.flopsy import PublishersPool
 from mx.synergy_mx import MX
 
-from scheduler.constants import *
+from db.model import scheduler_entry
+from db.dao.scheduler_entry_dao import SchedulerEntryDao
+
 from system import time_helper
+from system.process_context import ProcessContext
 from system.decorator import with_reconnect, thread_safe
 from system.synergy_process import SynergyProcess
 from system.repeat_timer import RepeatTimer
-from system.process_context import *
+from system.event_clock import EventClock
 
+from scheduler.constants import *
 from scheduler.continuous_pipeline import ContinuousPipeline
 from scheduler.dicrete_pipeline import DiscretePipeline
 from scheduler.simplified_dicrete_pipeline import SimplifiedDiscretePipeline
@@ -58,6 +60,29 @@ class Scheduler(SynergyProcess):
             pipelines[pipe.name] = pipe
         return pipelines
 
+    def _construct_handler(self, process_name, trigger_time, function, parameters):
+        """ method returns either:
+         - alarm clock of type EventClock, when <schedule> is in format 'at HH:MM, ..., HH:MM'
+         - repeat timer of type RepeatTimer, when <schedule> is in format 'every seconds'
+         On trigger event this module triggers call_back function with arguments (args, kwargs)
+        """
+        if trigger_time.startswith(SCHEDULE_FORMAT_AT):
+            # EventClock block
+            trigger_time = trigger_time[len(SCHEDULE_FORMAT_AT):]
+            timestamps = trigger_time.replace(',', ' ').split(' ')
+            timer_instance = EventClock(timestamps, function, args=parameters)
+            self.logger.info('Started EventClock for %s with schedule %r' % (process_name, timestamps))
+            return timer_instance
+        elif trigger_time.startswith(SCHEDULE_FORMAT_EVERY):
+            # RepeatTimer block
+            trigger_time = trigger_time[len(SCHEDULE_FORMAT_EVERY):]
+            interval = int(trigger_time)
+            timer_instance = RepeatTimer(interval, function, args=parameters)
+            self.logger.info('Created RepeatTimer for %s triggering every %d seconds' % (process_name, interval))
+            return timer_instance
+        else:
+            raise ValueError('Unknown schedule format %s' % trigger_time)
+
     # **************** Scheduler Methods ************************
     @with_reconnect
     def start(self, *_):
@@ -69,7 +94,7 @@ class Scheduler(SynergyProcess):
                 self.logger.error('Process %r is not known to the system. Skipping it.' % entry_document.process_name)
                 continue
 
-            interval = entry_document.interval
+            trigger_time = entry_document.trigger_time
             is_active = entry_document.process_state == scheduler_entry.STATE_ON
             process_type = ProcessContext.get_process_type(entry_document.process_name)
             parameters = [entry_document.process_name, entry_document]
@@ -84,13 +109,12 @@ class Scheduler(SynergyProcess):
                 self.logger.error('Can not start scheduler for %s since it has no processing function' % process_type)
                 continue
 
-            handler = RepeatTimer(interval, function, args=parameters)
+            handler = self._construct_handler(entry_document.process_name, trigger_time, function, parameters)
             self.thread_handlers[entry_document.process_name] = handler
 
             if is_active:
                 handler.start()
-                self.logger.info('Started scheduler for %s:%s, triggering every %d seconds'
-                                 % (process_type, entry_document.process_name, interval))
+                self.logger.info('Started scheduler thread for %s:%s.' % (process_type, entry_document.process_name))
             else:
                 self.logger.info('Handler for %s:%s registered in Scheduler. Idle until activated.'
                                  % (process_type, entry_document.process_name))

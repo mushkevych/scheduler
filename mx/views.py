@@ -417,7 +417,7 @@ class ActionHandler(object):
             thread_handler.change_interval(new_interval)
 
             document = thread_handler.args[1]  # of type SchedulerConfigurationEntry
-            document.interval = new_interval
+            document.trigger_time = new_interval
             self.sc_dao.update(document)
 
             resp['status'] = 'changed interval for %r to %r' % (self.process_name, new_interval)
@@ -463,7 +463,7 @@ class ActionHandler(object):
 
             self.mbean.thread_handlers[self.process_name] = thread_handler
             message = 'Started RepeatTimer for %s, triggering every %d seconds' \
-                      % (document.process_name, document.interval)
+                      % (document.process_name, document.trigger_time)
         else:
             message = 'RepeatTimer for %s is already active. Ignoring request.' % document.process_name
 
