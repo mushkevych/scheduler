@@ -2,14 +2,15 @@ __author__ = 'Bohdan Mushkevych'
 
 from db.model import scheduler_entry
 from db.dao.scheduler_entry_dao import SchedulerEntryDao
-from datetime import datetime
+from datetime import datetime, timedelta
 from threading import Lock
 from amqp import AMQPError
 
 from mq.flopsy import PublishersPool
 from mx.synergy_mx import MX
 
-from constants import *
+from scheduler.constants import *
+from system import time_helper
 from system.decorator import with_reconnect, thread_safe
 from system.synergy_process import SynergyProcess
 from system.repeat_timer import RepeatTimer
@@ -111,9 +112,17 @@ class Scheduler(SynergyProcess):
 
             run_on_active_timeperiod = ProcessContext.run_on_active_timeperiod(entry_document.process_name)
             if not run_on_active_timeperiod:
-                # get timeperiod + 1 + 5 min
-                # run the job
-                pass
+                time_qualifier = ProcessContext.get_time_qualifier(process_name)
+                incremented_timeperiod = time_helper.increment_timeperiod(time_qualifier, timetable_record.timeperiod)
+                dt_record_timestamp = time_helper.synergy_to_datetime(time_qualifier, incremented_timeperiod)
+                dt_record_timestamp += timedelta(minutes=LAG_5_MINUTES)
+
+                if datetime.utcnow() <= dt_record_timestamp:
+                    self.logger.info('Timetable record %s for timeperiod %s will not be triggered until %s.'
+                                     % (timetable_record.document['_id'],
+                                        timetable_record.timeperiod,
+                                        dt_record_timestamp.strftime('%Y-%m-%d %H:%M:%S')))
+                    return
 
             process_type = ProcessContext.get_process_type(entry_document.process_name)
             if process_type == TYPE_BLOCKING_DEPENDENCIES_WORKER:
@@ -144,7 +153,7 @@ class Scheduler(SynergyProcess):
             publisher.publish(ProcessContext.get_arguments(process_name))
             publisher.release()
 
-            self.logger.info('Publishing trigger for %s' % process_name)
+            self.logger.info('Published trigger for %s' % process_name)
         except (AMQPError, IOError) as e:
             self.logger.error('AMQPError: %s' % str(e), exc_info=True)
             self.publishers.reset_all(suppress_logging=True)
@@ -159,16 +168,19 @@ class Scheduler(SynergyProcess):
         """fires garbage collector to re-trigger invalid unit_of_work"""
         try:
             process_name = args[0]
+            entry_document = args[1]
+            assert isinstance(entry_document, scheduler_entry.SchedulerEntry)
             self.logger.info('%s {' % process_name)
 
             publisher = self.publishers.get(process_name)
-            publisher.publish({})
+            publisher.publish(ProcessContext.get_arguments(process_name))
             publisher.release()
+            self.logger.info('Published trigger for %s' % process_name)
 
-            self.logger.info('Publishing trigger for garbage_collector')
+            self.logger.info('Starting timetable housekeeping...')
             self.timetable.build_trees()
             self.timetable.validate()
-            self.logger.info('Validated Timetable for all trees')
+            self.logger.info('Timetable housekeeping complete.')
         except (AMQPError, IOError) as e:
             self.logger.error('AMQPError: %s' % str(e), exc_info=True)
             self.publishers.reset_all(suppress_logging=True)
@@ -180,7 +192,7 @@ class Scheduler(SynergyProcess):
 
 
 if __name__ == '__main__':
-    from constants import PROCESS_SCHEDULER
+    from scheduler.constants import PROCESS_SCHEDULER
 
     source = Scheduler(PROCESS_SCHEDULER)
     source.start()

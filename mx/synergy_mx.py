@@ -14,6 +14,7 @@ from mx import views
 class MX(object):
     def __init__(self, mbean):
         local.application = self
+        self.mx_thread = None
         self.mbean = mbean
         jinja_env.globals['mbean'] = mbean
 
@@ -78,7 +79,7 @@ class MX(object):
 
 
 if __name__ == '__main__':
-    from system.process_context import PROCESS_SCHEDULER
+    from scheduler.constants import PROCESS_SCHEDULER
     from scheduler.synergy_scheduler import Scheduler
 
     source = Scheduler(PROCESS_SCHEDULER)

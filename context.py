@@ -5,9 +5,10 @@ from db.model.process_context_entry import _process_context_entry
 from db.model.timetable_entry import _timetable_entry
 from system.time_qualifier import *
 from constants import *
+from scheduler.constants import *
 
 queue_context = {
-    QUEUE_REQUESTED_PACKAGES: _queue_context_entry(exchange=EXCHANGE_HORIZONTAL,
+    QUEUE_REQUESTED_PACKAGES: _queue_context_entry(exchange=EXCHANGE_FREERUN_WORKER,
                                                    queue_name=QUEUE_REQUESTED_PACKAGES),
 }
 

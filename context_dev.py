@@ -15,7 +15,7 @@ process_context = {
         classname='workers.hadoop_aggregator_driver.HadoopAggregatorDriver.start',
         token=TOKEN_SITE,
         time_qualifier=QUALIFIER_DAILY,
-        exchange=EXCHANGE_VERTICAL,
+        exchange=EXCHANGE_MANAGED_WORKER,
         process_type=TYPE_MANAGED_WORKER),
 
     PROCESS_SITE_HOURLY: _process_context_entry(
@@ -23,7 +23,7 @@ process_context = {
         classname='workers.site_hourly_aggregator.SiteHourlyAggregator.start',
         token=TOKEN_SITE,
         time_qualifier=QUALIFIER_HOURLY,
-        exchange=EXCHANGE_VERTICAL,
+        exchange=EXCHANGE_MANAGED_WORKER,
         process_type=TYPE_MANAGED_WORKER,
         source='single_session'),
 
@@ -32,7 +32,7 @@ process_context = {
         classname='workers.hadoop_aggregator_driver.HadoopAggregatorDriver.start',
         token=TOKEN_SITE,
         time_qualifier=QUALIFIER_MONTHLY,
-        exchange=EXCHANGE_VERTICAL,
+        exchange=EXCHANGE_MANAGED_WORKER,
         process_type=TYPE_MANAGED_WORKER),
 
     PROCESS_SITE_YEARLY: _process_context_entry(
@@ -40,7 +40,7 @@ process_context = {
         classname='workers.hadoop_aggregator_driver.HadoopAggregatorDriver.start',
         token=TOKEN_SITE,
         time_qualifier=QUALIFIER_YEARLY,
-        exchange=EXCHANGE_VERTICAL,
+        exchange=EXCHANGE_MANAGED_WORKER,
         process_type=TYPE_MANAGED_WORKER),
 
     PROCESS_SESSION_WORKER_00: _process_context_entry(
@@ -70,7 +70,7 @@ process_context = {
         classname='workers.hadoop_aggregator_driver.HadoopAggregatorDriver.start',
         token=TOKEN_CLIENT,
         time_qualifier=QUALIFIER_DAILY,
-        exchange=EXCHANGE_HORIZONTAL,
+        exchange=EXCHANGE_FREERUN_WORKER,
         process_type=TYPE_MANAGED_WORKER),
 
     PROCESS_CLIENT_MONTHLY: _process_context_entry(
@@ -78,7 +78,7 @@ process_context = {
         classname='workers.hadoop_aggregator_driver.HadoopAggregatorDriver.start',
         token=TOKEN_CLIENT,
         time_qualifier=QUALIFIER_MONTHLY,
-        exchange=EXCHANGE_HORIZONTAL,
+        exchange=EXCHANGE_FREERUN_WORKER,
         process_type=TYPE_MANAGED_WORKER),
 
     PROCESS_CLIENT_YEARLY: _process_context_entry(
@@ -86,7 +86,7 @@ process_context = {
         classname='workers.hadoop_aggregator_driver.HadoopAggregatorDriver.start',
         token=TOKEN_CLIENT,
         time_qualifier=QUALIFIER_YEARLY,
-        exchange=EXCHANGE_HORIZONTAL,
+        exchange=EXCHANGE_FREERUN_WORKER,
         process_type=TYPE_MANAGED_WORKER),
 
     PROCESS_ALERT_DAILY: _process_context_entry(
@@ -94,7 +94,7 @@ process_context = {
         classname='workers.hadoop_aggregator_driver.HadoopAggregatorDriver.start',
         token=TOKEN_ALERT,
         time_qualifier=QUALIFIER_DAILY,
-        exchange=EXCHANGE_ALERT,
+        exchange=EXCHANGE_MANAGED_WORKER,
         process_type=TYPE_BLOCKING_DEPENDENCIES_WORKER)
 }
 
