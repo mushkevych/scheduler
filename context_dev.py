@@ -3,6 +3,7 @@ __author__ = 'Bohdan Mushkevych'
 from db.model.process_context_entry import _process_context_entry
 from system.time_qualifier import *
 from constants import *
+from scheduler.constants import *
 
 
 queue_context = {
@@ -16,7 +17,7 @@ process_context = {
         token=TOKEN_SITE,
         time_qualifier=QUALIFIER_DAILY,
         exchange=EXCHANGE_MANAGED_WORKER,
-        process_type=TYPE_MANAGED_WORKER),
+        process_type=TYPE_MANAGED),
 
     PROCESS_SITE_HOURLY: _process_context_entry(
         process_name=PROCESS_SITE_HOURLY,
@@ -24,7 +25,7 @@ process_context = {
         token=TOKEN_SITE,
         time_qualifier=QUALIFIER_HOURLY,
         exchange=EXCHANGE_MANAGED_WORKER,
-        process_type=TYPE_MANAGED_WORKER,
+        process_type=TYPE_MANAGED,
         source='single_session'),
 
     PROCESS_SITE_MONTHLY: _process_context_entry(
@@ -33,7 +34,7 @@ process_context = {
         token=TOKEN_SITE,
         time_qualifier=QUALIFIER_MONTHLY,
         exchange=EXCHANGE_MANAGED_WORKER,
-        process_type=TYPE_MANAGED_WORKER),
+        process_type=TYPE_MANAGED),
 
     PROCESS_SITE_YEARLY: _process_context_entry(
         process_name=PROCESS_SITE_YEARLY,
@@ -41,7 +42,7 @@ process_context = {
         token=TOKEN_SITE,
         time_qualifier=QUALIFIER_YEARLY,
         exchange=EXCHANGE_MANAGED_WORKER,
-        process_type=TYPE_MANAGED_WORKER),
+        process_type=TYPE_MANAGED),
 
     PROCESS_SESSION_WORKER_00: _process_context_entry(
         process_name=PROCESS_SESSION_WORKER_00,
@@ -71,7 +72,7 @@ process_context = {
         token=TOKEN_CLIENT,
         time_qualifier=QUALIFIER_DAILY,
         exchange=EXCHANGE_FREERUN_WORKER,
-        process_type=TYPE_MANAGED_WORKER),
+        process_type=TYPE_MANAGED),
 
     PROCESS_CLIENT_MONTHLY: _process_context_entry(
         process_name=PROCESS_CLIENT_MONTHLY,
@@ -79,7 +80,7 @@ process_context = {
         token=TOKEN_CLIENT,
         time_qualifier=QUALIFIER_MONTHLY,
         exchange=EXCHANGE_FREERUN_WORKER,
-        process_type=TYPE_MANAGED_WORKER),
+        process_type=TYPE_MANAGED),
 
     PROCESS_CLIENT_YEARLY: _process_context_entry(
         process_name=PROCESS_CLIENT_YEARLY,
@@ -87,7 +88,7 @@ process_context = {
         token=TOKEN_CLIENT,
         time_qualifier=QUALIFIER_YEARLY,
         exchange=EXCHANGE_FREERUN_WORKER,
-        process_type=TYPE_MANAGED_WORKER),
+        process_type=TYPE_MANAGED),
 
     PROCESS_ALERT_DAILY: _process_context_entry(
         process_name=PROCESS_ALERT_DAILY,
@@ -95,7 +96,7 @@ process_context = {
         token=TOKEN_ALERT,
         time_qualifier=QUALIFIER_DAILY,
         exchange=EXCHANGE_MANAGED_WORKER,
-        process_type=TYPE_BLOCKING_DEPENDENCIES_WORKER)
+        process_type=TYPE_BLOCKING_DEPENDENCIES)
 }
 
 

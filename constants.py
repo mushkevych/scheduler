@@ -1,7 +1,6 @@
 __author__ = 'Bohdan Mushkevych'
 
 
-PROCESS_SUPERVISOR = 'Supervisor'
 PROCESS_GC = 'GarbageCollectorWorker'
 PROCESS_STREAM_GEN = 'EventStreamGenerator'
 PROCESS_SESSION_WORKER_00 = 'SingleSessionWorker_00'
@@ -15,9 +14,6 @@ PROCESS_CLIENT_MONTHLY = 'ClientMonthlyAggregator'
 PROCESS_CLIENT_YEARLY = 'ClientYearlyAggregator'
 PROCESS_ALERT_DAILY = 'AlertDailyWorker'
 
-# process provides <process context> to unit testing: such as logger, queue, etc
-PROCESS_UNIT_TEST = 'UnitTest'
-
 # process provides <process context> to the launch.py script
 PROCESS_LAUNCH_PY = 'LaunchPy'
 
@@ -25,8 +21,8 @@ TREE_SITE_VERTICAL = 'tree_site_vertical'
 TREE_CLIENT_HORIZONTAL = 'tree_client_horizontal'
 TREE_LINEAR_DAILY = 'tree_linear_daily'
 
-TOKEN_SUPERVISOR = 'supervisor'
 TOKEN_GC = 'gc'
+TOKEN_LAUNCH_PY = 'launch_py'
 TOKEN_STREAM = 'stream'
 TOKEN_SESSION = 'session'
 TOKEN_SITE = 'site'

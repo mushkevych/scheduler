@@ -11,13 +11,13 @@ MX_PAGE_FINANCIAL = 'financial_details'
 
 # State Machine (a.k.a. Pipeline) names
 PIPELINE_CONTINUOUS = 'continuous'
-PIPELINE_DISCRETE = 'continuous'
+PIPELINE_DISCRETE = 'discrete'
 PIPELINE_SIMPLIFIED_DISCRETE = 'simplified_discrete'
 
 # Supported worker types
-TYPE_MANAGED_WORKER = 'type_managed_worker'
-TYPE_FREERUN_WORKER = 'type_freerun_worker'
+TYPE_MANAGED = 'type_managed'
+TYPE_FREERUN = 'type_freerun'
 TYPE_GARBAGE_COLLECTOR = 'type_gc'
-TYPE_BLOCKING_DEPENDENCIES_WORKER = 'type_blocking_dependencies_worker'
-TYPE_BLOCKING_CHILDREN_WORKER = 'type_blocking_children_worker'
+TYPE_BLOCKING_DEPENDENCIES = 'type_blocking_dependencies'
+TYPE_BLOCKING_CHILDREN = 'type_blocking_children'
 

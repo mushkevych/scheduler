@@ -6,17 +6,16 @@ from threading import Lock
 from subprocess import PIPE, STDOUT
 from psutil import TimeoutExpired
 
+from settings import settings
 from launch import get_python, PROJECT_ROOT
 from system.process_starter import PROCESS_STARTER
 from db.model import box_configuration
 from db.dao.box_configuration_dao import BoxConfigurationDao
 from supervisor import supervisor_helper as helper
+from supervisor.constants import TRIGGER_INTERVAL
 from system.process_context import ProcessContext
 from system.repeat_timer import RepeatTimer
 from system.synergy_process import SynergyProcess
-from settings import settings
-
-INTERVAL = 5    # seconds between checking process
 
 
 class Supervisor(SynergyProcess):
@@ -54,6 +53,11 @@ class Supervisor(SynergyProcess):
             self.logger.info('}')
 
     def _start_process(self, box_config, process_name):
+        if not self.bc_dao.ds.is_alive():
+            # ping DB to make sure it is alive.
+            # otherwise, processes will be spawned uncontrollably
+            raise UserWarning('DB Down Exception: unable to reach db %s' % str(self.bc_dao.ds))
+
         try:
             self.logger.info('start: %s {' % process_name)
             p = psutil.Popen([get_python(), PROJECT_ROOT + '/' + PROCESS_STARTER, process_name],
@@ -102,10 +106,10 @@ class Supervisor(SynergyProcess):
             process_list = box_config.process_list
             for process in process_list:
                 params = [process]
-                handler = RepeatTimer(INTERVAL, self.manage_process, args=params)
+                handler = RepeatTimer(TRIGGER_INTERVAL, self.manage_process, args=params)
                 self.thread_handlers[process] = handler
                 handler.start()
-                self.logger.info('Started Supervisor for %s, triggering every %d seconds' % (process, INTERVAL))
+                self.logger.info('Started Supervisor for %s, triggering every %d seconds' % (process, TRIGGER_INTERVAL))
         except LookupError as e:
             self.logger.error('Supervisor failed to start because of: %r' % e)
 
@@ -134,7 +138,7 @@ class Supervisor(SynergyProcess):
 
 
 if __name__ == '__main__':
-    from system.process_context import PROCESS_SUPERVISOR
+    from supervisor.constants import PROCESS_SUPERVISOR
 
     source = Supervisor(PROCESS_SUPERVISOR)
     source.start()

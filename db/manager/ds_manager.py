@@ -44,6 +44,14 @@ class BaseManager:
         super(BaseManager, self).__init__()
         self.logger = logger
 
+    def __str__(self):
+        raise NotImplementedError('method __str__ is not yet implemented')
+
+    @abstractmethod
+    def is_alive(self):
+        """ :return: True if the database server is available. False otherwise """
+        pass
+
     @abstractmethod
     def get(self, table_name, primary_key):
         pass
@@ -91,6 +99,12 @@ class MongoDbManager(BaseManager):
             self._db_client.close()
         except AttributeError:
             pass
+
+    def __str__(self):
+        return 'MongoDbManager: %s@%s' % (settings['mongodb_host_list'], settings['mongo_db_name'])
+
+    def is_alive(self):
+        return self._db_client.alive()
 
     def connection(self, table_name):
         return self._db[table_name]

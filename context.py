@@ -6,6 +6,7 @@ from db.model.timetable_entry import _timetable_entry
 from system.time_qualifier import *
 from constants import *
 from scheduler.constants import *
+from supervisor.constants import *
 
 queue_context = {
     QUEUE_REQUESTED_PACKAGES: _queue_context_entry(exchange=EXCHANGE_FREERUN_WORKER,
@@ -42,18 +43,10 @@ process_context = {
         routing='',
         exchange=''),
 
-    PROCESS_UNIT_TEST: _process_context_entry(
-        process_name=PROCESS_UNIT_TEST,
-        classname='',
-        token='unit_test',
-        time_qualifier=QUALIFIER_REAL_TIME,
-        routing=ROUTING_IRRELEVANT,
-        exchange=EXCHANGE_UTILS),
-
     PROCESS_LAUNCH_PY: _process_context_entry(
         process_name=PROCESS_LAUNCH_PY,
         classname='',
-        token='launch_py',
+        token=TOKEN_LAUNCH_PY,
         time_qualifier=QUALIFIER_REAL_TIME,
         routing=ROUTING_IRRELEVANT,
         exchange=EXCHANGE_UTILS)

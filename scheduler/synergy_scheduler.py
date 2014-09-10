@@ -74,9 +74,9 @@ class Scheduler(SynergyProcess):
             process_type = ProcessContext.get_process_type(entry_document.process_name)
             parameters = [entry_document.process_name, entry_document]
 
-            if process_type in [TYPE_BLOCKING_DEPENDENCIES_WORKER, TYPE_BLOCKING_CHILDREN_WORKER, TYPE_MANAGED_WORKER]:
+            if process_type in [TYPE_BLOCKING_DEPENDENCIES, TYPE_BLOCKING_CHILDREN, TYPE_MANAGED]:
                 function = self.fire_managed_worker
-            elif process_type == TYPE_FREERUN_WORKER:
+            elif process_type == TYPE_FREERUN:
                 function = self.fire_freerun_worker
             elif process_type == TYPE_GARBAGE_COLLECTOR:
                 function = self.fire_garbage_collector
@@ -125,11 +125,11 @@ class Scheduler(SynergyProcess):
                     return
 
             process_type = ProcessContext.get_process_type(entry_document.process_name)
-            if process_type == TYPE_BLOCKING_DEPENDENCIES_WORKER:
+            if process_type == TYPE_BLOCKING_DEPENDENCIES:
                 pipeline.manage_pipeline_with_blocking_dependencies(process_name, timetable_record)
-            elif process_type == TYPE_BLOCKING_CHILDREN_WORKER:
+            elif process_type == TYPE_BLOCKING_CHILDREN:
                 pipeline.manage_pipeline_with_blocking_children(process_name, timetable_record)
-            elif process_type == TYPE_MANAGED_WORKER:
+            elif process_type == TYPE_MANAGED:
                 pipeline.manage_pipeline_for_process(process_name, timetable_record)
 
         except (AMQPError, IOError) as e:

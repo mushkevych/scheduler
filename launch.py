@@ -171,7 +171,8 @@ def start_process(options, args):
     from system import process_helper
     from supervisor import supervisor_helper as helper
     from system.process_context import ProcessContext
-    from constants import PROCESS_SUPERVISOR, PROCESS_LAUNCH_PY
+    from supervisor.constants import PROCESS_SUPERVISOR
+    from constants import PROCESS_LAUNCH_PY
 
     logger = ProcessContext.get_logger(PROCESS_LAUNCH_PY)
     box_id = helper.get_box_id(logger)
@@ -212,7 +213,8 @@ def stop_process(options):
     from system import process_helper
     from supervisor import supervisor_helper as helper
     from system.process_context import ProcessContext
-    from constants import PROCESS_SUPERVISOR, PROCESS_LAUNCH_PY
+    from supervisor.constants import PROCESS_SUPERVISOR
+    from constants import PROCESS_LAUNCH_PY
 
     logger = ProcessContext.get_logger(PROCESS_LAUNCH_PY)
     box_id = helper.get_box_id(logger)
