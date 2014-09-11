@@ -71,7 +71,7 @@ class Scheduler(SynergyProcess):
             trigger_time = trigger_time[len(SCHEDULE_FORMAT_AT):]
             timestamps = trigger_time.replace(',', ' ').split(' ')
             timer_instance = EventClock(timestamps, function, args=parameters)
-            self.logger.info('Started EventClock for %s with schedule %r' % (process_name, timestamps))
+            self.logger.info('Created EventClock for %s with schedule %r' % (process_name, timestamps))
             return timer_instance
         elif trigger_time.startswith(SCHEDULE_FORMAT_EVERY):
             # RepeatTimer block
