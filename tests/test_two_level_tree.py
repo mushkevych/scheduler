@@ -1,3 +1,5 @@
+from time_qualifier import QUALIFIER_HOURLY
+
 __author__ = 'Bohdan Mushkevych'
 
 import unittest
@@ -21,21 +23,21 @@ class TestTwoLevelTree(unittest.TestCase):
 
     def test_simple_build_tree(self):
         self.tree.build_tree()
-        assert len(self.tree.root.children) == 1
+        self.assertEqual(len(self.tree.root.children), 1)
 
         actual_timeperiod = time_helper.actual_timeperiod(QUALIFIER_HOURLY)
-        assert actual_timeperiod in self.tree.root.children
-
-        assert self.tree.root.children[actual_timeperiod].timeperiod == actual_timeperiod
+        self.assertIn(actual_timeperiod, self.tree.root.children)
+        self.assertEqual(self.tree.root.children[actual_timeperiod].timeperiod, actual_timeperiod)
 
     def _perform_assertions(self, start_timeperiod, delta):
-        assert len(self.tree.root.children) == delta + 1, 'Expected number of child nodes was %d, while actual is %d' \
-                                                          % (delta + 1, len(self.tree.root.children))
+        self.assertEqual(len(self.tree.root.children), delta + 1,
+                         'Expected number of child nodes was %d, while actual is %d'
+                         % (delta + 1, len(self.tree.root.children)))
 
         loop_timeperiod = start_timeperiod
         for _ in range(delta + 1):
-            assert loop_timeperiod in self.tree.root.children
-            assert self.tree.root.children[loop_timeperiod].timeperiod == loop_timeperiod
+            self.assertIn(loop_timeperiod, self.tree.root.children)
+            self.assertEqual(self.tree.root.children[loop_timeperiod].timeperiod, loop_timeperiod)
             loop_timeperiod = time_helper.increment_timeperiod(QUALIFIER_HOURLY, loop_timeperiod)
 
     def test_less_simple_build_tree(self):

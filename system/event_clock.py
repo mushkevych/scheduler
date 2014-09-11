@@ -17,10 +17,13 @@ def parse_time_trigger_string(trigger_time):
      - 'every NNN'
     :return: return tuple (parsed_trigger_time, timer_klass)
     """
+    # replace multiple spaces with one
+    trigger_time = ' '.join(trigger_time.split())
+
     if trigger_time.startswith(TRIGGER_PREAMBLE_AT):
         # EventClock block
         trigger_time = trigger_time[len(TRIGGER_PREAMBLE_AT):]
-        parsed_trigger_time = trigger_time.replace(',', ' ').split(' ')
+        parsed_trigger_time = trigger_time.replace(' ', '').replace(',', ' ').split(' ')
         timer_klass = EventClock
     elif trigger_time.startswith(TRIGGER_PREAMBLE_EVERY):
         # RepeatTimer block
@@ -43,7 +46,8 @@ def format_time_trigger_string(timer_instance):
     if isinstance(timer_instance, RepeatTimer):
         return TRIGGER_PREAMBLE_EVERY + str(timer_instance.interval_new)
     elif isinstance(timer_instance, EventClock):
-        return TRIGGER_PREAMBLE_AT + ','.join(timer_instance.timestamps)
+        timestamps = [repr(x) for x in timer_instance.timestamps]
+        return TRIGGER_PREAMBLE_AT + ','.join(timestamps)
     else:
         raise ValueError('Unknown timer instance type %s' % type(timer_instance).__name__)
 
@@ -126,6 +130,6 @@ class EventClock(object):
         assert not isinstance(value, str)
         self.timestamps = []
 
-        for timestamp in self.timestamps:
+        for timestamp in value:
             event = EventTime(timestamp)
             self.timestamps.append(event)

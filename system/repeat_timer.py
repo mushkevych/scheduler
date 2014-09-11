@@ -3,15 +3,16 @@
 @author: Brian Curtin
 http://code.activestate.com/lists/python-ideas/8982/
 """
-from datetime import datetime
-
+import numbers
 import threading
+from datetime import datetime
 
 
 class RepeatTimer(threading.Thread):
     """ This class triggers every number of seconds """
     def __init__(self, interval, call_back, args=[], kwargs={}):
         threading.Thread.__init__(self)
+        assert isinstance(interval, numbers.Number)
         # interval_current shows number of seconds in currently triggered <tick>
         self.interval_current = interval
         # interval_new shows number of seconds for next <tick>

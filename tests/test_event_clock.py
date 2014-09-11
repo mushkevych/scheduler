@@ -2,9 +2,9 @@ __author__ = 'Bohdan Mushkevych'
 
 import unittest
 from datetime import datetime
-import time
 
-from system.event_clock import EventClock, EventTime
+from system.event_clock import EventClock, EventTime, parse_time_trigger_string, format_time_trigger_string
+from system.repeat_timer import RepeatTimer
 
 
 class TestEventClock(unittest.TestCase):
@@ -31,6 +31,32 @@ class TestEventClock(unittest.TestCase):
 
         for event in not_expected:
             self.assertNotIn(event, params)
+
+    def test_parser(self):
+        fixture = {'every 300': (300, RepeatTimer),
+                   'every  500': (500, RepeatTimer),
+                   'every 1': (1, RepeatTimer),
+                   'at *-17:00,  4-15:45,*-09:00 ': (['*-17:00', '4-15:45', '*-09:00'], EventClock),
+                   'at 5-18:00  ,4-18:05 ,1-9:01 ': (['5-18:00', '4-18:05', '1-9:01'], EventClock),
+                   'at *-08:01': (['*-08:01'], EventClock),
+                   'at 8:30': (['8:30'], EventClock)}
+
+        for line, expected_output in fixture.iteritems():
+            processed_tuple = parse_time_trigger_string(line)
+            self.assertEqual(processed_tuple, expected_output)
+
+    def test_formatter(self):
+        fixture = {RepeatTimer(300, None): 'every 300',
+                   RepeatTimer(500, None): 'every 500',
+                   RepeatTimer(1, None): 'every 1',
+                   EventClock(['*-17:00', '4-15:45', '*-09:00'], None): 'at *-17:00,4-15:45,*-09:00',
+                   EventClock(['5-18:00', '4-18:05', '1-9:01'], None): 'at 5-18:00,4-18:05,1-09:01',
+                   EventClock(['*-08:01'], None): 'at *-08:01',
+                   EventClock(['8:30'], None): 'at *-08:30'}
+
+        for handler, expected_output in fixture.iteritems():
+            processed_tuple = format_time_trigger_string(handler)
+            self.assertEqual(processed_tuple, expected_output)
 
 
 if __name__ == '__main__':
