@@ -5,7 +5,7 @@ import os
 import context
 from settings import settings
 from system.data_logging import Logger
-from system.decorator import current_process_aware, singleton
+from system.decorator import current_process_aware
 from db.model.process_context_entry import ProcessContextEntry
 
 

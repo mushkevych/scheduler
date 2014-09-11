@@ -1,7 +1,9 @@
+
 __author__ = 'Bohdan Mushkevych'
 
 import unittest
-from system.process_context import PROCESS_SUPERVISOR, PROCESS_GC, ProcessContext
+from constants import PROCESS_SUPERVISOR, PROCESS_GC
+from system.process_context import ProcessContext
 
 
 class ProcessContextUnitTest(unittest.TestCase):

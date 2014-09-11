@@ -3,12 +3,12 @@ __author__ = 'Bohdan Mushkevych'
 import unittest
 
 import settings as settings_module
-from system.process_context import _TOKEN_SITE, _TOKEN_CLIENT, PROCESS_SITE_YEARLY, PROCESS_SITE_MONTHLY, \
+from constants import TOKEN_SITE, TOKEN_CLIENT, PROCESS_SITE_YEARLY, PROCESS_SITE_MONTHLY, \
     PROCESS_SITE_DAILY, PROCESS_SITE_HOURLY, PROCESS_CLIENT_MONTHLY
 from system import time_helper
-from system.process_context import ProcessContext
 from scheduler.tree_node import AbstractNode
 from scheduler.tree import FourLevelTree, TwoLevelTree
+from system.time_qualifier import *
 
 
 class TestTreeNode(unittest.TestCase):
@@ -23,11 +23,11 @@ class TestTreeNode(unittest.TestCase):
                                              PROCESS_SITE_MONTHLY,
                                              PROCESS_SITE_DAILY,
                                              PROCESS_SITE_HOURLY,
-                                             _TOKEN_SITE,
+                                             TOKEN_SITE,
                                              'some_mx_page')
 
         self.tree_two_level = TwoLevelTree(PROCESS_CLIENT_MONTHLY,
-                                           _TOKEN_CLIENT,
+                                           TOKEN_CLIENT,
                                            'some_mx_page')
 
     def tearDown(self):

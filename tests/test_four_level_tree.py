@@ -2,10 +2,10 @@ __author__ = 'Bohdan Mushkevych'
 
 import unittest
 from tests import base_fixtures
-from system.process_context import ProcessContext, PROCESS_SITE_HOURLY, _TOKEN_SITE, \
-    PROCESS_SITE_YEARLY, PROCESS_SITE_MONTHLY, PROCESS_SITE_DAILY
+from constants import PROCESS_SITE_HOURLY, TOKEN_SITE, PROCESS_SITE_YEARLY, PROCESS_SITE_MONTHLY, PROCESS_SITE_DAILY
 from tests.ut_context import PROCESS_UNIT_TEST
 from system import time_helper
+from system.time_qualifier import *
 from scheduler.tree import FourLevelTree
 from settings import settings
 
@@ -18,7 +18,7 @@ class TestFourLevelTree(unittest.TestCase):
                                   PROCESS_SITE_MONTHLY,
                                   PROCESS_SITE_DAILY,
                                   PROCESS_SITE_HOURLY,
-                                  _TOKEN_SITE,
+                                  TOKEN_SITE,
                                   'some_mx_page')
 
     def tearDown(self):

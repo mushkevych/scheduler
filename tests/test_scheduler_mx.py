@@ -5,7 +5,7 @@ from rest_client.restful_lib import Connection
 
 from settings import settings
 from db.model import job
-from system.process_context import PROCESS_ALERT_DAILY, PROCESS_SITE_HOURLY, PROCESS_CLIENT_DAILY
+from constants import PROCESS_ALERT_DAILY, PROCESS_SITE_HOURLY, PROCESS_CLIENT_DAILY
 
 
 class TestSchedulerMx(unittest.TestCase):

@@ -4,7 +4,7 @@ import unittest
 from mq.flopsy import PublishersPool
 from db.dao.unit_of_work_dao import UnitOfWorkDao
 from tests.base_fixtures import create_and_insert_unit_of_work
-from system.process_context import PROCESS_SITE_DAILY
+from constants import PROCESS_SITE_DAILY
 from tests.base_fixtures import TestMessage
 from workers.site_daily_aggregator import SiteDailyAggregator
 

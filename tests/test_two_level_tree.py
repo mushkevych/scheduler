@@ -5,7 +5,7 @@ __author__ = 'Bohdan Mushkevych'
 import unittest
 from tests import base_fixtures
 from system import time_helper
-from system.process_context import ProcessContext, PROCESS_SITE_HOURLY, _TOKEN_SITE
+from constants import PROCESS_SITE_HOURLY, TOKEN_SITE
 from scheduler.tree import TwoLevelTree
 from settings import settings
 
@@ -14,7 +14,7 @@ class TestTwoLevelTree(unittest.TestCase):
     def setUp(self):
         self.initial_actual_timeperiod = time_helper.actual_timeperiod
         self.initial_synergy_start_time = settings['synergy_start_timeperiod']
-        self.tree = TwoLevelTree(PROCESS_SITE_HOURLY, _TOKEN_SITE, 'some_mx_page')
+        self.tree = TwoLevelTree(PROCESS_SITE_HOURLY, TOKEN_SITE, 'some_mx_page')
 
     def tearDown(self):
         del self.tree

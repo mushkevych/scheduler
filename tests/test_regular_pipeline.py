@@ -11,7 +11,9 @@ from tests.base_fixtures import create_unit_of_work
 from mockito import spy, verify, mock, when
 from mockito.matchers import any
 from system import time_helper
-from system.process_context import ProcessContext, PROCESS_SITE_HOURLY
+from system.time_qualifier import *
+from system.process_context import ProcessContext
+from constants import PROCESS_SITE_HOURLY
 from scheduler.timetable import Timetable
 from scheduler.continuous_pipeline import ContinuousPipeline
 from tests.ut_context import PROCESS_UNIT_TEST
