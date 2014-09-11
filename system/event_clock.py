@@ -6,6 +6,46 @@ from system.repeat_timer import RepeatTimer
 TRIGGER_INTERVAL = 60  # 1 minute
 EVERY_DAY = '*'        # marks every day as suitable to trigger the event
 TIME_OF_DAY_FORMAT = "%H:%M"
+TRIGGER_PREAMBLE_AT = 'at '
+TRIGGER_PREAMBLE_EVERY = 'every '
+
+
+def parse_time_trigger_string(trigger_time):
+    """
+    :param trigger_time: human-readable and editable string in one of two formats:
+     - 'at Day_of_Week-HH:MM, ..., Day_of_Week-HH:MM'
+     - 'every NNN'
+    :return: return tuple (parsed_trigger_time, timer_klass)
+    """
+    if trigger_time.startswith(TRIGGER_PREAMBLE_AT):
+        # EventClock block
+        trigger_time = trigger_time[len(TRIGGER_PREAMBLE_AT):]
+        parsed_trigger_time = trigger_time.replace(',', ' ').split(' ')
+        timer_klass = EventClock
+    elif trigger_time.startswith(TRIGGER_PREAMBLE_EVERY):
+        # RepeatTimer block
+        trigger_time = trigger_time[len(TRIGGER_PREAMBLE_EVERY):]
+        parsed_trigger_time = int(trigger_time)
+        timer_klass = RepeatTimer
+    else:
+        raise ValueError('Unknown time trigger format %s' % trigger_time)
+
+    return parsed_trigger_time, timer_klass
+
+
+def format_time_trigger_string(timer_instance):
+    """
+    :param timer_instance: either instance of RepeatTimer or EventClock
+    :return: human-readable and editable string in one of two formats:
+     - 'at Day_of_Week-HH:MM, ..., Day_of_Week-HH:MM'
+     - 'every NNN'
+    """
+    if isinstance(timer_instance, RepeatTimer):
+        return TRIGGER_PREAMBLE_EVERY + str(timer_instance.interval_new)
+    elif isinstance(timer_instance, EventClock):
+        return TRIGGER_PREAMBLE_AT + ','.join(timer_instance.timestamps)
+    else:
+        raise ValueError('Unknown timer instance type %s' % type(timer_instance).__name__)
 
 
 class EventTime(object):
@@ -27,7 +67,7 @@ class EventTime(object):
                (self.day_of_week, datetime.strftime(self.time_of_day, TIME_OF_DAY_FORMAT))
 
     def __repr__(self):
-        return str(self)
+        return '%s-%s' % (self.day_of_week, datetime.strftime(self.time_of_day, TIME_OF_DAY_FORMAT))
 
     def __eq__(self, other):
         if not isinstance(other, EventTime):

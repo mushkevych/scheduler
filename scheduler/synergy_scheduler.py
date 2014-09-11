@@ -15,7 +15,7 @@ from system.process_context import ProcessContext
 from system.decorator import with_reconnect, thread_safe
 from system.synergy_process import SynergyProcess
 from system.repeat_timer import RepeatTimer
-from system.event_clock import EventClock
+from system.event_clock import EventClock, parse_time_trigger_string
 
 from scheduler.constants import *
 from scheduler.continuous_pipeline import ContinuousPipeline
@@ -66,22 +66,11 @@ class Scheduler(SynergyProcess):
          - repeat timer of type RepeatTimer, when <schedule> is in format 'every seconds'
          On trigger event this module triggers call_back function with arguments (args, kwargs)
         """
-        if trigger_time.startswith(SCHEDULE_FORMAT_AT):
-            # EventClock block
-            trigger_time = trigger_time[len(SCHEDULE_FORMAT_AT):]
-            timestamps = trigger_time.replace(',', ' ').split(' ')
-            timer_instance = EventClock(timestamps, function, args=parameters)
-            self.logger.info('Created EventClock for %s with schedule %r' % (process_name, timestamps))
-            return timer_instance
-        elif trigger_time.startswith(SCHEDULE_FORMAT_EVERY):
-            # RepeatTimer block
-            trigger_time = trigger_time[len(SCHEDULE_FORMAT_EVERY):]
-            interval = int(trigger_time)
-            timer_instance = RepeatTimer(interval, function, args=parameters)
-            self.logger.info('Created RepeatTimer for %s triggering every %d seconds' % (process_name, interval))
-            return timer_instance
-        else:
-            raise ValueError('Unknown schedule format %s' % trigger_time)
+        parsed_trigger_time, timer_klass = parse_time_trigger_string(trigger_time)
+        timer_instance = timer_klass(parsed_trigger_time, function, args=parameters)
+        self.logger.info('Created %s for %s with schedule %r'
+                         % (type(timer_klass).__name__, process_name, trigger_time))
+        return timer_instance
 
     # **************** Scheduler Methods ************************
     @with_reconnect

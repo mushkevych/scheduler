@@ -14,7 +14,7 @@ from db.dao.unit_of_work_dao import UnitOfWorkDao
 from settings import settings
 from system import time_helper
 from system.repeat_timer import RepeatTimer
-from system.event_clock import EventClock
+from system.event_clock import EventClock, format_time_trigger_string, parse_time_trigger_string
 from system.process_context import ProcessContext
 from system.performance_tracker import FootprintCalculator
 
@@ -413,14 +413,24 @@ class ActionHandler(object):
         resp = dict()
         new_interval = self.request.args.get('interval')
         if new_interval is not None:
-            new_interval = int(new_interval)
+            parsed_trigger_time, timer_klass = parse_time_trigger_string(new_interval)
             thread_handler = self.mbean.thread_handlers[self.process_name]
-            thread_handler.change_interval(new_interval)
+            entry_document = thread_handler.args[1]  # of type SchedulerEntry
 
-            document = thread_handler.args[1]  # of type SchedulerConfigurationEntry
-            document.trigger_time = new_interval
-            self.sc_dao.update(document)
+            if isinstance(thread_handler, timer_klass):
+                # trigger time has changed only frequency of run
+                thread_handler.change_interval(parsed_trigger_time)
+            else:
+                # trigger time requires different type of timer - RepeatTimer instead of EventClock and vice versa
+                thread_handler.cancel()
+                new_thread_handler = timer_klass(parsed_trigger_time, thread_handler.function, thread_handler.args)
+                self.mbean.thread_handlers[self.process_name] = new_thread_handler
+                is_active = entry_document.process_state == scheduler_entry.STATE_ON
+                if is_active:
+                    new_thread_handler.start()
 
+            entry_document.trigger_time = format_time_trigger_string(self.mbean.thread_handlers[self.process_name])
+            self.sc_dao.update(entry_document)
             resp['status'] = 'changed interval for %r to %r' % (self.process_name, new_interval)
 
         return resp
@@ -444,7 +454,7 @@ class ActionHandler(object):
     def action_change_process_state(self):
         resp = dict()
         thread_handler = self.mbean.thread_handlers[self.process_name]
-        document = thread_handler.args[1]  # of type SchedulerConfigurationEntry
+        document = thread_handler.args[1]  # of type SchedulerEntry
 
         state = self.request.args.get('state')
         if state is None:
@@ -479,14 +489,6 @@ class SchedulerDetails(object):
     def __init__(self, mbean):
         self.mbean = mbean
         self.logger = self.mbean.logger
-
-    def _handler_trigger_time(self, thread_handler):
-        if isinstance(thread_handler, RepeatTimer):
-            return thread_handler.interval_new
-        elif isinstance(thread_handler, EventClock):
-            return str(thread_handler.timestamps)
-        else:
-            raise ValueError('Unknown timer instance type %s' % type(thread_handler).__name__)
 
     def _handler_last_triggered(self, thread_handler):
         return 'NA' if not thread_handler.is_alive() else thread_handler.activation_dt.strftime('%Y-%m-%d %H:%M:%S %Z')
@@ -528,7 +530,7 @@ class SchedulerDetails(object):
                 row.append(thread_handler.is_alive())                                           # index 1
                 row.append(process_name)                                                        # index 2
                 row.append(ProcessContext.get_process_type(process_name))                       # index 3
-                row.append(self._handler_trigger_time(thread_handler))                          # index 4
+                row.append(format_time_trigger_string(thread_handler))                          # index 4
                 row.append(self._handler_last_triggered(thread_handler))                        # index 5
                 row.append(self._handler_next_run(thread_handler))                              # index 6
                 row.append(self._handler_next_timeperiod(process_name))                         # index 7

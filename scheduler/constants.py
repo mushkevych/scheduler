@@ -20,6 +20,3 @@ TYPE_FREERUN = 'type_freerun'
 TYPE_GARBAGE_COLLECTOR = 'type_gc'
 TYPE_BLOCKING_DEPENDENCIES = 'type_blocking_dependencies'
 TYPE_BLOCKING_CHILDREN = 'type_blocking_children'
-
-SCHEDULE_FORMAT_AT = 'at '
-SCHEDULE_FORMAT_EVERY = 'every '
