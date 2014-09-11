@@ -1,8 +1,8 @@
 __author__ = 'Bohdan Mushkevych'
 
-from datetime import datetime, timedelta
 import functools
 import json
+from datetime import datetime, timedelta
 
 from werkzeug.utils import cached_property, redirect
 from werkzeug.wrappers import Response
@@ -14,6 +14,7 @@ from db.dao.unit_of_work_dao import UnitOfWorkDao
 from settings import settings
 from system import time_helper
 from system.repeat_timer import RepeatTimer
+from system.event_clock import EventClock
 from system.process_context import ProcessContext
 from system.performance_tracker import FootprintCalculator
 
@@ -479,6 +480,37 @@ class SchedulerDetails(object):
         self.mbean = mbean
         self.logger = self.mbean.logger
 
+    def _handler_trigger_time(self, thread_handler):
+        if isinstance(thread_handler, RepeatTimer):
+            return thread_handler.interval_new
+        elif isinstance(thread_handler, EventClock):
+            return str(thread_handler.timestamps)
+        else:
+            raise ValueError('Unknown timer instance type %s' % type(thread_handler).__name__)
+
+    def _handler_last_triggered(self, thread_handler):
+        return 'NA' if not thread_handler.is_alive() else thread_handler.activation_dt.strftime('%Y-%m-%d %H:%M:%S %Z')
+
+    def _handler_next_run(self, thread_handler):
+        if not thread_handler.is_alive():
+            return 'NA'  # Next Run In
+        elif isinstance(thread_handler, RepeatTimer):
+            next_run = timedelta(seconds=thread_handler.interval_current) + thread_handler.activation_dt
+            next_run = next_run - datetime.utcnow()
+            return str(next_run).split('.')[0]
+        elif isinstance(thread_handler, EventClock):
+            return 'TBD'
+        else:
+            raise ValueError('Unknown timer instance type %s' % type(thread_handler).__name__)
+
+    def _handler_next_timeperiod(self, process_name):
+        timetable = self.mbean.timetable
+        if timetable.get_tree(process_name) is None:
+            return 'NA'
+        else:
+            timetable_record = timetable.get_next_timetable_record(process_name)
+            return timetable_record.timeperiod
+
     @cached_property
     def entries(self):
         list_of_rows = []
@@ -488,29 +520,19 @@ class SchedulerDetails(object):
                 row = []
                 thread_handler = self.mbean.thread_handlers[key]
                 process_name = thread_handler.args[0]
-                row.append(process_name)
-                row.append(thread_handler.is_alive())
-                row.append(int(thread_handler.interval_new))
-
-                if not thread_handler.is_alive():
-                    row.append('NA')  # Last Triggered
-                    row.append('NA')  # Next Run In
-                else:
-                    row.append(thread_handler.activation_dt.strftime('%Y-%m-%d %H:%M:%S %Z'))
-                    next_run = timedelta(seconds=thread_handler.interval_current) + thread_handler.activation_dt
-                    next_run = next_run - datetime.utcnow()
-                    row.append(str(next_run).split('.')[0])
-
-                timetable = self.mbean.timetable
-                if timetable.get_tree(process_name) is not None:
-                    timetable_record = timetable.get_next_timetable_record(process_name)
-                    row.append(timetable_record.timeperiod)
-                else:
-                    row.append('NA')
 
                 # indicate whether process is in active or passive state
                 # parameters are set in Scheduler.run() method
-                row.append(thread_handler.args[1].process_state == scheduler_entry.STATE_ON)
+                row.append(thread_handler.args[1].process_state == scheduler_entry.STATE_ON)    # index 0
+
+                row.append(thread_handler.is_alive())                                           # index 1
+                row.append(process_name)                                                        # index 2
+                row.append(ProcessContext.get_process_type(process_name))                       # index 3
+                row.append(self._handler_trigger_time(thread_handler))                          # index 4
+                row.append(self._handler_last_triggered(thread_handler))                        # index 5
+                row.append(self._handler_next_run(thread_handler))                              # index 6
+                row.append(self._handler_next_timeperiod(process_name))                         # index 7
+
                 list_of_rows.append(row)
         except Exception as e:
             self.logger.error('MX Exception %s' % str(e), exc_info=True)

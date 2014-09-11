@@ -1,6 +1,6 @@
 __author__ = 'Bohdan Mushkevych'
 
-from datetime import time, datetime
+from datetime import datetime
 from system.repeat_timer import RepeatTimer
 
 TRIGGER_INTERVAL = 60  # 1 minute
@@ -58,11 +58,13 @@ class EventClock(object):
         self.kwargs = kwargs
         self.call_back = call_back
         self.handler = RepeatTimer(TRIGGER_INTERVAL, self.manage_schedule)
+        self.activation_dt = None
 
     def manage_schedule(self, *_):
         current_time = EventTime.utc_now()
         if current_time in self.timestamps:
             self.call_back(*self.args, **self.kwargs)
+            self.activation_dt = datetime.utcnow()
 
     def start(self):
         self.handler.start()
@@ -74,6 +76,7 @@ class EventClock(object):
         current_time = EventTime.utc_now()
         if current_time not in self.timestamps:
             self.call_back(*self.args, **self.kwargs)
+            self.activation_dt = datetime.utcnow()
         else:
             # leave it to the regular flow to trigger the call_back via manage_schedule method
             pass
