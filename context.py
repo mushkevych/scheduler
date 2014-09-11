@@ -75,7 +75,7 @@ timetable_context = {
         tree_classname='scheduler.tree.TwoLevelTree',
         enclosed_processes=[PROCESS_ALERT_DAILY],
         dependent_on=[],
-        mx_name=TOKEN_SITE,
+        mx_name=TOKEN_ALERT,
         mx_page=MX_PAGE_TRAFFIC)
 }
 

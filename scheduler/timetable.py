@@ -46,6 +46,7 @@ class Timetable(object):
         for tree_name, context_entry in self.CONTEXT.iteritems():
             _, tree_klass, _ = get_class(context_entry.tree_classname)
             tree = tree_klass(*context_entry.enclosed_processes,
+                              full_name=tree_name,
                               mx_name=context_entry.mx_name,
                               mx_page=context_entry.mx_page)
             trees[tree_name] = tree
@@ -103,7 +104,7 @@ class Timetable(object):
                 return tree
 
     def _find_dependant_trees(self, tree_obj):
-        """ returns list of trees that are dependent_on the given tree_obj """
+        """ returns list of trees that are dependent_on given tree_obj """
         dependant_trees = []
         for tree_name, tree in self.trees.iteritems():
             if tree_obj in tree.dependent_on:

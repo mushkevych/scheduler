@@ -19,16 +19,17 @@
         <th>Synergy Scheduler</th>
         <th style="text-align: left">v. {{get_version()}}</th>
         <th></th>
+        <th></th>
         <th style="text-align: right">page last updated: {{get_current_time()}}</th>
     </tr>
     </thead>
     <tbody>
     <tr>
         <td><a href="{{ url_for('scheduler_details') }}">scheduler entries</a></td>
-        <td><a href="{{ url_for('timetable_details') }}">timetable details</a></td>
         <td><a href="{{ url_for('traffic_details') }}">traffic processes</a></td>
         <td><a href="{{ url_for('financial_details') }}">financial processes</a></td>
         <td><a href="{{ url_for('processing_statements') }}">processing statements</a></td>
+        <td><a href="{{ url_for('timetable_details') }}">timetable details</a></td>
     </tr>
     </tbody>
 </table>
