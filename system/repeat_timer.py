@@ -27,6 +27,7 @@ class RepeatTimer(threading.Thread):
 
     def run(self):
         while self.event.is_set():
+            self.activation_dt = datetime.utcnow()
             self.__timer = threading.Timer(self.interval_new,
                                            self.call_back,
                                            self.args,
@@ -34,7 +35,6 @@ class RepeatTimer(threading.Thread):
             self.interval_current = self.interval_new
             self.__timer.start()
             self.__timer.join()
-            self.activation_dt = datetime.utcnow()
 
     def cancel(self):
         self.event.clear()
