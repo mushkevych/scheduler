@@ -79,6 +79,7 @@ test_cases = [
     'tests.test_process_context',
     'tests.test_site_hourly_aggregator',
     'tests.test_tree_node',
+    'tests,test_event_clock',
 ]
 
 
