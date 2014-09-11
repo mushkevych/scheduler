@@ -2,7 +2,7 @@ __author__ = 'Bohdan Mushkevych'
 
 from logging import ERROR, INFO
 
-from constants import PIPELINE_SIMPLIFIED_DISCRETE
+from scheduler_constants import PIPELINE_SIMPLIFIED_DISCRETE
 from system import time_helper
 from system.process_context import ProcessContext
 from db.error import DuplicateKeyError

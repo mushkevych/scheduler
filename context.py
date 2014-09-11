@@ -1,12 +1,12 @@
 __author__ = 'Bohdan Mushkevych'
 
+from system.time_qualifier import *
+from constants import *
+from scheduler.scheduler_constants import *
+from supervisor.supervisor_constants import *
 from db.model.queue_context_entry import _queue_context_entry
 from db.model.process_context_entry import _process_context_entry
 from db.model.timetable_entry import _timetable_entry
-from system.time_qualifier import *
-from constants import *
-from scheduler.constants import *
-from supervisor.constants import *
 
 queue_context = {
     QUEUE_REQUESTED_PACKAGES: _queue_context_entry(exchange=EXCHANGE_FREERUN_WORKER,
@@ -56,7 +56,7 @@ process_context = {
 timetable_context = {
     TREE_SITE_VERTICAL: _timetable_entry(
         tree_name=TREE_SITE_VERTICAL,
-        tree_classname='scheduler.four_level_tree.FourLevelTree',
+        tree_classname='scheduler.tree.FourLevelTree',
         enclosed_processes=[PROCESS_SITE_YEARLY, PROCESS_SITE_MONTHLY, PROCESS_SITE_DAILY, PROCESS_SITE_HOURLY],
         dependent_on=[],
         mx_name=TOKEN_SITE,
@@ -64,15 +64,15 @@ timetable_context = {
 
     TREE_CLIENT_HORIZONTAL: _timetable_entry(
         tree_name=TREE_CLIENT_HORIZONTAL,
-        tree_classname='scheduler.three_level_tree.ThreeLevelTree',
-        enclosed_processes=[PROCESS_SITE_YEARLY, PROCESS_SITE_MONTHLY, PROCESS_SITE_DAILY, PROCESS_SITE_HOURLY],
-        dependent_on=[],
-        mx_name=TOKEN_SITE,
+        tree_classname='scheduler.tree.ThreeLevelTree',
+        enclosed_processes=[PROCESS_CLIENT_YEARLY, PROCESS_CLIENT_MONTHLY, PROCESS_CLIENT_DAILY],
+        dependent_on=[TREE_SITE_VERTICAL],
+        mx_name=TOKEN_CLIENT,
         mx_page=MX_PAGE_TRAFFIC),
 
     TREE_LINEAR_DAILY: _timetable_entry(
         tree_name=TREE_CLIENT_HORIZONTAL,
-        tree_classname='scheduler.two_level_tree.TwoLevelTree',
+        tree_classname='scheduler.tree.TwoLevelTree',
         enclosed_processes=[PROCESS_ALERT_DAILY],
         dependent_on=[],
         mx_name=TOKEN_SITE,

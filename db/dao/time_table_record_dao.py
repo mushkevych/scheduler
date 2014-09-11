@@ -5,6 +5,7 @@ from db.manager import ds_manager
 from db.model import base_model, job
 from db.model.job import Job
 from system.decorator import thread_safe
+from system.time_qualifier import *
 from system.collection_context import COLLECTION_TIMETABLE_HOURLY, COLLECTION_TIMETABLE_DAILY, \
     COLLECTION_TIMETABLE_MONTHLY, COLLECTION_TIMETABLE_YEARLY
 from system.process_context import ProcessContext

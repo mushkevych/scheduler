@@ -79,7 +79,7 @@ class MX(object):
 
 
 if __name__ == '__main__':
-    from scheduler.constants import PROCESS_SCHEDULER
+    from scheduler.scheduler_constants import PROCESS_SCHEDULER
     from scheduler.synergy_scheduler import Scheduler
 
     source = Scheduler(PROCESS_SCHEDULER)

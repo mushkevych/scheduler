@@ -42,12 +42,14 @@ class Timetable(object):
         self.validate()
 
     def _construct_trees_from_context(self):
+        trees = dict()
         for tree_name, context_entry in self.CONTEXT.iteritems():
             _, tree_klass, _ = get_class(context_entry.tree_classname)
             tree = tree_klass(*context_entry.enclosed_processes,
-                              context_entry.mx_name,
-                              context_entry.mx_page)
-            self.trees[tree_name] = tree
+                              mx_name=context_entry.mx_name,
+                              mx_page=context_entry.mx_page)
+            trees[tree_name] = tree
+        return trees
 
     def _register_dependencies(self):
         """ register dependencies between trees"""

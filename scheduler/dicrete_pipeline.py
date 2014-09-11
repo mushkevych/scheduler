@@ -4,7 +4,7 @@ from db.error import DuplicateKeyError
 from datetime import datetime
 from logging import ERROR, WARNING, INFO
 
-from constants import PIPELINE_DISCRETE
+from scheduler_constants import PIPELINE_DISCRETE
 from scheduler.abstract_pipeline import AbstractPipeline
 from db.model.unit_of_work import UnitOfWork
 from db.model import job, unit_of_work

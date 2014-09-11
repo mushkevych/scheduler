@@ -3,7 +3,7 @@ __author__ = 'Bohdan Mushkevych'
 from datetime import datetime
 from logging import ERROR, WARNING, INFO
 
-from constants import PIPELINE_CONTINUOUS
+from scheduler_constants import PIPELINE_CONTINUOUS
 from db.manager import ds_manager
 from db.error import DuplicateKeyError
 from db.model import job, unit_of_work

@@ -2,22 +2,19 @@ __author__ = 'Bohdan Mushkevych'
 
 from datetime import datetime, timedelta
 from threading import Lock
+
 from amqp import AMQPError
 
 from mq.flopsy import PublishersPool
 from mx.synergy_mx import MX
-
 from db.model import scheduler_entry
 from db.dao.scheduler_entry_dao import SchedulerEntryDao
-
 from system import time_helper
 from system.process_context import ProcessContext
 from system.decorator import with_reconnect, thread_safe
 from system.synergy_process import SynergyProcess
-from system.repeat_timer import RepeatTimer
-from system.event_clock import EventClock, parse_time_trigger_string
-
-from scheduler.constants import *
+from system.event_clock import parse_time_trigger_string
+from scheduler.scheduler_constants import *
 from scheduler.continuous_pipeline import ContinuousPipeline
 from scheduler.dicrete_pipeline import DiscretePipeline
 from scheduler.simplified_dicrete_pipeline import SimplifiedDiscretePipeline
@@ -205,7 +202,7 @@ class Scheduler(SynergyProcess):
 
 
 if __name__ == '__main__':
-    from scheduler.constants import PROCESS_SCHEDULER
+    from scheduler.scheduler_constants import PROCESS_SCHEDULER
 
     source = Scheduler(PROCESS_SCHEDULER)
     source.start()

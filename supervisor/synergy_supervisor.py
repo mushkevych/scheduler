@@ -12,7 +12,7 @@ from system.process_starter import PROCESS_STARTER
 from db.model import box_configuration
 from db.dao.box_configuration_dao import BoxConfigurationDao
 from supervisor import supervisor_helper as helper
-from supervisor.constants import TRIGGER_INTERVAL
+from supervisor.supervisor_constants import TRIGGER_INTERVAL
 from system.process_context import ProcessContext
 from system.repeat_timer import RepeatTimer
 from system.synergy_process import SynergyProcess
@@ -138,7 +138,7 @@ class Supervisor(SynergyProcess):
 
 
 if __name__ == '__main__':
-    from supervisor.constants import PROCESS_SUPERVISOR
+    from supervisor.supervisor_constants import PROCESS_SUPERVISOR
 
     source = Supervisor(PROCESS_SUPERVISOR)
     source.start()

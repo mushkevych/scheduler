@@ -3,7 +3,7 @@ __author__ = 'Bohdan Mushkevych'
 from db.model.process_context_entry import _process_context_entry
 from system.time_qualifier import *
 from constants import *
-from scheduler.constants import *
+from scheduler.scheduler_constants import *
 
 
 queue_context = {
