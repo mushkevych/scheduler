@@ -1,0 +1,3 @@
+include README.md LICENSE *.py
+graft scripts
+graft tests
