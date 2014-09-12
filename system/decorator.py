@@ -1,7 +1,9 @@
 __author__ = 'Bohdan Mushkevych'
 
-import functools
+import sys
 import time
+import functools
+import traceback
 
 
 def current_process_aware(class_method):
@@ -29,7 +31,11 @@ def thread_safe(method):
             self.lock.acquire()
             return method(self, *args, **kwargs)
         finally:
-            self.lock.release()
+            try:
+                self.lock.release()
+            except:
+                sys.stderr.write('Exception on releasing lock at method %s' % method.__name__)
+                traceback.print_exc(file=sys.stderr)
 
     return _locker
 

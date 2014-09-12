@@ -171,7 +171,6 @@ class Scheduler(SynergyProcess):
             self.logger.error('fire_freerun_worker: %s' % str(e))
         finally:
             self.logger.info('}')
-            self.lock.release()
 
     @thread_safe
     def fire_garbage_collector(self, *args):
@@ -198,7 +197,6 @@ class Scheduler(SynergyProcess):
             self.logger.error('fire_garbage_collector: %s' % str(e))
         finally:
             self.logger.info('}')
-            self.lock.release()
 
 
 if __name__ == '__main__':
