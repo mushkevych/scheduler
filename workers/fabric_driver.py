@@ -8,11 +8,11 @@ from system.process_context import ProcessContext
 from workers.abstract_cli_worker import AbstractCliWorker
 
 
-class PigDriver(AbstractCliWorker):
-    """Python process that starts Pig processing job, supervises its execution and updates unit_of_work"""
+class FabricDriver(AbstractCliWorker):
+    """module starts requested shell script with Fabric means, supervises its execution and updates unit_of_work"""
 
     def __init__(self, process_name):
-        super(PigDriver, self).__init__(process_name)
+        super(FabricDriver, self).__init__(process_name)
 
     def _start_process(self, start_timeperiod, end_timeperiod):
         try:

@@ -7,7 +7,7 @@ from workers.abstract_cli_worker import AbstractCliWorker
 
 
 class HadoopAggregatorDriver(AbstractCliWorker):
-    """Python process that starts Hadoop map/reduce job, supervises its execution and updated unit_of_work"""
+    """Python process that starts Hadoop map/reduce job, supervises its execution and updates unit_of_work"""
 
     def __init__(self, process_name):
         super(HadoopAggregatorDriver, self).__init__(process_name)

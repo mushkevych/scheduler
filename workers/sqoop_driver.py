@@ -1,4 +1,3 @@
-
 __author__ = 'Bohdan Mushkevych'
 
 import psutil
@@ -11,7 +10,7 @@ from workers.abstract_cli_worker import AbstractCliWorker
 
 
 class SqoopDriver(AbstractCliWorker):
-    """Process starts Sqoop import job, supervises its execution and updated unit_of_work"""
+    """Process starts Sqoop import job, supervises its execution and updates unit_of_work"""
 
     SQOOP_DATE_FORMAT = '%Y-%m-%d %H:%M:%S.000'
 

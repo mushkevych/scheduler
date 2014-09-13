@@ -1,6 +1,5 @@
-"""
-@author: Bohdan Mushkevych
-"""
+__author__ = 'Bohdan Mushkevych'
+
 import time
 
 

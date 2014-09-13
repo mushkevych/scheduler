@@ -13,9 +13,7 @@ from system import time_helper
 
 
 class SingleSessionWorker(AbstractMqWorker):
-    """
-    this class reads stream of messages from RabbitMQ and dump them to the MongoDB
-    """
+    """ this class reads stream of messages from RabbitMQ and dump them into MongoDB """
 
     # every 15 minutes worker will perform <safe=True> save to Mongo DB
     # this allows to catch MongoDB connection expiration

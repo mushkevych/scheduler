@@ -12,7 +12,7 @@ from workers.abstract_mq_worker import AbstractMqWorker
 from system.performance_tracker import AggregatorPerformanceTicker
 
 
-class AbstractCliWorker(AbstractWorker):
+class AbstractCliWorker(AbstractMqWorker):
     """ Abstract class is inherited by all workers/aggregators
     that are aware of unit_of_work and capable of processing it"""
 
