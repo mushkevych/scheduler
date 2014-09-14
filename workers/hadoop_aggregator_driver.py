@@ -1,7 +1,7 @@
 __author__ = 'Bohdan Mushkevych'
 
-from subprocess import PIPE
 import psutil
+from subprocess import PIPE
 from settings import settings
 from workers.abstract_cli_worker import AbstractCliWorker
 
@@ -12,7 +12,7 @@ class HadoopAggregatorDriver(AbstractCliWorker):
     def __init__(self, process_name):
         super(HadoopAggregatorDriver, self).__init__(process_name)
 
-    def _start_process(self, start_timeperiod, end_timeperiod):
+    def _start_process(self, start_timeperiod, end_timeperiod, arguments):
         try:
             self.logger.info('start: %s {' % self.process_name)
             p = psutil.Popen([settings['hadoop_command'],
@@ -31,4 +31,3 @@ class HadoopAggregatorDriver(AbstractCliWorker):
             self.logger.error('Exception on starting: %s' % self.process_name, exc_info=True)
         finally:
             self.logger.info('}')
-

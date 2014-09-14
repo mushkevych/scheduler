@@ -37,8 +37,8 @@ class DiscretePipeline(AbstractPipeline):
         uow.start_timeperiod = start_timeperiod
         uow.end_timeperiod = end_timeperiod
         uow.created_at = datetime.utcnow()
-        uow.source_collection = None
-        uow.target_collection = None
+        uow.source = None
+        uow.sink = None
         uow.state = unit_of_work.STATE_REQUESTED
         uow.process_name = process_name
         uow.number_of_retries = 0

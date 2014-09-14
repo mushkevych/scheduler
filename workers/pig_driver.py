@@ -14,7 +14,7 @@ class PigDriver(AbstractCliWorker):
     def __init__(self, process_name):
         super(PigDriver, self).__init__(process_name)
 
-    def _start_process(self, start_timeperiod, end_timeperiod):
+    def _start_process(self, start_timeperiod, end_timeperiod, arguments):
         try:
             input_file = ProcessContext.get_source(self.process_name)
 

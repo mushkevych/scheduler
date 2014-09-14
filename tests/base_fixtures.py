@@ -120,8 +120,8 @@ def create_unit_of_work(process_name,
     uow.end_timeperiod = timeperiod
     uow.start_id = start_id
     uow.end_id = end_id
-    uow.source_collection = source_collection
-    uow.target_collection = target_collection
+    uow.source = source_collection
+    uow.sink = target_collection
     uow.state = state
     uow.created_at = creation_at
     uow.process_name = process_name

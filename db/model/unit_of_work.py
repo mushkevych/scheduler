@@ -5,8 +5,8 @@ from db.model.raw_data import *
 
 START_TIMEPERIOD = 'start_timeperiod'  # lower boundary (as Synergy date) of the period that needs to be processed
 END_TIMEPERIOD = 'end_timeperiod'      # upper boundary (as Synergy date) of the period that needs to be processed
-START_OBJ_ID = 'start_obj_id'          # lower boundary (as MongoDB _id) of the period that needs to be processed
-END_OBJ_ID = 'end_obj_id'              # upper boundary (as MongoDB _id) of the period that needs to be processed
+START_OBJ_ID = 'start_obj_id'          # lower boundary (as DB _id) of the period that needs to be processed
+END_OBJ_ID = 'end_obj_id'              # upper boundary (as DB _id) of the period that needs to be processed
 STATE = 'state'
 CREATED_AT = 'created_at'
 STARTED_AT = 'started_at'
@@ -15,18 +15,13 @@ NUMBER_OF_AGGREGATED_DOCUMENTS = 'number_of_aggregated_documents'
 NUMBER_OF_PROCESSED_DOCUMENTS = 'number_of_processed_documents'
 NUMBER_OF_RETRIES = 'number_of_retries'
 
-# process name of the aggregator/alarm/etc that processed the range
-PROCESS_NAME = 'process_name'
-# source_collection defines source data for the computation
-SOURCE_COLLECTION = 'source_collection'
-# target_collection defines collection, where aggregated data will be inserted
-TARGET_COLLECTION = 'target_collection'
-# log contains list of processed files or other artifacts
-PROCESSED_LOG = 'processed_log'
-# Name of processed file
-FILE_NAME = 'file_name'
-# MD5 tag for the hash of the file
-MD5 = 'md5'
+PROCESS_NAME = 'process_name'          # process name of the aggregator/alarm/etc that processed the range
+SOURCE = 'source'                      # defines source of data for the computation
+SINK = 'sink'                          # defines sink where the aggregated data will be inserted
+PROCESSED_LOG = 'processed_log'        # log contains list of processed files or other artifacts
+FILE_NAME = 'file_name'                # Name of processed file
+MD5 = 'md5'                            # MD5 tag for the hash of the file
+ARGUMENTS = 'arguments'
 
 STATE_PROCESSED = 'state_processed'
 STATE_IN_PROGRESS = 'state_in_progress'
@@ -83,20 +78,28 @@ class UnitOfWork(BaseModel):
         self.data[END_OBJ_ID] = value
 
     @property
-    def source_collection(self):
-        return self.data[SOURCE_COLLECTION]
+    def source(self):
+        return self.data[SOURCE]
 
-    @source_collection.setter
-    def source_collection(self, value):
-        self.data[SOURCE_COLLECTION] = value
+    @source.setter
+    def source(self, value):
+        self.data[SOURCE] = value
 
     @property
-    def target_collection(self):
-        return self.data[TARGET_COLLECTION]
+    def sink(self):
+        return self.data[SINK]
 
-    @target_collection.setter
-    def target_collection(self, value):
-        self.data[TARGET_COLLECTION] = value
+    @sink.setter
+    def sink(self, value):
+        self.data[SINK] = value
+
+    @property
+    def arguments(self):
+        return self.data.get(ARGUMENTS)
+
+    @arguments.setter
+    def arguments(self, value):
+        self.data[ARGUMENTS] = value
 
     @property
     def state(self):

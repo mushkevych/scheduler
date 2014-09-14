@@ -30,8 +30,8 @@ class AbstractCliWorker(AbstractMqWorker):
         self.performance_ticker.start()
 
     # **************** Process Supervisor Methods ************************
-    def _start_process(self, start_timeperiod, end_timeperiod):
-        pass
+    def _start_process(self, start_timeperiod, end_timeperiod, arguments):
+        raise NotImplementedError('method _start_process must be implemented by AbstractCliWorker child classes')
 
     def _poll_process(self):
         """ between death of a process and its actual termination lies poorly documented requirement -
@@ -41,15 +41,15 @@ class AbstractCliWorker(AbstractMqWorker):
         try:
             self.logger.warn(self.cli_process.stderr.read())
             self.logger.info(self.cli_process.stdout.read())
-            returncode = self.cli_process.wait(timeout=0.01)
-            if returncode is None:
+            return_code = self.cli_process.wait(timeout=0.01)
+            if return_code is None:
                 # process is already terminated
                 self.logger.info('Process %s is terminated' % self.process_name)
             else:
                 # process is terminated; possibly by OS
                 self.logger.info('Process %s got terminated. Cleaning up' % self.process_name)
             self.cli_process = None
-            return False, returncode
+            return False, return_code
         except TimeoutExpired:
             # process is alive and OK
             return True, None
@@ -88,7 +88,7 @@ class AbstractCliWorker(AbstractMqWorker):
             self.uow_dao.update(uow)
             self.performance_ticker.start_uow(uow)
 
-            self._start_process(start_timeperiod, end_timeperiod)
+            self._start_process(start_timeperiod, end_timeperiod, uow.arguments)
             code = None
             alive = True
             while alive:

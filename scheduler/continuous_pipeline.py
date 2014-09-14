@@ -41,8 +41,8 @@ class ContinuousPipeline(AbstractPipeline):
         uow.start_timeperiod = start_timeperiod
         uow.end_timeperiod = end_timeperiod
         uow.created_at = datetime.utcnow()
-        uow.source_collection = source_collection_name
-        uow.target_collection = target_collection_name
+        uow.source = source_collection_name
+        uow.sink = target_collection_name
         uow.state = unit_of_work.STATE_REQUESTED
         uow.process_name = process_name
         uow.number_of_retries = 0
@@ -59,7 +59,7 @@ class ContinuousPipeline(AbstractPipeline):
     @with_reconnect
     def update_scope_of_processing(self, process_name, uow, start_timeperiod, end_timeperiod, timetable_record):
         """method reads collection and refine slice upper bound for processing"""
-        source_collection_name = uow.source_collection
+        source_collection_name = uow.source
         last_object_id = self.ds.lowest_primary_key(source_collection_name, start_timeperiod, end_timeperiod)
         uow.end_id = str(last_object_id)
         self.uow_dao.update(uow)

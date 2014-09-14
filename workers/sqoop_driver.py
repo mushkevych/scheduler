@@ -17,7 +17,7 @@ class SqoopDriver(AbstractCliWorker):
     def __init__(self, process_name):
         super(SqoopDriver, self).__init__(process_name)
 
-    def _start_process(self, start_timeperiod, end_timeperiod):
+    def _start_process(self, start_timeperiod, end_timeperiod, arguments):
         try:
             start_dt = time_helper.synergy_to_datetime(QUALIFIER_HOURLY, start_timeperiod)
             sqoop_slice_starttime = start_dt.strftime(SqoopDriver.SQOOP_DATE_FORMAT)
