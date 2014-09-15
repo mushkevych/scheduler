@@ -133,3 +133,11 @@ class EventClock(object):
         for timestamp in value:
             event = EventTime(timestamp)
             self.timestamps.append(event)
+
+    def next_run_in(self):
+        """ :return: timedelta instance presenting amount of time before the trigger is triggered next time
+         or None if the EventClock instance is not running """
+        if self.handler.is_alive():
+            return 'TBD'
+        else:
+            return None

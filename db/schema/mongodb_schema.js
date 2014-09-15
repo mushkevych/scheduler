@@ -8,13 +8,12 @@ db.createCollection('single_session');
 db.single_session.ensureIndex( { domain_name : 1, "user_profile.session_id" : 1}, {unique: true} );
 db.single_session.ensureIndex( { timeperiod : 1 });
 
-db.createCollection('');
-db.single_session.ensureIndex( { domain_name : 1, "user_profile.session_id" : 1}, {unique: true} );
-db.single_session.ensureIndex( { timeperiod : 1 });
-
 // *** SYSTEM ***
-db.createCollection('scheduler_configuration');
-db.scheduler_configuration.ensureIndex( { process_name : 1}, {unique: true} );
+db.createCollection('scheduler_managed_entries');
+db.scheduler_managed_entries.ensureIndex( { process_name : 1}, {unique: true} );
+
+db.createCollection('scheduler_freerun_entries');
+db.scheduler_freerun_entries.ensureIndex( { process_name : 1, entry_name : 1}, {unique: true} );
 
 db.createCollection('units_of_work');
 db.units_of_work.ensureIndex( { process_name : 1, timeperiod : 1, start_obj_id : 1, end_obj_id : 1}, {unique: true} );

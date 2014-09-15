@@ -1,6 +1,7 @@
 __author__ = 'Bohdan Mushkevych'
 
 from threading import RLock
+
 from werkzeug.utils import cached_property
 
 from db.dao import time_table_record_dao
@@ -8,7 +9,7 @@ from db.dao.time_table_record_dao import TimeTableRecordDao
 from system.collection_context import COLLECTION_TIMETABLE_YEARLY, \
     COLLECTION_TIMETABLE_MONTHLY, COLLECTION_TIMETABLE_DAILY, COLLECTION_TIMETABLE_HOURLY
 from system.decorator import thread_safe
-from mx.commons import valid_only
+from mx.commons import managed_entry_request
 
 
 class ProcessingStatementDetails(object):
@@ -32,14 +33,14 @@ class ProcessingStatementDetails(object):
             self.month = None
         if self.day is not None and self.day.strip() == '':
             self.day = None
-        self.valid = self.mbean is not None \
-                     and self.year is not None \
-                     and self.month is not None \
-                     and self.day is not None \
-                     and self.hour is not None
+        self.is_managed_request_valid = self.mbean is not None \
+                                        and self.year is not None \
+                                        and self.month is not None \
+                                        and self.day is not None \
+                                        and self.hour is not None
 
     @cached_property
-    @valid_only
+    @managed_entry_request
     def entries(self):
         processor = ProcessingStatements(self.logger)
         timeperiod = self.year + self.month + self.day + self.hour

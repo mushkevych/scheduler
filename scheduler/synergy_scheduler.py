@@ -7,8 +7,10 @@ from amqp import AMQPError
 
 from mq.flopsy import PublishersPool
 from mx.synergy_mx import MX
-from db.model import scheduler_entry
-from db.dao.scheduler_entry_dao import SchedulerEntryDao
+from db.model import scheduler_managed_entry
+from db.model import scheduler_freerun_entry
+from db.dao.scheduler_managed_entry_dao import SchedulerManagedEntryDao
+from db.dao.scheduler_freerun_entry_dao import SchedulerFreerunEntryDao
 from system import time_helper
 from system.process_context import ProcessContext
 from system.decorator import with_reconnect, thread_safe
@@ -29,18 +31,20 @@ class Scheduler(SynergyProcess):
         self.lock = Lock()
         self.logger.info('Starting %s' % self.process_name)
         self.publishers = PublishersPool(self.logger)
-        self.thread_handlers = dict()
+        self.managed_handlers = dict()
+        self.freerun_handlers = dict()
         self.timetable = Timetable(self.logger)
         self.pipelines = self._construct_pipelines()
 
-        self.sc_dao = SchedulerEntryDao(self.logger)
+        self.se_managed_dao = SchedulerManagedEntryDao(self.logger)
+        self.se_freerun_dao = SchedulerFreerunEntryDao(self.logger)
         self.mx = None
         self.logger.info('Started %s' % self.process_name)
 
     def __del__(self):
-        for handler in self.thread_handlers:
+        for handler in self.managed_handlers:
             handler.cancel()
-        self.thread_handlers.clear()
+        self.managed_handlers.clear()
         super(Scheduler, self).__del__()
 
     def _log_message(self, level, process_name, timetable_record, msg):
@@ -70,33 +74,34 @@ class Scheduler(SynergyProcess):
         return timer_instance
 
     # **************** Scheduler Methods ************************
-    @with_reconnect
-    def start(self, *_):
-        """ reading scheduler configurations and starting timers to trigger events """
-        scheduler_entries = self.sc_dao.get_all()
-
+    def _load_managed_entries(self):
+        """ reads scheduler managed entries and starts their timers to trigger events """
+        scheduler_entries = self.se_managed_dao.get_all()
         for entry_document in scheduler_entries:
             if entry_document.process_name not in ProcessContext.CONTEXT:
                 self.logger.error('Process %r is not known to the system. Skipping it.' % entry_document.process_name)
                 continue
 
             trigger_time = entry_document.trigger_time
-            is_active = entry_document.process_state == scheduler_entry.STATE_ON
+            is_active = entry_document.process_state == scheduler_managed_entry.STATE_ON
             process_type = ProcessContext.get_process_type(entry_document.process_name)
-            parameters = [entry_document.process_name, entry_document]
 
             if process_type in [TYPE_BLOCKING_DEPENDENCIES, TYPE_BLOCKING_CHILDREN, TYPE_MANAGED]:
                 function = self.fire_managed_worker
-            elif process_type == TYPE_FREERUN:
-                function = self.fire_freerun_worker
+                handler_type = TYPE_MANAGED
             elif process_type == TYPE_GARBAGE_COLLECTOR:
                 function = self.fire_garbage_collector
+                handler_type = TYPE_MANAGED
+            elif process_type == TYPE_FREERUN:
+                function = self.fire_freerun_worker
+                handler_type = TYPE_FREERUN
             else:
                 self.logger.error('Can not start scheduler for %s since it has no processing function' % process_type)
                 continue
 
+            parameters = [entry_document.process_name, entry_document, handler_type]
             handler = self._construct_handler(entry_document.process_name, trigger_time, function, parameters)
-            self.thread_handlers[entry_document.process_name] = handler
+            self.managed_handlers[entry_document.process_name] = handler
 
             if is_active:
                 handler.start()
@@ -104,6 +109,33 @@ class Scheduler(SynergyProcess):
             else:
                 self.logger.info('Handler for %s:%s registered in Scheduler. Idle until activated.'
                                  % (process_type, entry_document.process_name))
+
+    def _load_freerun_entries(self):
+        """ reads scheduler managed entries and starts their timers to trigger events """
+        scheduler_entries = self.se_freerun_dao.get_all()
+        for entry_document in scheduler_entries:
+            trigger_time = entry_document.trigger_time
+            is_active = entry_document.process_state == scheduler_managed_entry.STATE_ON
+
+            parameters = [entry_document.entry_name, entry_document, TYPE_FREERUN]
+            handler = self._construct_handler(entry_document.entry_name, trigger_time,
+                                              self.fire_freerun_worker, parameters)
+            self.freerun_handlers[entry_document.key] = handler
+
+            if is_active:
+                handler.start()
+                self.logger.info('Started scheduler thread for %s:%r.'
+                                 % (TYPE_FREERUN, entry_document.key))
+            else:
+                self.logger.info('Handler for %s:%r registered in Scheduler. Idle until activated.'
+                                 % (TYPE_FREERUN, entry_document.key))
+
+
+    @with_reconnect
+    def start(self, *_):
+        """ reading scheduler configurations and starting timers to trigger events """
+        self._load_managed_entries()
+        self._load_freerun_entries()
 
         # as Scheduler is now initialized and running - we can safely start its MX
         self.mx = MX(self)
@@ -156,7 +188,7 @@ class Scheduler(SynergyProcess):
         try:
             process_name = args[0]
             entry_document = args[1]
-            assert isinstance(entry_document, scheduler_entry.SchedulerEntry)
+            assert isinstance(entry_document, scheduler_managed_entry.SchedulerManagedEntry)
             self.logger.info('%s {' % process_name)
 
             publisher = self.publishers.get(process_name)
@@ -178,7 +210,7 @@ class Scheduler(SynergyProcess):
         try:
             process_name = args[0]
             entry_document = args[1]
-            assert isinstance(entry_document, scheduler_entry.SchedulerEntry)
+            assert isinstance(entry_document, scheduler_managed_entry.SchedulerManagedEntry)
             self.logger.info('%s {' % process_name)
 
             publisher = self.publishers.get(process_name)

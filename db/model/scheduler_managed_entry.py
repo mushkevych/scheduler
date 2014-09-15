@@ -12,11 +12,11 @@ STATE_ON = 'state_on'
 STATE_OFF = 'state_off'
 
 
-class SchedulerEntry(BaseModel):
-    """ Class presents single configuration entry for the scheduler. """
+class SchedulerManagedEntry(BaseModel):
+    """ Class presents single configuration entry for scheduler managed (i.e. - non-freerun) processes. """
 
     def __init__(self, document=None):
-        super(SchedulerEntry, self).__init__(document)
+        super(SchedulerManagedEntry, self).__init__(document)
 
     @property
     def key(self):

@@ -2,36 +2,47 @@ __author__ = 'Bohdan Mushkevych'
 
 from db.model.base_model import *
 
-ENTRY_NAME = 'entry_name'
-DESCRIPTION = 'description'
-STATE = 'state'
-TRIGGER_TIME = 'trigger_time'
-ARGUMENTS = 'arguments'                # arguments that defines a job (host, script to run, etc)
+PROCESS_NAME = 'process_name'           # name of the process to handle the schedulables
+ENTRY_NAME = 'entry_name'               # name of the schedulable
+DESCRIPTION = 'description'             # description of the schedulable
+STATE = 'state'                         # either :STATE_ON or :STATE_OFF
+TRIGGER_TIME = 'trigger_time'           # either 'at DoW-HH:MM' or 'every XXX'
+ARGUMENTS = 'arguments'                 # arguments that defines a job (host, script to run, etc)
 
 STATE_ON = 'state_on'
 STATE_OFF = 'state_off'
 
 
-class FreerunEntry(BaseModel):
+class SchedulerFreerunEntry(BaseModel):
     """ Class presents single configuration entry for the freerun process/bash_driver . """
 
     def __init__(self, document=None):
-        super(FreerunEntry, self).__init__(document)
+        super(SchedulerFreerunEntry, self).__init__(document)
 
     @property
     def key(self):
-        return self.data[ENTRY_NAME]
+        return self.process_name, self.entry_name
 
     @key.setter
     def key(self, value):
-        self.data[ENTRY_NAME] = value
+        assert not isinstance(value, str)
+        self.process_name = value[0]
+        self.entry_name = value[1]
 
     @property
     def process_name(self):
-        return self.data[ENTRY_NAME]
+        return self.data[PROCESS_NAME]
 
     @process_name.setter
     def process_name(self, value):
+        self.data[PROCESS_NAME] = value
+
+    @property
+    def entry_name(self):
+        return self.data[ENTRY_NAME]
+
+    @entry_name.setter
+    def entry_name(self, value):
         self.data[ENTRY_NAME] = value
 
     @property

@@ -5,7 +5,7 @@ from werkzeug.utils import cached_property
 from settings import settings
 from system import time_helper
 from system.process_context import ProcessContext
-from mx.commons import valid_only
+from mx.commons import managed_entry_request
 
 
 class TreeNodeDetails(object):
@@ -15,7 +15,7 @@ class TreeNodeDetails(object):
         self.request = request
         self.process_name = request.args.get('process_name')
         self.timeperiod = request.args.get('timeperiod')
-        self.valid = self.mbean is not None
+        self.is_managed_request_valid = self.mbean is not None
 
     @classmethod
     def get_details(cls, logger, node):
@@ -41,7 +41,7 @@ class TreeNodeDetails(object):
             return description
 
     @cached_property
-    @valid_only
+    @managed_entry_request
     def details(self):
         resp = dict()
         timetable = self.mbean.timetable

@@ -48,3 +48,12 @@ class RepeatTimer(threading.Thread):
 
     def change_interval(self, value):
         self.interval_new = value
+
+    def next_run_in(self):
+        """ :return: timedelta instance presenting amount of time before the trigger is triggered next time
+         or None if the RepeatTimer instance is not running """
+        if self.is_alive():
+            next_run = datetime.timedelta(seconds=self.interval_current) + self.activation_dt
+            return next_run - datetime.utcnow()
+        else:
+            return None

@@ -10,10 +10,10 @@ from mq.flopsy import PublishersPool
 from system.decorator import thread_safe
 from workers.abstract_mq_worker import AbstractMqWorker
 from db.model import unit_of_work
-from db.model import scheduler_entry
+from db.model import scheduler_managed_entry
 from db.dao.unit_of_work_dao import UnitOfWorkDao
-from db.model.scheduler_entry import SchedulerEntry
-from db.dao.scheduler_entry_dao import SchedulerEntryDao
+from db.model.scheduler_managed_entry import SchedulerManagedEntry
+from db.dao.scheduler_managed_entry_dao import SchedulerManagedEntryDao
 
 
 LIFE_SUPPORT_HOURS = 48  # number of hours from UOW creation time to keep UOW re-posting to MQ
@@ -28,7 +28,7 @@ class GarbageCollectorWorker(AbstractMqWorker):
         self.lock = Lock()
         self.publishers = PublishersPool(self.logger)
         self.uow_dao = UnitOfWorkDao(self.logger)
-        self.sc_dao = SchedulerEntryDao(self.logger)
+        self.sc_dao = SchedulerManagedEntryDao(self.logger)
         self.scheduler_configuration = dict()
 
     def __del__(self):
@@ -56,8 +56,8 @@ class GarbageCollectorWorker(AbstractMqWorker):
                     continue
 
                 process_config = self.scheduler_configuration[uow.process_name]
-                assert isinstance(process_config, SchedulerEntry)
-                if process_config.process_state != scheduler_entry.STATE_ON:
+                assert isinstance(process_config, SchedulerManagedEntry)
+                if process_config.process_state != scheduler_managed_entry.STATE_ON:
                     self.logger.debug('Process %r is inactive at the Synergy Scheduler. Skipping its unit_of_work.'
                                       % uow.process_name)
                     continue
