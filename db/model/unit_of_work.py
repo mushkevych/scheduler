@@ -21,7 +21,7 @@ SINK = 'sink'                          # defines sink where the aggregated data 
 PROCESSED_LOG = 'processed_log'        # log contains list of processed files or other artifacts
 FILE_NAME = 'file_name'                # Name of processed file
 MD5 = 'md5'                            # MD5 tag for the hash of the file
-ARGUMENTS = 'arguments'
+ARGUMENTS = 'arguments'                # task-level arguments that could supplement or override process-level ones
 
 STATE_PROCESSED = 'state_processed'
 STATE_IN_PROGRESS = 'state_in_progress'

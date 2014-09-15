@@ -39,8 +39,9 @@ class TimetableDetails(object):
                                        ProcessContext.get_time_qualifier(process_name),              # index x1
                                        self._state_machine_name(process_name),                       # index x2
                                        ProcessContext.get_process_type(process_name),                # index x3
-                                       context_entry.dependent_on,                                   # index x4
-                                       self._list_of_dependant_trees(tree_obj)]                      # index x5
+                                       ProcessContext.run_on_active_timeperiod(process_name),        # index x4
+                                       context_entry.dependent_on,                                   # index x5
+                                       self._list_of_dependant_trees(tree_obj)]                      # index x6
                     processes[process_name] = process_details
                 tree_row.append(processes)
 

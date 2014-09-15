@@ -10,17 +10,21 @@ from mx.scheduler_entries import SchedulerEntries
 from mx.processing_statements import ProcessingStatementDetails
 from mx.utils import render_template, expose, jinja_env
 from mx.tree_node_details import TreeNodeDetails
-from mx.connection_details import ConnectionDetails
 from mx.timeperiod_details import TimeperiodDetails
 from mx.timetable_details import TimetableDetails
 
 
 @expose('/')
-@expose('/scheduler_details/')
-def scheduler_details(request):
+@expose('/scheduler_managed_entries/')
+def scheduler_managed_entries(request):
     details = SchedulerEntries(jinja_env.globals['mbean'])
-    connections = ConnectionDetails(jinja_env.globals['mbean'])
-    return render_template('scheduler_entries.html', details=details, connections=connections)
+    return render_template('scheduler_managed_entries.html', details=details)
+
+
+@expose('/scheduler_freerun_entries/')
+def scheduler_freerun_entries(request):
+    details = SchedulerEntries(jinja_env.globals['mbean'])
+    return render_template('scheduler_freerun_entries.html', details=details)
 
 
 @expose('/timetable_details/')

@@ -96,7 +96,15 @@ process_context = {
         token=TOKEN_ALERT,
         time_qualifier=QUALIFIER_DAILY,
         exchange=EXCHANGE_MANAGED_WORKER,
-        process_type=TYPE_BLOCKING_DEPENDENCIES)
+        process_type=TYPE_BLOCKING_DEPENDENCIES),
+
+    PROCESS_BASH_DRIVER: _process_context_entry(
+        process_name=PROCESS_BASH_DRIVER,
+        classname='workers.bash_driver.BashDriver.start',
+        token=TOKEN_BASH_DRIVER,
+        time_qualifier=QUALIFIER_REAL_TIME,
+        exchange=EXCHANGE_FREERUN_WORKER,
+        process_type=TYPE_FREERUN),
 }
 
 

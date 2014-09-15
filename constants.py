@@ -13,6 +13,7 @@ PROCESS_CLIENT_DAILY = 'ClientDailyAggregator'
 PROCESS_CLIENT_MONTHLY = 'ClientMonthlyAggregator'
 PROCESS_CLIENT_YEARLY = 'ClientYearlyAggregator'
 PROCESS_ALERT_DAILY = 'AlertDailyWorker'
+PROCESS_BASH_DRIVER = 'BashDriver'
 
 # process provides <process context> to the launch.py script
 PROCESS_LAUNCH_PY = 'LaunchPy'
@@ -28,6 +29,7 @@ TOKEN_SESSION = 'session'
 TOKEN_SITE = 'site'
 TOKEN_CLIENT = 'client'
 TOKEN_ALERT = 'alert'
+TOKEN_BASH_DRIVER = 'bash'
 
 # ** QUEUES **
 PREFIX_ROUTING = 'routing_'
