@@ -130,12 +130,18 @@ class Scheduler(SynergyProcess):
                 self.logger.info('Handler for %s:%r registered in Scheduler. Idle until activated.'
                                  % (TYPE_FREERUN, entry_document.key))
 
-
     @with_reconnect
     def start(self, *_):
         """ reading scheduler configurations and starting timers to trigger events """
-        self._load_managed_entries()
-        self._load_freerun_entries()
+        try:
+            self._load_managed_entries()
+        except LookupError as e:
+            self.logger.warn('DB Lookup: %s' % str(e))
+
+        try:
+            self._load_freerun_entries()
+        except LookupError as e:
+            self.logger.warn('DB Lookup: %s' % str(e))
 
         # as Scheduler is now initialized and running - we can safely start its MX
         self.mx = MX(self)
@@ -186,16 +192,16 @@ class Scheduler(SynergyProcess):
     def fire_freerun_worker(self, *args):
         """fires free-run worker with no dependencies and history to track"""
         try:
-            process_name = args[0]
+            process_name, entry_name = args[0]
             entry_document = args[1]
-            assert isinstance(entry_document, scheduler_managed_entry.SchedulerManagedEntry)
+            assert isinstance(entry_document, scheduler_freerun_entry.SchedulerFreerunEntry)
             self.logger.info('%s {' % process_name)
 
             publisher = self.publishers.get(process_name)
-            publisher.publish(ProcessContext.get_arguments(process_name))
+            publisher.publish(entry_document.arguments)
             publisher.release()
 
-            self.logger.info('Published trigger for %s' % process_name)
+            self.logger.info('Published trigger for %s::%s' % (process_name, entry_name))
         except (AMQPError, IOError) as e:
             self.logger.error('AMQPError: %s' % str(e), exc_info=True)
             self.publishers.reset_all(suppress_logging=True)

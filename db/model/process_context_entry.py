@@ -110,7 +110,7 @@ class ProcessContextEntry(BaseModel):
 
     @property
     def arguments(self):
-        return self.data[ARGUMENTS]
+        return self.data.get(ARGUMENTS, dict())
 
     @arguments.setter
     def arguments(self, value):

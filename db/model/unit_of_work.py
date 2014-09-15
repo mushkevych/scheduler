@@ -95,7 +95,7 @@ class UnitOfWork(BaseModel):
 
     @property
     def arguments(self):
-        return self.data.get(ARGUMENTS)
+        return self.data.get(ARGUMENTS, dict())
 
     @arguments.setter
     def arguments(self, value):

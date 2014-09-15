@@ -5,7 +5,7 @@ http://code.activestate.com/lists/python-ideas/8982/
 """
 import numbers
 import threading
-from datetime import datetime
+from datetime import datetime, timedelta
 
 
 class RepeatTimer(threading.Thread):
@@ -53,7 +53,7 @@ class RepeatTimer(threading.Thread):
         """ :return: timedelta instance presenting amount of time before the trigger is triggered next time
          or None if the RepeatTimer instance is not running """
         if self.is_alive():
-            next_run = datetime.timedelta(seconds=self.interval_current) + self.activation_dt
+            next_run = timedelta(seconds=self.interval_current) + self.activation_dt
             return next_run - datetime.utcnow()
         else:
             return None
