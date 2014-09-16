@@ -43,3 +43,10 @@ class SchedulerManagedEntryDao(object):
         assert isinstance(instance, SchedulerManagedEntry)
         collection = self.ds.connection(COLLECTION_SCHEDULER_MANAGED_ENTRIES)
         return collection.save(instance.document, safe=True)
+
+    @thread_safe
+    def remove(self, key):
+        assert isinstance(key, str)
+        query = {'process_name': key}
+        collection = self.ds.connection(COLLECTION_SCHEDULER_MANAGED_ENTRIES)
+        return collection.remove(query, safe=True)

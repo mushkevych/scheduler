@@ -172,7 +172,7 @@ class ActionHandler(object):
         return self._action_trigger_now(thread_handler, handler_key)
 
     def _action_change_state(self, thread_handler):
-        scheduler_entry_obj = thread_handler.args[1]  # of type SchedulerEntry
+        scheduler_entry_obj = thread_handler.args[1]
 
         state = self.request.args.get('state')
         if state is None:
@@ -208,6 +208,33 @@ class ActionHandler(object):
         return self._action_change_state(thread_handler)
 
     @freerun_entry_request
-    def action_update_freerun(self):
-        thread_handler = self.mbean.freerun_handlers[(self.process_name, self.entry_name)]
-        return self._action_change_state(thread_handler)
+    def action_update_freerun_entry(self):
+        handler_key = (self.process_name, self.entry_name)
+        thread_handler = self.mbean.freerun_handlers[handler_key]
+        scheduler_entry_obj = thread_handler.args[1]
+        assert isinstance(scheduler_entry_obj, SchedulerFreerunEntry)
+
+        if 'update_button' in self.request.args:
+            scheduler_entry_obj.process_name = self.process_name
+            scheduler_entry_obj.entry_name = self.entry_name
+            scheduler_entry_obj.arguments = self.request.args['arguments']
+            scheduler_entry_obj.description = self.request.args['description']
+            scheduler_entry_obj.process_state = self.request.args['process_state']
+            scheduler_entry_obj.trigger_time = self.request.args['trigger_time']
+
+            self.se_freerun_dao.update(scheduler_entry_obj)
+        elif 'delete_button' in self.request.args:
+            self.se_freerun_dao.remove(handler_key)
+        elif 'cancel_button' in self.request.args:
+            pass
+        else:
+            self.logger.error('Unknown action requested by schedulable_form.html')
+        return {'status': 'OK'}
+
+    @freerun_entry_request
+    def get_freerun_entry(self):
+        handler_key = (self.process_name, self.entry_name)
+        thread_handler = self.mbean.freerun_handlers[handler_key]
+        scheduler_entry_obj = thread_handler.args[1]
+        assert isinstance(scheduler_entry_obj, SchedulerFreerunEntry)
+        return scheduler_entry_obj.document

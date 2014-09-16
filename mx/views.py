@@ -27,10 +27,15 @@ def scheduler_freerun_entries(request):
     return render_template('scheduler_freerun_entries.html', details=details)
 
 
-@expose('/schedulable_form/')
-def schedulable_form(request):
-    details = SchedulerEntries(jinja_env.globals['mbean'])
-    return render_template('schedulable_form.html', schedulable=schedulable)
+@expose('/edit_schedulable_form/')
+def edit_schedulable_form(request):
+    handler = ActionHandler(jinja_env.globals['mbean'], request)
+    return render_template('schedulable_form.html', handler=handler)
+
+
+@expose('/new_schedulable_form/')
+def new_schedulable_form(request):
+    return render_template('schedulable_form.html', details=None)
 
 
 @expose('/timetable_details/')
@@ -73,6 +78,13 @@ def request_verticals(request):
 def request_timeperiods(request):
     details = TimeperiodDetails(jinja_env.globals['mbean'], request)
     return Response(response=json.dumps(details.details),
+                    mimetype='application/json')
+
+
+@expose('/action_update_freerun_entry/')
+def action_update_freerun_entry(request):
+    handler = ActionHandler(jinja_env.globals['mbean'], request)
+    return Response(response=json.dumps(handler.action_reprocess()),
                     mimetype='application/json')
 
 

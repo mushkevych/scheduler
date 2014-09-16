@@ -45,3 +45,10 @@ class SchedulerFreerunEntryDao(object):
         assert isinstance(instance, SchedulerFreerunEntry)
         collection = self.ds.connection(COLLECTION_SCHEDULER_FREERUN_ENTRIES)
         return collection.save(instance.document, safe=True)
+
+    @thread_safe
+    def remove(self, key):
+        assert not isinstance(key, str)
+        query = {'process_name': key[0], 'entry_name': key[1]}
+        collection = self.ds.connection(COLLECTION_SCHEDULER_FREERUN_ENTRIES)
+        return collection.remove(query, safe=True)
