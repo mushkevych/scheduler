@@ -1,14 +1,9 @@
 __author__ = 'Bohdan Mushkevych'
 
-from datetime import datetime, timedelta
-
 from werkzeug.utils import cached_property
 
 from db.model import scheduler_managed_entry
-from scheduler.scheduler_constants import TYPE_FREERUN
-from system.repeat_timer import RepeatTimer
-from system.event_clock import EventClock, format_time_trigger_string
-from system.process_context import ProcessContext
+from system.event_clock import format_time_trigger_string
 from system.performance_tracker import FootprintCalculator
 
 

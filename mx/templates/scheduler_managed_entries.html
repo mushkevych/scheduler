@@ -17,7 +17,7 @@
     {%- for row in details.managed_entries %}
     <tr>
         <td>
-            <form method="GET" action="/action_change_process_state/">
+            <form method="GET" action="/action_change_managed_state/">
                 <input type="hidden" name="process_name" value="{{ row[2] }}" />
                 <input type="hidden" name="timeperiod" value="{{ row[4] }}" />
                 <input type="checkbox" name="state" value="state_on" {% if row[0] %} checked {% endif %} />
@@ -27,7 +27,7 @@
         <td>{{ row[1] }}</td>
         <td>{{ row[2] }}</td>
         <td>
-            <form method="GET" action="/action_change_interval/">
+            <form method="GET" action="/action_change_managed_interval/">
                 <input type="hidden" name="process_name" value="{{ row[2] }}" />
                 <input type="hidden" name="timeperiod" value="{{ row[4] }}" />
                 <input type="text" size="8" maxlength="32" name="interval" value="{{ row[3] }}" />
@@ -35,7 +35,7 @@
             </form>
         </td>
         <td>
-            <form method="GET" action="/action_trigger_now/">
+            <form method="GET" action="/action_trigger_managed_now/">
                 <input type="hidden" name="process_name" value="{{ row[2] }}" />
                 <input type="hidden" name="timeperiod" value="{{ row[4] }}" />
                 <input type="submit" value="Trigger" />

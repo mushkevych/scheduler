@@ -1,12 +1,12 @@
 __author__ = 'Bohdan Mushkevych'
 
-from datetime import datetime, timedelta
-
-from db.model import scheduler_managed_entry
 from db.dao.scheduler_managed_entry_dao import SchedulerManagedEntryDao
 from db.dao.unit_of_work_dao import UnitOfWorkDao
+from db.dao.scheduler_freerun_entry_dao import SchedulerFreerunEntryDao
+from db.model import scheduler_managed_entry
+from db.model.scheduler_freerun_entry import SchedulerFreerunEntry
+from scheduler.scheduler_constants import TYPE_MANAGED, TYPE_FREERUN
 from system import time_helper
-from system.repeat_timer import RepeatTimer
 from system.event_clock import format_time_trigger_string, parse_time_trigger_string
 from system.process_context import ProcessContext
 from mx.commons import managed_entry_request, freerun_entry_request
@@ -28,7 +28,8 @@ class ActionHandler(object):
                                         and self.process_name is not None \
                                         and self.entry_name is not None
         self.uow_dao = UnitOfWorkDao(self.logger)
-        self.sc_dao = SchedulerManagedEntryDao(self.logger)
+        self.se_managed_dao = SchedulerManagedEntryDao(self.logger)
+        self.se_freerun_dao = SchedulerFreerunEntryDao(self.logger)
 
     @managed_entry_request
     def action_reprocess(self):
@@ -101,14 +102,12 @@ class ActionHandler(object):
 
         return resp
 
-    @managed_entry_request
-    def action_change_interval(self):
+    def _action_change_interval(self, thread_handler, handler_key, handler_type):
         resp = dict()
         new_interval = self.request.args.get('interval')
         if new_interval is not None:
             parsed_trigger_time, timer_klass = parse_time_trigger_string(new_interval)
-            thread_handler = self.mbean.thread_handlers[self.process_name]
-            entry_document = thread_handler.args[1]  # of type SchedulerEntry
+            scheduler_entry_obj = thread_handler.args[1]  # of type SchedulerEntry
 
             if isinstance(thread_handler, timer_klass):
                 # trigger time has changed only frequency of run
@@ -117,21 +116,41 @@ class ActionHandler(object):
                 # trigger time requires different type of timer - RepeatTimer instead of EventClock and vice versa
                 thread_handler.cancel()
                 new_thread_handler = timer_klass(parsed_trigger_time, thread_handler.function, thread_handler.args)
-                self.mbean.thread_handlers[self.process_name] = new_thread_handler
-                is_active = entry_document.process_state == scheduler_managed_entry.STATE_ON
+
+                if handler_type == TYPE_MANAGED:
+                    self.mbean.managed_handlers[handler_key] = thread_handler
+                elif handler_type == TYPE_FREERUN:
+                    self.mbean.freerun_handlers[handler_key] = thread_handler
+                else:
+                    self.logger.error('Process/Handler type %s is not known to the system. Skipping it.' % handler_type)
+                    return
+
+                is_active = scheduler_entry_obj.process_state == scheduler_managed_entry.STATE_ON
                 if is_active:
                     new_thread_handler.start()
 
-            entry_document.trigger_time = format_time_trigger_string(self.mbean.thread_handlers[self.process_name])
-            self.sc_dao.update(entry_document)
+            if isinstance(scheduler_entry_obj, SchedulerFreerunEntry):
+                self.se_freerun_dao.update(scheduler_entry_obj)
+            else:
+                self.se_managed_dao.update(scheduler_entry_obj)
+
+            scheduler_entry_obj.trigger_time = format_time_trigger_string(thread_handler)
             resp['status'] = 'changed interval for %r to %r' % (self.process_name, new_interval)
 
         return resp
 
     @managed_entry_request
-    def action_trigger_now(self):
-        resp = dict()
-        thread_handler = self.mbean.thread_handlers[self.process_name]
+    def action_change_managed_interval(self):
+        thread_handler = self.mbean.managed_handlers[self.process_name]
+        return self._action_change_interval(thread_handler, self.process_name, TYPE_MANAGED)
+
+    @freerun_entry_request
+    def action_change_freerun_interval(self):
+        handler_key = (self.process_name, self.entry_name)
+        thread_handler = self.mbean.freerun_handlers[handler_key]
+        return self._action_change_interval(thread_handler, handler_key, TYPE_FREERUN)
+
+    def _action_trigger_now(self, thread_handler, handler_key):
         thread_handler.trigger()
 
         if thread_handler.is_alive():
@@ -139,53 +158,56 @@ class ActionHandler(object):
         else:
             next_run = 'NA'
 
-        resp['status'] = 'Triggered process %r; Next run in %r' % (self.process_name, str(next_run).split('.')[0])
-        return resp
+        return {'status': 'Triggered process %r; Next run in %r' % (handler_key, str(next_run).split('.')[0])}
+
+    @managed_entry_request
+    def action_trigger_managed_now(self):
+        thread_handler = self.mbean.managed_handlers[self.process_name]
+        return self._action_trigger_now(thread_handler, self.process_name)
 
     @freerun_entry_request
     def action_trigger_freerun_now(self):
-        resp = dict()
-        thread_handler = self.mbean.thread_handlers[(self.process_name, self.entry_name)]
-        thread_handler.trigger()
+        handler_key = (self.process_name, self.entry_name)
+        thread_handler = self.mbean.freerun_handlers[handler_key]
+        return self._action_trigger_now(thread_handler, handler_key)
 
-        if thread_handler.is_alive():
-            next_run = thread_handler.next_run_in()
-        else:
-            next_run = 'NA'
-
-        resp['status'] = 'Triggered process %r; Next run in %r' \
-                         % ((self.process_name, self.entry_name), str(next_run).split('.')[0])
-        return resp
-
-    @managed_entry_request
-    def action_change_process_state(self):
-        resp = dict()
-        thread_handler = self.mbean.thread_handlers[self.process_name]
-        document = thread_handler.args[1]  # of type SchedulerEntry
+    def _action_change_state(self, thread_handler):
+        scheduler_entry_obj = thread_handler.args[1]  # of type SchedulerEntry
 
         state = self.request.args.get('state')
         if state is None:
             # request was performed with undefined "state", what means that checkbox was unselected
             # thus - turning off the process
             thread_handler.cancel()
-            document.process_state = scheduler_managed_entry.STATE_OFF
-            message = 'Stopped RepeatTimer for %s' % document.process_name
+            scheduler_entry_obj.process_state = scheduler_managed_entry.STATE_OFF
+            message = 'Stopped RepeatTimer for %s' % scheduler_entry_obj.process_name
         elif not thread_handler.is_alive():
-            document.process_state = scheduler_managed_entry.STATE_ON
-
-            thread_handler = RepeatTimer(thread_handler.interval_current,
-                                         thread_handler.call_back,
-                                         thread_handler.args,
-                                         thread_handler.kwargs)
+            scheduler_entry_obj.process_state = scheduler_managed_entry.STATE_ON
             thread_handler.start()
-
-            self.mbean.thread_handlers[self.process_name] = thread_handler
             message = 'Started RepeatTimer for %s, triggering every %d seconds' \
-                      % (document.process_name, document.trigger_time)
+                      % (scheduler_entry_obj.process_name, scheduler_entry_obj.trigger_time)
         else:
-            message = 'RepeatTimer for %s is already active. Ignoring request.' % document.process_name
+            message = 'RepeatTimer for %s is already active. Ignoring request.' % scheduler_entry_obj.process_name
 
-        self.sc_dao.update(document)
+        if isinstance(scheduler_entry_obj, SchedulerFreerunEntry):
+            self.se_freerun_dao.update(scheduler_entry_obj)
+        else:
+            self.se_managed_dao.update(scheduler_entry_obj)
+
         self.logger.info(message)
-        resp['status'] = message
-        return resp
+        return {'status': message}
+
+    @managed_entry_request
+    def action_change_managed_state(self):
+        thread_handler = self.mbean.managed_handlers[self.process_name]
+        return self._action_change_state(thread_handler)
+
+    @freerun_entry_request
+    def action_change_freerun_state(self):
+        thread_handler = self.mbean.freerun_handlers[(self.process_name, self.entry_name)]
+        return self._action_change_state(thread_handler)
+
+    @freerun_entry_request
+    def action_update_freerun(self):
+        thread_handler = self.mbean.freerun_handlers[(self.process_name, self.entry_name)]
+        return self._action_change_state(thread_handler)

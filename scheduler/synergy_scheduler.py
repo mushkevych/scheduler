@@ -61,7 +61,7 @@ class Scheduler(SynergyProcess):
             pipelines[pipe.name] = pipe
         return pipelines
 
-    def _construct_handler(self, process_name, trigger_time, function, parameters):
+    def _construct_handler(self, key, trigger_time, function, parameters):
         """ method returns either:
          - alarm clock of type EventClock, when <schedule> is in format 'at HH:MM, ..., HH:MM'
          - repeat timer of type RepeatTimer, when <schedule> is in format 'every seconds'
@@ -69,23 +69,47 @@ class Scheduler(SynergyProcess):
         """
         parsed_trigger_time, timer_klass = parse_time_trigger_string(trigger_time)
         timer_instance = timer_klass(parsed_trigger_time, function, args=parameters)
-        self.logger.info('Created %s for %s with schedule %r'
-                         % (type(timer_klass).__name__, process_name, trigger_time))
+        self.logger.info('Created %s for %r with schedule %r' % (type(timer_klass).__name__, key, trigger_time))
         return timer_instance
+
+    def _activate_handler(self, scheduler_entry_obj, process_name, entry_name, function, handler_type):
+        """ method parses scheduler_entry_obj and creates a timer_handler out of it
+         timer_handler is enlisted to either :self.freerun_handlers or :self.managed_handlers
+         timer_handler is started, unless it is marked as STATE_OFF """
+        trigger_time = scheduler_entry_obj.trigger_time
+        is_active = scheduler_entry_obj.process_state == scheduler_managed_entry.STATE_ON
+
+        arguments = [scheduler_entry_obj.key, scheduler_entry_obj, handler_type]
+        handler = self._construct_handler(scheduler_entry_obj.key, trigger_time, function, arguments)
+
+        if handler_type == TYPE_MANAGED:
+            handler_key = process_name
+            self.managed_handlers[handler_key] = handler
+        elif handler_type == TYPE_FREERUN:
+            handler_key = (process_name, entry_name)
+            self.freerun_handlers[handler_key] = handler
+        else:
+            self.logger.error('Process/Handler type %s is not known to the system. Skipping it.' % handler_type)
+            return
+
+        if is_active:
+            handler.start()
+            self.logger.info('Started scheduler thread for %s:%r.' % (handler_type, handler_key))
+        else:
+            self.logger.info('Handler for %s:%r registered in Scheduler. Idle until activated.'
+                             % (handler_type, handler_key))
 
     # **************** Scheduler Methods ************************
     def _load_managed_entries(self):
-        """ reads scheduler managed entries and starts their timers to trigger events """
+        """ loads scheduler managed entries. no start-up procedures are performed """
         scheduler_entries = self.se_managed_dao.get_all()
-        for entry_document in scheduler_entries:
-            if entry_document.process_name not in ProcessContext.CONTEXT:
-                self.logger.error('Process %r is not known to the system. Skipping it.' % entry_document.process_name)
+        for scheduler_entry_obj in scheduler_entries:
+            process_name = scheduler_entry_obj.process_name
+            if scheduler_entry_obj.process_name not in ProcessContext.CONTEXT:
+                self.logger.error('Process %r is not known to the system. Skipping it.' % process_name)
                 continue
 
-            trigger_time = entry_document.trigger_time
-            is_active = entry_document.process_state == scheduler_managed_entry.STATE_ON
-            process_type = ProcessContext.get_process_type(entry_document.process_name)
-
+            process_type = ProcessContext.get_process_type(process_name)
             if process_type in [TYPE_BLOCKING_DEPENDENCIES, TYPE_BLOCKING_CHILDREN, TYPE_MANAGED]:
                 function = self.fire_managed_worker
                 handler_type = TYPE_MANAGED
@@ -96,39 +120,17 @@ class Scheduler(SynergyProcess):
                 function = self.fire_freerun_worker
                 handler_type = TYPE_FREERUN
             else:
-                self.logger.error('Can not start scheduler for %s since it has no processing function' % process_type)
+                self.logger.error('Process type %s is not known to the system. Skipping it.' % process_type)
                 continue
 
-            parameters = [entry_document.process_name, entry_document, handler_type]
-            handler = self._construct_handler(entry_document.process_name, trigger_time, function, parameters)
-            self.managed_handlers[entry_document.process_name] = handler
-
-            if is_active:
-                handler.start()
-                self.logger.info('Started scheduler thread for %s:%s.' % (process_type, entry_document.process_name))
-            else:
-                self.logger.info('Handler for %s:%s registered in Scheduler. Idle until activated.'
-                                 % (process_type, entry_document.process_name))
+            self._activate_handler(scheduler_entry_obj, process_name, 'NA', function, handler_type)
 
     def _load_freerun_entries(self):
         """ reads scheduler managed entries and starts their timers to trigger events """
         scheduler_entries = self.se_freerun_dao.get_all()
-        for entry_document in scheduler_entries:
-            trigger_time = entry_document.trigger_time
-            is_active = entry_document.process_state == scheduler_managed_entry.STATE_ON
-
-            parameters = [entry_document.entry_name, entry_document, TYPE_FREERUN]
-            handler = self._construct_handler(entry_document.entry_name, trigger_time,
-                                              self.fire_freerun_worker, parameters)
-            self.freerun_handlers[entry_document.key] = handler
-
-            if is_active:
-                handler.start()
-                self.logger.info('Started scheduler thread for %s:%r.'
-                                 % (TYPE_FREERUN, entry_document.key))
-            else:
-                self.logger.info('Handler for %s:%r registered in Scheduler. Idle until activated.'
-                                 % (TYPE_FREERUN, entry_document.key))
+        for scheduler_entry_obj in scheduler_entries:
+            self._activate_handler(scheduler_entry_obj, scheduler_entry_obj.process_name,
+                                   scheduler_entry_obj.entry_name, self.fire_freerun_worker, TYPE_FREERUN)
 
     @with_reconnect
     def start(self, *_):
@@ -152,13 +154,13 @@ class Scheduler(SynergyProcess):
         """requests vertical aggregator (hourly site, daily variant, etc) to start up"""
         try:
             process_name = args[0]
-            entry_document = args[1]
+            scheduler_entry_obj = args[1]
             self.logger.info('%s {' % process_name)
 
             timetable_record = self.timetable.get_next_timetable_record(process_name)
-            pipeline = self.pipelines[entry_document.state_machine_name]
+            pipeline = self.pipelines[scheduler_entry_obj.state_machine_name]
 
-            run_on_active_timeperiod = ProcessContext.run_on_active_timeperiod(entry_document.process_name)
+            run_on_active_timeperiod = ProcessContext.run_on_active_timeperiod(scheduler_entry_obj.process_name)
             if not run_on_active_timeperiod:
                 time_qualifier = ProcessContext.get_time_qualifier(process_name)
                 incremented_timeperiod = time_helper.increment_timeperiod(time_qualifier, timetable_record.timeperiod)
@@ -172,7 +174,7 @@ class Scheduler(SynergyProcess):
                                         dt_record_timestamp.strftime('%Y-%m-%d %H:%M:%S')))
                     return
 
-            process_type = ProcessContext.get_process_type(entry_document.process_name)
+            process_type = ProcessContext.get_process_type(scheduler_entry_obj.process_name)
             if process_type == TYPE_BLOCKING_DEPENDENCIES:
                 pipeline.manage_pipeline_with_blocking_dependencies(process_name, timetable_record)
             elif process_type == TYPE_BLOCKING_CHILDREN:
@@ -193,12 +195,17 @@ class Scheduler(SynergyProcess):
         """fires free-run worker with no dependencies and history to track"""
         try:
             process_name, entry_name = args[0]
-            entry_document = args[1]
-            assert isinstance(entry_document, scheduler_freerun_entry.SchedulerFreerunEntry)
+            scheduler_entry_obj = args[1]
+
+            if isinstance(scheduler_entry_obj, scheduler_freerun_entry.SchedulerFreerunEntry):
+                arguments = scheduler_entry_obj.arguments
+            else:
+                arguments = ProcessContext.get_arguments(process_name)
+
             self.logger.info('%s {' % process_name)
 
             publisher = self.publishers.get(process_name)
-            publisher.publish(entry_document.arguments)
+            publisher.publish(arguments)
             publisher.release()
 
             self.logger.info('Published trigger for %s::%s' % (process_name, entry_name))

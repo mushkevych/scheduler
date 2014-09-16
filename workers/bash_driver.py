@@ -27,15 +27,14 @@ class BashDriver(AbstractCliWorker):
             self.is_alive = True
             self.logger.info('start: %s {' % self.process_name)
             fabric.operations.env.warn_only = True
+            fabric.operations.env.abort_on_prompts = True
+            fabric.operations.env.use_ssh_config = True
+            fabric.operations.env.host_string = arguments[ARGUMENT_HOST]
 
             command = os.path.join(arguments[ARGUMENT_SCRIPT_PATH], arguments[ARGUMENT_SCRIPT_NAME])
             command += ' %s %s' % (str(start_timeperiod), str(end_timeperiod))
 
-            fabric.operations.env.use_ssh_config = True
-            fabric.operations.env.host_string = arguments[ARGUMENT_HOST]
-
             run_result = fabric.operations.run(command)
-
             if run_result.succeeded:
                 self.return_code = 0
 

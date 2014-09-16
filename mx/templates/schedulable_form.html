@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8"/>
+    <script type="text/javascript" src="{{ url_for('static', file='json_formatter.js') }}"></script>
+    <script type="text/javascript" src="{{ url_for('static', file='jquery-1.8.2.min.js') }}"></script>
+    <title>Scheduler Freerun Trigger</title>
+</head>
+
+<body>
+<pre id="json"></pre>
+
+<form style="text-align: center" action="edit_schedulable_form">
+    Process name:
+    <select name="process_name">
+        <option value="BashDriver">BashDriver</option>
+        {% if schedulable %}
+        <option value="{{ schedulable[0] }}" selected>{{ schedulable[0] }}</option>
+        {% endif %}
+    </select>
+    Entry name: <input type="text" name="entry_name" value="{{ schedulable[1] }}"><br>
+    Description: <input type="text" name="description" value="{{ schedulable[2] }}"><br>
+    <select name="state">
+        <option value="state_on" {% if schedulable[3] %} selected {% endif %}>STATE_ON</option>
+        <option value="state_off" {% if not schedulable[3] %} selected {% endif %}>STATE_OFF</option>
+    </select>
+    Trigger time: <input type="text" size="8" maxlength="32" name="interval" value="{{ schedulable[4] }}" /><br>
+    Arguments: <input type="text" size="8" maxlength="32" name="interval" value="{{ schedulable[5] }}" /><br>
+
+    <input type="submit" name="update_button" value="Update" onclick="window.close()"/>
+    <input type="submit" name="delete_button" value="Delete" onclick="window.close()"/>
+    <input type="submit" name="cancel_button" value="Cancel" onclick="window.close()"/>
+</form>
+
+</body>
+</html>
