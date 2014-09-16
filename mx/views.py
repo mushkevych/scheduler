@@ -35,7 +35,7 @@ def edit_schedulable_form(request):
 
 @expose('/new_schedulable_form/')
 def new_schedulable_form(request):
-    return render_template('schedulable_form.html', details=None)
+    return render_template('schedulable_form.html', handler=None)
 
 
 @expose('/timetable_details/')
@@ -81,11 +81,11 @@ def request_timeperiods(request):
                     mimetype='application/json')
 
 
-@expose('/action_update_freerun_entry/')
+@expose('/action_update_freerun_entry')
 def action_update_freerun_entry(request):
     handler = ActionHandler(jinja_env.globals['mbean'], request)
-    return Response(response=json.dumps(handler.action_reprocess()),
-                    mimetype='application/json')
+    handler.action_update_freerun_entry()
+    return redirect('/scheduler_freerun_entries/')
 
 
 @expose('/action_reprocess/')

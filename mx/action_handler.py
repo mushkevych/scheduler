@@ -1,3 +1,5 @@
+import json
+
 __author__ = 'Bohdan Mushkevych'
 
 from db.dao.scheduler_managed_entry_dao import SchedulerManagedEntryDao
@@ -27,6 +29,15 @@ class ActionHandler(object):
         self.is_freerun_request_valid = self.mbean is not None \
                                         and self.process_name is not None \
                                         and self.entry_name is not None
+
+        if self.is_managed_request_valid:
+            self.process_name = self.process_name.strip()
+            self.timeperiod = self.timeperiod.strip()
+
+        if self.is_freerun_request_valid:
+            self.process_name = self.process_name.strip()
+            self.entry_name = self.entry_name.strip()
+
         self.uow_dao = UnitOfWorkDao(self.logger)
         self.se_managed_dao = SchedulerManagedEntryDao(self.logger)
         self.se_freerun_dao = SchedulerFreerunEntryDao(self.logger)
@@ -210,25 +221,61 @@ class ActionHandler(object):
     @freerun_entry_request
     def action_update_freerun_entry(self):
         handler_key = (self.process_name, self.entry_name)
-        thread_handler = self.mbean.freerun_handlers[handler_key]
-        scheduler_entry_obj = thread_handler.args[1]
-        assert isinstance(scheduler_entry_obj, SchedulerFreerunEntry)
 
-        if 'update_button' in self.request.args:
+        if 'insert_button' in self.request.args:
+            scheduler_entry_obj = SchedulerFreerunEntry()
             scheduler_entry_obj.process_name = self.process_name
             scheduler_entry_obj.entry_name = self.entry_name
-            scheduler_entry_obj.arguments = self.request.args['arguments']
+
+            if self.request.args['arguments']:
+                scheduler_entry_obj.arguments = json.loads(self.request.args['arguments'])
+            else:
+                scheduler_entry_obj.arguments = {}
+
             scheduler_entry_obj.description = self.request.args['description']
             scheduler_entry_obj.process_state = self.request.args['process_state']
             scheduler_entry_obj.trigger_time = self.request.args['trigger_time']
-
             self.se_freerun_dao.update(scheduler_entry_obj)
+
+            self.mbean._activate_handler(scheduler_entry_obj, self.process_name, self.entry_name,
+                                         self.mbean.fire_freerun_worker, TYPE_FREERUN)
+
+        elif 'update_button' in self.request.args:
+            thread_handler = self.mbean.freerun_handlers[handler_key]
+            scheduler_entry_obj = thread_handler.args[1]
+
+            is_interval_changed = scheduler_entry_obj.trigger_time != self.request.args['trigger_time']
+            is_state_changed = scheduler_entry_obj.process_state != self.request.args['process_state']
+
+            if self.request.args['arguments']:
+                # do encoding-decoding here
+                arguments = self.request.args['arguments']
+                scheduler_entry_obj.arguments = json.loads(arguments)
+            else:
+                scheduler_entry_obj.arguments = {}
+
+            scheduler_entry_obj.description = self.request.args['description']
+            scheduler_entry_obj.process_state = self.request.args['process_state']
+            scheduler_entry_obj.trigger_time = self.request.args['trigger_time']
+            self.se_freerun_dao.update(scheduler_entry_obj)
+
+            if is_interval_changed:
+                self._action_change_interval(thread_handler, handler_key, TYPE_FREERUN)
+            if is_state_changed:
+                self._action_change_state(thread_handler)
+
         elif 'delete_button' in self.request.args:
             self.se_freerun_dao.remove(handler_key)
+            thread_handler = self.mbean.freerun_handlers[handler_key]
+            thread_handler.cancel()
+            del self.mbean.freerun_handlers[handler_key]
+
         elif 'cancel_button' in self.request.args:
             pass
+
         else:
             self.logger.error('Unknown action requested by schedulable_form.html')
+
         return {'status': 'OK'}
 
     @freerun_entry_request

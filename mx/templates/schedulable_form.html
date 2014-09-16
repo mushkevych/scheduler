@@ -12,21 +12,23 @@
 <body>
 <pre id="json"></pre>
 
-<form style="text-align: center" action="/action_update_freerun_entry">
+<form style="text-align: left" action="/action_update_freerun_entry">
     Process name: <select name="process_name">
         <option value="BashDriver">BashDriver</option>
     </select><br/>
 
-    Entry name: <input type="text" name="entry_name" value="{% if handler %} {{ handler.get_freerun_entry().entry_name }} {% endif %}"><br/>
-    Description: <input type="text" name="description" value="{% if handler %} {{ handler.get_freerun_entry().description }} {% endif %}"><br/>
-    State: <select name="state">
+    Entry name: <input type="text" name="entry_name" value="{% if handler %}{{ handler.get_freerun_entry().entry_name }}{% endif %}"
+        {% if handler %} readonly {% endif %}><br/>
+    Description: <input type="text" name="description" value="{% if handler %}{{ handler.get_freerun_entry().description }}{% endif %}"><br/>
+    State: <select name="process_state">
         <option value="state_on" {% if handler and handler.get_freerun_entry().process_state %} selected {% endif %}>STATE_ON</option>
         <option value="state_off" {% if handler and not handler.get_freerun_entry().process_state %} selected {% endif %}>STATE_OFF</option>
     </select> <br/>
 
-    Trigger time: <input type="text" size="8" maxlength="32" name="trigger_time" value="{% if handler %} {{ handler.get_freerun_entry().trigger_time }} {% endif %}" /><br/>
-    Arguments: <input type="text" size="8" maxlength="32" name="arguments" value="{% if handler %} {{ handler.get_freerun_entry().arguments }} {% endif %}" /><br/>
+    Trigger time: <input type="text" size="8" maxlength="32" name="trigger_time" value="{% if handler %}{{ handler.get_freerun_entry().trigger_time }}{% endif %}" /><br/>
+    Arguments: <input type="text" size="8" maxlength="32" name="arguments" value="{% if handler %}{{ handler.get_freerun_entry().arguments|safe }}{% endif %}" /><br/>
 
+    <input type="submit" name="insert_button" value="Insert" onclick="window.close()"/>
     <input type="submit" name="update_button" value="Update" onclick="window.close()"/>
     <input type="submit" name="delete_button" value="Delete" onclick="window.close()"/>
     <input type="submit" name="cancel_button" value="Cancel" onclick="window.close()"/>
