@@ -198,7 +198,9 @@ class Scheduler(SynergyProcess):
             scheduler_entry_obj = args[1]
 
             if isinstance(scheduler_entry_obj, scheduler_freerun_entry.SchedulerFreerunEntry):
-                arguments = scheduler_entry_obj.arguments
+                # sending whole SchedulerFreerunEntry
+                arguments = scheduler_entry_obj.document
+                arguments['_id'] = str(arguments['_id'])
             else:
                 arguments = ProcessContext.get_arguments(process_name)
 

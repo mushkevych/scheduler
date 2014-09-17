@@ -15,6 +15,7 @@ settings = dict(
     remote_source_host_list=['user@f.q.h.n'],
     remote_source_password={'user@f.q.h.n': '***SSH_PASSWORD***'},
     remote_source_folder='/mnt/remote_folder/',
+    bash_runnable_count=5,
 
     mq_timeout_sec=300.0,
     mq_queue='default_queue',
