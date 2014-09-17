@@ -5,9 +5,12 @@ settings = dict(
 
     # created with: sudo rabbitmqctl add_vhost /hadoop
     # set permissions with: sudo rabbitmqctl set_permissions -p /hadoop guest ".*" ".*" ".*"
-    mq_host='127.0.0.1',
-    mq_user_id='guest',
-    mq_password='guest',
+    mq_host='ci-node-1.mobidiadomain.com',
+    mq_user_id='richmond',
+    mq_password='richmond',
+    # mq_host='127.0.0.1',
+    # mq_user_id='guest',
+    # mq_password='guest',
     mq_vhost='/',
     mq_port=5672,
 

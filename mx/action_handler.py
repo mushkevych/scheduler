@@ -1,7 +1,6 @@
-import json
-
 __author__ = 'Bohdan Mushkevych'
 
+import json
 from db.dao.scheduler_managed_entry_dao import SchedulerManagedEntryDao
 from db.dao.unit_of_work_dao import UnitOfWorkDao
 from db.dao.scheduler_freerun_entry_dao import SchedulerFreerunEntryDao
@@ -228,7 +227,8 @@ class ActionHandler(object):
             scheduler_entry_obj.entry_name = self.entry_name
 
             if self.request.args['arguments']:
-                scheduler_entry_obj.arguments = json.loads(self.request.args['arguments'])
+                arguments = self.request.args['arguments'].decode('unicode-escape')
+                scheduler_entry_obj.arguments = json.loads(arguments)
             else:
                 scheduler_entry_obj.arguments = {}
 
@@ -248,7 +248,6 @@ class ActionHandler(object):
             is_state_changed = scheduler_entry_obj.state != self.request.args['state']
 
             if self.request.args['arguments']:
-                # do encoding-decoding here
                 arguments = self.request.args['arguments'].decode('unicode-escape')
                 scheduler_entry_obj.arguments = json.loads(arguments)
             else:

@@ -44,3 +44,10 @@ class BashDriver(AbstractCliWorker):
         finally:
             self.logger.info('}')
             self.is_alive = False
+
+
+if __name__ == '__main__':
+    from constants import PROCESS_BASH_DRIVER
+
+    source = BashDriver(PROCESS_BASH_DRIVER)
+    source.start()
