@@ -3,15 +3,16 @@ __author__ = 'Bohdan Mushkevych'
 import os
 import fabric.operations
 
-from workers.abstract_cli_worker import AbstractCliWorker
+from workers.abstract_mq_worker import AbstractMqWorker
 
 
 ARGUMENT_SCRIPT_PATH = 'script_path'
 ARGUMENT_SCRIPT_NAME = 'script_name'
+ARGUMENT_SCRIPT_PARAMS = 'script_params'
 ARGUMENT_HOST = 'host'
 
 
-class BashDriver(AbstractCliWorker):
+class BashDriver(AbstractMqWorker):
     """Process starts remote or local bash script job, supervises its execution and updates unit_of_work"""
 
     def __init__(self, process_name):
@@ -22,7 +23,7 @@ class BashDriver(AbstractCliWorker):
     def _poll_process(self):
         return self.is_alive, self.return_code
 
-    def _start_process(self, start_timeperiod, end_timeperiod, arguments):
+    def _start_process(self, arguments):
         try:
             self.is_alive = True
             self.logger.info('start: %s {' % self.process_name)
@@ -32,7 +33,7 @@ class BashDriver(AbstractCliWorker):
             fabric.operations.env.host_string = arguments[ARGUMENT_HOST]
 
             command = os.path.join(arguments[ARGUMENT_SCRIPT_PATH], arguments[ARGUMENT_SCRIPT_NAME])
-            command += ' %s %s' % (str(start_timeperiod), str(end_timeperiod))
+            command += ' %s' % arguments.get(ARGUMENT_SCRIPT_PARAMS, '')
 
             run_result = fabric.operations.run(command)
             if run_result.succeeded:
@@ -44,6 +45,28 @@ class BashDriver(AbstractCliWorker):
         finally:
             self.logger.info('}')
             self.is_alive = False
+
+    def _mq_callback(self, message):
+        """ reads JSON request from the mq message and delivers it for processing """
+        try:
+            self._start_process(message.body)
+            code = None
+            alive = True
+            while alive:
+                alive, code = self._poll_process()
+
+            if code == 0:
+                self.performance_ticker.tracker.increment_success()
+            else:
+                self.performance_ticker.tracker.increment_failure()
+
+            self.logger.info('BashDriver for %s return code is %r' % (message.body, code))
+        except Exception as e:
+            self.performance_ticker.tracker.increment_failure()
+            self.logger.error('Safety fuse while processing request %r: %r' % (message.body, e), exc_info=True)
+        finally:
+            self.consumer.acknowledge(message.delivery_tag)
+            self.consumer.close()
 
 
 if __name__ == '__main__':

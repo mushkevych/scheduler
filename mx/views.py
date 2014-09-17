@@ -85,8 +85,8 @@ def request_timeperiods(request):
 def action_update_freerun_entry(request):
     handler = ActionHandler(jinja_env.globals['mbean'], request)
     resp = handler.action_update_freerun_entry()
-    # return Response(response=json.dumps(resp),
-    #                 mimetype='application/json')
+    return Response(response=json.dumps(resp),
+                    mimetype='application/json')
 
 @expose('/action_reprocess/')
 def action_reprocess(request):

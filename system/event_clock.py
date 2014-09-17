@@ -141,3 +141,6 @@ class EventClock(object):
             return 'TBD'
         else:
             return None
+
+    def is_alive(self):
+        return self.handler.is_alive()
