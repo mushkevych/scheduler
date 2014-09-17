@@ -77,7 +77,7 @@ class Scheduler(SynergyProcess):
          timer_handler is enlisted to either :self.freerun_handlers or :self.managed_handlers
          timer_handler is started, unless it is marked as STATE_OFF """
         trigger_time = scheduler_entry_obj.trigger_time
-        is_active = scheduler_entry_obj.process_state == scheduler_managed_entry.STATE_ON
+        is_active = scheduler_entry_obj.state == scheduler_managed_entry.STATE_ON
 
         arguments = [scheduler_entry_obj.key, scheduler_entry_obj, handler_type]
         handler = self._construct_handler(scheduler_entry_obj.key, trigger_time, function, arguments)

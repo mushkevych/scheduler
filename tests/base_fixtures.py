@@ -96,7 +96,7 @@ def compare_dictionaries(dict_actual, dict_expected):
                 actual_value = list(actual_value)
             assert actual_value.sort() == expected_value.sort()
         elif actual_value != expected_value:
-            assert 1 == 0, 'key %r: actual %r vs expected %r' % (expected_key, actual_value, expected_value)
+            assert False, 'key %r: actual %r vs expected %r' % (expected_key, actual_value, expected_value)
 
 
 def create_unit_of_work(process_name,

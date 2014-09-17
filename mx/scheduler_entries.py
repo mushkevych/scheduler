@@ -43,7 +43,7 @@ class SchedulerEntries(object):
                 row = []
                 # indicate whether process is in active or passive state
                 # parameters are set in Scheduler.run() method
-                row.append(thread_handler.args[1].process_state == scheduler_managed_entry.STATE_ON)    # index 0
+                row.append(thread_handler.args[1].state == scheduler_managed_entry.STATE_ON)    # index 0
 
                 row.append(thread_handler.is_alive())                                           # index 1
                 row.append(process_name)                                                        # index 2
@@ -69,7 +69,7 @@ class SchedulerEntries(object):
                 row = []
                 # indicate whether process is in active or passive state
                 # parameters are set in Scheduler.run() method
-                row.append(thread_handler.args[1].process_state == scheduler_managed_entry.STATE_ON)    # index 0
+                row.append(thread_handler.args[1].state == scheduler_managed_entry.STATE_ON)    # index 0
 
                 row.append(thread_handler.is_alive())                                           # index 1
                 row.append(process_name)                                                        # index 2

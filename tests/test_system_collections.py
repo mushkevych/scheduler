@@ -34,9 +34,16 @@ class TestSystemCollections(unittest.TestCase):
         }
         self.box_configuration.box_id = box_id
         self.box_configuration.process_list = process_list
-        self.box_configuration.process_state = ('process_2', box_configuration.STATE_OFF)
+        self.box_configuration.set_process_state('process_2', box_configuration.STATE_OFF)
 
-        assert box_id == self.box_configuration.box_id
+        self.assertEqual(box_id, self.box_configuration.box_id)
+        try:
+            compare_dictionaries(self.box_configuration.process_list, process_list)
+            self.assertTrue(False, 'process_2 state should cause process lists to be different')
+        except:
+            self.assertTrue(True, 'expected mismatch')
+
+        self.box_configuration.set_process_state('process_2', box_configuration.STATE_ON)
         compare_dictionaries(self.box_configuration.process_list, process_list)
 
 

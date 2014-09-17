@@ -136,7 +136,7 @@ class ActionHandler(object):
                     self.logger.error('Process/Handler type %s is not known to the system. Skipping it.' % handler_type)
                     return
 
-                is_active = scheduler_entry_obj.process_state == scheduler_managed_entry.STATE_ON
+                is_active = scheduler_entry_obj.state == scheduler_managed_entry.STATE_ON
                 if is_active:
                     new_thread_handler.start()
 
@@ -190,10 +190,10 @@ class ActionHandler(object):
             # request was performed with undefined "state", what means that checkbox was unselected
             # thus - turning off the process
             thread_handler.cancel()
-            scheduler_entry_obj.process_state = scheduler_managed_entry.STATE_OFF
+            scheduler_entry_obj.state = scheduler_managed_entry.STATE_OFF
             message = 'Stopped RepeatTimer for %s' % scheduler_entry_obj.process_name
         elif not thread_handler.is_alive():
-            scheduler_entry_obj.process_state = scheduler_managed_entry.STATE_ON
+            scheduler_entry_obj.state = scheduler_managed_entry.STATE_ON
             thread_handler.start()
             message = 'Started RepeatTimer for %s, triggering every %d seconds' \
                       % (scheduler_entry_obj.process_name, scheduler_entry_obj.trigger_time)
@@ -233,7 +233,7 @@ class ActionHandler(object):
                 scheduler_entry_obj.arguments = {}
 
             scheduler_entry_obj.description = self.request.args['description']
-            scheduler_entry_obj.process_state = self.request.args['process_state']
+            scheduler_entry_obj.state = self.request.args['state']
             scheduler_entry_obj.trigger_time = self.request.args['trigger_time']
             self.se_freerun_dao.update(scheduler_entry_obj)
 
@@ -245,17 +245,17 @@ class ActionHandler(object):
             scheduler_entry_obj = thread_handler.args[1]
 
             is_interval_changed = scheduler_entry_obj.trigger_time != self.request.args['trigger_time']
-            is_state_changed = scheduler_entry_obj.process_state != self.request.args['process_state']
+            is_state_changed = scheduler_entry_obj.state != self.request.args['state']
 
             if self.request.args['arguments']:
                 # do encoding-decoding here
-                arguments = self.request.args['arguments']
+                arguments = self.request.args['arguments'].decode('unicode-escape')
                 scheduler_entry_obj.arguments = json.loads(arguments)
             else:
                 scheduler_entry_obj.arguments = {}
 
             scheduler_entry_obj.description = self.request.args['description']
-            scheduler_entry_obj.process_state = self.request.args['process_state']
+            scheduler_entry_obj.state = self.request.args['state']
             scheduler_entry_obj.trigger_time = self.request.args['trigger_time']
             self.se_freerun_dao.update(scheduler_entry_obj)
 

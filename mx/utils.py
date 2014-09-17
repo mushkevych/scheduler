@@ -1,8 +1,10 @@
 __author__ = 'Bohdan Mushkevych'
 
-from datetime import datetime
+import json
 from os import path
+from datetime import datetime
 from urlparse import urlparse
+
 from jinja2 import Environment, FileSystemLoader
 from werkzeug.local import Local, LocalManager
 from werkzeug.wrappers import Response
@@ -55,3 +57,4 @@ jinja_env.globals['url_for'] = url_for
 jinja_env.globals['local'] = local
 jinja_env.globals['get_current_time'] = get_current_time
 jinja_env.globals['get_version'] = get_version
+jinja_env.filters['jsonify'] = json.dumps

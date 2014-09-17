@@ -57,7 +57,7 @@ class GarbageCollectorWorker(AbstractMqWorker):
 
                 process_config = self.scheduler_configuration[uow.process_name]
                 assert isinstance(process_config, SchedulerManagedEntry)
-                if process_config.process_state != scheduler_managed_entry.STATE_ON:
+                if process_config.state != scheduler_managed_entry.STATE_ON:
                     self.logger.debug('Process %r is inactive at the Synergy Scheduler. Skipping its unit_of_work.'
                                       % uow.process_name)
                     continue

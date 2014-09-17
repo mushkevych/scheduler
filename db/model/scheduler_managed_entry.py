@@ -43,11 +43,11 @@ class SchedulerManagedEntry(BaseModel):
         self.data[TRIGGER_TIME] = value
 
     @property
-    def process_state(self):
+    def state(self):
         return self.data[STATE]
 
-    @process_state.setter
-    def process_state(self, value):
+    @state.setter
+    def state(self, value):
         if value not in [STATE_ON, STATE_OFF]:
             raise ValueError('incorrect state for process %r' % value)
         self.data[STATE] = value

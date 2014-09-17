@@ -44,7 +44,7 @@
         </td>
 
         <td>{{ row[5] }}</td>
-        <td>{{ row[6] }}</td>
+        <td>{{ row[6]|jsonify }}</td>
         <td>
             <form method="GET" action="/edit_schedulable_form/">
                 <input type="hidden" name="process_name" value="{{ row[2] }}" />
@@ -58,7 +58,7 @@
     <tr>
         <td colspan="8">
             {% set form_url = url_for('new_schedulable_form') %}
-            <a href="#" onClick="MyWindow=window.open('{{ form_url }}','New Freerun Trigger','width=600,height=300'); return false;">Add New Freerun Trigger</a>
+            <a href="#" onClick="MyWindow=window.open('{{ form_url }}','New Freerun Trigger','top=250,left=250,width=600,height=300'); return false;">Add New Freerun Trigger</a>
         </td>
     </tr>
 
