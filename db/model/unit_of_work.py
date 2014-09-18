@@ -1,7 +1,6 @@
 __author__ = 'Bohdan Mushkevych'
 
-from db.model.base_model import BaseModel
-from db.model.raw_data import *
+from db.model.base_model import BaseModel, TIMEPERIOD
 
 START_TIMEPERIOD = 'start_timeperiod'  # lower boundary (as Synergy date) of the period that needs to be processed
 END_TIMEPERIOD = 'end_timeperiod'      # upper boundary (as Synergy date) of the period that needs to be processed
@@ -108,7 +107,7 @@ class UnitOfWork(BaseModel):
     @state.setter
     def state(self, value):
         if not UnitOfWork.is_state_valid(value):
-            raise ValueError('unit of work is in incorrect state')
+            raise ValueError('unit of work is in unknown state %s' % value)
         self.data[STATE] = value
 
     @classmethod
