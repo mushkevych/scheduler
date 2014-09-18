@@ -10,13 +10,13 @@ class ProcessContextUnitTest(unittest.TestCase):
     def setUp(self):
         try:
             self.backup_process_name = ProcessContext.get_current_process()
-            del ProcessContext.__dict__[ProcessContext._ProcessContext__CURRENT_PROCESS_TAG]
+            ProcessContext._current_process_name = ''
         except AttributeError:
             self.backup_process_name = None
 
     def tearDown(self):
         if self.backup_process_name is not None:
-            ProcessContext.__dict__[ProcessContext._ProcessContext__CURRENT_PROCESS_TAG] = self.backup_process_name
+            ProcessContext._current_process_name = self.backup_process_name
 
     def test_non_initialized(self):
         try:

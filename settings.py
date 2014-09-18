@@ -74,13 +74,13 @@ test_cases = [
     'tests.test_four_level_tree',
     'tests.test_raw_data',
     'tests.test_site_statistics',
-    'tests.test_single_session_statistics',
+    'tests.test_single_session',
     'tests.test_time_helper',
     'tests.test_repeat_timer',
     'tests.test_process_context',
     'tests.test_site_hourly_aggregator',
     'tests.test_tree_node',
-    'tests,test_event_clock',
+    'tests.test_event_clock',
 ]
 
 

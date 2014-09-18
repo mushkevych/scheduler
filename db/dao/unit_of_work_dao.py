@@ -8,7 +8,7 @@ from threading import RLock
 from system import time_helper
 from system.time_qualifier import *
 from system.decorator import thread_safe
-from system.collection_context import COLLECTION_UNITS_OF_WORK
+from system.collection_context import COLLECTION_UNIT_OF_WORK
 from system.process_context import ProcessContext
 from db.error import DuplicateKeyError
 from db.manager import ds_manager
@@ -33,7 +33,7 @@ class UnitOfWorkDao(object):
             key = ObjectId(key)
 
         query = {'_id': key}
-        collection = self.ds.connection(COLLECTION_UNITS_OF_WORK)
+        collection = self.ds.connection(COLLECTION_UNIT_OF_WORK)
 
         document = collection.find_one(query)
         if document is None:
@@ -46,7 +46,7 @@ class UnitOfWorkDao(object):
     def get_reprocessing_candidates(self, since=None):
         """ method queries Unit Of Work whose <start_timeperiod> is younger than <since>
         and who could be candidates for re-processing """
-        collection = self.ds.connection(COLLECTION_UNITS_OF_WORK)
+        collection = self.ds.connection(COLLECTION_UNIT_OF_WORK)
 
         query = {unit_of_work.STATE: {'$in': [unit_of_work.STATE_IN_PROGRESS,
                                               unit_of_work.STATE_INVALID,
@@ -86,7 +86,7 @@ class UnitOfWorkDao(object):
                  unit_of_work.TIMEPERIOD: timeperiod,
                  unit_of_work.START_OBJ_ID: start_obj_id,
                  unit_of_work.END_OBJ_ID: end_obj_id}
-        collection = self.ds.connection(COLLECTION_UNITS_OF_WORK)
+        collection = self.ds.connection(COLLECTION_UNIT_OF_WORK)
 
         document = collection.find_one(query)
         if document is None:
@@ -97,7 +97,7 @@ class UnitOfWorkDao(object):
     def update(self, instance):
         """ method finds unit_of_work record and change its status"""
         assert isinstance(instance, UnitOfWork)
-        collection = self.ds.connection(COLLECTION_UNITS_OF_WORK)
+        collection = self.ds.connection(COLLECTION_UNIT_OF_WORK)
         return collection.save(instance.document, safe=True)
 
     @thread_safe
@@ -105,7 +105,7 @@ class UnitOfWorkDao(object):
         """ inserts a unit of work into MongoDB.
         :raises DuplicateKeyError: if such record already exist """
         assert isinstance(instance, UnitOfWork)
-        collection = self.ds.connection(COLLECTION_UNITS_OF_WORK)
+        collection = self.ds.connection(COLLECTION_UNIT_OF_WORK)
         try:
             return collection.insert(instance.document, safe=True)
         except MongoDuplicateKeyError as e:
@@ -118,6 +118,6 @@ class UnitOfWorkDao(object):
 
     @thread_safe
     def remove(self, uow_id):
-        assert isinstance(uow_id, str)
-        collection = self.ds.connection(COLLECTION_UNITS_OF_WORK)
+        assert isinstance(uow_id, (str, ObjectId))
+        collection = self.ds.connection(COLLECTION_UNIT_OF_WORK)
         return collection.remove(uow_id, safe=True)

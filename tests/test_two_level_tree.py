@@ -1,10 +1,9 @@
-from time_qualifier import QUALIFIER_HOURLY
-
 __author__ = 'Bohdan Mushkevych'
 
 import unittest
 from tests import base_fixtures
 from system import time_helper
+from system.time_qualifier import QUALIFIER_HOURLY
 from constants import PROCESS_SITE_HOURLY, TOKEN_SITE
 from scheduler.tree import TwoLevelTree
 from settings import settings

@@ -44,7 +44,7 @@ class AbstractNode(object):
 
     def request_embryo_job_record(self):
         """ method is requesting outside functionality to create a job record in STATE_EMBRYO for given tree_node """
-        for function in self.tree.create_timetable_record_callbacks:
+        for function in self.tree.create_job_record_callbacks:
             # function signature: tree_node
             function(self)
 

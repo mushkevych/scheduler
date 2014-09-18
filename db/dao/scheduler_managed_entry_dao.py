@@ -4,7 +4,7 @@ from threading import RLock
 from db.manager import ds_manager
 from db.model.scheduler_managed_entry import SchedulerManagedEntry
 from system.decorator import thread_safe
-from system.collection_context import COLLECTION_SCHEDULER_MANAGED_ENTRIES
+from system.collection_context import COLLECTION_SCHEDULER_MANAGED_ENTRY
 
 
 class SchedulerManagedEntryDao(object):
@@ -20,7 +20,7 @@ class SchedulerManagedEntryDao(object):
     def get_one(self, key):
         """ method finds scheduler_managed_entry record and returns it to the caller"""
         query = {'process_name': key}
-        collection = self.ds.connection(COLLECTION_SCHEDULER_MANAGED_ENTRIES)
+        collection = self.ds.connection(COLLECTION_SCHEDULER_MANAGED_ENTRY)
 
         document = collection.find_one(query)
         if document is None:
@@ -30,7 +30,7 @@ class SchedulerManagedEntryDao(object):
     @thread_safe
     def get_all(self):
         query = {}
-        collection = self.ds.connection(COLLECTION_SCHEDULER_MANAGED_ENTRIES)
+        collection = self.ds.connection(COLLECTION_SCHEDULER_MANAGED_ENTRY)
 
         cursor = collection.find(query)
         if cursor.count() == 0:
@@ -41,12 +41,12 @@ class SchedulerManagedEntryDao(object):
     def update(self, instance):
         """ method finds scheduler_managed_entry record and update its DB representation"""
         assert isinstance(instance, SchedulerManagedEntry)
-        collection = self.ds.connection(COLLECTION_SCHEDULER_MANAGED_ENTRIES)
+        collection = self.ds.connection(COLLECTION_SCHEDULER_MANAGED_ENTRY)
         return collection.save(instance.document, safe=True)
 
     @thread_safe
     def remove(self, key):
         assert isinstance(key, str)
         query = {'process_name': key}
-        collection = self.ds.connection(COLLECTION_SCHEDULER_MANAGED_ENTRIES)
+        collection = self.ds.connection(COLLECTION_SCHEDULER_MANAGED_ENTRY)
         return collection.remove(query, safe=True)

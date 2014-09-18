@@ -5,7 +5,7 @@ from threading import RLock
 from db.manager import ds_manager
 from db.model.scheduler_freerun_entry import SchedulerFreerunEntry
 from system.decorator import thread_safe
-from system.collection_context import COLLECTION_SCHEDULER_FREERUN_ENTRIES
+from system.collection_context import COLLECTION_SCHEDULER_FREERUN_ENTRY
 
 
 class SchedulerFreerunEntryDao(object):
@@ -22,7 +22,7 @@ class SchedulerFreerunEntryDao(object):
         """ method finds scheduler_freerun_entry record and returns it to the caller"""
         assert not isinstance(key, str)
         query = {'process_name': key[0], 'entry_name': key[1]}
-        collection = self.ds.connection(COLLECTION_SCHEDULER_FREERUN_ENTRIES)
+        collection = self.ds.connection(COLLECTION_SCHEDULER_FREERUN_ENTRY)
 
         document = collection.find_one(query)
         if document is None:
@@ -32,7 +32,7 @@ class SchedulerFreerunEntryDao(object):
     @thread_safe
     def get_all(self):
         query = {}
-        collection = self.ds.connection(COLLECTION_SCHEDULER_FREERUN_ENTRIES)
+        collection = self.ds.connection(COLLECTION_SCHEDULER_FREERUN_ENTRY)
 
         cursor = collection.find(query)
         if cursor.count() == 0:
@@ -43,12 +43,12 @@ class SchedulerFreerunEntryDao(object):
     def update(self, instance):
         """ method finds scheduler_freerun_entry record and update its DB representation"""
         assert isinstance(instance, SchedulerFreerunEntry)
-        collection = self.ds.connection(COLLECTION_SCHEDULER_FREERUN_ENTRIES)
+        collection = self.ds.connection(COLLECTION_SCHEDULER_FREERUN_ENTRY)
         return collection.save(instance.document, safe=True)
 
     @thread_safe
     def remove(self, key):
         assert not isinstance(key, str)
         query = {'process_name': key[0], 'entry_name': key[1]}
-        collection = self.ds.connection(COLLECTION_SCHEDULER_FREERUN_ENTRIES)
+        collection = self.ds.connection(COLLECTION_SCHEDULER_FREERUN_ENTRY)
         return collection.remove(query, safe=True)

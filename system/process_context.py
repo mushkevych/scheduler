@@ -10,7 +10,7 @@ from db.model.process_context_entry import ProcessContextEntry
 
 
 class ProcessContext(object):
-    __CURRENT_PROCESS_TAG = '__CURRENT_PROCESS'
+    _current_process_name = ''
 
     # holds Logger instance per process name (and optional suffix)
     logger_pool = dict()
@@ -35,16 +35,15 @@ class ProcessContext(object):
 
     @classmethod
     def set_current_process(cls, process_name):
-        if ProcessContext.__CURRENT_PROCESS_TAG in cls.__dict__:
-            raise AttributeError('Current process %s is already set'
-                                 % cls.__dict__[ProcessContext.__CURRENT_PROCESS_TAG])
-        cls.__dict__[ProcessContext.__CURRENT_PROCESS_TAG] = process_name
+        if cls._current_process_name:
+            raise AttributeError('Current process %s is already set' % cls._current_process_name)
+        cls._current_process_name = process_name
 
     @classmethod
     def get_current_process(cls):
-        if ProcessContext.__CURRENT_PROCESS_TAG not in cls.__dict__:
+        if not cls._current_process_name:
             raise AttributeError('Current process is not yet set')
-        return cls.__dict__[ProcessContext.__CURRENT_PROCESS_TAG]
+        return cls._current_process_name
 
     @classmethod
     @current_process_aware

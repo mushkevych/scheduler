@@ -100,8 +100,8 @@ class GarbageCollectorWorker(AbstractMqWorker):
                 mq_request.process_name = uow.process_name
                 mq_request.unit_of_work_id = uow.document['_id']
 
-                publisher = self.publishers.get(mq_request.document)
-                publisher.publish()
+                publisher = self.publishers.get(uow.process_name)
+                publisher.publish(mq_request.document)
                 publisher.release()
 
                 self.logger.info('UOW marked for re-processing: process %s; timeperiod %s; id %s; attempt %d'

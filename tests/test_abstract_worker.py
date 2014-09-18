@@ -14,6 +14,10 @@ def get_test_aggregator(baseclass, process_name):
             super(TestAggregator, self).__init__(process_name)
             self.consumer = TestConsumer()
 
+        def _init_performance_ticker(self, logger):
+            super(TestAggregator, self)._init_performance_ticker(logger)
+            self.performance_ticker.cancel()
+
         def _flush_aggregated_objects(self):
             pass
 

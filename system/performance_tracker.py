@@ -172,26 +172,19 @@ class AggregatorPerformanceTicker(SimpleTracker):
         self.state_triggered_at = time.time()
 
     def _run_tick_thread(self):
-        self._print_footprint()
-        if self.state == self.STATE_PROCESSING or self.tracker.per_tick > 0 or self.tracker.per_24h > 0:
-            msg = 'State: %s for %d sec; processed: %d in %d sec. %d in this uow; %d in 24 hours;' \
+        super(AggregatorPerformanceTicker, self)._run_tick_thread()
+
+        if self.state == self.STATE_PROCESSING:
+            msg = 'State: %s for %d sec; %d in this uow;' \
                   % (self.state,
                      time.time() - self.state_triggered_at,
-                     self.tracker.per_tick,
-                     self.interval,
-                     self.per_job,
-                     self.tracker.per_24h)
+                     self.per_job)
         else:
             msg = 'State: %s for %d sec;' % (self.state, time.time() - self.state_triggered_at)
         self.logger.info(msg)
 
-        self.tracker.per_tick = 0
-        if time.time() - self.tracker.mark_24_hours > self.SECONDS_IN_24_HOURS:
-            self.tracker.mark_24_hours = time.time()
-            self.tracker.per_24h = 0
-
     def increment(self):
-        self.tracker.increment()
+        self.tracker.increment_success()
         self.per_job += 1
 
     def start_uow(self, uow_obj):
