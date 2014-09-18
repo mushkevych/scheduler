@@ -1,3 +1,4 @@
+
 __author__ = 'Bohdan Mushkevych'
 
 import inspect
@@ -10,6 +11,7 @@ from db.dao.unit_of_work_dao import UnitOfWorkDao
 from db.model import unit_of_work
 from db.model.unit_of_work import UnitOfWork
 from db.model.single_session import SingleSession
+from db.model.worker_mq_request import WorkerMqRequest
 from system import time_helper
 from system.process_context import ProcessContext
 from system.time_qualifier import *
@@ -37,8 +39,12 @@ class TestConsumer(object):
 class TestMessage(object):
     """ empty class that should substitute MQ Message. Used for testing only """
 
-    def __init__(self):
-        self.body = None
+    def __init__(self, process_name=None, uow_id=None):
+        mq_request = WorkerMqRequest()
+        mq_request.process_name = process_name
+        mq_request.unit_of_work_id = uow_id
+
+        self.body = mq_request.document
         self.delivery_tag = None
 
 

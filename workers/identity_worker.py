@@ -4,6 +4,7 @@ __author__ = 'Bohdan Mushkevych'
 
 from datetime import datetime
 from db.model import unit_of_work
+from db.model.worker_mq_request import WorkerMqRequest
 from db.dao.unit_of_work_dao import UnitOfWorkDao
 from workers.abstract_mq_worker import AbstractMqWorker
 from system.performance_tracker import AggregatorPerformanceTicker
@@ -33,9 +34,8 @@ class IdentityWorker(AbstractMqWorker):
         - logs the exception
         - marks unit of work as INVALID"""
         try:
-            # @param object_id: ObjectId of the unit_of_work from mq
-            object_id = message.body
-            uow = self.uow_dao.get_one(object_id)
+            mq_request = WorkerMqRequest(message.body)
+            uow = self.uow_dao.get_one(mq_request.unit_of_work_id)
             if uow.state in [unit_of_work.STATE_CANCELED, unit_of_work.STATE_PROCESSED]:
                 # garbage collector might have reposted this UOW
                 self.logger.warning('Skipping unit_of_work: id %s; state %s;'

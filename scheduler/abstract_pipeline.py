@@ -19,7 +19,7 @@ class AbstractPipeline(object):
         self.publishers = PublishersPool(self.logger)
         self.timetable = timetable
         self.uow_dao = UnitOfWorkDao(self.logger)
-        self.ttr_dao = JobDao(self.logger)
+        self.job_dao = JobDao(self.logger)
 
     def __del__(self):
         try:
@@ -107,7 +107,7 @@ class AbstractPipeline(object):
             # there is very little sense in waiting for them to become STATE_PROCESSED
             # Skip this timeperiod itself
             job_record.state = job.STATE_SKIPPED
-            self.ttr_dao.update(job_record)
+            self.job_dao.update(job_record)
             tree = self.timetable.get_tree(process_name)
             tree.update_node_by_process(process_name, job_record)
 

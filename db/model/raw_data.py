@@ -47,6 +47,7 @@ FAMILY_LANGUAGES = 'language'
 
 
 class RawData(BaseModel):
+    """ Non-persistent instance of this class presents single message to the SingleSessionWorker """
     def __init__(self, document=None):
         super(RawData, self).__init__(document)
 

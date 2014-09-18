@@ -7,7 +7,7 @@ import fabric.operations
 
 from settings import settings
 from workers.abstract_mq_worker import AbstractMqWorker
-from db.model.scheduler_freerun_entry import ENTRY_NAME, PROCESS_NAME, SchedulerFreerunEntry
+from db.model.worker_mq_request import WorkerMqRequest
 
 ARGUMENT_SCRIPT_PATH = 'script_path'
 ARGUMENT_SCRIPT_NAME = 'script_name'
@@ -19,17 +19,16 @@ class BashRunnable(threading.Thread):
     """Process starts remote or local bash script job, supervises its execution and updates mq"""
 
     def __init__(self, logger, message, consumer, performance_ticker):
-        self.thread_name = '%s::%s' \
-                           % (message.body.get(ENTRY_NAME, 'Unknown'), message.body.get(PROCESS_NAME, 'Unknown'))
-        super(BashRunnable, self).__init__(name=self.thread_name)
-
         self.logger = logger
         self.message = message
+        self.mq_request = WorkerMqRequest(message.body)
         self.consumer = consumer
         self.performance_ticker = performance_ticker
-        self.scheduler_entry_obj = SchedulerFreerunEntry(message.body)
         self.alive = False
         self.return_code = -1
+
+        self.thread_name = '%s::%s' % (self.mq_request.process_name, self.mq_request.entry_name)
+        super(BashRunnable, self).__init__(name=self.thread_name)
 
     def _poll_process(self):
         return self.alive, self.return_code
@@ -41,11 +40,11 @@ class BashRunnable(threading.Thread):
             fabric.operations.env.warn_only = True
             fabric.operations.env.abort_on_prompts = True
             fabric.operations.env.use_ssh_config = True
-            fabric.operations.env.host_string = self.scheduler_entry_obj.arguments[ARGUMENT_HOST]
+            fabric.operations.env.host_string = self.mq_request.entry_arguments[ARGUMENT_HOST]
 
-            command = os.path.join(self.scheduler_entry_obj.arguments[ARGUMENT_SCRIPT_PATH],
-                                   self.scheduler_entry_obj.arguments[ARGUMENT_SCRIPT_NAME])
-            command += ' %s' % self.scheduler_entry_obj.arguments[ARGUMENT_SCRIPT_PARAMS]
+            command = os.path.join(self.mq_request.entry_arguments[ARGUMENT_SCRIPT_PATH],
+                                   self.mq_request.entry_arguments[ARGUMENT_SCRIPT_NAME])
+            command += ' %s' % self.mq_request.entry_arguments[ARGUMENT_SCRIPT_PARAMS]
 
             run_result = fabric.operations.run(command)
             if run_result.succeeded:

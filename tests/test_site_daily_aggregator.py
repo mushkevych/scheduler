@@ -26,8 +26,7 @@ class DailySiteAggregatorUnitTest(unittest.TestCase):
         del self.aggregator
 
     def test_aggregation(self):
-        message = TestMessage()
-        message.body = str(self.uow_id)
+        message = TestMessage(process_name=self.aggregator.process_name, uow_id=self.uow_id)
         self.aggregator._mq_callback(message)
 
 

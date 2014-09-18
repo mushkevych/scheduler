@@ -1,7 +1,7 @@
 __author__ = 'Bohdan Mushkevych'
 
 import unittest
-from tests import base_fixtures
+from tests.base_fixtures import wind_the_time, wind_actual_timeperiod
 from constants import PROCESS_SITE_HOURLY, TOKEN_SITE, PROCESS_SITE_YEARLY, PROCESS_SITE_MONTHLY, PROCESS_SITE_DAILY
 from tests.ut_context import PROCESS_UNIT_TEST
 from system import time_helper
@@ -95,26 +95,20 @@ class TestFourLevelTree(unittest.TestCase):
                     for ht, hourly_root in sorted(daily_root.children.items(), key=lambda x: x[0]):
                         self.assertEqual(hourly_timeperiod, ht)
                         number_of_leafs += 1
-                        hourly_timeperiod = time_helper.increment_timeperiod(QUALIFIER_HOURLY,
-                                                                             hourly_timeperiod)
+                        hourly_timeperiod = time_helper.increment_timeperiod(QUALIFIER_HOURLY, hourly_timeperiod)
 
-                    daily_timeperiod = time_helper.increment_timeperiod(QUALIFIER_DAILY,
-                                                                        daily_timeperiod)
+                    daily_timeperiod = time_helper.increment_timeperiod(QUALIFIER_DAILY, daily_timeperiod)
 
-                monthly_timeperiod = time_helper.increment_timeperiod(QUALIFIER_MONTHLY,
-                                                                      monthly_timeperiod)
+                monthly_timeperiod = time_helper.increment_timeperiod(QUALIFIER_MONTHLY, monthly_timeperiod)
 
-            yearly_timeperiod = time_helper.increment_timeperiod(QUALIFIER_YEARLY,
-                                                                 yearly_timeperiod)
+            yearly_timeperiod = time_helper.increment_timeperiod(QUALIFIER_YEARLY, yearly_timeperiod)
 
         self.assertEqual(number_of_leafs, delta + 1, 'Expected number of daily nodes was %d, while actual is %d'
                                                      % (delta + 1, number_of_leafs))
 
     def test_less_simple_build_tree(self):
         delta = 5 * 24  # 5 days
-        new_synergy_start_time = base_fixtures.wind_the_time(QUALIFIER_HOURLY,
-                                                             self.initial_synergy_start_time,
-                                                             -delta)
+        new_synergy_start_time = wind_the_time(QUALIFIER_HOURLY, self.initial_synergy_start_time, -delta)
 
         settings['synergy_start_timeperiod'] = new_synergy_start_time
         self.tree.build_tree()
@@ -122,21 +116,16 @@ class TestFourLevelTree(unittest.TestCase):
 
     def test_catching_up_time_build_tree(self):
         delta = 5 * 24
-        new_synergy_start_time = base_fixtures.wind_the_time(QUALIFIER_HOURLY,
-                                                             self.initial_synergy_start_time,
-                                                             -delta)
+        new_synergy_start_time = wind_the_time(QUALIFIER_HOURLY, self.initial_synergy_start_time, -delta)
         settings['synergy_start_timeperiod'] = new_synergy_start_time
 
         self.tree.build_tree()
         self._perform_assertions(new_synergy_start_time, delta)
 
-        new_actual_timeperiod = base_fixtures.wind_the_time(QUALIFIER_HOURLY,
-                                                            self.initial_synergy_start_time,
-                                                            delta)
+        new_actual_timeperiod = wind_the_time(QUALIFIER_HOURLY, self.initial_synergy_start_time, delta)
 
-        time_helper.actual_timeperiod = \
-            base_fixtures.wind_actual_timeperiod(time_helper.synergy_to_datetime(QUALIFIER_HOURLY,
-                                                                                 new_actual_timeperiod))
+        time_helper.actual_timeperiod = wind_actual_timeperiod(time_helper.synergy_to_datetime(QUALIFIER_HOURLY,
+                                                                                               new_actual_timeperiod))
         self.tree.build_tree()
         self._perform_assertions(new_synergy_start_time, 2 * delta)
 

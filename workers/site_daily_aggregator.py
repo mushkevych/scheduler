@@ -1,6 +1,5 @@
 __author__ = 'Bohdan Mushkevych'
 
-from db.model.single_session import SingleSession
 from db.model.site_statistics import SiteStatistics
 from db.model.base_model import BaseModel
 from settings import settings

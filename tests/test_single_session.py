@@ -4,7 +4,7 @@ import unittest
 from db.model.single_session import SingleSession
 
 
-class TestSingleSessionStatistics(unittest.TestCase):
+class TestSingleSession(unittest.TestCase):
     def setUp(self):
         self.obj = SingleSession()
 

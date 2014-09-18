@@ -63,8 +63,7 @@ class AbstractWorkerUnitTest(unittest.TestCase):
         pass
 
     def perform_aggregation(self):
-        message = TestMessage()
-        message.body = str(self.uow_id)
+        message = TestMessage(process_name=self.process_name, uow_id=self.uow_id)
         self.aggregator._mq_callback(message)
 
         if self.generate_output:

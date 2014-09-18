@@ -1,8 +1,8 @@
-
 __author__ = 'Bohdan Mushkevych'
 
 import unittest
-from constants import PROCESS_SUPERVISOR, PROCESS_GC
+from constants import PROCESS_GC
+from supervisor.supervisor_constants import PROCESS_SUPERVISOR
 from system.process_context import ProcessContext
 
 
@@ -21,24 +21,24 @@ class ProcessContextUnitTest(unittest.TestCase):
     def test_non_initialized(self):
         try:
             ProcessContext.get_current_process()
-            assert False, 'get_current_process should throw an exception when current_process was not yet set'
+            self.assertTrue(False, 'get_current_process should throw an exception when current_process was not yet set')
         except AttributeError:
-            assert True
+            self.assertTrue(True)
 
     def test_initialized(self):
         try:
             ProcessContext.set_current_process(PROCESS_GC)
-            assert PROCESS_GC == ProcessContext.get_current_process()
+            self.assertEqual(PROCESS_GC, ProcessContext.get_current_process())
         except AttributeError:
-            assert False, 'get_current_process should return valid current_process'
+            self.assertTrue(False, 'get_current_process should return valid current_process')
 
     def test_double_initialization(self):
         try:
             ProcessContext.set_current_process(PROCESS_GC)
             ProcessContext.set_current_process(PROCESS_SUPERVISOR)
-            assert False, 'set_current_process should not allow double initialization'
+            self.assertTrue(False, 'set_current_process should not allow double initialization')
         except AttributeError:
-            assert True
+            self.assertTrue(True)
 
 
 if __name__ == '__main__':

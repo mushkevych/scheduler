@@ -1,3 +1,4 @@
+
 __author__ = 'Bohdan Mushkevych'
 
 from datetime import datetime, timedelta
@@ -9,6 +10,7 @@ from mq.flopsy import PublishersPool
 from mx.synergy_mx import MX
 from db.model import scheduler_managed_entry
 from db.model import scheduler_freerun_entry
+from db.model.worker_mq_request import WorkerMqRequest
 from db.dao.scheduler_managed_entry_dao import SchedulerManagedEntryDao
 from db.dao.scheduler_freerun_entry_dao import SchedulerFreerunEntryDao
 from system import time_helper
@@ -196,20 +198,16 @@ class Scheduler(SynergyProcess):
         try:
             process_name, entry_name = args[0]
             scheduler_entry_obj = args[1]
-
-
-
-            if isinstance(scheduler_entry_obj, scheduler_freerun_entry.SchedulerFreerunEntry):
-                # sending whole SchedulerFreerunEntry
-                arguments = scheduler_entry_obj.document
-                arguments['_id'] = str(arguments['_id'])
-            else:
-                arguments = ProcessContext.get_arguments(process_name)
-
             self.logger.info('%s {' % process_name)
 
+            mq_request = WorkerMqRequest()
+            mq_request.process_name = scheduler_entry_obj.process_name
+            if isinstance(scheduler_entry_obj, scheduler_freerun_entry.SchedulerFreerunEntry):
+                mq_request.entry_name = scheduler_entry_obj.entry_name
+                mq_request.entry_arguments = scheduler_entry_obj.arguments
+
             publisher = self.publishers.get(process_name)
-            publisher.publish(arguments)
+            publisher.publish(mq_request.document)
             publisher.release()
 
             self.logger.info('Published trigger for %s::%s' % (process_name, entry_name))
@@ -230,8 +228,11 @@ class Scheduler(SynergyProcess):
             assert isinstance(scheduler_entry_obj, scheduler_managed_entry.SchedulerManagedEntry)
             self.logger.info('%s {' % process_name)
 
+            mq_request = WorkerMqRequest()
+            mq_request.process_name = process_name
+
             publisher = self.publishers.get(process_name)
-            publisher.publish(ProcessContext.get_arguments(process_name))
+            publisher.publish(mq_request.document)
             publisher.release()
             self.logger.info('Published trigger for %s' % process_name)
 

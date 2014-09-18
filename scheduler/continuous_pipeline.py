@@ -8,6 +8,7 @@ from db.manager import ds_manager
 from db.error import DuplicateKeyError
 from db.model import job, unit_of_work
 from db.model.unit_of_work import UnitOfWork
+from db.model.worker_mq_request import WorkerMqRequest
 from system.decorator import with_reconnect
 from system.process_context import ProcessContext
 from system import time_helper
@@ -48,8 +49,12 @@ class ContinuousPipeline(AbstractPipeline):
         uow.number_of_retries = 0
         uow_id = self.uow_dao.insert(uow)
 
+        mq_request = WorkerMqRequest()
+        mq_request.process_name = process_name
+        mq_request.unit_of_work_id = uow_id
+
         publisher = self.publishers.get(process_name)
-        publisher.publish(str(uow_id))
+        publisher.publish(mq_request.document)
         publisher.release()
 
         msg = 'Published: UOW %r for %r in timeperiod %r.' % (uow_id, process_name, start_timeperiod)

@@ -11,6 +11,7 @@ from system.decorator import thread_safe
 from workers.abstract_mq_worker import AbstractMqWorker
 from db.model import unit_of_work
 from db.model import scheduler_managed_entry
+from db.model.worker_mq_request import WorkerMqRequest
 from db.dao.unit_of_work_dao import UnitOfWorkDao
 from db.model.scheduler_managed_entry import SchedulerManagedEntry
 from db.dao.scheduler_managed_entry_dao import SchedulerManagedEntryDao
@@ -95,8 +96,12 @@ class GarbageCollectorWorker(AbstractMqWorker):
                 uow.number_of_retries += 1
                 self.uow_dao.update(uow)
 
-                publisher = self.publishers.get(uow.process_name)
-                publisher.publish(str(uow.document['_id']))
+                mq_request = WorkerMqRequest()
+                mq_request.process_name = uow.process_name
+                mq_request.unit_of_work_id = uow.document['_id']
+
+                publisher = self.publishers.get(mq_request.document)
+                publisher.publish()
                 publisher.release()
 
                 self.logger.info('UOW marked for re-processing: process %s; timeperiod %s; id %s; attempt %d'

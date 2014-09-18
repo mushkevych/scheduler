@@ -12,14 +12,14 @@ from db.model.unit_of_work import UnitOfWork
 class TestSystemCollections(unittest.TestCase):
     def setUp(self):
         self.box_configuration = BoxConfiguration()
-        self.scheduler_configuration = SchedulerManagedEntry()
-        self.timetable = Job()
+        self.managed_entry = SchedulerManagedEntry()
+        self.job_record = Job()
         self.uow = UnitOfWork()
 
     def tearDown(self):
         del self.box_configuration
-        del self.scheduler_configuration
-        del self.timetable
+        del self.managed_entry
+        del self.job_record
         del self.uow
 
     def test_box_configuration(self):

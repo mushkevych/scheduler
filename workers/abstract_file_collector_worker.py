@@ -13,6 +13,7 @@ from workers.abstract_mq_worker import AbstractMqWorker
 from system.performance_tracker import AggregatorPerformanceTicker
 
 from db.model import unit_of_work
+from db.model.worker_mq_request import WorkerMqRequest
 from db.manager import ds_manager
 from db.dao.unit_of_work_dao import UnitOfWorkDao
 
@@ -126,8 +127,8 @@ class AbstractFileCollectorWorker(AbstractMqWorker):
         - in case no files are found and copied - raise LookupError
         - for every file: un-archive it and process"""
         try:
-            object_id = message.body
-            uow = self.uow_dao.get_one(object_id)
+            mq_request = WorkerMqRequest(message.body)
+            uow = self.uow_dao.get_one(mq_request.unit_of_work_id)
             if uow.state in [unit_of_work.STATE_CANCELED, unit_of_work.STATE_PROCESSED]:
                 # garbage collector might have reposted this UOW
                 self.logger.warning('Skipping unit_of_work: id %s; state %s;' % (str(message.body), uow.state),

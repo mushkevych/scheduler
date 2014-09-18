@@ -1,7 +1,6 @@
 __author__ = 'Bohdan Mushkevych'
 
 import context
-from system.decorator import singleton
 from db.model.queue_context_entry import QueueContextEntry
 
 
