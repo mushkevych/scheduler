@@ -6,15 +6,15 @@ from system.process_context import ProcessContext
 
 
 class AbstractNode(object):
-    def __init__(self, tree, parent, process_name, timeperiod, timetable_record):
+    def __init__(self, tree, parent, process_name, timeperiod, job_record):
         # initializes the data members
         self.children = dict()
         self.tree = tree
         self.parent = parent
         self.process_name = process_name
         self.timeperiod = timeperiod
-        self.timetable_record = timetable_record
-        if parent is None and process_name is None and timeperiod is None and timetable_record is None:
+        self.job_record = job_record
+        if parent is None and process_name is None and timeperiod is None and job_record is None:
             # special case - node is TREE ROOT
             self.time_qualifier = None
         else:
@@ -42,26 +42,26 @@ class AbstractNode(object):
             function(self)
         return [self]
 
-    def request_timetable_record(self):
-        """ method is requesting outside functionality to create STATE_EMBRYO timetable record for given tree_node"""
+    def request_embryo_job_record(self):
+        """ method is requesting outside functionality to create a job record in STATE_EMBRYO for given tree_node """
         for function in self.tree.create_timetable_record_callbacks:
             # function signature: tree_node
             function(self)
 
-    def can_finalize_timetable_record(self):
-        """method checks all children of the node, and if any is _not_ finalized - refuses to finalize the node"""
+    def can_finalize_job_record(self):
+        """ method checks all children of the node, and if any is _not_ finalized - refuses to finalize the node """
         pass
 
     def validate(self):
         """method traverse tree and:
-        * requests for timetable records in STATE_EMBRYO if no timetable record is currently assigned"""
-        if self.timetable_record is None:
-            self.request_timetable_record()
+        * requests a job record in STATE_EMBRYO if no job record is currently assigned to the node """
+        if self.job_record is None:
+            self.request_embryo_job_record()
 
     def add_log_entry(self, entry):
-        """ timetable_record holds MAX_NUMBER_OF_LOG_ENTRIES of log entries, that can be accessed by MX
-            this method adds record and removes oldest one if necessary """
-        log = self.timetable_record.log
+        """ :db.model.job record holds MAX_NUMBER_OF_LOG_ENTRIES of log entries, that can be accessed by MX
+            this method adds a record and removes oldest one if necessary """
+        log = self.job_record.log
         if len(log) > job.MAX_NUMBER_OF_LOG_ENTRIES:
             del log[-1]
         log.insert(0, entry)
@@ -137,22 +137,22 @@ class AbstractNode(object):
                 # so we assume that its not blocked
                 continue
 
-            if node_b.timetable_record.state not in [job.STATE_PROCESSED,
+            if node_b.job_record.state not in [job.STATE_PROCESSED,
                                                      job.STATE_SKIPPED]:
                 all_finalized = False
-            if node_b.timetable_record.state != job.STATE_PROCESSED:
+            if node_b.job_record.state != job.STATE_PROCESSED:
                 all_processed = False
-            if node_b.timetable_record.state == job.STATE_SKIPPED:
+            if node_b.job_record.state == job.STATE_SKIPPED:
                 skipped_present = True
 
         return all_finalized, all_processed, skipped_present
 
 
 class LinearNode(AbstractNode):
-    def __init__(self, tree, parent, process_name, timeperiod, timetable_record):
-        super(LinearNode, self).__init__(tree, parent, process_name, timeperiod, timetable_record)
+    def __init__(self, tree, parent, process_name, timeperiod, job_record):
+        super(LinearNode, self).__init__(tree, parent, process_name, timeperiod, job_record)
 
-    def can_finalize_timetable_record(self):
+    def can_finalize_job_record(self):
         """ method checks the if this particular node can be finalized: i.e. all dependents are finalized
             and node itself is satisfying success criteria """
         if self.parent is None:
@@ -163,10 +163,10 @@ class LinearNode(AbstractNode):
         if not all_finalized:
             return False
 
-        if self.timetable_record is None:
-            self.request_timetable_record()
+        if self.job_record is None:
+            self.request_embryo_job_record()
 
-        if self.timetable_record.state in [job.STATE_FINAL_RUN,
+        if self.job_record.state in [job.STATE_FINAL_RUN,
                                            job.STATE_IN_PROGRESS,
                                            job.STATE_EMBRYO]:
             return True
@@ -178,10 +178,10 @@ class TreeNode(AbstractNode):
         processes.
         For instance: ThreeLevelTree, FourLevelTree"""
 
-    def __init__(self, tree, parent, process_name, timeperiod, timetable_record):
-        super(TreeNode, self).__init__(tree, parent, process_name, timeperiod, timetable_record)
+    def __init__(self, tree, parent, process_name, timeperiod, job_record):
+        super(TreeNode, self).__init__(tree, parent, process_name, timeperiod, job_record)
 
-    def can_finalize_timetable_record(self):
+    def can_finalize_job_record(self):
         """method checks:
          - all counterpart of this node in dependent_on trees, if they all are finalized
          - all children of the node, and if any is _not_ finalized - refuses to finalize the node"""
@@ -190,13 +190,13 @@ class TreeNode(AbstractNode):
         if not all_finalized:
             return False
 
-        if self.timetable_record is None:
-            self.request_timetable_record()
+        if self.job_record is None:
+            self.request_embryo_job_record()
 
         children_processed = True
         for timeperiod in self.children:
             child = self.children[timeperiod]
-            if child.timetable_record.state in [job.STATE_FINAL_RUN,
+            if child.job_record.state in [job.STATE_FINAL_RUN,
                                                 job.STATE_IN_PROGRESS,
                                                 job.STATE_EMBRYO]:
                 children_processed = False
@@ -205,7 +205,7 @@ class TreeNode(AbstractNode):
 
     def validate(self):
         """method traverse tree and performs following activities:
-        * requests for timetable records in STATE_EMBRYO if no timetable record is currently assigned
+        * requests a job record in STATE_EMBRYO if no job record is currently assigned to the node
         * requests nodes for reprocessing, if STATE_PROCESSED node relies on unfinalized nodes
         * requests node for skipping if it is daily node and all 24 of its Hourly nodes are in STATE_SKIPPED state"""
         super(TreeNode, self).validate()
@@ -221,17 +221,17 @@ class TreeNode(AbstractNode):
             child = self.children[timeperiod]
             child.validate()
 
-            if child.timetable_record.state in [job.STATE_EMBRYO,
+            if child.job_record.state in [job.STATE_EMBRYO,
                                                 job.STATE_IN_PROGRESS,
                                                 job.STATE_FINAL_RUN]:
                 all_children_done = False
-            if child.timetable_record.state != job.STATE_SKIPPED:
+            if child.job_record.state != job.STATE_SKIPPED:
                 all_children_skipped = False
 
         # step 3: request this node's reprocessing if it is enroute to STATE_PROCESSED
         # while some of its children are still performing processing
         if all_children_done is False \
-            and self.timetable_record.state in [job.STATE_FINAL_RUN, job.STATE_PROCESSED]:
+            and self.job_record.state in [job.STATE_FINAL_RUN, job.STATE_PROCESSED]:
             self.request_reprocess()
 
         # step 4: verify if this node should be transferred to STATE_SKIPPED
@@ -244,5 +244,5 @@ class TreeNode(AbstractNode):
             and all_children_skipped \
             and self.tree.build_timeperiod is not None \
             and has_younger_sibling is True \
-            and self.timetable_record.state != job.STATE_SKIPPED:
+            and self.job_record.state != job.STATE_SKIPPED:
             self.request_skip()

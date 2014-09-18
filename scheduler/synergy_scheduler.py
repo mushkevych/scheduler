@@ -157,7 +157,7 @@ class Scheduler(SynergyProcess):
             scheduler_entry_obj = args[1]
             self.logger.info('%s {' % process_name)
 
-            timetable_record = self.timetable.get_next_timetable_record(process_name)
+            timetable_record = self.timetable.get_next_job_record(process_name)
             pipeline = self.pipelines[scheduler_entry_obj.state_machine_name]
 
             run_on_active_timeperiod = ProcessContext.run_on_active_timeperiod(scheduler_entry_obj.process_name)
@@ -197,6 +197,8 @@ class Scheduler(SynergyProcess):
             process_name, entry_name = args[0]
             scheduler_entry_obj = args[1]
 
+
+
             if isinstance(scheduler_entry_obj, scheduler_freerun_entry.SchedulerFreerunEntry):
                 # sending whole SchedulerFreerunEntry
                 arguments = scheduler_entry_obj.document
@@ -224,8 +226,8 @@ class Scheduler(SynergyProcess):
         """fires garbage collector to re-trigger invalid unit_of_work"""
         try:
             process_name = args[0]
-            entry_document = args[1]
-            assert isinstance(entry_document, scheduler_managed_entry.SchedulerManagedEntry)
+            scheduler_entry_obj = args[1]
+            assert isinstance(scheduler_entry_obj, scheduler_managed_entry.SchedulerManagedEntry)
             self.logger.info('%s {' % process_name)
 
             publisher = self.publishers.get(process_name)

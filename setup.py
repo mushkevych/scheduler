@@ -25,5 +25,5 @@ setup(name = 'synergy_scheduler',
           'Topic :: Communications :: Email',
           'Topic :: Office/Business :: Scheduling',
           'Topic :: Utilities',
-          ],
+          ], requires=['werkzeug', 'werkzeug', 'werkzeug', 'jinja2']
 )

@@ -28,7 +28,7 @@ class AbstractTree(object):
         self.validation_timestamp = None
         self.reprocess_callbacks = []
         self.skip_callbacks = []
-        self.create_timetable_record_callbacks = []
+        self.create_job_record_callbacks = []
         self.full_name = full_name
         self.mx_name = mx_name
         self.mx_page = mx_page
@@ -65,14 +65,14 @@ class AbstractTree(object):
         if function in self.skip_callbacks:
             self.skip_callbacks.remove(function)
 
-    def register_timetable_callbacks(self, function):
-        """method that allows outside functionality to listen for _create_embryo_timetable_record_requests_"""
-        self.create_timetable_record_callbacks.append(function)
+    def register_create_callbacks(self, function):
+        """method subscribes to _create_embryo_job_record_ requests"""
+        self.create_job_record_callbacks.append(function)
 
-    def unregister_timetable_callback(self, function):
-        """method that allows outside functionality to abandon _create_embryo_timetable_record_requests_ listening"""
-        if function in self.create_timetable_record_callbacks:
-            self.create_timetable_record_callbacks.remove(function)
+    def unregister_create_callback(self, function):
+        """method un-subscribes from _create_embryo_job_record_ requests"""
+        if function in self.create_job_record_callbacks:
+            self.create_job_record_callbacks.remove(function)
 
     # *** PROTECTED METHODS ***
     def _build_tree(self, rebuild, process_name, method_get_node):
@@ -113,14 +113,12 @@ class AbstractTree(object):
         sorted_keys = sorted(parent.children.keys())
         for key in sorted_keys:
             node = parent.children[key]
-            if node.timetable_record is None:
-                node.request_timetable_record()
+            if node.job_record is None:
+                node.request_embryo_job_record()
                 return node
             elif self._skip_the_node(node):
                 continue
-            elif node.timetable_record.state in [job.STATE_FINAL_RUN,
-                                                 job.STATE_IN_PROGRESS,
-                                                 job.STATE_EMBRYO]:
+            elif node.job_record.state in [job.STATE_FINAL_RUN, job.STATE_IN_PROGRESS, job.STATE_EMBRYO]:
                 return node
 
         # special case, when all children of the parent node are not suitable for processing
@@ -154,7 +152,7 @@ class AbstractTree(object):
         """ method is used to keep consistency with Three/FourLevelTree interface"""
         pass
 
-    def update_node_by_process(self, process_name, timetable_record):
+    def update_node_by_process(self, process_name, job_record):
         """ method is used to keep consistency with Three/FourLevelTree interface"""
         pass
 
@@ -172,7 +170,7 @@ class AbstractTree(object):
 
 
 class TwoLevelTree(AbstractTree):
-    """Linear timeline structure, presenting array of timetable_records"""
+    """Linear timeline structure, presenting array of job_records"""
 
     def __init__(self, process_name, full_name=None, mx_name=None, mx_page=None, node_klass=LinearNode):
         super(TwoLevelTree, self).__init__(node_klass, full_name, mx_name, mx_page)
@@ -183,14 +181,14 @@ class TwoLevelTree(AbstractTree):
         node = self.root.children.get(timeperiod)
         if node is None:
             node = self.node_klass(self, self.root, self.process_name, timeperiod, None)
-            node.request_timetable_record()
+            node.request_embryo_job_record()
             self.root.children[timeperiod] = node
 
         return node
 
-    def __update_node(self, timetable_record):
-        node = self.__get_node(timetable_record.timeperiod)
-        node.timetable_record = timetable_record
+    def __update_node(self, job_record):
+        node = self.__get_node(job_record.timeperiod)
+        node.job_record = job_record
 
     # *** INHERITANCE INTERFACE ***
     def build_tree(self, rebuild=False):
@@ -201,9 +199,9 @@ class TwoLevelTree(AbstractTree):
     def _skip_the_node(self, node):
         """Method is used during _get_next_node calculations.
         Returns True in case node shall be _skipped_"""
-        if node.timetable_record.state in [job.STATE_SKIPPED, job.STATE_PROCESSED]:
+        if node.job_record.state in [job.STATE_SKIPPED, job.STATE_PROCESSED]:
             return True
-        return node.timetable_record.number_of_failures > MAX_NUMBER_OF_RETRIES
+        return node.job_record.number_of_failures > MAX_NUMBER_OF_RETRIES
 
     def is_managing_process(self, process_name):
         """method returns True if process_name is registered on Timeline during creation"""
@@ -218,10 +216,10 @@ class TwoLevelTree(AbstractTree):
         else:
             raise ValueError('unknown requested process: %s vs %s' % (process_name, self.process_name))
 
-    def update_node_by_process(self, process_name, timetable_record):
+    def update_node_by_process(self, process_name, job_record):
         """ method is used to keep consistency with Three/FourLevelTree interface"""
         if process_name == self.process_name:
-            return self.__update_node(timetable_record)
+            return self.__update_node(job_record)
         else:
             raise ValueError('unknown requested process: %s vs %s' % (process_name, self.process_name))
 
@@ -307,23 +305,22 @@ class ThreeLevelTree(AbstractTree):
         else:
             raise ValueError('unable to retrieve the node due to unknown process: %s' % process_name)
 
-    def update_node_by_process(self, process_name, timetable_record):
+    def update_node_by_process(self, process_name, job_record):
         if process_name == self.process_yearly:
-            node = self.__get_yearly_node(timetable_record.timeperiod)
+            node = self.__get_yearly_node(job_record.timeperiod)
         elif process_name == self.process_monthly:
-            node = self.__get_monthly_node(timetable_record.timeperiod)
+            node = self.__get_monthly_node(job_record.timeperiod)
         elif process_name == self.process_daily:
-            node = self.__get_daily_node(timetable_record.timeperiod)
+            node = self.__get_daily_node(job_record.timeperiod)
         else:
             raise ValueError('unknown process name: %s' % process_name)
-        node.timetable_record = timetable_record
+        node.job_record = job_record
 
     def _skip_the_node(self, node):
         """Method is used during _get_next_node calculations.
         Returns True in case node shall be _skipped_"""
         # case 1: node processing is complete
-        if node.timetable_record.state in [job.STATE_SKIPPED,
-                                           job.STATE_PROCESSED]:
+        if node.job_record.state in [job.STATE_SKIPPED, job.STATE_PROCESSED]:
             return True
 
         # case 2: this is a daily leaf node. retry this time_period for INFINITE_RETRY_HOURS
@@ -334,18 +331,18 @@ class ThreeLevelTree(AbstractTree):
                 if datetime.utcnow() - creation_time < timedelta(hours=LIFE_SUPPORT_HOURS):
                     return False
                 else:
-                    return node.timetable_record.number_of_failures > MAX_NUMBER_OF_RETRIES
+                    return node.job_record.number_of_failures > MAX_NUMBER_OF_RETRIES
 
         # case 3: here we process process_daily, process_monthly and process_yearly that have children
         # iterate thru children and check if all of them are in STATE_SKIPPED (i.e. no data for parent to process)
         # if any is still in processing (i.e. has produced some data) - then we can not skip parent of the child node
-        # case 3': consider parent as worth processing (i.e. do not skip) if child's timetable_record is None
+        # case 3': consider parent as worth processing (i.e. do not skip) if child's job_record is None
         all_children_spoiled = True
         for key in node.children.keys():
             child = node.children[key]
-            if child.timetable_record is None or \
-                    (child.timetable_record.number_of_failures <= MAX_NUMBER_OF_RETRIES
-                     and child.timetable_record.state != job.STATE_SKIPPED):
+            if child.job_record is None or \
+                    (child.job_record.number_of_failures <= MAX_NUMBER_OF_RETRIES
+                     and child.job_record.state != job.STATE_SKIPPED):
                 all_children_spoiled = False
                 break
         return all_children_spoiled
@@ -364,8 +361,8 @@ class ThreeLevelTree(AbstractTree):
         """method returns True if process_name is among processes (yearly/monthly/daily etc),
         registered on Tree creation"""
         if process_name == self.process_yearly \
-            or process_name == self.process_monthly \
-            or process_name == self.process_daily:
+                or process_name == self.process_monthly \
+                or process_name == self.process_daily:
             return True
         return False
 
@@ -430,19 +427,19 @@ class FourLevelTree(ThreeLevelTree):
         else:
             return super(FourLevelTree, self).get_node_by_process(process_name, timeperiod)
 
-    def update_node_by_process(self, process_name, timetable_record):
+    def update_node_by_process(self, process_name, job_record):
         if process_name == self.process_hourly:
-            node = self.__get_hourly_node(timetable_record.timeperiod)
-            node.timetable_record = timetable_record
+            node = self.__get_hourly_node(job_record.timeperiod)
+            node.job_record = job_record
         else:
-            return super(FourLevelTree, self).update_node_by_process(process_name, timetable_record)
+            return super(FourLevelTree, self).update_node_by_process(process_name, job_record)
 
     def _skip_the_node(self, node):
         """Method is used during _get_next_node calculations.
         Returns True in case node shall be _skipped_"""
         if node.process_name == self.process_hourly:
-            if node.timetable_record.state in [job.STATE_SKIPPED, job.STATE_PROCESSED]:
+            if node.job_record.state in [job.STATE_SKIPPED, job.STATE_PROCESSED]:
                 return True
-            return node.timetable_record.number_of_failures > MAX_NUMBER_OF_RETRIES
+            return node.job_record.number_of_failures > MAX_NUMBER_OF_RETRIES
         else:
             return super(FourLevelTree, self)._skip_the_node(node)

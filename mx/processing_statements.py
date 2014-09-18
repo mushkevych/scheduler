@@ -4,10 +4,10 @@ from threading import RLock
 
 from werkzeug.utils import cached_property
 
-from db.dao import time_table_record_dao
-from db.dao.time_table_record_dao import TimeTableRecordDao
-from system.collection_context import COLLECTION_TIMETABLE_YEARLY, \
-    COLLECTION_TIMETABLE_MONTHLY, COLLECTION_TIMETABLE_DAILY, COLLECTION_TIMETABLE_HOURLY
+from db.dao import job_dao
+from db.dao.job_dao import JobDao
+from system.collection_context import COLLECTION_JOB_YEARLY, \
+    COLLECTION_JOB_MONTHLY, COLLECTION_JOB_DAILY, COLLECTION_JOB_HOURLY
 from system.decorator import thread_safe
 from mx.commons import managed_entry_request
 
@@ -62,36 +62,36 @@ class ProcessingStatements(object):
     def __init__(self, logger):
         self.lock = RLock()
         self.logger = logger
-        self.ttr_dao = TimeTableRecordDao(self.logger)
+        self.job_dao = JobDao(self.logger)
 
     @thread_safe
     def retrieve_for_timeperiod(self, timeperiod, unprocessed_only):
-        """ method iterates thru all objects in timetable collections and load them into timetable"""
+        """ method iterates thru all objects in job collections and load them into a dict"""
         resp = dict()
-        resp.update(self._search_by_level(COLLECTION_TIMETABLE_HOURLY, timeperiod, unprocessed_only))
-        resp.update(self._search_by_level(COLLECTION_TIMETABLE_DAILY, timeperiod, unprocessed_only))
-        resp.update(self._search_by_level(COLLECTION_TIMETABLE_MONTHLY, timeperiod, unprocessed_only))
-        resp.update(self._search_by_level(COLLECTION_TIMETABLE_YEARLY, timeperiod, unprocessed_only))
+        resp.update(self._search_by_level(COLLECTION_JOB_HOURLY, timeperiod, unprocessed_only))
+        resp.update(self._search_by_level(COLLECTION_JOB_DAILY, timeperiod, unprocessed_only))
+        resp.update(self._search_by_level(COLLECTION_JOB_MONTHLY, timeperiod, unprocessed_only))
+        resp.update(self._search_by_level(COLLECTION_JOB_YEARLY, timeperiod, unprocessed_only))
         return resp
 
     @thread_safe
     def _search_by_level(self, collection_name, timeperiod, unprocessed_only):
-        """ method iterated thru all documents in all timetable collections and builds tree of known system state"""
+        """ method iterated thru all documents in all job collections and builds tree of known system state"""
         resp = dict()
         try:
             if unprocessed_only:
-                query = time_table_record_dao.QUERY_GET_LIKE_TIMEPERIOD_AND_NOT_PROCESSED(timeperiod)
+                query = job_dao.QUERY_GET_LIKE_TIMEPERIOD_AND_NOT_PROCESSED(timeperiod)
             else:
-                query = time_table_record_dao.QUERY_GET_LIKE_TIMEPERIOD(timeperiod)
+                query = job_dao.QUERY_GET_LIKE_TIMEPERIOD(timeperiod)
 
-            tt_record_list = self.ttr_dao.run_query(collection_name, query)
-            if len(tt_record_list) == 0:
-                self.logger.warning('No TimeTable Records in %s.' % str(collection_name))
+            job_record_list = self.job_dao.run_query(collection_name, query)
+            if len(job_record_list) == 0:
+                self.logger.warning('No Job Records in %s.' % collection_name)
 
-            for timetable_record in tt_record_list:
-                resp[timetable_record.key] = timetable_record
+            for job_record in job_record_list:
+                resp[job_record.key] = job_record
         except Exception as e:
-            self.logger.error('ProcessingStatements error: %s' % str(e))
+            self.logger.error('ProcessingStatements error: %r' % e)
         return resp
 
 

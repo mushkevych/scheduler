@@ -30,11 +30,13 @@ class SingleSessionDao(object):
     @thread_safe
     def insert(self, instance):
         """ method inserts new Single Session"""
+        assert isinstance(instance, SingleSession)
         collection = self.ds.connection(COLLECTION_SINGLE_SESSION)
         return collection.insert(instance.document, safe=True)
 
     @thread_safe
     def update(self, instance, is_safe):
         """ method finds Single Session record and update its DB representation"""
+        assert isinstance(instance, SingleSession)
         collection = self.ds.connection(COLLECTION_SINGLE_SESSION)
         return collection.save(instance.document, safe=is_safe)

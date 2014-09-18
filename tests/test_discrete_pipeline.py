@@ -70,7 +70,7 @@ class DiscretePipelineUnitTest(unittest.TestCase):
 
         pipeline.manage_pipeline_for_process(timetable_record.process_name, timetable_record)
         verify(self.time_table_mocked).\
-            update_timetable_record(any(str), any(Job), any(UnitOfWork), any(str))
+            update_job_record(any(str), any(Job), any(UnitOfWork), any(str))
 
     def test_duplicatekeyerror_state_embryo(self):
         """ method tests timetable records in STATE_EMBRYO state"""
@@ -83,11 +83,11 @@ class DiscretePipelineUnitTest(unittest.TestCase):
 
         pipeline.manage_pipeline_for_process(timetable_record.process_name, timetable_record)
         verify(self.time_table_mocked, times=0).\
-            update_timetable_record(any(str), any(Job), any(UnitOfWork), any(str))
+            update_job_record(any(str), any(Job), any(UnitOfWork), any(str))
 
     def test_future_timeperiod_state_in_progress(self):
         """ method tests timetable records in STATE_IN_PROGRESS state"""
-        when(self.time_table_mocked).can_finalize_timetable_record(any(str), any(Job)).thenReturn(True)
+        when(self.time_table_mocked).can_finalize_job_record(any(str), any(Job)).thenReturn(True)
         uow_dao_mock = mock(UnitOfWorkDao)
         when(uow_dao_mock).get_one(any()).thenReturn(create_unit_of_work(PROCESS_UNIT_TEST, 0, 1, None))
         self.pipeline_real.uow_dao = uow_dao_mock
@@ -101,11 +101,11 @@ class DiscretePipelineUnitTest(unittest.TestCase):
 
         pipeline.manage_pipeline_for_process(timetable_record.process_name, timetable_record)
         verify(self.time_table_mocked, times=0).\
-            update_timetable_record(any(str), any(Job), any(UnitOfWork), any(str))
+            update_job_record(any(str), any(Job), any(UnitOfWork), any(str))
 
     def test_preset_timeperiod_state_in_progress(self):
         """ method tests timetable records in STATE_IN_PROGRESS state"""
-        when(self.time_table_mocked).can_finalize_timetable_record(any(str), any(Job)).thenReturn(True)
+        when(self.time_table_mocked).can_finalize_job_record(any(str), any(Job)).thenReturn(True)
         uow_dao_mock = mock(UnitOfWorkDao)
         when(uow_dao_mock).get_one(any()).thenReturn(create_unit_of_work(PROCESS_UNIT_TEST, 0, 1, None))
         self.pipeline_real.uow_dao = uow_dao_mock
@@ -119,7 +119,7 @@ class DiscretePipelineUnitTest(unittest.TestCase):
 
         pipeline.manage_pipeline_for_process(timetable_record.process_name, timetable_record)
         verify(self.time_table_mocked, times=0).\
-            update_timetable_record(any(str), any(Job), any(UnitOfWork), any(str))
+            update_job_record(any(str), any(Job), any(UnitOfWork), any(str))
         # verify(pipeline, times=1).\
         #     _compute_and_transfer_to_final_run(any(str), any(str), any(str), any(TimeTableRecord))
         # verify(pipeline, times=0).\
@@ -127,7 +127,7 @@ class DiscretePipelineUnitTest(unittest.TestCase):
 
     def test_transfer_to_final_timeperiod_state_in_progress(self):
         """ method tests timetable records in STATE_IN_PROGRESS state"""
-        when(self.time_table_mocked).can_finalize_timetable_record(any(str), any(Job)).thenReturn(True)
+        when(self.time_table_mocked).can_finalize_job_record(any(str), any(Job)).thenReturn(True)
         uow_dao_mock = mock(UnitOfWorkDao)
         when(uow_dao_mock).get_one(any()).thenReturn(
             create_unit_of_work(PROCESS_UNIT_TEST, 1, 1, None, unit_of_work.STATE_PROCESSED))
@@ -142,7 +142,7 @@ class DiscretePipelineUnitTest(unittest.TestCase):
 
         pipeline.manage_pipeline_for_process(timetable_record.process_name, timetable_record)
         verify(self.time_table_mocked, times=1).\
-            update_timetable_record(any(str), any(Job), any(UnitOfWork), any(str))
+            update_job_record(any(str), any(Job), any(UnitOfWork), any(str))
         # verify(pipeline, times=1).\
         #     _compute_and_transfer_to_final_run(any(str), any(str), any(str), any(TimeTableRecord))
         # verify(pipeline, times=1).\
@@ -150,7 +150,7 @@ class DiscretePipelineUnitTest(unittest.TestCase):
 
     def test_retry_state_in_progress(self):
         """ method tests timetable records in STATE_IN_PROGRESS state"""
-        when(self.time_table_mocked).can_finalize_timetable_record(any(str), any(Job)).thenReturn(True)
+        when(self.time_table_mocked).can_finalize_job_record(any(str), any(Job)).thenReturn(True)
         uow_dao_mock = mock(UnitOfWorkDao)
         when(uow_dao_mock).get_one(any()).thenReturn(
             create_unit_of_work(PROCESS_UNIT_TEST, 1, 1, None, unit_of_work.STATE_PROCESSED))
@@ -166,7 +166,7 @@ class DiscretePipelineUnitTest(unittest.TestCase):
 
         pipeline.manage_pipeline_for_process(timetable_record.process_name, timetable_record)
         verify(self.time_table_mocked, times=1).\
-            update_timetable_record(any(str), any(Job), any(UnitOfWork), any(str))
+            update_job_record(any(str), any(Job), any(UnitOfWork), any(str))
         # verify(pipeline, times=1).\
         #     _compute_and_transfer_to_final_run(any(str), any(str), any(str), any(TimeTableRecord))
         # verify(pipeline, times=1).\
@@ -187,7 +187,7 @@ class DiscretePipelineUnitTest(unittest.TestCase):
 
         pipeline.manage_pipeline_for_process(timetable_record.process_name, timetable_record)
         verify(self.time_table_mocked, times=1). \
-            update_timetable_record(any(str), any(Job), any(UnitOfWork), any(str))
+            update_job_record(any(str), any(Job), any(UnitOfWork), any(str))
         verify(self.time_table_mocked, times=1).get_tree(any(str))
 
     def test_cancelled_state_final_run(self):
@@ -204,7 +204,7 @@ class DiscretePipelineUnitTest(unittest.TestCase):
 
         pipeline.manage_pipeline_for_process(timetable_record.process_name, timetable_record)
         verify(self.time_table_mocked, times=1). \
-            update_timetable_record(any(str), any(Job), any(UnitOfWork), any(str))
+            update_job_record(any(str), any(Job), any(UnitOfWork), any(str))
         verify(self.time_table_mocked, times=0).get_tree(any(str))
 
     def test_state_skipped(self):
@@ -216,7 +216,7 @@ class DiscretePipelineUnitTest(unittest.TestCase):
 
         pipeline.manage_pipeline_for_process(timetable_record.process_name, timetable_record)
         verify(self.time_table_mocked, times=0). \
-            update_timetable_record(any(str), any(Job), any(UnitOfWork), any(str))
+            update_job_record(any(str), any(Job), any(UnitOfWork), any(str))
         verify(self.time_table_mocked, times=0).get_tree(any(str))
 
     def test_state_processed(self):
@@ -228,7 +228,7 @@ class DiscretePipelineUnitTest(unittest.TestCase):
 
         pipeline.manage_pipeline_for_process(timetable_record.process_name, timetable_record)
         verify(self.time_table_mocked, times=0). \
-            update_timetable_record(any(str), any(Job), any(UnitOfWork), any(str))
+            update_job_record(any(str), any(Job), any(UnitOfWork), any(str))
         verify(self.time_table_mocked, times=0).get_tree(any(str))
 
 

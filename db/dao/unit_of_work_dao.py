@@ -17,7 +17,7 @@ from db.model.unit_of_work import UnitOfWork
 
 
 class UnitOfWorkDao(object):
-    """ Thread-safe Data Access Object for box_configuration table/collection """
+    """ Thread-safe Data Access Object from units_of_work table/collection """
 
     def __init__(self, logger):
         super(UnitOfWorkDao, self).__init__()
@@ -94,26 +94,30 @@ class UnitOfWorkDao(object):
         return UnitOfWork(document)
 
     @thread_safe
-    def update(self, uow):
+    def update(self, instance):
         """ method finds unit_of_work record and change its status"""
+        assert isinstance(instance, UnitOfWork)
         collection = self.ds.connection(COLLECTION_UNITS_OF_WORK)
-        return collection.save(uow.document, safe=True)
+        return collection.save(instance.document, safe=True)
 
     @thread_safe
-    def insert(self, uow):
-        """ inserts unit of work to MongoDB. @throws DuplicateKeyError if such record already exist """
+    def insert(self, instance):
+        """ inserts a unit of work into MongoDB.
+        :raises DuplicateKeyError: if such record already exist """
+        assert isinstance(instance, UnitOfWork)
         collection = self.ds.connection(COLLECTION_UNITS_OF_WORK)
         try:
-            return collection.insert(uow.document, safe=True)
+            return collection.insert(instance.document, safe=True)
         except MongoDuplicateKeyError as e:
             exc = DuplicateKeyError(e)
-            exc.start_id = uow.start_id
-            exc.end_id = uow.end_id
-            exc.process_name = uow.process_name
-            exc.timeperiod = uow.start_timeperiod
+            exc.start_id = instance.start_id
+            exc.end_id = instance.end_id
+            exc.process_name = instance.process_name
+            exc.timeperiod = instance.start_timeperiod
             raise exc
 
     @thread_safe
     def remove(self, uow_id):
+        assert isinstance(uow_id, str)
         collection = self.ds.connection(COLLECTION_UNITS_OF_WORK)
         return collection.remove(uow_id, safe=True)

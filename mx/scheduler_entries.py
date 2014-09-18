@@ -28,8 +28,8 @@ class SchedulerEntries(object):
         if timetable.get_tree(process_name) is None:
             return 'NA'
         else:
-            timetable_record = timetable.get_next_timetable_record(process_name)
-            return timetable_record.timeperiod
+            job_record = timetable.get_next_job_record(process_name)
+            return job_record.timeperiod
 
     @cached_property
     def managed_entries(self):

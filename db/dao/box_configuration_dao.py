@@ -28,5 +28,6 @@ class BoxConfigurationDao(object):
     @thread_safe
     def update(self, instance):
         """ method updates box configuration in the MongoDB"""
+        assert isinstance(instance, BoxConfiguration)
         collection = self.ds.connection(COLLECTION_BOX_CONFIGURATION)
         return collection.save(instance.document, safe=True)

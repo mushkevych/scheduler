@@ -28,7 +28,7 @@ class GarbageCollectorWorker(AbstractMqWorker):
         self.lock = Lock()
         self.publishers = PublishersPool(self.logger)
         self.uow_dao = UnitOfWorkDao(self.logger)
-        self.sc_dao = SchedulerManagedEntryDao(self.logger)
+        self.managed_dao = SchedulerManagedEntryDao(self.logger)
         self.scheduler_configuration = dict()
 
     def __del__(self):
@@ -44,7 +44,7 @@ class GarbageCollectorWorker(AbstractMqWorker):
     def _mq_callback(self, message):
         """ method looks for stale or invalid units of work re-runs them if needed"""
         try:
-            sc_list = self.sc_dao.get_all()
+            sc_list = self.managed_dao.get_all()
             self._update_scheduler_configuration(sc_list)
 
             since = settings['synergy_start_timeperiod']

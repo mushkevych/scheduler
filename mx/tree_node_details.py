@@ -32,9 +32,9 @@ class TreeNodeDetails(object):
             description['process_name'] = node.process_name
             description['time_qualifier'] = node.time_qualifier
             description['number_of_children'] = len(node.children)
-            description['number_of_failed_calls'] = node.timetable_record.number_of_failures
-            description['timeperiod'] = node.timetable_record.timeperiod
-            description['state'] = node.timetable_record.state
+            description['number_of_failed_calls'] = node.job_record.number_of_failures
+            description['timeperiod'] = node.job_record.timeperiod
+            description['state'] = node.job_record.state
         except Exception as e:
             logger.error('MX Exception: %s' % str(e), exc_info=True)
         finally:

@@ -39,10 +39,10 @@ class TimeperiodDetails(object):
                 description['processes']['monthly'] = tree.process_monthly
                 description['processes']['daily'] = tree.process_daily
                 description['processes']['hourly'] = tree.process_hourly
-                description['next_timeperiods']['yearly'] = timetable.get_next_timetable_record(tree.process_yearly).timeperiod
-                description['next_timeperiods']['monthly'] = timetable.get_next_timetable_record(tree.process_monthly).timeperiod
-                description['next_timeperiods']['daily'] = timetable.get_next_timetable_record(tree.process_daily).timeperiod
-                description['next_timeperiods']['hourly'] = timetable.get_next_timetable_record(tree.process_hourly).timeperiod
+                description['next_timeperiods']['yearly'] = timetable.get_next_job_record(tree.process_yearly).timeperiod
+                description['next_timeperiods']['monthly'] = timetable.get_next_job_record(tree.process_monthly).timeperiod
+                description['next_timeperiods']['daily'] = timetable.get_next_job_record(tree.process_daily).timeperiod
+                description['next_timeperiods']['hourly'] = timetable.get_next_job_record(tree.process_hourly).timeperiod
                 description['type'] = ProcessContext.get_process_type(tree.process_yearly)
             elif isinstance(tree, ThreeLevelTree):
                 description['number_of_levels'] = 3
@@ -52,15 +52,15 @@ class TimeperiodDetails(object):
                 description['processes']['yearly'] = tree.process_yearly
                 description['processes']['monthly'] = tree.process_monthly
                 description['processes']['daily'] = tree.process_daily
-                description['next_timeperiods']['yearly'] = timetable.get_next_timetable_record(tree.process_yearly).timeperiod
-                description['next_timeperiods']['monthly'] = timetable.get_next_timetable_record(tree.process_monthly).timeperiod
-                description['next_timeperiods']['daily'] = timetable.get_next_timetable_record(tree.process_daily).timeperiod
+                description['next_timeperiods']['yearly'] = timetable.get_next_job_record(tree.process_yearly).timeperiod
+                description['next_timeperiods']['monthly'] = timetable.get_next_job_record(tree.process_monthly).timeperiod
+                description['next_timeperiods']['daily'] = timetable.get_next_job_record(tree.process_daily).timeperiod
                 description['type'] = ProcessContext.get_process_type(tree.process_yearly)
             elif isinstance(tree, TwoLevelTree):
                 description['number_of_levels'] = 1
                 description['reprocessing_queues']['linear'] = self._get_reprocessing_details(tree.process_name)
                 description['processes']['linear'] = tree.process_name
-                description['next_timeperiods']['daily'] = timetable.get_next_timetable_record(tree.process_name).timeperiod
+                description['next_timeperiods']['daily'] = timetable.get_next_job_record(tree.process_name).timeperiod
                 description['type'] = ProcessContext.get_process_type(tree.process_name)
             else:
                 raise ValueError('Tree type %s has no support within MX module.' % type(tree).__name__)
