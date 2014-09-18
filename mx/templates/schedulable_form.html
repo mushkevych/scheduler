@@ -21,18 +21,21 @@
             <td><select name="process_name" style="width: 236px">
                 <option value="BashDriver">BashDriver</option>
             </select></td>
+            <td></td>
         </tr>
         <tr>
             <td>Entry name:</td>
             <td><input type="text" name="entry_name"
                        value="{% if handler %}{{ handler.get_freerun_entry().entry_name }}{% endif %}"
                     {% if handler %} readonly {% endif %}></td>
+            <td>Name of the schedulable item. Has to be unique.</td>
         </tr>
 
         <tr>
             <td>Description:</td>
             <td><input type="text" name="description"
                        value="{% if handler %}{{ handler.get_freerun_entry().description }}{% endif %}"></td>
+            <td>Human-targeted description of the schedulable item</td>
         </tr>
 
         <tr>
@@ -47,12 +50,19 @@
                     STATE_OFF
                 </option>
             </select></td>
+            <td>STATE_ON - active and running, STATE_OFF - deactivated and idle</td>
         </tr>
 
         <tr>
             <td>Trigger time:</td>
             <td><input type="text" maxlength="32" name="trigger_time"
                        value="{%- if handler %}{{ handler.get_freerun_entry().trigger_time }}{%- endif %}"/></td>
+            <td>Either of:
+                <ul>"every XXX" where XXX stands for seconds; For instance: "every 60"</ul>
+                <ul>"at DoW-HH:MM, ..., DoW-HH:MM" where DoW is numerical Day Of Week (Mon-0, Sun-6, *-every day);
+                For instance: "at 2-15:00" - specifies Wed, 15:00 UTC
+                "at *-12:00, 3-09:09" specifies everyday at 12:00 UTC and Thu at 15:00 UTC</ul>
+            </td>
         </tr>
         <tr>
             <td>Arguments:</td>
@@ -62,8 +72,9 @@
                 {%- else -%}
                     {"script_path": "", "script_name": "", "script_params": "", "host": "" }
                 {%- endif -%}</textarea></td>
+            <td>This is process-specific set of arguments that are used to construct and run an actual job</td>
         </tr>
-        <td colspan="2" align="center">
+        <td colspan="3" align="center">
             <input type="submit" name="insert_button" value="Insert" onclick="window.close()"/>
             <input type="submit" name="update_button" value="Update" onclick="window.close()"/>
             <input type="submit" name="delete_button" value="Delete" onclick="window.close()" {% if not handler %} disabled {% endif %}/>
