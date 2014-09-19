@@ -146,10 +146,11 @@ class ProcessContextEntry(BaseModel):
 
     @property
     def run_on_active_timeperiod(self):
-        return self.data[RUN_ON_ACTIVE_TIMEPERIOD]
+        return self.data.get(RUN_ON_ACTIVE_TIMEPERIOD, False)
 
     @run_on_active_timeperiod.setter
     def run_on_active_timeperiod(self, value):
+        assert isinstance(value, bool)
         self.data[RUN_ON_ACTIVE_TIMEPERIOD] = value
 
 
