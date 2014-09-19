@@ -141,8 +141,10 @@ class ActionHandler(object):
 
             if isinstance(scheduler_entry_obj, SchedulerFreerunEntry):
                 self.se_freerun_dao.update(scheduler_entry_obj)
-            else:
+            elif isinstance(scheduler_entry_obj, SchedulerFreerunEntry):
                 self.se_managed_dao.update(scheduler_entry_obj)
+            else:
+                raise ValueError('Unknown scheduler entry type %s' % type(scheduler_entry_obj).__name__)
 
             scheduler_entry_obj.trigger_time = format_time_trigger_string(thread_handler)
             resp['status'] = 'changed interval for %r to %r' % (self.process_name, new_interval)
@@ -187,22 +189,25 @@ class ActionHandler(object):
         state = self.request.args.get('state')
         if state is None:
             # request was performed with undefined "state", what means that checkbox was unselected
-            # thus - turning off the process
+            # thus - turning off the thread handler
             thread_handler.cancel()
             scheduler_entry_obj.state = scheduler_managed_entry.STATE_OFF
-            message = 'Stopped RepeatTimer for %s' % scheduler_entry_obj.process_name
+            message = 'Stopped %s for %s' % (type(thread_handler).__name__, scheduler_entry_obj.process_name)
         elif not thread_handler.is_alive():
             scheduler_entry_obj.state = scheduler_managed_entry.STATE_ON
             thread_handler.start()
-            message = 'Started RepeatTimer for %s, triggering every %d seconds' \
-                      % (scheduler_entry_obj.process_name, scheduler_entry_obj.trigger_time)
+            message = 'Started %s for %s with schedule %r' \
+                      % (type(thread_handler).__name__, scheduler_entry_obj.process_name, scheduler_entry_obj.trigger_time)
         else:
-            message = 'RepeatTimer for %s is already active. Ignoring request.' % scheduler_entry_obj.process_name
+            message = '%s for %s is already active. Ignoring request.' \
+                      % (type(thread_handler).__name__, scheduler_entry_obj.process_name)
 
         if isinstance(scheduler_entry_obj, SchedulerFreerunEntry):
             self.se_freerun_dao.update(scheduler_entry_obj)
-        else:
+        elif isinstance(scheduler_entry_obj, SchedulerFreerunEntry):
             self.se_managed_dao.update(scheduler_entry_obj)
+        else:
+            raise ValueError('Unknown scheduler entry type %s' % type(scheduler_entry_obj).__name__)
 
         self.logger.info(message)
         return {'status': message}
