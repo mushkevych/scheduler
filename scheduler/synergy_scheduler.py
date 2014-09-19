@@ -49,7 +49,7 @@ class Scheduler(SynergyProcess):
         super(Scheduler, self).__del__()
 
     def _log_message(self, level, process_name, timetable_record, msg):
-        """ method performs logging into log file and TimeTable node"""
+        """ method performs logging into log file, Tree node and the Job instance"""
         self.timetable.add_log_entry(process_name, timetable_record, datetime.utcnow(), msg)
         self.logger.log(level, msg)
 

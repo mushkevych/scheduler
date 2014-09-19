@@ -7,6 +7,7 @@ from db.dao.unit_of_work_dao import UnitOfWorkDao
 from db.dao.job_dao import JobDao
 from db.model import job, unit_of_work
 from db.model.job import Job
+
 import context
 from process_starter import get_class
 from settings import settings
@@ -215,10 +216,10 @@ class Timetable(object):
                     unsupported_records[document.process_name] = unsupported_records.get(document.process_name, 0) + 1
 
             for name, counter in unsupported_records.items():
-                self.logger.warning('Skipping %r TimeTable records for %s as no tree is handling it.' % (counter, name))
+                self.logger.warning('Skipping %r Job records for %s as no tree is handling it.' % (counter, name))
 
         except LookupError:
-            self.logger.warning('No TimeTable Records in %s.' % str(collection_name))
+            self.logger.warning('No Job Records in %s.' % str(collection_name))
 
     @thread_safe
     def load_tree(self):

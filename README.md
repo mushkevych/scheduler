@@ -1,7 +1,7 @@
 Synergy Scheduler
 =========
 
-Production-grade scheduler, supervising jobs completion and track dependencies between job's time-tables
+Production-grade scheduler, supervising jobs completion and track dependencies between job's timetables
 
 Here, **job** term can correspond to any system process (for example: Python process, Hadoop map-reduce job, etc) that is started and monitored by Synergy Scheduler means.
 

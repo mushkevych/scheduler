@@ -5,7 +5,7 @@ from db.error import DuplicateKeyError
 from datetime import datetime
 from logging import ERROR, WARNING, INFO
 
-from scheduler_constants import PIPELINE_DISCRETE
+from scheduler.scheduler_constants import PIPELINE_DISCRETE
 from scheduler.abstract_pipeline import AbstractPipeline
 from db.model import job, unit_of_work
 from db.model.unit_of_work import UnitOfWork
@@ -154,5 +154,5 @@ class DiscretePipeline(AbstractPipeline):
 
     def _process_state_processed(self, process_name, job_record):
         """method takes care of processing job records in STATE_PROCESSED state"""
-        msg = 'Unexpected state %s of time-table-record %s' % (job_record.state, job_record.document['_id'])
+        msg = 'Unexpected state %s of job record %s' % (job_record.state, job_record.document['_id'])
         self._log_message(ERROR, process_name, job_record, msg)

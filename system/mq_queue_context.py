@@ -38,14 +38,3 @@ class QueueContext(object):
     def get_queue(cls, process_name=None):
         """ method returns queue that is applicable for the worker/aggregator, specified by classname"""
         return cls.CONTEXT[process_name].mq_queue
-
-    @classmethod
-    def get_routing(cls, queue_name):
-        """ method returns routing; it is used to segregate traffic within the queue"""
-        return cls.CONTEXT[queue_name].mq_routing_key
-
-    @classmethod
-    def get_exchange(cls, queue_name):
-        """ method returns exchange for this queue_name.
-        Exchange is a component that sits between queue and the publisher"""
-        return cls.CONTEXT[queue_name].mq_exchange

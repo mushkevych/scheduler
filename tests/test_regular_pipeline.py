@@ -121,9 +121,9 @@ class RegularPipelineUnitTest(unittest.TestCase):
         verify(self.time_table_mocked, times=1). \
             update_job_record(any(str), any(Job), any(UnitOfWork), any(str))
         # verify(pipeline, times=1).\
-        # _compute_and_transfer_to_final_run(any(str), any(str), any(str), any(TimeTableRecord))
+        # _compute_and_transfer_to_final_run(any(str), any(str), any(str), any(Job))
         # verify(pipeline, times=0).\
-        #     _process_state_final_run(any(str), any(TimeTableRecord))
+        #     _process_state_final_run(any(str), any(Job))
 
     def test_transfer_to_final_timeperiod_state_in_progress(self):
         """ method tests job records in STATE_IN_PROGRESS state"""
@@ -145,9 +145,9 @@ class RegularPipelineUnitTest(unittest.TestCase):
         verify(self.time_table_mocked, times=1). \
             update_job_record(any(str), any(Job), any(UnitOfWork), any(str))
         # verify(pipeline, times=1).\
-        # _compute_and_transfer_to_final_run(any(str), any(str), any(str), any(TimeTableRecord))
+        # _compute_and_transfer_to_final_run(any(str), any(str), any(str), any(Job))
         # verify(pipeline, times=1).\
-        #     _process_state_final_run(any(str), any(TimeTableRecord))
+        #     _process_state_final_run(any(str), any(Job))
 
     def test_processed_state_final_run(self):
         """method tests job records in STATE_FINAL_RUN state"""

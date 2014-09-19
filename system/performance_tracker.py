@@ -127,7 +127,7 @@ class TickerThread(object):
             tracker.reset_tick()
             if time.time() - self.mark_24_hours > self.SECONDS_IN_24_HOURS:
                 tracker.reset_24h()
-                self.mark_24_hours = time.time()                
+                self.mark_24_hours = time.time()
 
 
 class SimpleTracker(TickerThread):

@@ -3,7 +3,6 @@ __author__ = 'Bohdan Mushkevych'
 from datetime import datetime
 from logging import ERROR, WARNING, INFO
 
-from scheduler_constants import PIPELINE_CONTINUOUS
 from db.manager import ds_manager
 from db.error import DuplicateKeyError
 from db.model import job, unit_of_work
@@ -12,6 +11,7 @@ from db.model.worker_mq_request import WorkerMqRequest
 from system.decorator import with_reconnect
 from system.process_context import ProcessContext
 from system import time_helper
+from scheduler.scheduler_constants import PIPELINE_CONTINUOUS
 from scheduler.abstract_pipeline import AbstractPipeline
 
 
