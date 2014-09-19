@@ -1,4 +1,3 @@
-
 __author__ = 'Bohdan Mushkevych'
 
 from datetime import datetime, timedelta
@@ -71,7 +70,7 @@ class Scheduler(SynergyProcess):
         """
         parsed_trigger_time, timer_klass = parse_time_trigger_string(trigger_time)
         timer_instance = timer_klass(parsed_trigger_time, function, args=parameters)
-        self.logger.info('Created %s for %r with schedule %r' % (type(timer_klass).__name__, key, trigger_time))
+        self.logger.info('Created %s for %r with schedule %r' % (timer_klass.__name__, key, trigger_time))
         return timer_instance
 
     def _activate_handler(self, scheduler_entry_obj, process_name, entry_name, function, handler_type):
@@ -81,14 +80,15 @@ class Scheduler(SynergyProcess):
         trigger_time = scheduler_entry_obj.trigger_time
         is_active = scheduler_entry_obj.state == scheduler_managed_entry.STATE_ON
 
-        arguments = [scheduler_entry_obj.key, scheduler_entry_obj, handler_type]
-        handler = self._construct_handler(scheduler_entry_obj.key, trigger_time, function, arguments)
-
         if handler_type == TYPE_MANAGED:
             handler_key = process_name
+            arguments = [handler_key, scheduler_entry_obj, handler_type]
+            handler = self._construct_handler(handler_key, trigger_time, function, arguments)
             self.managed_handlers[handler_key] = handler
         elif handler_type == TYPE_FREERUN:
             handler_key = (process_name, entry_name)
+            arguments = [handler_key, scheduler_entry_obj, handler_type]
+            handler = self._construct_handler(handler_key, trigger_time, function, arguments)
             self.freerun_handlers[handler_key] = handler
         else:
             self.logger.error('Process/Handler type %s is not known to the system. Skipping it.' % handler_type)
@@ -119,8 +119,10 @@ class Scheduler(SynergyProcess):
                 function = self.fire_garbage_collector
                 handler_type = TYPE_MANAGED
             elif process_type == TYPE_FREERUN:
-                function = self.fire_freerun_worker
-                handler_type = TYPE_FREERUN
+                self.logger.error('TYPE_FREERUN process %s was found in scheduler_managed_entry table. '
+                                  'Move the process to the scheduler_freerun_entry table. Skipping the process.'
+                                  % process_type)
+                continue
             else:
                 self.logger.error('Process type %s is not known to the system. Skipping it.' % process_type)
                 continue
