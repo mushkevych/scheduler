@@ -15,6 +15,9 @@ db.scheduler_managed_entry.ensureIndex( { process_name : 1}, {unique: true} );
 db.createCollection('scheduler_freerun_entry');
 db.scheduler_freerun_entry.ensureIndex( { process_name : 1, entry_name : 1}, {unique: true} );
 
+db.createCollection('box_configuration');
+db.box_configuration.ensureIndex( { box_id : 1}, {unique: true} );
+
 db.createCollection('unit_of_work');
 db.unit_of_work.ensureIndex( { process_name : 1, timeperiod : 1, start_obj_id : 1, end_obj_id : 1}, {unique: true} );
 

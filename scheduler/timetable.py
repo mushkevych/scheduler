@@ -8,7 +8,7 @@ from db.dao.job_dao import JobDao
 from db.model import job, unit_of_work
 from db.model.job import Job
 import context
-from system.process_starter import get_class
+from process_starter import get_class
 from settings import settings
 from system.time_qualifier import *
 from system import time_helper

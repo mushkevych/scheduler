@@ -1,17 +1,18 @@
 __author__ = 'Bohdan Mushkevych'
 
 import os
-import psutil
 from threading import Lock
 from subprocess import PIPE, STDOUT
+
+import psutil
 from psutil import TimeoutExpired
 
 from settings import settings
-from launch import get_python, PROJECT_ROOT
-from system.process_starter import PROCESS_STARTER
+from launch import get_python, PROJECT_ROOT, PROCESS_STARTER
+from system.decorator import thread_safe
 from db.model import box_configuration
 from db.dao.box_configuration_dao import BoxConfigurationDao
-from supervisor import supervisor_helper as helper
+from supervisor import supervisor_helper
 from supervisor.supervisor_constants import TRIGGER_INTERVAL
 from system.process_context import ProcessContext
 from system.repeat_timer import RepeatTimer
@@ -24,7 +25,7 @@ class Supervisor(SynergyProcess):
         self.pid = os.getpid()
         self.thread_handlers = dict()
         self.lock = Lock()
-        self.box_id = helper.get_box_id(self.logger)
+        self.box_id = supervisor_helper.get_box_id(self.logger)
         self.bc_dao = BoxConfigurationDao(self.logger)
         self.logger.info('Started %s with configuration for BOX_ID=%r' % (self.process_name, self.box_id))
 
@@ -113,12 +114,11 @@ class Supervisor(SynergyProcess):
         except LookupError as e:
             self.logger.error('Supervisor failed to start because of: %r' % e)
 
+    @thread_safe
     def manage_process(self, *args):
         """ reads box configuration and start/kill processes. performs process monitoring """
         process_name = args[0]
         try:
-            self.lock.acquire()
-
             box_config = self.bc_dao.get_one(self.box_id)
             state = box_config.get_process_state(process_name)
             pid = box_config.get_process_pid(process_name)
@@ -133,8 +133,6 @@ class Supervisor(SynergyProcess):
                 self._poll_process(box_config, process_name)
         except Exception as e:
             self.logger.error('Exception: %s' % str(e), exc_info=True)
-        finally:
-            self.lock.release()
 
 
 if __name__ == '__main__':

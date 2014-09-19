@@ -13,9 +13,9 @@ import subprocess
 from optparse import OptionParser
 from os import path
 
-from system import process_starter
+import process_starter
 
-
+PROCESS_STARTER = 'process_starter.py'
 PROJECT_ROOT = path.abspath(path.dirname(__file__))
 
 # script is run to install virtual environment library into the global interpreter

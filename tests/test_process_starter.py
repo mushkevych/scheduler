@@ -3,7 +3,7 @@ __author__ = 'Bohdan Mushkevych'
 import types
 import unittest
 
-from system import process_starter
+import process_starter
 from tests.ut_context import register_processes
 
 
