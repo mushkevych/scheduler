@@ -19,7 +19,9 @@
         <tr>
             <td>Process name:</td>
             <td><select name="process_name" style="width: 236px">
-                <option value="{{ handler.get_freerun_entry().process_name }}">{{ handler.get_freerun_entry().process_name }}</option>
+                <option value="{% if handler %}{{ handler.get_freerun_entry().process_name }}{% endif %}">
+                    {%- if handler -%}{{ handler.get_freerun_entry().process_name }}{%- endif -%}
+                </option>
                 <option value="BashDriver">BashDriver</option>
             </select></td>
             <td></td>
