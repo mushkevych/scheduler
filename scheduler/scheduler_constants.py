@@ -5,10 +5,6 @@ LAG_5_MINUTES = 5  # lag in minutes between finish of the timeperiod and beginni
 PROCESS_SCHEDULER = 'Scheduler'
 TOKEN_SCHEDULER = 'scheduler'
 
-# make sure MX_PAGE_XXX refers to exposed URLs from mx.views.py module
-MX_PAGE_TRAFFIC = 'traffic_details'
-MX_PAGE_FINANCIAL = 'financial_details'
-
 # State Machine (a.k.a. Pipeline) names
 PIPELINE_CONTINUOUS = 'continuous'
 PIPELINE_DISCRETE = 'discrete'

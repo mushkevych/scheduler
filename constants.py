@@ -1,6 +1,7 @@
 __author__ = 'Bohdan Mushkevych'
 
 
+# List of Processes
 PROCESS_GC = 'GarbageCollectorWorker'
 PROCESS_STREAM_GEN = 'EventStreamGenerator'
 PROCESS_SESSION_WORKER_00 = 'SingleSessionWorker_00'
@@ -14,14 +15,18 @@ PROCESS_CLIENT_MONTHLY = 'ClientMonthlyAggregator'
 PROCESS_CLIENT_YEARLY = 'ClientYearlyAggregator'
 PROCESS_ALERT_DAILY = 'AlertDailyWorker'
 PROCESS_BASH_DRIVER = 'BashDriver'
+PROCESS_LAUNCH_PY = 'LaunchPy'      # process provides <process context> to the launch.py script
 
-# process provides <process context> to the launch.py script
-PROCESS_LAUNCH_PY = 'LaunchPy'
+# List of MX_PAGE_XXX, which are rendered by :mx.views.processing_details function
+MX_PAGE_TRAFFIC = 'traffic_details'
+MX_PAGE_FINANCIAL = 'financial_details'
 
+# List of Timetable trees
 TREE_SITE_VERTICAL = 'tree_site_vertical'
 TREE_CLIENT_HORIZONTAL = 'tree_client_horizontal'
 TREE_LINEAR_DAILY = 'tree_linear_daily'
 
+# Process tokens. There should be one token per one Timetable tree or stand-alone process
 TOKEN_GC = 'gc'
 TOKEN_LAUNCH_PY = 'launch_py'
 TOKEN_STREAM = 'stream'

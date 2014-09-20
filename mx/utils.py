@@ -1,5 +1,3 @@
-import context
-
 __author__ = 'Bohdan Mushkevych'
 
 import json
@@ -11,6 +9,8 @@ from jinja2 import Environment, FileSystemLoader
 from werkzeug.local import Local, LocalManager
 from werkzeug.wrappers import Response
 from werkzeug.routing import Map, Rule
+
+import context
 from settings import settings
 
 TEMPLATE_PATH = path.join(path.dirname(__file__), 'templates')
@@ -23,11 +23,15 @@ local_manager = LocalManager([local])
 
 url_map = Map([Rule('/static/<file>', endpoint='static', build_only=True)])
 
+# dynamic Rule setter to support custom managed trees
+# references 'processing_details' method from mx.views.py
+for rule in context.mx_processing_context:
+    url_map.add(Rule('/%s/' % rule, endpoint='processing_details'))
+
 
 def expose(rule, **kw):
     def decorate(f):
-        kw['endpoint'] = f.__name__
-        url_map.add(Rule(rule, **kw))
+        url_map.add(Rule(rule, endpoint=f.__name__))
         return f
 
     return decorate

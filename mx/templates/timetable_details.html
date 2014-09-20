@@ -3,7 +3,7 @@
 
 {% for tree_row in details.entries %}
 
-    Details for <b>{{ tree_row[0] }}</b> (available at <a href="{{ url_for(tree_row[1]) }}">{{ tree_row[1] }}</a> tab as <b>{{ tree_row[2] }}</b>):
+    Details for <b>{{ tree_row[0] }}</b> (available at <a href="/{{ tree_row[1] }}">{{ tree_row[1] }}</a> tab as <b>{{ tree_row[2] }}</b>):
 
     <table style="width: 90%" class="one-column-emphasis">
     <thead>

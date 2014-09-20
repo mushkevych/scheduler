@@ -1,5 +1,3 @@
-from context import mx_processing_context
-
 __author__ = 'Bohdan Mushkevych'
 
 import json
@@ -44,17 +42,6 @@ def new_schedulable_form(request):
 def timetable_details(request):
     details = TimetableDetails(jinja_env.globals['mbean'])
     return render_template('timetable_details.html', details=details)
-
-
-for rule in mx_processing_context:
-    @expose('/'+ rule + '/')
-    def processing_details(request):
-        return render_template('processing_details.html')
-
-
-# @expose('/financial_details/')
-# def financial_details(request):
-#     return render_template('processing_details.html')
 
 
 @expose('/processing_statements/')
@@ -164,6 +151,11 @@ def action_change_freerun_state(request):
 @expose('/object_viewer/')
 def object_viewer(request):
     return render_template('object_viewer.html')
+
+
+# referenced from mx.utils.py module
+def processing_details(request):
+    return render_template('processing_details.html')
 
 
 # referenced from mx.synergy_mx.py module

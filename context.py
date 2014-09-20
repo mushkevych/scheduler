@@ -1,7 +1,7 @@
 __author__ = 'Bohdan Mushkevych'
 
-from system.time_qualifier import *
 from constants import *
+from system.time_qualifier import *
 from scheduler.scheduler_constants import *
 from supervisor.supervisor_constants import *
 from db.model.queue_context_entry import _queue_context_entry
