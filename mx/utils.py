@@ -1,3 +1,5 @@
+import context
+
 __author__ = 'Bohdan Mushkevych'
 
 import json
@@ -57,4 +59,5 @@ jinja_env.globals['url_for'] = url_for
 jinja_env.globals['local'] = local
 jinja_env.globals['get_current_time'] = get_current_time
 jinja_env.globals['get_version'] = get_version
+jinja_env.globals['mx_processing_context'] = context.mx_processing_context
 jinja_env.filters['jsonify'] = json.dumps

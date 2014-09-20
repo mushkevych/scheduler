@@ -19,8 +19,11 @@
         <th>Synergy Scheduler</th>
         <th style="text-align: left">build. {{ get_version() }}</th>
         <th></th>
+        {%- for mx_rule, mx_name in mx_processing_context %}
         <th></th>
-        <th></th>
+        {%- endfor -%}
+        <!--<th></th>-->
+        <!--<th></th>-->
         <th style="text-align: right">page last updated: {{ get_current_time() }}</th>
     </tr>
     </thead>
@@ -28,8 +31,11 @@
     <tr>
         <td><a href="{{ url_for('scheduler_managed_entries') }}">scheduler managed entries</a></td>
         <td><a href="{{ url_for('scheduler_freerun_entries') }}">scheduler freerun entries</a></td>
-        <td><a href="{{ url_for('traffic_details') }}">traffic processes</a></td>
-        <td><a href="{{ url_for('financial_details') }}">financial processes</a></td>
+        {%- for mx_rule, mx_name in mx_processing_context %}
+            <td><a href="{{ url_for(mx_rule) }}">{{ mx_name }}</a></td>
+        {%- endfor -%}
+        <!--<td><a href="{{ url_for('traffic_details') }}">traffic processes</a></td>-->
+        <!--<td><a href="{{ url_for('financial_details') }}">financial processes</a></td>-->
         <td><a href="{{ url_for('processing_statements') }}">processing statements</a></td>
         <td><a href="{{ url_for('timetable_details') }}">timetable details</a></td>
     </tr>

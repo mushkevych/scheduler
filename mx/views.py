@@ -1,3 +1,5 @@
+from context import mx_processing_context
+
 __author__ = 'Bohdan Mushkevych'
 
 import json
@@ -44,14 +46,15 @@ def timetable_details(request):
     return render_template('timetable_details.html', details=details)
 
 
-@expose('/traffic_details/')
-def traffic_details(request):
-    return render_template('processing_details.html')
+for rule in mx_processing_context:
+    @expose('/'+ rule + '/')
+    def processing_details(request):
+        return render_template('processing_details.html')
 
 
-@expose('/financial_details/')
-def financial_details(request):
-    return render_template('processing_details.html')
+# @expose('/financial_details/')
+# def financial_details(request):
+#     return render_template('processing_details.html')
 
 
 @expose('/processing_statements/')

@@ -8,6 +8,12 @@ from db.model.queue_context_entry import _queue_context_entry
 from db.model.process_context_entry import _process_context_entry
 from db.model.timetable_entry import _timetable_entry
 
+
+mx_processing_context = {
+    MX_PAGE_FINANCIAL: 'financial details',
+    MX_PAGE_TRAFFIC: 'traffic details',
+}
+
 queue_context = {
     QUEUE_REQUESTED_PACKAGES: _queue_context_entry(exchange=EXCHANGE_FREERUN_WORKER,
                                                    queue_name=QUEUE_REQUESTED_PACKAGES),
