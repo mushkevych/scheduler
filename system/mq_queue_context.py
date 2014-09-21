@@ -4,12 +4,12 @@ import context
 from db.model.queue_context_entry import QueueContextEntry
 
 
-class QueueContext(object):
+class MqQueueContext(object):
     # holds all registered queues. environment-aware
-    CONTEXT = context.queue_context
+    CONTEXT = context.mq_queue_context
 
     def __init__(self):
-        super(QueueContext, self).__init__()
+        super(MqQueueContext, self).__init__()
 
     @classmethod
     def put_context_entry(cls, context_entry):

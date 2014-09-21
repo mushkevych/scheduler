@@ -9,7 +9,7 @@ from db.dao.job_dao import JobDao
 from system.collection_context import COLLECTION_JOB_YEARLY, \
     COLLECTION_JOB_MONTHLY, COLLECTION_JOB_DAILY, COLLECTION_JOB_HOURLY
 from system.decorator import thread_safe
-from mx.commons import managed_entry_request
+from mx.mx_decorators import managed_entry_request
 
 
 class ProcessingStatementDetails(object):

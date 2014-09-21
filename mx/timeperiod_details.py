@@ -4,7 +4,7 @@ from werkzeug.utils import cached_property
 
 from system.process_context import ProcessContext
 from scheduler.tree import FourLevelTree, ThreeLevelTree, TwoLevelTree
-from mx.commons import managed_entry_request
+from mx.mx_decorators import managed_entry_request
 
 
 class TimeperiodDetails(object):

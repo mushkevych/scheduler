@@ -10,11 +10,11 @@ MX_PAGE = 'mx_page'
 MX_NAME = 'mx_name'
 
 
-class TimetableEntry(BaseModel):
-    """ Class presents single process tree (an atomic entry for the Timetable) """
+class TimetableContextEntry(BaseModel):
+    """ Non-persistent model. Class presents single process tree (an atomic entry for the Timetable) """
 
     def __init__(self, document=None):
-        super(TimetableEntry, self).__init__(document)
+        super(TimetableContextEntry, self).__init__(document)
 
     @property
     def key(self):
@@ -73,17 +73,17 @@ class TimetableEntry(BaseModel):
         self.data[MX_PAGE] = value
 
 
-def _timetable_entry(tree_name,
-                     tree_classname,
-                     enclosed_processes,
-                     dependent_on=None,
-                     mx_name=None,
-                     mx_page=None):
-    """ forms timetable context entry """
+def _timetable_context_entry(tree_name,
+                             tree_classname,
+                             enclosed_processes,
+                             dependent_on=None,
+                             mx_name=None,
+                             mx_page=None):
+    """ creates timetable context entry """
     assert enclosed_processes is not None and not isinstance(enclosed_processes, str)
     assert dependent_on is not None and not isinstance(dependent_on, str)
 
-    timetable_entry = TimetableEntry()
+    timetable_entry = TimetableContextEntry()
     timetable_entry.tree_name = tree_name
     timetable_entry.tree_classname = tree_classname
     timetable_entry.enclosed_processes = enclosed_processes

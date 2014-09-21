@@ -8,7 +8,7 @@ MQ_ROUTING_KEY = 'mq_routing_key'
 
 
 class QueueContextEntry(BaseModel):
-    """ This class presents Process Context Entry record """
+    """ Non-persistent model. This class presents Process Context Entry record """
 
     def __init__(self, document=None):
         super(QueueContextEntry, self).__init__(document)

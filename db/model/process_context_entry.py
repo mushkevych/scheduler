@@ -20,7 +20,7 @@ RUN_ON_ACTIVE_TIMEPERIOD = 'run_on_active_timeperiod'
 
 
 class ProcessContextEntry(BaseModel):
-    """ This class presents Process Context Entry record """
+    """ Non-persistent model. This class presents Process Context Entry record """
 
     def __init__(self, document=None):
         super(ProcessContextEntry, self).__init__(document)

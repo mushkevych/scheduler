@@ -6,15 +6,16 @@ from scheduler.scheduler_constants import *
 from supervisor.supervisor_constants import *
 from db.model.queue_context_entry import _queue_context_entry
 from db.model.process_context_entry import _process_context_entry
-from db.model.timetable_entry import _timetable_entry
+from db.model.timetable_context_entry import _timetable_context_entry
 
 
-mx_processing_context = {
+mx_page_context = {
     MX_PAGE_FINANCIAL: 'financial details',
     MX_PAGE_TRAFFIC: 'traffic details',
 }
 
-queue_context = {
+
+mq_queue_context = {
     QUEUE_REQUESTED_PACKAGES: _queue_context_entry(exchange=EXCHANGE_FREERUN_WORKER,
                                                    queue_name=QUEUE_REQUESTED_PACKAGES),
 }
@@ -60,7 +61,7 @@ process_context = {
 
 
 timetable_context = {
-    TREE_SITE_VERTICAL: _timetable_entry(
+    TREE_SITE_VERTICAL: _timetable_context_entry(
         tree_name=TREE_SITE_VERTICAL,
         tree_classname='scheduler.tree.FourLevelTree',
         enclosed_processes=[PROCESS_SITE_YEARLY, PROCESS_SITE_MONTHLY, PROCESS_SITE_DAILY, PROCESS_SITE_HOURLY],
@@ -68,7 +69,7 @@ timetable_context = {
         mx_name=TOKEN_SITE,
         mx_page=MX_PAGE_TRAFFIC),
 
-    TREE_CLIENT_HORIZONTAL: _timetable_entry(
+    TREE_CLIENT_HORIZONTAL: _timetable_context_entry(
         tree_name=TREE_CLIENT_HORIZONTAL,
         tree_classname='scheduler.tree.ThreeLevelTree',
         enclosed_processes=[PROCESS_CLIENT_YEARLY, PROCESS_CLIENT_MONTHLY, PROCESS_CLIENT_DAILY],
@@ -76,7 +77,7 @@ timetable_context = {
         mx_name=TOKEN_CLIENT,
         mx_page=MX_PAGE_TRAFFIC),
 
-    TREE_LINEAR_DAILY: _timetable_entry(
+    TREE_LINEAR_DAILY: _timetable_context_entry(
         tree_name=TREE_CLIENT_HORIZONTAL,
         tree_classname='scheduler.tree.TwoLevelTree',
         enclosed_processes=[PROCESS_ALERT_DAILY],
@@ -93,5 +94,5 @@ except:
     overrides = __import__('context_dev')
 
 process_context.update(overrides.process_context)
-queue_context.update(overrides.queue_context)
+mq_queue_context.update(overrides.mq_queue_context)
 timetable_context.update(overrides.timetable_context)

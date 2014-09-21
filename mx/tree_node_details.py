@@ -5,7 +5,7 @@ from werkzeug.utils import cached_property
 from settings import settings
 from system import time_helper
 from system.process_context import ProcessContext
-from mx.commons import managed_entry_request
+from mx.mx_decorators import managed_entry_request
 
 
 class TreeNodeDetails(object):

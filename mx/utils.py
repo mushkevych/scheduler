@@ -23,9 +23,11 @@ local_manager = LocalManager([local])
 
 url_map = Map([Rule('/static/<file>', endpoint='static', build_only=True)])
 
-# dynamic Rule setter to support custom managed trees
-# references 'processing_details' method from mx.views.py
-for rule in context.mx_processing_context:
+# loop sets a Rule per every mx_page from context.mx_page_context to be processed by
+# 'processing_details' method from mx.views.py
+# NOTE: given renders template snippet {{ url_for ('function_name') }} invalid,
+# since all mx_page are processed by single method 'processing_details'
+for rule in context.mx_page_context:
     url_map.add(Rule('/%s/' % rule, endpoint='processing_details'))
 
 
@@ -63,5 +65,5 @@ jinja_env.globals['url_for'] = url_for
 jinja_env.globals['local'] = local
 jinja_env.globals['get_current_time'] = get_current_time
 jinja_env.globals['get_version'] = get_version
-jinja_env.globals['mx_processing_context'] = context.mx_processing_context
+jinja_env.globals['mx_processing_context'] = context.mx_page_context
 jinja_env.filters['jsonify'] = json.dumps

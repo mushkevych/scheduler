@@ -6,7 +6,7 @@ from constants import *
 from scheduler.scheduler_constants import *
 
 
-queue_context = {
+mq_queue_context = {
 }
 
 

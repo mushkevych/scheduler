@@ -10,7 +10,7 @@ from scheduler.scheduler_constants import TYPE_MANAGED, TYPE_FREERUN
 from system import time_helper
 from system.event_clock import format_time_trigger_string, parse_time_trigger_string
 from system.process_context import ProcessContext
-from mx.commons import managed_entry_request, freerun_entry_request
+from mx.mx_decorators import managed_entry_request, freerun_entry_request
 from mx.tree_node_details import TreeNodeDetails
 
 FIELD_ACTION = 'action'

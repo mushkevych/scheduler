@@ -9,7 +9,7 @@ UNIT_OF_WORK_ID = 'trigger_time'        # associated Unit Of Work, if applicable
 
 
 class WorkerMqRequest(BaseModel):
-    """ Non-persistent instance of this class presents single request from Synergy Scheduler to any worker """
+    """ Non-persistent model. Instance of this class presents single request from Synergy Scheduler to any worker """
 
     def __init__(self, document=None):
         super(WorkerMqRequest, self).__init__(document)

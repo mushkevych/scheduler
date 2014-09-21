@@ -8,7 +8,7 @@ from threading import Lock
 from settings import settings
 from system.decorator import thread_safe
 from system.process_context import ProcessContext
-from system.mq_queue_context import QueueContext
+from system.mq_queue_context import MqQueueContext
 
 
 class SynergyAware(object):
@@ -18,9 +18,9 @@ class SynergyAware(object):
             self.routing_key = ProcessContext.get_routing(name)
             self.exchange = ProcessContext.get_exchange(name)
             self.queue = ProcessContext.get_queue(name)
-        elif name in QueueContext.CONTEXT:
-            self.routing_key = QueueContext.get_routing(name)
-            self.exchange = QueueContext.get_exchange(name)
+        elif name in MqQueueContext.CONTEXT:
+            self.routing_key = MqQueueContext.get_routing(name)
+            self.exchange = MqQueueContext.get_exchange(name)
             self.queue = name
         else:
             raise ValueError('Unknown name %s. Unable to retrieve amqp settings.' % name)
