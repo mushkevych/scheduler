@@ -13,6 +13,14 @@ from system.process_context import ProcessContext
 from mx.commons import managed_entry_request, freerun_entry_request
 from mx.tree_node_details import TreeNodeDetails
 
+FIELD_ACTION = 'action'
+ACTION_SKIP = 'skip'
+ACTION_DELETE = 'delete'
+ACTION_UPDATE = 'update'
+ACTION_INSERT = 'insert'
+ACTION_CANCEL = 'cancel'
+ACTION_UNKNOWN = 'unknown'
+
 
 class ActionHandler(object):
     def __init__(self, mbean, request):
@@ -224,6 +232,7 @@ class ActionHandler(object):
 
     @freerun_entry_request
     def action_update_freerun_entry(self):
+        resp = dict()
         handler_key = (self.process_name, self.entry_name)
 
         if 'insert_button' in self.request.args:
@@ -244,6 +253,7 @@ class ActionHandler(object):
 
             self.mbean._activate_handler(scheduler_entry_obj, self.process_name, self.entry_name,
                                          self.mbean.fire_freerun_worker, TYPE_FREERUN)
+            resp[FIELD_ACTION] = ACTION_INSERT
 
         elif 'update_button' in self.request.args:
             thread_handler = self.mbean.freerun_handlers[handler_key]
@@ -267,20 +277,25 @@ class ActionHandler(object):
                 self._action_change_interval(thread_handler, handler_key, TYPE_FREERUN)
             if is_state_changed:
                 self._action_change_state(thread_handler)
+            resp[FIELD_ACTION] = ACTION_UPDATE
 
         elif 'delete_button' in self.request.args:
             self.se_freerun_dao.remove(handler_key)
             thread_handler = self.mbean.freerun_handlers[handler_key]
             thread_handler.cancel()
             del self.mbean.freerun_handlers[handler_key]
+            resp[FIELD_ACTION] = ACTION_DELETE
 
         elif 'cancel_button' in self.request.args:
+            resp[FIELD_ACTION] = ACTION_CANCEL
             pass
 
         else:
+            resp[FIELD_ACTION] = ACTION_UNKNOWN
             self.logger.error('Unknown action requested by schedulable_form.html')
 
-        return {'status': 'OK'}
+        resp['status'] = 'OK'
+        return resp
 
     @freerun_entry_request
     def get_freerun_entry(self):
