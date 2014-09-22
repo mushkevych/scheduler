@@ -14,7 +14,7 @@ from db.model import box_configuration
 from db.dao.box_configuration_dao import BoxConfigurationDao
 from supervisor import supervisor_helper
 from supervisor.supervisor_constants import TRIGGER_INTERVAL
-from system.process_context import ProcessContext
+from conf.process_context import ProcessContext
 from system.repeat_timer import RepeatTimer
 from system.synergy_process import SynergyProcess
 

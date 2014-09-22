@@ -8,7 +8,7 @@ from scheduler.tree_node import TreeNode, LinearNode
 from system import time_helper
 from system.time_qualifier import *
 from system.time_helper import cast_to_time_qualifier
-from system.process_context import ProcessContext
+from conf.process_context import ProcessContext
 
 
 MAX_NUMBER_OF_RETRIES = 3    # number of times a node is re-run before it is considered STATE_SKIPPED

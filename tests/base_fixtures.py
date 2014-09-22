@@ -13,9 +13,10 @@ from db.model.unit_of_work import UnitOfWork
 from db.model.single_session import SingleSession
 from db.model.worker_mq_request import WorkerMqRequest
 from system import time_helper
-from system.process_context import ProcessContext
+from conf.process_context import ProcessContext
 from system.time_qualifier import *
 from tests.ut_context import PROCESS_UNIT_TEST
+
 
 TOTAL_ENTRIES = 101
 

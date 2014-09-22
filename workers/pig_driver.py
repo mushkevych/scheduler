@@ -1,10 +1,11 @@
 __author__ = 'Bohdan Mushkevych'
 
-import psutil
 from subprocess import PIPE
 
+import psutil
+
 from settings import settings
-from system.process_context import ProcessContext
+from conf.process_context import ProcessContext
 from workers.abstract_cli_worker import AbstractCliWorker
 
 

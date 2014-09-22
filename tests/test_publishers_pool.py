@@ -1,10 +1,11 @@
 __author__ = 'Bohdan Mushkevych'
 
 import unittest
+
 import mock
 
 from mq.flopsy import PublishersPool, _Pool, Publisher
-from system.process_context import ProcessContext
+from conf.process_context import ProcessContext
 from tests.ut_context import PROCESS_UNIT_TEST, register_processes
 
 

@@ -2,7 +2,7 @@ __author__ = 'Bohdan Mushkevych'
 
 from werkzeug.utils import cached_property
 
-from system.process_context import ProcessContext
+from conf.process_context import ProcessContext
 from scheduler.tree import FourLevelTree, ThreeLevelTree, TwoLevelTree
 from mx.mx_decorators import managed_entry_request
 

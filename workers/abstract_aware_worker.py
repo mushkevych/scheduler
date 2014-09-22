@@ -2,19 +2,18 @@
 
 __author__ = 'Bohdan Mushkevych'
 
-from db.model import unit_of_work
-from db.model.worker_mq_request import WorkerMqRequest
-from db.manager import ds_manager
-from db.dao.unit_of_work_dao import UnitOfWorkDao
-
 import gc
 import json
 import socket
 from datetime import datetime
 
+from db.model import unit_of_work
+from db.model.worker_mq_request import WorkerMqRequest
+from db.manager import ds_manager
+from db.dao.unit_of_work_dao import UnitOfWorkDao
 from settings import settings
 from system.decimal_encoder import DecimalEncoder
-from system.process_context import ProcessContext
+from conf.process_context import ProcessContext
 from workers.abstract_mq_worker import AbstractMqWorker
 from system.performance_tracker import AggregatorPerformanceTicker
 
