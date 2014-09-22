@@ -14,9 +14,6 @@ from conf.process_context import ProcessContext
 from mx.mx_decorators import managed_entry_request, freerun_entry_request
 from mx.tree_node_details import TreeNodeDetails
 
-<<<<<<< HEAD
-=======
-
 FIELD_ACTION = 'action'
 ACTION_SKIP = 'skip'
 ACTION_DELETE = 'delete'
@@ -25,7 +22,6 @@ ACTION_INSERT = 'insert'
 ACTION_CANCEL = 'cancel'
 ACTION_UNKNOWN = 'unknown'
 
->>>>>>> 4b933450c288a1c4444150f9f397c797aa672fa3
 
 class ActionHandler(object):
     def __init__(self, mbean, request):
