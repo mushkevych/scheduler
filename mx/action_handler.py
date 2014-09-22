@@ -14,14 +14,6 @@ from conf.process_context import ProcessContext
 from mx.mx_decorators import managed_entry_request, freerun_entry_request
 from mx.tree_node_details import TreeNodeDetails
 
-FIELD_ACTION = 'action'
-ACTION_SKIP = 'skip'
-ACTION_DELETE = 'delete'
-ACTION_UPDATE = 'update'
-ACTION_INSERT = 'insert'
-ACTION_CANCEL = 'cancel'
-ACTION_UNKNOWN = 'unknown'
-
 
 class ActionHandler(object):
     def __init__(self, mbean, request):
@@ -206,7 +198,9 @@ class ActionHandler(object):
             scheduler_entry_obj.state = scheduler_managed_entry.STATE_ON
             thread_handler.start()
             message = 'Started %s for %s with schedule %r' \
-                      % (type(thread_handler).__name__, scheduler_entry_obj.process_name, scheduler_entry_obj.trigger_time)
+                      % (type(thread_handler).__name__,
+                         scheduler_entry_obj.process_name,
+                         scheduler_entry_obj.trigger_time)
         else:
             message = '%s for %s is already active. Ignoring request.' \
                       % (type(thread_handler).__name__, scheduler_entry_obj.process_name)
@@ -253,7 +247,6 @@ class ActionHandler(object):
 
             self.mbean._activate_handler(scheduler_entry_obj, self.process_name, self.entry_name,
                                          self.mbean.fire_freerun_worker, TYPE_FREERUN)
-
         elif 'update_button' in self.request.args:
             thread_handler = self.mbean.freerun_handlers[handler_key]
             scheduler_entry_obj = thread_handler.args[1]
@@ -285,7 +278,6 @@ class ActionHandler(object):
 
         elif 'cancel_button' in self.request.args:
             pass
-
         else:
             self.logger.error('Unknown action requested by schedulable_form.html')
 
