@@ -49,11 +49,15 @@ class RepeatTimer(threading.Thread):
     def change_interval(self, value):
         self.interval_new = value
 
-    def next_run_in(self):
-        """ :return: timedelta instance presenting amount of time before the trigger is triggered next time
+    def next_run_in(self, utc_now=None):
+        """ :param utc_now: optional parameter to be used by Unit Tests as a definition of "now"
+            :return: timedelta instance presenting amount of time before the trigger is triggered next time
          or None if the RepeatTimer instance is not running """
+        if utc_now is None:
+            utc_now = datetime.utcnow()
+
         if self.is_alive():
             next_run = timedelta(seconds=self.interval_current) + self.activation_dt
-            return next_run - datetime.utcnow()
+            return next_run - utc_now
         else:
             return None

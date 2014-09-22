@@ -1,6 +1,6 @@
 __author__ = 'Bohdan Mushkevych'
 
-from datetime import datetime
+from datetime import datetime, timedelta
 from system.repeat_timer import RepeatTimer
 
 TRIGGER_INTERVAL = 60  # 1 minute
@@ -85,10 +85,28 @@ class EventTime(object):
     def __hash__(self):
         return hash((self.day_of_week, self.time_of_day))
 
+    def next_trigger_time(self, utc_now=None):
+        """ :param utc_now: optional parameter to be used by Unit Tests as a definition of "now"
+            :return: datetime instance presenting next trigger time of the event """
+        if utc_now is None:
+            utc_now = datetime.utcnow()
+
+        def wind_days(start_date):
+            while True:
+                if self.day_of_week == EVERY_DAY or start_date.weekday() == int(self.day_of_week):
+                    return start_date.replace(hour=self.time_of_day.hour, minute=self.time_of_day.minute)
+                else:
+                    start_date += timedelta(days=1)
+
+        if utc_now.time() > self.time_of_day.time():
+            return wind_days(utc_now + timedelta(days=1))
+        else:
+            return wind_days(utc_now)
+
     @classmethod
     def utc_now(cls):
         utc_now = datetime.utcnow()
-        return EventTime('%s-%s' % (utc_now.weekday(), utc_now.strftime('%H:%M')))
+        return EventTime('%s-%s' % (utc_now.weekday(), utc_now.strftime(TIME_OF_DAY_FORMAT)))
 
 
 class EventClock(object):
@@ -134,11 +152,21 @@ class EventClock(object):
             event = EventTime(timestamp)
             self.timestamps.append(event)
 
-    def next_run_in(self):
-        """ :return: timedelta instance presenting amount of time before the trigger is triggered next time
+    def next_run_in(self, utc_now=None):
+        """ :param utc_now: optional parameter to be used by Unit Tests as a definition of "now"
+            :return: timedelta instance presenting amount of time before the trigger is triggered next time
          or None if the EventClock instance is not running """
-        if self.handler.is_alive():
-            return 'TBD'
+        if utc_now is None:
+            utc_now = datetime.utcnow()
+
+        if self.is_alive():
+            smallest_timedelta = timedelta(days=99, hours=0, minutes=0, seconds=0, microseconds=0, milliseconds=0)
+            for event_time in self.timestamps:
+                next_trigger = event_time.next_trigger_time(utc_now)
+                if next_trigger - utc_now < smallest_timedelta:
+                    smallest_timedelta = next_trigger - utc_now
+            return smallest_timedelta
+
         else:
             return None
 
