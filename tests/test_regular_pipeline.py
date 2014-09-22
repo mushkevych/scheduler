@@ -13,7 +13,7 @@ from db.model.unit_of_work import UnitOfWork
 from tests.base_fixtures import create_unit_of_work
 from system import time_helper
 from system.time_qualifier import *
-from system.process_context import ProcessContext
+from conf.process_context import ProcessContext
 from constants import PROCESS_SITE_HOURLY
 from scheduler.timetable import Timetable
 from scheduler.continuous_pipeline import ContinuousPipeline

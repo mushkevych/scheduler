@@ -1,14 +1,15 @@
 __author__ = 'Bohdan Mushkevych'
 
-from settings import settings
-from mq.flopsy import Consumer
-from system.process_context import ProcessContext
-from system.performance_tracker import SimpleTracker
-from system.synergy_process import SynergyProcess
-
-from amqp import AMQPError
 from threading import Thread
 import socket
+
+from amqp import AMQPError
+
+from settings import settings
+from mq.flopsy import Consumer
+from conf.process_context import ProcessContext
+from system.performance_tracker import SimpleTracker
+from system.synergy_process import SynergyProcess
 
 
 class AbstractMqWorker(SynergyProcess):

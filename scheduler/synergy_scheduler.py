@@ -13,7 +13,7 @@ from db.model.worker_mq_request import WorkerMqRequest
 from db.dao.scheduler_managed_entry_dao import SchedulerManagedEntryDao
 from db.dao.scheduler_freerun_entry_dao import SchedulerFreerunEntryDao
 from system import time_helper
-from system.process_context import ProcessContext
+from conf.process_context import ProcessContext
 from system.decorator import with_reconnect, thread_safe
 from system.synergy_process import SynergyProcess
 from system.event_clock import parse_time_trigger_string

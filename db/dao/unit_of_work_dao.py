@@ -1,15 +1,16 @@
 __author__ = 'Bohdan Mushkevych'
 
+from threading import RLock
+
 from bson.objectid import ObjectId
 from pymongo import ASCENDING
 from pymongo.errors import DuplicateKeyError as MongoDuplicateKeyError
-from threading import RLock
 
 from system import time_helper
 from system.time_qualifier import *
 from system.decorator import thread_safe
 from system.collection_context import COLLECTION_UNIT_OF_WORK
-from system.process_context import ProcessContext
+from conf.process_context import ProcessContext
 from db.error import DuplicateKeyError
 from db.manager import ds_manager
 from db.model import unit_of_work

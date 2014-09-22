@@ -4,7 +4,7 @@ from logging import ERROR, INFO
 
 from scheduler.scheduler_constants import PIPELINE_SIMPLIFIED_DISCRETE
 from system import time_helper
-from system.process_context import ProcessContext
+from conf.process_context import ProcessContext
 from db.error import DuplicateKeyError
 from db.model import job, unit_of_work
 from scheduler.dicrete_pipeline import DiscretePipeline

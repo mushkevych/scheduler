@@ -2,7 +2,7 @@ __author__ = 'Bohdan Mushkevych'
 
 from db.model import job
 from system import time_helper
-from system.process_context import ProcessContext
+from conf.process_context import ProcessContext
 
 
 class AbstractNode(object):

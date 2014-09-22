@@ -3,6 +3,7 @@ __author__ = 'Bohdan Mushkevych'
 import sys
 import logging
 import logging.handlers
+
 from settings import settings
 
 
@@ -69,7 +70,7 @@ class Logger(object):
 
 
 if __name__ == '__main__':
-    from system.process_context import ProcessContext
+    from conf.process_context import ProcessContext
 
     process_name = 'TestAggregator'
     logger = ProcessContext.get_logger(process_name)

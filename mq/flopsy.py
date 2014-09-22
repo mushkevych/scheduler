@@ -1,14 +1,14 @@
-import amqp
 import json
 import uuid
-
 from collections import deque
 from threading import Lock
 
+import amqp
+
 from settings import settings
 from system.decorator import thread_safe
-from system.process_context import ProcessContext
-from system.mq_queue_context import MqQueueContext
+from conf.process_context import ProcessContext
+from conf.mq_queue_context import MqQueueContext
 
 
 class SynergyAware(object):

@@ -5,9 +5,10 @@
 """
 
 import sys
+
+from conf import process_context
 from mq.flopsy import Connection
-from system import process_context
-from system.process_context import ProcessContext
+from conf.process_context import ProcessContext
 from tests.base_fixtures import get_field_starting_with
 
 

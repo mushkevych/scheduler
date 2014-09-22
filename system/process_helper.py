@@ -7,7 +7,7 @@ import psutil
 from psutil import TimeoutExpired
 
 from launch import get_python, PROJECT_ROOT, PROCESS_STARTER
-from system.process_context import ProcessContext
+from conf.process_context import ProcessContext
 from settings import settings
 
 

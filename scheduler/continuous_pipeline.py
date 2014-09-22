@@ -9,7 +9,7 @@ from db.model import job, unit_of_work
 from db.model.unit_of_work import UnitOfWork
 from db.model.worker_mq_request import WorkerMqRequest
 from system.decorator import with_reconnect
-from system.process_context import ProcessContext
+from conf.process_context import ProcessContext
 from system import time_helper
 from scheduler.scheduler_constants import PIPELINE_CONTINUOUS
 from scheduler.abstract_pipeline import AbstractPipeline

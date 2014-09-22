@@ -3,7 +3,7 @@ __author__ = 'Bohdan Mushkevych'
 from db.model.process_context_entry import _process_context_entry
 from context import ROUTING_IRRELEVANT, EXCHANGE_UTILS
 from system.time_qualifier import *
-from system.process_context import ProcessContext
+from conf.process_context import ProcessContext
 
 # User fields
 PROCESS_CLASS_EXAMPLE = 'AbstractClassWorker'

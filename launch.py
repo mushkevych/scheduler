@@ -15,6 +15,7 @@ from os import path
 
 import process_starter
 
+
 PROCESS_STARTER = 'process_starter.py'
 PROJECT_ROOT = path.abspath(path.dirname(__file__))
 
@@ -124,7 +125,7 @@ def dispatch_options(parser, options, args):
 def valid_process_name(function):
     """ Decorator validates if the --app parameter is registered in the process_context
         :raise #ValueError otherwise """
-    from system.process_context import ProcessContext
+    from conf.process_context import ProcessContext
 
     def _wrapper(options, *args, **kwargs):
         if options.app not in ProcessContext.CONTEXT:
@@ -148,7 +149,7 @@ def query_configuration(options):
         # reads current box configuration and prints it to the console
         from db.dao.box_configuration_dao import BoxConfigurationDao
         from supervisor import supervisor_helper as helper
-        from system.process_context import ProcessContext
+        from conf.process_context import ProcessContext
         from constants import PROCESS_LAUNCH_PY
 
         logger = ProcessContext.get_logger(PROCESS_LAUNCH_PY)
@@ -170,7 +171,7 @@ def start_process(options, args):
     import psutil
     from system import process_helper
     from supervisor import supervisor_helper as helper
-    from system.process_context import ProcessContext
+    from conf.process_context import ProcessContext
     from supervisor.supervisor_constants import PROCESS_SUPERVISOR
     from constants import PROCESS_LAUNCH_PY
 
@@ -212,7 +213,7 @@ def stop_process(options):
     """Stop specific daemon"""
     from system import process_helper
     from supervisor import supervisor_helper as helper
-    from system.process_context import ProcessContext
+    from conf.process_context import ProcessContext
     from supervisor.supervisor_constants import PROCESS_SUPERVISOR
     from constants import PROCESS_LAUNCH_PY
 
@@ -267,7 +268,7 @@ def run_lint(options):
 
 
 def list_processes(options):
-    from system.process_context import ProcessContext
+    from conf.process_context import ProcessContext
     msg = 'List of registered applications: %r \n' % ProcessContext.CONTEXT.keys()
     sys.stdout.write(msg)
 
@@ -289,7 +290,7 @@ def run_tests(options):
         unittest.main(module=None, defaultTest='__main__.load_all_tests',
                       argv=argv)
     except SystemExit as e:
-        from system.process_context import ProcessContext
+        from conf.process_context import ProcessContext
         from constants import PROCESS_LAUNCH_PY
 
         logger = ProcessContext.get_logger(PROCESS_LAUNCH_PY)

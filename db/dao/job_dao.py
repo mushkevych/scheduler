@@ -1,6 +1,7 @@
 __author__ = 'Bohdan Mushkevych'
 
 from threading import RLock
+
 from db.manager import ds_manager
 from db.model import base_model, job
 from db.model.job import Job
@@ -8,7 +9,7 @@ from system.decorator import thread_safe
 from system.time_qualifier import *
 from system.collection_context import COLLECTION_JOB_HOURLY, COLLECTION_JOB_DAILY, \
     COLLECTION_JOB_MONTHLY, COLLECTION_JOB_YEARLY
-from system.process_context import ProcessContext
+from conf.process_context import ProcessContext
 
 
 QUERY_GET_LIKE_TIMEPERIOD = \

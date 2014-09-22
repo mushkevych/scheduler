@@ -3,7 +3,7 @@ __author__ = 'Bohdan Mushkevych'
 from werkzeug.utils import cached_property
 
 import context
-from system.process_context import ProcessContext
+from conf.process_context import ProcessContext
 
 
 # Scheduler Entries Details tab

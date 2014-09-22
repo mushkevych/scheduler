@@ -3,7 +3,7 @@ __author__ = 'Bohdan Mushkevych'
 import setproctitle
 
 from settings import settings
-from system.process_context import ProcessContext
+from conf.process_context import ProcessContext
 
 
 class SynergyProcess(object):

@@ -1,6 +1,7 @@
 __author__ = 'Bohdan Mushkevych'
 
 import json
+
 from db.dao.scheduler_managed_entry_dao import SchedulerManagedEntryDao
 from db.dao.unit_of_work_dao import UnitOfWorkDao
 from db.dao.scheduler_freerun_entry_dao import SchedulerFreerunEntryDao
@@ -9,10 +10,22 @@ from db.model.scheduler_freerun_entry import SchedulerFreerunEntry
 from scheduler.scheduler_constants import TYPE_MANAGED, TYPE_FREERUN
 from system import time_helper
 from system.event_clock import format_time_trigger_string, parse_time_trigger_string
-from system.process_context import ProcessContext
+from conf.process_context import ProcessContext
 from mx.mx_decorators import managed_entry_request, freerun_entry_request
 from mx.tree_node_details import TreeNodeDetails
 
+<<<<<<< HEAD
+=======
+
+FIELD_ACTION = 'action'
+ACTION_SKIP = 'skip'
+ACTION_DELETE = 'delete'
+ACTION_UPDATE = 'update'
+ACTION_INSERT = 'insert'
+ACTION_CANCEL = 'cancel'
+ACTION_UNKNOWN = 'unknown'
+
+>>>>>>> 4b933450c288a1c4444150f9f397c797aa672fa3
 
 class ActionHandler(object):
     def __init__(self, mbean, request):
