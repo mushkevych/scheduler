@@ -5,7 +5,7 @@ import json
 from werkzeug.utils import redirect
 from werkzeug.wrappers import Response
 
-from mx.action_handler import ActionHandler, ACTION_INSERT, FIELD_ACTION
+from mx.action_handler import ActionHandler
 from mx.scheduler_entries import SchedulerEntries
 from mx.processing_statements import ProcessingStatementDetails
 from mx.utils import render_template, expose, jinja_env
@@ -75,11 +75,8 @@ def request_timeperiods(request):
 def action_update_freerun_entry(request):
     handler = ActionHandler(jinja_env.globals['mbean'], request)
     resp = handler.action_update_freerun_entry()
-    if resp[FIELD_ACTION] == ACTION_INSERT:
-        return Response(response=json.dumps(resp),
+    return Response(response=json.dumps(resp),
                         mimetype='application/json')
-    else:
-        return redirect('/scheduler_freerun_entries/')
 
 
 @expose('/action_reprocess/')

@@ -48,10 +48,14 @@
         <td>{{ row[5] }}</td>
         <td>{{ row[6]|jsonify }}</td>
         <td>
-            <form method="GET" action="/edit_schedulable_form/">
-                <input type="hidden" name="process_name" value="{{ row[2] }}" />
-                <input type="hidden" name="entry_name" value="{{ row[3] }}" />
-                <input type="submit" value="Edit" />
+            {% set form_url = url_for('edit_schedulable_form') %}
+            {% set url = form_url + '?process_name=' + row[2] + '&entry_name=' + row[3] %}
+            <form method="GET"
+                 onsubmit="window.open('{{ url }}','Edit Freerun Trigger',
+                 'toolbar=no,scrollbars=yes,resizable=yes,top=250,left=250,width=750,height=550'); return false;">
+                <input type="submit" value="Edit"
+
+                        />
             </form>
         </td>
     </tr>
