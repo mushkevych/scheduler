@@ -1,7 +1,7 @@
 __author__ = 'Bohdan Mushkevych'
 
 import unittest
-from datetime import datetime
+from datetime import datetime, timedelta
 
 from system.event_clock import EventClock, EventTime, parse_time_trigger_string, format_time_trigger_string
 from system.repeat_timer import RepeatTimer
@@ -57,6 +57,24 @@ class TestEventClock(unittest.TestCase):
         for handler, expected_output in fixture.iteritems():
             processed_tuple = format_time_trigger_string(handler)
             self.assertEqual(processed_tuple, expected_output)
+
+    def test_next_run_in(self):
+        # 2014-05-01 is Thu. In Python it is weekday=3
+        fixed_utc_now = \
+            datetime(year=2014, month=05, day=01, hour=13, minute=00, second=00, microsecond=00, tzinfo=None)
+        fixture = {EventClock(['*-17:00', '4-15:45', '*-09:00'], None):
+                       timedelta(days=0, hours=4, minutes=0, seconds=0, microseconds=0, milliseconds=0),
+                   EventClock(['5-18:00', '4-18:05', '1-9:01'], None):
+                       timedelta(days=1, hours=5, minutes=5, seconds=0, microseconds=0, milliseconds=0),
+                   EventClock(['*-08:01'], None):
+                       timedelta(days=0, hours=19, minutes=1, seconds=0, microseconds=0, milliseconds=0),
+                   EventClock(['8:30'], None):
+                       timedelta(days=0, hours=19, minutes=30, seconds=0, microseconds=0, milliseconds=0)}
+
+        for handler, expected_output in fixture.iteritems():
+            handler.is_alive = lambda: True
+            processed_output = handler.next_run_in(utc_now=fixed_utc_now)
+            self.assertEqual(processed_output, expected_output)
 
 
 if __name__ == '__main__':
