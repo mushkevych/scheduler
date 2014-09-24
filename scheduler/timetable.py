@@ -14,7 +14,7 @@ from settings import settings
 from system.time_qualifier import *
 from system import time_helper
 from system.decorator import thread_safe
-from system.collection_context import COLLECTION_JOB_HOURLY, COLLECTION_JOB_DAILY, \
+from scheduler.scheduler_constants import COLLECTION_JOB_HOURLY, COLLECTION_JOB_DAILY, \
     COLLECTION_JOB_MONTHLY, COLLECTION_JOB_YEARLY
 from scheduler.tree import AbstractTree
 from scheduler.tree_node import AbstractNode

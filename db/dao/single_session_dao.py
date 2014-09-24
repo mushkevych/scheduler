@@ -5,7 +5,7 @@ from db.manager import ds_manager
 from db.model.raw_data import *
 from db.model.single_session import SingleSession
 from system.decorator import thread_safe
-from system.collection_context import COLLECTION_SINGLE_SESSION
+from constants import COLLECTION_SINGLE_SESSION
 
 
 class SingleSessionDao(object):

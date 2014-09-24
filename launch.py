@@ -329,13 +329,4 @@ if __name__ == "__main__":
     parser = init_parser()
     (options, args) = parser.parse_args()
     install_or_switch_to_virtualenv(options)
-
-    import settings
-    import context
-    from conf import global_settings
-    global_settings.configure(settings.settings,
-                              context.process_context,
-                              context.mq_queue_context,
-                              context.timetable_context)
-
     dispatch_options(parser, options, args)

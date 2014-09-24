@@ -64,7 +64,9 @@ process_context = {
         token=TOKEN_SITE,
         time_qualifier=QUALIFIER_DAILY,
         exchange=EXCHANGE_MANAGED_WORKER,
-        process_type=TYPE_MANAGED),
+        process_type=TYPE_MANAGED,
+        source=COLLECTION_SITE_HOURLY,
+        sink=COLLECTION_SITE_DAILY),
 
     PROCESS_SITE_HOURLY: _process_context_entry(
         process_name=PROCESS_SITE_HOURLY,
@@ -73,7 +75,8 @@ process_context = {
         time_qualifier=QUALIFIER_HOURLY,
         exchange=EXCHANGE_MANAGED_WORKER,
         process_type=TYPE_MANAGED,
-        source='single_session'),
+        source=COLLECTION_SINGLE_SESSION,
+        sink=COLLECTION_SITE_HOURLY),
 
     PROCESS_SITE_MONTHLY: _process_context_entry(
         process_name=PROCESS_SITE_MONTHLY,
@@ -81,7 +84,9 @@ process_context = {
         token=TOKEN_SITE,
         time_qualifier=QUALIFIER_MONTHLY,
         exchange=EXCHANGE_MANAGED_WORKER,
-        process_type=TYPE_MANAGED),
+        process_type=TYPE_MANAGED,
+        source=COLLECTION_SITE_DAILY,
+        sink=COLLECTION_SITE_MONTHLY),
 
     PROCESS_SITE_YEARLY: _process_context_entry(
         process_name=PROCESS_SITE_YEARLY,
@@ -89,7 +94,9 @@ process_context = {
         token=TOKEN_SITE,
         time_qualifier=QUALIFIER_YEARLY,
         exchange=EXCHANGE_MANAGED_WORKER,
-        process_type=TYPE_MANAGED),
+        process_type=TYPE_MANAGED,
+        source=COLLECTION_SITE_MONTHLY,
+        sink=COLLECTION_SITE_YEARLY),
 
     PROCESS_SESSION_WORKER_00: _process_context_entry(
         process_name=PROCESS_SESSION_WORKER_00,
@@ -99,8 +106,8 @@ process_context = {
         queue=QUEUE_RAW_DATA,
         routing=ROUTING_IRRELEVANT,
         exchange=EXCHANGE_RAW_DATA,
-        source='single_session',
-        sink='single_session',
+        source=COLLECTION_SINGLE_SESSION,
+        sink=COLLECTION_SINGLE_SESSION,
         pid_file='session_worker_00.pid',
         log_file='session_worker_00.log'),
 

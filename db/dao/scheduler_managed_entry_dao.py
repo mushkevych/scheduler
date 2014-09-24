@@ -4,7 +4,7 @@ from threading import RLock
 from db.manager import ds_manager
 from db.model.scheduler_managed_entry import SchedulerManagedEntry
 from system.decorator import thread_safe
-from system.collection_context import COLLECTION_SCHEDULER_MANAGED_ENTRY
+from scheduler.scheduler_constants import COLLECTION_SCHEDULER_MANAGED_ENTRY
 
 
 class SchedulerManagedEntryDao(object):

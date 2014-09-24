@@ -9,7 +9,7 @@ from pymongo.errors import DuplicateKeyError as MongoDuplicateKeyError
 from system import time_helper
 from system.time_qualifier import *
 from system.decorator import thread_safe
-from system.collection_context import COLLECTION_UNIT_OF_WORK
+from scheduler.scheduler_constants import COLLECTION_UNIT_OF_WORK
 from conf.process_context import ProcessContext
 from db.error import DuplicateKeyError
 from db.manager import ds_manager

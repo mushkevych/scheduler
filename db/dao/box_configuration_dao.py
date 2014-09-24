@@ -4,7 +4,7 @@ from threading import RLock
 from db.manager import ds_manager
 from db.model import box_configuration
 from db.model.box_configuration import BoxConfiguration
-from system.collection_context import COLLECTION_BOX_CONFIGURATION
+from supervisor.supervisor_constants import COLLECTION_BOX_CONFIGURATION
 from system.decorator import thread_safe
 
 

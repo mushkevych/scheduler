@@ -7,7 +7,7 @@ from db.model import base_model, job
 from db.model.job import Job
 from system.decorator import thread_safe
 from system.time_qualifier import *
-from system.collection_context import COLLECTION_JOB_HOURLY, COLLECTION_JOB_DAILY, \
+from scheduler.scheduler_constants import COLLECTION_JOB_HOURLY, COLLECTION_JOB_DAILY, \
     COLLECTION_JOB_MONTHLY, COLLECTION_JOB_YEARLY
 from conf.process_context import ProcessContext
 

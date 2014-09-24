@@ -3,7 +3,7 @@ __author__ = 'Bohdan Mushkevych'
 from tests import base_fixtures
 from db.model import raw_data
 from db.manager import ds_manager
-from system.collection_context import COLLECTION_SINGLE_SESSION
+from constants import COLLECTION_SINGLE_SESSION
 from conf.process_context import ProcessContext
 from tests.ut_context import PROCESS_UNIT_TEST
 

@@ -5,7 +5,7 @@ from threading import RLock
 from db.manager import ds_manager
 from db.model.scheduler_freerun_entry import SchedulerFreerunEntry
 from system.decorator import thread_safe
-from system.collection_context import COLLECTION_SCHEDULER_FREERUN_ENTRY
+from scheduler.scheduler_constants import COLLECTION_SCHEDULER_FREERUN_ENTRY
 
 
 class SchedulerFreerunEntryDao(object):
