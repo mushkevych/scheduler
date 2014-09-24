@@ -2,7 +2,6 @@ __author__ = 'Bohdan Mushkevych'
 
 
 settings = {
-    'is_configured': False,
 }
 
 process_context = {
