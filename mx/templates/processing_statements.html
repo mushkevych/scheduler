@@ -15,6 +15,7 @@
 <table style="width: 90%" class="one-column-emphasis">
     <thead>
     <tr class="oce-first">
+        <th scope="col"><input type='checkbox' name ='select_all' /> </th>
         <th scope="col">Process Name</th>
         <th scope="col">Time period</th>
         <th scope="col">State</th>
@@ -24,6 +25,7 @@
 
     {%- for row in details.entries -%}
     <tr class="{{ row[2] }}">
+        <td><input type='checkbox' name ='select_{{ row[0] }}' /></td>
         <td>{{ row[0] }}</td>
         <td>{{ row[1] }}</td>
         <td>{{ row[2] }}</td>
