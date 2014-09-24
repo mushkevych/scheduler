@@ -18,9 +18,6 @@ settings = dict(
     bash_runnable_count=5,
 
     mq_timeout_sec=300.0,
-    mq_queue='default_queue',
-    mq_routing_key='default_routing_key',
-    mq_exchange='default_exchange',
     mq_durable=True,
     mq_exclusive=False,
     mq_auto_delete=False,

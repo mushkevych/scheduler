@@ -192,18 +192,6 @@ class Settings(BaseSettings):
         if not self.SECRET_KEY:
             raise ImproperlyConfigured("The SECRET_KEY setting must not be empty.")
 
-        if hasattr(time, 'tzset') and self.TIME_ZONE:
-            # When we can, attempt to validate the timezone. If we can't find
-            # this file, no check happens and it's harmless.
-            zoneinfo_root = '/usr/share/zoneinfo'
-            if (os.path.exists(zoneinfo_root) and not
-            os.path.exists(os.path.join(zoneinfo_root, *(self.TIME_ZONE.split('/'))))):
-                raise ValueError("Incorrect timezone setting: %s" % self.TIME_ZONE)
-            # Move the time zone info into os.environ. See ticket #2315 for why
-            # we don't do this unconditionally (breaks Windows).
-            os.environ['TZ'] = self.TIME_ZONE
-            time.tzset()
-
     def is_overridden(self, setting):
         return setting in self._explicit_settings
 
