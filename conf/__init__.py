@@ -1,23 +1,21 @@
-# https://raw.githubusercontent.com/django/django/master/django/conf/__init__.py
-# https://raw.githubusercontent.com/django/django/master/django/utils/functional.py
-
 """
-Settings and configuration for Django.
+This module was adapted from Django's settings and configuration:
+- https://raw.githubusercontent.com/django/django/master/django/conf/__init__.py
+- https://raw.githubusercontent.com/django/django/master/django/utils/functional.py
 
-Values will be read from the module specified by the DJANGO_SETTINGS_MODULE environment
-variable, and then from django.conf.global_settings; see the global settings file for
-a list of all possible variables.
+Django's license is available at:
+- https://github.com/django/django/blob/master/LICENSE
 """
 import copy
 
 import importlib
 import os
-import time     # Needed for Windows
 import operator
 
 from conf import global_settings
 
-ENVIRONMENT_VARIABLE = "SYNERGY_SETTINGS_MODULE"
+ENVIRONMENT_SETTINGS_VARIABLE = "SYNERGY_SETTINGS_MODULE"
+ENVIRONMENT_CONTEXT_VARIABLE = "SYNERGY_CONTEXT_MODULE"
 
 
 empty = object()
@@ -25,7 +23,7 @@ empty = object()
 
 class ImproperlyConfigured(Exception):
     """Django is somehow improperly configured"""
-pass
+    pass
 
 
 def new_method_proxy(func):
@@ -119,14 +117,14 @@ class LazySettings(LazyObject):
         is used the first time we need any settings at all, if the user has not
         previously configured the settings manually.
         """
-        settings_module = os.environ.get(ENVIRONMENT_VARIABLE)
+        settings_module = os.environ.get(ENVIRONMENT_SETTINGS_VARIABLE)
         if not settings_module:
             desc = ("setting %s" % name) if name else "settings"
             raise ImproperlyConfigured(
                 "Requested %s, but settings are not configured. "
                 "You must either define the environment variable %s "
                 "or call settings.configure() before accessing settings."
-                % (desc, ENVIRONMENT_VARIABLE))
+                % (desc, ENVIRONMENT_SETTINGS_VARIABLE))
 
         self._wrapped = Settings(settings_module)
 
@@ -166,31 +164,20 @@ class BaseSettings(object):
 
 class Settings(BaseSettings):
     def __init__(self, settings_module):
-        # update this dict from global settings (but only for ALL_CAPS settings)
+        # update this dict from global settings
         for setting in dir(global_settings):
-            if setting.isupper():
-                setattr(self, setting, getattr(global_settings, setting))
+            setattr(self, setting, getattr(global_settings, setting))
 
         # store the settings module in case someone later cares
         self.SETTINGS_MODULE = settings_module
 
         mod = importlib.import_module(self.SETTINGS_MODULE)
 
-        tuple_settings = ("INSTALLED_APPS", "TEMPLATE_DIRS", "LOCALE_PATHS")
         self._explicit_settings = set()
         for setting in dir(mod):
-            if setting.isupper():
-                setting_value = getattr(mod, setting)
-
-                if (setting in tuple_settings and
-                        isinstance(setting_value, basestring)):
-                    raise ImproperlyConfigured("The %s setting must be a tuple. "
-                                               "Please fix your settings." % setting)
-                setattr(self, setting, setting_value)
-                self._explicit_settings.add(setting)
-
-        if not self.SECRET_KEY:
-            raise ImproperlyConfigured("The SECRET_KEY setting must not be empty.")
+            setting_value = getattr(mod, setting)
+            setattr(self, setting, setting_value)
+            self._explicit_settings.add(setting)
 
     def is_overridden(self, setting):
         return setting in self._explicit_settings
@@ -237,6 +224,4 @@ class UserSettingsHolder(BaseSettings):
 
 
 settings = LazySettings()
-process_context = LazySettings()
-mq_queue_context = LazySettings()
-timetable_context = LazySettings()
+context = LazySettings()

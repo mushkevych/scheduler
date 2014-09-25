@@ -18,7 +18,8 @@ import process_starter
 
 PROCESS_STARTER = 'process_starter.py'
 PROJECT_ROOT = path.abspath(path.dirname(__file__))
-environ['SYNERGY_SETTINGS_MODULE'] = PROJECT_ROOT
+environ['SYNERGY_SETTINGS_MODULE'] = path.join(PROJECT_ROOT, 'settings.py')
+environ['SYNERGY_CONTEXT_MODULE'] = path.join(PROJECT_ROOT, 'context.py')
 
 # script is run to install virtual environment library into the global interpreter
 VE_GLOBAL_SCRIPT = path.join(PROJECT_ROOT, 'scripts', 'install_ve_globally.sh')

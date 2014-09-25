@@ -12,7 +12,7 @@ setup(name = 'synergy_scheduler',
       long_description = '''Really long text here.''',
       license = 'Modified BSD License',
       classifiers=[
-          'Development Status :: 5 - Production/Stable',
+          'Development Status :: 4 - Beta',
           'Environment :: Console',
           'Environment :: Web Environment',
           'Intended Audience :: End Users/Desktop',
