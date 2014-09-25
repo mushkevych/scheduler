@@ -6,7 +6,7 @@ import os
 import psutil
 
 from system.repeat_timer import RepeatTimer
-from settings import settings
+from conf import settings
 
 
 class FootprintCalculator(object):
@@ -89,7 +89,7 @@ class TickerThread(object):
     def __init__(self, logger):
         self.logger = logger
         self.trackers = dict()
-        self.interval = settings['perf_ticker_interval']
+        self.interval = settings.settings['perf_ticker_interval']
         self.mark_24_hours = time.time()
         self.mark_footprint = time.time()
         self.footprint = FootprintCalculator()

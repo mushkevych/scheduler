@@ -17,23 +17,12 @@ settings = dict(
     remote_source_folder='/mnt/remote_folder/',
     bash_runnable_count=5,
 
-    mq_timeout_sec=300.0,
-    mq_durable=True,
-    mq_exclusive=False,
-    mq_auto_delete=False,
-    mq_delivery_mode=2,
-    mq_no_ack=False,
-
     ds_type='mongo_db',
     mongo_db_name='scheduler',
     hadoop_command='/usr/bin/hadoop',
     pig_command='/usr/bin/pig',
     bash_command='/bin/bash',
 
-    mx_host='0.0.0.0',                              # management extension host (0.0.0.0 opens all interfaces)
-    mx_port=5000,                                   # management extension port
-    mx_children_limit=168,                          # maximum number of children at any given level returned by MX
-    perf_ticker_interval=30,                        # seconds between performance ticker messages
     debug=False,                                    # if True - logger is given additional "console" adapter
     under_test=False
 )

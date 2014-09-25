@@ -9,7 +9,7 @@ import unittest
 import socket
 
 from system import time_helper
-from settings import settings
+from conf import settings
 from workers.abstract_file_collector_worker import AbstractFileCollectorWorker
 from conf.process_context import ProcessContext
 from system.time_qualifier import *
@@ -26,7 +26,7 @@ class DummyFileCollector(AbstractFileCollectorWorker):
         return '%s-*.gz' % timeperiod
 
     def _get_source_folder(self):
-        return settings['remote_source_folder']
+        return settings.settings['remote_source_folder']
 
 
 class FileCollectorUnitTest(unittest.TestCase):

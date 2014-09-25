@@ -4,7 +4,7 @@ import sys
 import logging
 import logging.handlers
 
-from settings import settings
+from conf import settings
 
 
 class Logger(object):
@@ -20,7 +20,7 @@ class Logger(object):
         """
         self.logger = logging.getLogger(context)
 
-        if settings['under_test']:
+        if settings.settings['under_test']:
             # ATTENTION: while running as stand-alone process, stdout and stderr must be muted and redirected to file
             # otherwise the their pipes get overfilled, and process halts
             stream_handler = logging.StreamHandler()
@@ -28,7 +28,7 @@ class Logger(object):
             stream_handler.setFormatter(stream_formatter)
             self.logger.addHandler(stream_handler)
 
-        if settings['debug']:
+        if settings.settings['debug']:
             self.logger.setLevel(logging.DEBUG)
         else:
             self.logger.setLevel(logging.INFO)
@@ -44,7 +44,7 @@ class Logger(object):
         # stderr should be redirected to stdout by Supervisor
 
         # While under_test, tools like xml_unittest_runner are doing complex sys.stdXXX reassignments
-        if not settings['under_test']:
+        if not settings.settings['under_test']:
             sys.stdout = self
 
     def get_logger(self):

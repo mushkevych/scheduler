@@ -2,7 +2,7 @@ __author__ = 'Bohdan Mushkevych'
 
 import unittest
 
-from constants import PROCESS_GC
+from scheduler.scheduler_constants import PROCESS_GC
 from supervisor.supervisor_constants import PROCESS_SUPERVISOR
 from conf.process_context import ProcessContext
 

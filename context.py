@@ -31,7 +31,7 @@ process_context = {
 
     PROCESS_SITE_DAILY: _process_context_entry(
         process_name=PROCESS_SITE_DAILY,
-        classname='workers.hadoop_aggregator_driver.HadoopAggregatorDriver.start',
+        classname='workers.site_daily_aggregator.SiteDailyAggregator.start',
         token=TOKEN_SITE,
         time_qualifier=QUALIFIER_DAILY,
         exchange=EXCHANGE_MANAGED_WORKER,
@@ -51,7 +51,7 @@ process_context = {
 
     PROCESS_SITE_MONTHLY: _process_context_entry(
         process_name=PROCESS_SITE_MONTHLY,
-        classname='workers.hadoop_aggregator_driver.HadoopAggregatorDriver.start',
+        classname='workers.site_monthly_aggregator.SiteMonthlyAggregator.start',
         token=TOKEN_SITE,
         time_qualifier=QUALIFIER_MONTHLY,
         exchange=EXCHANGE_MANAGED_WORKER,
@@ -61,7 +61,7 @@ process_context = {
 
     PROCESS_SITE_YEARLY: _process_context_entry(
         process_name=PROCESS_SITE_YEARLY,
-        classname='workers.hadoop_aggregator_driver.HadoopAggregatorDriver.start',
+        classname='workers.site_yearly_aggregator.SiteYearlyAggregator.start',
         token=TOKEN_SITE,
         time_qualifier=QUALIFIER_YEARLY,
         exchange=EXCHANGE_MANAGED_WORKER,

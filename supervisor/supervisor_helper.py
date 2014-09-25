@@ -1,13 +1,13 @@
 __author__ = 'Bohdan Mushkevych'
 
-from settings import settings
+from conf import settings
 
 
 def get_box_id(logger):
     """ retrieves box id from the synergy_data configuration file """
     try:
         box_id = None
-        config_file = settings['config_file']
+        config_file = settings.settings['config_file']
         with open(config_file) as a_file:
             for a_line in a_file:
                 a_line = a_line.strip()

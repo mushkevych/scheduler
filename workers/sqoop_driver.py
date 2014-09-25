@@ -4,9 +4,9 @@ from subprocess import PIPE
 
 import psutil
 
-from settings import settings
 from system import time_helper
 from system.time_qualifier import QUALIFIER_HOURLY
+from conf import settings
 from conf.process_context import ProcessContext
 from workers.abstract_cli_worker import AbstractCliWorker
 
@@ -30,13 +30,13 @@ class SqoopDriver(AbstractCliWorker):
             sink_path = ProcessContext.get_sink(self.process_name)
 
             self.logger.info('start: %s {' % self.process_name)
-            p = psutil.Popen([settings['bash_shell'],
-                              settings['sqoop_command'],
+            p = psutil.Popen([settings.settings['bash_shell'],
+                              settings.settings['sqoop_command'],
                               str(sqoop_slice_starttime),
                               str(sqoop_slice_endtime),
                               sink_path + '/' + start_timeperiod],
                              close_fds=True,
-                             cwd=settings['process_cwd'],
+                             cwd=settings.settings['process_cwd'],
                              stdin=PIPE,
                              stdout=PIPE,
                              stderr=PIPE)

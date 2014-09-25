@@ -1,11 +1,11 @@
 __author__ = 'Bohdan Mushkevych'
 
-from settings import settings
+from conf import settings
 
 
 def fully_qualified_table_name(table_name):
     # fully qualified table name
-    fqtn = settings['aws_redshift_orca_prefix'] + table_name + settings['aws_redshift_orca_suffix']
+    fqtn = settings.settings['aws_redshift_orca_prefix'] + table_name + settings.settings['aws_redshift_orca_suffix']
     return fqtn
 
 

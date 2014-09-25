@@ -1,6 +1,6 @@
 __author__ = 'Bohdan Mushkevych'
 
-import context
+from conf import context
 from db.model.queue_context_entry import QueueContextEntry
 
 

@@ -5,7 +5,7 @@ from threading import Lock
 
 import amqp
 
-from settings import settings
+from conf import settings
 from system.decorator import thread_safe
 from conf.process_context import ProcessContext
 from conf.mq_queue_context import MqQueueContext
@@ -28,11 +28,11 @@ class SynergyAware(object):
 
 class Connection(object):
     def __init__(self,
-                 host=settings['mq_host'],
-                 user_id=settings['mq_user_id'],
-                 password=settings['mq_password'],
-                 vhost=settings['mq_vhost'],
-                 port=settings['mq_port']):
+                 host=settings.settings['mq_host'],
+                 user_id=settings.settings['mq_user_id'],
+                 password=settings.settings['mq_password'],
+                 vhost=settings.settings['mq_vhost'],
+                 port=settings.settings['mq_port']):
         self.db_host = host
         self.user_id = user_id
         self.password = password
@@ -61,9 +61,9 @@ class Connection(object):
 class Consumer(SynergyAware):
     def __init__(self,
                  name,
-                 durable=settings['mq_durable'],
-                 exclusive=settings['mq_exclusive'],
-                 auto_delete=settings['mq_auto_delete'],
+                 durable=settings.settings['mq_durable'],
+                 exclusive=settings.settings['mq_exclusive'],
+                 auto_delete=settings.settings['mq_auto_delete'],
                  connection=None):
         super(Consumer, self).__init__(name)
         self.callback = None
@@ -94,7 +94,7 @@ class Consumer(SynergyAware):
         )
         self.channel.basic_consume(
             queue=self.queue,
-            no_ack=settings['mq_no_ack'],
+            no_ack=settings.settings['mq_no_ack'],
             callback=self.dispatch,
             consumer_tag=str(uuid.uuid4())
         )
@@ -126,15 +126,15 @@ class Consumer(SynergyAware):
             self.callback(message)
 
     def acknowledge(self, tag):
-        if settings['mq_no_ack'] is False:
+        if settings.settings['mq_no_ack'] is False:
             self.channel.basic_ack(delivery_tag=tag)
 
     def reject(self, tag):
-        if settings['mq_no_ack'] is False:
+        if settings.settings['mq_no_ack'] is False:
             self.channel.basic_reject(delivery_tag=tag, requeue=True)
 
     def cancel(self, tag):
-        if settings['mq_no_ack'] is False:
+        if settings.settings['mq_no_ack'] is False:
             self.channel.basic_reject(delivery_tag=tag, requeue=False)
 
     def register(self, callback):
@@ -148,7 +148,7 @@ class Publisher(SynergyAware):
     def __init__(self,
                  name,
                  connection=None,
-                 delivery_mode=settings['mq_delivery_mode'],
+                 delivery_mode=settings.settings['mq_delivery_mode'],
                  parent_pool=None):
         super(Publisher, self).__init__(name)
         self.connection = connection or Connection()

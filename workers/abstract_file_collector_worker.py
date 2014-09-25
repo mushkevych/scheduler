@@ -8,7 +8,7 @@ import hashlib
 import fabric.operations
 from datetime import datetime
 
-from settings import settings
+from conf import settings
 from workers.abstract_mq_worker import AbstractMqWorker
 from system.performance_tracker import AggregatorPerformanceTicker
 
@@ -61,7 +61,7 @@ class AbstractFileCollectorWorker(AbstractMqWorker):
 
         fabric.operations.env.warn_only = True
         fqsf = os.path.join(self._get_source_folder(), self.HEADER_FOLDER)
-        for host_name in settings['remote_source_host_list']:
+        for host_name in settings.settings['remote_source_host_list']:
             self.logger.info('Initiating header files copy procedure from source location %s:%s'
                              % (host_name, self._get_source_folder()))
             fabric.operations.env.host_string = host_name
@@ -83,7 +83,7 @@ class AbstractFileCollectorWorker(AbstractMqWorker):
         fabric.operations.env.warn_only = True
         summary_file_list = []
         fqsf = os.path.join(self._get_source_folder(), timeperiod[:-2])
-        for host_name in settings['remote_source_host_list']:
+        for host_name in settings.settings['remote_source_host_list']:
             self.logger.info('Initiating copy procedure from source location %s:%s' % (host_name, fqsf))
             fabric.operations.env.host_string = host_name
             file_list = fabric.operations.get(os.path.join(fqsf, self._get_file_pattern(timeperiod)),

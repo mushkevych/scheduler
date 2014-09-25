@@ -5,7 +5,7 @@ import socket
 
 from amqp import AMQPError
 
-from settings import settings
+from conf import settings
 from mq.flopsy import Consumer
 from conf.process_context import ProcessContext
 from system.performance_tracker import SimpleTracker
@@ -31,7 +31,7 @@ class AbstractMqWorker(SynergyProcess):
         self._init_performance_ticker(self.logger)
 
         msg_suffix = 'in Production Mode'
-        if settings['under_test']:
+        if settings.settings['under_test']:
             msg_suffix = 'in Testing Mode'
         self.logger.info('Started %s %s' % (self.process_name, msg_suffix))
 
@@ -66,7 +66,7 @@ class AbstractMqWorker(SynergyProcess):
     def _run_mq_listener(self):
         try:
             self.consumer.register(self._mq_callback)
-            self.consumer.wait(settings['mq_timeout_sec'])
+            self.consumer.wait(settings.settings['mq_timeout_sec'])
         except socket.timeout as e:
             self.logger.warn('Queue %s is likely empty. Worker exits due to: %s' % (self.consumer.queue, str(e)))
         except (AMQPError, IOError) as e:

@@ -1,11 +1,10 @@
-from db.model import base_model
-
 __author__ = 'Bohdan Mushkevych'
 
 import json
 from rest_client.restful_lib import Connection
 
-from settings import settings
+from db.model import base_model
+from conf import settings
 
 
 class ConnectionPool(object):
@@ -43,9 +42,9 @@ class RestClient(object):
     ARGUMENT_TIMEPERIOD = base_model.TIMEPERIOD
 
     def __init__(self, logger):
-        login = settings['construction_login']
-        pwd = settings['construction_password']
-        hosts = settings['construction_hosts']
+        login = settings.settings['construction_login']
+        pwd = settings.settings['construction_password']
+        hosts = settings.settings['construction_hosts']
         self.logger = logger
         self.connection_pool = ConnectionPool(logger, login, pwd, hosts)
 

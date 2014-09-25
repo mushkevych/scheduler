@@ -3,7 +3,7 @@ __author__ = 'Bohdan Mushkevych'
 import unittest
 from rest_client.restful_lib import Connection
 
-from settings import settings
+from conf import settings
 from db.model import job
 from constants import PROCESS_ALERT_DAILY, PROCESS_SITE_HOURLY, PROCESS_CLIENT_DAILY
 
@@ -14,8 +14,8 @@ class TestSchedulerMx(unittest.TestCase):
     REQUEST_VERTICAL_DETAILS = '/request_verticals/'
 
     def setUp(self):
-        host = settings['mx_host']
-        port = settings['mx_port']
+        host = settings.settings['mx_host']
+        port = settings.settings['mx_port']
         self.connection = Connection(base_url='http://' + host + ':' + str(port))
 
     def tearDown(self):
@@ -37,7 +37,7 @@ class TestSchedulerMx(unittest.TestCase):
     def test_request_4_level_children(self):
         resp = self.connection.request_get(
             self.REQUEST_CHILDREN,
-            args={job.TIMEPERIOD: settings['synergy_start_timeperiod'],
+            args={job.TIMEPERIOD: settings.settings['synergy_start_timeperiod'],
                   job.PROCESS_NAME: PROCESS_SITE_HOURLY},
             headers={'content-type': 'application/json', 'accept': 'application/json'})
         status = resp[u'headers']['status']
@@ -51,7 +51,7 @@ class TestSchedulerMx(unittest.TestCase):
     def test_request_3_level_children(self):
         resp = self.connection.request_get(
             self.REQUEST_CHILDREN,
-            args={job.TIMEPERIOD: settings['synergy_start_timeperiod'],
+            args={job.TIMEPERIOD: settings.settings['synergy_start_timeperiod'],
                   job.PROCESS_NAME: PROCESS_CLIENT_DAILY},
             headers={'content-type': 'application/json', 'accept': 'application/json'})
         status = resp[u'headers']['status']

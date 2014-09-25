@@ -8,9 +8,9 @@ from db.dao.job_dao import JobDao
 from db.model import job, unit_of_work
 from db.model.job import Job
 
-import context
+from conf import context
 from process_starter import get_class
-from settings import settings
+from conf import settings
 from system.time_qualifier import *
 from system import time_helper
 from system.decorator import thread_safe
@@ -225,7 +225,7 @@ class Timetable(object):
     def load_tree(self):
         """ method iterates thru all objects older than synergy_start_timeperiod parameter in job collections
         and loads them into this timetable"""
-        timeperiod = settings['synergy_start_timeperiod']
+        timeperiod = settings.settings['synergy_start_timeperiod']
         yearly_timeperiod = time_helper.cast_to_time_qualifier(QUALIFIER_YEARLY, timeperiod)
         monthly_timeperiod = time_helper.cast_to_time_qualifier(QUALIFIER_MONTHLY, timeperiod)
         daily_timeperiod = time_helper.cast_to_time_qualifier(QUALIFIER_DAILY, timeperiod)

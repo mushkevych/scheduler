@@ -2,7 +2,7 @@ __author__ = 'Bohdan Mushkevych'
 
 from pymongo import MongoClient, ASCENDING, DESCENDING
 from bson.objectid import ObjectId
-from settings import settings
+from conf import settings
 from db.model import base_model
 from abc import abstractmethod, ABCMeta
 
@@ -16,7 +16,7 @@ if 'ds_factory' not in globals():
         instances = {}
 
         def get_instance(logger):
-            ds_type = settings['ds_type']
+            ds_type = settings.settings['ds_type']
 
             if ds_type not in instances:
                 if ds_type == "mongo_db":
@@ -91,8 +91,8 @@ class BaseManager:
 class MongoDbManager(BaseManager):
     def __init__(self, logger):
         super(MongoDbManager, self).__init__(logger)
-        self._db_client = MongoClient(settings['mongodb_host_list'])
-        self._db = self._db_client[settings['mongo_db_name']]
+        self._db_client = MongoClient(settings.settings['mongodb_host_list'])
+        self._db = self._db_client[settings.settings['mongo_db_name']]
 
     def __del__(self):
         try:
@@ -101,7 +101,7 @@ class MongoDbManager(BaseManager):
             pass
 
     def __str__(self):
-        return 'MongoDbManager: %s@%s' % (settings['mongodb_host_list'], settings['mongo_db_name'])
+        return 'MongoDbManager: %s@%s' % (settings.settings['mongodb_host_list'], settings.settings['mongo_db_name'])
 
     def is_alive(self):
         return self._db_client.alive()

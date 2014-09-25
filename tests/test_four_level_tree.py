@@ -7,13 +7,13 @@ from tests.ut_context import PROCESS_UNIT_TEST
 from system import time_helper
 from system.time_qualifier import *
 from scheduler.tree import FourLevelTree
-from settings import settings
+from conf import settings
 
 
 class TestFourLevelTree(unittest.TestCase):
     def setUp(self):
         self.initial_actual_timeperiod = time_helper.actual_timeperiod
-        self.initial_synergy_start_time = settings['synergy_start_timeperiod']
+        self.initial_synergy_start_time = settings.settings['synergy_start_timeperiod']
         self.tree = FourLevelTree(PROCESS_SITE_YEARLY,
                                   PROCESS_SITE_MONTHLY,
                                   PROCESS_SITE_DAILY,
@@ -23,7 +23,7 @@ class TestFourLevelTree(unittest.TestCase):
 
     def tearDown(self):
         del self.tree
-        settings['synergy_start_timeperiod'] = self.initial_synergy_start_time
+        settings.settings['synergy_start_timeperiod'] = self.initial_synergy_start_time
         time_helper.actual_timeperiod = self.initial_actual_timeperiod
 
     def test_simple_build_tree(self):
@@ -110,14 +110,14 @@ class TestFourLevelTree(unittest.TestCase):
         delta = 5 * 24  # 5 days
         new_synergy_start_time = wind_the_time(QUALIFIER_HOURLY, self.initial_synergy_start_time, -delta)
 
-        settings['synergy_start_timeperiod'] = new_synergy_start_time
+        settings.settings['synergy_start_timeperiod'] = new_synergy_start_time
         self.tree.build_tree()
         self._perform_assertions(new_synergy_start_time, delta)
 
     def test_catching_up_time_build_tree(self):
         delta = 5 * 24
         new_synergy_start_time = wind_the_time(QUALIFIER_HOURLY, self.initial_synergy_start_time, -delta)
-        settings['synergy_start_timeperiod'] = new_synergy_start_time
+        settings.settings['synergy_start_timeperiod'] = new_synergy_start_time
 
         self.tree.build_tree()
         self._perform_assertions(new_synergy_start_time, delta)

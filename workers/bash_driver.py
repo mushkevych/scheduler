@@ -5,7 +5,7 @@ import time
 import threading
 import fabric.operations
 
-from settings import settings
+from conf import settings
 from workers.abstract_mq_worker import AbstractMqWorker
 from db.model.worker_mq_request import WorkerMqRequest
 
@@ -88,7 +88,7 @@ class BashDriver(AbstractMqWorker):
 
     def _mq_callback(self, message):
         """ reads JSON request from the mq message and delivers it for processing """
-        while threading.active_count() > settings['bash_runnable_count'] + self.initial_thread_count:
+        while threading.active_count() > settings.settings['bash_runnable_count'] + self.initial_thread_count:
             time.sleep(0.01)
 
         t = BashRunnable(self.logger, message, self.consumer, self.performance_ticker)

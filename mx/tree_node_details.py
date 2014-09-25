@@ -2,7 +2,7 @@ __author__ = 'Bohdan Mushkevych'
 
 from werkzeug.utils import cached_property
 
-from settings import settings
+from conf import settings
 from system import time_helper
 from conf.process_context import ProcessContext
 from mx.mx_decorators import managed_entry_request
@@ -53,7 +53,7 @@ class TreeNodeDetails(object):
 
             # limit number of children to return, since linear tree can holds thousands of nodes
             sorted_keys = sorted(tree.root.children.keys(), reverse=True)
-            sorted_keys = sorted_keys[:settings['mx_children_limit']]
+            sorted_keys = sorted_keys[:settings.settings['mx_children_limit']]
             for key in sorted_keys:
                 child = tree.root.children[key]
                 resp['children'][key] = TreeNodeDetails.get_details(self.logger, child)

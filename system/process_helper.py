@@ -8,7 +8,7 @@ from psutil import TimeoutExpired
 
 from launch import get_python, PROJECT_ROOT, PROCESS_STARTER
 from conf.process_context import ProcessContext
-from settings import settings
+from conf import settings
 
 
 def get_process_pid(process_name):
@@ -51,7 +51,7 @@ def start_process(process_name, *args):
 
         p = psutil.Popen(cmd,
                          close_fds=True,
-                         cwd=settings['process_cwd'],
+                         cwd=settings.settings['process_cwd'],
                          stdin=PIPE,
                          stdout=PIPE,
                          stderr=STDOUT)

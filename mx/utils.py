@@ -10,8 +10,8 @@ from werkzeug.local import Local, LocalManager
 from werkzeug.wrappers import Response
 from werkzeug.routing import Map, Rule
 
-import context
-from settings import settings
+from conf import context
+from conf import settings
 
 TEMPLATE_PATH = path.join(path.dirname(__file__), 'templates')
 STATIC_PATH = path.join(path.dirname(__file__), 'static')
@@ -57,7 +57,7 @@ def get_current_time():
 
 
 def get_version():
-    return settings['version']
+    return settings.settings['version']
 
 
 jinja_env = Environment(loader=FileSystemLoader(TEMPLATE_PATH))

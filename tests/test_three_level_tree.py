@@ -2,7 +2,7 @@ __author__ = 'Bohdan Mushkevych'
 
 import unittest
 
-from settings import settings
+from conf import settings
 from tests.base_fixtures import wind_the_time, wind_actual_timeperiod
 from constants import TOKEN_SITE, PROCESS_SITE_YEARLY, PROCESS_SITE_MONTHLY, PROCESS_SITE_DAILY, PROCESS_SITE_HOURLY
 from system import time_helper
@@ -13,7 +13,7 @@ from scheduler.tree import ThreeLevelTree
 class TestThreeLevelTree(unittest.TestCase):
     def setUp(self):
         self.initial_actual_timeperiod = time_helper.actual_timeperiod
-        self.initial_synergy_start_time = settings['synergy_start_timeperiod']
+        self.initial_synergy_start_time = settings.settings['synergy_start_timeperiod']
         self.tree = ThreeLevelTree(PROCESS_SITE_YEARLY,
                                    PROCESS_SITE_MONTHLY,
                                    PROCESS_SITE_DAILY,
@@ -22,7 +22,7 @@ class TestThreeLevelTree(unittest.TestCase):
 
     def tearDown(self):
         del self.tree
-        settings['synergy_start_timeperiod'] = self.initial_synergy_start_time
+        settings.settings['synergy_start_timeperiod'] = self.initial_synergy_start_time
         time_helper.actual_timeperiod = self.initial_actual_timeperiod
 
     def test_simple_build_tree(self):
@@ -91,14 +91,14 @@ class TestThreeLevelTree(unittest.TestCase):
         delta = 5 * 24  # 5 days
         new_synergy_start_time = wind_the_time(QUALIFIER_HOURLY, self.initial_synergy_start_time, -delta)
 
-        settings['synergy_start_timeperiod'] = new_synergy_start_time
+        settings.settings['synergy_start_timeperiod'] = new_synergy_start_time
         self.tree.build_tree()
         self._perform_assertions(new_synergy_start_time, delta / 24)
 
     def test_catching_up_time_build_tree(self):
         delta = 5 * 24
         new_synergy_start_time = wind_the_time(QUALIFIER_HOURLY, self.initial_synergy_start_time, -delta)
-        settings['synergy_start_timeperiod'] = new_synergy_start_time
+        settings.settings['synergy_start_timeperiod'] = new_synergy_start_time
 
         self.tree.build_tree()
         self._perform_assertions(new_synergy_start_time, delta / 24)

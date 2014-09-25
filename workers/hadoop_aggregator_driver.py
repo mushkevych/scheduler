@@ -2,7 +2,7 @@ __author__ = 'Bohdan Mushkevych'
 
 import psutil
 from subprocess import PIPE
-from settings import settings
+from conf import settings
 from workers.abstract_cli_worker import AbstractCliWorker
 
 
@@ -15,13 +15,13 @@ class HadoopAggregatorDriver(AbstractCliWorker):
     def _start_process(self, start_timeperiod, end_timeperiod, arguments):
         try:
             self.logger.info('start: %s {' % self.process_name)
-            p = psutil.Popen([settings['hadoop_command'],
-                              'jar', settings['hadoop_jar'],
+            p = psutil.Popen([settings.settings['hadoop_command'],
+                              'jar', settings.settings['hadoop_jar'],
                               '-D', 'process.name=' + self.process_name,
                               '-D', 'timeperiod.working=' + str(start_timeperiod),
                               '-D', 'timeperiod.next=' + str(end_timeperiod)],
                              close_fds=True,
-                             cwd=settings['process_cwd'],
+                             cwd=settings.settings['process_cwd'],
                              stdin=PIPE,
                              stdout=PIPE,
                              stderr=PIPE)

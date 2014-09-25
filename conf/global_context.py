@@ -1,6 +1,6 @@
 from scheduler.scheduler_constants import PROCESS_GC, TOKEN_GC, EXCHANGE_UTILS, TYPE_GARBAGE_COLLECTOR, \
-    PROCESS_SCHEDULER, TOKEN_SCHEDULER
-from supervisor.supervisor_constants import PROCESS_SUPERVISOR, TOKEN_SUPERVISOR
+    PROCESS_SCHEDULER, TOKEN_SCHEDULER, COLLECTION_UNIT_OF_WORK
+from supervisor.supervisor_constants import PROCESS_SUPERVISOR, TOKEN_SUPERVISOR, COLLECTION_BOX_CONFIGURATION
 from system.time_qualifier import QUALIFIER_BY_SCHEDULE
 from db.model.process_context_entry import _process_context_entry
 
@@ -13,8 +13,8 @@ process_context = {
         time_qualifier=QUALIFIER_BY_SCHEDULE,
         exchange=EXCHANGE_UTILS,
         process_type=TYPE_GARBAGE_COLLECTOR,
-        source='units_of_work',
-        sink='units_of_work'),
+        source=COLLECTION_UNIT_OF_WORK,
+        sink=COLLECTION_UNIT_OF_WORK),
 
     PROCESS_SCHEDULER: _process_context_entry(
         process_name=PROCESS_SCHEDULER,
@@ -32,7 +32,9 @@ process_context = {
         time_qualifier='',
         queue='',
         routing='',
-        exchange=''),
+        exchange='',
+        source=COLLECTION_BOX_CONFIGURATION,
+        sink=COLLECTION_BOX_CONFIGURATION),
 }
 
 

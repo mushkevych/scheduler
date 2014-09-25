@@ -13,6 +13,7 @@ settings = dict(
     # mq_password='guest',
     mq_vhost='/',
     mq_port=5672,
+    mq_timeout_sec=None,
 
     mongodb_host_list=['mongodb://127.0.0.1:27017'],
 

@@ -7,7 +7,7 @@ from subprocess import PIPE, STDOUT
 import psutil
 from psutil import TimeoutExpired
 
-from settings import settings
+from conf import settings
 from launch import get_python, PROJECT_ROOT, PROCESS_STARTER
 from system.decorator import thread_safe
 from db.model import box_configuration
@@ -63,7 +63,7 @@ class Supervisor(SynergyProcess):
             self.logger.info('start: %s {' % process_name)
             p = psutil.Popen([get_python(), PROJECT_ROOT + '/' + PROCESS_STARTER, process_name],
                              close_fds=True,
-                             cwd=settings['process_cwd'],
+                             cwd=settings.settings['process_cwd'],
                              stdin=PIPE,
                              stdout=PIPE,
                              stderr=STDOUT)

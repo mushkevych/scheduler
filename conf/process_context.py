@@ -2,8 +2,8 @@ __author__ = 'Bohdan Mushkevych'
 
 import os
 
-import context
-from settings import settings
+from conf import context
+from conf import settings
 from system.data_logging import Logger
 from system.decorator import current_process_aware
 from db.model.process_context_entry import ProcessContextEntry
@@ -81,7 +81,7 @@ class ProcessContext(object):
     @current_process_aware
     def get_pid_filename(cls, process_name=None):
         """method returns path for the PID FILENAME """
-        return settings['pid_directory'] + cls.CONTEXT[process_name].pid_filename
+        return settings.settings['pid_directory'] + cls.CONTEXT[process_name].pid_filename
 
     @classmethod
     @current_process_aware
@@ -93,7 +93,7 @@ class ProcessContext(object):
     @current_process_aware
     def get_log_filename(cls, process_name=None):
         """method returns path for the Log filename"""
-        return settings['log_directory'] + cls.CONTEXT[process_name].log_filename
+        return settings.settings['log_directory'] + cls.CONTEXT[process_name].log_filename
 
     @classmethod
     @current_process_aware

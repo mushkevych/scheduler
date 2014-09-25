@@ -2,7 +2,7 @@ __author__ = 'Bohdan Mushkevych'
 
 from werkzeug.utils import cached_property
 
-import context
+from conf import context
 from conf.process_context import ProcessContext
 
 

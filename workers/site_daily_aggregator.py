@@ -2,7 +2,7 @@ __author__ = 'Bohdan Mushkevych'
 
 from db.model.site_statistics import SiteStatistics
 from db.model.base_model import BaseModel
-from settings import settings
+from conf import settings
 from workers.abstract_vertical_worker import AbstractVerticalWorker
 from system import time_helper
 
@@ -14,7 +14,7 @@ class SiteDailyAggregator(AbstractVerticalWorker):
         super(SiteDailyAggregator, self).__init__(process_name)
 
     def _get_tunnel_port(self):
-        return settings['tunnel_site_port']
+        return settings.settings['tunnel_site_port']
 
     def _init_sink_key(self, *args):
         return args[0], time_helper.hour_to_day(args[1])

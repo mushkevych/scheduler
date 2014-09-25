@@ -6,18 +6,18 @@ from system import time_helper
 from system.time_qualifier import QUALIFIER_HOURLY
 from constants import PROCESS_SITE_HOURLY, TOKEN_SITE
 from scheduler.tree import TwoLevelTree
-from settings import settings
+from conf import settings
 
 
 class TestTwoLevelTree(unittest.TestCase):
     def setUp(self):
         self.initial_actual_timeperiod = time_helper.actual_timeperiod
-        self.initial_synergy_start_time = settings['synergy_start_timeperiod']
+        self.initial_synergy_start_time = settings.settings['synergy_start_timeperiod']
         self.tree = TwoLevelTree(PROCESS_SITE_HOURLY, TOKEN_SITE, 'some_mx_page')
 
     def tearDown(self):
         del self.tree
-        settings['synergy_start_timeperiod'] = self.initial_synergy_start_time
+        settings.settings['synergy_start_timeperiod'] = self.initial_synergy_start_time
         time_helper.actual_timeperiod = self.initial_actual_timeperiod
 
     def test_simple_build_tree(self):
@@ -44,7 +44,7 @@ class TestTwoLevelTree(unittest.TestCase):
         new_synergy_start_time = base_fixtures.wind_the_time(QUALIFIER_HOURLY,
                                                              self.initial_synergy_start_time,
                                                              -delta)
-        settings['synergy_start_timeperiod'] = new_synergy_start_time
+        settings.settings['synergy_start_timeperiod'] = new_synergy_start_time
 
         self.tree.build_tree()
         self._perform_assertions(new_synergy_start_time, delta)
@@ -54,7 +54,7 @@ class TestTwoLevelTree(unittest.TestCase):
         new_synergy_start_time = base_fixtures.wind_the_time(QUALIFIER_HOURLY,
                                                              self.initial_synergy_start_time,
                                                              -delta)
-        settings['synergy_start_timeperiod'] = new_synergy_start_time
+        settings.settings['synergy_start_timeperiod'] = new_synergy_start_time
 
         self.tree.build_tree()
         self._perform_assertions(new_synergy_start_time, delta)

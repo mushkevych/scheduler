@@ -5,7 +5,7 @@ from werkzeug.wrappers import Request
 from werkzeug.wsgi import ClosingIterator, SharedDataMiddleware
 from werkzeug.exceptions import HTTPException, NotFound
 from werkzeug.serving import run_simple
-from settings import settings
+from conf import settings
 
 from mx.utils import STATIC_PATH, local, local_manager, url_map, jinja_env
 from mx import views
@@ -48,9 +48,9 @@ class MX(object):
         :param port: the default port of the server.
         """
         if hostname is None:
-            hostname = settings['mx_host']
+            hostname = settings.settings['mx_host']
         if port is None:
-            port = settings['mx_port']
+            port = settings.settings['mx_port']
 
         reloader = False        # use_reloader: the default setting for the reloader.
         debugger = False        #

@@ -2,7 +2,7 @@ __author__ = 'Bohdan Mushkevych'
 
 import setproctitle
 
-from settings import settings
+from conf import settings
 from conf.process_context import ProcessContext
 
 
@@ -15,7 +15,7 @@ class SynergyProcess(object):
         self.logger = ProcessContext.get_logger(process_name)
 
         # process-related activities
-        setproctitle.setproctitle(settings['process_prefix'] + self.process_name)
+        setproctitle.setproctitle(settings.settings['process_prefix'] + self.process_name)
         ProcessContext.create_pid_file(self.process_name)
 
     def __del__(self):

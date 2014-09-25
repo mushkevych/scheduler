@@ -5,7 +5,7 @@ __author__ = 'Bohdan Mushkevych'
 from threading import Lock
 from datetime import datetime, timedelta
 
-from settings import settings
+from conf import settings
 from mq.flopsy import PublishersPool
 from system.decorator import thread_safe
 from workers.abstract_mq_worker import AbstractMqWorker
@@ -48,7 +48,7 @@ class GarbageCollectorWorker(AbstractMqWorker):
             sc_list = self.managed_dao.get_all()
             self._update_scheduler_configuration(sc_list)
 
-            since = settings['synergy_start_timeperiod']
+            since = settings.settings['synergy_start_timeperiod']
             uow_list = self.uow_dao.get_reprocessing_candidates(since)
             for uow in uow_list:
                 if uow.process_name not in self.scheduler_configuration:
@@ -115,7 +115,7 @@ class GarbageCollectorWorker(AbstractMqWorker):
 
 
 if __name__ == '__main__':
-    from constants import PROCESS_GC
+    from scheduler.scheduler_constants import PROCESS_GC
 
     source = GarbageCollectorWorker(PROCESS_GC)
     source.start()

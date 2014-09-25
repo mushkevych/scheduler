@@ -11,7 +11,7 @@ from db.model import unit_of_work
 from db.model.worker_mq_request import WorkerMqRequest
 from db.manager import ds_manager
 from db.dao.unit_of_work_dao import UnitOfWorkDao
-from settings import settings
+from conf import settings
 from system.decimal_encoder import DecimalEncoder
 from conf.process_context import ProcessContext
 from workers.abstract_mq_worker import AbstractMqWorker
@@ -51,7 +51,7 @@ class AbstractAwareWorker(AbstractMqWorker):
         total_transferred_bytes = 0
         number_of_aggregated_objects = len(self.aggregated_objects)
         self.logger.info('Aggregated %d documents. Performing flush.' % number_of_aggregated_objects)
-        tunnel_address = (settings['tunnel_host'], self._get_tunnel_port())
+        tunnel_address = (settings.settings['tunnel_host'], self._get_tunnel_port())
 
         for key in self.aggregated_objects:
             client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -140,7 +140,7 @@ class AbstractAwareWorker(AbstractMqWorker):
             self.uow_dao.update(uow)
             self.performance_ticker.start_uow(uow)
 
-            bulk_threshold = settings['bulk_threshold']
+            bulk_threshold = settings.settings['bulk_threshold']
             iteration = 0
             while True:
                 collection_name = ProcessContext.get_source(self.process_name)

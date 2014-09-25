@@ -2,7 +2,7 @@ __author__ = 'Bohdan Mushkevych'
 
 from datetime import datetime, timedelta
 
-from settings import settings
+from conf import settings
 from db.model import job
 from scheduler.tree_node import TreeNode, LinearNode
 from system import time_helper
@@ -80,7 +80,7 @@ class AbstractTree(object):
         and inserting corresponding nodes"""
         time_qualifier = ProcessContext.get_time_qualifier(process_name)
         if rebuild or self.build_timeperiod is None:
-            timeperiod = settings['synergy_start_timeperiod']
+            timeperiod = settings.settings['synergy_start_timeperiod']
             timeperiod = cast_to_time_qualifier(time_qualifier, timeperiod)
         else:
             timeperiod = self.build_timeperiod
