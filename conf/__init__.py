@@ -15,8 +15,8 @@ import operator
 from conf import global_settings
 from conf import global_context
 
-ENVIRONMENT_SETTINGS_VARIABLE = "SYNERGY_SETTINGS_MODULE"
-ENVIRONMENT_CONTEXT_VARIABLE = "SYNERGY_CONTEXT_MODULE"
+ENVIRONMENT_SETTINGS_VARIABLE = 'SYNERGY_SETTINGS_MODULE'
+ENVIRONMENT_CONTEXT_VARIABLE = 'SYNERGY_CONTEXT_MODULE'
 
 
 empty = object()
@@ -53,16 +53,16 @@ class LazyObject(object):
     __getattr__ = new_method_proxy(getattr)
 
     def __setattr__(self, name, value):
-        if name == "_wrapped":
+        if name == '_wrapped':
             # Assign to __dict__ to avoid infinite __setattr__ loops.
-            self.__dict__["_wrapped"] = value
+            self.__dict__['_wrapped'] = value
         else:
             if self._wrapped is empty:
                 self._setup()
             setattr(self._wrapped, name, value)
 
     def __delattr__(self, name):
-        if name == "_wrapped":
+        if name == '_wrapped':
             raise TypeError("can't delete _wrapped.")
         if self._wrapped is empty:
             self._setup()
@@ -92,7 +92,7 @@ class LazyObject(object):
 
     # Need to pretend to be the wrapped class, for the sake of objects that
     # care about this (especially in equality tests)
-    __class__ = property(new_method_proxy(operator.attrgetter("__class__")))
+    __class__ = property(new_method_proxy(operator.attrgetter('__class__')))
     __eq__ = new_method_proxy(operator.eq)
     __ne__ = new_method_proxy(operator.ne)
     __hash__ = new_method_proxy(hash)
@@ -120,9 +120,7 @@ class LazyObject(object):
 
     @property
     def configured(self):
-        """
-        Returns True if the settings have already been configured.
-        """
+        """ Returns True if the settings have already been configured. """
         return self._wrapped is not empty
 
 
@@ -138,13 +136,13 @@ class LazySettings(LazyObject):
         is used the first time we need any settings at all, if the user has not
         previously configured the settings manually.
         """
-        settings_module = os.environ.get(ENVIRONMENT_SETTINGS_VARIABLE)
+        settings_module = os.environ.get(ENVIRONMENT_SETTINGS_VARIABLE, 'settings')
         if not settings_module:
-            desc = ("setting %s" % name) if name else "settings"
+            desc = ('setting %s' % name) if name else 'settings'
             raise ImproperlyConfigured(
-                "Requested %s, but settings are not configured. "
-                "You must either define the environment variable %s "
-                "or call settings.configure() before accessing settings."
+                'Requested %s, but settings are not configured. '
+                'You must either define the environment variable %s '
+                'or call settings.configure() before accessing settings.'
                 % (desc, ENVIRONMENT_SETTINGS_VARIABLE))
 
         self._wrapped = Settings(settings_module, default_settings=global_settings)
@@ -163,13 +161,13 @@ class LazyContext(LazyObject):
         is used the first time we need any settings at all, if the user has not
         previously configured the settings manually.
         """
-        settings_module = os.environ.get(ENVIRONMENT_CONTEXT_VARIABLE)
+        settings_module = os.environ.get(ENVIRONMENT_CONTEXT_VARIABLE, 'context')
         if not settings_module:
-            desc = ("setting %s" % name) if name else "settings"
+            desc = ('setting %s' % name) if name else 'settings'
             raise ImproperlyConfigured(
-                "Requested %s, but context is not configured. "
-                "You must either define the environment variable %s "
-                "or call context.configure() before accessing the context."
+                'Requested %s, but context is not configured. '
+                'You must either define the environment variable %s '
+                'or call context.configure() before accessing the context.'
                 % (desc, ENVIRONMENT_CONTEXT_VARIABLE))
 
         self._wrapped = Settings(settings_module, default_settings=global_context)
