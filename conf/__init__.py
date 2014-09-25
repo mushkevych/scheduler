@@ -3,7 +3,7 @@ This module was adapted from Django's settings and configuration:
 - https://raw.githubusercontent.com/django/django/master/django/conf/__init__.py
 - https://raw.githubusercontent.com/django/django/master/django/utils/functional.py
 
-Django's license is available at:
+Django is licensed under BSD. License is available at:
 - https://github.com/django/django/blob/master/LICENSE
 """
 import copy
@@ -13,6 +13,7 @@ import os
 import operator
 
 from conf import global_settings
+from conf import global_context
 
 ENVIRONMENT_SETTINGS_VARIABLE = "SYNERGY_SETTINGS_MODULE"
 ENVIRONMENT_CONTEXT_VARIABLE = "SYNERGY_CONTEXT_MODULE"
@@ -104,35 +105,6 @@ class LazyObject(object):
     __len__ = new_method_proxy(len)
     __contains__ = new_method_proxy(operator.contains)
 
-
-class LazySettings(LazyObject):
-    """
-    A lazy proxy for either global Django settings or a custom settings object.
-    The user can manually configure settings prior to using them. Otherwise,
-    Django uses the settings module pointed to by DJANGO_SETTINGS_MODULE.
-    """
-    def _setup(self, name=None):
-        """
-        Load the settings module pointed to by the environment variable. This
-        is used the first time we need any settings at all, if the user has not
-        previously configured the settings manually.
-        """
-        settings_module = os.environ.get(ENVIRONMENT_SETTINGS_VARIABLE)
-        if not settings_module:
-            desc = ("setting %s" % name) if name else "settings"
-            raise ImproperlyConfigured(
-                "Requested %s, but settings are not configured. "
-                "You must either define the environment variable %s "
-                "or call settings.configure() before accessing settings."
-                % (desc, ENVIRONMENT_SETTINGS_VARIABLE))
-
-        self._wrapped = Settings(settings_module)
-
-    def __getattr__(self, name):
-        if self._wrapped is empty:
-            self._setup(name)
-        return getattr(self._wrapped, name)
-
     def configure(self, default_settings=global_settings, **options):
         """
         Called to manually configure the settings. The 'default_settings'
@@ -154,19 +126,71 @@ class LazySettings(LazyObject):
         return self._wrapped is not empty
 
 
+class LazySettings(LazyObject):
+    """
+    A lazy proxy for either global Synergy settings or a custom settings object.
+    The user can manually configure settings prior to using them. Otherwise,
+    Django uses the settings module pointed to by SYNERGY_SETTINGS_MODULE.
+    """
+    def _setup(self, name=None):
+        """
+        Load the settings module pointed to by the environment variable. This
+        is used the first time we need any settings at all, if the user has not
+        previously configured the settings manually.
+        """
+        settings_module = os.environ.get(ENVIRONMENT_SETTINGS_VARIABLE)
+        if not settings_module:
+            desc = ("setting %s" % name) if name else "settings"
+            raise ImproperlyConfigured(
+                "Requested %s, but settings are not configured. "
+                "You must either define the environment variable %s "
+                "or call settings.configure() before accessing settings."
+                % (desc, ENVIRONMENT_SETTINGS_VARIABLE))
+
+        self._wrapped = Settings(settings_module, default_settings=global_settings)
+
+    def __getattr__(self, name):
+        if self._wrapped is empty:
+            self._setup(name)
+        return getattr(self._wrapped, name)
+
+
+class LazyContext(LazyObject):
+    """ A lazy proxy for Synergy Context """
+    def _setup(self, name=None):
+        """
+        Load the settings module pointed to by the environment variable. This
+        is used the first time we need any settings at all, if the user has not
+        previously configured the settings manually.
+        """
+        settings_module = os.environ.get(ENVIRONMENT_CONTEXT_VARIABLE)
+        if not settings_module:
+            desc = ("setting %s" % name) if name else "settings"
+            raise ImproperlyConfigured(
+                "Requested %s, but context is not configured. "
+                "You must either define the environment variable %s "
+                "or call context.configure() before accessing the context."
+                % (desc, ENVIRONMENT_CONTEXT_VARIABLE))
+
+        self._wrapped = Settings(settings_module, default_settings=global_context)
+
+    def __getattr__(self, name):
+        if self._wrapped is empty:
+            self._setup(name)
+        return getattr(self._wrapped, name)
+
+
 class BaseSettings(object):
-    """
-    Common logic for settings whether set by a module or by the user.
-    """
+    """ Common logic for settings whether set by a module or by the user. """
     def __setattr__(self, name, value):
         object.__setattr__(self, name, value)
 
 
 class Settings(BaseSettings):
-    def __init__(self, settings_module):
-        # update this dict from global settings
-        for setting in dir(global_settings):
-            setattr(self, setting, getattr(global_settings, setting))
+    def __init__(self, settings_module, default_settings):
+        # update this dict from global_settings or global_context
+        for setting in dir(default_settings):
+            setattr(self, setting, getattr(default_settings, setting))
 
         # store the settings module in case someone later cares
         self.SETTINGS_MODULE = settings_module
@@ -184,11 +208,8 @@ class Settings(BaseSettings):
 
 
 class UserSettingsHolder(BaseSettings):
-    """
-    Holder for user configured settings.
-    """
-    # SETTINGS_MODULE doesn't make much sense in the manually configured
-    # (standalone) case.
+    """ Holder for user configured settings. """
+    # SETTINGS_MODULE doesn't make much sense in the manually configured (standalone) case.
     SETTINGS_MODULE = None
 
     def __init__(self, default_settings):
@@ -224,4 +245,4 @@ class UserSettingsHolder(BaseSettings):
 
 
 settings = LazySettings()
-context = LazySettings()
+context = LazyContext()
