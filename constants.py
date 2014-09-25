@@ -2,7 +2,6 @@ __author__ = 'Bohdan Mushkevych'
 
 
 # List of Processes
-PROCESS_GC = 'GarbageCollectorWorker'
 PROCESS_LAUNCH_PY = 'LaunchPy'      # process provides <process context> to the launch.py script
 PROCESS_BASH_DRIVER = 'BashDriver'
 PROCESS_STREAM_GEN = 'EventStreamGenerator'
@@ -27,7 +26,6 @@ TREE_CLIENT_HORIZONTAL = 'tree_client_horizontal'
 TREE_LINEAR_DAILY = 'tree_linear_daily'
 
 # Process tokens. There should be one token per one Timetable tree or stand-alone process
-TOKEN_GC = 'gc'
 TOKEN_LAUNCH_PY = 'launch_py'
 TOKEN_BASH_DRIVER = 'bash'
 TOKEN_STREAM = 'stream'
@@ -36,7 +34,7 @@ TOKEN_SITE = 'site'
 TOKEN_CLIENT = 'client'
 TOKEN_ALERT = 'alert'
 
-# ** QUEUES **
+# *** MQ Constants ***
 PREFIX_ROUTING = 'routing_'
 PREFIX_QUEUE = 'queue_'
 
@@ -45,9 +43,6 @@ QUEUE_RAW_DATA = 'q_raw_data'
 ROUTING_IRRELEVANT = 'routing_irrelevant'
 
 EXCHANGE_RAW_DATA = 'ex_raw_data'
-EXCHANGE_MANAGED_WORKER = 'ex_managed_worker'
-EXCHANGE_FREERUN_WORKER = 'ex_freerun_worker'
-EXCHANGE_UTILS = 'ex_utils'
 
 # *** DB Collection/Table names ***
 COLLECTION_SINGLE_SESSION = 'single_session'

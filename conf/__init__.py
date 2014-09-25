@@ -200,7 +200,12 @@ class Settings(BaseSettings):
         self._explicit_settings = set()
         for setting in dir(mod):
             setting_value = getattr(mod, setting)
-            setattr(self, setting, setting_value)
+            if isinstance(setting_value, dict) and hasattr(self, setting):
+                existing = getattr(self, setting)
+                existing.update(setting_value)
+                setattr(self, setting, existing)
+            else:
+                setattr(self, setting, setting_value)
             self._explicit_settings.add(setting)
 
     def is_overridden(self, setting):

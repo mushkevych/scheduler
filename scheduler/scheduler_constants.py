@@ -1,9 +1,11 @@
-__author__ = 'Bohdan Mushkevych'
-
 # Scheduler constants
 LAG_5_MINUTES = 5  # lag in minutes between finish of the timeperiod and beginning of its processing
+
 PROCESS_SCHEDULER = 'Scheduler'
+PROCESS_GC = 'GarbageCollectorWorker'
+
 TOKEN_SCHEDULER = 'scheduler'
+TOKEN_GC = 'gc'
 
 # State Machine (a.k.a. Pipeline) names
 PIPELINE_CONTINUOUS = 'continuous'
@@ -16,6 +18,11 @@ TYPE_FREERUN = 'type_freerun'
 TYPE_GARBAGE_COLLECTOR = 'type_gc'
 TYPE_BLOCKING_DEPENDENCIES = 'type_blocking_dependencies'
 TYPE_BLOCKING_CHILDREN = 'type_blocking_children'
+
+# MQ exchanges that are required by Synergy Scheduler
+EXCHANGE_MANAGED_WORKER = 'ex_managed_worker'
+EXCHANGE_FREERUN_WORKER = 'ex_freerun_worker'
+EXCHANGE_UTILS = 'ex_utils'
 
 # DB Collection/Table names
 COLLECTION_SCHEDULER_MANAGED_ENTRY = 'scheduler_managed_entry'
