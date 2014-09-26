@@ -1,4 +1,6 @@
-include README.md LICENSE *.py
+include README.md LICENSE *.py pylint.rc MANIFEST.in
+graft db
 graft scripts
 graft tests
 graft vendors
+graft workers
