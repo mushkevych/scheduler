@@ -1,15 +1,15 @@
 """ Module is responsible for reading MQ queue and updating/inserting data records to the MongoDB """
+from synergy.system import time_helper
 
 __author__ = 'Bohdan Mushkevych'
 
 import time
 from pymongo.errors import AutoReconnect
-from db.model.single_session import SingleSession
-from db.model.raw_data import *
-from db.dao.single_session_dao import SingleSessionDao
-from system.performance_tracker import SessionPerformanceTracker
-from workers.abstract_mq_worker import AbstractMqWorker
-from system import time_helper
+from synergy.db.model.single_session import SingleSession
+from synergy.db.model.raw_data import *
+from synergy.db.dao.single_session_dao import SingleSessionDao
+from synergy.system.performance_tracker import SessionPerformanceTracker
+from synergy.workers.abstract_mq_worker import AbstractMqWorker
 
 
 class SingleSessionWorker(AbstractMqWorker):

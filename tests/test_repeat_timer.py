@@ -1,9 +1,10 @@
+from synergy.system import repeat_timer
+
 __author__ = 'Bohdan Mushkevych'
 
 import unittest
 from datetime import datetime
 import time
-from system import repeat_timer
 
 
 class TestRepeatTimer(unittest.TestCase):

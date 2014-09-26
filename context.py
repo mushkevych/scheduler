@@ -1,11 +1,11 @@
 __author__ = 'Bohdan Mushkevych'
 
 from constants import *
-from system.time_qualifier import *
-from scheduler.scheduler_constants import *
-from db.model.queue_context_entry import _queue_context_entry
-from db.model.process_context_entry import _process_context_entry
-from db.model.timetable_context_entry import _timetable_context_entry
+from synergy.system.time_qualifier import *
+from synergy.scheduler.scheduler_constants import *
+from synergy.db.model.queue_context_entry import _queue_context_entry
+from synergy.db.model.process_context_entry import _process_context_entry
+from synergy.db.model.timetable_context_entry import _timetable_context_entry
 
 
 mx_page_context = {

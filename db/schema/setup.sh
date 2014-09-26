@@ -1,4 +1,5 @@
 #!/bin/bash
 
-mongo mongodb_schema.js
-mongo mongodb_system_configuration.js
+mongo mongodb_scheduler_schema.js
+mongo mongodb_supervisor_schema.js
+mongo mongodb_workers_schema.js

@@ -1,9 +1,9 @@
 """ Module contains common logic for all workers that work with chunks of data from DB """
+from synergy.db.model import base_model
 
 __author__ = 'Bohdan Mushkevych'
 
-from db.model import base_model
-from workers.abstract_aware_worker import AbstractAwareWorker
+from synergy.workers.abstract_aware_worker import AbstractAwareWorker
 
 
 class AbstractHorizontalWorker(AbstractAwareWorker):

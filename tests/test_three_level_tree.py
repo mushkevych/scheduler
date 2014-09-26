@@ -2,12 +2,12 @@ __author__ = 'Bohdan Mushkevych'
 
 import unittest
 
-from conf import settings
+from synergy.conf import settings
 from tests.base_fixtures import wind_the_time, wind_actual_timeperiod
 from constants import TOKEN_SITE, PROCESS_SITE_YEARLY, PROCESS_SITE_MONTHLY, PROCESS_SITE_DAILY, PROCESS_SITE_HOURLY
-from system import time_helper
-from system.time_qualifier import *
-from scheduler.tree import ThreeLevelTree
+from synergy.system import time_helper
+from synergy.system.time_qualifier import *
+from synergy.scheduler.tree import ThreeLevelTree
 
 
 class TestThreeLevelTree(unittest.TestCase):

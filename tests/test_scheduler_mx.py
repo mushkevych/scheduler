@@ -1,10 +1,11 @@
+from synergy.db.model import job
+
 __author__ = 'Bohdan Mushkevych'
 
 import unittest
 from rest_client.restful_lib import Connection
 
-from conf import settings
-from db.model import job
+from synergy.conf import settings
 from constants import PROCESS_ALERT_DAILY, PROCESS_SITE_HOURLY, PROCESS_CLIENT_DAILY
 
 

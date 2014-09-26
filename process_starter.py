@@ -3,7 +3,7 @@ __author__ = 'Bohdan Mushkevych'
 import sys
 import types
 
-from conf.process_context import ProcessContext
+from synergy.conf.process_context import ProcessContext
 
 
 def get_class(kls):

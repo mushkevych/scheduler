@@ -1,7 +1,7 @@
 __author__ = 'Bohdan Mushkevych'
 
 import unittest
-from db.dao.unit_of_work_dao import UnitOfWorkDao
+from synergy.db.dao.unit_of_work_dao import UnitOfWorkDao
 from tests import base_fixtures
 from tests.base_fixtures import TestMessage
 from tests.base_fixtures import TestConsumer

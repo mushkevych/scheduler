@@ -4,9 +4,9 @@ from subprocess import PIPE
 
 import psutil
 
-from conf import settings
-from conf.process_context import ProcessContext
-from workers.abstract_cli_worker import AbstractCliWorker
+from synergy.conf import settings
+from synergy.conf.process_context import ProcessContext
+from synergy.workers.abstract_cli_worker import AbstractCliWorker
 
 
 class PigDriver(AbstractCliWorker):

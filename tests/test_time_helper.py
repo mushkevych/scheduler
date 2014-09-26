@@ -3,8 +3,8 @@ __author__ = 'Bohdan Mushkevych'
 import unittest
 from datetime import datetime
 
-from system import time_helper
-from system.time_qualifier import *
+from synergy.system import time_helper
+from synergy.system.time_qualifier import *
 
 
 class TestTimeHelper(unittest.TestCase):

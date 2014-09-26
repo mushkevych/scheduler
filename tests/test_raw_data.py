@@ -1,7 +1,7 @@
 __author__ = 'Bohdan Mushkevych'
 
 import unittest
-from db.model.raw_data import RawData
+from synergy.db.model.raw_data import RawData
 
 
 class TestRawData(unittest.TestCase):

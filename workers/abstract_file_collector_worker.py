@@ -5,13 +5,12 @@ import gzip
 import shutil
 import tempfile
 import hashlib
-import fabric.operations
 from datetime import datetime
 
+import fabric.operations
 from conf import settings
-from workers.abstract_mq_worker import AbstractMqWorker
+from synergy.workers.abstract_mq_worker import AbstractMqWorker
 from system.performance_tracker import AggregatorPerformanceTicker
-
 from db.model import unit_of_work
 from db.model.worker_mq_request import WorkerMqRequest
 from db.manager import ds_manager

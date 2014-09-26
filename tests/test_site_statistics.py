@@ -1,7 +1,7 @@
 __author__ = 'Bohdan Mushkevych'
 
 import unittest
-from db.model.site_statistics import SiteStatistics
+from synergy.db.model.site_statistics import SiteStatistics
 
 
 class TestSiteStatistics(unittest.TestCase):

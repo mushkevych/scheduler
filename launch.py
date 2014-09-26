@@ -14,6 +14,9 @@ from optparse import OptionParser
 from os import path, environ
 
 import process_starter
+from synergy.db.model import box_configuration
+from synergy.supervisor import supervisor_helper as helper
+from synergy.system import process_helper
 
 
 PROCESS_STARTER = 'process_starter.py'
@@ -127,7 +130,7 @@ def dispatch_options(parser, options, args):
 def valid_process_name(function):
     """ Decorator validates if the --app parameter is registered in the process_context
         :raise #ValueError otherwise """
-    from conf.process_context import ProcessContext
+    from synergy.conf.process_context import ProcessContext
 
     def _wrapper(options, *args, **kwargs):
         if options.app not in ProcessContext.CONTEXT:
@@ -142,16 +145,15 @@ def valid_process_name(function):
 @valid_process_name
 def query_configuration(options):
     """ Queries process state """
-    from system import process_helper
 
     if not options.supervisor:
         # reads status of one process only
         process_helper.poll_process(options.app)
     else:
         # reads current box configuration and prints it to the console
-        from db.dao.box_configuration_dao import BoxConfigurationDao
-        from supervisor import supervisor_helper as helper
-        from conf.process_context import ProcessContext
+        from synergy.db.dao.box_configuration_dao import BoxConfigurationDao
+        from synergy.supervisor import supervisor_helper as helper
+        from synergy.conf.process_context import ProcessContext
         from constants import PROCESS_LAUNCH_PY
 
         logger = ProcessContext.get_logger(PROCESS_LAUNCH_PY)
@@ -171,17 +173,15 @@ def query_configuration(options):
 def start_process(options, args):
     """Start up specific daemon """
     import psutil
-    from system import process_helper
-    from supervisor import supervisor_helper as helper
-    from conf.process_context import ProcessContext
-    from supervisor.supervisor_constants import PROCESS_SUPERVISOR
+    from synergy.system import process_helper
+    from synergy.conf.process_context import ProcessContext
+    from synergy.supervisor.supervisor_constants import PROCESS_SUPERVISOR
     from constants import PROCESS_LAUNCH_PY
 
     logger = ProcessContext.get_logger(PROCESS_LAUNCH_PY)
     box_id = helper.get_box_id(logger)
     if options.supervisor is True and options.app != PROCESS_SUPERVISOR:
-        from db.model import box_configuration
-        from db.dao.box_configuration_dao import BoxConfigurationDao
+        from synergy.db.dao.box_configuration_dao import BoxConfigurationDao
 
         message = 'INFO: Marking %r to be managed by Supervisor \n' % options.app
         sys.stdout.write(message)
@@ -213,17 +213,16 @@ def start_process(options, args):
 @valid_process_name
 def stop_process(options):
     """Stop specific daemon"""
-    from system import process_helper
-    from supervisor import supervisor_helper as helper
-    from conf.process_context import ProcessContext
-    from supervisor.supervisor_constants import PROCESS_SUPERVISOR
+    from synergy.system import process_helper
+    from synergy.conf.process_context import ProcessContext
+    from synergy.supervisor.supervisor_constants import PROCESS_SUPERVISOR
     from constants import PROCESS_LAUNCH_PY
 
     logger = ProcessContext.get_logger(PROCESS_LAUNCH_PY)
     box_id = helper.get_box_id(logger)
     if options.supervisor is True and options.app != PROCESS_SUPERVISOR:
-        from db.model import box_configuration
-        from db.dao.box_configuration_dao import BoxConfigurationDao
+        from synergy.db.model import box_configuration
+        from synergy.db.dao.box_configuration_dao import BoxConfigurationDao
 
         message = 'INFO: Marking %r to be managed by Supervisor \n' % options.app
         sys.stdout.write(message)
@@ -270,7 +269,7 @@ def run_lint(options):
 
 
 def list_processes(options):
-    from conf.process_context import ProcessContext
+    from synergy.conf.process_context import ProcessContext
     msg = 'List of registered applications: %r \n' % ProcessContext.CONTEXT.keys()
     sys.stdout.write(msg)
 
@@ -292,7 +291,7 @@ def run_tests(options):
         unittest.main(module=None, defaultTest='__main__.load_all_tests',
                       argv=argv)
     except SystemExit as e:
-        from conf.process_context import ProcessContext
+        from synergy.conf.process_context import ProcessContext
         from constants import PROCESS_LAUNCH_PY
 
         logger = ProcessContext.get_logger(PROCESS_LAUNCH_PY)

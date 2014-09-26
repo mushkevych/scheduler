@@ -8,10 +8,10 @@ import math
 
 from amqp import AMQPError
 
-from mq.flopsy import Publisher
-from db.model.raw_data import RawData
-from system.performance_tracker import SimpleTracker
-from system.synergy_process import SynergyProcess
+from synergy.mq.flopsy import Publisher
+from synergy.db.model.raw_data import RawData
+from synergy.system.performance_tracker import SimpleTracker
+from synergy.system.synergy_process import SynergyProcess
 
 
 SLEEP_TIME = 0.03

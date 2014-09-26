@@ -4,10 +4,10 @@ import unittest
 from tests.base_fixtures import wind_the_time, wind_actual_timeperiod
 from constants import PROCESS_SITE_HOURLY, TOKEN_SITE, PROCESS_SITE_YEARLY, PROCESS_SITE_MONTHLY, PROCESS_SITE_DAILY
 from tests.ut_context import PROCESS_UNIT_TEST
-from system import time_helper
-from system.time_qualifier import *
-from scheduler.tree import FourLevelTree
-from conf import settings
+from synergy.system import time_helper
+from synergy.system.time_qualifier import *
+from synergy.scheduler.tree import FourLevelTree
+from synergy.conf import settings
 
 
 class TestFourLevelTree(unittest.TestCase):

@@ -6,7 +6,7 @@ from datetime import datetime
 settings = dict(
     process_prefix='Synergy',  # global prefix that is added to every process name started for synergy-scheduler
     process_cwd='/mnt/tmp',    # daemonized process working directory, where it can create .cache and other folders
-    config_file='/etc/synergy-scheduler.conf',
+    config_file='/etc/synergy.conf',
     version='%BUILD_NUMBER%-%SVN_REVISION%',
 
     log_directory='/mnt/logs/synergy-scheduler/', 

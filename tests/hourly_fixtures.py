@@ -1,10 +1,11 @@
+from synergy.db.manager import ds_manager
+
 __author__ = 'Bohdan Mushkevych'
 
 from tests import base_fixtures
-from db.model import raw_data
-from db.manager import ds_manager
+from synergy.db.model import raw_data
 from constants import COLLECTION_SINGLE_SESSION
-from conf.process_context import ProcessContext
+from synergy.conf.process_context import ProcessContext
 from tests.ut_context import PROCESS_UNIT_TEST
 
 # pylint: disable=C0301
