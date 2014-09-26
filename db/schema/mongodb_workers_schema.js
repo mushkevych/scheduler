@@ -3,44 +3,22 @@
 conn = new Mongo('localhost:27017');
 db = conn.getDB('scheduler');
 
-// *** CLEAN ***
-db.box_configuration.drop();
-db.scheduler_managed_entry.drop();
-//db.scheduler_freerun_entries.drop();
-
 // *** CREATE ***
-db.createCollection('box_configuration');
-db.box_configuration.ensureIndex( { box_id : 1}, {unique: true} );
+db.createCollection('single_session');
+db.single_session.ensureIndex( { domain_name : 1, "user_profile.session_id" : 1}, {unique: true} );
+db.single_session.ensureIndex( { timeperiod : 1 });
 
-db.createCollection('scheduler_managed_entry');
-db.scheduler_managed_entry.ensureIndex( {process_name : 1}, {unique: true} );
+db.createCollection('site_hourly');
+db.site_hourly.ensureIndex( { domain_name : 1, timeperiod : 1}, {unique: true} );
 
-db.createCollection('scheduler_freerun_entry');
-db.scheduler_freerun_entry.ensureIndex( { process_name : 1, entry_name : 1}, {unique: true} );
+db.createCollection('site_daily');
+db.site_daily.ensureIndex( { domain_name : 1, timeperiod : 1}, {unique: true} );
 
-// *** Supervisor Settings ***
-// Development environment
-db.box_configuration.insert({'box_id': 'DEV',
-    'process_list' : {
-        'SiteHourlyAggregator' : {'state' : 'state_on', 'pid' : null},
-        'SiteDailyAggregator' : {'state' : 'state_on', 'pid' : null},
-        'SingleSessionWorker_00' : {'state' : 'state_on', 'pid' : null},
-        'EventStreamGenerator' : {'state' : 'state_on', 'pid' : null},
-        'GarbageCollectorWorker' : {'state' : 'state_on', 'pid' : null},
-        'Scheduler' : {'state' : 'state_on', 'pid' : null}
-    }});
+db.createCollection('site_monthly');
+db.site_monthly.ensureIndex( { domain_name : 1, timeperiod : 1}, {unique: true} );
 
-db.box_configuration.insert({'box_id': 'HADOOP',
-    'process_list' : {
-        'EventStreamGenerator' : {'state' : 'state_on', 'pid' : null},
-        'SiteHourlyAggregator' : {'state' : 'state_on', 'pid' : null},
-        'SiteDailyAggregator' : {'state' : 'state_on', 'pid' : null},
-        'SiteMonthlyAggregator' : {'state' : 'state_on', 'pid' : null},
-        'SiteYearlyAggregator' : {'state' : 'state_on', 'pid' : null},
-        'GarbageCollectorWorker' : {'state' : 'state_on', 'pid' : null},
-        'Scheduler' : {'state' : 'state_on', 'pid' : null},
-        'SingleSessionWorker_00' : {'state' : 'state_on', 'pid' : null}
-    }});
+db.createCollection('site_yearly');
+db.site_yearly.ensureIndex( { domain_name : 1, timeperiod : 1}, {unique: true} );
 
 
 // *** Scheduler Settings ***
