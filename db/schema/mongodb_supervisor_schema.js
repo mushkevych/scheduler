@@ -11,7 +11,6 @@ db.createCollection('box_configuration');
 db.box_configuration.ensureIndex( { box_id : 1}, {unique: true} );
 
 // *** Supervisor Settings ***
-// Development environment
 db.box_configuration.insert({'box_id': 'DEV',
     'process_list' : {
         'EventStreamGenerator' : {'state' : 'state_on', 'pid' : null},
