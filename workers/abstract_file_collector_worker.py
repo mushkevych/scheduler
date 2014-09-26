@@ -179,13 +179,18 @@ class AbstractFileCollectorWorker(AbstractMqWorker):
             self.uow_dao.update(uow)
             self.performance_ticker.finish_uow()
         except Exception as e:
-            self.logger.error('Safety fuse while processing unit_of_work %s in timeperiod %s : %r'
-                              % (message.body, uow.timeperiod, e), exc_info=True)
+            fresh_uow = self.uow_dao.get_one(mq_request.unit_of_work_id)
+            if fresh_uow.state in [unit_of_work.STATE_CANCELED]:
+                self.logger.warning('unit_of_work: id %s was likely marked by MX as SKIPPED. '
+                                    'No unit_of_work update is performed.' % str(message.body),
+                                    exc_info=False)
+            else:
+                self.logger.error('Safety fuse while processing unit_of_work %s in timeperiod %s : %r'
+                                  % (message.body, uow.timeperiod, e), exc_info=True)
+                uow.state = unit_of_work.STATE_INVALID
+                self.uow_dao.update(uow)
 
-            uow.state = unit_of_work.STATE_INVALID
-            self.uow_dao.update(uow)
             self.performance_ticker.cancel_uow()
-
         finally:
             self.consumer.acknowledge(message.delivery_tag)
             self._clean_directories()
