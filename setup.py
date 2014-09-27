@@ -8,7 +8,7 @@ setup(name = 'synergy_scheduler',
       url = 'https://github.com/mushkevych/scheduler',
       packages = ['synergy.db', 'synergy.db.dao', 'synergy.db.manager', 'synergy.db.model', 'synergy.mq',
                   'synergy.mx', 'synergy.scheduler', 'synergy.supervisor', 'synergy.system', 'synergy.workers'],
-      package_data = {'synergy.mx': ['static/*', 'templates/*'],
+      package_data = {'synergy.mx': ['static/images/*.png', 'static/*.js', 'static/*.css', 'templates/*'],
                       'synergy.mq': ['AUTHORS', 'LICENSE']},
       long_description = '''Synergy Scheduler works both as a simple cron-style scheduler and a more elaborate solution
       with multiple state machines governing processes and their jobs, as well as interdependencies between them.''',
