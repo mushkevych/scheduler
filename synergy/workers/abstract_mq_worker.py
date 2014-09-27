@@ -6,8 +6,8 @@ import socket
 from amqp import AMQPError
 
 from synergy.conf import settings
-from synergy.mq.flopsy import Consumer
 from synergy.conf.process_context import ProcessContext
+from synergy.mq.flopsy import Consumer
 from synergy.system.performance_tracker import SimpleTracker
 from synergy.system.synergy_process import SynergyProcess
 

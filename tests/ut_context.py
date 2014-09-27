@@ -1,9 +1,9 @@
 __author__ = 'Bohdan Mushkevych'
 
-from synergy.db.model.process_context_entry import _process_context_entry
 from context import ROUTING_IRRELEVANT, EXCHANGE_UTILS
 from synergy.system.time_qualifier import *
 from synergy.conf.process_context import ProcessContext
+from synergy.db.model.process_context_entry import _process_context_entry
 
 # User fields
 PROCESS_CLASS_EXAMPLE = 'AbstractClassWorker'
