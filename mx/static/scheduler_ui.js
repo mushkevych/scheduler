@@ -201,3 +201,80 @@ OUTPUT_DOCUMENT.build_navigational_panel = function(vertical_json) {
     }
     return ul;
 };
+
+// Select all checkboxes
+    function toggle(source) {
+        checkboxes = document.getElementsByName('selected');
+            for(var i=0, n=checkboxes.length;i<n;i++) {
+                checkboxes[i].checked = source.checked;
+            }
+    }
+
+// Display right click menu
+$(document).ready(function() {
+
+
+    if ($("#one-column-emphasis").addEventListener) {
+        $("#one-column-emphasis").addEventListener('contextmenu', function(e) {
+            alert("You've tried to open context menu"); //here you draw your own menu
+            e.preventDefault();
+        }, false);
+    } else {
+
+            $('body').on('contextmenu', '.processMenu', function() {
+            y = mouseY(event)
+            x = mouseX(event)
+            document.getElementById("rmenu").style.top =  y + 'px';
+            document.getElementById("rmenu").style.left = x + 'px';
+            document.getElementById("rmenu").className = "show";
+
+            window.event.returnValue = false;
+
+
+        });
+    }
+
+});
+
+// this is from another SO post...
+    $(document).bind("click", function(event) {
+        document.getElementById("rmenu").className = "hide";
+    });
+
+
+
+function mouseX(evt) {
+    if (evt.pageX) {
+        return evt.pageX;
+    } else if (evt.clientX) {
+       return evt.clientX + (document.documentElement.scrollLeft ?
+           document.documentElement.scrollLeft :
+           document.body.scrollLeft);
+    } else {
+        return null;
+    }
+}
+
+function mouseY(evt) {
+    if (evt.pageY) {
+        return evt.pageY;
+    } else if (evt.clientY) {
+       return evt.clientY + (document.documentElement.scrollTop ?
+       document.documentElement.scrollTop :
+       document.body.scrollTop);
+    } else {
+        return null;
+    }
+}
+
+// End right click menu
+
+//Reprocess all selected items
+function reprocess_selected() {
+    rows = document.getElementsByClassName("processMenu")
+
+    for (index = 0; index < rows.length; ++index)
+    {
+        console.log(rows[index].innerText);
+    }
+}
