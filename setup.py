@@ -10,7 +10,8 @@ setup(name = 'synergy_scheduler',
                   'synergy.mx', 'synergy.scheduler', 'synergy.supervisor', 'synergy.system', 'synergy.workers'],
       package_data = {'synergy.mx': ['static/*', 'templates/*'],
                       'synergy.mq': ['AUTHORS', 'LICENSE']},
-      long_description = '''Really long text here.''',
+      long_description = '''Synergy Scheduler works both as a simple cron-style scheduler and a more elaborate solution
+      with multiple state machines governing processes and their jobs, as well as interdependencies between them.''',
       license = 'Modified BSD License',
       classifiers=[
           'Development Status :: 4 - Beta',
