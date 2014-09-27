@@ -1,7 +1,6 @@
-from synergy.db.model import job
-
 __author__ = 'Bohdan Mushkevych'
 
+from synergy.db.model import job
 from synergy.system import time_helper
 from synergy.conf.process_context import ProcessContext
 

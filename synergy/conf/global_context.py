@@ -8,7 +8,7 @@ from synergy.db.model.process_context_entry import _process_context_entry
 process_context = {
     PROCESS_GC: _process_context_entry(
         process_name=PROCESS_GC,
-        classname='workers.garbage_collector_worker.GarbageCollectorWorker.start',
+        classname='synergy.workers.garbage_collector_worker.GarbageCollectorWorker.start',
         token=TOKEN_GC,
         time_qualifier=QUALIFIER_BY_SCHEDULE,
         exchange=EXCHANGE_UTILS,
@@ -18,7 +18,7 @@ process_context = {
 
     PROCESS_SCHEDULER: _process_context_entry(
         process_name=PROCESS_SCHEDULER,
-        classname='scheduler.synergy_scheduler.Scheduler.start',
+        classname='synergy.scheduler.synergy_scheduler.Scheduler.start',
         token=TOKEN_SCHEDULER,
         time_qualifier='',
         queue='',
@@ -27,7 +27,7 @@ process_context = {
 
     PROCESS_SUPERVISOR: _process_context_entry(
         process_name=PROCESS_SUPERVISOR,
-        classname='supervisor.synergy_supervisor.Supervisor.start',
+        classname='synergy.supervisor.synergy_supervisor.Supervisor.start',
         token=TOKEN_SUPERVISOR,
         time_qualifier='',
         queue='',

@@ -1,9 +1,9 @@
 __author__ = 'Bohdan Mushkevych'
 
-from synergy.db.model.site_statistics import SiteStatistics
+from db.model.site_statistics import SiteStatistics
 from synergy.db.model.base_model import BaseModel
 from synergy.conf import settings
-from synergy.workers.abstract_vertical_worker import AbstractVerticalWorker
+from workers.abstract_vertical_worker import AbstractVerticalWorker
 from synergy.system import time_helper
 
 

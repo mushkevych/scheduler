@@ -2,7 +2,7 @@
 
 __author__ = 'Bohdan Mushkevych'
 
-from synergy.workers.abstract_aware_worker import AbstractAwareWorker
+from workers.abstract_aware_worker import AbstractAwareWorker
 
 
 class AbstractVerticalWorker(AbstractAwareWorker):

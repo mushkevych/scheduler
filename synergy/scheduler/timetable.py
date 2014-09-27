@@ -1,5 +1,3 @@
-from synergy.db.model import job, unit_of_work
-
 __author__ = 'Bohdan Mushkevych'
 
 from datetime import datetime
@@ -8,12 +6,13 @@ from threading import RLock
 from synergy.db.dao.unit_of_work_dao import UnitOfWorkDao
 from synergy.db.dao.job_dao import JobDao
 from synergy.db.model.job import Job
+from synergy.db.model import job, unit_of_work
 
-from synergy.conf import context
 from process_starter import get_class
+from synergy.conf import context
 from synergy.conf import settings
-from synergy.system.time_qualifier import *
 from synergy.system import time_helper
+from synergy.system.time_qualifier import *
 from synergy.system.decorator import thread_safe
 from synergy.scheduler.scheduler_constants import COLLECTION_JOB_HOURLY, COLLECTION_JOB_DAILY, \
     COLLECTION_JOB_MONTHLY, COLLECTION_JOB_YEARLY

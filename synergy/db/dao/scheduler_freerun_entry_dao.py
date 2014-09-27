@@ -1,9 +1,8 @@
-from synergy.db.manager import ds_manager
-
 __author__ = 'Bohdan Mushkevych'
 
 from threading import RLock
 
+from synergy.db.manager import ds_manager
 from synergy.db.model.scheduler_freerun_entry import SchedulerFreerunEntry
 from synergy.system.decorator import thread_safe
 from synergy.scheduler.scheduler_constants import COLLECTION_SCHEDULER_FREERUN_ENTRY

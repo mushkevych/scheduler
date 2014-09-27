@@ -1,10 +1,9 @@
-from synergy.db.manager import ds_manager
-from synergy.db.model import job, base_model
-
 __author__ = 'Bohdan Mushkevych'
 
 from threading import RLock
 
+from synergy.db.manager import ds_manager
+from synergy.db.model import job, base_model
 from synergy.db.model.job import Job
 from synergy.system.decorator import thread_safe
 from synergy.system.time_qualifier import *

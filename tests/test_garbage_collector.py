@@ -10,12 +10,12 @@ from mockito.matchers import any
 from synergy.db.model import unit_of_work
 from synergy.db.dao.unit_of_work_dao import UnitOfWorkDao
 
-from synergy.mq.flopsy import PublishersPool
 from tests.base_fixtures import create_unit_of_work, create_and_insert_unit_of_work
 from constants import *
+from synergy.mq.flopsy import PublishersPool
 from synergy.scheduler.scheduler_constants import PROCESS_GC
-from tests.ut_context import *
 from synergy.workers.garbage_collector_worker import GarbageCollectorWorker, LIFE_SUPPORT_HOURS
+from tests.ut_context import *
 import settings as module_settings
 
 

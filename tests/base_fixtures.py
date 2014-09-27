@@ -1,17 +1,16 @@
-from synergy.db.manager import ds_manager
-
 __author__ = 'Bohdan Mushkevych'
 
 import inspect
 import random
 from datetime import datetime, timedelta
 
-from synergy.db.dao.single_session_dao import SingleSessionDao
+from db.model.single_session import SingleSession
+from db.dao.single_session_dao import SingleSessionDao
 from synergy.db.dao.unit_of_work_dao import UnitOfWorkDao
 from synergy.db.model import unit_of_work
 from synergy.db.model.unit_of_work import UnitOfWork
-from synergy.db.model.single_session import SingleSession
 from synergy.db.model.worker_mq_request import WorkerMqRequest
+from synergy.db.manager import ds_manager
 from synergy.system import time_helper
 from synergy.conf.process_context import ProcessContext
 from synergy.system.time_qualifier import *

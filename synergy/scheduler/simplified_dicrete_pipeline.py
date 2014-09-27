@@ -1,14 +1,13 @@
-from synergy.db.model import job, unit_of_work
-
 __author__ = 'Bohdan Mushkevych'
 
 from logging import ERROR, INFO
 
+from synergy.db.error import DuplicateKeyError
+from synergy.db.model import job, unit_of_work
 from synergy.scheduler.scheduler_constants import PIPELINE_SIMPLIFIED_DISCRETE
+from synergy.scheduler.dicrete_pipeline import DiscretePipeline
 from synergy.system import time_helper
 from synergy.conf.process_context import ProcessContext
-from synergy.db.error import DuplicateKeyError
-from synergy.scheduler.dicrete_pipeline import DiscretePipeline
 
 
 class SimplifiedDiscretePipeline(DiscretePipeline):

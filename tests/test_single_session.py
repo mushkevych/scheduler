@@ -1,7 +1,7 @@
 __author__ = 'Bohdan Mushkevych'
 
 import unittest
-from synergy.db.model.single_session import SingleSession
+from db.model.single_session import SingleSession
 
 
 class TestSingleSession(unittest.TestCase):

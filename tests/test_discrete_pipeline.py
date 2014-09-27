@@ -1,5 +1,3 @@
-from synergy.db.model import job, unit_of_work
-
 __author__ = 'Bohdan Mushkevych'
 
 import unittest
@@ -11,6 +9,7 @@ from synergy.db.dao.unit_of_work_dao import UnitOfWorkDao
 from synergy.db.error import DuplicateKeyError
 from synergy.db.model.job import Job
 from synergy.db.model.unit_of_work import UnitOfWork
+from synergy.db.model import job, unit_of_work
 from tests.base_fixtures import create_unit_of_work
 from synergy.system import time_helper
 from synergy.system.time_qualifier import *

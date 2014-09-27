@@ -1,8 +1,7 @@
-from synergy.db.manager import ds_manager
-
 __author__ = 'Bohdan Mushkevych'
 
 from threading import RLock
+from synergy.db.manager import ds_manager
 from synergy.db.model import box_configuration
 from synergy.db.model.box_configuration import BoxConfiguration
 from synergy.supervisor.supervisor_constants import COLLECTION_BOX_CONFIGURATION

@@ -1,10 +1,9 @@
-from synergy.db.manager import ds_manager
-
 __author__ = 'Bohdan Mushkevych'
 
 from threading import RLock
-from synergy.db.model.raw_data import *
-from synergy.db.model.single_session import SingleSession
+from db.model.raw_data import *
+from db.model.single_session import SingleSession
+from synergy.db.manager import ds_manager
 from synergy.system.decorator import thread_safe
 from constants import COLLECTION_SINGLE_SESSION
 

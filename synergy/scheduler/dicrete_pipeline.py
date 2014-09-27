@@ -1,15 +1,14 @@
-from synergy.db.model import job, unit_of_work
-
 __author__ = 'Bohdan Mushkevych'
 
 from datetime import datetime
 from logging import ERROR, WARNING, INFO
 
 from synergy.db.error import DuplicateKeyError
-from synergy.scheduler.scheduler_constants import PIPELINE_DISCRETE
-from synergy.scheduler.abstract_pipeline import AbstractPipeline
+from synergy.db.model import job, unit_of_work
 from synergy.db.model.unit_of_work import UnitOfWork
 from synergy.db.model.worker_mq_request import WorkerMqRequest
+from synergy.scheduler.scheduler_constants import PIPELINE_DISCRETE
+from synergy.scheduler.abstract_pipeline import AbstractPipeline
 from synergy.system import time_helper
 from synergy.system.decorator import with_reconnect
 from synergy.conf.process_context import ProcessContext

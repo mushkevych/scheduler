@@ -1,11 +1,10 @@
-from synergy.db.model import base_model
-
 __author__ = 'Bohdan Mushkevych'
 
 import unittest
 from tests import hourly_fixtures
 from tests.test_abstract_worker import AbstractWorkerUnitTest
-from synergy.workers.site_hourly_aggregator import SiteHourlyAggregator
+from synergy.db.model import base_model
+from workers.site_hourly_aggregator import SiteHourlyAggregator
 from constants import PROCESS_SITE_HOURLY
 
 

@@ -1,15 +1,14 @@
-from synergy.db.model import job
-
 __author__ = 'Bohdan Mushkevych'
 
 from datetime import datetime, timedelta
 
-from synergy.conf import settings
+from synergy.db.model import job
 from synergy.scheduler.tree_node import TreeNode, LinearNode
+from synergy.conf import settings
+from synergy.conf.process_context import ProcessContext
 from synergy.system import time_helper
 from synergy.system.time_qualifier import *
 from synergy.system.time_helper import cast_to_time_qualifier
-from synergy.conf.process_context import ProcessContext
 
 
 MAX_NUMBER_OF_RETRIES = 3    # number of times a node is re-run before it is considered STATE_SKIPPED

@@ -3,7 +3,7 @@ from synergy.db.model import base_model
 
 __author__ = 'Bohdan Mushkevych'
 
-from synergy.workers.abstract_aware_worker import AbstractAwareWorker
+from workers.abstract_aware_worker import AbstractAwareWorker
 
 
 class AbstractHorizontalWorker(AbstractAwareWorker):

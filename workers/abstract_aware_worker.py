@@ -1,6 +1,4 @@
 """ Module contains common logic for aggregators and workers that work with unit_of_work """
-from synergy.db.manager import ds_manager
-
 __author__ = 'Bohdan Mushkevych'
 
 import gc
@@ -10,6 +8,7 @@ from datetime import datetime
 
 from synergy.db.model import unit_of_work
 from synergy.db.model.worker_mq_request import WorkerMqRequest
+from synergy.db.manager import ds_manager
 from synergy.db.dao.unit_of_work_dao import UnitOfWorkDao
 from synergy.conf import settings
 from synergy.system.decimal_encoder import DecimalEncoder

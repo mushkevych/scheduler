@@ -1,5 +1,3 @@
-from synergy.supervisor import supervisor_helper
-
 __author__ = 'Bohdan Mushkevych'
 
 import os
@@ -9,13 +7,14 @@ from subprocess import PIPE, STDOUT
 import psutil
 from psutil import TimeoutExpired
 
-from synergy.conf import settings
 from launch import get_python, PROJECT_ROOT, PROCESS_STARTER
-from synergy.system.decorator import thread_safe
+from synergy.conf import settings
+from synergy.conf.process_context import ProcessContext
 from synergy.db.model import box_configuration
 from synergy.db.dao.box_configuration_dao import BoxConfigurationDao
+from synergy.supervisor import supervisor_helper
 from synergy.supervisor.supervisor_constants import TRIGGER_INTERVAL
-from synergy.conf.process_context import ProcessContext
+from synergy.system.decorator import thread_safe
 from synergy.system.repeat_timer import RepeatTimer
 from synergy.system.synergy_process import SynergyProcess
 

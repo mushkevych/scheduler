@@ -1,11 +1,11 @@
-from synergy.db.model import base_model
-
 __author__ = 'Bohdan Mushkevych'
 
+from abc import abstractmethod, ABCMeta
 from pymongo import MongoClient, ASCENDING, DESCENDING
 from bson.objectid import ObjectId
+
 from synergy.conf import settings
-from abc import abstractmethod, ABCMeta
+from synergy.db.model import base_model
 
 QUERY_GET_ALL = {}
 

@@ -1,10 +1,9 @@
-from synergy.db.model import base_model
-
 __author__ = 'Bohdan Mushkevych'
 
 import json
 from rest_client.restful_lib import Connection
 
+from synergy.db.model import base_model
 from synergy.conf import settings
 
 

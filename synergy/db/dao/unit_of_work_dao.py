@@ -1,5 +1,3 @@
-from synergy.db.manager import ds_manager
-
 __author__ = 'Bohdan Mushkevych'
 
 from threading import RLock
@@ -16,6 +14,7 @@ from synergy.conf.process_context import ProcessContext
 from synergy.db.error import DuplicateKeyError
 from synergy.db.model import unit_of_work
 from synergy.db.model.unit_of_work import UnitOfWork
+from synergy.db.manager import ds_manager
 
 
 class UnitOfWorkDao(object):

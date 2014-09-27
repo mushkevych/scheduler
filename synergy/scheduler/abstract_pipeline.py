@@ -1,12 +1,11 @@
-from synergy.db.model import job
-
 __author__ = 'Bohdan Mushkevych'
 
-from synergy.db.dao.unit_of_work_dao import UnitOfWorkDao
-from synergy.db.dao.job_dao import JobDao
 from datetime import datetime
 from logging import INFO, WARNING, ERROR
 
+from synergy.db.model import job
+from synergy.db.dao.unit_of_work_dao import UnitOfWorkDao
+from synergy.db.dao.job_dao import JobDao
 from synergy.mq.flopsy import PublishersPool
 from synergy.system.decorator import with_reconnect
 

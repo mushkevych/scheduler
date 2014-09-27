@@ -1,5 +1,3 @@
-from synergy.system import time_helper
-
 __author__ = 'Bohdan Mushkevych'
 
 import os
@@ -11,9 +9,10 @@ import unittest
 import socket
 
 from synergy.conf import settings
-from synergy.workers.abstract_file_collector_worker import AbstractFileCollectorWorker
 from synergy.conf.process_context import ProcessContext
+from synergy.system import time_helper
 from synergy.system.time_qualifier import *
+from workers.abstract_file_collector_worker import AbstractFileCollectorWorker
 from tests.ut_context import PROCESS_UNIT_TEST
 
 

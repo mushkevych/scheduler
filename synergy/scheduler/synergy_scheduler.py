@@ -1,5 +1,3 @@
-from synergy.db.model import scheduler_freerun_entry, scheduler_managed_entry
-
 __author__ = 'Bohdan Mushkevych'
 
 from datetime import datetime, timedelta
@@ -7,13 +5,14 @@ from threading import Lock
 
 from amqp import AMQPError
 
+from synergy.conf.process_context import ProcessContext
 from synergy.mq.flopsy import PublishersPool
 from synergy.mx.synergy_mx import MX
 from synergy.db.model.worker_mq_request import WorkerMqRequest
+from synergy.db.model import scheduler_freerun_entry, scheduler_managed_entry
 from synergy.db.dao.scheduler_managed_entry_dao import SchedulerManagedEntryDao
 from synergy.db.dao.scheduler_freerun_entry_dao import SchedulerFreerunEntryDao
 from synergy.system import time_helper
-from synergy.conf.process_context import ProcessContext
 from synergy.system.decorator import with_reconnect, thread_safe
 from synergy.system.synergy_process import SynergyProcess
 from synergy.system.event_clock import parse_time_trigger_string

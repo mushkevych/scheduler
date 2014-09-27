@@ -10,13 +10,13 @@ import shutil
 import sys
 import traceback
 import subprocess
+
 from optparse import OptionParser
 from os import path, environ
 
 import process_starter
 from synergy.db.model import box_configuration
-from synergy.supervisor import supervisor_helper as helper
-from synergy.system import process_helper
+from synergy.supervisor import supervisor_helper
 
 
 PROCESS_STARTER = 'process_starter.py'
@@ -145,6 +145,7 @@ def valid_process_name(function):
 @valid_process_name
 def query_configuration(options):
     """ Queries process state """
+    from synergy.system import process_helper
 
     if not options.supervisor:
         # reads status of one process only
@@ -152,12 +153,11 @@ def query_configuration(options):
     else:
         # reads current box configuration and prints it to the console
         from synergy.db.dao.box_configuration_dao import BoxConfigurationDao
-        from synergy.supervisor import supervisor_helper as helper
         from synergy.conf.process_context import ProcessContext
         from constants import PROCESS_LAUNCH_PY
 
         logger = ProcessContext.get_logger(PROCESS_LAUNCH_PY)
-        box_id = helper.get_box_id(logger)
+        box_id = supervisor_helper.get_box_id(logger)
         bc_dao = BoxConfigurationDao(logger)
         sys.stdout.write('\nConfiguration for BOX_ID=%r:\n' % box_id)
         box_configuration = bc_dao.get_one(box_id)
@@ -179,7 +179,7 @@ def start_process(options, args):
     from constants import PROCESS_LAUNCH_PY
 
     logger = ProcessContext.get_logger(PROCESS_LAUNCH_PY)
-    box_id = helper.get_box_id(logger)
+    box_id = supervisor_helper.get_box_id(logger)
     if options.supervisor is True and options.app != PROCESS_SUPERVISOR:
         from synergy.db.dao.box_configuration_dao import BoxConfigurationDao
 
@@ -219,7 +219,7 @@ def stop_process(options):
     from constants import PROCESS_LAUNCH_PY
 
     logger = ProcessContext.get_logger(PROCESS_LAUNCH_PY)
-    box_id = helper.get_box_id(logger)
+    box_id = supervisor_helper.get_box_id(logger)
     if options.supervisor is True and options.app != PROCESS_SUPERVISOR:
         from synergy.db.model import box_configuration
         from synergy.db.dao.box_configuration_dao import BoxConfigurationDao

@@ -1,6 +1,3 @@
-from synergy.db.manager import ds_manager
-from synergy.db.model import job, unit_of_work
-
 __author__ = 'Bohdan Mushkevych'
 
 from datetime import datetime
@@ -9,8 +6,10 @@ from logging import ERROR, WARNING, INFO
 from synergy.db.error import DuplicateKeyError
 from synergy.db.model.unit_of_work import UnitOfWork
 from synergy.db.model.worker_mq_request import WorkerMqRequest
-from synergy.system.decorator import with_reconnect
+from synergy.db.model import job, unit_of_work
+from synergy.db.manager import ds_manager
 from synergy.conf.process_context import ProcessContext
+from synergy.system.decorator import with_reconnect
 from synergy.system import time_helper
 from synergy.scheduler.scheduler_constants import PIPELINE_CONTINUOUS
 from synergy.scheduler.abstract_pipeline import AbstractPipeline

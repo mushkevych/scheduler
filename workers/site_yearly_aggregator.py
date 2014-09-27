@@ -1,6 +1,6 @@
 __author__ = 'Bohdan Mushkevych'
 
-from synergy.workers.site_daily_aggregator import SiteDailyAggregator
+from workers.site_daily_aggregator import SiteDailyAggregator
 from synergy.system import time_helper
 
 
