@@ -3,7 +3,7 @@ __author__ = 'Bohdan Mushkevych'
 
 import unittest
 
-from system.utils import unicode_truncate
+from synergy.system.utils import unicode_truncate
 
 
 class TestSystemUtils(unittest.TestCase):

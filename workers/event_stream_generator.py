@@ -1,17 +1,17 @@
 __author__ = 'Bohdan Mushkevych'
 
-from threading import Thread
 import datetime
 import random
 import time
 import math
 
+from threading import Thread
 from amqp import AMQPError
 
-from mq.flopsy import Publisher
 from db.model.raw_data import RawData
-from system.performance_tracker import SimpleTracker
-from system.synergy_process import SynergyProcess
+from synergy.mq.flopsy import Publisher
+from synergy.system.performance_tracker import SimpleTracker
+from synergy.system.synergy_process import SynergyProcess
 
 
 SLEEP_TIME = 0.03

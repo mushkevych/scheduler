@@ -4,10 +4,10 @@ from subprocess import PIPE
 
 import psutil
 
-from system import time_helper
-from system.time_qualifier import QUALIFIER_HOURLY
-from conf import settings
-from conf.process_context import ProcessContext
+from synergy.system import time_helper
+from synergy.system.time_qualifier import QUALIFIER_HOURLY
+from synergy.conf import settings
+from synergy.conf.process_context import ProcessContext
 from workers.abstract_cli_worker import AbstractCliWorker
 
 

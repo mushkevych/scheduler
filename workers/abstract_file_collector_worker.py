@@ -5,17 +5,16 @@ import gzip
 import shutil
 import tempfile
 import hashlib
-import fabric.operations
 from datetime import datetime
 
-from conf import settings
-from workers.abstract_mq_worker import AbstractMqWorker
-from system.performance_tracker import AggregatorPerformanceTicker
-
-from db.model import unit_of_work
-from db.model.worker_mq_request import WorkerMqRequest
-from db.manager import ds_manager
-from db.dao.unit_of_work_dao import UnitOfWorkDao
+import fabric.operations
+from synergy.conf import settings
+from synergy.workers.abstract_mq_worker import AbstractMqWorker
+from synergy.system.performance_tracker import AggregatorPerformanceTicker
+from synergy.db.model import unit_of_work
+from synergy.db.model.worker_mq_request import WorkerMqRequest
+from synergy.db.manager import ds_manager
+from synergy.db.dao.unit_of_work_dao import UnitOfWorkDao
 
 
 class AbstractFileCollectorWorker(AbstractMqWorker):

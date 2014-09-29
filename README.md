@@ -1,13 +1,16 @@
 Synergy Scheduler
 =========
 
-Production-grade scheduler, supervising jobs completion and track dependencies between job's timetables
+Synergy Scheduler is supervising triggering and life-cycle of two types of jobs:
 
-Here, **job** term can correspond to any system process (for example: Python process, Hadoop map-reduce job, etc) that is started and monitored by Synergy Scheduler means.
+- cron-like jobs govern by timer. They are known to the system as *free-run*
+- *managed* jobs that are govern by state machine. Such jobs could have multiple dependencies on other jobs
 
-Synergy Scheduler is in fact a **state-machine**, that supervises job's life-cycle: from *STATE_EMBRYO* thru *STATE_IN_PROGRESS* and *STATE_FINAL_RUN* to *STATE_PROCESSED* (or *STATE_SKIPPED* in case of a failure). Most likely that multiple **tasks** (or unit_of_work) will be issued during job's life-span. They also have multiple states and cover task life-cycle: from state *STATE_REQUESTED* thru *STATE_IN_PROGRESS* to either *STATE_PROCESSED* or *STATE_CANCELED* or *STATE_INVALID*.
+Here, **job** corresponds to any system process (for example: Python process, Hadoop map-reduce job, etc) that is started and monitored by Synergy Scheduler means.
 
-Synergy Scheduler hides all of this complexity from the user under its hood. In most cases, user would have to set "synergy_start_timperiod", write actual job and register it in the process_context to be able to run the job and the Synergy Scheduler.
+Synergy Scheduler hosts multiple **state-machines**. Each process is allowed to chose its governing state machine, that supervises job's life-cycle: from *STATE_EMBRYO* thru *STATE_IN_PROGRESS* and *STATE_FINAL_RUN* to *STATE_PROCESSED* (or *STATE_SKIPPED* in case of a failure). Most likely that multiple **tasks** (or unit_of_work) will be issued during job's life-span. They also have multiple states and cover task life-cycle: from state *STATE_REQUESTED* thru *STATE_IN_PROGRESS* to either *STATE_PROCESSED* or *STATE_CANCELED* or *STATE_INVALID*.
+
+Synergy Scheduler hides all of this complexity from the user under its hood. In most cases, user would have to write an actual job, register it in the context, define its triggering frequency to be able to run the job under the Synergy Scheduler.
 
 
 License:
@@ -24,19 +27,17 @@ Metafile:
 ---------
 
     /launch.py            launcher file
-    /process_starter.py   utility to start worker in daemon mode  
-    /settings.py          configuration management  
-    /scripts/             folder contains shell scripts  
-    /system/              folder contains system-level modules  
-    /tests/               folder contains unit test  
-    /vendors/             folder contains Python libraries required for the project and installed in Python Virtual Environment  
-    /worker/              folder of actual project's code  
+    /process_starter.py   utility to start a process in a daemon mode
+    /constants.py         configuration management - constants
+    /context.py           configuration management - registrar of all known processes
+    /settings.py          configuration management - environment-specific settings
+    /setup.py             Distutils setup script
+    /scripts/             folder contains helper shell scripts
+    /synergy/             folder contains Synergy Scheduler egg
+    /tests/               folder contains unit test
+    /vendors/             folder contains Python libraries required by the project and installed in Python Virtual Environment
+    /worker/              folder with actual project's processes (job runners)
     /db/                  root folder for database components - data source manager, data access objects, schema, etc
-    /mq/                  module provides RabbitMq Connection, Consumer, Publisher, etc functionality
-    /mx/                  module provides HTML front-end for the Synergy Scheduler
-    /scheduler/           folder contains Synergy Scheduler and related components
-    /supervisor/          folder contains module that starts/stops Scheduler processes
-    /event_stream_generator/  legacy tool. folder contains test stream generator.
 
 
 Wiki Links

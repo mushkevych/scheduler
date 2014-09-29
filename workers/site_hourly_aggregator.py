@@ -2,10 +2,10 @@ __author__ = 'Bohdan Mushkevych'
 
 from db.model.single_session import SingleSession
 from db.model.site_statistics import SiteStatistics
-from db.model.base_model import BaseModel
 from workers.abstract_vertical_worker import AbstractVerticalWorker
-from system import time_helper
-from conf import settings
+from synergy.db.model.base_model import BaseModel
+from synergy.system import time_helper
+from synergy.conf import settings
 
 
 class SiteHourlyAggregator(AbstractVerticalWorker):

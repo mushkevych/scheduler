@@ -3,7 +3,6 @@ __author__ = 'Bohdan Mushkevych'
 
 # List of Processes
 PROCESS_LAUNCH_PY = 'LaunchPy'      # process provides <process context> to the launch.py script
-PROCESS_BASH_DRIVER = 'BashDriver'
 PROCESS_STREAM_GEN = 'EventStreamGenerator'
 PROCESS_SESSION_WORKER_00 = 'SingleSessionWorker_00'
 PROCESS_SESSION_WORKER_01 = 'SingleSessionWorker_01'
@@ -27,7 +26,6 @@ TREE_LINEAR_DAILY = 'tree_linear_daily'
 
 # Process tokens. There should be one token per one Timetable tree or stand-alone process
 TOKEN_LAUNCH_PY = 'launch_py'
-TOKEN_BASH_DRIVER = 'bash'
 TOKEN_STREAM = 'stream'
 TOKEN_SESSION = 'session'
 TOKEN_SITE = 'site'

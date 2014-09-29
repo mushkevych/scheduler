@@ -1,4 +1,4 @@
-include README.md LICENSE *.py
+include README.md LICENSE MANIFEST.in
+graft db/schema
 graft scripts
-graft tests
-graft vendors
+graft synergy

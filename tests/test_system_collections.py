@@ -2,11 +2,11 @@ __author__ = 'Bohdan Mushkevych'
 
 import unittest
 from base_fixtures import compare_dictionaries
-from db.model import box_configuration
-from db.model.box_configuration import BoxConfiguration
-from db.model.scheduler_managed_entry import SchedulerManagedEntry
-from db.model.job import Job
-from db.model.unit_of_work import UnitOfWork
+from synergy.db.model import box_configuration
+from synergy.db.model.box_configuration import BoxConfiguration
+from synergy.db.model.scheduler_managed_entry import SchedulerManagedEntry
+from synergy.db.model.job import Job
+from synergy.db.model.unit_of_work import UnitOfWork
 
 
 class TestSystemCollections(unittest.TestCase):

@@ -1,6 +1,6 @@
 __author__ = 'Bohdan Mushkevych'
 
-from db.model.base_model import *
+from synergy.db.model.base_model import *
 
 
 CREATION_TIME = 'creation_time'

@@ -5,10 +5,10 @@ import unittest
 import settings as settings_module
 from constants import TOKEN_SITE, TOKEN_CLIENT, PROCESS_SITE_YEARLY, PROCESS_SITE_MONTHLY, \
     PROCESS_SITE_DAILY, PROCESS_SITE_HOURLY, PROCESS_CLIENT_MONTHLY
-from system import time_helper
-from scheduler.tree_node import AbstractNode
-from scheduler.tree import FourLevelTree, TwoLevelTree
-from system.time_qualifier import *
+from synergy.system import time_helper
+from synergy.scheduler.tree_node import AbstractNode
+from synergy.scheduler.tree import FourLevelTree, TwoLevelTree
+from synergy.system.time_qualifier import *
 
 
 class TestTreeNode(unittest.TestCase):

@@ -8,11 +8,11 @@ import tempfile
 import unittest
 import socket
 
-from system import time_helper
-from conf import settings
+from synergy.conf import settings
+from synergy.conf.process_context import ProcessContext
+from synergy.system import time_helper
+from synergy.system.time_qualifier import *
 from workers.abstract_file_collector_worker import AbstractFileCollectorWorker
-from conf.process_context import ProcessContext
-from system.time_qualifier import *
 from tests.ut_context import PROCESS_UNIT_TEST
 
 

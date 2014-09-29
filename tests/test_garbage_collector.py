@@ -7,15 +7,15 @@ from datetime import datetime, timedelta
 from mockito import spy, verify, mock, when
 from mockito.matchers import any
 
-from db.model import unit_of_work
-from db.dao.unit_of_work_dao import UnitOfWorkDao
+from synergy.db.model import unit_of_work
+from synergy.db.dao.unit_of_work_dao import UnitOfWorkDao
 
-from mq.flopsy import PublishersPool
 from tests.base_fixtures import create_unit_of_work, create_and_insert_unit_of_work
 from constants import *
-from scheduler.scheduler_constants import PROCESS_GC
+from synergy.mq.flopsy import PublishersPool
+from synergy.scheduler.scheduler_constants import PROCESS_GC
+from synergy.workers.garbage_collector_worker import GarbageCollectorWorker, LIFE_SUPPORT_HOURS
 from tests.ut_context import *
-from workers.garbage_collector_worker import GarbageCollectorWorker, LIFE_SUPPORT_HOURS
 import settings as module_settings
 
 

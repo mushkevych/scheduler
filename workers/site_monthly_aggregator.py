@@ -1,7 +1,7 @@
 __author__ = 'Bohdan Mushkevych'
 
 from workers.site_daily_aggregator import SiteDailyAggregator
-from system import time_helper
+from synergy.system import time_helper
 
 
 class SiteMonthlyAggregator(SiteDailyAggregator):

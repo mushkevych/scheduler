@@ -5,18 +5,18 @@ import unittest
 from mockito import spy, verify, mock, when
 from mockito.matchers import any
 
-from db.dao.unit_of_work_dao import UnitOfWorkDao
-from db.error import DuplicateKeyError
-from db.model import job, unit_of_work
-from db.model.job import Job
-from db.model.unit_of_work import UnitOfWork
+from synergy.db.dao.unit_of_work_dao import UnitOfWorkDao
+from synergy.db.error import DuplicateKeyError
+from synergy.db.model import job, unit_of_work
+from synergy.db.model.job import Job
+from synergy.db.model.unit_of_work import UnitOfWork
 from tests.base_fixtures import create_unit_of_work
-from system import time_helper
-from system.time_qualifier import *
-from conf.process_context import ProcessContext
+from synergy.system import time_helper
+from synergy.system.time_qualifier import *
+from synergy.conf.process_context import ProcessContext
 from constants import PROCESS_SITE_HOURLY
-from scheduler.timetable import Timetable
-from scheduler.continuous_pipeline import ContinuousPipeline
+from synergy.scheduler.timetable import Timetable
+from synergy.scheduler.continuous_pipeline import ContinuousPipeline
 from tests.ut_context import PROCESS_UNIT_TEST
 
 

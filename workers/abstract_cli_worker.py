@@ -5,12 +5,12 @@ __author__ = 'Bohdan Mushkevych'
 
 from datetime import datetime
 from psutil.error import TimeoutExpired
-from db.model import unit_of_work
-from db.model.worker_mq_request import WorkerMqRequest
-from db.dao.unit_of_work_dao import UnitOfWorkDao
+from synergy.db.model import unit_of_work
+from synergy.db.model.worker_mq_request import WorkerMqRequest
+from synergy.db.dao.unit_of_work_dao import UnitOfWorkDao
 
-from workers.abstract_mq_worker import AbstractMqWorker
-from system.performance_tracker import AggregatorPerformanceTicker
+from synergy.workers.abstract_mq_worker import AbstractMqWorker
+from synergy.system.performance_tracker import AggregatorPerformanceTicker
 
 
 class AbstractCliWorker(AbstractMqWorker):

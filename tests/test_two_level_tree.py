@@ -2,11 +2,11 @@ __author__ = 'Bohdan Mushkevych'
 
 import unittest
 from tests import base_fixtures
-from system import time_helper
-from system.time_qualifier import QUALIFIER_HOURLY
+from synergy.system import time_helper
+from synergy.system.time_qualifier import QUALIFIER_HOURLY
 from constants import PROCESS_SITE_HOURLY, TOKEN_SITE
-from scheduler.tree import TwoLevelTree
-from conf import settings
+from synergy.scheduler.tree import TwoLevelTree
+from synergy.conf import settings
 
 
 class TestTwoLevelTree(unittest.TestCase):

@@ -1,10 +1,10 @@
 __author__ = 'Bohdan Mushkevych'
 
 from threading import RLock
-from db.manager import ds_manager
 from db.model.raw_data import *
 from db.model.single_session import SingleSession
-from system.decorator import thread_safe
+from synergy.db.manager import ds_manager
+from synergy.system.decorator import thread_safe
 from constants import COLLECTION_SINGLE_SESSION
 
 

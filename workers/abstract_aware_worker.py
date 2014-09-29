@@ -1,5 +1,4 @@
 """ Module contains common logic for aggregators and workers that work with unit_of_work """
-
 __author__ = 'Bohdan Mushkevych'
 
 import gc
@@ -7,15 +6,15 @@ import json
 import socket
 from datetime import datetime
 
-from db.model import unit_of_work
-from db.model.worker_mq_request import WorkerMqRequest
-from db.manager import ds_manager
-from db.dao.unit_of_work_dao import UnitOfWorkDao
-from conf import settings
-from system.decimal_encoder import DecimalEncoder
-from conf.process_context import ProcessContext
-from workers.abstract_mq_worker import AbstractMqWorker
-from system.performance_tracker import AggregatorPerformanceTicker
+from synergy.db.model import unit_of_work
+from synergy.db.model.worker_mq_request import WorkerMqRequest
+from synergy.db.manager import ds_manager
+from synergy.db.dao.unit_of_work_dao import UnitOfWorkDao
+from synergy.conf import settings
+from synergy.system.decimal_encoder import DecimalEncoder
+from synergy.conf.process_context import ProcessContext
+from synergy.workers.abstract_mq_worker import AbstractMqWorker
+from synergy.system.performance_tracker import AggregatorPerformanceTicker
 
 
 class AbstractAwareWorker(AbstractMqWorker):

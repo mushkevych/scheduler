@@ -1,8 +1,9 @@
 __author__ = 'Bohdan Mushkevych'
 
-import psutil
 from subprocess import PIPE
-from conf import settings
+
+import psutil
+from synergy.conf import settings
 from workers.abstract_cli_worker import AbstractCliWorker
 
 

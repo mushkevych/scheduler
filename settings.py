@@ -6,7 +6,7 @@ from datetime import datetime
 settings = dict(
     process_prefix='Synergy',  # global prefix that is added to every process name started for synergy-scheduler
     process_cwd='/mnt/tmp',    # daemonized process working directory, where it can create .cache and other folders
-    config_file='/etc/synergy-scheduler.conf',
+    config_file='/etc/synergy.conf',
     version='%BUILD_NUMBER%-%SVN_REVISION%',
 
     log_directory='/mnt/logs/synergy-scheduler/', 
@@ -77,7 +77,7 @@ def enable_test_mode():
 
     test_settings = dict(
         mongo_db_name=settings['mongo_db_name'] + '_test',
-        mq_vhost='/unit_test',
+        # mq_vhost='/unit_test',
         debug=True,
         under_test=True,
         synergy_start_timeperiod=datetime.utcnow().strftime('%Y%m%d%H'),

@@ -1,7 +1,7 @@
 __author__ = 'Bohdan Mushkevych'
 
-from db.model.base_model import *
 from db.model.raw_data import *
+from synergy.db.model.base_model import *
 
 TIMESTAMP = 'timestamp'
 

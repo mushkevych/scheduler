@@ -6,9 +6,9 @@
 
 import sys
 
-from conf import process_context
-from mq.flopsy import Connection
-from conf.process_context import ProcessContext
+from synergy.mq.flopsy import Connection
+from synergy.conf.process_context import ProcessContext
+from synergy.conf import process_context
 from tests.base_fixtures import get_field_starting_with
 
 

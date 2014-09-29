@@ -2,9 +2,9 @@ __author__ = 'Bohdan Mushkevych'
 
 import unittest
 
-from scheduler.scheduler_constants import PROCESS_GC
-from supervisor.supervisor_constants import PROCESS_SUPERVISOR
-from conf.process_context import ProcessContext
+from synergy.scheduler.scheduler_constants import PROCESS_GC
+from synergy.supervisor.supervisor_constants import PROCESS_SUPERVISOR
+from synergy.conf.process_context import ProcessContext
 
 
 class ProcessContextUnitTest(unittest.TestCase):
