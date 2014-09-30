@@ -2,7 +2,7 @@ __author__ = 'Bohdan Mushkevych'
 
 import os
 from threading import Lock
-from subprocess import PIPE, STDOUT
+from subprocess import PIPE
 
 import psutil
 from psutil import TimeoutExpired
@@ -41,8 +41,9 @@ class Supervisor(SynergyProcess):
         try:
             self.logger.info('kill: %s {' % process_name)
             pid = box_config.get_process_pid(process_name)
+            self.logger.info('target process pid=%s {' % pid)
             if pid is not None and psutil.pid_exists(int(pid)):
-                p = psutil.Process(pid)
+                p = psutil.Process(int(pid))
                 p.kill()
                 p.wait()
                 box_config.set_process_pid(process_name, None)
@@ -66,7 +67,7 @@ class Supervisor(SynergyProcess):
                              cwd=settings.settings['process_cwd'],
                              stdin=PIPE,
                              stdout=PIPE,
-                             stderr=STDOUT)
+                             stderr=PIPE)
             box_config.set_process_pid(process_name, p.pid)
             self.logger.info('Started %s with pid = %r' % (process_name, p.pid))
         except Exception:
@@ -82,7 +83,7 @@ class Supervisor(SynergyProcess):
             this can be done either by os.wait() or process.wait() """
         try:
             pid = box_config.get_process_pid(process_name)
-            p = psutil.Process(pid)
+            p = psutil.Process(int(pid))
 
             return_code = p.wait(timeout=0.01)
             if return_code is None:
