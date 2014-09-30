@@ -147,7 +147,7 @@ class AbstractFileCollectorWorker(AbstractMqWorker):
 
             self._create_directories()
             number_of_aggregated_objects = 0
-            
+
             processed_log = dict()
             fqsf = os.path.join(self._get_source_folder(), uow.start_timeperiod)
             list_of_archives = self.copy_archives_from_source(uow.start_timeperiod)
