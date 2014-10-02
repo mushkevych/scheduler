@@ -151,7 +151,7 @@ timetable_context = {
         mx_page=MX_PAGE_TRAFFIC),
 
     TREE_LINEAR_DAILY: _timetable_context_entry(
-        tree_name=TREE_CLIENT_HORIZONTAL,
+        tree_name=TREE_LINEAR_DAILY,
         tree_classname='synergy.scheduler.tree.TwoLevelTree',
         enclosed_processes=[PROCESS_ALERT_DAILY],
         dependent_on=[],
