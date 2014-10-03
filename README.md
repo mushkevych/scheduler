@@ -1,16 +1,20 @@
 Synergy Scheduler
 =========
 
+Synergy Scheduler tracks its history to 2011. It is a production-grade Job Scheduling System, used for triggering simple jobs and orchestrate execution of complex interdependent data processing clusters.
+
+Synergy Scheduler utilizes Rabbit MQ to communicate with its subsidiaries, so it is a good choice for deployments where part of the system  is remote or machine/location dependent.
+
 Synergy Scheduler is supervising triggering and life-cycle of two types of jobs:
 
 - cron-like jobs govern by timer. They are known to the system as *free-run*
 - *managed* jobs that are govern by state machine. Such jobs could have multiple dependencies on other jobs
 
-Here, **job** corresponds to any system process (for example: Python process, Hadoop map-reduce job, etc) that is started and monitored by Synergy Scheduler means.
+Here, "job" corresponds to an execution of any system process (for example: Python process, Hadoop map-reduce job, etc) with a set of particular arguments, started and monitored by the Scheduler means.
 
-Synergy Scheduler hosts multiple **state-machines**. Each process is allowed to chose its governing state machine, that supervises job's life-cycle: from *STATE_EMBRYO* thru *STATE_IN_PROGRESS* and *STATE_FINAL_RUN* to *STATE_PROCESSED* (or *STATE_SKIPPED* in case of a failure). Most likely that multiple **tasks** (or unit_of_work) will be issued during job's life-span. They also have multiple states and cover task life-cycle: from state *STATE_REQUESTED* thru *STATE_IN_PROGRESS* to either *STATE_PROCESSED* or *STATE_CANCELED* or *STATE_INVALID*.
+Each process registered within the Synergy Scheduler could chose state machine to govern its execution.
 
-Synergy Scheduler hides all of this complexity from the user under its hood. In most cases, user would have to write an actual job, register it in the context, define its triggering frequency to be able to run the job under the Synergy Scheduler.
+To start using Synergy Scheduler user would have to write an actual job, register it in the context and define its triggering frequency.
 
 
 License:
