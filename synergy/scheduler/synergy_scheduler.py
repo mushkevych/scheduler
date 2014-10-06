@@ -9,7 +9,7 @@ from synergy.conf.process_context import ProcessContext
 from synergy.mq.flopsy import PublishersPool
 from synergy.mx.synergy_mx import MX
 from synergy.db.model.worker_mq_request import WorkerMqRequest
-from synergy.db.model import scheduler_freerun_entry, scheduler_managed_entry
+from synergy.db.model import scheduler_freerun_entry, scheduler_managed_entry, job
 from synergy.db.dao.scheduler_managed_entry_dao import SchedulerManagedEntryDao
 from synergy.db.dao.scheduler_freerun_entry_dao import SchedulerFreerunEntryDao
 from synergy.system import time_helper
@@ -24,7 +24,7 @@ from synergy.scheduler.timetable import Timetable
 
 
 class Scheduler(SynergyProcess):
-    """ Scheduler encapsulate logic for handling task pipelines """
+    """ Scheduler hosts multiple state machines, called pipelines; and encapsulate logic for triggering jobs """
 
     def __init__(self, process_name):
         super(Scheduler, self).__init__(process_name)
@@ -47,9 +47,9 @@ class Scheduler(SynergyProcess):
         self.managed_handlers.clear()
         super(Scheduler, self).__del__()
 
-    def _log_message(self, level, process_name, timetable_record, msg):
+    def _log_message(self, level, process_name, job_record, msg):
         """ method performs logging into log file, Tree node and the Job instance"""
-        self.timetable.add_log_entry(process_name, timetable_record, datetime.utcnow(), msg)
+        self.timetable.add_log_entry(process_name, job_record, datetime.utcnow(), msg)
         self.logger.log(level, msg)
 
     def _construct_pipelines(self):
@@ -144,7 +144,7 @@ class Scheduler(SynergyProcess):
 
     @with_reconnect
     def start(self, *_):
-        """ reading scheduler configurations and starting timers to trigger events """
+        """ reads scheduler entries and starts timer instances, as well as MX thread """
         try:
             self._load_managed_entries()
         except LookupError as e:
@@ -155,42 +155,52 @@ class Scheduler(SynergyProcess):
         except LookupError as e:
             self.logger.warn('DB Lookup: %s' % str(e))
 
-        # as Scheduler is now initialized and running - we can safely start its MX
+        # Scheduler is now initialized and running - we can safely start its MX
         self.mx = MX(self)
         self.mx.start_mx_thread()
 
     @thread_safe
     def fire_managed_worker(self, *args):
-        """requests vertical aggregator (hourly site, daily variant, etc) to start up"""
-        try:
-            process_name = args[0]
-            scheduler_entry_obj = args[1]
-            self.logger.info('%s {' % process_name)
+        """requests next valid job for given process and manages its state"""
 
-            timetable_record = self.timetable.get_next_job_record(process_name)
+        def _fire_worker(process_name, scheduler_entry_obj):
+            job_record = self.timetable.get_next_job_record(process_name)
             pipeline = self.pipelines[scheduler_entry_obj.state_machine_name]
 
             run_on_active_timeperiod = ProcessContext.run_on_active_timeperiod(scheduler_entry_obj.process_name)
             if not run_on_active_timeperiod:
                 time_qualifier = ProcessContext.get_time_qualifier(process_name)
-                incremented_timeperiod = time_helper.increment_timeperiod(time_qualifier, timetable_record.timeperiod)
+                incremented_timeperiod = time_helper.increment_timeperiod(time_qualifier, job_record.timeperiod)
                 dt_record_timestamp = time_helper.synergy_to_datetime(time_qualifier, incremented_timeperiod)
                 dt_record_timestamp += timedelta(minutes=LAG_5_MINUTES)
 
                 if datetime.utcnow() <= dt_record_timestamp:
-                    self.logger.info('Timetable record %s for timeperiod %s will not be triggered until %s.'
-                                     % (timetable_record.document['_id'],
-                                        timetable_record.timeperiod,
+                    self.logger.info('Job record %s for timeperiod %s will not be triggered until %s.'
+                                     % (job_record.document['_id'],
+                                        job_record.timeperiod,
                                         dt_record_timestamp.strftime('%Y-%m-%d %H:%M:%S')))
-                    return
+                    return None
 
             process_type = ProcessContext.get_process_type(scheduler_entry_obj.process_name)
             if process_type == TYPE_BLOCKING_DEPENDENCIES:
-                pipeline.manage_pipeline_with_blocking_dependencies(process_name, timetable_record)
+                pipeline.manage_pipeline_with_blocking_dependencies(process_name, job_record)
             elif process_type == TYPE_BLOCKING_CHILDREN:
-                pipeline.manage_pipeline_with_blocking_children(process_name, timetable_record)
+                pipeline.manage_pipeline_with_blocking_children(process_name, job_record)
             elif process_type == TYPE_MANAGED:
-                pipeline.manage_pipeline_for_process(process_name, timetable_record)
+                pipeline.manage_pipeline_for_process(process_name, job_record)
+            else:
+                raise ValueError('Unknown managed process type %s' % process_type)
+
+            return job_record
+
+        try:
+            process_name = args[0]
+            scheduler_entry_obj = args[1]
+            self.logger.info('%s {' % process_name)
+
+            job_record = _fire_worker(process_name, scheduler_entry_obj)
+            while job_record is not None and job_record.state in [job.STATE_SKIPPED, job.STATE_PROCESSED]:
+                job_record = _fire_worker(process_name, scheduler_entry_obj)
 
         except (AMQPError, IOError) as e:
             self.logger.error('AMQPError: %s' % str(e), exc_info=True)
