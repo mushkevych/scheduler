@@ -1,12 +1,12 @@
 __author__ = 'Bohdan Mushkevych'
 
-KEY = 'domain_name'
+KEY = 'key'
 TIMEPERIOD = 'timeperiod'
 
 
 class BaseModel(object):
     """
-    This class presents common functionality for all Models within the Scheduler project
+    This class presents common functionality for all Models within the Synergy Scheduler project
     """
 
     def __init__(self, document=None):
@@ -17,16 +17,11 @@ class BaseModel(object):
 
     @property
     def key(self):
-        return self.data[KEY], self.data[TIMEPERIOD]
+        raise NotImplementedError('property key.getter must be implemented in BaseModel children')
 
     @key.setter
     def key(self, value):
-        """
-        @param value: tuple - value[0] id of the template
-        value[1] - timeperiod as string in Synergy Data format
-        """
-        self.data[KEY] = value[0]
-        self.data[TIMEPERIOD] = value[1]
+        raise NotImplementedError('property key.setter must be implemented in BaseModel children')
 
     def _get_column_family(self, family_name):
         if family_name not in self.data:

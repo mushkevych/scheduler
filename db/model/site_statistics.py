@@ -1,16 +1,28 @@
 __author__ = 'Bohdan Mushkevych'
 
-from db.model.raw_data import *
 from synergy.db.model.base_model import *
+from db.model.raw_data import *
 
 
 class SiteStatistics(BaseModel):
     """
-    class presents site statistics like number of visits per defined period or list of search keywords
+    class presents site statistics, such as number of visits per defined period or list of search keywords
     """
 
     def __init__(self, document=None):
         super(SiteStatistics, self).__init__(document)
+
+    @property
+    def key(self):
+        return self.data[DOMAIN_NAME], self.data[TIMEPERIOD]
+
+    @key.setter
+    def key(self, value):
+        """
+        :param value: tuple (domain_name <string>, timeperiod <string in YYYYMMDDHH format>)
+        """
+        self.data[DOMAIN_NAME] = value[0]
+        self.data[TIMEPERIOD] = value[1]
 
     @property
     def number_of_pageviews(self):
