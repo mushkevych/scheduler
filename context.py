@@ -93,7 +93,7 @@ process_context = {
 
     PROCESS_CLIENT_DAILY: _process_context_entry(
         process_name=PROCESS_CLIENT_DAILY,
-        classname='workers.hadoop_aggregator_driver.HadoopAggregatorDriver.start',
+        classname='workers.client_daily_aggregator.ClientDailyAggregator.start',
         token=TOKEN_CLIENT,
         time_qualifier=QUALIFIER_DAILY,
         exchange=EXCHANGE_FREERUN_WORKER,
@@ -101,7 +101,7 @@ process_context = {
 
     PROCESS_CLIENT_MONTHLY: _process_context_entry(
         process_name=PROCESS_CLIENT_MONTHLY,
-        classname='workers.hadoop_aggregator_driver.HadoopAggregatorDriver.start',
+        classname='workers.client_monthly_aggregator.ClientMonthlyAggregator.start',
         token=TOKEN_CLIENT,
         time_qualifier=QUALIFIER_MONTHLY,
         exchange=EXCHANGE_FREERUN_WORKER,
@@ -109,7 +109,7 @@ process_context = {
 
     PROCESS_CLIENT_YEARLY: _process_context_entry(
         process_name=PROCESS_CLIENT_YEARLY,
-        classname='workers.hadoop_aggregator_driver.HadoopAggregatorDriver.start',
+        classname='workers.client_yearly_aggregator.ClientYearlyAggregator.start',
         token=TOKEN_CLIENT,
         time_qualifier=QUALIFIER_YEARLY,
         exchange=EXCHANGE_FREERUN_WORKER,
@@ -117,7 +117,7 @@ process_context = {
 
     PROCESS_ALERT_DAILY: _process_context_entry(
         process_name=PROCESS_ALERT_DAILY,
-        classname='workers.hadoop_aggregator_driver.HadoopAggregatorDriver.start',
+        classname='workers.alert_daily_worker.AlertDailyWorker.start',
         token=TOKEN_ALERT,
         time_qualifier=QUALIFIER_DAILY,
         exchange=EXCHANGE_MANAGED_WORKER,
