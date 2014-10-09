@@ -1,29 +1,25 @@
 __author__ = 'Bohdan Mushkevych'
 
-from db.model.site_statistics import SiteStatistics
+from db.model.client_statistics import ClientStatistics
+from workers.client_daily_aggregator import ClientDailyAggregator
 from synergy.db.model.base_model import BaseModel
-from synergy.conf import settings
-from workers.abstract_vertical_worker import AbstractVerticalWorker
 from synergy.system import time_helper
 
 
-class SiteDailyAggregator(AbstractVerticalWorker):
-    """ class works as an aggregator from the site_hourly into the site_daily """
+class ClientMonthlyAggregator(ClientDailyAggregator):
+    """ class works as an aggregator from the client_daily collection into the client_monthly collection """
 
     def __init__(self, process_name):
-        super(SiteDailyAggregator, self).__init__(process_name)
-
-    def _get_tunnel_port(self):
-        return settings.settings['tunnel_site_port']
+        super(ClientMonthlyAggregator, self).__init__(process_name)
 
     def _init_sink_key(self, *args):
-        return args[0], time_helper.hour_to_day(args[1])
+        return args[0], time_helper.day_to_month(args[1])
 
     def _init_source_object(self, document):
-        return SiteStatistics(document)
+        return ClientStatistics(document)
 
     def _init_sink_object(self, composite_key):
-        obj = SiteStatistics()
+        obj = ClientStatistics()
         obj.key = (composite_key[0], composite_key[1])
         return obj
 
@@ -43,7 +39,7 @@ class SiteDailyAggregator(AbstractVerticalWorker):
 
 
 if __name__ == '__main__':
-    from constants import PROCESS_SITE_DAILY
+    from constants import PROCESS_CLIENT_MONTHLY
 
-    source = SiteDailyAggregator(PROCESS_SITE_DAILY)
+    source = ClientMonthlyAggregator(PROCESS_CLIENT_MONTHLY)
     source.start()

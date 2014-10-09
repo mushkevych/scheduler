@@ -8,6 +8,9 @@ db.createCollection('single_session');
 db.single_session.ensureIndex( { domain_name : 1, "user_profile.session_id" : 1}, {unique: true} );
 db.single_session.ensureIndex( { timeperiod : 1 });
 
+db.createCollection('alert_daily');
+db.alert_daily.ensureIndex( { domain_name : 1, timeperiod : 1}, {unique: true} );
+
 db.createCollection('site_hourly');
 db.site_hourly.ensureIndex( { domain_name : 1, timeperiod : 1}, {unique: true} );
 
@@ -19,6 +22,15 @@ db.site_monthly.ensureIndex( { domain_name : 1, timeperiod : 1}, {unique: true} 
 
 db.createCollection('site_yearly');
 db.site_yearly.ensureIndex( { domain_name : 1, timeperiod : 1}, {unique: true} );
+
+db.createCollection('client_daily');
+db.client_daily.ensureIndex( { client_id : 1, timeperiod : 1}, {unique: true} );
+
+db.createCollection('client_monthly');
+db.client_monthly.ensureIndex( { client_id : 1, timeperiod : 1}, {unique: true} );
+
+db.createCollection('client_yearly');
+db.client_yearly.ensureIndex( { client_id : 1, timeperiod : 1}, {unique: true} );
 
 
 // *** Scheduler Settings ***

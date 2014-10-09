@@ -9,6 +9,10 @@ STATE = 'state'                         # either :STATE_ON or :STATE_OFF
 TRIGGER_TIME = 'trigger_time'           # either 'at DoW-HH:MM' or 'every XXX'
 ARGUMENTS = 'arguments'                 # arguments that defines a job (host, script to run, etc)
 
+# contains list of MAX_NUMBER_OF_LOG_ENTRIES last log messages
+HISTORIC_LOG = 'historic_log'
+MAX_NUMBER_OF_LOG_ENTRIES = 64
+
 STATE_ON = 'state_on'
 STATE_OFF = 'state_off'
 
@@ -80,3 +84,13 @@ class SchedulerFreerunEntry(BaseModel):
         if not isinstance(value, dict):
             raise ValueError('incorrect arguments format %r. must be dict' % type(value).__name__)
         self.data[ARGUMENTS] = value
+
+    @property
+    def log(self):
+        if HISTORIC_LOG not in self.data:
+            self.data[HISTORIC_LOG] = []
+        return self.data[HISTORIC_LOG]
+
+    @log.setter
+    def log(self, value):
+        self.data[HISTORIC_LOG] = value
