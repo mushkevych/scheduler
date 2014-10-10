@@ -4,8 +4,6 @@ from datetime import datetime
 from logging import ERROR, WARNING, INFO
 
 from synergy.db.error import DuplicateKeyError
-from synergy.db.model.unit_of_work import UnitOfWork
-from synergy.db.model.worker_mq_request import WorkerMqRequest
 from synergy.db.model import job, unit_of_work
 from synergy.db.manager import ds_manager
 from synergy.conf.process_context import ProcessContext
@@ -25,41 +23,6 @@ class ContinuousPipeline(AbstractPipeline):
 
     def __del__(self):
         super(ContinuousPipeline, self).__del__()
-
-    @with_reconnect
-    def compute_scope_of_processing(self, process_name, start_timeperiod, end_timeperiod, job_record):
-        """method reads collection and identify slice for processing"""
-        source_collection_name = ProcessContext.get_source(process_name)
-        target_collection_name = ProcessContext.get_sink(process_name)
-
-        start_id = self.ds.highest_primary_key(source_collection_name, start_timeperiod, end_timeperiod)
-        end_id = self.ds.lowest_primary_key(source_collection_name, start_timeperiod, end_timeperiod)
-
-        uow = UnitOfWork()
-        uow.timeperiod = start_timeperiod
-        uow.start_id = str(start_id)
-        uow.end_id = str(end_id)
-        uow.start_timeperiod = start_timeperiod
-        uow.end_timeperiod = end_timeperiod
-        uow.created_at = datetime.utcnow()
-        uow.source = source_collection_name
-        uow.sink = target_collection_name
-        uow.state = unit_of_work.STATE_REQUESTED
-        uow.process_name = process_name
-        uow.number_of_retries = 0
-        uow_id = self.uow_dao.insert(uow)
-
-        mq_request = WorkerMqRequest()
-        mq_request.process_name = process_name
-        mq_request.unit_of_work_id = uow_id
-
-        publisher = self.publishers.get(process_name)
-        publisher.publish(mq_request.document)
-        publisher.release()
-
-        msg = 'Published: UOW %r for %r in timeperiod %r.' % (uow_id, process_name, start_timeperiod)
-        self._log_message(INFO, process_name, job_record, msg)
-        return uow
 
     @with_reconnect
     def update_scope_of_processing(self, process_name, uow, start_timeperiod, end_timeperiod, job_record):
@@ -83,7 +46,15 @@ class ContinuousPipeline(AbstractPipeline):
         -- in case unit_of_work can not be located (what is equal to fatal data corruption) - we log exception and
         ask/expect manual intervention to resolve the corruption"""
         try:
-            uow_obj = self.compute_scope_of_processing(process_name, start_timeperiod, end_timeperiod, job_record)
+            source_collection_name = ProcessContext.get_source(process_name)
+            start_id = self.ds.highest_primary_key(source_collection_name, start_timeperiod, end_timeperiod)
+            end_id = self.ds.lowest_primary_key(source_collection_name, start_timeperiod, end_timeperiod)
+            uow_obj = self.create_and_publish_uow(process_name,
+                                                  start_timeperiod,
+                                                  end_timeperiod,
+                                                  start_id,
+                                                  end_id,
+                                                  job_record)
         except DuplicateKeyError as e:
             uow_obj = self.recover_from_duplicatekeyerror(e)
             msg = 'No new data to process by %s in timeperiod %s, because of: %r' \
@@ -103,7 +74,15 @@ class ContinuousPipeline(AbstractPipeline):
         it also shares _fuzzy_ DuplicateKeyError logic from _compute_and_transfer_to_progress method"""
         transfer_to_final = False
         try:
-            uow_obj = self.compute_scope_of_processing(process_name, start_timeperiod, end_timeperiod, job_record)
+            source_collection_name = ProcessContext.get_source(process_name)
+            start_id = self.ds.highest_primary_key(source_collection_name, start_timeperiod, end_timeperiod)
+            end_id = self.ds.lowest_primary_key(source_collection_name, start_timeperiod, end_timeperiod)
+            uow_obj = self.create_and_publish_uow(process_name,
+                                                  start_timeperiod,
+                                                  end_timeperiod,
+                                                  start_id,
+                                                  end_id,
+                                                  job_record)
         except DuplicateKeyError as e:
             transfer_to_final = True
             uow_obj = self.recover_from_duplicatekeyerror(e)

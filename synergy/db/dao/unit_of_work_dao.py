@@ -110,11 +110,11 @@ class UnitOfWorkDao(object):
         try:
             return collection.insert(instance.document, safe=True)
         except MongoDuplicateKeyError as e:
-            exc = DuplicateKeyError(e)
-            exc.start_id = instance.start_id
-            exc.end_id = instance.end_id
-            exc.process_name = instance.process_name
-            exc.timeperiod = instance.start_timeperiod
+            exc = DuplicateKeyError(instance.process_name,
+                                    instance.start_timeperiod,
+                                    instance.start_id,
+                                    instance.end_id,
+                                    e)
             raise exc
 
     @thread_safe

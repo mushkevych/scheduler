@@ -1,5 +1,6 @@
 __author__ = 'Bohdan Mushkevych'
 
+from synergy.scheduler.scheduler_constants import TYPE_FREERUN, TYPE_MANAGED
 from synergy.db.model.base_model import BaseModel, TIMEPERIOD
 
 START_TIMEPERIOD = 'start_timeperiod'  # lower boundary (as Synergy date) of the period that needs to be processed
@@ -21,6 +22,7 @@ PROCESSED_LOG = 'processed_log'        # log contains list of processed files or
 FILE_NAME = 'file_name'                # Name of processed file
 MD5 = 'md5'                            # MD5 tag for the hash of the file
 ARGUMENTS = 'arguments'                # task-level arguments that could supplement or override process-level ones
+UNIT_OF_WORK_TYPE = 'unit_of_work_type'  # whether the unit_of_work is TYPE_MANAGED or TYPE_FREERUN
 
 STATE_PROCESSED = 'state_processed'
 STATE_IN_PROGRESS = 'state_in_progress'
@@ -30,8 +32,8 @@ STATE_INVALID = 'state_invalid'
 
 
 class UnitOfWork(BaseModel):
-    """ This class serves as a wrapper for the "units_of_work_collection" entry
-    """
+    """ Module represents persistent Model for atomic unit of work performed by the system.
+    UnitOfWork Instances are stored in the <unit_of_work> collection """
 
     def __init__(self, document=None):
         super(UnitOfWork, self).__init__(document)
@@ -112,10 +114,7 @@ class UnitOfWork(BaseModel):
 
     @classmethod
     def is_state_valid(cls, value):
-        decision = True
-        if value not in [STATE_INVALID, STATE_REQUESTED, STATE_IN_PROGRESS, STATE_PROCESSED, STATE_CANCELED]:
-            decision = False
-        return decision
+        return value in [STATE_INVALID, STATE_REQUESTED, STATE_IN_PROGRESS, STATE_PROCESSED, STATE_CANCELED]
 
     @property
     def created_at(self):
@@ -180,3 +179,17 @@ class UnitOfWork(BaseModel):
     @processed_log.setter
     def processed_log(self, value):
         self.data[PROCESSED_LOG] = value
+
+    @property
+    def unit_of_work_type(self):
+        return self.data[UNIT_OF_WORK_TYPE]
+
+    @unit_of_work_type.setter
+    def unit_of_work_type(self, value):
+        if not UnitOfWork.is_type_valid(value):
+            raise ValueError('unit of work is of unknown type %s' % value)
+        self.data[UNIT_OF_WORK_TYPE] = value
+
+    @classmethod
+    def is_type_valid(cls, value):
+        return value in [TYPE_MANAGED, TYPE_FREERUN]

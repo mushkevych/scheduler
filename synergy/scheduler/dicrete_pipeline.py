@@ -5,12 +5,9 @@ from logging import ERROR, WARNING, INFO
 
 from synergy.db.error import DuplicateKeyError
 from synergy.db.model import job, unit_of_work
-from synergy.db.model.unit_of_work import UnitOfWork
-from synergy.db.model.worker_mq_request import WorkerMqRequest
 from synergy.scheduler.scheduler_constants import PIPELINE_DISCRETE
 from synergy.scheduler.abstract_pipeline import AbstractPipeline
 from synergy.system import time_helper
-from synergy.system.decorator import with_reconnect
 from synergy.conf.process_context import ProcessContext
 
 
@@ -24,46 +21,13 @@ class DiscretePipeline(AbstractPipeline):
     def __del__(self):
         super(DiscretePipeline, self).__del__()
 
-    @with_reconnect
-    def insert_uow(self, process_name, start_timeperiod, end_timeperiod, iteration, job_record):
-        """ creates unit_of_work and inserts it into the DB
-            @raise DuplicateKeyError if unit_of_work with given parameters already exists """
-        start_id = 0
-        end_id = iteration
-
-        uow = UnitOfWork()
-        uow.timeperiod = start_timeperiod
-        uow.start_id = start_id
-        uow.end_id = end_id
-        uow.start_timeperiod = start_timeperiod
-        uow.end_timeperiod = end_timeperiod
-        uow.created_at = datetime.utcnow()
-        uow.source = None
-        uow.sink = None
-        uow.state = unit_of_work.STATE_REQUESTED
-        uow.process_name = process_name
-        uow.number_of_retries = 0
-        uow_id = self.uow_dao.insert(uow)
-
-        mq_request = WorkerMqRequest()
-        mq_request.process_name = process_name
-        mq_request.unit_of_work_id = uow_id
-
-        publisher = self.publishers.get(process_name)
-        publisher.publish(mq_request.document)
-        publisher.release()
-
-        msg = 'Published: UOW %r for %r in timeperiod %r.' % (uow_id, process_name, start_timeperiod)
-        self._log_message(INFO, process_name, job_record, msg)
-        return uow
-
     def _process_state_embryo(self, process_name, job_record, start_timeperiod):
         """ method that takes care of processing job records in STATE_EMBRYO state"""
         time_qualifier = ProcessContext.get_time_qualifier(process_name)
         end_timeperiod = time_helper.increment_timeperiod(time_qualifier, start_timeperiod)
 
         try:
-            uow = self.insert_uow(process_name, start_timeperiod, end_timeperiod, 0, job_record)
+            uow = self.create_and_publish_uow(process_name, start_timeperiod, end_timeperiod, 0, 0, job_record)
         except DuplicateKeyError as e:
             msg = 'Catching up with latest unit_of_work %s in timeperiod %s, because of: %r' \
                   % (process_name, job_record.timeperiod, e)
@@ -97,7 +61,8 @@ class DiscretePipeline(AbstractPipeline):
                 elif uow.state in [unit_of_work.STATE_PROCESSED,
                                    unit_of_work.STATE_CANCELED]:
                     # create new uow to cover new inserts
-                    uow = self.insert_uow(process_name, start_timeperiod, end_timeperiod, iteration + 1, job_record)
+                    uow = self.create_and_publish_uow(process_name, start_timeperiod, end_timeperiod,
+                                                      0, iteration + 1, job_record)
                     self.timetable.update_job_record(process_name, job_record, uow, job.STATE_IN_PROGRESS)
 
             elif start_timeperiod < actual_timeperiod and can_finalize_job_record is True:
@@ -110,7 +75,8 @@ class DiscretePipeline(AbstractPipeline):
                 elif uow.state in [unit_of_work.STATE_PROCESSED,
                                    unit_of_work.STATE_CANCELED]:
                     # create new uow for FINAL RUN
-                    uow = self.insert_uow(process_name, start_timeperiod, end_timeperiod, iteration + 1, job_record)
+                    uow = self.create_and_publish_uow(process_name, start_timeperiod, end_timeperiod,
+                                                      0, iteration + 1, job_record)
                     self.timetable.update_job_record(process_name, job_record, uow, job.STATE_FINAL_RUN)
             else:
                 msg = 'Job record %s has timeperiod from future %s vs current time %s' \

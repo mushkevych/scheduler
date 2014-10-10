@@ -40,7 +40,8 @@ class SimplifiedDiscretePipeline(DiscretePipeline):
                 elif uow.state in [unit_of_work.STATE_PROCESSED,
                                    unit_of_work.STATE_CANCELED]:
                     # create new uow to cover new inserts
-                    uow = self.insert_uow(process_name, start_timeperiod, end_timeperiod, iteration + 1, job_record)
+                    uow = self.create_and_publish_uow(process_name, start_timeperiod, end_timeperiod,
+                                                      0, iteration + 1, job_record)
                     self.timetable.update_job_record(process_name, job_record, uow, job.STATE_IN_PROGRESS)
 
             elif start_timeperiod < actual_timeperiod and can_finalize_job_record is True:
