@@ -13,6 +13,7 @@ TOKEN_BASH_DRIVER = 'bash'
 PIPELINE_CONTINUOUS = 'continuous'
 PIPELINE_DISCRETE = 'discrete'
 PIPELINE_SIMPLIFIED_DISCRETE = 'simplified_discrete'
+PIPELINE_FREERUN = 'freerun'
 
 # Supported worker types
 TYPE_MANAGED = 'type_managed'

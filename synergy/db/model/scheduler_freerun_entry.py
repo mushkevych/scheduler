@@ -9,9 +9,9 @@ STATE = 'state'                         # either :STATE_ON or :STATE_OFF
 TRIGGER_TIME = 'trigger_time'           # either 'at DoW-HH:MM' or 'every XXX'
 ARGUMENTS = 'arguments'                 # arguments that defines a job (host, script to run, etc)
 
-# contains list of MAX_NUMBER_OF_LOG_ENTRIES last log messages
-HISTORIC_LOG = 'historic_log'
+HISTORIC_LOG = 'historic_log'           # contains list of MAX_NUMBER_OF_LOG_ENTRIES last log messages
 MAX_NUMBER_OF_LOG_ENTRIES = 64
+RELATED_UNIT_OF_WORK = 'related_unit_of_work'
 
 STATE_ON = 'state_on'
 STATE_OFF = 'state_off'
@@ -94,3 +94,11 @@ class SchedulerFreerunEntry(BaseModel):
     @log.setter
     def log(self, value):
         self.data[HISTORIC_LOG] = value
+
+    @property
+    def related_unit_of_work(self):
+        return self.data.get(RELATED_UNIT_OF_WORK)
+
+    @related_unit_of_work.setter
+    def related_unit_of_work(self, value):
+        self.data[RELATED_UNIT_OF_WORK] = value
