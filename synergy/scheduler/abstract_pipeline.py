@@ -3,11 +3,17 @@ __author__ = 'Bohdan Mushkevych'
 from datetime import datetime
 from logging import INFO, WARNING, ERROR
 
+from synergy.db.error import DuplicateKeyError
 from synergy.db.model import job
 from synergy.db.dao.unit_of_work_dao import UnitOfWorkDao
 from synergy.db.dao.job_dao import JobDao
+from synergy.db.model import unit_of_work
+from synergy.db.model.unit_of_work import UnitOfWork
+from synergy.db.model.worker_mq_request import WorkerMqRequest
 from synergy.mq.flopsy import PublishersPool
+from synergy.conf.process_context import ProcessContext
 from synergy.system.decorator import with_reconnect
+from synergy.scheduler.scheduler_constants import TYPE_MANAGED
 
 
 class AbstractPipeline(object):
@@ -34,34 +40,47 @@ class AbstractPipeline(object):
         self.logger.log(level, msg)
 
     @with_reconnect
+    def create_and_publish_uow(self, process_name, start_timeperiod, end_timeperiod, start_id, end_id, job_record):
+        """creates unit_of_work and inserts it into the DB
+            :raise DuplicateKeyError: if unit_of_work with given parameters already exists """
+
+        uow = UnitOfWork()
+        uow.timeperiod = start_timeperiod
+        uow.start_id = str(start_id)
+        uow.end_id = str(end_id)
+        uow.start_timeperiod = start_timeperiod
+        uow.end_timeperiod = end_timeperiod
+        uow.created_at = datetime.utcnow()
+        uow.source = ProcessContext.get_source(process_name)
+        uow.sink = ProcessContext.get_sink(process_name)
+        uow.state = unit_of_work.STATE_REQUESTED
+        uow.unit_of_work_type = TYPE_MANAGED
+        uow.process_name = process_name
+        uow.number_of_retries = 0
+        uow_id = self.uow_dao.insert(uow)
+
+        mq_request = WorkerMqRequest()
+        mq_request.process_name = process_name
+        mq_request.unit_of_work_id = uow_id
+
+        publisher = self.publishers.get(process_name)
+        publisher.publish(mq_request.document)
+        publisher.release()
+
+        msg = 'Published: UOW %r for %r in timeperiod %r.' % (uow_id, process_name, start_timeperiod)
+        self._log_message(INFO, process_name, job_record, msg)
+        return uow
+
+    @with_reconnect
     def recover_from_duplicatekeyerror(self, e):
         """ try to recover from DuplicateKeyError """
-        start_id = None
-        end_id = None
-        process_name = None
-        timeperiod = None
-
-        if hasattr(e, 'start_id'):
-            start_id = e.start_id
-        if hasattr(e, 'end_id'):
-            end_id = e.end_id
-        if hasattr(e, 'process_name'):
-            process_name = e.process_name
-        if hasattr(e, 'timeperiod'):
-            timeperiod = e.timeperiod
-
-        if process_name is not None \
-                and timeperiod is not None \
-                and start_id is not None \
-                and end_id is not None:
+        if isinstance(e, DuplicateKeyError):
             try:
-                return self.uow_dao.get_by_params(process_name, timeperiod, start_id, end_id)
+                return self.uow_dao.get_by_params(e.process_name, e.timeperiod, e.start_id, e.end_id)
             except LookupError as e:
                 self.logger.error('Unable to recover from DB error due to %s' % e.message, exc_info=True)
         else:
-            msg = 'Unable to locate unit_of_work due to incomplete primary key ' \
-                  '(process_name=%s, timeperiod=%s, start_id=%s, end_id=%s)' \
-                  % (process_name, timeperiod, start_id, end_id)
+            msg = 'Unable to locate unit_of_work due to missing primary key'
             self.logger.error(msg)
 
     def _process_state_embryo(self, process_name, job_record, start_timeperiod):

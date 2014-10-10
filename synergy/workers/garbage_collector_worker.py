@@ -1,5 +1,4 @@
 """ Module re-launches invalid units_of_work """
-
 __author__ = 'Bohdan Mushkevych'
 
 from threading import Lock
@@ -8,9 +7,11 @@ from datetime import datetime, timedelta
 from synergy.conf import settings
 from synergy.mq.flopsy import PublishersPool
 from synergy.system.decorator import thread_safe
+from synergy.scheduler.scheduler_constants import TYPE_FREERUN
 from synergy.workers.abstract_mq_worker import AbstractMqWorker
 from synergy.db.model import unit_of_work, scheduler_managed_entry
 from synergy.db.model.worker_mq_request import WorkerMqRequest
+from synergy.db.model.unit_of_work import UnitOfWork
 from synergy.db.dao.unit_of_work_dao import UnitOfWorkDao
 from synergy.db.model.scheduler_managed_entry import SchedulerManagedEntry
 from synergy.db.dao.scheduler_managed_entry_dao import SchedulerManagedEntryDao
@@ -50,6 +51,12 @@ class GarbageCollectorWorker(AbstractMqWorker):
             since = settings.settings['synergy_start_timeperiod']
             uow_list = self.uow_dao.get_reprocessing_candidates(since)
             for uow in uow_list:
+                assert isinstance(uow, UnitOfWork)
+                if uow.unit_of_work_type == TYPE_FREERUN:
+                    self.logger.debug('Schedulable for %s is not govern by Garbage Collector. '
+                                      'Skipping its unit_of_work.' % uow.process_name)
+                    continue
+
                 if uow.process_name not in self.scheduler_configuration:
                     self.logger.debug('Process %r is not known to Synergy Scheduler. Skipping its unit_of_work.'
                                       % uow.process_name)

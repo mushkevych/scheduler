@@ -29,11 +29,11 @@ def override_recover_function(e):
 
 
 def then_raise(process_name, start_timeperiod, end_timeperiod, iteration, job_record):
-    exc = DuplicateKeyError('Simulated Exception')
-    exc.start_id = '0'
-    exc.end_id = '1'
-    exc.process_name = process_name
-    exc.timeperiod = start_timeperiod
+    exc = DuplicateKeyError(process_name,
+                            start_timeperiod,
+                            '0',
+                            '1'
+                            'Simulated Exception')
     raise exc
 
 

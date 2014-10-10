@@ -26,11 +26,11 @@ TEST_FUTURE_TIMEPERIOD = time_helper.increment_timeperiod(QUALIFIER_HOURLY, TEST
 
 
 def then_raise(process_name, start_timeperiod, end_timeperiod, job_record):
-    exc = DuplicateKeyError('Simulated Exception')
-    exc.start_id = '0'
-    exc.end_id = '1'
-    exc.process_name = process_name
-    exc.timeperiod = start_timeperiod
+    exc = DuplicateKeyError(process_name,
+                            start_timeperiod,
+                            '0',
+                            '1'
+                            'Simulated Exception')
     raise exc
 
 
@@ -59,7 +59,7 @@ class RegularPipelineUnitTest(unittest.TestCase):
 
     def test_state_embryo(self):
         """ method tests job records in STATE_EMBRYO state"""
-        self.pipeline_real.compute_scope_of_processing = then_return_uow
+        self.pipeline_real.create_and_publish_uow = then_return_uow
         pipeline = spy(self.pipeline_real)
 
         job_record = get_job_record(job.STATE_EMBRYO,
@@ -72,7 +72,7 @@ class RegularPipelineUnitTest(unittest.TestCase):
 
     def test_duplicatekeyerror_state_embryo(self):
         """ method tests job records in STATE_EMBRYO state"""
-        self.pipeline_real.compute_scope_of_processing = then_raise
+        self.pipeline_real.create_and_publish_uow = then_raise
         pipeline = spy(self.pipeline_real)
 
         job_record = get_job_record(job.STATE_EMBRYO,
@@ -90,7 +90,7 @@ class RegularPipelineUnitTest(unittest.TestCase):
         when(uow_dao_mock).get_one(any(str)).thenReturn(create_unit_of_work(PROCESS_UNIT_TEST, 0, 1, None))
         self.pipeline_real.uow_dao = uow_dao_mock
 
-        self.pipeline_real.compute_scope_of_processing = then_raise
+        self.pipeline_real.create_and_publish_uow = then_raise
         pipeline = spy(self.pipeline_real)
 
         job_record = get_job_record(job.STATE_IN_PROGRESS,
@@ -110,7 +110,7 @@ class RegularPipelineUnitTest(unittest.TestCase):
             thenReturn(create_unit_of_work(PROCESS_UNIT_TEST, 1, 1, None, unit_of_work.STATE_PROCESSED))
         self.pipeline_real.uow_dao = uow_dao_mock
 
-        self.pipeline_real.compute_scope_of_processing = then_return_uow
+        self.pipeline_real.create_and_publish_uow = then_return_uow
         pipeline = spy(self.pipeline_real)
 
         job_record = get_job_record(job.STATE_IN_PROGRESS,
@@ -134,7 +134,7 @@ class RegularPipelineUnitTest(unittest.TestCase):
             thenReturn(create_unit_of_work(PROCESS_UNIT_TEST, 1, 1, None, unit_of_work.STATE_PROCESSED))
         self.pipeline_real.uow_dao = uow_dao_mock
 
-        self.pipeline_real.compute_scope_of_processing = then_raise
+        self.pipeline_real.create_and_publish_uow = then_raise
         pipeline = spy(self.pipeline_real)
 
         job_record = get_job_record(job.STATE_IN_PROGRESS,
