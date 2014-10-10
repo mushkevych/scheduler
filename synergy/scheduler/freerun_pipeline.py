@@ -21,11 +21,10 @@ from synergy.system.decorator import with_reconnect
 class FreerunPipeline(object):
     """ Pipeline to handle freerun jobs/triggers """
 
-    def __init__(self, logger, timetable, name=PIPELINE_FREERUN):
+    def __init__(self, logger, name=PIPELINE_FREERUN):
         self.name = name
         self.logger = logger
         self.publishers = PublishersPool(self.logger)
-        self.timetable = timetable
         self.uow_dao = UnitOfWorkDao(self.logger)
         self.sfe_dao = SchedulerFreerunEntryDao(self.logger)
 
@@ -110,6 +109,7 @@ class FreerunPipeline(object):
         mq_request = WorkerMqRequest()
         mq_request.process_name = freerun_entry.process_name
         mq_request.entry_name = freerun_entry.entry_name
+        mq_request.entry_arguments = freerun_entry.arguments
         mq_request.unit_of_work_id = uow.document['_id']
 
         publisher = self.publishers.get(freerun_entry.process_name)

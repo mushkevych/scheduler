@@ -9,7 +9,7 @@ from synergy.conf.process_context import ProcessContext
 from synergy.mq.flopsy import PublishersPool
 from synergy.mx.synergy_mx import MX
 from synergy.db.model.worker_mq_request import WorkerMqRequest
-from synergy.db.model import scheduler_freerun_entry, scheduler_managed_entry, job
+from synergy.db.model import scheduler_managed_entry, job
 from synergy.db.dao.scheduler_managed_entry_dao import SchedulerManagedEntryDao
 from synergy.db.dao.scheduler_freerun_entry_dao import SchedulerFreerunEntryDao
 from synergy.system import time_helper
@@ -20,6 +20,7 @@ from synergy.scheduler.scheduler_constants import *
 from synergy.scheduler.continuous_pipeline import ContinuousPipeline
 from synergy.scheduler.dicrete_pipeline import DiscretePipeline
 from synergy.scheduler.simplified_dicrete_pipeline import SimplifiedDiscretePipeline
+from synergy.scheduler.freerun_pipeline import FreerunPipeline
 from synergy.scheduler.timetable import Timetable
 
 
@@ -57,7 +58,8 @@ class Scheduler(SynergyProcess):
         pipelines = dict()
         for pipe in [ContinuousPipeline(self.logger, self.timetable),
                      DiscretePipeline(self.logger, self.timetable),
-                     SimplifiedDiscretePipeline(self.logger, self.timetable)]:
+                     SimplifiedDiscretePipeline(self.logger, self.timetable),
+                     FreerunPipeline(self.logger)]:
             pipelines[pipe.name] = pipe
         return pipelines
 
@@ -141,7 +143,6 @@ class Scheduler(SynergyProcess):
             except Exception:
                 self.logger.error('Scheduler Handler %r failed to start. Skipping it.' % (scheduler_entry_obj.key,))
 
-
     @with_reconnect
     def start(self, *_):
         """ reads scheduler entries and starts timer instances, as well as MX thread """
@@ -212,26 +213,15 @@ class Scheduler(SynergyProcess):
 
     @thread_safe
     def fire_freerun_worker(self, *args):
-        """fires free-run worker with no dependencies and history to track"""
+        """fires free-run worker with no dependencies to track"""
         try:
             process_name, entry_name = args[0]
             scheduler_entry_obj = args[1]
             self.logger.info('%s {' % process_name)
 
-            mq_request = WorkerMqRequest()
-            mq_request.process_name = scheduler_entry_obj.process_name
-            if isinstance(scheduler_entry_obj, scheduler_freerun_entry.SchedulerFreerunEntry):
-                mq_request.entry_name = scheduler_entry_obj.entry_name
-                mq_request.entry_arguments = scheduler_entry_obj.arguments
+            pipeline = self.pipelines[PIPELINE_FREERUN]
+            pipeline.manage_pipeline_for_schedulable(scheduler_entry_obj)
 
-            publisher = self.publishers.get(process_name)
-            publisher.publish(mq_request.document)
-            publisher.release()
-
-            self.logger.info('Published trigger for %s::%s' % (process_name, entry_name))
-        except (AMQPError, IOError) as e:
-            self.logger.error('AMQPError: %s' % str(e), exc_info=True)
-            self.publishers.reset_all(suppress_logging=True)
         except Exception as e:
             self.logger.error('fire_freerun_worker: %s' % str(e))
         finally:

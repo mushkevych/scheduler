@@ -1,5 +1,3 @@
-""" Module contains logic for YES worker - one that marks any units_of_work as complete """
-
 __author__ = 'Bohdan Mushkevych'
 
 from datetime import datetime
@@ -11,7 +9,7 @@ from synergy.system.performance_tracker import AggregatorPerformanceTicker
 
 
 class IdentityWorker(AbstractMqWorker):
-    """ Marks all unit_of_work as <complete>"""
+    """ Marks any incoming unit_of_work as <complete> """
 
     def __init__(self, process_name):
         super(IdentityWorker, self).__init__(process_name)
