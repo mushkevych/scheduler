@@ -137,8 +137,7 @@ class AbstractNode(object):
                 # so we assume that its not blocked
                 continue
 
-            if node_b.job_record.state not in [job.STATE_PROCESSED,
-                                                     job.STATE_SKIPPED]:
+            if node_b.job_record.state not in [job.STATE_PROCESSED, job.STATE_SKIPPED]:
                 all_finalized = False
             if node_b.job_record.state != job.STATE_PROCESSED:
                 all_processed = False
@@ -166,9 +165,7 @@ class LinearNode(AbstractNode):
         if self.job_record is None:
             self.request_embryo_job_record()
 
-        if self.job_record.state in [job.STATE_FINAL_RUN,
-                                           job.STATE_IN_PROGRESS,
-                                           job.STATE_EMBRYO]:
+        if self.job_record.state in [job.STATE_FINAL_RUN, job.STATE_IN_PROGRESS, job.STATE_EMBRYO]:
             return True
         return False
 
@@ -196,9 +193,7 @@ class TreeNode(AbstractNode):
         children_processed = True
         for timeperiod in self.children:
             child = self.children[timeperiod]
-            if child.job_record.state in [job.STATE_FINAL_RUN,
-                                                job.STATE_IN_PROGRESS,
-                                                job.STATE_EMBRYO]:
+            if child.job_record.state in [job.STATE_FINAL_RUN, job.STATE_IN_PROGRESS, job.STATE_EMBRYO]:
                 children_processed = False
                 break
         return children_processed
@@ -221,9 +216,7 @@ class TreeNode(AbstractNode):
             child = self.children[timeperiod]
             child.validate()
 
-            if child.job_record.state in [job.STATE_EMBRYO,
-                                                job.STATE_IN_PROGRESS,
-                                                job.STATE_FINAL_RUN]:
+            if child.job_record.state in [job.STATE_EMBRYO, job.STATE_IN_PROGRESS, job.STATE_FINAL_RUN]:
                 all_children_done = False
             if child.job_record.state != job.STATE_SKIPPED:
                 all_children_skipped = False
@@ -231,7 +224,7 @@ class TreeNode(AbstractNode):
         # step 3: request this node's reprocessing if it is enroute to STATE_PROCESSED
         # while some of its children are still performing processing
         if all_children_done is False \
-            and self.job_record.state in [job.STATE_FINAL_RUN, job.STATE_PROCESSED]:
+                and self.job_record.state in [job.STATE_FINAL_RUN, job.STATE_PROCESSED]:
             self.request_reprocess()
 
         # step 4: verify if this node should be transferred to STATE_SKIPPED
@@ -241,8 +234,8 @@ class TreeNode(AbstractNode):
         # thus - should the tree.build_timeperiod be not None - the children level of this node is fully constructed
         # point c: if all children of this node are in STATE_SKIPPED then we will set this node state to STATE_SKIPPED
         if len(self.children) != 0 \
-            and all_children_skipped \
-            and self.tree.build_timeperiod is not None \
-            and has_younger_sibling is True \
-            and self.job_record.state != job.STATE_SKIPPED:
+                and all_children_skipped \
+                and self.tree.build_timeperiod is not None \
+                and has_younger_sibling is True \
+                and self.job_record.state != job.STATE_SKIPPED:
             self.request_skip()

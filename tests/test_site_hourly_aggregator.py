@@ -6,6 +6,7 @@ from tests.test_abstract_worker import AbstractWorkerUnitTest
 from synergy.db.model import base_model
 from workers.site_hourly_aggregator import SiteHourlyAggregator
 from constants import PROCESS_SITE_HOURLY
+from model.raw_data import DOMAIN_NAME
 
 
 class HourlySiteAggregatorUnitTest(AbstractWorkerUnitTest):
@@ -23,7 +24,7 @@ class HourlySiteAggregatorUnitTest(AbstractWorkerUnitTest):
         hourly_fixtures.clean_session_entries()
 
     def _get_key(self, obj):
-        return obj[base_model.KEY], obj[base_model.TIMEPERIOD]
+        return obj[DOMAIN_NAME], obj[base_model.TIMEPERIOD]
 
     def test_aggregation(self):
         super(HourlySiteAggregatorUnitTest, self).perform_aggregation()

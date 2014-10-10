@@ -1,33 +1,33 @@
 __author__ = 'Bohdan Mushkevych'
 
 import unittest
-from synergy.mq.flopsy import PublishersPool
-from synergy.db.dao.unit_of_work_dao import UnitOfWorkDao
-from tests.base_fixtures import create_and_insert_unit_of_work
+from tests import daily_fixtures
+from tests.test_abstract_worker import AbstractWorkerUnitTest
+from synergy.db.model import base_model
+from workers.site_hourly_aggregator import SiteHourlyAggregator
 from constants import PROCESS_SITE_DAILY
-from tests.base_fixtures import TestMessage
-from workers.site_daily_aggregator import SiteDailyAggregator
+from model.raw_data import DOMAIN_NAME
 
 
-class DailySiteAggregatorUnitTest(unittest.TestCase):
-    def setUp(self):
-        process_name = PROCESS_SITE_DAILY
-        self.aggregator = SiteDailyAggregator(process_name)
-        self.publishers = PublishersPool(self.aggregator.logger)
-        self.uow_id = create_and_insert_unit_of_work(PROCESS_SITE_DAILY,
-                                                     0,
-                                                     1,
-                                                     2011091220)
+class HourlySiteAggregatorUnitTest(AbstractWorkerUnitTest):
+    def virtual_set_up(self):
+        super(HourlySiteAggregatorUnitTest, self).constructor(SiteHourlyAggregator,
+                                                              PROCESS_SITE_DAILY,
+                                                              'EXPECTED_DAILY_SITE',
+                                                              daily_fixtures,
+                                                              False,
+                                                              True)
+        daily_fixtures.clean_site_hourly_entries()
+        return daily_fixtures.generated_site_hourly_entries()
 
-    def tearDown(self):
-        # cleaning up DB
-        uow_dao = UnitOfWorkDao(self.aggregator.logger)
-        uow_dao.remove(self.uow_id)
-        del self.aggregator
+    def virtual_tear_down(self):
+        daily_fixtures.clean_site_hourly_entries()
+
+    def _get_key(self, obj):
+        return obj[DOMAIN_NAME], obj[base_model.TIMEPERIOD]
 
     def test_aggregation(self):
-        message = TestMessage(process_name=self.aggregator.process_name, uow_id=self.uow_id)
-        self.aggregator._mq_callback(message)
+        super(HourlySiteAggregatorUnitTest, self).perform_aggregation()
 
 
 if __name__ == '__main__':
