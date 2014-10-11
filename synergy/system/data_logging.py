@@ -41,7 +41,7 @@ class Logger(object):
         self.logger.addHandler(roto_file_handler)
 
         # While under_test, tools as xml_unittest_runner are doing complex sys.stdXXX reassignments
-        if not settings['under_test']:
+        if not settings.settings['under_test']:
             sys.stdout = self
             sys.stderr = self
 

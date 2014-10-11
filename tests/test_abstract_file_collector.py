@@ -63,8 +63,8 @@ class FileCollectorUnitTest(unittest.TestCase):
         return DummyFileCollector(PROCESS_UNIT_TEST)
 
     def setUp(self):
-        self.original_source_host_list = settings['remote_source_host_list']
-        self.original_source_folder = settings['remote_source_folder']
+        self.original_source_host_list = settings.settings['remote_source_host_list']
+        self.original_source_folder = settings.settings['remote_source_folder']
 
         self.logger = ProcessContext.get_logger(PROCESS_UNIT_TEST)
         self.worker = self.create_file_collector()
@@ -94,12 +94,12 @@ class FileCollectorUnitTest(unittest.TestCase):
             output.write(','.join(['column_%r' % x for x in range(5)]))
             output.close()
 
-        settings['remote_source_host_list'] = {socket.getfqdn(): ''}
-        settings['remote_source_folder'] = self.tempdir_copying
+        settings.settings['remote_source_host_list'] = {socket.getfqdn(): ''}
+        settings.settings['remote_source_folder'] = self.tempdir_copying
 
     def tearDown(self):
-        settings['remote_source_host_list'] = self.original_source_host_list
-        settings['remote_source_folder'] = self.original_source_folder
+        settings.settings['remote_source_host_list'] = self.original_source_host_list
+        settings.settings['remote_source_folder'] = self.original_source_folder
 
         # killing the worker
         self.worker.performance_ticker.cancel()
