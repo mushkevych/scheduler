@@ -45,6 +45,7 @@ class AbstractPipeline(object):
             :raise DuplicateKeyError: if unit_of_work with given parameters already exists """
 
         uow = UnitOfWork()
+        uow.process_name = process_name
         uow.timeperiod = start_timeperiod
         uow.start_id = str(start_id)
         uow.end_id = str(end_id)
@@ -55,8 +56,8 @@ class AbstractPipeline(object):
         uow.sink = ProcessContext.get_sink(process_name)
         uow.state = unit_of_work.STATE_REQUESTED
         uow.unit_of_work_type = TYPE_MANAGED
-        uow.process_name = process_name
         uow.number_of_retries = 0
+        uow.arguments = ProcessContext.get_arguments(process_name)
         uow_id = self.uow_dao.insert(uow)
 
         mq_request = WorkerMqRequest()

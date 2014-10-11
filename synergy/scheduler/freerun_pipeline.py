@@ -1,3 +1,5 @@
+from synergy.conf.process_context import ProcessContext
+
 __author__ = 'Bohdan Mushkevych'
 
 from datetime import datetime
@@ -47,6 +49,47 @@ class FreerunPipeline(object):
         log.insert(0, msg)
         self.sfe_dao.update(freerun_entry)
 
+    @with_reconnect
+    def insert_uow(self, freerun_entry):
+        """ creates unit_of_work and inserts it into the DB
+            :raise DuplicateKeyError: if unit_of_work with given parameters already exists """
+        schedulable_name = '%s::%s' % (freerun_entry.process_name, freerun_entry.entry_name)
+        current_timeperiod = time_helper.actual_timeperiod(QUALIFIER_REAL_TIME)
+
+        uow = UnitOfWork()
+        uow.process_name = schedulable_name
+        uow.timeperiod = current_timeperiod
+        uow.start_id = 0
+        uow.end_id = 0
+        uow.start_timeperiod = current_timeperiod
+        uow.end_timeperiod = current_timeperiod
+        uow.created_at = datetime.utcnow()
+        uow.source = ProcessContext.get_source(freerun_entry.process_name)
+        uow.sink = ProcessContext.get_source(freerun_entry.process_name)
+        uow.state = unit_of_work.STATE_REQUESTED
+        uow.unit_of_work_type = TYPE_FREERUN
+        uow.number_of_retries = 0
+        uow.arguments = freerun_entry.arguments
+        uow.document['_id'] = self.uow_dao.insert(uow)
+
+        msg = 'Created: UOW %r for %s in timeperiod %r.' % (uow.document['_id'], schedulable_name, current_timeperiod)
+        self._log_message(INFO, freerun_entry, msg)
+        return uow
+
+    def publish_uow(self, freerun_entry, uow):
+        schedulable_name = '%s::%s' % (freerun_entry.process_name, freerun_entry.entry_name)
+        mq_request = WorkerMqRequest()
+        mq_request.process_name = freerun_entry.process_name
+        mq_request.entry_name = freerun_entry.entry_name
+        mq_request.unit_of_work_id = uow.document['_id']
+
+        publisher = self.publishers.get(freerun_entry.process_name)
+        publisher.publish(mq_request.document)
+        publisher.release()
+
+        msg = 'Published: UOW %r for %s.' % (uow.document['_id'], schedulable_name)
+        self._log_message(INFO, freerun_entry, msg)
+
     def manage_pipeline_for_schedulable(self, freerun_entry):
         """ method main duty - is to _avoid_ publishing another unit_of_work, if previous was not yet processed
         In case the Scheduler sees that the unit_of_work is pending it will fire another WorkerMqRequest """
@@ -77,47 +120,6 @@ class FreerunPipeline(object):
             msg = 'Lookup issue for schedulable: %r in timeperiod %s, because of: %r' \
                   % (freerun_entry.document['_id'], uow_record.timeperiod, e)
             self._log_message(WARNING, freerun_entry, msg)
-
-    @with_reconnect
-    def insert_uow(self, freerun_entry):
-        """ creates unit_of_work and inserts it into the DB
-            :raise DuplicateKeyError: if unit_of_work with given parameters already exists """
-        schedulable_name = '%s::%s' % (freerun_entry.process_name, freerun_entry.entry_name)
-        current_timeperiod = time_helper.actual_timeperiod(QUALIFIER_REAL_TIME)
-
-        uow = UnitOfWork()
-        uow.timeperiod = current_timeperiod
-        uow.start_id = 0
-        uow.end_id = 0
-        uow.start_timeperiod = current_timeperiod
-        uow.end_timeperiod = current_timeperiod
-        uow.created_at = datetime.utcnow()
-        uow.source = None
-        uow.sink = None
-        uow.state = unit_of_work.STATE_REQUESTED
-        uow.unit_of_work_type = TYPE_FREERUN
-        uow.process_name = schedulable_name
-        uow.number_of_retries = 0
-        uow.document['_id'] = self.uow_dao.insert(uow)
-
-        msg = 'Created: UOW %r for %s in timeperiod %r.' % (uow.document['_id'], schedulable_name, current_timeperiod)
-        self._log_message(INFO, freerun_entry, msg)
-        return uow
-
-    def publish_uow(self, freerun_entry, uow):
-        schedulable_name = '%s::%s' % (freerun_entry.process_name, freerun_entry.entry_name)
-        mq_request = WorkerMqRequest()
-        mq_request.process_name = freerun_entry.process_name
-        mq_request.entry_name = freerun_entry.entry_name
-        mq_request.entry_arguments = freerun_entry.arguments
-        mq_request.unit_of_work_id = uow.document['_id']
-
-        publisher = self.publishers.get(freerun_entry.process_name)
-        publisher.publish(mq_request.document)
-        publisher.release()
-
-        msg = 'Published: UOW %r for %s.' % (uow.document['_id'], schedulable_name)
-        self._log_message(INFO, freerun_entry, msg)
 
     def _process_state_embryo(self, freerun_entry):
         """ method creates unit_of_work and associates it with the SchedulerFreerunEntry """

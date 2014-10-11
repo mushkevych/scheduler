@@ -62,11 +62,11 @@ class BashRunnable(threading.Thread):
             fabric.operations.env.warn_only = True
             fabric.operations.env.abort_on_prompts = True
             fabric.operations.env.use_ssh_config = True
-            fabric.operations.env.host_string = self.mq_request.entry_arguments[ARGUMENT_HOST]
+            fabric.operations.env.host_string = uow.arguments[ARGUMENT_HOST]
 
-            command = os.path.join(self.mq_request.entry_arguments[ARGUMENT_SCRIPT_PATH],
-                                   self.mq_request.entry_arguments[ARGUMENT_SCRIPT_NAME])
-            command += ' %s' % self.mq_request.entry_arguments[ARGUMENT_SCRIPT_PARAMS]
+            command = os.path.join(uow.arguments[ARGUMENT_SCRIPT_PATH],
+                                   uow.arguments[ARGUMENT_SCRIPT_NAME])
+            command += ' %s' % uow.arguments[ARGUMENT_SCRIPT_PARAMS]
 
             run_result = fabric.operations.run(command)
             if run_result.succeeded:

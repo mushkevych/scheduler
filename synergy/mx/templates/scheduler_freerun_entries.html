@@ -11,6 +11,8 @@
         <th scope="col">Trigger Now</th>
         <th scope="col">Next Run In</th>
         <th scope="col">Arguments</th>
+        <th scope="col">View Log</th>
+        <th scope="col">Get Uow</th>
         <th scope="col">Edit</th>
     </tr>
     </thead>
@@ -51,6 +53,24 @@
             {% set form_url = url_for('edit_schedulable_form') %}
             {% set url = form_url + '?process_name=' + row[2] + '&entry_name=' + row[3] %}
             <form method="GET"
+                 onsubmit="window.open('{{ url }}','View Log',
+                 'toolbar=no,scrollbars=yes,resizable=yes,top=250,left=250,width=720,height=480'); return false;">
+                <input type="submit" value="View Log"/>
+            </form>
+        </td>
+        <td>
+            {% set form_url = url_for('edit_schedulable_form') %}
+            {% set url = form_url + '?process_name=' + row[2] + '&entry_name=' + row[3] %}
+            <form method="GET"
+                 onsubmit="window.open('{{ url }}','Geo Uow',
+                 'toolbar=no,scrollbars=yes,resizable=yes,top=250,left=250,width=400,height=350'); return false;">
+                <input type="submit" value="Geo Uow"/>
+            </form>
+        </td>
+        <td>
+            {% set form_url = url_for('edit_schedulable_form') %}
+            {% set url = form_url + '?process_name=' + row[2] + '&entry_name=' + row[3] %}
+            <form method="GET"
                  onsubmit="window.open('{{ url }}','Edit Freerun Trigger',
                  'toolbar=no,scrollbars=yes,resizable=yes,top=250,left=250,width=750,height=550'); return false;">
                 <input type="submit" value="Edit"/>
@@ -60,7 +80,7 @@
     {%- endfor %}
 
     <tr>
-        <td colspan="9">
+        <td colspan="11">
             {% set form_url = url_for('new_schedulable_form') %}
             <a href="#" onClick="MyWindow=window.open('{{ form_url }}','New Freerun Trigger',
                 'toolbar=no,scrollbars=yes,resizable=yes,top=250,left=250,width=750,height=550'); return false;">
