@@ -9,7 +9,7 @@ from synergy.db.dao.job_dao import JobDao
 from synergy.scheduler.scheduler_constants import COLLECTION_JOB_YEARLY, \
     COLLECTION_JOB_MONTHLY, COLLECTION_JOB_DAILY, COLLECTION_JOB_HOURLY
 from synergy.system.decorator import thread_safe
-from synergy.mx.mx_decorators import managed_entry_request
+from synergy.mx.mx_decorators import valid_action_request
 
 
 class ProcessingStatementDetails(object):
@@ -33,14 +33,14 @@ class ProcessingStatementDetails(object):
             self.month = None
         if self.day is not None and self.day.strip() == '':
             self.day = None
-        self.is_managed_request_valid = self.mbean is not None \
+        self.is_request_valid = self.mbean is not None \
                                         and self.year is not None \
                                         and self.month is not None \
                                         and self.day is not None \
                                         and self.hour is not None
 
     @cached_property
-    @managed_entry_request
+    @valid_action_request
     def entries(self):
         processor = ProcessingStatements(self.logger)
         timeperiod = self.year + self.month + self.day + self.hour

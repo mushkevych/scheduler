@@ -4,7 +4,7 @@ from werkzeug.utils import cached_property
 
 from synergy.conf.process_context import ProcessContext
 from synergy.scheduler.tree import FourLevelTree, ThreeLevelTree, TwoLevelTree
-from synergy.mx.mx_decorators import managed_entry_request
+from synergy.mx.mx_decorators import valid_action_request
 
 
 class TimeperiodDetails(object):
@@ -13,7 +13,7 @@ class TimeperiodDetails(object):
         self.logger = self.mbean.logger
         self.request = request
         self.referrer = self.request.referrer
-        self.is_managed_request_valid = self.mbean is not None
+        self.is_request_valid = self.mbean is not None
 
     def _get_reprocessing_details(self, process_name):
         resp = []
@@ -70,7 +70,7 @@ class TimeperiodDetails(object):
             return description
 
     @cached_property
-    @managed_entry_request
+    @valid_action_request
     def details(self):
         """ method iterates thru all trees and visualize only those, that has "mx_page" field set
         to current self.referrer value """

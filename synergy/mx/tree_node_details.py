@@ -5,7 +5,7 @@ from werkzeug.utils import cached_property
 from synergy.conf import settings
 from synergy.system import time_helper
 from synergy.conf.process_context import ProcessContext
-from synergy.mx.mx_decorators import managed_entry_request
+from synergy.mx.mx_decorators import valid_action_request
 
 
 class TreeNodeDetails(object):
@@ -15,7 +15,7 @@ class TreeNodeDetails(object):
         self.request = request
         self.process_name = request.args.get('process_name')
         self.timeperiod = request.args.get('timeperiod')
-        self.is_managed_request_valid = self.mbean is not None
+        self.is_request_valid = self.mbean is not None
 
     @classmethod
     def get_details(cls, logger, node):
@@ -41,7 +41,7 @@ class TreeNodeDetails(object):
             return description
 
     @cached_property
-    @managed_entry_request
+    @valid_action_request
     def details(self):
         resp = dict()
         timetable = self.mbean.timetable

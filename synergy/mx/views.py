@@ -5,7 +5,8 @@ import json
 from werkzeug.utils import redirect
 from werkzeug.wrappers import Response
 
-from synergy.mx.action_handler import ActionHandler
+from synergy.mx.freerun_action_handler import FreerunActionHandler
+from synergy.mx.managed_action_handler import ManagedActionHandler
 from synergy.mx.scheduler_entries import SchedulerEntries
 from synergy.mx.processing_statements import ProcessingStatementDetails
 from synergy.mx.utils import render_template, expose, jinja_env
@@ -29,7 +30,7 @@ def scheduler_freerun_entries(request):
 
 @expose('/edit_schedulable_form/')
 def edit_schedulable_form(request):
-    handler = ActionHandler(jinja_env.globals['mbean'], request)
+    handler = FreerunActionHandler(jinja_env.globals['mbean'], request)
     return render_template('schedulable_form.html', handler=handler)
 
 
@@ -73,7 +74,7 @@ def request_timeperiods(request):
 
 @expose('/action_update_freerun_entry')
 def action_update_freerun_entry(request):
-    handler = ActionHandler(jinja_env.globals['mbean'], request)
+    handler = FreerunActionHandler(jinja_env.globals['mbean'], request)
     resp = handler.action_update_freerun_entry()
     return Response(response=json.dumps(resp),
                     mimetype='application/json')
@@ -81,70 +82,70 @@ def action_update_freerun_entry(request):
 
 @expose('/action_reprocess/')
 def action_reprocess(request):
-    handler = ActionHandler(jinja_env.globals['mbean'], request)
+    handler = ManagedActionHandler(jinja_env.globals['mbean'], request)
     return Response(response=json.dumps(handler.action_reprocess()),
                     mimetype='application/json')
 
 
 @expose('/action_skip/')
 def action_skip(request):
-    handler = ActionHandler(jinja_env.globals['mbean'], request)
+    handler = ManagedActionHandler(jinja_env.globals['mbean'], request)
     return Response(response=json.dumps(handler.action_skip()),
                     mimetype='application/json')
 
 
 @expose('/action_get_uow/')
 def action_get_uow(request):
-    handler = ActionHandler(jinja_env.globals['mbean'], request)
+    handler = ManagedActionHandler(jinja_env.globals['mbean'], request)
     return Response(response=json.dumps(handler.action_get_uow()),
                     mimetype='application/json')
 
 
 @expose('/action_get_log/')
 def action_get_log(request):
-    handler = ActionHandler(jinja_env.globals['mbean'], request)
-    return Response(response=json.dumps(handler.action_get_log()),
+    handler = ManagedActionHandler(jinja_env.globals['mbean'], request)
+    return Response(response=json.dumps(handler.action_get_managed_log()),
                     mimetype='application/json')
 
 
 @expose('/action_change_managed_interval/')
 def action_change_managed_interval(request):
-    handler = ActionHandler(jinja_env.globals['mbean'], request)
+    handler = ManagedActionHandler(jinja_env.globals['mbean'], request)
     handler.action_change_managed_interval()
     return redirect('/')
 
 
 @expose('/action_change_freerun_interval/')
 def action_change_freerun_interval(request):
-    handler = ActionHandler(jinja_env.globals['mbean'], request)
+    handler = FreerunActionHandler(jinja_env.globals['mbean'], request)
     handler.action_change_freerun_interval()
     return redirect('/')
 
 
 @expose('/action_trigger_managed_now/')
 def action_trigger_managed_now(request):
-    handler = ActionHandler(jinja_env.globals['mbean'], request)
+    handler = ManagedActionHandler(jinja_env.globals['mbean'], request)
     handler.action_trigger_managed_now()
     return redirect('/scheduler_managed_entries/')
 
 
 @expose('/action_trigger_freerun_now/')
 def action_trigger_freerun_now(request):
-    handler = ActionHandler(jinja_env.globals['mbean'], request)
+    handler = FreerunActionHandler(jinja_env.globals['mbean'], request)
     handler.action_trigger_freerun_now()
     return redirect('/scheduler_freerun_entries/')
 
 
 @expose('/action_change_managed_state/')
 def action_change_managed_state(request):
-    handler = ActionHandler(jinja_env.globals['mbean'], request)
+    handler = ManagedActionHandler(jinja_env.globals['mbean'], request)
     handler.action_change_managed_state()
     return redirect('/scheduler_managed_entries/')
 
 
 @expose('/action_change_freerun_state/')
 def action_change_freerun_state(request):
-    handler = ActionHandler(jinja_env.globals['mbean'], request)
+    handler = FreerunActionHandler(jinja_env.globals['mbean'], request)
     handler.action_change_freerun_state()
     return redirect('/scheduler_freerun_entries/')
 
