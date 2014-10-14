@@ -5,24 +5,10 @@
 """
 
 import sys
+from synergy.conf.mq_queue_context import MqQueueContext
 
-from synergy.mq.flopsy import Connection
+from synergy.mq.flopsy import purge_mq_queue
 from synergy.conf.process_context import ProcessContext
-from synergy.conf import process_context
-from tests.base_fixtures import get_field_starting_with
-
-
-def purge_mq_queue(mq_queue_name):
-    conn = Connection()
-    chan = conn.connection.channel()
-    try:
-        n = chan.queue_purge(mq_queue_name)
-        print "Purged %s messages from %s queue" % (n, mq_queue_name)
-    except Exception:
-        print "Unable to purge %s" % mq_queue_name
-
-    chan.close()
-    conn.close()
 
 
 if __name__ == '__main__':
@@ -32,11 +18,18 @@ if __name__ == '__main__':
         sys.exit(0)
 
     if sys.argv[1] == 'all':
-        processes = get_field_starting_with('PROCESS_', process_context)
-        for process_name in processes:
-            mq_queue_name = ProcessContext.get_queue(process_name)
-            purge_mq_queue(mq_queue_name)
-    else:
-        mq_queue_name = sys.argv[1]
-        purge_mq_queue(mq_queue_name)
+        print "Purging process-derived queues..."
+        for process_name in ProcessContext.CONTEXT:
+            queue_name = ProcessContext.get_queue(process_name)
+            if not queue_name:
+                continue
+            purge_mq_queue(queue_name)
 
+        print "Purging custom queues..."
+        for queue_name in MqQueueContext.CONTEXT:
+            if not queue_name:
+                continue
+            purge_mq_queue(queue_name)
+    else:
+        queue_name = sys.argv[1]
+        purge_mq_queue(queue_name)

@@ -30,6 +30,17 @@ class FreerunActionHandler(AbstractActionHandler):
         assert isinstance(scheduler_entry_obj, SchedulerFreerunEntry)
         return scheduler_entry_obj
 
+    def action_get_uow(self):
+        uow_id = self.scheduler_entry.related_unit_of_work
+        if uow_id is None:
+            resp = {'response': 'no related unit_of_work'}
+        else:
+            resp = self.uow_dao.get_one(uow_id).document
+            for key in resp:
+                resp[key] = str(resp[key])
+
+        return resp
+
     @valid_action_request
     def action_get_log(self):
         scheduler_entry_obj = self.scheduler_entry
@@ -53,7 +64,7 @@ class FreerunActionHandler(AbstractActionHandler):
         return self._action_change_state(thread_handler)
 
     @valid_action_request
-    def action_update_managed_entry(self):
+    def action_update_entry(self):
         handler_key = (self.process_name, self.entry_name)
 
         if 'insert_button' in self.request.args:
