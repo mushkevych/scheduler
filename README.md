@@ -53,4 +53,4 @@ Os-Level Dependencies
 ---------
 1. linux/unix  
 1. python 2.7+  
-1. kernel dev headers  
+1. db, rabbit mq, etc 
