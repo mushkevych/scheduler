@@ -53,7 +53,7 @@ OUTPUT_DOCUMENT.construct_table_row = function(k, v, handler) {
         if (confirm(msg)) {
             var params = { timeperiod : v.timeperiod, process_name : v.process_name };
             $.get('/action_reprocess/', params, function(response) {
-                alert("response is " + response);
+//                alert("response is " + response);
             });
         }
     });
@@ -62,7 +62,7 @@ OUTPUT_DOCUMENT.construct_table_row = function(k, v, handler) {
         if (confirm(msg)) {
             var params = { timeperiod : v.timeperiod, process_name : v.process_name };
             $.get('/action_skip/', params, function(response) {
-                alert("response is " + response);
+//                alert("response is " + response);
             });
         }
     });

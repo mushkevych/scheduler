@@ -1,6 +1,7 @@
 __author__ = 'Bohdan Mushkevych'
 
 import json
+import httplib
 
 from werkzeug.utils import redirect
 from werkzeug.wrappers import Response
@@ -75,29 +76,29 @@ def request_timeperiods(request):
 @expose('/action_update_freerun_entry')
 def action_update_freerun_entry(request):
     handler = FreerunActionHandler(jinja_env.globals['mbean'], request)
-    return Response(response=json.dumps(handler.action_update_entry()),
-                    mimetype='application/json')
+    handler.action_update_entry()
+    return Response(status=httplib.NO_CONTENT)
 
 
 @expose('/action_reprocess/')
 def action_reprocess(request):
     handler = ManagedActionHandler(jinja_env.globals['mbean'], request)
-    return Response(response=json.dumps(handler.action_reprocess()),
-                    mimetype='application/json')
+    handler.action_reprocess()
+    return Response(status=httplib.NO_CONTENT)
 
 
 @expose('/action_skip/')
 def action_skip(request):
     handler = ManagedActionHandler(jinja_env.globals['mbean'], request)
-    return Response(response=json.dumps(handler.action_skip()),
-                    mimetype='application/json')
+    handler.action_skip()
+    return Response(status=httplib.NO_CONTENT)
 
 
 @expose('/action_cancel_uow/')
 def action_cancel_uow(request):
     handler = FreerunActionHandler(jinja_env.globals['mbean'], request)
-    resp = handler.action_cancel_uow()
-    return redirect('/scheduler_freerun_entries/')
+    handler.action_cancel_uow()
+    return Response(status=httplib.NO_CONTENT)
 
 
 @expose('/action_get_uow/')
@@ -124,30 +125,36 @@ def action_get_log(request):
 def action_change_interval(request):
     if 'is_freerun' in request.args:
         handler = FreerunActionHandler(jinja_env.globals['mbean'], request)
+        redirect_target = '/scheduler_freerun_entries/'
     else:
         handler = ManagedActionHandler(jinja_env.globals['mbean'], request)
+        redirect_target = '/scheduler_managed_entries/'
     handler.action_change_interval()
-    return redirect('/')
+    return redirect(redirect_target)
 
 
 @expose('/action_trigger_now/')
 def action_trigger_now(request):
     if 'is_freerun' in request.args:
         handler = FreerunActionHandler(jinja_env.globals['mbean'], request)
+        redirect_target = '/scheduler_freerun_entries/'
     else:
         handler = ManagedActionHandler(jinja_env.globals['mbean'], request)
+        redirect_target = '/scheduler_managed_entries/'
     handler.action_trigger_now()
-    return redirect('/scheduler_managed_entries/')
+    return redirect(redirect_target)
 
 
 @expose('/action_change_state/')
 def action_change_state(request):
     if 'is_freerun' in request.args:
         handler = FreerunActionHandler(jinja_env.globals['mbean'], request)
+        redirect_target = '/scheduler_freerun_entries/'
     else:
         handler = ManagedActionHandler(jinja_env.globals['mbean'], request)
+        redirect_target = '/scheduler_managed_entries/'
     handler.action_change_state()
-    return redirect('/scheduler_managed_entries/')
+    return redirect(redirect_target)
 
 
 @expose('/object_viewer/')
