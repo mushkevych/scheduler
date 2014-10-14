@@ -34,10 +34,10 @@ class ProcessingStatementDetails(object):
         if self.day is not None and self.day.strip() == '':
             self.day = None
         self.is_request_valid = self.mbean is not None \
-                                        and self.year is not None \
-                                        and self.month is not None \
-                                        and self.day is not None \
-                                        and self.hour is not None
+                                and self.year is not None \
+                                and self.month is not None \
+                                and self.day is not None \
+                                and self.hour is not None
 
     @cached_property
     @valid_action_request

@@ -1,17 +1,9 @@
 __author__ = 'Bohdan Mushkevych'
 
-import json
-
-from synergy.db.dao.scheduler_managed_entry_dao import SchedulerManagedEntryDao
-from synergy.db.dao.unit_of_work_dao import UnitOfWorkDao
-from synergy.db.dao.scheduler_freerun_entry_dao import SchedulerFreerunEntryDao
-from synergy.db.model import scheduler_managed_entry
-from synergy.db.model.scheduler_freerun_entry import SchedulerFreerunEntry
-from synergy.scheduler.scheduler_constants import TYPE_MANAGED, TYPE_FREERUN
+from synergy.scheduler.scheduler_constants import TYPE_MANAGED
 from synergy.system import time_helper
-from synergy.system.event_clock import format_time_trigger_string, parse_time_trigger_string
 from synergy.conf.process_context import ProcessContext
-from synergy.mx.mx_decorators import valid_action_request, freerun_entry_request
+from synergy.mx.mx_decorators import valid_action_request
 from synergy.mx.abstract_action_handler import AbstractActionHandler
 from synergy.mx.tree_node_details import TreeNodeDetails
 
@@ -79,21 +71,21 @@ class ManagedActionHandler(AbstractActionHandler):
         return resp
 
     @valid_action_request
-    def action_get_managed_log(self):
+    def action_get_log(self):
         node = self._get_tree_node()
         return {'log': node.job_record.log}
 
     @valid_action_request
-    def action_change_managed_interval(self):
+    def action_change_interval(self):
         thread_handler = self.mbean.managed_handlers[self.process_name]
         return self._action_change_interval(thread_handler, self.process_name, TYPE_MANAGED)
 
     @valid_action_request
-    def action_trigger_managed_now(self):
+    def action_trigger_now(self):
         thread_handler = self.mbean.managed_handlers[self.process_name]
         return self._action_trigger_now(thread_handler, self.process_name)
 
     @valid_action_request
-    def action_change_managed_state(self):
+    def action_change_state(self):
         thread_handler = self.mbean.managed_handlers[self.process_name]
         return self._action_change_state(thread_handler)

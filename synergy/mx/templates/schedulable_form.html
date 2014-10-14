@@ -26,8 +26,8 @@
         <tr>
             <td>Process name:</td>
             <td><select name="process_name" style="width: 236px">
-                <option value="{% if handler %}{{ handler.get_freerun_entry().process_name }}{% endif %}">
-                    {%- if handler -%}{{ handler.get_freerun_entry().process_name }}{%- endif -%}
+                <option value="{% if handler %}{{ handler.scheduler_entry.process_name }}{% endif %}">
+                    {%- if handler -%}{{ handler.scheduler_entry.process_name }}{%- endif -%}
                 </option>
                 <option value="BashDriver">BashDriver</option>
             </select></td>
@@ -36,7 +36,7 @@
         <tr>
             <td>Entry name:</td>
             <td><input type="text" name="entry_name"
-                       value="{% if handler %}{{ handler.get_freerun_entry().entry_name }}{% endif %}"
+                       value="{% if handler %}{{ handler.scheduler_entry.entry_name }}{% endif %}"
                     {% if handler %} readonly {% endif %}></td>
             <td>Name of the schedulable item. Has to be unique.</td>
         </tr>
@@ -44,7 +44,7 @@
         <tr>
             <td>Description:</td>
             <td><input type="text" name="description"
-                       value="{% if handler %}{{ handler.get_freerun_entry().description }}{% endif %}"></td>
+                       value="{% if handler %}{{ handler.scheduler_entry.description }}{% endif %}"></td>
             <td>Human-targeted description of the schedulable item</td>
         </tr>
 
@@ -52,11 +52,11 @@
             <td>State:</td>
             <td><select name="state" style="width: 236px">
                 <option value="state_on"
-                        {% if handler and handler.get_freerun_entry().state == 'state_on' %} selected {% endif %}>
+                        {% if handler and handler.scheduler_entry.state == 'state_on' %} selected {% endif %}>
                     STATE_ON
                 </option>
                 <option value="state_off"
-                        {% if handler and handler.get_freerun_entry().state == 'state_off'%} selected {% endif %}>
+                        {% if handler and handler.scheduler_entry.state == 'state_off'%} selected {% endif %}>
                     STATE_OFF
                 </option>
             </select></td>
@@ -66,7 +66,7 @@
         <tr>
             <td>Trigger time:</td>
             <td><input type="text" maxlength="32" name="trigger_time"
-                       value="{%- if handler %}{{ handler.get_freerun_entry().trigger_time }}{%- endif %}"/></td>
+                       value="{%- if handler %}{{ handler.scheduler_entry.trigger_time }}{%- endif %}"/></td>
             <td>Either of:
                 <ul>"every XXX" where XXX stands for seconds; For instance: "every 60"</ul>
                 <ul>"at DoW-HH:MM, ..., DoW-HH:MM" where DoW is numerical Day Of Week (Mon-0, Sun-6, *-every day);
@@ -78,7 +78,7 @@
             <td>Arguments:</td>
             <td><textarea rows="10" cols="30" name="arguments">
                 {%- if handler -%}
-                    {{ handler.get_freerun_entry().arguments|jsonify }}
+                    {{ handler.scheduler_entry.arguments|jsonify }}
                 {%- else -%}
                     {"script_path": "", "script_name": "", "script_params": "", "host": "" }
                 {%- endif -%}</textarea></td>
