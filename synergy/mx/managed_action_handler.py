@@ -1,5 +1,6 @@
 __author__ = 'Bohdan Mushkevych'
 
+from synergy.db.model.scheduler_managed_entry import SchedulerManagedEntry
 from synergy.scheduler.scheduler_constants import TYPE_MANAGED
 from synergy.system import time_helper
 from synergy.conf.process_context import ProcessContext
@@ -31,6 +32,14 @@ class ManagedActionHandler(AbstractActionHandler):
         self.timeperiod = time_helper.cast_to_time_qualifier(time_qualifier, self.timeperiod)
         node = tree.get_node_by_process(self.process_name, self.timeperiod)
         return node
+
+    @AbstractActionHandler.scheduler_entry.getter
+    @valid_action_request
+    def scheduler_entry(self):
+        thread_handler = self.mbean.freerun_handlers[self.process_name]
+        scheduler_entry_obj = thread_handler.args[1]
+        assert isinstance(scheduler_entry_obj, SchedulerManagedEntry)
+        return scheduler_entry_obj
 
     @valid_action_request
     def action_reprocess(self):

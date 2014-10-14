@@ -28,7 +28,7 @@ class FreerunActionHandler(AbstractActionHandler):
         thread_handler = self.mbean.freerun_handlers[handler_key]
         scheduler_entry_obj = thread_handler.args[1]
         assert isinstance(scheduler_entry_obj, SchedulerFreerunEntry)
-        return scheduler_entry_obj.document
+        return scheduler_entry_obj
 
     @valid_action_request
     def action_get_log(self):

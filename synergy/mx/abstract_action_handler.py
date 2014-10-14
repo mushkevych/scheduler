@@ -54,7 +54,7 @@ class AbstractActionHandler(object):
                 raise ValueError('Unknown scheduler entry type %s' % type(scheduler_entry_obj).__name__)
 
             scheduler_entry_obj.trigger_time = format_time_trigger_string(thread_handler)
-            resp['status'] = 'changed interval for %r to %r' % (self.process_name, new_interval)
+            resp['status'] = 'changed interval for %r to %r' % (thread_handler.args[0], new_interval)
 
         return resp
 
@@ -91,7 +91,7 @@ class AbstractActionHandler(object):
 
         if isinstance(scheduler_entry_obj, SchedulerFreerunEntry):
             self.se_freerun_dao.update(scheduler_entry_obj)
-        elif isinstance(scheduler_entry_obj, SchedulerFreerunEntry):
+        elif isinstance(scheduler_entry_obj, SchedulerManagedEntry):
             self.se_managed_dao.update(scheduler_entry_obj)
         else:
             raise ValueError('Unknown scheduler entry type %s' % type(scheduler_entry_obj).__name__)

@@ -8,7 +8,7 @@ def valid_action_request(method):
 
     @functools.wraps(method)
     def _wrapper(self, *args, **kwargs):
-        if not self.is_managed_request_valid:
+        if not self.is_request_valid:
             return dict()
 
         try:
