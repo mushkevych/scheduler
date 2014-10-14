@@ -2,6 +2,7 @@ __author__ = 'Bohdan Mushkevych'
 
 import json
 
+from synergy.db.model import unit_of_work
 from synergy.db.model.scheduler_freerun_entry import SchedulerFreerunEntry
 from synergy.scheduler.scheduler_constants import TYPE_FREERUN
 from synergy.mx.mx_decorators import valid_action_request
@@ -30,6 +31,18 @@ class FreerunActionHandler(AbstractActionHandler):
         assert isinstance(scheduler_entry_obj, SchedulerFreerunEntry)
         return scheduler_entry_obj
 
+    @valid_action_request
+    def action_cancel_uow(self):
+        uow_id = self.scheduler_entry.related_unit_of_work
+        if uow_id is None:
+            resp = {'response': 'no related unit_of_work'}
+        else:
+            uow = self.uow_dao.get_one(uow_id)
+            uow.state = unit_of_work.STATE_CANCELED
+            self.uow_dao.update(uow)
+            resp = {'response': 'updated unit_of_work %r' % uow_id}
+        return resp
+
     def action_get_uow(self):
         uow_id = self.scheduler_entry.related_unit_of_work
         if uow_id is None:
@@ -38,7 +51,6 @@ class FreerunActionHandler(AbstractActionHandler):
             resp = self.uow_dao.get_one(uow_id).document
             for key in resp:
                 resp[key] = str(resp[key])
-
         return resp
 
     @valid_action_request

@@ -75,8 +75,7 @@ def request_timeperiods(request):
 @expose('/action_update_freerun_entry')
 def action_update_freerun_entry(request):
     handler = FreerunActionHandler(jinja_env.globals['mbean'], request)
-    resp = handler.action_update_entry()
-    return Response(response=json.dumps(resp),
+    return Response(response=json.dumps(handler.action_update_entry()),
                     mimetype='application/json')
 
 
@@ -92,6 +91,13 @@ def action_skip(request):
     handler = ManagedActionHandler(jinja_env.globals['mbean'], request)
     return Response(response=json.dumps(handler.action_skip()),
                     mimetype='application/json')
+
+
+@expose('/action_cancel_uow/')
+def action_cancel_uow(request):
+    handler = FreerunActionHandler(jinja_env.globals['mbean'], request)
+    resp = handler.action_cancel_uow()
+    return redirect('/scheduler_freerun_entries/')
 
 
 @expose('/action_get_uow/')

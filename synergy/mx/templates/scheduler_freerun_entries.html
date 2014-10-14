@@ -13,6 +13,7 @@
         <th scope="col">Arguments</th>
         <th scope="col">View Log</th>
         <th scope="col">Get Uow</th>
+        <th scope="col">Cancel Uow</th>
         <th scope="col">Edit</th>
     </tr>
     </thead>
@@ -68,6 +69,14 @@
                  onsubmit="window.open('{{ url }}','Geo Uow',
                  'toolbar=no,scrollbars=yes,resizable=yes,top=250,left=250,width=400,height=350'); return false;">
                 <input type="submit" value="Geo Uow"/>
+            </form>
+        </td>
+        <td>
+            <form method="GET" action="/action_cancel_uow/">
+                <input type="hidden" name="process_name" value="{{ row[2] }}" />
+                <input type="hidden" name="entry_name" value="{{ row[3] }}" />
+                <input type="hidden" name="is_freerun" value="True" />
+                <input type="submit" value="Cancel UOW" />
             </form>
         </td>
         <td>
