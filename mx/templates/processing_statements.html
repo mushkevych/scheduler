@@ -25,7 +25,8 @@
 
     {%- for row in details.entries -%}
     <tr id="{{ row[2] }}" class="processMenu">
-        <td><input type="checkbox" name="selected" value="{{ row[0] }}" /></td>
+        {% set value = row[0] + "--" + row[1] %}
+        <td><input type="checkbox" name="selected" value="{{ value }}" /></td>
         <td>{{ row[0] }}</td>
         <td>{{ row[1] }}</td>
         <td>{{ row[2] }}</td>
@@ -38,10 +39,10 @@
 <div class="hide" id="rmenu">
     <ul>
         <li>
-            <a href="http://www.google.com">Reprocess</a>
+            <a onclick="process_selected('reprocess')" >Reprocess</a>
         </li>
         <li>
-            <a href="http://localhost:8080/login">Skip</a>
+            <a onclick="process_selected('skip')">Skip</a>
         </li>
     </ul>
 </div>

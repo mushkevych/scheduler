@@ -638,10 +638,8 @@ table.display tr.odd.row_selected td {
     background-color:#e8edff;
     border: 1px solid blue;
     padding: 2px;
-    align; center;
     display: block;
     margin: 0;
-    list-style-type: none;
     list-style: none;
 }
 
@@ -655,7 +653,6 @@ table.display tr.odd.row_selected td {
     border: 0 !important;
     text-decoration: none;
     padding-right: 2em;
-    text-size; .5em;
     font-size: .75em; }
 
 .show a:hover { text-decoration: underline !important; }
