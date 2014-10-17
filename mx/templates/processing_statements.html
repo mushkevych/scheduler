@@ -12,6 +12,7 @@
     <b><i>at least year, month and day must be filled</i></b>
 </form>
 
+        <div class="processMenu">
 <table style="width: 90%" class="one-column-emphasis">
     <thead>
     <tr class="oce-first">
@@ -34,5 +35,16 @@
 
     </tbody>
 </table>
+</div>
+<div class="hide" id="rmenu">
+    <ul>
+        <li>
+            <a onclick="process_selected('reprocess')" >Reprocess</a>
+        </li>
+        <li>
+            <a onclick="process_selected('skip')">Skip</a>
+        </li>
+    </ul>
+</div>
 
 {% endblock %}
