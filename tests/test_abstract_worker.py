@@ -83,7 +83,3 @@ class AbstractWorkerUnitTest(unittest.TestCase):
             for obj in expected_values:
                 document = self.aggregator.aggregated_objects[self._get_key(obj)].document
                 base_fixtures.compare_dictionaries(document, obj)
-
-
-if __name__ == '__main__':
-    unittest.main()

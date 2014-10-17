@@ -17,11 +17,13 @@ class BaseModel(object):
 
     @property
     def key(self):
-        raise NotImplementedError('property key.getter must be implemented in BaseModel children')
+        raise NotImplementedError('property key.getter is not implemented in BaseModel child %s'
+                                  % self.__class__.__name__)
 
     @key.setter
     def key(self, value):
-        raise NotImplementedError('property key.setter must be implemented in BaseModel children')
+        raise NotImplementedError('property key.getter is not implemented in BaseModel child %s'
+                                  % self.__class__.__name__)
 
     def _get_column_family(self, family_name):
         if family_name not in self.data:

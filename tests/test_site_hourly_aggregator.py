@@ -9,9 +9,9 @@ from constants import PROCESS_SITE_HOURLY
 from model.raw_data import DOMAIN_NAME
 
 
-class HourlySiteAggregatorUnitTest(AbstractWorkerUnitTest):
+class SiteHourlyAggregatorUnitTest(AbstractWorkerUnitTest):
     def virtual_set_up(self):
-        super(HourlySiteAggregatorUnitTest, self).constructor(SiteHourlyAggregator,
+        super(SiteHourlyAggregatorUnitTest, self).constructor(SiteHourlyAggregator,
                                                               PROCESS_SITE_HOURLY,
                                                               'EXPECTED_HOURLY_SITE',
                                                               hourly_fixtures,
@@ -27,7 +27,7 @@ class HourlySiteAggregatorUnitTest(AbstractWorkerUnitTest):
         return obj[DOMAIN_NAME], obj[base_model.TIMEPERIOD]
 
     def test_aggregation(self):
-        super(HourlySiteAggregatorUnitTest, self).perform_aggregation()
+        super(SiteHourlyAggregatorUnitTest, self).perform_aggregation()
 
 
 if __name__ == '__main__':

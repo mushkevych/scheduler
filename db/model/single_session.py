@@ -1,7 +1,7 @@
 __author__ = 'Bohdan Mushkevych'
 
-from synergy.db.model.base_model import *
 from db.model.raw_data import *
+from synergy.db.model.base_model import *
 
 TIMESTAMP = 'timestamp'
 
@@ -13,6 +13,16 @@ class SingleSession(BaseModel):
 
     def __init__(self, document=None):
         super(SingleSession, self).__init__(document)
+
+    @BaseModel.key.getter
+    def key(self):
+        return self.data[DOMAIN_NAME], self.data[TIMEPERIOD], self.session_id
+
+    @key.setter
+    def key(self, value):
+        self.data[DOMAIN_NAME] = value[0]
+        self.data[TIMEPERIOD] = value[1]
+        self.session_id = value[2]
 
     @property
     def session_id(self):

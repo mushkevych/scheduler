@@ -12,7 +12,7 @@ class SiteStatistics(BaseModel):
     def __init__(self, document=None):
         super(SiteStatistics, self).__init__(document)
 
-    @property
+    @BaseModel.key.getter
     def key(self):
         return self.data[DOMAIN_NAME], self.data[TIMEPERIOD]
 

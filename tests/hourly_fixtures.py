@@ -1,8 +1,11 @@
 __author__ = 'Bohdan Mushkevych'
 
+from synergy.system import time_helper
+from synergy.system.time_qualifier import *
+
 from tests import base_fixtures
 from db.model import raw_data
-from constants import COLLECTION_SINGLE_SESSION
+from constants import COLLECTION_SINGLE_SESSION, COLLECTION_SITE_HOURLY
 from synergy.db.manager import ds_manager
 from synergy.conf.process_context import ProcessContext
 from tests.ut_context import PROCESS_UNIT_TEST
@@ -257,13 +260,21 @@ def clean_session_entries():
     for i in range(base_fixtures.TOTAL_ENTRIES):
         key = generate_session_composite_key(i, base_fixtures.TOTAL_ENTRIES)
         connection.remove({
-            raw_data.KEY: key[0],
+            raw_data.DOMAIN_NAME: key[0],
             raw_data.TIMEPERIOD: key[1],
             raw_data.FAMILY_USER_PROFILE + '.' + raw_data.SESSION_ID: 'session_id_%s' % str(i)})
 
 
 def generated_session_entries():
     return base_fixtures.create_session_stats(generate_session_composite_key)
+
+
+def clean_site_entries():
+    return base_fixtures.clean_site_entries(COLLECTION_SITE_HOURLY, QUALIFIER_HOURLY)
+
+
+def generated_site_entries():
+    return base_fixtures.create_site_stats(COLLECTION_SITE_HOURLY, QUALIFIER_HOURLY)
 
 
 if __name__ == '__main__':

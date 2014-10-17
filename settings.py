@@ -82,7 +82,7 @@ def enable_test_mode():
         under_test=True,
         synergy_start_timeperiod=datetime.utcnow().strftime('%Y%m%d%H'),
 
-        # legacy settings
+        # test suite settings
         hadoop_jar='/home/bmushkevych/git/synergy-hadoop/dist/synergy-hadoop-02.jar',
         construction_hosts=['https://***REST_INTERFACE_URL***'],            # production access
         construction_login='***REST_INTERFACE_LOGIN***',                    # production access ONLY

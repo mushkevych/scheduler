@@ -1,9 +1,12 @@
+from model import raw_data
+
 __author__ = 'Bohdan Mushkevych'
 
 import inspect
 import random
 from datetime import datetime, timedelta
 
+from db.model.site_statistics import SiteStatistics
 from db.model.single_session import SingleSession
 from db.dao.single_session_dao import SingleSessionDao
 from synergy.db.dao.unit_of_work_dao import UnitOfWorkDao
@@ -200,14 +203,27 @@ def _generate_entries(token, number, value):
     return items
 
 
-def create_site_stats(collection, composite_key_function, statistics_klass, seed='RANDOM_SEED_OBJECT'):
+def generate_site_composite_key(index, time_qualifier):
+    start_time = '20010303101010'  # YYYYMMDDHHmmSS
+
+    iteration_index = index // 33  # number larger than number of hours in a day and days in a month
+    iteration_timeperiod = time_helper.cast_to_time_qualifier(time_qualifier, start_time)
+    if iteration_index:
+        iteration_timeperiod = time_helper.increment_timeperiod(time_qualifier,
+                                                                iteration_timeperiod,
+                                                                delta=iteration_index)
+
+    return 'domain_name_%s' % str(index - iteration_index * 33), iteration_timeperiod
+
+
+def create_site_stats(collection_name, time_qualifier, seed='RANDOM_SEED_OBJECT'):
     logger = ProcessContext.get_logger(PROCESS_UNIT_TEST)
     ds = ds_manager.ds_factory(logger)
     random.seed(seed)
     object_ids = []
     for i in range(TOTAL_ENTRIES):
-        key = composite_key_function(i, TOTAL_ENTRIES)
-        site_stat = statistics_klass()
+        key = generate_site_composite_key(i, time_qualifier)
+        site_stat = SiteStatistics()
         site_stat.key = (key[0], key[1])
         site_stat.number_of_visits = random.randint(1, 1000)
         site_stat.total_duration = random.randint(0, 100)
@@ -239,10 +255,19 @@ def create_site_stats(collection, composite_key_function, statistics_klass, seed
         items['us'] = 9
         site_stat.countries = items
 
-        stat_id = ds.insert(site_stat.document)
+        stat_id = ds.insert(collection_name, site_stat.document)
         object_ids.append(stat_id)
 
     return object_ids
+
+
+def clean_site_entries(collection_name, time_qualifier):
+    logger = ProcessContext.get_logger(PROCESS_UNIT_TEST)
+    ds = ds_manager.ds_factory(logger)
+    connection = ds.connection(collection_name)
+    for i in range(TOTAL_ENTRIES):
+        key = generate_site_composite_key(i, time_qualifier)
+        connection.remove({raw_data.DOMAIN_NAME: key[0], raw_data.TIMEPERIOD: key[1]})
 
 
 def wind_actual_timeperiod(new_time):
