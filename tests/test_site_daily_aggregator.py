@@ -1,26 +1,22 @@
-
 __author__ = 'Bohdan Mushkevych'
 
 import unittest
-
 from settings import enable_test_mode
-
 enable_test_mode()
 
-
+from constants import PROCESS_SITE_DAILY
+from db.model.raw_data import DOMAIN_NAME
 from tests import hourly_fixtures, daily_fixtures
 from tests.test_abstract_worker import AbstractWorkerUnitTest
-from synergy.db.model import base_model
 from workers.site_daily_aggregator import SiteDailyAggregator
-from constants import PROCESS_SITE_DAILY
-from model.raw_data import DOMAIN_NAME
+from synergy.db.model import base_model
 
 
 class SiteDailyAggregatorUnitTest(AbstractWorkerUnitTest):
     def virtual_set_up(self):
         super(SiteDailyAggregatorUnitTest, self).constructor(baseclass=SiteDailyAggregator,
                                                              process_name=PROCESS_SITE_DAILY,
-                                                             output_prefix='EXPECTED_DAILY_SITE',
+                                                             output_prefix='EXPECTED_SITE_DAILY',
                                                              output_module=daily_fixtures,
                                                              generate_output=False,
                                                              compare_results=True)

@@ -1,11 +1,10 @@
-from model import raw_data
-
 __author__ = 'Bohdan Mushkevych'
 
 import inspect
 import random
 from datetime import datetime, timedelta
 
+from db.model import raw_data
 from db.model.site_statistics import SiteStatistics
 from db.model.single_session import SingleSession
 from db.dao.single_session_dao import SingleSessionDao
@@ -162,8 +161,7 @@ def create_session_stats(composite_key_function, seed='RANDOM_SEED_OBJECT'):
     for i in range(TOTAL_ENTRIES):
         key = composite_key_function(i, TOTAL_ENTRIES)
         session = SingleSession()
-        session.key = (key[0], key[1])
-        session.session_id = 'session_id_%s' % str(i)
+        session.key = (key[0], key[1], 'session_id_%s' % str(i))
         session.ip = '192.168.0.2'
         if i % 3 == 0:
             session.screen_res = (240, 360)
