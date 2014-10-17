@@ -12,10 +12,11 @@
     <b><i>at least year, month and day must be filled</i></b>
 </form>
 
+        <div class="processMenu">
 <table style="width: 90%" class="one-column-emphasis">
     <thead>
     <tr class="oce-first">
-        <td><input type="checkbox" onClick="toggle(this)" name ="select_all" /></td>
+        <th scope="col"><input type='checkbox' name ='select_all' /> </th>
         <th scope="col">Process Name</th>
         <th scope="col">Time period</th>
         <th scope="col">State</th>
@@ -24,9 +25,8 @@
     <tbody>
 
     {%- for row in details.entries -%}
-    <tr id="{{ row[2] }}" class="processMenu">
-        {% set value = row[0] + "--" + row[1] %}
-        <td><input type="checkbox" name="selected" value="{{ value }}" /></td>
+    <tr class="{{ row[2] }}">
+        <td><input type='checkbox' name ='select_{{ row[0] }}' /></td>
         <td>{{ row[0] }}</td>
         <td>{{ row[1] }}</td>
         <td>{{ row[2] }}</td>
@@ -35,6 +35,7 @@
 
     </tbody>
 </table>
+</div>
 
 <div class="hide" id="rmenu">
     <ul>

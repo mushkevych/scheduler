@@ -70,13 +70,13 @@ OUTPUT_DOCUMENT.construct_table_row = function (k, v, handler) {
     var td_button_uow = $('<td></td>').append(uow_button);
     var td_button_log = $('<td></td>').append(log_button);
     return tr.append(tda)
-             .append(OUTPUT_DOCUMENT._to_td(v.process_name))
-             .append(OUTPUT_DOCUMENT._to_td(v.number_of_failed_calls))
-             .append(OUTPUT_DOCUMENT._to_td(v.state))
-             .append(td_button_repr)
-             .append(td_button_skip)
-             .append(td_button_uow)
-             .append(td_button_log);
+        .append(OUTPUT_DOCUMENT._to_td(v.process_name))
+        .append(OUTPUT_DOCUMENT._to_td(v.number_of_failed_calls))
+        .append(OUTPUT_DOCUMENT._to_td(v.state))
+        .append(td_button_repr)
+        .append(td_button_skip)
+        .append(td_button_uow)
+        .append(td_button_log);
 };
 
 // recursive method builds timerecords table on the right
@@ -101,10 +101,12 @@ OUTPUT_DOCUMENT.build_timerecords_panel = function (children, is_linear) {
     var table = OUTPUT_DOCUMENT.get_empty_table(table_id);
     table.append(tbody);
     table.dataTable({"bPaginate": is_linear,
-                     "bSort": true,
-                     "iDisplayLength": 36,
-                     "bLengthChange": false,
-                     "aaSorting": [[ 0, "desc" ]]
+        "bSort": true,
+        "iDisplayLength": 36,
+        "bLengthChange": false,
+        "aaSorting": [
+            [ 0, "desc" ]
+        ]
     });
 
     return table;
@@ -205,7 +207,7 @@ function toggle(source) {
 $(document).ready(function () {
     if ($("#one-column-emphasis").addEventListener) {
         $("#one-column-emphasis").addEventListener('contextmenu', function (e) {
-            alert("You've tried to open context menu"); //here you draw your own menu
+            alert("You've tried to open context menu");  // draw your own menu
             e.preventDefault();
         }, false);
     } else {
@@ -248,7 +250,6 @@ function mouseY(evt) {
         return null;
     }
 }
-
 // End right click menu
 
 
