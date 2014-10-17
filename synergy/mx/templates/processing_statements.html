@@ -15,6 +15,7 @@
 <table style="width: 90%" class="one-column-emphasis">
     <thead>
     <tr class="oce-first">
+        <td><input type="checkbox" onClick="toggle(this)" name ="select_all" /></td>
         <th scope="col">Process Name</th>
         <th scope="col">Time period</th>
         <th scope="col">State</th>
@@ -23,7 +24,9 @@
     <tbody>
 
     {%- for row in details.entries -%}
-    <tr class="{{ row[2] }}">
+    <tr id="{{ row[2] }}" class="processMenu">
+        {% set value = row[0] + "--" + row[1] %}
+        <td><input type="checkbox" name="selected" value="{{ value }}" /></td>
         <td>{{ row[0] }}</td>
         <td>{{ row[1] }}</td>
         <td>{{ row[2] }}</td>
@@ -32,5 +35,17 @@
 
     </tbody>
 </table>
+
+<div class="hide" id="rmenu">
+    <ul>
+        <li>
+            <a onclick="process_selected('reprocess')" >Reprocess</a>
+        </li>
+        <li>
+            <a onclick="process_selected('skip')">Skip</a>
+        </li>
+    </ul>
+</div>
+
 
 {% endblock %}

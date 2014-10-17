@@ -47,25 +47,14 @@ OUTPUT_DOCUMENT.construct_table_row = function(k, v, handler) {
     }
 
     var reprocess_button = $('<button>Reprocess</button>').click(function(e) {
-        var msg = "You are about to reprocess: \n - "
-            + v.timeperiod +" for " + v.process_name
-            + " \n - all parents of this time period";
-        if (confirm(msg)) {
-            var params = { timeperiod : v.timeperiod, process_name : v.process_name };
-            $.get('/action_reprocess/', params, function(response) {
-                alert("response is " + response);
-            });
-        }
+        process_timeperiod('reprocess', v.process_name, v.timeperiod, true)
+
     });
     var skip_button = $('<button>Skip</button>').click(function(e) {
-        var msg = "You are about to skip: " + v.timeperiod +" for " + v.process_name;
-        if (confirm(msg)) {
-            var params = { timeperiod : v.timeperiod, process_name : v.process_name };
-            $.get('/action_skip/', params, function(response) {
-                alert("response is " + response);
-            });
-        }
+        process_timeperiod('skip', v.process_name, v.timeperiod, true)
+
     });
+
     var uow_button = $('<button>Get&nbsp;Uow</button>').click(function(e) {
         var params = { action : "action_get_uow", timeperiod : v.timeperiod, process_name : v.process_name };
         var viewer_url = '/object_viewer/?' + $.param(params);
@@ -201,3 +190,121 @@ OUTPUT_DOCUMENT.build_navigational_panel = function(vertical_json) {
     }
     return ul;
 };
+
+// Select all checkboxes
+    function toggle(source) {
+        checkboxes = document.getElementsByName('selected');
+            for(var i=0, n=checkboxes.length;i<n;i++) {
+                checkboxes[i].checked = source.checked;
+            }
+    }
+
+// Display right click menu
+$(document).ready(function() {
+
+
+    if ($("#one-column-emphasis").addEventListener) {
+        $("#one-column-emphasis").addEventListener('contextmenu', function(e) {
+            alert("You've tried to open context menu"); //here you draw your own menu
+            e.preventDefault();
+        }, false);
+    } else {
+
+            $('body').on('contextmenu', '.processMenu', function() {
+            y = mouseY(event);
+            x = mouseX(event);
+            document.getElementById("rmenu").style.top =  y + 'px';
+            document.getElementById("rmenu").style.left = x + 'px';
+            document.getElementById("rmenu").className = "show";
+
+            window.event.returnValue = false;
+
+
+        });
+    }
+
+});
+
+// this is from another SO post...
+    $(document).bind("click", function(event) {
+        document.getElementById("rmenu").className = "hide";
+    });
+
+
+
+function mouseX(evt) {
+    if (evt.pageX) {
+        return evt.pageX;
+    } else if (evt.clientX) {
+       return evt.clientX + (document.documentElement.scrollLeft ?
+           document.documentElement.scrollLeft :
+           document.body.scrollLeft);
+    } else {
+        return null;
+    }
+}
+
+function mouseY(evt) {
+    if (evt.pageY) {
+        return evt.pageY;
+    } else if (evt.clientY) {
+       return evt.clientY + (document.documentElement.scrollTop ?
+       document.documentElement.scrollTop :
+       document.body.scrollTop);
+    } else {
+        return null;
+    }
+}
+
+// End right click menu
+
+
+// Get all checked rows
+function getCheckedBoxes(chkboxName) {
+  var checkboxes = document.getElementsByName(chkboxName);
+  var checkboxesChecked = [];
+
+  for (var i=0; i<checkboxes.length; i++) {
+
+     if (checkboxes[i].checked) {
+        checkboxesChecked.push(checkboxes[i]);
+     }
+  }
+  // Return the array if it is non-empty, or null
+  return checkboxesChecked.length > 0 ? checkboxesChecked : null;
+}
+
+function process_selected(action) {
+   var selected = getCheckedBoxes('selected');
+   var msg = "You are about to " + action + " all selected";
+
+   if (confirm(msg)) {
+        for (var i=0; i<selected.length; i++) {
+            var temp = selected[i].value.split("--");
+            var process_name = temp[0];
+            var timeperiod = temp[1];
+
+            process_timeperiod(action, process_name, timeperiod);
+        }
+   }
+}
+
+function process_timeperiod(action, name, timeperiod, message) {
+
+    if (message) {
+        var msg = "You are about to " + action + " " + timeperiod + " for " + name;
+        if (confirm(msg)) {
+        }
+        else {
+            return
+        }
+    }
+
+    var endpoints = {skip: '/action_skip',
+                     reprocess: '/action_reprocess'};
+
+        var params = { timeperiod: timeperiod, process_name: name };
+        $.get(endpoints[action], params, function (response) {
+            alert("response is " + response);
+        });
+}
