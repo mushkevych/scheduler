@@ -453,43 +453,43 @@ table.display td.center {
 
 /* highlighting different state */
 
-tr.state_embryo {
+tr#state_embryo {
     background-color: #eff2ff;
 }
 
-tr.state_embryo td {
+tr#state_embryo td {
     color: #669;
 }
 
-tr.state_in_progress {
+tr#state_in_progress {
     background-color: #C3FDB8;
 }
 
-tr.state_in_progress td {
+tr#state_in_progress td {
     color: #000000;
 }
 
-tr.state_processed {
+tr#state_processed {
     background-color: #15C200;
 }
 
-tr.state_processed td {
+tr#state_processed td {
     color: #FFFFFF;
 }
 
-tr.state_final_run {
+tr#state_final_run {
     background-color: #ADFF2F;
 }
 
-tr.state_final_run td {
+tr#state_final_run td {
     color: #000000;
 }
 
-tr.state_skipped {
+tr#state_skipped {
     background-color: #FF4500;
 }
 
-tr.state_skipped td {
+tr#state_skipped td {
     color: #000000;
 }
 
@@ -630,3 +630,29 @@ table.display tr.odd.row_selected td {
 .ex_highlight_row #example tr.odd:hover td.sorting_3 {
    background-color: #DBFF70;
 }
+
+
+.show {
+    z-index:1000;
+    position: absolute;
+    background-color:#e8edff;
+    border: 1px solid blue;
+    padding: 2px;
+    display: block;
+    margin: 0;
+    list-style: none;
+}
+
+.hide {
+    display: none;
+}
+
+.show li{ list-style: none;  }
+
+.show a {
+    border: 0 !important;
+    text-decoration: none;
+    padding-right: 2em;
+    font-size: .75em; }
+
+.show a:hover { text-decoration: underline !important; }
