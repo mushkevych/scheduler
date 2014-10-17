@@ -50,8 +50,8 @@ class TestTimeHelper(unittest.TestCase):
                     '2010123100', '2010123100', '2010123100',
                     '2010120000', '2010120000', '2010120000',
                     '2010000000', '2010000000', '2010000000']
-        for i in range(8):
-            self.assertEqual(time_helper.cast_to_time_qualifier(qualifiers[i], params[i]), expected[i])
+        for idx, par in enumerate(params):
+            self.assertEqual(time_helper.cast_to_time_qualifier(qualifiers[idx], par), expected[idx])
 
     def test_datetime_to_synergy(self):
         dt = datetime(year=2010, month=12, day=31, hour=23, minute=50, second=15)
@@ -68,8 +68,8 @@ class TestTimeHelper(unittest.TestCase):
                     '2010120000',
                     '2010000000']
 
-        for i in range(4):
-            self.assertEqual(time_helper.datetime_to_synergy(qualifiers[i], dt), expected[i])
+        for idx, qua in enumerate(qualifiers):
+            self.assertEqual(time_helper.datetime_to_synergy(qua, dt), expected[idx])
 
     def test_synergy_to_datetime(self):
         qualifiers = [QUALIFIER_REAL_TIME,
@@ -90,86 +90,86 @@ class TestTimeHelper(unittest.TestCase):
                   '2010120000',
                   '2010000000']
 
-        for i in range(5):
-            self.assertEqual(time_helper.synergy_to_datetime(qualifiers[i], params[i]), expected[i])
+        for idx, par in enumerate(params):
+            self.assertEqual(time_helper.synergy_to_datetime(qualifiers[idx], par), expected[idx])
 
     def test_increment_time(self):
         stamps = ['2011010100', '2011010112', '2011010123']
         expected = ['2011010101', '2011010113', '2011010200']
-        for i in range(3):
-            self.assertEqual(time_helper.increment_timeperiod(QUALIFIER_HOURLY, stamps[i]), expected[i])
+        for idx, stamp in enumerate(stamps):
+            self.assertEqual(time_helper.increment_timeperiod(QUALIFIER_HOURLY, stamp), expected[idx])
 
         stamps = ['2011010100', '2011013100', '2010123100']
         expected = ['2011010200', '2011020100', '2011010100']
-        for i in range(3):
-            self.assertEqual(time_helper.increment_timeperiod(QUALIFIER_DAILY, stamps[i]), expected[i])
+        for idx, stamp in enumerate(stamps):
+            self.assertEqual(time_helper.increment_timeperiod(QUALIFIER_DAILY, stamp), expected[idx])
 
         stamps = ['2011010000', '2011120000', '2011100000']
         expected = ['2011020000', '2012010000', '2011110000']
-        for i in range(3):
-            self.assertEqual(time_helper.increment_timeperiod(QUALIFIER_MONTHLY, stamps[i]), expected[i])
+        for idx, stamp in enumerate(stamps):
+            self.assertEqual(time_helper.increment_timeperiod(QUALIFIER_MONTHLY, stamp), expected[idx])
 
         stamps = ['2011000000', '2012000000', '2099000000']
         expected = ['2012000000', '2013000000', '2100000000']
-        for i in range(3):
-            self.assertEqual(time_helper.increment_timeperiod(QUALIFIER_YEARLY, stamps[i]), expected[i])
+        for idx, stamp in enumerate(stamps):
+            self.assertEqual(time_helper.increment_timeperiod(QUALIFIER_YEARLY, stamp), expected[idx])
 
     def test_shift_time_by_delta(self):
         stamps = ['2011010100', '2011010112', '2011010123']
         expected = ['2011010103', '2011010115', '2011010202']
-        for i in range(3):
-            self.assertEqual(time_helper.increment_timeperiod(QUALIFIER_HOURLY, stamps[i], delta=3), expected[i])
+        for idx, stamp in enumerate(stamps):
+            self.assertEqual(time_helper.increment_timeperiod(QUALIFIER_HOURLY, stamp, delta=3), expected[idx])
 
         stamps = ['2011010100', '2011010112', '2011010123']
         expected = ['2010123121', '2011010109', '2011010120']
-        for i in range(3):
-            self.assertEqual(time_helper.increment_timeperiod(QUALIFIER_HOURLY, stamps[i], delta=-3), expected[i])
+        for idx, stamp in enumerate(stamps):
+            self.assertEqual(time_helper.increment_timeperiod(QUALIFIER_HOURLY, stamp, delta=-3), expected[idx])
 
         stamps = ['2011010100', '2011013100', '2010123100']
         expected = ['2011010400', '2011020300', '2011010300']
-        for i in range(3):
-            self.assertEqual(time_helper.increment_timeperiod(QUALIFIER_DAILY, stamps[i], delta=3), expected[i])
+        for idx, stamp in enumerate(stamps):
+            self.assertEqual(time_helper.increment_timeperiod(QUALIFIER_DAILY, stamp, delta=3), expected[idx])
 
         stamps = ['2011010100', '2011013100', '2010123100']
         expected = ['2010122900', '2011012800', '2010122800']
-        for i in range(3):
-            self.assertEqual(time_helper.increment_timeperiod(QUALIFIER_DAILY, stamps[i], delta=-3), expected[i])
+        for idx, stamp in enumerate(stamps):
+            self.assertEqual(time_helper.increment_timeperiod(QUALIFIER_DAILY, stamp, delta=-3), expected[idx])
 
         stamps = ['2011010000', '2011090000', '2010120000']
         expected = ['2011040000', '2011120000', '2011030000']
-        for i in range(3):
-            self.assertEqual(time_helper.increment_timeperiod(QUALIFIER_MONTHLY, stamps[i], delta=3), expected[i])
+        for idx, stamp in enumerate(stamps):
+            self.assertEqual(time_helper.increment_timeperiod(QUALIFIER_MONTHLY, stamp, delta=3), expected[idx])
 
         stamps = ['2011010000', '2011090000', '2010120000']
         expected = ['2010100000', '2011060000', '2010090000']
-        for i in range(3):
-            self.assertEqual(time_helper.increment_timeperiod(QUALIFIER_MONTHLY, stamps[i], delta=-3), expected[i])
+        for idx, stamp in enumerate(stamps):
+            self.assertEqual(time_helper.increment_timeperiod(QUALIFIER_MONTHLY, stamp, delta=-3), expected[idx])
 
         stamps = ['2011010000', '2011090000', '2010120000']
         expected = ['2013020000', '2013100000', '2013010000']
-        for i in range(3):
-            self.assertEqual(time_helper.increment_timeperiod(QUALIFIER_MONTHLY, stamps[i], delta=25), expected[i])
+        for idx, stamp in enumerate(stamps):
+            self.assertEqual(time_helper.increment_timeperiod(QUALIFIER_MONTHLY, stamp, delta=25), expected[idx])
 
         stamps = ['2011010000', '2011090000', '2010120000']
         expected = ['2008120000', '2009080000', '2008110000']
-        for i in range(3):
-            self.assertEqual(time_helper.increment_timeperiod(QUALIFIER_MONTHLY, stamps[i], delta=-25), expected[i])
+        for idx, stamp in enumerate(stamps):
+            self.assertEqual(time_helper.increment_timeperiod(QUALIFIER_MONTHLY, stamp, delta=-25), expected[idx])
 
         stamps = ['2011010000', '2011120000', '2011100000']
         expected = ['2010120000', '2011110000', '2011090000']
-        for i in range(3):
-            self.assertEqual(time_helper.increment_timeperiod(QUALIFIER_MONTHLY, stamps[i], delta=-1),
-                             expected[i])
+        for idx, stamp in enumerate(stamps):
+            self.assertEqual(time_helper.increment_timeperiod(QUALIFIER_MONTHLY, stamp, delta=-1),
+                             expected[idx])
 
         stamps = ['2011000000', '2012000000', '2099000000']
         expected = ['2016000000', '2017000000', '2104000000']
-        for i in range(3):
-            self.assertEqual(time_helper.increment_timeperiod(QUALIFIER_YEARLY, stamps[i], delta=5), expected[i])
+        for idx, stamp in enumerate(stamps):
+            self.assertEqual(time_helper.increment_timeperiod(QUALIFIER_YEARLY, stamp, delta=5), expected[idx])
 
         stamps = ['2011000000', '2012000000', '2099000000']
         expected = ['2006000000', '2007000000', '2094000000']
-        for i in range(3):
-            self.assertEqual(time_helper.increment_timeperiod(QUALIFIER_YEARLY, stamps[i], delta=-5), expected[i])
+        for idx, stamp in enumerate(stamps):
+            self.assertEqual(time_helper.increment_timeperiod(QUALIFIER_YEARLY, stamp, delta=-5), expected[idx])
 
     def test_duration_calculation(self):
         timestamp_1 = 1305934600.0
