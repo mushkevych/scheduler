@@ -1,6 +1,8 @@
 __author__ = 'Bohdan Mushkevych'
 
 import unittest
+from settings import enable_test_mode
+enable_test_mode()
 
 from mockito import spy, verify, mock, when
 from mockito.matchers import any
@@ -130,8 +132,8 @@ class RegularPipelineUnitTest(unittest.TestCase):
         when(self.time_table_mocked).can_finalize_job_record(any(str), any(Job)).thenReturn(True)
         uow_dao_mock = mock(UnitOfWorkDao)
         when(uow_dao_mock).get_one(any()). \
-            thenReturn(create_unit_of_work(PROCESS_UNIT_TEST, 1, 1, None, unit_of_work.STATE_REQUESTED)). \
-            thenReturn(create_unit_of_work(PROCESS_UNIT_TEST, 1, 1, None, unit_of_work.STATE_PROCESSED))
+            thenReturn(create_unit_of_work(PROCESS_SITE_HOURLY, 1, 1, None, unit_of_work.STATE_REQUESTED)). \
+            thenReturn(create_unit_of_work(PROCESS_SITE_HOURLY, 1, 1, None, unit_of_work.STATE_PROCESSED))
         self.pipeline_real.uow_dao = uow_dao_mock
 
         self.pipeline_real.create_and_publish_uow = then_raise

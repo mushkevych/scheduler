@@ -14,8 +14,9 @@ from synergy.db.model.unit_of_work import UnitOfWork
 from synergy.db.model.worker_mq_request import WorkerMqRequest
 from synergy.db.manager import ds_manager
 from synergy.system import time_helper
-from synergy.conf.process_context import ProcessContext
 from synergy.system.time_qualifier import *
+from synergy.scheduler.scheduler_constants import TYPE_MANAGED
+from synergy.conf.process_context import ProcessContext
 from tests.ut_context import PROCESS_UNIT_TEST
 
 
@@ -123,17 +124,19 @@ def create_unit_of_work(process_name,
         target_collection = None
 
     uow = UnitOfWork()
+    uow.process_name = process_name
     uow.timeperiod = timeperiod
-    uow.start_timeperiod = timeperiod
-    uow.end_timeperiod = timeperiod
     uow.start_id = start_id
     uow.end_id = end_id
+    uow.start_timeperiod = timeperiod
+    uow.end_timeperiod = timeperiod
+    uow.created_at = creation_at
     uow.source = source_collection
     uow.sink = target_collection
     uow.state = state
-    uow.created_at = creation_at
-    uow.process_name = process_name
+    uow.unit_of_work_type = TYPE_MANAGED
     uow.number_of_retries = 0
+    uow.arguments = ProcessContext.get_arguments(process_name)
 
     if uow_id is not None:
         uow.document['_id'] = uow_id

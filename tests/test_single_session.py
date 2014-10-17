@@ -13,11 +13,13 @@ class TestSingleSession(unittest.TestCase):
 
     def test_key(self):
         domain_name = 'test_name'
-        correct_timestamp = '20110101_161633'
-        self.obj.key = (domain_name, correct_timestamp)
+        timeperiod = '20110101161633'
+        session_id = 'session_xxx_yyy'
+        self.obj.key = (domain_name, timeperiod, session_id)
         temp = self.obj.key
         assert temp[0] == domain_name
-        assert temp[1] == correct_timestamp
+        assert temp[1] == timeperiod
+        assert temp[2] == session_id
 
     def test_session_id(self):
         value = 'value_1234567890'

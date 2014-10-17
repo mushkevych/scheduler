@@ -14,10 +14,11 @@ class TestRawData(unittest.TestCase):
     def test_key(self):
         domain_name = 'test_name'
         timestamp = '2011-01-01T16:16:33.123456'
-        self.obj.key = (domain_name, timestamp)
-        temp = self.obj.key
-        assert temp[0] == domain_name
-        assert temp[1] == timestamp
+        session_id = 'session_xxx_yyy'
+        self.obj.key = (domain_name, timestamp, session_id)
+        assert self.obj.key[0] == domain_name
+        assert self.obj.key[1] == timestamp
+        assert self.obj.key[2] == session_id
 
     def test_session_id(self):
         value = 'value_1234567890'

@@ -51,6 +51,16 @@ class RawData(BaseModel):
     def __init__(self, document=None):
         super(RawData, self).__init__(document)
 
+    @BaseModel.key.getter
+    def key(self):
+        return self.data[DOMAIN_NAME], self.data[TIMEPERIOD], self.session_id
+
+    @key.setter
+    def key(self, value):
+        self.data[DOMAIN_NAME] = value[0]
+        self.data[TIMEPERIOD] = value[1]
+        self.session_id = value[2]
+
     @property
     def session_id(self):
         return self.data[SESSION]
