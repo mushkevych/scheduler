@@ -12,7 +12,7 @@
     <b><i>at least year, month and day must be filled</i></b>
 </form>
 
-        <div class="processMenu">
+<div class="processMenu">
 <table style="width: 90%" class="one-column-emphasis">
     <thead>
     <tr class="oce-first">
@@ -20,6 +20,10 @@
         <th scope="col">Process Name</th>
         <th scope="col">Time period</th>
         <th scope="col">State</th>
+        <th scope="col">Reprocess</th>
+        <th scope="col">Skip</th>
+        <th scope="col">Get Uow</th>
+        <th scope="col">View Log</th>
     </tr>
     </thead>
     <tbody>
@@ -30,6 +34,35 @@
         <td>{{ row[0] }}</td>
         <td>{{ row[1] }}</td>
         <td>{{ row[2] }}</td>
+        <td>
+            <form method="GET" action="/action_reprocess/">
+                <input type="hidden" name="process_name" value="{{ row[0] }}" />
+                <input type="hidden" name="timeperiod" value="{{ row[1] }}" />
+                <input type="submit" value="Reprocess" />
+            </form>
+        </td>
+        <td>
+            <form method="GET" action="/action_skip/">
+                <input type="hidden" name="process_name" value="{{ row[0] }}" />
+                <input type="hidden" name="timeperiod" value="{{ row[1] }}" />
+                <input type="submit" value="Skip" />
+            </form>
+        </td>
+        <td>
+            {% set url = 'action=action_get_uow' + '&process_name=' + row[0] + '&timeperiod=' + row[1] %}
+            <form method="GET"
+                 onsubmit="window.open('/object_viewer?{{ url }}','Get Uow',
+                 'toolbar=no,scrollbars=yes,resizable=yes,top=250,left=250,width=400,height=350'); return false;">
+                <input type="submit" value="Get Uow"/>
+            </form>
+        </td>
+        <td>
+            {% set url = 'action=action_get_log' + '&process_name=' + row[0] + '&timeperiod=' + row[1] %}
+            <form method="GET" onsubmit="window.open('/object_viewer?{{ url }}','View Log',
+                 'toolbar=no,scrollbars=yes,resizable=yes,top=250,left=250,width=720,height=480'); return false;">
+                <input type="submit" value="View Log"/>
+            </form>
+        </td>
     </tr>
     {%- endfor -%}
 
@@ -40,13 +73,12 @@
 <div class="hide" id="rmenu">
     <ul>
         <li>
-            <a onclick="process_selected('reprocess')" >Reprocess</a>
+            <a onclick="process_selected('reprocess')">Reprocess</a>
         </li>
         <li>
             <a onclick="process_selected('skip')">Skip</a>
         </li>
     </ul>
 </div>
-
 
 {% endblock %}
