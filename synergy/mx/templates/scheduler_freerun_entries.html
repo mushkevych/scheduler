@@ -54,19 +54,15 @@
         <td>{{ row[5] }}</td>
         <td>{{ row[6]|jsonify }}</td>
         <td>
-            {% set form_url = url_for('action_get_log') %}
-            {% set url = form_url + '?process_name=' + row[2] + '&entry_name=' + row[3] + '&is_freerun=True'%}
-            <form method="GET"
-                 onsubmit="window.open('{{ url }}','View Log',
+            {% set url = 'action=action_get_log' + '&process_name=' + row[2] + '&entry_name=' + row[3] + '&is_freerun=True' %}
+            <form method="GET" onsubmit="window.open('/object_viewer/?{{ url }}','View Log',
                  'toolbar=no,scrollbars=yes,resizable=yes,top=250,left=250,width=720,height=480'); return false;">
                 <input type="submit" value="View Log"/>
             </form>
         </td>
         <td>
-            {% set form_url = url_for('action_get_uow') %}
-            {% set url = form_url + '?process_name=' + row[2] + '&entry_name=' + row[3] + '&is_freerun=True'%}
-            <form method="GET"
-                 onsubmit="window.open('{{ url }}','Get Uow',
+            {% set url = 'action=action_get_uow' + '&process_name=' + row[2] + '&entry_name=' + row[3] + '&is_freerun=True' %}
+            <form method="GET" onsubmit="window.open('/object_viewer/?{{ url }}','Get Uow',
                  'toolbar=no,scrollbars=yes,resizable=yes,top=250,left=250,width=400,height=350'); return false;">
                 <input type="submit" value="Get Uow"/>
             </form>

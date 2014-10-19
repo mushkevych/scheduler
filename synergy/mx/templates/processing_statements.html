@@ -50,15 +50,14 @@
         </td>
         <td>
             {% set url = 'action=action_get_uow' + '&process_name=' + row[0] + '&timeperiod=' + row[1] %}
-            <form method="GET"
-                 onsubmit="window.open('/object_viewer?{{ url }}','Get Uow',
+            <form method="GET" onsubmit="window.open('/object_viewer/?{{ url }}','Get Uow',
                  'toolbar=no,scrollbars=yes,resizable=yes,top=250,left=250,width=400,height=350'); return false;">
                 <input type="submit" value="Get Uow"/>
             </form>
         </td>
         <td>
             {% set url = 'action=action_get_log' + '&process_name=' + row[0] + '&timeperiod=' + row[1] %}
-            <form method="GET" onsubmit="window.open('/object_viewer?{{ url }}','View Log',
+            <form method="GET" onsubmit="window.open('/object_viewer/?{{ url }}','View Log',
                  'toolbar=no,scrollbars=yes,resizable=yes,top=250,left=250,width=720,height=480'); return false;">
                 <input type="submit" value="View Log"/>
             </form>
