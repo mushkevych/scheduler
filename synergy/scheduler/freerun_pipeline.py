@@ -1,23 +1,21 @@
-from synergy.conf.process_context import ProcessContext
-
 __author__ = 'Bohdan Mushkevych'
 
 from datetime import datetime
 from logging import ERROR, WARNING, INFO
 
+from synergy.conf.process_context import ProcessContext
 from synergy.db.error import DuplicateKeyError
 from synergy.db.model import unit_of_work
 from synergy.db.model.unit_of_work import UnitOfWork
 from synergy.db.model.worker_mq_request import WorkerMqRequest
 from synergy.db.model.scheduler_freerun_entry import SchedulerFreerunEntry, MAX_NUMBER_OF_LOG_ENTRIES
-from synergy.scheduler.scheduler_constants import PIPELINE_FREERUN, TYPE_FREERUN
-from synergy.system.time_qualifier import QUALIFIER_REAL_TIME
-from synergy.system import time_helper
-
 from synergy.db.dao.unit_of_work_dao import UnitOfWorkDao
 from synergy.db.dao.scheduler_freerun_entry_dao import SchedulerFreerunEntryDao
-from synergy.mq.flopsy import PublishersPool
+from synergy.system import time_helper
+from synergy.system.time_qualifier import QUALIFIER_REAL_TIME
 from synergy.system.decorator import with_reconnect
+from synergy.scheduler.scheduler_constants import PIPELINE_FREERUN, TYPE_FREERUN
+from synergy.mq.flopsy import PublishersPool
 
 
 class FreerunPipeline(object):

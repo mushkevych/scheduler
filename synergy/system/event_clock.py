@@ -3,7 +3,7 @@ __author__ = 'Bohdan Mushkevych'
 from datetime import datetime, timedelta
 from synergy.system.repeat_timer import RepeatTimer
 
-TRIGGER_INTERVAL = 60  # 1 minute
+TRIGGER_INTERVAL = 30  # half a minute
 EVERY_DAY = '*'        # marks every day as suitable to trigger the event
 TIME_OF_DAY_FORMAT = "%H:%M"
 TRIGGER_PREAMBLE_AT = 'at '
@@ -122,11 +122,17 @@ class EventClock(object):
         self.handler = RepeatTimer(TRIGGER_INTERVAL, self.manage_schedule)
         self.activation_dt = None
 
+    def _trigger_now(self):
+        if self.activation_dt is not None and datetime.utcnow() - self.activation_dt < timedelta(minutes=1):
+            # the event was already triggered within 1 minute. no need to trigger it again
+            return
+        self.call_back(*self.args, **self.kwargs)
+        self.activation_dt = datetime.utcnow()
+
     def manage_schedule(self, *_):
         current_time = EventTime.utc_now()
         if current_time in self.timestamps:
-            self.call_back(*self.args, **self.kwargs)
-            self.activation_dt = datetime.utcnow()
+            self._trigger_now()
 
     def start(self):
         self.handler.start()
@@ -137,8 +143,7 @@ class EventClock(object):
     def trigger(self):
         current_time = EventTime.utc_now()
         if current_time not in self.timestamps:
-            self.call_back(*self.args, **self.kwargs)
-            self.activation_dt = datetime.utcnow()
+            self._trigger_now()
         else:
             # leave it to the regular flow to trigger the call_back via manage_schedule method
             pass
