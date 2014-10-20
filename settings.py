@@ -49,7 +49,7 @@ testable_modules = [
 
 test_cases = [
     'tests.test_continuous_pipeline',
-    #'tests.test_decorator',
+    'tests.test_decorator',
     'tests.test_publishers_pool',
     'tests.test_discrete_pipeline',
     'tests.test_garbage_collector',
