@@ -14,26 +14,26 @@ from synergy.conf import settings
 from synergy.system.decimal_encoder import DecimalEncoder
 from synergy.conf.process_context import ProcessContext
 from synergy.workers.abstract_mq_worker import AbstractMqWorker
-from synergy.system.performance_tracker import AggregatorPerformanceTicker
+from synergy.system.performance_tracker import UowAwareTracker
 
 
-class AbstractAwareWorker(AbstractMqWorker):
+class AbstractUowAwareWorker(AbstractMqWorker):
     """ Abstract class is inherited by all workers/aggregators
     that are aware of unit_of_work and capable of processing it"""
 
     def __init__(self, process_name):
-        super(AbstractAwareWorker, self).__init__(process_name)
+        super(AbstractUowAwareWorker, self).__init__(process_name)
         self.aggregated_objects = dict()
         self.uow_dao = UnitOfWorkDao(self.logger)
         self.ds = ds_manager.ds_factory(self.logger)
 
     def __del__(self):
         self._flush_aggregated_objects()
-        super(AbstractAwareWorker, self).__del__()
+        super(AbstractUowAwareWorker, self).__del__()
 
     # **************** Abstract Methods ************************
     def _init_performance_ticker(self, logger):
-        self.performance_ticker = AggregatorPerformanceTicker(logger)
+        self.performance_ticker = UowAwareTracker(logger)
         self.performance_ticker.start()
 
     def _get_tunnel_port(self):

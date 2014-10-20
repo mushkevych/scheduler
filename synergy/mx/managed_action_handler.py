@@ -15,8 +15,8 @@ class ManagedActionHandler(AbstractActionHandler):
         self.process_name = request.args.get('process_name')
         self.timeperiod = request.args.get('timeperiod')
         self.is_request_valid = self.mbean is not None \
-                                        and self.process_name is not None \
-                                        and self.timeperiod is not None
+                                and self.process_name is not None \
+                                and self.timeperiod is not None
 
         if self.is_request_valid:
             self.process_name = self.process_name.strip()

@@ -10,7 +10,7 @@ from datetime import datetime
 import fabric.operations
 from synergy.conf import settings
 from synergy.workers.abstract_mq_worker import AbstractMqWorker
-from synergy.system.performance_tracker import AggregatorPerformanceTicker
+from synergy.system.performance_tracker import UowAwareTracker
 from synergy.db.model import unit_of_work
 from synergy.db.model.worker_mq_request import WorkerMqRequest
 from synergy.db.manager import ds_manager
@@ -37,7 +37,7 @@ class AbstractFileCollectorWorker(AbstractMqWorker):
 
     # **************** Abstract Methods ************************
     def _init_performance_ticker(self, logger):
-        self.performance_ticker = AggregatorPerformanceTicker(logger)
+        self.performance_ticker = UowAwareTracker(logger)
         self.performance_ticker.start()
 
     def _get_source_folder(self):

@@ -5,7 +5,7 @@ from synergy.db.model import unit_of_work
 from synergy.db.model.worker_mq_request import WorkerMqRequest
 from synergy.db.dao.unit_of_work_dao import UnitOfWorkDao
 from synergy.workers.abstract_mq_worker import AbstractMqWorker
-from synergy.system.performance_tracker import AggregatorPerformanceTicker
+from synergy.system.performance_tracker import UowAwareTracker
 
 
 class IdentityWorker(AbstractMqWorker):
@@ -21,7 +21,7 @@ class IdentityWorker(AbstractMqWorker):
 
     # **************** Abstract Methods ************************
     def _init_performance_ticker(self, logger):
-        self.performance_ticker = AggregatorPerformanceTicker(logger)
+        self.performance_ticker = UowAwareTracker(logger)
         self.performance_ticker.start()
 
     # ********************** thread-related methods ****************************

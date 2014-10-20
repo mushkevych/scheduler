@@ -118,16 +118,19 @@ class TickerThread(object):
     def _run_tick_thread(self):
         self._print_footprint()
 
-        summary_output = ''
-        for tracker_name, tracker in self.trackers.iteritems():
-            summary_output += tracker.to_string(self.interval) + '\n'
-        self.logger.info(summary_output)
+        current_time = time.time()
+        do_24h_reset = current_time - self.mark_24_hours > self.SECONDS_IN_24_HOURS
+        if do_24h_reset:
+            self.mark_24_hours = current_time
 
+        tracker_outputs = []
         for tracker_name, tracker in self.trackers.iteritems():
+            tracker_outputs.append(tracker.to_string(self.interval))
             tracker.reset_tick()
-            if time.time() - self.mark_24_hours > self.SECONDS_IN_24_HOURS:
+            if do_24h_reset:
                 tracker.reset_24h()
-                self.mark_24_hours = time.time()
+
+        self.logger.info('\n'.join(tracker_outputs))
 
 
 class SimpleTracker(TickerThread):
@@ -160,25 +163,23 @@ class SessionPerformanceTracker(TickerThread):
         return self.get_tracker(self.TRACKER_UPDATE)
 
 
-class AggregatorPerformanceTicker(SimpleTracker):
+class UowAwareTracker(SimpleTracker):
     STATE_IDLE = 'state_idle'
     STATE_PROCESSING = 'state_processing'
 
     def __init__(self, logger):
-        super(AggregatorPerformanceTicker, self).__init__(logger)
+        super(UowAwareTracker, self).__init__(logger)
         self.state = self.STATE_IDLE
         self.per_job = 0
         self.uow_obj = None
         self.state_triggered_at = time.time()
 
     def _run_tick_thread(self):
-        super(AggregatorPerformanceTicker, self)._run_tick_thread()
+        super(UowAwareTracker, self)._run_tick_thread()
 
         if self.state == self.STATE_PROCESSING:
             msg = 'State: %s for %d sec; %d in this uow;' \
-                  % (self.state,
-                     time.time() - self.state_triggered_at,
-                     self.per_job)
+                  % (self.state, time.time() - self.state_triggered_at, self.per_job)
         else:
             msg = 'State: %s for %d sec;' % (self.state, time.time() - self.state_triggered_at)
         self.logger.info(msg)
