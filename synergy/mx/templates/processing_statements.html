@@ -29,7 +29,7 @@
 
     {%- for row in details.entries -%}
     <tr id="{{ row[2] }}">
-        {% set value = {'process_name': '{{ row[0] }}', 'timeperiod': '{{ row[1] }}' } %}
+        {% set value = "{ process_name: '" + row[0] + "', timeperiod: '" + row[1] + "' }" %}
         <td><input type='checkbox' name='batch_processing' value="{{ value }}" /></td>
         <td>{{ row[0] }}</td>
         <td>{{ row[1] }}</td>
@@ -71,10 +71,10 @@
 <div class="context_menu_hide" id="rmenu">
     <ul>
         <li>
-            <a onclick="process_batch('action_reprocess')">Reprocess</a>
+            <a onclick="process_batch('action_reprocess', false)">Reprocess</a>
         </li>
         <li>
-            <a onclick="process_batch('action_skip')">Skip</a>
+            <a onclick="process_batch('action_skip', false)">Skip</a>
         </li>
     </ul>
 </div>

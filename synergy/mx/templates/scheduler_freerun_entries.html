@@ -23,7 +23,7 @@
     {%- for row in details.freerun_entries %}
     <tr>
         <td>
-            {% set value = {'process_name': '{{ row[2] }}', 'entry_name': '{{ row[3] }}', 'is_freerun': 'True' } %}
+            {% set value = "{ process_name: '" + row[2] + "', entry_name: '" + row[3] + "', is_freerun: 'True' }" %}
             <input type="checkbox" name="batch_processing" value="{{ value }}"/>
         </td>
         <td>
@@ -108,10 +108,10 @@
 <div class="context_menu_hide" id="rmenu">
     <ul>
         <li>
-            <a onclick="process_batch('action_activate_trigger')">Activate</a>
+            <a onclick="process_batch('action_activate_trigger', true)">Activate</a>
         </li>
         <li>
-            <a onclick="process_batch('action_deactivate_trigger')">Deactivate</a>
+            <a onclick="process_batch('action_deactivate_trigger', true)">Deactivate</a>
         </li>
     </ul>
 </div>

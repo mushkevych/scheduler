@@ -37,20 +37,17 @@ class ManagedActionHandler(AbstractActionHandler):
         node = tree.get_node_by_process(self.process_name, self.timeperiod)
         return node
 
-    @AbstractActionHandler.scheduler_thread_handler.getter
     @valid_action_request
     def scheduler_thread_handler(self):
         handler_key = self.process_name
-        return self.mbean.freerun_handlers[handler_key]
+        return self.mbean.managed_handlers[handler_key]
 
-    @AbstractActionHandler.scheduler_entry.getter
     @valid_action_request
     def scheduler_entry(self):
-        scheduler_entry_obj = self.scheduler_thread_handler.args[1]
+        scheduler_entry_obj = self.scheduler_thread_handler().args[1]
         assert isinstance(scheduler_entry_obj, SchedulerManagedEntry)
         return scheduler_entry_obj
 
-    @AbstractActionHandler.scheduler_entry_dao.getter
     @valid_action_request
     def scheduler_entry_dao(self):
         return self.se_managed_dao

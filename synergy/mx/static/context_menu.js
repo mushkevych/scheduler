@@ -1,6 +1,6 @@
 // Select all checkboxes
 function toggle_all_checkboxes(source) {
-    checkboxes = document.getElementsByName('batch_processing');
+    var checkboxes = document.getElementsByName('batch_processing');
     for (var i = 0, n = checkboxes.length; i < n; i++) {
         checkboxes[i].checked = source.checked;
     }
@@ -66,29 +66,40 @@ function get_checked_boxes(checkbox_name) {
     return selected_checkboxes.length > 0 ? selected_checkboxes : null;
 }
 
-function process_batch(action) {
+function process_batch(action, is_freerun) {
     var selected = get_checked_boxes('batch_processing');
     var msg = 'You are about to ' + action + ' all selected';
     var i;
     var process_name;
     var unit_name;
     var timeperiod;
-    var is_freerun;
+    var json;
 
     if (confirm(msg)) {
         if (action.indexOf('skip') > -1 || action.indexOf('reprocess') > -1) {
             for (i = 0; i < selected.length; i++) {
-                process_name = selected[i].value['process_name'];
-                timeperiod = selected[i].value['timeperiod'];
+                json = eval("(" + selected[i].value + ")");
+                process_name = json['process_name'];
+                timeperiod = json['timeperiod'];
                 process_timeperiod(action, process_name, timeperiod, false);
             }
         } else if (action.indexOf('activate') > -1 || action.indexOf('deactivate') > -1) {
-            for (i = 0; i < selected.length; i++) {
-                process_name = selected[i].value['process_name'];
-                unit_name = selected[i].value['unit_name'];
-                is_freerun = 'X' in selected[i].value;
-                process_trigger(action, process_name, null, unit_name, is_freerun, false);
+            if (is_freerun) {
+                for (i = 0; i < selected.length; i++) {
+                    json = eval("(" + selected[i].value + ")");
+                    process_name = json['process_name'];
+                    unit_name = json['unit_name'];
+                    process_trigger(action, process_name, null, unit_name, is_freerun, i < selected.length -1, false);
+                }
+            } else {
+                for (i = 0; i < selected.length; i++) {
+                    json = eval("(" + selected[i].value + ")");
+                    process_name = json['process_name'];
+                    timeperiod = json['timeperiod'];
+                    process_trigger(action, process_name, timeperiod, null, is_freerun, i < selected.length -1, false);
+                }
             }
+
         } else {
             alert('Action ' + action + ' is not yet supported by Synergy Scheduler MX JavaScript library.')
         }
@@ -105,13 +116,13 @@ function process_timeperiod(action, process_name, timeperiod, show_confirmation_
         }
     }
 
-    var params = { timeperiod: timeperiod, process_name: process_name };
-    $.get(action, params, function (response) {
+    var params = { 'process_name': process_name, 'timeperiod': timeperiod };
+    $.get('/' + action, params, function (response) {
 //        alert("response is " + response);
     });
 }
 
-function process_trigger(action, process_name, timeperiod, unit_name, is_freerun, show_confirmation_dialog) {
+function process_trigger(action, process_name, timeperiod, unit_name, is_freerun, is_batch, show_confirmation_dialog) {
     if (show_confirmation_dialog) {
         var msg = 'You are about to ' + action + ' ' + timeperiod + ' for ' + process_name;
         if (confirm(msg)) {
@@ -123,12 +134,12 @@ function process_trigger(action, process_name, timeperiod, unit_name, is_freerun
 
     var params;
     if (is_freerun) {
-        params = { timeperiod: timeperiod, process_name: process_name };
+        params = { 'process_name': process_name, 'timeperiod': timeperiod, 'unit_name': unit_name, 'is_freerun': is_freerun, 'is_batch': is_batch };
     } else {
-        params = { timeperiod: timeperiod, unit_name: unit_name, is_freerun: true };
+        params = { 'process_name': process_name, 'timeperiod': timeperiod, 'is_freerun': is_freerun, 'is_batch': is_batch };
     }
 
-    $.get(action, params, function (response) {
+    $.get('/' + action, params, function (response) {
 //        alert("response is " + response);
     });
 }
