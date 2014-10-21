@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
     <meta http-equiv="content-type" content="text/html; charset=UTF-8"/>
-    <link rel="stylesheet" type="text/css" href="{{ url_for('static', file='ui_style.css') }}">
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', file='scheduler_ui.css') }}">
     <script type="text/javascript" src="{{ url_for('static', file='jquery-1.8.2.min.js') }}"></script>
     <script type="text/javascript" src="{{ url_for('static', file='jquery.dataTables-1.9.4.min.js') }}"></script>
     <script type="text/javascript" src="{{ url_for('static', file='scheduler_ui.js') }}"></script>
@@ -43,8 +43,11 @@
 <div class="body">{% block body %}{% endblock %}</div>
 <br/>
 
-<div id="footer" style="text-align: right"><a
-        href="mailto:mushkevych@users.noreply.github.com?subject=Comments to Scheduler MX page">Feedback</a></div>
+<div id="footer" style="text-align: right">
+    <a href="mailto:mushkevych@users.noreply.github.com?subject=Comments to Scheduler MX page">Feedback</a>
+</div>
 
 </body>
+
+<script type="text/javascript" src="{{ url_for('static', file='context_menu.js') }}"></script>
 </html>

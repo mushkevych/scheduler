@@ -1,9 +1,9 @@
 {% extends 'main_header.html' %}
 {% block body %}
-<table style="width: 90%" class="one-column-emphasis process-menu">
+<table style="width: 90%" class="one-column-emphasis context-menu">
     <thead>
     <tr class="oce-first">
-        <th scope="col"><input type='checkbox' name ='select_all' onclick='toggle(this)'/> </th>
+        <th scope="col"><input type='checkbox' name ='select_all' onclick='toggle_all_checkboxes(this)'/> </th>
         <th scope="col">On/Off</th>
         <th scope="col">Trigger Is Alive</th>
         <th scope="col">Process Name</th>
@@ -105,7 +105,7 @@
     </tbody>
 </table>
 
-<div class="hide" id="rmenu">
+<div class="context_menu_hide" id="rmenu">
     <ul>
         <li>
             <a onclick="process_batch('action_activate_trigger')">Activate</a>

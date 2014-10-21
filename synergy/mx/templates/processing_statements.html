@@ -12,10 +12,10 @@
     <b><i>at least year, month and day must be filled</i></b>
 </form>
 
-<table id="ProcessingStatements" style="width: 90%" class="one-column-emphasis process-menu">
+<table style="width: 90%" class="one-column-emphasis context-menu">
     <thead>
     <tr class="oce-first">
-        <th scope="col"><input type='checkbox' name ='select_all' onclick='toggle(this)'/> </th>
+        <th scope="col"><input type='checkbox' name ='select_all' onclick='toggle_all_checkboxes(this)'/> </th>
         <th scope="col">Process Name</th>
         <th scope="col">Time period</th>
         <th scope="col">State</th>
@@ -68,7 +68,7 @@
     </tbody>
 </table>
 
-<div class="hide" id="rmenu">
+<div class="context_menu_hide" id="rmenu">
     <ul>
         <li>
             <a onclick="process_batch('action_reprocess')">Reprocess</a>
