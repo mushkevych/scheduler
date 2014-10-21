@@ -1,6 +1,8 @@
 __author__ = 'Bohdan Mushkevych'
 
 from synergy.db.model.scheduler_managed_entry import SchedulerManagedEntry
+from synergy.db.dao.scheduler_managed_entry_dao import SchedulerManagedEntryDao
+from synergy.db.dao.unit_of_work_dao import UnitOfWorkDao
 from synergy.scheduler.scheduler_constants import TYPE_MANAGED
 from synergy.system import time_helper
 from synergy.conf.process_context import ProcessContext
@@ -14,6 +16,8 @@ class ManagedActionHandler(AbstractActionHandler):
         super(ManagedActionHandler, self).__init__(mbean, request)
         self.process_name = request.args.get('process_name')
         self.timeperiod = request.args.get('timeperiod')
+        self.se_managed_dao = SchedulerManagedEntryDao(self.logger)
+        self.uow_dao = UnitOfWorkDao(self.logger)
         self.is_request_valid = self.mbean is not None \
                                 and self.process_name is not None \
                                 and self.timeperiod is not None
@@ -33,13 +37,23 @@ class ManagedActionHandler(AbstractActionHandler):
         node = tree.get_node_by_process(self.process_name, self.timeperiod)
         return node
 
+    @AbstractActionHandler.scheduler_thread_handler.getter
+    @valid_action_request
+    def scheduler_thread_handler(self):
+        handler_key = self.process_name
+        return self.mbean.freerun_handlers[handler_key]
+
     @AbstractActionHandler.scheduler_entry.getter
     @valid_action_request
     def scheduler_entry(self):
-        thread_handler = self.mbean.freerun_handlers[self.process_name]
-        scheduler_entry_obj = thread_handler.args[1]
+        scheduler_entry_obj = self.scheduler_thread_handler.args[1]
         assert isinstance(scheduler_entry_obj, SchedulerManagedEntry)
         return scheduler_entry_obj
+
+    @AbstractActionHandler.scheduler_entry_dao.getter
+    @valid_action_request
+    def scheduler_entry_dao(self):
+        return self.se_managed_dao
 
     @valid_action_request
     def action_reprocess(self):
@@ -86,15 +100,4 @@ class ManagedActionHandler(AbstractActionHandler):
 
     @valid_action_request
     def action_change_interval(self):
-        thread_handler = self.mbean.managed_handlers[self.process_name]
-        return self._action_change_interval(thread_handler, self.process_name, TYPE_MANAGED)
-
-    @valid_action_request
-    def action_trigger_now(self):
-        thread_handler = self.mbean.managed_handlers[self.process_name]
-        return self._action_trigger_now(thread_handler, self.process_name)
-
-    @valid_action_request
-    def action_change_state(self):
-        thread_handler = self.mbean.managed_handlers[self.process_name]
-        return self._action_change_state(thread_handler)
+        return self._action_change_interval(self.process_name, TYPE_MANAGED)

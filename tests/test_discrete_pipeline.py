@@ -34,7 +34,7 @@ def then_raise(process_name, start_timeperiod, end_timeperiod, start_id, end_id,
     exc = DuplicateKeyError(process_name,
                             start_timeperiod,
                             '0',
-                            '1'
+                            '1',
                             'Simulated Exception')
     raise exc
 

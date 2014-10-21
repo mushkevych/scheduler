@@ -47,21 +47,21 @@ OUTPUT_DOCUMENT.construct_table_row = function (k, v, handler) {
     }
 
     var reprocess_button = $('<button>Reprocess</button>').click(function (e) {
-        process_timeperiod('reprocess', v.process_name, v.timeperiod, true)
+        process_timeperiod('action_reprocess', v.process_name, v.timeperiod, true)
 
     });
     var skip_button = $('<button>Skip</button>').click(function (e) {
-        process_timeperiod('skip', v.process_name, v.timeperiod, true)
+        process_timeperiod('action_skip', v.process_name, v.timeperiod, true)
 
     });
 
     var uow_button = $('<button>Get&nbsp;Uow</button>').click(function (e) {
-        var params = { action: "action_get_uow", timeperiod: v.timeperiod, process_name: v.process_name };
+        var params = { action: 'action_get_uow', timeperiod: v.timeperiod, process_name: v.process_name };
         var viewer_url = '/object_viewer/?' + $.param(params);
         window.open(viewer_url, 'Object Viewer', 'width=400,height=350,screenX=400,screenY=200,scrollbars=1');
     });
     var log_button = $('<button>View&nbsp;Log</button>').click(function (e) {
-        var params = { action: "action_get_log", timeperiod: v.timeperiod, process_name: v.process_name };
+        var params = { action: 'action_get_log', timeperiod: v.timeperiod, process_name: v.process_name };
         var viewer_url = '/object_viewer/?' + $.param(params);
         window.open(viewer_url, 'Object Viewer', 'width=720,height=480,screenX=400,screenY=200,scrollbars=1');
     });
@@ -163,7 +163,7 @@ OUTPUT_DOCUMENT.build_navigational_panel = function (vertical_json) {
                     var right_ul = OUTPUT_DOCUMENT.build_timerecords_panel(response.children, v.number_of_levels == 1);
                     $('#content').hide().html(right_ul).fadeIn('1500');
                 } else {
-                    $('#content').hide().html("No report to show at this moment.").fadeIn('1500');
+                    $('#content').hide().html('No report to show at this moment.').fadeIn('1500');
                 }
             });
         });
@@ -197,35 +197,36 @@ OUTPUT_DOCUMENT.build_navigational_panel = function (vertical_json) {
 
 // Select all checkboxes
 function toggle(source) {
-    checkboxes = document.getElementsByName('selected');
+    checkboxes = document.getElementsByName('batch_processing');
     for (var i = 0, n = checkboxes.length; i < n; i++) {
         checkboxes[i].checked = source.checked;
     }
 }
 
 // Display right click menu
-$(document).ready(function () {
-    if ($("#one-column-emphasis").addEventListener) {
-        $("#one-column-emphasis").addEventListener('contextmenu', function (e) {
-            alert("You've tried to open context menu");  // draw your own menu
+$(window).load(function () {
+    if (document.getElementsByClassName('process-menu').addEventListener) {
+        document.getElementsByClassName('process-menu').addEventListener('contextmenu', function(e) {
+            alert('Hm... please check the Java Script code to see what this means');
             e.preventDefault();
         }, false);
     } else {
-        $('body').on('contextmenu', '.processMenu', function () {
+//        $('body').on('contextmenu', '.process-menu', function () {
+        document.getElementById("ProcessingStatements").attachEvent('oncontextmenu', function () {
             var y = mouseY(event);
             var x = mouseX(event);
-            document.getElementById("rmenu").style.top = y + 'px';
-            document.getElementById("rmenu").style.left = x + 'px';
-            document.getElementById("rmenu").className = "show";
+            document.getElementById('rmenu').style.top = y + 'px';
+            document.getElementById('rmenu').style.left = x + 'px';
+            document.getElementById('rmenu').className = 'show';
 
             window.event.returnValue = false;
         });
     }
 });
 
-// this is from another SO post...
-$(document).bind("click", function (event) {
-    document.getElementById("rmenu").className = "hide";
+// hide the right-click-menu if user clicked outside its boundaries
+$(document).bind('click', function (event) {
+    document.getElementById('rmenu').className = 'hide';
 });
 
 
@@ -254,48 +255,82 @@ function mouseY(evt) {
 
 
 // Get all checked rows
-function getCheckedBoxes(chkboxName) {
-    var checkboxes = document.getElementsByName(chkboxName);
-    var checkboxesChecked = [];
+function get_checked_boxes(checkbox_name) {
+    var checkboxes = document.getElementsByName(checkbox_name);
+    var selected_checkboxes = [];
 
     for (var i = 0; i < checkboxes.length; i++) {
         if (checkboxes[i].checked) {
-            checkboxesChecked.push(checkboxes[i]);
+            selected_checkboxes.push(checkboxes[i]);
         }
     }
     // Return the array if it is non-empty, or null
-    return checkboxesChecked.length > 0 ? checkboxesChecked : null;
+    return selected_checkboxes.length > 0 ? selected_checkboxes : null;
 }
 
-function process_selected(action) {
-    var selected = getCheckedBoxes('selected');
-    var msg = "You are about to " + action + " all selected";
+function process_batch(action) {
+    var selected = get_checked_boxes('batch_processing');
+    var msg = 'You are about to ' + action + ' all selected';
+    var i;
+    var process_name;
+    var unit_name;
+    var timeperiod;
+    var is_freerun;
 
     if (confirm(msg)) {
-        for (var i = 0; i < selected.length; i++) {
-            var temp = selected[i].value.split("--");
-            var process_name = temp[0];
-            var timeperiod = temp[1];
-
-            process_timeperiod(action, process_name, timeperiod);
+        if (action.indexOf('skip') > -1 || action.indexOf('reprocess') > -1) {
+            for (i = 0; i < selected.length; i++) {
+                process_name = selected[i].value['process_name'];
+                timeperiod = selected[i].value['timeperiod'];
+                process_timeperiod(action, process_name, timeperiod, false);
+            }
+        } else if (action.indexOf('activate') > -1 || action.indexOf('deactivate') > -1) {
+            for (i = 0; i < selected.length; i++) {
+                process_name = selected[i].value['process_name'];
+                unit_name = selected[i].value['unit_name'];
+                is_freerun = 'X' in selected[i].value;
+                process_trigger(action, process_name, null, unit_name, is_freerun, false);
+            }
+        } else {
+            alert('Action ' + action + ' is not supported by current MX JS')
         }
     }
 }
 
-function process_timeperiod(action, name, timeperiod, message) {
-    if (message) {
-        var msg = "You are about to " + action + " " + timeperiod + " for " + name;
+function process_timeperiod(action, process_name, timeperiod, show_confirmation_dialog) {
+    if (show_confirmation_dialog) {
+        var msg = 'You are about to ' + action + ' ' + timeperiod + ' for ' + process_name;
         if (confirm(msg)) {
             // fall thru
         } else {
-            return
+            return;
         }
     }
 
-    var endpoints = {skip: '/action_skip', reprocess: '/action_reprocess'};
+    var params = { timeperiod: timeperiod, process_name: process_name };
+    $.get(action, params, function (response) {
+//        alert("response is " + response);
+    });
+}
 
-    var params = { timeperiod: timeperiod, process_name: name };
-    $.get(endpoints[action], params, function (response) {
+function process_trigger(action, process_name, timeperiod, unit_name, is_freerun, show_confirmation_dialog) {
+    if (show_confirmation_dialog) {
+        var msg = 'You are about to ' + action + ' ' + timeperiod + ' for ' + process_name;
+        if (confirm(msg)) {
+            // fall thru
+        } else {
+            return;
+        }
+    }
+
+    var params;
+    if (is_freerun) {
+        params = { timeperiod: timeperiod, process_name: process_name };
+    } else {
+        params = { timeperiod: timeperiod, unit_name: unit_name, is_freerun: true };
+    }
+
+    $.get(action, params, function (response) {
 //        alert("response is " + response);
     });
 }

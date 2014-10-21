@@ -12,11 +12,10 @@
     <b><i>at least year, month and day must be filled</i></b>
 </form>
 
-<div class="processMenu">
-<table style="width: 90%" class="one-column-emphasis">
+<table id="ProcessingStatements" style="width: 90%" class="one-column-emphasis process-menu">
     <thead>
     <tr class="oce-first">
-        <th scope="col"><input type='checkbox' name ='select_all' /> </th>
+        <th scope="col"><input type='checkbox' name ='select_all' onclick='toggle(this)'/> </th>
         <th scope="col">Process Name</th>
         <th scope="col">Time period</th>
         <th scope="col">State</th>
@@ -29,8 +28,9 @@
     <tbody>
 
     {%- for row in details.entries -%}
-    <tr class="{{ row[2] }}">
-        <td><input type='checkbox' name ='select_{{ row[0] }}' /></td>
+    <tr id="{{ row[2] }}">
+        {% set value = {'process_name': '{{ row[0] }}', 'timeperiod': '{{ row[1] }}' } %}
+        <td><input type='checkbox' name='batch_processing' value="{{ value }}" /></td>
         <td>{{ row[0] }}</td>
         <td>{{ row[1] }}</td>
         <td>{{ row[2] }}</td>
@@ -67,15 +67,14 @@
 
     </tbody>
 </table>
-</div>
 
 <div class="hide" id="rmenu">
     <ul>
         <li>
-            <a onclick="process_selected('reprocess')">Reprocess</a>
+            <a onclick="process_batch('action_reprocess')">Reprocess</a>
         </li>
         <li>
-            <a onclick="process_selected('skip')">Skip</a>
+            <a onclick="process_batch('action_skip')">Skip</a>
         </li>
     </ul>
 </div>

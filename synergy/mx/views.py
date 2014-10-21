@@ -153,7 +153,40 @@ def action_change_state(request):
     else:
         handler = ManagedActionHandler(jinja_env.globals['mbean'], request)
         redirect_target = '/scheduler_managed_entries/'
-    handler.action_change_state()
+
+    state = request.args.get('state')
+    if state is None:
+        # request was performed with undefined "state", what means that checkbox was unselected
+        # thus - turning off the thread handler
+        handler.action_deactivate_trigger()
+    else:
+        handler.action_activate_trigger()
+    return redirect(redirect_target)
+
+
+@expose('/action_deactivate_trigger/')
+def action_deactivate_trigger(request):
+    if 'is_freerun' in request.args:
+        handler = FreerunActionHandler(jinja_env.globals['mbean'], request)
+        redirect_target = '/scheduler_freerun_entries/'
+    else:
+        handler = ManagedActionHandler(jinja_env.globals['mbean'], request)
+        redirect_target = '/scheduler_managed_entries/'
+
+    handler.action_deactivate_trigger()
+    return redirect(redirect_target)
+
+
+@expose('/action_activate_trigger/')
+def action_activate_trigger(request):
+    if 'is_freerun' in request.args:
+        handler = FreerunActionHandler(jinja_env.globals['mbean'], request)
+        redirect_target = '/scheduler_freerun_entries/'
+    else:
+        handler = ManagedActionHandler(jinja_env.globals['mbean'], request)
+        redirect_target = '/scheduler_managed_entries/'
+
+    handler.action_activate_trigger()
     return redirect(redirect_target)
 
 

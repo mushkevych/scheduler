@@ -4,6 +4,8 @@ import json
 
 from synergy.db.model import unit_of_work
 from synergy.db.model.scheduler_freerun_entry import SchedulerFreerunEntry
+from synergy.db.dao.unit_of_work_dao import UnitOfWorkDao
+from synergy.db.dao.scheduler_freerun_entry_dao import SchedulerFreerunEntryDao
 from synergy.scheduler.scheduler_constants import TYPE_FREERUN
 from synergy.mx.mx_decorators import valid_action_request
 from synergy.mx.abstract_action_handler import AbstractActionHandler
@@ -14,6 +16,8 @@ class FreerunActionHandler(AbstractActionHandler):
         super(FreerunActionHandler, self).__init__(mbean, request)
         self.process_name = request.args.get('process_name')
         self.entry_name = request.args.get('entry_name')
+        self.se_freerun_dao = SchedulerFreerunEntryDao(self.logger)
+        self.uow_dao = UnitOfWorkDao(self.logger)
         self.is_request_valid = self.mbean is not None \
                                 and self.process_name is not None \
                                 and self.entry_name is not None
@@ -22,14 +26,23 @@ class FreerunActionHandler(AbstractActionHandler):
             self.process_name = self.process_name.strip()
             self.entry_name = self.entry_name.strip()
 
+    @AbstractActionHandler.scheduler_thread_handler.getter
+    @valid_action_request
+    def scheduler_thread_handler(self):
+        handler_key = (self.process_name, self.entry_name)
+        return self.mbean.freerun_handlers[handler_key]
+
     @AbstractActionHandler.scheduler_entry.getter
     @valid_action_request
     def scheduler_entry(self):
-        handler_key = (self.process_name, self.entry_name)
-        thread_handler = self.mbean.freerun_handlers[handler_key]
-        scheduler_entry_obj = thread_handler.args[1]
+        scheduler_entry_obj = self.scheduler_thread_handler.args[1]
         assert isinstance(scheduler_entry_obj, SchedulerFreerunEntry)
         return scheduler_entry_obj
+
+    @AbstractActionHandler.scheduler_entry_dao.getter
+    @valid_action_request
+    def scheduler_entry_dao(self):
+        return self.se_freerun_dao
 
     @valid_action_request
     def action_cancel_uow(self):
@@ -61,19 +74,7 @@ class FreerunActionHandler(AbstractActionHandler):
     @valid_action_request
     def action_change_interval(self):
         handler_key = (self.process_name, self.entry_name)
-        thread_handler = self.mbean.freerun_handlers[handler_key]
-        return self._action_change_interval(thread_handler, handler_key, TYPE_FREERUN)
-
-    @valid_action_request
-    def action_trigger_now(self):
-        handler_key = (self.process_name, self.entry_name)
-        thread_handler = self.mbean.freerun_handlers[handler_key]
-        return self._action_trigger_now(thread_handler, handler_key)
-
-    @valid_action_request
-    def action_change_state(self):
-        thread_handler = self.mbean.freerun_handlers[(self.process_name, self.entry_name)]
-        return self._action_change_state(thread_handler)
+        return self._action_change_interval(handler_key, TYPE_FREERUN)
 
     @valid_action_request
     def action_update_entry(self):
@@ -116,7 +117,7 @@ class FreerunActionHandler(AbstractActionHandler):
             self.se_freerun_dao.update(scheduler_entry_obj)
 
             if is_interval_changed:
-                self._action_change_interval(thread_handler, handler_key, TYPE_FREERUN)
+                self._action_change_interval(handler_key, TYPE_FREERUN)
             if is_state_changed:
                 self._action_change_state(thread_handler)
 
