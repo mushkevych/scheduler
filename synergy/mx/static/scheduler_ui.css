@@ -493,6 +493,14 @@ tr.state_skipped td {
     color: #000000;
 }
 
+tr.state_inconsistent {
+    background-color: #d28aff;
+}
+
+tr.state_inactive {
+    background-color: lightgray;
+}
+
 
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
  * Misc
@@ -631,6 +639,9 @@ table.display tr.odd.row_selected td {
    background-color: #DBFF70;
 }
 
+/*
+ * Right-mouse menu for the
+ */
 .context_menu_show {
     z-index:1000;
     position: absolute;

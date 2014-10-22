@@ -3,7 +3,7 @@ __author__ = 'Bohdan Mushkevych'
 import json
 
 from synergy.db.model import unit_of_work
-from synergy.db.model.scheduler_freerun_entry import SchedulerFreerunEntry
+from synergy.db.model.scheduler_freerun_entry import SchedulerFreerunEntry, STATE_ON, STATE_OFF
 from synergy.db.dao.unit_of_work_dao import UnitOfWorkDao
 from synergy.db.dao.scheduler_freerun_entry_dao import SchedulerFreerunEntryDao
 from synergy.scheduler.scheduler_constants import TYPE_FREERUN
@@ -115,8 +115,11 @@ class FreerunActionHandler(AbstractActionHandler):
 
             if is_interval_changed:
                 self._action_change_interval(handler_key, TYPE_FREERUN)
-            if is_state_changed:
-                self._action_change_state(thread_handler)
+
+            if is_state_changed and self.request.args['state'] == STATE_ON:
+                self.action_activate_trigger()
+            elif is_state_changed and self.request.args['state'] == STATE_OFF:
+                self.action_deactivate_trigger()
 
         elif 'delete_button' in self.request.args:
             self.se_freerun_dao.remove(handler_key)

@@ -132,22 +132,6 @@ def action_trigger_now(request):
         return Response(status=httplib.NO_CONTENT)
 
 
-@expose('/action_change_state/')
-def action_change_state(request):
-    handler, redirect_target, is_batch = preparse_request(request)
-
-    if 'state' in request.args and request.args.get('state') == 'state_on':
-        handler.action_activate_trigger()
-    else:
-        # request was performed with undefined "state", what means that checkbox was unselected
-        handler.action_deactivate_trigger()
-
-    if is_batch:
-        return redirect(redirect_target)
-    else:
-        return Response(status=httplib.NO_CONTENT)
-
-
 @expose('/action_deactivate_trigger/')
 def action_deactivate_trigger(request):
     handler, redirect_target, is_batch = preparse_request(request)

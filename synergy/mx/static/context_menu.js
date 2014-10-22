@@ -82,6 +82,7 @@ function process_batch(action, is_freerun) {
                 process_name = json['process_name'];
                 timeperiod = json['timeperiod'];
                 process_timeperiod(action, process_name, timeperiod, false);
+                selected[i].checked = false;
             }
         } else if (action.indexOf('activate') > -1 || action.indexOf('deactivate') > -1) {
             if (is_freerun) {
@@ -90,6 +91,7 @@ function process_batch(action, is_freerun) {
                     process_name = json['process_name'];
                     unit_name = json['unit_name'];
                     process_trigger(action, process_name, null, unit_name, is_freerun, i < selected.length -1, false);
+                    selected[i].checked = false;
                 }
             } else {
                 for (i = 0; i < selected.length; i++) {
@@ -97,9 +99,9 @@ function process_batch(action, is_freerun) {
                     process_name = json['process_name'];
                     timeperiod = json['timeperiod'];
                     process_trigger(action, process_name, timeperiod, null, is_freerun, i < selected.length -1, false);
+                    selected[i].checked = false;
                 }
             }
-
         } else {
             alert('Action ' + action + ' is not yet supported by Synergy Scheduler MX JavaScript library.')
         }
