@@ -89,8 +89,8 @@ function process_batch(action, is_freerun) {
                 for (i = 0; i < selected.length; i++) {
                     json = eval("(" + selected[i].value + ")");
                     process_name = json['process_name'];
-                    unit_name = json['unit_name'];
-                    process_trigger(action, process_name, null, unit_name, is_freerun, i < selected.length -1, false);
+                    entry_name = json['entry_name'];
+                    process_trigger(action, process_name, null, entry_name, is_freerun, i < selected.length -1, false);
                     selected[i].checked = false;
                 }
             } else {
@@ -124,7 +124,7 @@ function process_timeperiod(action, process_name, timeperiod, show_confirmation_
     });
 }
 
-function process_trigger(action, process_name, timeperiod, unit_name, is_freerun, is_batch, show_confirmation_dialog) {
+function process_trigger(action, process_name, timeperiod, entry_name, is_freerun, is_batch, show_confirmation_dialog) {
     if (show_confirmation_dialog) {
         var msg = 'You are about to ' + action + ' ' + timeperiod + ' for ' + process_name;
         if (confirm(msg)) {
@@ -136,7 +136,7 @@ function process_trigger(action, process_name, timeperiod, unit_name, is_freerun
 
     var params;
     if (is_freerun) {
-        params = { 'process_name': process_name, 'timeperiod': timeperiod, 'unit_name': unit_name, 'is_freerun': is_freerun, 'is_batch': is_batch };
+        params = { 'process_name': process_name, 'entry_name': entry_name, 'is_freerun': is_freerun, 'is_batch': is_batch };
     } else {
         params = { 'process_name': process_name, 'timeperiod': timeperiod, 'is_freerun': is_freerun, 'is_batch': is_batch };
     }

@@ -33,7 +33,7 @@ class FreerunActionHandler(AbstractActionHandler):
 
     @valid_action_request
     def scheduler_entry(self):
-        scheduler_entry_obj = self.scheduler_thread_handler.args[1]
+        scheduler_entry_obj = self.scheduler_thread_handler().args[1]
         assert isinstance(scheduler_entry_obj, SchedulerFreerunEntry)
         return scheduler_entry_obj
 
@@ -72,6 +72,11 @@ class FreerunActionHandler(AbstractActionHandler):
     def action_change_interval(self):
         handler_key = (self.process_name, self.entry_name)
         return self._action_change_interval(handler_key, TYPE_FREERUN)
+
+    @valid_action_request
+    def action_activate_trigger(self):
+        handler_key = (self.process_name, self.entry_name)
+        return self._action_activate_trigger(handler_key, TYPE_FREERUN)
 
     @valid_action_request
     def action_update_entry(self):

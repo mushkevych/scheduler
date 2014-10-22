@@ -98,3 +98,7 @@ class ManagedActionHandler(AbstractActionHandler):
     @valid_action_request
     def action_change_interval(self):
         return self._action_change_interval(self.process_name, TYPE_MANAGED)
+
+    @valid_action_request
+    def action_activate_trigger(self):
+        return self._action_activate_trigger(self.process_name, TYPE_MANAGED)

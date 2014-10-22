@@ -11,6 +11,21 @@ class AbstractActionHandler(object):
         self.logger = self.mbean.logger
         self.request = request
 
+    def _reset_scheduler_thread_handler(self, handler_key, thread_handler, handler_type):
+        cloned_thread_handler = thread_handler.clone()
+        thread_handler.cancel()
+        thread_handler = cloned_thread_handler
+
+        if handler_type == TYPE_MANAGED:
+            del self.mbean.managed_handlers[handler_key]
+            self.mbean.managed_handlers[handler_key] = thread_handler
+        elif handler_type == TYPE_FREERUN:
+            del self.mbean.freerun_handlers[handler_key]
+            self.mbean.freerun_handlers[handler_key] = thread_handler
+        else:
+            raise ValueError('Process/Handler type %s is not known to the system. Skipping it.' % handler_type)
+        return thread_handler
+
     def _action_change_interval(self, handler_key, handler_type):
         resp = dict()
         new_interval = self.request.args.get('interval')
@@ -23,18 +38,7 @@ class AbstractActionHandler(object):
                 thread_handler.change_interval(parsed_trigger_time)
             else:
                 # trigger time requires different type of timer - RepeatTimer instead of EventClock and vice versa
-                thread_handler.cancel()
-                del self.mbean.managed_handlers[handler_key]
-
-                thread_handler = timer_klass(parsed_trigger_time, thread_handler.function, thread_handler.args)
-                if handler_type == TYPE_MANAGED:
-                    self.mbean.managed_handlers[handler_key] = thread_handler
-                elif handler_type == TYPE_FREERUN:
-                    self.mbean.freerun_handlers[handler_key] = thread_handler
-                else:
-                    self.logger.error('Process/Handler type %s is not known to the system. Skipping it.' % handler_type)
-                    return
-
+                thread_handler = self._reset_scheduler_thread_handler(handler_key, thread_handler, handler_type)
                 is_active = self.scheduler_entry().state == scheduler_managed_entry.STATE_ON
                 if is_active:
                     thread_handler.start()
@@ -60,6 +64,9 @@ class AbstractActionHandler(object):
     def action_get_log(self):
         raise NotImplementedError('not implemented yet')
 
+    def action_activate_trigger(self):
+        raise NotImplementedError('not implemented yet')
+
     def action_change_interval(self):
         raise NotImplementedError('not implemented yet')
 
@@ -76,8 +83,9 @@ class AbstractActionHandler(object):
         self.logger.info(message)
         return {'status': message}
 
-    def action_activate_trigger(self):
+    def _action_activate_trigger(self, handler_key, handler_type):
         if not self.scheduler_thread_handler().is_alive():
+            self._reset_scheduler_thread_handler(handler_key, self.scheduler_thread_handler(), handler_type)
             self.scheduler_entry().state = scheduler_managed_entry.STATE_ON
             self.scheduler_thread_handler().start()
             message = 'Started %s for %s with schedule %r' \

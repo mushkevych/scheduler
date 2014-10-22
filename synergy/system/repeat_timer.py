@@ -61,3 +61,6 @@ class RepeatTimer(threading.Thread):
             return next_run - utc_now
         else:
             return None
+
+    def clone(self):
+        return RepeatTimer(self.interval_current, self.call_back, self.args, self.kwargs)
