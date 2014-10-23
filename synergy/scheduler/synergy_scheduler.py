@@ -46,6 +46,11 @@ class Scheduler(SynergyProcess):
         for handler in self.managed_handlers:
             handler.cancel()
         self.managed_handlers.clear()
+
+        for handler in self.freerun_handlers:
+            handler.cancel()
+        self.freerun_handlers.clear()
+
         super(Scheduler, self).__del__()
 
     def _log_message(self, level, process_name, job_record, msg):
