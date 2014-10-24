@@ -44,7 +44,7 @@ class SchedulerEntries(object):
                 row.append(is_on)                                                               # index 0
                 row.append(thread_handler.is_alive())                                           # index 1
                 row.append(process_name)                                                        # index 2
-                row.append(format_time_trigger_string(thread_handler))                          # index 3
+                row.append(format_time_trigger_string(thread_handler.timer_instance))           # index 3
                 row.append(self._handler_next_run(thread_handler))                              # index 4
                 row.append(self._handler_next_timeperiod(process_name))                         # index 5
 
@@ -71,7 +71,7 @@ class SchedulerEntries(object):
                 row.append(thread_handler.is_alive())                                           # index 1
                 row.append(process_name)                                                        # index 2
                 row.append(entry_name)                                                          # index 3
-                row.append(format_time_trigger_string(thread_handler))                          # index 4
+                row.append(format_time_trigger_string(thread_handler.timer_instance))           # index 4
                 row.append(self._handler_next_run(thread_handler))                              # index 5
                 row.append(thread_handler.arguments.scheduler_entry_obj.arguments)              # index 6
 

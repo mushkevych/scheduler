@@ -120,3 +120,6 @@ class ThreadHandler(object):
 
     def next_run_in(self, utc_now=None):
         return self.timer_instance.next_run_in(utc_now)
+
+    def is_alive(self):
+        return self.timer_instance.is_alive()

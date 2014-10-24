@@ -77,8 +77,8 @@
             </form>
         </td>
         <td>
-            {% set form_url = url_for('edit_schedulable_form') %}
-            {% set url = form_url + '?process_name=' + row[2] + '&entry_name=' + row[3] + '&is_freerun=True'%}
+            {% set form_url = url_for('open_schedulable_form') %}
+            {% set url = form_url + '?process_name=' + row[2] + '&entry_name=' + row[3] + '&is_freerun=True' + '&is_new_entry=False'%}
             <form method="GET"
                  onsubmit="window.open('{{ url }}','Edit Freerun Trigger',
                  'toolbar=no,scrollbars=yes,resizable=yes,top=250,left=250,width=750,height=550'); return false;">
@@ -90,8 +90,9 @@
 
     <tr>
         <td colspan="13">
-            {% set form_url = url_for('new_schedulable_form') %}
-            <a href="#" onClick="MyWindow=window.open('{{ form_url }}','New Freerun Trigger',
+            {% set form_url = url_for('open_schedulable_form') %}
+            {% set url = form_url + '?is_new_entry=True'%}
+            <a href="#" onClick="MyWindow=window.open('{{ url }}','New Freerun Trigger',
                 'toolbar=no,scrollbars=yes,resizable=yes,top=250,left=250,width=750,height=550'); return false;">
                 Add New Freerun Trigger
             </a>

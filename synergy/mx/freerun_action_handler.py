@@ -13,8 +13,8 @@ from synergy.mx.abstract_action_handler import AbstractActionHandler
 class FreerunActionHandler(AbstractActionHandler):
     def __init__(self, mbean, request):
         super(FreerunActionHandler, self).__init__(mbean, request)
-        self.process_name = request.args.get('process_name')
-        self.entry_name = request.args.get('entry_name')
+        self.process_name = self.request_arguments.get('process_name')
+        self.entry_name = self.request_arguments.get('entry_name')
         self.se_freerun_dao = SchedulerFreerunEntryDao(self.logger)
         self.uow_dao = UnitOfWorkDao(self.logger)
         self.is_request_valid = self.mbean is not None \
@@ -67,57 +67,57 @@ class FreerunActionHandler(AbstractActionHandler):
     def action_update_entry(self):
         handler_key = (self.process_name, self.entry_name)
 
-        if 'insert_button' in self.request.args:
+        if 'insert_button' in self.request_arguments:
             scheduler_entry_obj = SchedulerFreerunEntry()
             scheduler_entry_obj.process_name = self.process_name
             scheduler_entry_obj.entry_name = self.entry_name
 
-            if self.request.args['arguments']:
-                arguments = self.request.args['arguments'].decode('unicode-escape')
+            if self.request_arguments['arguments']:
+                arguments = self.request_arguments['arguments'].decode('unicode-escape')
                 scheduler_entry_obj.arguments = json.loads(arguments)
             else:
                 scheduler_entry_obj.arguments = {}
 
-            scheduler_entry_obj.description = self.request.args['description']
-            scheduler_entry_obj.state = self.request.args['state']
-            scheduler_entry_obj.trigger_time = self.request.args['trigger_time']
+            scheduler_entry_obj.description = self.request_arguments['description']
+            scheduler_entry_obj.state = self.request_arguments['state']
+            scheduler_entry_obj.trigger_time = self.request_arguments['trigger_time']
             self.se_freerun_dao.update(scheduler_entry_obj)
 
             self.mbean._register_scheduler_entry(scheduler_entry_obj, self.mbean.fire_freerun_worker)
 
-        elif 'update_button' in self.request.args:
+        elif 'update_button' in self.request_arguments:
             thread_handler = self.mbean.freerun_handlers[handler_key]
             scheduler_entry_obj = thread_handler.arguments.scheduler_entry_obj
 
-            is_interval_changed = scheduler_entry_obj.trigger_time != self.request.args['trigger_time']
-            is_state_changed = scheduler_entry_obj.state != self.request.args['state']
+            is_interval_changed = scheduler_entry_obj.trigger_time != self.request_arguments['trigger_time']
+            is_state_changed = scheduler_entry_obj.state != self.request_arguments['state']
 
-            if self.request.args['arguments']:
-                arguments = self.request.args['arguments'].decode('unicode-escape')
+            if self.request_arguments['arguments']:
+                arguments = self.request_arguments['arguments'].decode('unicode-escape')
                 scheduler_entry_obj.arguments = json.loads(arguments)
             else:
                 scheduler_entry_obj.arguments = {}
 
-            scheduler_entry_obj.description = self.request.args['description']
-            scheduler_entry_obj.state = self.request.args['state']
-            scheduler_entry_obj.trigger_time = self.request.args['trigger_time']
+            scheduler_entry_obj.description = self.request_arguments['description']
+            scheduler_entry_obj.state = self.request_arguments['state']
+            scheduler_entry_obj.trigger_time = self.request_arguments['trigger_time']
             self.se_freerun_dao.update(scheduler_entry_obj)
 
             if is_interval_changed:
                 self.action_change_interval()
 
-            if is_state_changed and self.request.args['state'] == STATE_ON:
+            if is_state_changed and self.request_arguments['state'] == STATE_ON:
                 self.action_activate_trigger()
-            elif is_state_changed and self.request.args['state'] == STATE_OFF:
+            elif is_state_changed and self.request_arguments['state'] == STATE_OFF:
                 self.action_deactivate_trigger()
 
-        elif 'delete_button' in self.request.args:
+        elif 'delete_button' in self.request_arguments:
             thread_handler = self.mbean.freerun_handlers[handler_key]
             thread_handler.deactivate()
             self.se_freerun_dao.remove(handler_key)
             del self.mbean.freerun_handlers[handler_key]
 
-        elif 'cancel_button' in self.request.args:
+        elif 'cancel_button' in self.request_arguments:
             pass
 
         else:

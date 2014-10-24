@@ -7,7 +7,8 @@ class AbstractActionHandler(object):
     def __init__(self, mbean, request):
         self.mbean = mbean
         self.logger = self.mbean.logger
-        self.request = request
+        # self.request = request
+        self.request_arguments = request.args if request.args else request.form
         self.is_request_valid = False
 
     @property
@@ -27,7 +28,7 @@ class AbstractActionHandler(object):
     @valid_action_request
     def action_change_interval(self):
         resp = dict()
-        new_interval = self.request.args.get('interval')
+        new_interval = self.request_arguments('interval')
         if new_interval is not None:
             thread_handler = self.scheduler_thread_handler
             thread_handler.change_interval(new_interval)

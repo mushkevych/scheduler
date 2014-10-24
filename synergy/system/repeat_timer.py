@@ -33,7 +33,7 @@ class RepeatTimer(threading.Thread):
                                            self.args,
                                            self.kwargs)
             self.interval_current = self.interval_new
-            self.__timer.activate()
+            self.__timer.start()
             self.__timer.join()
 
     def cancel(self):

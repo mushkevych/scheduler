@@ -71,8 +71,8 @@ function process_batch(action, is_freerun) {
     var msg = 'You are about to ' + action + ' all selected';
     var i;
     var process_name;
-    var unit_name;
     var timeperiod;
+    var entry_name;
     var json;
 
     if (confirm(msg)) {
@@ -119,7 +119,7 @@ function process_timeperiod(action, process_name, timeperiod, show_confirmation_
     }
 
     var params = { 'process_name': process_name, 'timeperiod': timeperiod };
-    $.get('/' + action, params, function (response) {
+    $.get('/' + action + '/', params, function (response) {
 //        alert("response is " + response);
     });
 }
@@ -141,7 +141,7 @@ function process_trigger(action, process_name, timeperiod, entry_name, is_freeru
         params = { 'process_name': process_name, 'timeperiod': timeperiod, 'is_freerun': is_freerun, 'is_batch': is_batch };
     }
 
-    $.get('/' + action, params, function (response) {
+    $.get('/' + action + '/', params, function (response) {
 //        alert("response is " + response);
     });
 }

@@ -12,8 +12,8 @@ from synergy.mx.tree_node_details import TreeNodeDetails
 class ManagedActionHandler(AbstractActionHandler):
     def __init__(self, mbean, request):
         super(ManagedActionHandler, self).__init__(mbean, request)
-        self.process_name = request.args.get('process_name')
-        self.timeperiod = request.args.get('timeperiod')
+        self.process_name = self.request_arguments('process_name')
+        self.timeperiod = self.request_arguments('timeperiod')
         self.uow_dao = UnitOfWorkDao(self.logger)
         self.is_request_valid = self.mbean is not None \
                                 and self.process_name is not None \

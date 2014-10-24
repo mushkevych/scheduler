@@ -29,15 +29,13 @@ def scheduler_freerun_entries(request):
     return render_template('scheduler_freerun_entries.html', details=details)
 
 
-@expose('/edit_schedulable_form/')
-def edit_schedulable_form(request):
-    handler = FreerunActionHandler(jinja_env.globals['mbean'], request)
+@expose('/open_schedulable_form/')
+def open_schedulable_form(request):
+    if 'is_new_entry' in request.args and request.args['is_new_entry'] in ('True', 'true', '1'):
+        handler = None
+    else:
+        handler = FreerunActionHandler(jinja_env.globals['mbean'], request)
     return render_template('schedulable_form.html', handler=handler)
-
-
-@expose('/new_schedulable_form/')
-def new_schedulable_form(request):
-    return render_template('schedulable_form.html', handler=None)
 
 
 @expose('/timetable_details/')
@@ -73,7 +71,7 @@ def request_timeperiods(request):
                     mimetype='application/json')
 
 
-@expose('/action_update_freerun_entry')
+@expose('/action_update_freerun_entry/')
 def action_update_freerun_entry(request):
     handler = FreerunActionHandler(jinja_env.globals['mbean'], request)
     handler.action_update_entry()
@@ -126,7 +124,7 @@ def action_change_interval(request):
 def action_trigger_now(request):
     handler, redirect_target, is_batch = preparse_request(request)
     handler.action_trigger_now()
-    if is_batch:
+    if not is_batch:
         return redirect(redirect_target)
     else:
         return Response(status=httplib.NO_CONTENT)
@@ -136,7 +134,7 @@ def action_trigger_now(request):
 def action_deactivate_trigger(request):
     handler, redirect_target, is_batch = preparse_request(request)
     handler.action_deactivate_trigger()
-    if is_batch:
+    if not is_batch:
         return redirect(redirect_target)
     else:
         return Response(status=httplib.NO_CONTENT)
@@ -146,7 +144,7 @@ def action_deactivate_trigger(request):
 def action_activate_trigger(request):
     handler, redirect_target, is_batch = preparse_request(request)
     handler.action_activate_trigger()
-    if is_batch:
+    if not is_batch:
         return redirect(redirect_target)
     else:
         return Response(status=httplib.NO_CONTENT)
