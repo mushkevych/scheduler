@@ -15,13 +15,13 @@ from synergy.db.dao.scheduler_freerun_entry_dao import SchedulerFreerunEntryDao
 from synergy.system import time_helper
 from synergy.system.decorator import with_reconnect, thread_safe
 from synergy.system.synergy_process import SynergyProcess
-from synergy.system.event_clock import parse_time_trigger_string
 from synergy.scheduler.scheduler_constants import *
 from synergy.scheduler.continuous_pipeline import ContinuousPipeline
 from synergy.scheduler.dicrete_pipeline import DiscretePipeline
 from synergy.scheduler.simplified_dicrete_pipeline import SimplifiedDiscretePipeline
 from synergy.scheduler.freerun_pipeline import FreerunPipeline
 from synergy.scheduler.timetable import Timetable
+from synergy.scheduler.thread_handler import construct_thread_handler, ThreadHandlerArguments
 
 
 class Scheduler(SynergyProcess):
@@ -68,44 +68,28 @@ class Scheduler(SynergyProcess):
             pipelines[pipe.name] = pipe
         return pipelines
 
-    def _construct_handler(self, key, trigger_time, function, parameters):
-        """ method returns either:
-         - alarm clock of type EventClock, when <schedule> is in format 'at HH:MM, ..., HH:MM'
-         - repeat timer of type RepeatTimer, when <schedule> is in format 'every seconds'
-         On trigger event this module triggers call_back function with arguments (args, kwargs)
-        """
-        parsed_trigger_time, timer_klass = parse_time_trigger_string(trigger_time)
-        timer_instance = timer_klass(parsed_trigger_time, function, args=parameters)
-        self.logger.info('Created %s for %r with schedule %r' % (timer_klass.__name__, key, trigger_time))
-        return timer_instance
-
-    def _activate_handler(self, scheduler_entry_obj, process_name, entry_name, function, handler_type):
+    def _activate_handler(self, scheduler_entry_obj, call_back):
         """ method parses scheduler_entry_obj and creates a timer_handler out of it
          timer_handler is enlisted to either :self.freerun_handlers or :self.managed_handlers
          timer_handler is started, unless it is marked as STATE_OFF """
-        trigger_time = scheduler_entry_obj.trigger_time
-        is_active = scheduler_entry_obj.state == scheduler_managed_entry.STATE_ON
+        handler = construct_thread_handler(self.logger, scheduler_entry_obj, call_back)
 
-        if handler_type == TYPE_MANAGED:
-            handler_key = process_name
-            arguments = [handler_key, scheduler_entry_obj, handler_type]
-            handler = self._construct_handler(handler_key, trigger_time, function, arguments)
-            self.managed_handlers[handler_key] = handler
-        elif handler_type == TYPE_FREERUN:
-            handler_key = (process_name, entry_name)
-            arguments = [handler_key, scheduler_entry_obj, handler_type]
-            handler = self._construct_handler(handler_key, trigger_time, function, arguments)
-            self.freerun_handlers[handler_key] = handler
+        if handler.arguments.handler_type == TYPE_MANAGED:
+            self.managed_handlers[handler.arguments.key] = handler
+        elif handler.arguments.handler_type == TYPE_FREERUN:
+            self.freerun_handlers[handler.arguments.key] = handler
         else:
-            self.logger.error('Process/Handler type %s is not known to the system. Skipping it.' % handler_type)
+            self.logger.error('Process/Handler type %s is not known to the system. Skipping it.'
+                              % handler.arguments.handler_type)
             return
 
-        if is_active:
+        if scheduler_entry_obj.state == scheduler_managed_entry.STATE_ON:
             handler.start()
-            self.logger.info('Started scheduler thread for %s:%r.' % (handler_type, handler_key))
+            self.logger.info('Started scheduler thread for %s:%r.'
+                             % (handler.arguments.handler_type, handler.arguments.key))
         else:
             self.logger.info('Handler for %s:%r registered in Scheduler. Idle until activated.'
-                             % (handler_type, handler_key))
+                             % (handler.arguments.handler_type, handler.arguments.key))
 
     # **************** Scheduler Methods ************************
     def _load_managed_entries(self):
@@ -120,10 +104,8 @@ class Scheduler(SynergyProcess):
             process_type = ProcessContext.get_process_type(process_name)
             if process_type in [TYPE_BLOCKING_DEPENDENCIES, TYPE_BLOCKING_CHILDREN, TYPE_MANAGED]:
                 function = self.fire_managed_worker
-                handler_type = TYPE_MANAGED
             elif process_type == TYPE_GARBAGE_COLLECTOR:
                 function = self.fire_garbage_collector
-                handler_type = TYPE_MANAGED
             elif process_type == TYPE_FREERUN:
                 self.logger.error('TYPE_FREERUN process %s was found in scheduler_managed_entry table. '
                                   'Move the process to the scheduler_freerun_entry table. Skipping the process.'
@@ -134,7 +116,7 @@ class Scheduler(SynergyProcess):
                 continue
 
             try:
-                self._activate_handler(scheduler_entry_obj, process_name, 'NA', function, handler_type)
+                self._activate_handler(scheduler_entry_obj, function)
             except Exception:
                 self.logger.error('Scheduler Handler %r failed to start. Skipping it.' % (scheduler_entry_obj.key,))
 
@@ -143,8 +125,7 @@ class Scheduler(SynergyProcess):
         scheduler_entries = self.se_freerun_dao.get_all()
         for scheduler_entry_obj in scheduler_entries:
             try:
-                self._activate_handler(scheduler_entry_obj, scheduler_entry_obj.process_name,
-                                       scheduler_entry_obj.entry_name, self.fire_freerun_worker, TYPE_FREERUN)
+                self._activate_handler(scheduler_entry_obj, self.fire_freerun_worker)
             except Exception:
                 self.logger.error('Scheduler Handler %r failed to start. Skipping it.' % (scheduler_entry_obj.key,))
 
@@ -166,7 +147,7 @@ class Scheduler(SynergyProcess):
         self.mx.start_mx_thread()
 
     @thread_safe
-    def fire_managed_worker(self, *args):
+    def fire_managed_worker(self, thread_handler_arguments):
         """requests next valid job for given process and manages its state"""
 
         def _fire_worker(process_name, scheduler_entry_obj):
@@ -200,13 +181,12 @@ class Scheduler(SynergyProcess):
             return job_record
 
         try:
-            process_name = args[0]
-            scheduler_entry_obj = args[1]
-            self.logger.info('%s {' % process_name)
+            assert isinstance(thread_handler_arguments, ThreadHandlerArguments)
+            self.logger.info('%r {' % (thread_handler_arguments.key, ))
 
-            job_record = _fire_worker(process_name, scheduler_entry_obj)
+            job_record = _fire_worker(thread_handler_arguments.key, thread_handler_arguments.scheduler_entry_obj)
             while job_record is not None and job_record.state in [job.STATE_SKIPPED, job.STATE_PROCESSED]:
-                job_record = _fire_worker(process_name, scheduler_entry_obj)
+                job_record = _fire_worker(thread_handler_arguments.key, thread_handler_arguments.scheduler_entry_obj)
 
         except (AMQPError, IOError) as e:
             self.logger.error('AMQPError: %s' % str(e), exc_info=True)
@@ -217,15 +197,14 @@ class Scheduler(SynergyProcess):
             self.logger.info('}')
 
     @thread_safe
-    def fire_freerun_worker(self, *args):
+    def fire_freerun_worker(self, thread_handler_arguments):
         """fires free-run worker with no dependencies to track"""
         try:
-            process_name, entry_name = args[0]
-            scheduler_entry_obj = args[1]
-            self.logger.info('%s {' % process_name)
+            assert isinstance(thread_handler_arguments, ThreadHandlerArguments)
+            self.logger.info('%r {' % (thread_handler_arguments.key, ))
 
             pipeline = self.pipelines[PIPELINE_FREERUN]
-            pipeline.manage_pipeline_for_schedulable(scheduler_entry_obj)
+            pipeline.manage_pipeline_for_schedulable(thread_handler_arguments.scheduler_entry_obj)
 
         except Exception as e:
             self.logger.error('fire_freerun_worker: %s' % str(e))
@@ -233,21 +212,19 @@ class Scheduler(SynergyProcess):
             self.logger.info('}')
 
     @thread_safe
-    def fire_garbage_collector(self, *args):
+    def fire_garbage_collector(self, thread_handler_arguments):
         """fires garbage collector to re-trigger invalid unit_of_work"""
         try:
-            process_name = args[0]
-            scheduler_entry_obj = args[1]
-            assert isinstance(scheduler_entry_obj, scheduler_managed_entry.SchedulerManagedEntry)
-            self.logger.info('%s {' % process_name)
+            assert isinstance(thread_handler_arguments, ThreadHandlerArguments)
+            self.logger.info('%r {' % (thread_handler_arguments.key, ))
 
             mq_request = WorkerMqRequest()
-            mq_request.process_name = process_name
+            mq_request.process_name = thread_handler_arguments.key
 
-            publisher = self.publishers.get(process_name)
+            publisher = self.publishers.get(thread_handler_arguments.key)
             publisher.publish(mq_request.document)
             publisher.release()
-            self.logger.info('Published trigger for %s' % process_name)
+            self.logger.info('Published trigger for %s' % thread_handler_arguments.key)
 
             self.logger.info('Starting timetable housekeeping...')
             self.timetable.build_trees()
