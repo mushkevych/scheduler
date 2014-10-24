@@ -25,14 +25,14 @@ class FreerunActionHandler(AbstractActionHandler):
             self.process_name = self.process_name.strip()
             self.entry_name = self.entry_name.strip()
 
-    @valid_action_request
+    @AbstractActionHandler.scheduler_thread_handler.getter
     def scheduler_thread_handler(self):
         handler_key = (self.process_name, self.entry_name)
         return self.mbean.freerun_handlers[handler_key]
 
-    @valid_action_request
+    @AbstractActionHandler.scheduler_entry.getter
     def scheduler_entry(self):
-        scheduler_entry_obj = self.scheduler_thread_handler().args[1]
+        scheduler_entry_obj = self.scheduler_thread_handler.arguments.scheduler_entry_obj
         assert isinstance(scheduler_entry_obj, SchedulerFreerunEntry)
         return scheduler_entry_obj
 
@@ -48,6 +48,7 @@ class FreerunActionHandler(AbstractActionHandler):
             resp = {'response': 'updated unit_of_work %r' % uow_id}
         return resp
 
+    @valid_action_request
     def action_get_uow(self):
         uow_id = self.scheduler_entry.related_unit_of_work
         if uow_id is None:
@@ -60,8 +61,7 @@ class FreerunActionHandler(AbstractActionHandler):
 
     @valid_action_request
     def action_get_log(self):
-        scheduler_entry_obj = self.scheduler_entry
-        return {'log': scheduler_entry_obj.log}
+        return {'log': self.scheduler_entry.log}
 
     @valid_action_request
     def action_update_entry(self):

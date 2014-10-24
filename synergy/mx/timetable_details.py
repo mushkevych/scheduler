@@ -17,7 +17,7 @@ class TimetableDetails(object):
         return [x.full_name for x in trees]
 
     def _state_machine_name(self, process_name):
-        return self.mbean.managed_handlers[process_name].args[1].state_machine_name
+        return self.mbean.managed_handlers[process_name].arguments.scheduler_entry_obj.state_machine_name
 
     @cached_property
     def entries(self):

@@ -1,7 +1,6 @@
 __author__ = 'Bohdan Mushkevych'
 
 from synergy.db.model.scheduler_managed_entry import SchedulerManagedEntry
-from synergy.db.dao.scheduler_managed_entry_dao import SchedulerManagedEntryDao
 from synergy.db.dao.unit_of_work_dao import UnitOfWorkDao
 from synergy.system import time_helper
 from synergy.conf.process_context import ProcessContext
@@ -15,7 +14,6 @@ class ManagedActionHandler(AbstractActionHandler):
         super(ManagedActionHandler, self).__init__(mbean, request)
         self.process_name = request.args.get('process_name')
         self.timeperiod = request.args.get('timeperiod')
-        self.se_managed_dao = SchedulerManagedEntryDao(self.logger)
         self.uow_dao = UnitOfWorkDao(self.logger)
         self.is_request_valid = self.mbean is not None \
                                 and self.process_name is not None \
@@ -36,14 +34,14 @@ class ManagedActionHandler(AbstractActionHandler):
         node = tree.get_node_by_process(self.process_name, self.timeperiod)
         return node
 
-    @valid_action_request
+    @AbstractActionHandler.scheduler_thread_handler.getter
     def scheduler_thread_handler(self):
         handler_key = self.process_name
         return self.mbean.managed_handlers[handler_key]
 
-    @valid_action_request
+    @AbstractActionHandler.scheduler_entry.getter
     def scheduler_entry(self):
-        scheduler_entry_obj = self.scheduler_thread_handler().args[1]
+        scheduler_entry_obj = self.scheduler_thread_handler.arguments.scheduler_entry_obj
         assert isinstance(scheduler_entry_obj, SchedulerManagedEntry)
         return scheduler_entry_obj
 

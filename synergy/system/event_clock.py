@@ -113,7 +113,6 @@ class EventClock(object):
     """ This class triggers on predefined time set in format 'day_of_week-HH:MM' or 'HH:MM'
     Maintaining API compatibility with the RepeatTimer class """
     def __init__(self, interval, call_back, args=[], kwargs={}):
-        self.interval_original = interval
         self.timestamps = []
         self.change_interval(interval)
 
@@ -178,6 +177,3 @@ class EventClock(object):
 
     def is_alive(self):
         return self.handler.is_alive()
-
-    def clone(self):
-        return EventClock(self.interval_original, self.call_back, self.args, self.kwargs)
