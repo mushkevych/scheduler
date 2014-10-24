@@ -3,7 +3,6 @@ __author__ = 'Bohdan Mushkevych'
 from synergy.db.model.scheduler_managed_entry import SchedulerManagedEntry
 from synergy.db.dao.scheduler_managed_entry_dao import SchedulerManagedEntryDao
 from synergy.db.dao.unit_of_work_dao import UnitOfWorkDao
-from synergy.scheduler.scheduler_constants import TYPE_MANAGED
 from synergy.system import time_helper
 from synergy.conf.process_context import ProcessContext
 from synergy.mx.mx_decorators import valid_action_request
@@ -49,10 +48,6 @@ class ManagedActionHandler(AbstractActionHandler):
         return scheduler_entry_obj
 
     @valid_action_request
-    def scheduler_entry_dao(self):
-        return self.se_managed_dao
-
-    @valid_action_request
     def action_reprocess(self):
         node = self._get_tree_node()
         self.logger.info('MX (requesting re-process timeperiod %r for %r) {' % (self.timeperiod, self.process_name))
@@ -94,11 +89,3 @@ class ManagedActionHandler(AbstractActionHandler):
     def action_get_log(self):
         node = self._get_tree_node()
         return {'log': node.job_record.log}
-
-    @valid_action_request
-    def action_change_interval(self):
-        return self._action_change_interval(self.process_name, TYPE_MANAGED)
-
-    @valid_action_request
-    def action_activate_trigger(self):
-        return self._action_activate_trigger(self.process_name, TYPE_MANAGED)

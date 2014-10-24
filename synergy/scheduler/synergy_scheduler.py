@@ -44,11 +44,11 @@ class Scheduler(SynergyProcess):
 
     def __del__(self):
         for handler in self.managed_handlers:
-            handler.cancel()
+            handler.deactivate(update_persistent=False)
         self.managed_handlers.clear()
 
         for handler in self.freerun_handlers:
-            handler.cancel()
+            handler.deactivate(update_persistent=False)
         self.freerun_handlers.clear()
 
         super(Scheduler, self).__del__()
@@ -68,7 +68,7 @@ class Scheduler(SynergyProcess):
             pipelines[pipe.name] = pipe
         return pipelines
 
-    def _activate_handler(self, scheduler_entry_obj, call_back):
+    def _register_scheduler_entry(self, scheduler_entry_obj, call_back):
         """ method parses scheduler_entry_obj and creates a timer_handler out of it
          timer_handler is enlisted to either :self.freerun_handlers or :self.managed_handlers
          timer_handler is started, unless it is marked as STATE_OFF """
@@ -84,7 +84,7 @@ class Scheduler(SynergyProcess):
             return
 
         if scheduler_entry_obj.state == scheduler_managed_entry.STATE_ON:
-            handler.start()
+            handler.activate()
             self.logger.info('Started scheduler thread for %s:%r.'
                              % (handler.arguments.handler_type, handler.arguments.key))
         else:
@@ -116,7 +116,7 @@ class Scheduler(SynergyProcess):
                 continue
 
             try:
-                self._activate_handler(scheduler_entry_obj, function)
+                self._register_scheduler_entry(scheduler_entry_obj, function)
             except Exception:
                 self.logger.error('Scheduler Handler %r failed to start. Skipping it.' % (scheduler_entry_obj.key,))
 
@@ -125,7 +125,7 @@ class Scheduler(SynergyProcess):
         scheduler_entries = self.se_freerun_dao.get_all()
         for scheduler_entry_obj in scheduler_entries:
             try:
-                self._activate_handler(scheduler_entry_obj, self.fire_freerun_worker)
+                self._register_scheduler_entry(scheduler_entry_obj, self.fire_freerun_worker)
             except Exception:
                 self.logger.error('Scheduler Handler %r failed to start. Skipping it.' % (scheduler_entry_obj.key,))
 
