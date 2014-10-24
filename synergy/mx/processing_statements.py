@@ -36,8 +36,7 @@ class ProcessingStatementDetails(object):
         self.is_request_valid = self.mbean is not None \
                                 and not not self.year \
                                 and not not self.month \
-                                and not not self.day \
-                                and not not self.hour
+                                and not not self.day
 
     @cached_property
     @valid_action_request
@@ -51,8 +50,6 @@ class ProcessingStatementDetails(object):
         for key in sorter_keys:
             t = (key[0], key[1], selection[key].state)
             resp.append(t)
-
-        print ('%r' % resp)
         return resp
 
 

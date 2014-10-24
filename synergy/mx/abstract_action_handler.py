@@ -28,7 +28,7 @@ class AbstractActionHandler(object):
     @valid_action_request
     def action_change_interval(self):
         resp = dict()
-        new_interval = self.request_arguments('interval')
+        new_interval = self.request_arguments['interval']
         if new_interval is not None:
             thread_handler = self.scheduler_thread_handler
             thread_handler.change_interval(new_interval)

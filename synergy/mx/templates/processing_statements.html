@@ -28,7 +28,7 @@
     <tbody>
 
     {%- for row in details.entries -%}
-    <tr id="{{ row[2] }}">
+    <tr class="{{ row[2] }}">
         {% set value = "{ process_name: '" + row[0] + "', timeperiod: '" + row[1] + "' }" %}
         <td><input type='checkbox' name='batch_processing' value="{{ value }}" /></td>
         <td>{{ row[0] }}</td>
