@@ -70,7 +70,7 @@ class FreerunPipeline(object):
         uow.arguments = freerun_entry.arguments
         uow.document['_id'] = self.uow_dao.insert(uow)
 
-        msg = 'Created: UOW %r for %s in timeperiod %r.' % (uow.document['_id'], schedulable_name, current_timeperiod)
+        msg = 'Created: UOW %s for %s in timeperiod %s.' % (uow.db_id, schedulable_name, current_timeperiod)
         self._log_message(INFO, freerun_entry, msg)
         return uow
 
@@ -79,13 +79,13 @@ class FreerunPipeline(object):
         mq_request = WorkerMqRequest()
         mq_request.process_name = freerun_entry.process_name
         mq_request.entry_name = freerun_entry.entry_name
-        mq_request.unit_of_work_id = uow.document['_id']
+        mq_request.unit_of_work_id = uow.db_id
 
         publisher = self.publishers.get(freerun_entry.process_name)
         publisher.publish(mq_request.document)
         publisher.release()
 
-        msg = 'Published: UOW %r for %s.' % (uow.document['_id'], schedulable_name)
+        msg = 'Published: UOW %s for %s.' % (uow.db_id, schedulable_name)
         self._log_message(INFO, freerun_entry, msg)
 
     def manage_pipeline_for_schedulable(self, freerun_entry):
@@ -111,12 +111,12 @@ class FreerunPipeline(object):
                 self._process_terminal_state(freerun_entry, uow_record)
 
             else:
-                msg = 'Unknown state %s of the unit_of_work %s' % (uow_record.state, uow_record.document['_id'])
+                msg = 'Unknown state %s of the unit_of_work %s' % (uow_record.state, uow_record.db_id)
                 self._log_message(ERROR, freerun_entry, msg)
 
         except LookupError as e:
             msg = 'Lookup issue for schedulable: %r in timeperiod %s, because of: %r' \
-                  % (freerun_entry.document['_id'], uow_record.timeperiod, e)
+                  % (freerun_entry.db_id, uow_record.timeperiod, e)
             self._log_message(WARNING, freerun_entry, msg)
 
     def _process_state_embryo(self, freerun_entry):
@@ -124,7 +124,7 @@ class FreerunPipeline(object):
         try:
             uow = self.insert_uow(freerun_entry)
             self.publish_uow(freerun_entry, uow)
-            freerun_entry.related_unit_of_work = uow
+            freerun_entry.related_unit_of_work = uow.db_id
             self.sfe_dao.update(freerun_entry)
         except DuplicateKeyError as e:
             msg = 'Duplication of unit_of_work found for %s::%s. Ignoring this request. Error msg: %r' \
@@ -144,7 +144,7 @@ class FreerunPipeline(object):
         try:
             uow = self.insert_uow(freerun_entry)
             self.publish_uow(freerun_entry, uow)
-            freerun_entry.related_unit_of_work = uow
+            freerun_entry.related_unit_of_work = uow.db_id
             self.sfe_dao.update(freerun_entry)
         except DuplicateKeyError as e:
             msg = 'Duplication of unit_of_work found for %s::%s. Ignoring this request. Error msg: %r' \

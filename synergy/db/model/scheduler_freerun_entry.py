@@ -82,7 +82,7 @@ class SchedulerFreerunEntry(BaseModel):
     @arguments.setter
     def arguments(self, value):
         if not isinstance(value, dict):
-            raise ValueError('incorrect arguments format %r. must be dict' % type(value).__name__)
+            raise ValueError('incorrect arguments format %r. must be dict' % value.__class__.__name__)
         self.data[ARGUMENTS] = value
 
     @property

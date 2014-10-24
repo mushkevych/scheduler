@@ -160,7 +160,7 @@ class AbstractPipeline(object):
                 self._process_state_processed(process_name, job_record)
 
             else:
-                msg = 'Unknown state %s of the job %s' % (job_record.state, job_record.document['_id'])
+                msg = 'Unknown state %s of the job %s' % (job_record.state, job_record.db_id)
                 self._log_message(ERROR, process_name, job_record, msg)
 
         except LookupError as e:

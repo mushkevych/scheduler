@@ -97,20 +97,20 @@ class GarbageCollectorWorker(AbstractMqWorker):
 
                 mq_request = WorkerMqRequest()
                 mq_request.process_name = uow.process_name
-                mq_request.unit_of_work_id = uow.document['_id']
+                mq_request.unit_of_work_id = uow.db_id
 
                 publisher = self.publishers.get(uow.process_name)
                 publisher.publish(mq_request.document)
                 publisher.release()
 
                 self.logger.info('UOW marked for re-processing: process %s; timeperiod %s; id %s; attempt %d'
-                                 % (uow.process_name, uow.timeperiod, str(uow.document['_id']), uow.number_of_retries))
+                                 % (uow.process_name, uow.timeperiod, uow.db_id, uow.number_of_retries))
                 self.performance_ticker.tracker.increment_success()
             else:
                 uow.state = unit_of_work.STATE_CANCELED
                 self.uow_dao.update(uow)
                 self.logger.info('UOW transferred to STATE_CANCELED: process %s; timeperiod %s; id %s; attempt %d'
-                                 % (uow.process_name, uow.timeperiod, str(uow.document['_id']), uow.number_of_retries))
+                                 % (uow.process_name, uow.timeperiod, uow.db_id, uow.number_of_retries))
 
 
 if __name__ == '__main__':

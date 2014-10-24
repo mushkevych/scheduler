@@ -109,7 +109,7 @@ class Timetable(object):
             uow_obj.created_at = datetime.utcnow()
             self.uow_dao.update(uow_obj)
             msg = 'Transferred job record %s for %s in timeperiod %s to %s; Transferred unit_of_work to %s' \
-                  % (tree_node.job_record.document['_id'],
+                  % (tree_node.job_record.db_id,
                      tree_node.process_name,
                      tree_node.job_record.timeperiod,
                      tree_node.job_record.state,
@@ -122,7 +122,7 @@ class Timetable(object):
         else:
             tree_node.job_record.state = job.STATE_EMBRYO
             msg = 'Transferred job record %s for %s in timeperiod %s to %s;' \
-                  % (tree_node.job_record.document['_id'],
+                  % (tree_node.job_record.db_id,
                      tree_node.process_name,
                      tree_node.job_record.timeperiod,
                      tree_node.job_record.state)
@@ -159,13 +159,13 @@ class Timetable(object):
             uow_obj.state = unit_of_work.STATE_CANCELED
             self.uow_dao.update(uow_obj)
             msg = 'Transferred job record %s in timeperiod %s to %s; Transferred unit_of_work to %s' \
-                  % (tree_node.job_record.document['_id'],
+                  % (tree_node.job_record.db_id,
                      tree_node.job_record.timeperiod,
                      tree_node.job_record.state,
                      uow_obj.state)
         else:
             msg = 'Transferred job record %s in timeperiod %s to %s;' \
-                  % (tree_node.job_record.document['_id'],
+                  % (tree_node.job_record.db_id,
                      tree_node.job_record.timeperiod,
                      tree_node.job_record.state)
 
@@ -264,7 +264,7 @@ class Timetable(object):
     def update_job_record(self, process_name, job_record, uow, new_state):
         """ method updates job record with a new unit_of_work and new state"""
         job_record.state = new_state
-        job_record.related_unit_of_work = uow.document['_id']
+        job_record.related_unit_of_work = uow.db_id
         job_record.start_id = uow.start_id
         job_record.end_id = uow.end_id
         self.job_dao.update(job_record)
@@ -272,7 +272,7 @@ class Timetable(object):
         tree = self.get_tree(process_name)
         tree.update_node_by_process(process_name, job_record)
         self.logger.info('Updated job record %s in timeperiod %s for %s as %s'
-                         % (job_record.document['_id'], job_record.timeperiod, process_name, new_state))
+                         % (job_record.db_id, job_record.timeperiod, process_name, new_state))
 
     @thread_safe
     def failed_on_processing_job_record(self, process_name, timeperiod):

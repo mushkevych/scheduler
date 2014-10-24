@@ -63,7 +63,7 @@ class TimeperiodDetails(object):
                 description['next_timeperiods']['daily'] = timetable.get_next_job_record(tree.process_name).timeperiod
                 description['type'] = ProcessContext.get_process_type(tree.process_name)
             else:
-                raise ValueError('Tree type %s has no support within MX module.' % type(tree).__name__)
+                raise ValueError('Tree type %s has no support within MX module.' % tree.__class__.__name__)
         except Exception as e:
             self.logger.error('MX Exception: ' + str(e), exc_info=True)
         finally:

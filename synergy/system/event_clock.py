@@ -49,7 +49,7 @@ def format_time_trigger_string(timer_instance):
         timestamps = [repr(x) for x in timer_instance.timestamps]
         return TRIGGER_PREAMBLE_AT + ','.join(timestamps)
     else:
-        raise ValueError('Unknown timer instance type %s' % type(timer_instance).__name__)
+        raise ValueError('Unknown timer instance type %s' % timer_instance.__class__.__name__)
 
 
 class EventTime(object):

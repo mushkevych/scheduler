@@ -163,7 +163,7 @@ class Scheduler(SynergyProcess):
 
                 if datetime.utcnow() <= dt_record_timestamp:
                     self.logger.info('Job record %s for timeperiod %s will not be triggered until %s.'
-                                     % (job_record.document['_id'],
+                                     % (job_record.db_id,
                                         job_record.timeperiod,
                                         dt_record_timestamp.strftime('%Y-%m-%d %H:%M:%S')))
                     return None

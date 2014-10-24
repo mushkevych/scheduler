@@ -18,8 +18,8 @@ class FreerunActionHandler(AbstractActionHandler):
         self.se_freerun_dao = SchedulerFreerunEntryDao(self.logger)
         self.uow_dao = UnitOfWorkDao(self.logger)
         self.is_request_valid = self.mbean is not None \
-                                and self.process_name is not None \
-                                and self.entry_name is not None
+                                and not not self.process_name \
+                                and not not self.entry_name
 
         if self.is_request_valid:
             self.process_name = self.process_name.strip()

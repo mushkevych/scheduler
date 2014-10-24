@@ -25,6 +25,10 @@ class BaseModel(object):
         raise NotImplementedError('property key.getter is not implemented in BaseModel child %s'
                                   % self.__class__.__name__)
 
+    @property
+    def db_id(self):
+        return str(self.data['_id'])
+
     def _get_column_family(self, family_name):
         if family_name not in self.data:
             self.data[family_name] = dict()

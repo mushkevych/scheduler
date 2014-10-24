@@ -16,8 +16,8 @@ class ManagedActionHandler(AbstractActionHandler):
         self.timeperiod = self.request_arguments('timeperiod')
         self.uow_dao = UnitOfWorkDao(self.logger)
         self.is_request_valid = self.mbean is not None \
-                                and self.process_name is not None \
-                                and self.timeperiod is not None
+                                and not not self.process_name \
+                                and not not self.timeperiod
 
         if self.is_request_valid:
             self.process_name = self.process_name.strip()
