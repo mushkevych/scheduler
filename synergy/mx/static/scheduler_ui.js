@@ -11,8 +11,12 @@ $(document).ready(function () {
 });
 
 // method returns empty table for timetable records (panel on the right)
-OUTPUT_DOCUMENT.get_empty_table = function (table_id) {
-    return $('<table style="width: 60%" class="one-column-emphasis" id="' + table_id + '">\
+OUTPUT_DOCUMENT.get_empty_table = function (table_id, enable_pagination) {
+    var table_class = 'one-column-emphasis';
+    if (enable_pagination) {
+        table_class += ' synergy_pagination';
+    }
+    return $('<table style="width: 60%" class="' + table_class + '" id="' + table_id + '">\
                     <thead>\
                         <tr class="oce-first">\
                             <th scope="col">Time Period</th>\
@@ -80,17 +84,17 @@ OUTPUT_DOCUMENT.construct_table_row = function (k, v, handler) {
 };
 
 // recursive method builds timerecords table on the right
-OUTPUT_DOCUMENT.build_timerecords_panel = function (children, is_linear) {
+OUTPUT_DOCUMENT.build_timerecords_panel = function (children, enable_pagination) {
     var table_id = 'unknown_process';
     var tbody = $('<tbody></tbody>');
     $.each(children, function (k, v) {
-        table_id = v.process_name
+        table_id = v.process_name;
 
         var handler = function (e) {
             e.preventDefault();
             var params = { timeperiod: v.timeperiod, process_name: v.process_name };
             $.get('/request_children/', params, function (response) {
-                $('#content').html(OUTPUT_DOCUMENT.build_timerecords_panel(response.children, is_linear));
+                $('#content').html(OUTPUT_DOCUMENT.build_timerecords_panel(response.children, enable_pagination));
                 OUTPUT_DOCUMENT.build_timerecord_entry(k, v, handler);
             });
         };
@@ -98,16 +102,8 @@ OUTPUT_DOCUMENT.build_timerecords_panel = function (children, is_linear) {
         tbody.append(tr);
     });
 
-    var table = OUTPUT_DOCUMENT.get_empty_table(table_id);
+    var table = OUTPUT_DOCUMENT.get_empty_table(table_id, enable_pagination);
     table.append(tbody);
-    table.dataTable({"bPaginate": is_linear,
-        "bSort": true,
-        "iDisplayLength": 36,
-        "bLengthChange": false,
-        "aaSorting": [
-            [ 0, "desc" ]
-        ]
-    });
 
     return table;
 };
@@ -117,7 +113,7 @@ OUTPUT_DOCUMENT.build_timerecord_entry = function (k, v, handler) {
     var tr = OUTPUT_DOCUMENT.construct_table_row(k, v, handler);
     tr.addClass(v.time_qualifier);
     if (typeof $('#level').find('table').val() == 'undefined') {
-        var table = OUTPUT_DOCUMENT.get_empty_table(v.process_name);
+        var table = OUTPUT_DOCUMENT.get_empty_table(v.process_name, false);
         var tbody = $('<tbody></tbody>');
         tbody.append(tr);
         table.append(tbody);
@@ -162,6 +158,20 @@ OUTPUT_DOCUMENT.build_navigational_panel = function (vertical_json) {
                 if (response.children) {
                     var right_ul = OUTPUT_DOCUMENT.build_timerecords_panel(response.children, v.number_of_levels == 1);
                     $('#content').hide().html(right_ul).fadeIn('1500');
+
+                    // render dataTable
+                    $('.synergy_pagination').dataTable({"bPaginate": true,
+                        "bSort": true,
+                        "iDisplayLength": 36,
+                        "bLengthChange": false,
+                        "aaSorting": [
+                            [ 0, "desc" ]
+                        ]
+                    });
+
+                    // change dataTable container width
+                    $('.dataTables_wrapper').width('65%');
+
                 } else {
                     $('#content').hide().html('No report to show at this moment.').fadeIn('1500');
                 }

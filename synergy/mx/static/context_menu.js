@@ -27,7 +27,9 @@ $(window).load(function () {
 
 // hide the right-click-menu if user clicked outside its boundaries
 $(document).bind('click', function (event) {
-    document.getElementById('rmenu').className = 'context_menu_hide';
+    if (document.getElementById('rmenu')) {
+        document.getElementById('rmenu').className = 'context_menu_hide';
+    }
 });
 
 function mouse_x(event) {
