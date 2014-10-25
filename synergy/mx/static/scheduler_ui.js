@@ -12,7 +12,7 @@ $(document).ready(function () {
 
 // method returns empty table for timetable records (panel on the right)
 OUTPUT_DOCUMENT.get_empty_table = function (table_id, enable_pagination) {
-    var table_class = 'one-column-emphasis';
+    var table_class = 'one-column-emphasis context-menu';
     if (enable_pagination) {
         table_class += ' synergy_pagination';
     }
