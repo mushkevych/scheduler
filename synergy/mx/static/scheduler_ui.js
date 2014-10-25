@@ -19,6 +19,7 @@ OUTPUT_DOCUMENT.get_empty_table = function (table_id, enable_pagination) {
     return $('<table style="width: 60%" class="' + table_class + '" id="' + table_id + '">\
                     <thead>\
                         <tr class="oce-first">\
+                            <th scope="col"></th>\
                             <th scope="col">Time Period</th>\
                             <th scope="col">Process</th>\
                             <th scope="col">#Fail Calls</th>\
@@ -41,14 +42,17 @@ OUTPUT_DOCUMENT._to_td = function (text) {
 OUTPUT_DOCUMENT.construct_table_row = function (k, v, handler) {
     var tr = $('<tr></tr>').addClass(v.state);
     var tda = {};
-    var timestamp_a = {};
+    var timeperiod_ahref = {};
 
     if (v.number_of_children > 0) {
-        timestamp_a = $('<a href="#">' + k + '</a>').click(handler);
-        tda = $('<td></td>').append(timestamp_a);
+        timeperiod_ahref = $('<a href="#">' + k + '</a>').click(handler);
+        tda = $('<td></td>').append(timeperiod_ahref);
     } else {
         tda = $('<td>' + k + '</td>');
     }
+
+    var checkbox_value = "{ process_name: '" + v.process_name + "', timeperiod: '" + k + "' }";
+    var checkbox_td = '<td> <input type="checkbox" name="batch_processing" value="' + checkbox_value + '"/></td>';
 
     var reprocess_button = $('<button>Reprocess</button>').click(function (e) {
         process_timeperiod('action_reprocess', v.process_name, v.timeperiod, true)
@@ -73,7 +77,8 @@ OUTPUT_DOCUMENT.construct_table_row = function (k, v, handler) {
     var td_button_skip = $('<td></td>').append(skip_button);
     var td_button_uow = $('<td></td>').append(uow_button);
     var td_button_log = $('<td></td>').append(log_button);
-    return tr.append(tda)
+    return tr.append(checkbox_td)
+        .append(tda)
         .append(OUTPUT_DOCUMENT._to_td(v.process_name))
         .append(OUTPUT_DOCUMENT._to_td(v.number_of_failed_calls))
         .append(OUTPUT_DOCUMENT._to_td(v.state))
@@ -165,7 +170,7 @@ OUTPUT_DOCUMENT.build_navigational_panel = function (vertical_json) {
                         "iDisplayLength": 36,
                         "bLengthChange": false,
                         "aaSorting": [
-                            [ 0, "desc" ]
+                            [ 1, "desc" ]
                         ]
                     });
 
