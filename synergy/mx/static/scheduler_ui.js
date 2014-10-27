@@ -24,8 +24,8 @@ OUTPUT_DOCUMENT.get_empty_table = function (table_id, enable_pagination) {
                             <th scope="col">Process</th>\
                             <th scope="col">#Fail Calls</th>\
                             <th scope="col">State</th>\
-                            <th scope="col"></th>\
-                            <th scope="col"></th>\
+<!--                            <th scope="col"></th> --> \
+<!--                            <th scope="col"></th> --> \
                             <th scope="col"></th>\
                             <th scope="col"></th>\
                         </tr>\
@@ -54,14 +54,14 @@ OUTPUT_DOCUMENT.construct_table_row = function (k, v, handler) {
     var checkbox_value = "{ process_name: '" + v.process_name + "', timeperiod: '" + k + "' }";
     var checkbox_td = '<td> <input type="checkbox" name="batch_processing" value="' + checkbox_value + '"/></td>';
 
-    var reprocess_button = $('<button>Reprocess</button>').click(function (e) {
-        process_timeperiod('action_reprocess', v.process_name, v.timeperiod, true)
-
-    });
-    var skip_button = $('<button>Skip</button>').click(function (e) {
-        process_timeperiod('action_skip', v.process_name, v.timeperiod, true)
-
-    });
+//    var reprocess_button = $('<button>Reprocess</button>').click(function (e) {
+//        process_timeperiod('action_reprocess', v.process_name, v.timeperiod, true)
+//
+//    });
+//    var skip_button = $('<button>Skip</button>').click(function (e) {
+//        process_timeperiod('action_skip', v.process_name, v.timeperiod, true)
+//
+//    });
 
     var uow_button = $('<button>Get&nbsp;Uow</button>').click(function (e) {
         var params = { action: 'action_get_uow', timeperiod: v.timeperiod, process_name: v.process_name };
@@ -73,8 +73,8 @@ OUTPUT_DOCUMENT.construct_table_row = function (k, v, handler) {
         var viewer_url = '/object_viewer/?' + $.param(params);
         window.open(viewer_url, 'Object Viewer', 'width=720,height=480,screenX=400,screenY=200,scrollbars=1');
     });
-    var td_button_repr = $('<td></td>').append(reprocess_button);
-    var td_button_skip = $('<td></td>').append(skip_button);
+//    var td_button_repr = $('<td></td>').append(reprocess_button);
+//    var td_button_skip = $('<td></td>').append(skip_button);
     var td_button_uow = $('<td></td>').append(uow_button);
     var td_button_log = $('<td></td>').append(log_button);
     return tr.append(checkbox_td)
@@ -82,8 +82,8 @@ OUTPUT_DOCUMENT.construct_table_row = function (k, v, handler) {
         .append(OUTPUT_DOCUMENT._to_td(v.process_name))
         .append(OUTPUT_DOCUMENT._to_td(v.number_of_failed_calls))
         .append(OUTPUT_DOCUMENT._to_td(v.state))
-        .append(td_button_repr)
-        .append(td_button_skip)
+//        .append(td_button_repr)
+//        .append(td_button_skip)
         .append(td_button_uow)
         .append(td_button_log);
 };
