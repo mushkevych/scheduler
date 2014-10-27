@@ -48,8 +48,8 @@ testable_modules = [
 ]
 
 test_cases = [
-    'tests.test_regular_pipeline',
-    #'tests.test_decorator',
+    'tests.test_continuous_pipeline',
+    'tests.test_decorator',
     'tests.test_publishers_pool',
     'tests.test_discrete_pipeline',
     'tests.test_garbage_collector',
@@ -65,6 +65,9 @@ test_cases = [
     'tests.test_repeat_timer',
     'tests.test_process_context',
     'tests.test_site_hourly_aggregator',
+    'tests.test_site_daily_aggregator',
+    'tests.test_site_monthly_aggregator',
+    'tests.test_site_yearly_aggregator',
     'tests.test_tree_node',
     'tests.test_event_clock',
 ]
@@ -82,7 +85,7 @@ def enable_test_mode():
         under_test=True,
         synergy_start_timeperiod=datetime.utcnow().strftime('%Y%m%d%H'),
 
-        # legacy settings
+        # test suite settings
         hadoop_jar='/home/bmushkevych/git/synergy-hadoop/dist/synergy-hadoop-02.jar',
         construction_hosts=['https://***REST_INTERFACE_URL***'],            # production access
         construction_login='***REST_INTERFACE_LOGIN***',                    # production access ONLY

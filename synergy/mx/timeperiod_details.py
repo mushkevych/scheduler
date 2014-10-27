@@ -4,7 +4,7 @@ from werkzeug.utils import cached_property
 
 from synergy.conf.process_context import ProcessContext
 from synergy.scheduler.tree import FourLevelTree, ThreeLevelTree, TwoLevelTree
-from synergy.mx.mx_decorators import managed_entry_request
+from synergy.mx.mx_decorators import valid_action_request
 
 
 class TimeperiodDetails(object):
@@ -13,7 +13,7 @@ class TimeperiodDetails(object):
         self.logger = self.mbean.logger
         self.request = request
         self.referrer = self.request.referrer
-        self.is_managed_request_valid = self.mbean is not None
+        self.is_request_valid = self.mbean is not None
 
     def _get_reprocessing_details(self, process_name):
         resp = []
@@ -63,14 +63,14 @@ class TimeperiodDetails(object):
                 description['next_timeperiods']['daily'] = timetable.get_next_job_record(tree.process_name).timeperiod
                 description['type'] = ProcessContext.get_process_type(tree.process_name)
             else:
-                raise ValueError('Tree type %s has no support within MX module.' % type(tree).__name__)
+                raise ValueError('Tree type %s has no support within MX module.' % tree.__class__.__name__)
         except Exception as e:
             self.logger.error('MX Exception: ' + str(e), exc_info=True)
         finally:
             return description
 
     @cached_property
-    @managed_entry_request
+    @valid_action_request
     def details(self):
         """ method iterates thru all trees and visualize only those, that has "mx_page" field set
         to current self.referrer value """

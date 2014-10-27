@@ -4,8 +4,7 @@ from synergy.db.model.base_model import *
 
 PROCESS_NAME = 'process_name'           # name of the process to handle the schedulables
 ENTRY_NAME = 'entry_name'               # name of the schedulable, if applicable
-ENTRY_ARGUMENTS = 'state'               # entry-specific set of arguments
-UNIT_OF_WORK_ID = 'trigger_time'        # associated Unit Of Work, if applicable
+UNIT_OF_WORK_ID = 'unit_of_work_id'     # associated Unit Of Work, if applicable
 
 
 class WorkerMqRequest(BaseModel):
@@ -49,11 +48,3 @@ class WorkerMqRequest(BaseModel):
         if not isinstance(value, str):
             value = str(value)
         self.data[UNIT_OF_WORK_ID] = value
-
-    @property
-    def entry_arguments(self):
-        return self.data[ENTRY_ARGUMENTS]
-
-    @entry_arguments.setter
-    def entry_arguments(self, value):
-        self.data[ENTRY_ARGUMENTS] = value

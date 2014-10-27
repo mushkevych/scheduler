@@ -17,15 +17,23 @@
 </form>
 
 <script type="text/javascript">
-    $(document).ready(function() {
-        var url;
-        if (window.location.search.search("action_get_uow") != -1) {
-            url = "/action_get_uow/" + window.location.search;
-        } else {
-            url = "/action_get_log/" + window.location.search;
+    function getUrlParameter(sParam) {
+        var sPageURL = window.location.search.substring(1);
+        var sURLVariables = sPageURL.split('&');
+        for (var i = 0; i < sURLVariables.length; i++) {
+            var sParameterName = sURLVariables[i].split('=');
+            if (sParameterName[0] == sParam) {
+                return sParameterName[1];
+            }
         }
+        return null;
+    }
 
-        $.get(url, function(data) {
+    $(document).ready(function () {
+        var action = getUrlParameter('action');
+        var url = '/' + action + '/?' + window.location.search.substring(1);
+
+        $.get(url, function (data) {
             $("#json").text(FormatJSON(data));
         });
     });

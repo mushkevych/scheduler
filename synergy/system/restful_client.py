@@ -38,7 +38,7 @@ class RestClient(object):
     """ RestClient performs REST-protocol communication with the remote REST tier """
     REQUEST_CLIENT = '/admin/clients'
 
-    ARGUMENT_SITES = 'domains'
+    ARGUMENT_DOMAINS = 'domains'
     ARGUMENT_TIMEPERIOD = base_model.TIMEPERIOD
 
     def __init__(self, logger):
@@ -61,14 +61,11 @@ class RestClient(object):
             self.logger.error('Request failed with status %s' % str(status))
             return dict()
 
-    def _sites_membership(self, request, timeperiod, list_of_sites):
-        body_as_dict = dict()
-        body_as_dict[self.ARGUMENT_TIMEPERIOD] = timeperiod
-        body_as_dict[self.ARGUMENT_SITES] = list_of_sites
-        return self._perform_communication(request, body_as_dict)
-
-    def get_client_mapping(self, timeperiod, list_of_sites):
-        return self._sites_membership(self.REQUEST_CLIENT, timeperiod, list_of_sites)
+    def get_client_mapping(self, timeperiod, domain_list):
+        """ :return: dict in format {<string> domain_name: <string> client_id} """
+        body_as_dict = {self.ARGUMENT_TIMEPERIOD: timeperiod,
+                        self.ARGUMENT_DOMAINS: domain_list}
+        return self._perform_communication(self.REQUEST_CLIENT, body_as_dict)
 
 
 if __name__ == '__main__':

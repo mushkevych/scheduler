@@ -1,46 +1,53 @@
 {% extends 'main_header.html' %}
 {% block body %}
-<table style="width: 90%" class="one-column-emphasis">
+<table style="width: 90%" class="one-column-emphasis context-menu">
     <thead>
     <tr class="oce-first">
-        <th scope="col">On/Off</th>
-        <th scope="col">Trigger Is Alive</th>
+        <th scope="col"><input type="checkbox" name="select_all" onclick="toggle_all_checkboxes(this)"/> </th>
+        <th scope="col">Trigger On/Alive</th>
         <th scope="col">Process Name</th>
         <th scope="col">Entry Name</th>
         <th scope="col">Trigger Frequency</th>
         <th scope="col">Trigger Now</th>
         <th scope="col">Next Run In</th>
         <th scope="col">Arguments</th>
+        <th scope="col">View Log</th>
+        <th scope="col">Get Uow</th>
+        <th scope="col">Cancel Uow</th>
         <th scope="col">Edit</th>
     </tr>
     </thead>
     <tbody>
 
     {%- for row in details.freerun_entries %}
+    {%- if row[0] and not row[1] or not row[0] and row[1] -%}
+    <tr class="state_inconsistent">
+    {%- elif not row[1] -%}
+    <tr class="state_inactive">
+    {%- else -%}
     <tr>
+    {%- endif -%}
         <td>
-            <form method="GET" action="/action_change_freerun_state/">
-                <input type="hidden" name="process_name" value="{{ row[2] }}" />
-                <input type="hidden" name="entry_name" value="{{ row[3] }}" />
-                <input type="checkbox" name="state" value="state_on" {% if row[0] %} checked {% endif %} />
-                <input type="submit" value="Apply" />
-            </form>
+            {% set value = "{ process_name: '" + row[2] + "', entry_name: '" + row[3] + "', is_freerun: 'True' }" %}
+            <input type="checkbox" name="batch_processing" value="{{ value }}"/>
         </td>
-        <td>{{ row[1] }}</td>
+        <td>{{ row[0] }} / {{ row[1] }}</td>
         <td>{{ row[2] }}</td>
         <td>{{ row[3] }}</td>
         <td>
-            <form method="GET" action="/action_change_freerun_interval/">
+            <form method="GET" action="/action_change_interval/">
                 <input type="hidden" name="process_name" value="{{ row[2] }}" />
                 <input type="hidden" name="entry_name" value="{{ row[3] }}" />
+                <input type="hidden" name="is_freerun" value="True" />
                 <input type="text" size="8" maxlength="32" name="interval" value="{{ row[4] }}" />
                 <input type="submit" value="Apply" />
             </form>
         </td>
         <td>
-            <form method="GET" action="/action_trigger_freerun_now/">
+            <form method="GET" action="/action_trigger_now/">
                 <input type="hidden" name="process_name" value="{{ row[2] }}" />
                 <input type="hidden" name="entry_name" value="{{ row[3] }}" />
+                <input type="hidden" name="is_freerun" value="True" />
                 <input type="submit" value="Trigger" />
             </form>
         </td>
@@ -48,8 +55,30 @@
         <td>{{ row[5] }}</td>
         <td>{{ row[6]|jsonify }}</td>
         <td>
-            {% set form_url = url_for('edit_schedulable_form') %}
-            {% set url = form_url + '?process_name=' + row[2] + '&entry_name=' + row[3] %}
+            {% set url = 'action=action_get_log' + '&process_name=' + row[2] + '&entry_name=' + row[3] + '&is_freerun=True' %}
+            <form method="GET" onsubmit="window.open('/object_viewer/?{{ url }}','View Log',
+                 'toolbar=no,scrollbars=yes,resizable=yes,top=250,left=250,width=720,height=480'); return false;">
+                <input type="submit" value="View Log"/>
+            </form>
+        </td>
+        <td>
+            {% set url = 'action=action_get_uow' + '&process_name=' + row[2] + '&entry_name=' + row[3] + '&is_freerun=True' %}
+            <form method="GET" onsubmit="window.open('/object_viewer/?{{ url }}','Get Uow',
+                 'toolbar=no,scrollbars=yes,resizable=yes,top=250,left=250,width=400,height=350'); return false;">
+                <input type="submit" value="Get Uow"/>
+            </form>
+        </td>
+        <td>
+            <form method="GET" action="/action_cancel_uow/">
+                <input type="hidden" name="process_name" value="{{ row[2] }}" />
+                <input type="hidden" name="entry_name" value="{{ row[3] }}" />
+                <input type="hidden" name="is_freerun" value="True" />
+                <input type="submit" value="Cancel Uow" />
+            </form>
+        </td>
+        <td>
+            {% set form_url = url_for('open_schedulable_form') %}
+            {% set url = form_url + '?process_name=' + row[2] + '&entry_name=' + row[3] + '&is_freerun=True' + '&is_new_entry=False'%}
             <form method="GET"
                  onsubmit="window.open('{{ url }}','Edit Freerun Trigger',
                  'toolbar=no,scrollbars=yes,resizable=yes,top=250,left=250,width=750,height=550'); return false;">
@@ -60,9 +89,10 @@
     {%- endfor %}
 
     <tr>
-        <td colspan="9">
-            {% set form_url = url_for('new_schedulable_form') %}
-            <a href="#" onClick="MyWindow=window.open('{{ form_url }}','New Freerun Trigger',
+        <td colspan="13">
+            {% set form_url = url_for('open_schedulable_form') %}
+            {% set url = form_url + '?is_new_entry=True'%}
+            <a href="#" onClick="MyWindow=window.open('{{ url }}','New Freerun Trigger',
                 'toolbar=no,scrollbars=yes,resizable=yes,top=250,left=250,width=750,height=550'); return false;">
                 Add New Freerun Trigger
             </a>
@@ -72,5 +102,15 @@
     </tbody>
 </table>
 
+<div class="context_menu_hide" id="rmenu">
+    <ul>
+        <li>
+            <a onclick="process_batch('action_activate_trigger', true)">Activate</a>
+        </li>
+        <li>
+            <a onclick="process_batch('action_deactivate_trigger', true)">Deactivate</a>
+        </li>
+    </ul>
+</div>
 
 {% endblock %}

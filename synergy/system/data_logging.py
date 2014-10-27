@@ -40,12 +40,10 @@ class Logger(object):
         roto_file_handler.setFormatter(roto_file_formatter)
         self.logger.addHandler(roto_file_handler)
 
-        # ATTENTION: redirecting stdout to this logger for Production mode only
-        # stderr should be redirected to stdout by Supervisor
-
-        # While under_test, tools like xml_unittest_runner are doing complex sys.stdXXX reassignments
+        # While under_test, tools as xml_unittest_runner are doing complex sys.stdXXX reassignments
         if not settings.settings['under_test']:
             sys.stdout = self
+            sys.stderr = self
 
     def get_logger(self):
         return self.logger

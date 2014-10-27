@@ -1,4 +1,4 @@
-""" Module contains small functions that are used to format, transform or classify the date-time structures """
+""" Module contains functions that are used to format, transform or classify date-time presented in a synergy format """
 
 __author__ = 'Bohdan Mushkevych'
 
@@ -7,11 +7,17 @@ import calendar
 from datetime import datetime, timedelta
 from synergy.system.time_qualifier import *
 
-SYNERGY_DATE_PATTERN = '%Y%m%d%H'
 SYNERGY_SESSION_PATTERN = '%Y%m%d%H%M%S'
+SYNERGY_HOURLY_PATTERN = '%Y%m%d%H'
+SYNERGY_DAILY_PATTERN = '%Y%m%d00'
+SYNERGY_MONTHLY_PATTERN = '%Y%m0000'
+SYNERGY_YEARLY_PATTERN = '%Y000000'
 
 
 def define_pattern(timeperiod):
+    if len(timeperiod) > 10:
+        return SYNERGY_SESSION_PATTERN
+
     has_year = False
     has_month = False
     has_day = False
@@ -49,123 +55,116 @@ def define_pattern(timeperiod):
 
 
 def raw_to_session(timestamp):
-    """@param timestamp: as float from time.time() output
-    @return string in YYYYMMDD_HHMMSS format"""
+    """ :param timestamp: <float> from time.time() output
+    :return string in YYYYMMDDHHmmSS format"""
     t = datetime.utcfromtimestamp(timestamp)
     return t.strftime(SYNERGY_SESSION_PATTERN)
 
 
 def session_to_hour(timestamp):
-    """@param timestamp: as string in YYYYMMDD_HHMMSS format
-    @return string in YYYYMMDDHH format"""
+    """:param timestamp: as string in YYYYMMDDHHmmSS format
+    :return string in YYYYMMDDHH format"""
     t = datetime.strptime(timestamp, SYNERGY_SESSION_PATTERN)
-    return t.strftime(SYNERGY_DATE_PATTERN)
+    return t.strftime(SYNERGY_HOURLY_PATTERN)
 
 
 def hour_to_day(timeperiod):
-    """@param timeperiod: as string in YYYYMMDDHH format
-    @return string in YYYYMMDD00 format"""
-    t = datetime.strptime(timeperiod, SYNERGY_DATE_PATTERN)
-    return t.strftime('%Y%m%d00')
+    """:param timeperiod: as string in YYYYMMDDHH format
+    :return string in YYYYMMDD00 format"""
+    t = datetime.strptime(timeperiod, SYNERGY_HOURLY_PATTERN)
+    return t.strftime(SYNERGY_DAILY_PATTERN)
 
 
 def day_to_month(timeperiod):
-    """@param timeperiod: as string in YYYYMMDD00 format
-    @return string in YYYYMM0000 format"""
-    t = datetime.strptime(timeperiod, '%Y%m%d00')
-    return t.strftime('%Y%m0000')
+    """:param timeperiod: as string in YYYYMMDD00 format
+    :return string in YYYYMM0000 format"""
+    t = datetime.strptime(timeperiod, SYNERGY_DAILY_PATTERN)
+    return t.strftime(SYNERGY_MONTHLY_PATTERN)
 
 
 def month_to_year(timeperiod):
-    """@param timeperiod: as string in YYYYMM0000 format
-    @return string in YYYY000000 format"""
-    t = datetime.strptime(timeperiod, '%Y%m0000')
-    return t.strftime('%Y000000')
+    """:param timeperiod: as string in YYYYMM0000 format
+    :return string in YYYY000000 format"""
+    t = datetime.strptime(timeperiod, SYNERGY_MONTHLY_PATTERN)
+    return t.strftime(SYNERGY_YEARLY_PATTERN)
 
 
 def actual_timeperiod(time_qualifier):
     """ method receives process' time qualifier (hourly/daily/monthly/yearly)
-    @return: string representing current datetime (utc now) in proper Synergy Date format """
+    :return string representing current datetime (utc now) in requested Synergy Date format """
     return datetime_to_synergy(time_qualifier, datetime.utcnow())
 
 
 def increment_timeperiod(time_qualifier, timeperiod, delta=1):
-    """ method is used by Scheduler to define <<next>> time period.
-    For hourly, it is next hour: 2010010119 -> 2010010120
-    For month - next month:      2010010000 -> 2010020000, etc"""
+    """ method performs simple increment/decrement of the timeperiods
+    For instance: 2010010119 with delta=1 -> 2010010120
+    Or 2010010000 with delta=-1 -> 2009120000, etc"""
 
     pattern = define_pattern(timeperiod)
     t = datetime.strptime(timeperiod, pattern)
 
     if time_qualifier == QUALIFIER_HOURLY:
         t = t + timedelta(hours=delta)
-        return t.strftime('%Y%m%d%H')
+        return t.strftime(SYNERGY_HOURLY_PATTERN)
 
     elif time_qualifier == QUALIFIER_DAILY:
         t = t + timedelta(days=delta)
-        return t.strftime('%Y%m%d00')
+        return t.strftime(SYNERGY_DAILY_PATTERN)
 
     elif time_qualifier == QUALIFIER_MONTHLY:
-        if delta not in [-1, 1]:
-            raise ValueError('For QUALIFIER_MONTHLY delta can be only +/- 1')
+        yearly_increment = abs(delta) // 12
+        yearly_increment = yearly_increment if delta >= 0 else -yearly_increment
+        monthly_increment = delta - yearly_increment * 12
 
-        if t.month + delta > 12:
-            new_month = 1
-            new_year = t.year + 1
+        if t.month + monthly_increment > 12:
+            new_month = t.month + monthly_increment - 12
+            new_year = t.year + yearly_increment + 1
             t = t.replace(year=new_year, month=new_month)
-        elif t.month + delta < 1:
-            new_month = 12
-            new_year = t.year - 1
+        elif t.month + monthly_increment < 1:
+            new_month = t.month + monthly_increment + 12
+            new_year = t.year + yearly_increment - 1
             t = t.replace(year=new_year, month=new_month)
         else:
-            t = t.replace(month=t.month + delta)
-        return t.strftime('%Y%m0000')
+            t = t.replace(year=t.year + yearly_increment, month=t.month + monthly_increment)
+        return t.strftime(SYNERGY_MONTHLY_PATTERN)
 
     elif time_qualifier == QUALIFIER_YEARLY:
         t = t.replace(year=t.year + delta)
-        return t.strftime('%Y000000')
+        return t.strftime(SYNERGY_YEARLY_PATTERN)
     else:
         raise ValueError('unknown time qualifier: %s' % time_qualifier)
 
 
 def cast_to_time_qualifier(time_qualifier, timeperiod):
-    """ method is used to cast synergy_time accordingly to process' time qualifier.
-    For example: for QUALIFIER_HOURLY, it can be either 2010010119 or 20100101193412 """
+    """ method casts given timeperiod accordingly to time qualifier.
+    For example, will cast session time format of 20100101193412 to 2010010119 with QUALIFIER_HOURLY """
 
-    date_format = None
     if time_qualifier == QUALIFIER_HOURLY:
-        if len(timeperiod) > 10:
-            t = datetime.strptime(timeperiod, SYNERGY_SESSION_PATTERN)
-            return t.strftime(SYNERGY_DATE_PATTERN)
-        else:
-            return timeperiod
-
+        date_format = SYNERGY_HOURLY_PATTERN
     elif time_qualifier == QUALIFIER_DAILY:
-        date_format = '%Y%m%d00'
+        date_format = SYNERGY_DAILY_PATTERN
     elif time_qualifier == QUALIFIER_MONTHLY:
-        date_format = '%Y%m0000'
+        date_format = SYNERGY_MONTHLY_PATTERN
     elif time_qualifier == QUALIFIER_YEARLY:
-        date_format = '%Y000000'
+        date_format = SYNERGY_YEARLY_PATTERN
+    else:
+        raise ValueError('unknown time qualifier: %s' % time_qualifier)
 
     pattern = define_pattern(timeperiod)
     t = datetime.strptime(timeperiod, pattern)
-
-    if date_format is not None:
-        return t.strftime(date_format)
-    else:
-        raise ValueError('unknown time qualifier: %s' % time_qualifier)
+    return t.strftime(date_format)
 
 
 def datetime_to_synergy(time_qualifier, dt):
     """ method parses datetime and returns Synergy Date"""
     if time_qualifier == QUALIFIER_HOURLY:
-        date_format = SYNERGY_DATE_PATTERN
+        date_format = SYNERGY_HOURLY_PATTERN
     elif time_qualifier == QUALIFIER_DAILY:
-        date_format = '%Y%m%d00'
+        date_format = SYNERGY_DAILY_PATTERN
     elif time_qualifier == QUALIFIER_MONTHLY:
-        date_format = '%Y%m0000'
+        date_format = SYNERGY_MONTHLY_PATTERN
     elif time_qualifier == QUALIFIER_YEARLY:
-        date_format = '%Y000000'
+        date_format = SYNERGY_YEARLY_PATTERN
     elif time_qualifier == QUALIFIER_REAL_TIME:
         date_format = SYNERGY_SESSION_PATTERN
     else:
@@ -174,15 +173,15 @@ def datetime_to_synergy(time_qualifier, dt):
 
 
 def synergy_to_datetime(time_qualifier, timeperiod):
-    """ method receives timeperiod in Synergy format YYYYMMDD_HH and convert it to _naive_ datetime"""
+    """ method receives timeperiod in Synergy format YYYYMMDDHH and convert it to UTC _naive_ datetime"""
     if time_qualifier == QUALIFIER_HOURLY:
-        date_format = SYNERGY_DATE_PATTERN
+        date_format = SYNERGY_HOURLY_PATTERN
     elif time_qualifier == QUALIFIER_DAILY:
-        date_format = '%Y%m%d00'
+        date_format = SYNERGY_DAILY_PATTERN
     elif time_qualifier == QUALIFIER_MONTHLY:
-        date_format = '%Y%m0000'
+        date_format = SYNERGY_MONTHLY_PATTERN
     elif time_qualifier == QUALIFIER_YEARLY:
-        date_format = '%Y000000'
+        date_format = SYNERGY_YEARLY_PATTERN
     elif time_qualifier == QUALIFIER_REAL_TIME:
         date_format = SYNERGY_SESSION_PATTERN
     else:

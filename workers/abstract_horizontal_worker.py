@@ -3,10 +3,10 @@ from synergy.db.model import base_model
 
 __author__ = 'Bohdan Mushkevych'
 
-from workers.abstract_aware_worker import AbstractAwareWorker
+from workers.abstract_uow_aware_worker import AbstractUowAwareWorker
 
 
-class AbstractHorizontalWorker(AbstractAwareWorker):
+class AbstractHorizontalWorker(AbstractUowAwareWorker):
     """
     this class has different _engine_ that in contrary to sequential reading, reads bulks from DB  
     """

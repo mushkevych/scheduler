@@ -9,7 +9,7 @@ from pymongo.errors import DuplicateKeyError as MongoDuplicateKeyError
 from synergy.system import time_helper
 from synergy.system.time_qualifier import *
 from synergy.system.decorator import thread_safe
-from synergy.scheduler.scheduler_constants import COLLECTION_UNIT_OF_WORK
+from synergy.scheduler.scheduler_constants import COLLECTION_UNIT_OF_WORK, TYPE_MANAGED
 from synergy.conf.process_context import ProcessContext
 from synergy.db.error import DuplicateKeyError
 from synergy.db.model import unit_of_work
@@ -51,7 +51,8 @@ class UnitOfWorkDao(object):
 
         query = {unit_of_work.STATE: {'$in': [unit_of_work.STATE_IN_PROGRESS,
                                               unit_of_work.STATE_INVALID,
-                                              unit_of_work.STATE_REQUESTED]}}
+                                              unit_of_work.STATE_REQUESTED]},
+                 unit_of_work.UNIT_OF_WORK_TYPE: TYPE_MANAGED}
 
         if since is None:
             cursor = collection.find(query).sort('_id', ASCENDING)
@@ -110,11 +111,11 @@ class UnitOfWorkDao(object):
         try:
             return collection.insert(instance.document, safe=True)
         except MongoDuplicateKeyError as e:
-            exc = DuplicateKeyError(e)
-            exc.start_id = instance.start_id
-            exc.end_id = instance.end_id
-            exc.process_name = instance.process_name
-            exc.timeperiod = instance.start_timeperiod
+            exc = DuplicateKeyError(instance.process_name,
+                                    instance.start_timeperiod,
+                                    instance.start_id,
+                                    instance.end_id,
+                                    e)
             raise exc
 
     @thread_safe

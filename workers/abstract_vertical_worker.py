@@ -2,10 +2,10 @@
 
 __author__ = 'Bohdan Mushkevych'
 
-from workers.abstract_aware_worker import AbstractAwareWorker
+from workers.abstract_uow_aware_worker import AbstractUowAwareWorker
 
 
-class AbstractVerticalWorker(AbstractAwareWorker):
+class AbstractVerticalWorker(AbstractUowAwareWorker):
     """ Class provides stream-reader for all vertical aggregators """
 
     def __init__(self, process_name):

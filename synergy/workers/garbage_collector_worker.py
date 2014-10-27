@@ -1,5 +1,3 @@
-""" Module re-launches invalid units_of_work """
-
 __author__ = 'Bohdan Mushkevych'
 
 from threading import Lock
@@ -21,7 +19,9 @@ REPOST_AFTER_HOURS = 1   # number of hours, GC waits for the worker to pick up t
 
 
 class GarbageCollectorWorker(AbstractMqWorker):
-    """ instance receives an empty message from RabbitMQ and triggers re-start of failed tasks """
+    """ GC is triggered by an empty message from RabbitMQ. It scans for invalid or stalled unit_of_work
+    and re-triggers them. GC is vital for the health of the system.
+    Deployment with no running GC is considered invalid """
 
     def __init__(self, process_name):
         super(GarbageCollectorWorker, self).__init__(process_name)
@@ -51,7 +51,7 @@ class GarbageCollectorWorker(AbstractMqWorker):
             uow_list = self.uow_dao.get_reprocessing_candidates(since)
             for uow in uow_list:
                 if uow.process_name not in self.scheduler_configuration:
-                    self.logger.debug('Process %r is not known to Synergy Scheduler. Skipping its unit_of_work.'
+                    self.logger.debug('Process %r is not known to the Synergy Scheduler. Skipping its unit_of_work.'
                                       % uow.process_name)
                     continue
 
@@ -97,20 +97,20 @@ class GarbageCollectorWorker(AbstractMqWorker):
 
                 mq_request = WorkerMqRequest()
                 mq_request.process_name = uow.process_name
-                mq_request.unit_of_work_id = uow.document['_id']
+                mq_request.unit_of_work_id = uow.db_id
 
                 publisher = self.publishers.get(uow.process_name)
                 publisher.publish(mq_request.document)
                 publisher.release()
 
                 self.logger.info('UOW marked for re-processing: process %s; timeperiod %s; id %s; attempt %d'
-                                 % (uow.process_name, uow.timeperiod, str(uow.document['_id']), uow.number_of_retries))
+                                 % (uow.process_name, uow.timeperiod, uow.db_id, uow.number_of_retries))
                 self.performance_ticker.tracker.increment_success()
             else:
                 uow.state = unit_of_work.STATE_CANCELED
                 self.uow_dao.update(uow)
                 self.logger.info('UOW transferred to STATE_CANCELED: process %s; timeperiod %s; id %s; attempt %d'
-                                 % (uow.process_name, uow.timeperiod, str(uow.document['_id']), uow.number_of_retries))
+                                 % (uow.process_name, uow.timeperiod, uow.db_id, uow.number_of_retries))
 
 
 if __name__ == '__main__':

@@ -12,40 +12,71 @@
     <b><i>at least year, month and day must be filled</i></b>
 </form>
 
-<table style="width: 90%" class="one-column-emphasis">
+<table style="width: 90%" class="one-column-emphasis context-menu">
     <thead>
     <tr class="oce-first">
-        <td><input type="checkbox" onClick="toggle(this)" name ="select_all" /></td>
+        <th scope="col"><input type='checkbox' name ='select_all' onclick='toggle_all_checkboxes(this)'/> </th>
         <th scope="col">Process Name</th>
         <th scope="col">Time period</th>
         <th scope="col">State</th>
+        <th scope="col">Reprocess</th>
+        <th scope="col">Skip</th>
+        <th scope="col">Get Uow</th>
+        <th scope="col">View Log</th>
     </tr>
     </thead>
     <tbody>
 
     {%- for row in details.entries -%}
-    <tr id="{{ row[2] }}" class="processMenu">
-        {% set value = row[0] + "--" + row[1] %}
-        <td><input type="checkbox" name="selected" value="{{ value }}" /></td>
+    <tr class="{{ row[2] }}">
+        {% set value = "{ process_name: '" + row[0] + "', timeperiod: '" + row[1] + "' }" %}
+        <td><input type='checkbox' name='batch_processing' value="{{ value }}" /></td>
         <td>{{ row[0] }}</td>
         <td>{{ row[1] }}</td>
         <td>{{ row[2] }}</td>
+        <td>
+            <form method="GET" action="/action_reprocess/">
+                <input type="hidden" name="process_name" value="{{ row[0] }}" />
+                <input type="hidden" name="timeperiod" value="{{ row[1] }}" />
+                <input type="submit" value="Reprocess" />
+            </form>
+        </td>
+        <td>
+            <form method="GET" action="/action_skip/">
+                <input type="hidden" name="process_name" value="{{ row[0] }}" />
+                <input type="hidden" name="timeperiod" value="{{ row[1] }}" />
+                <input type="submit" value="Skip" />
+            </form>
+        </td>
+        <td>
+            {% set url = 'action=action_get_uow' + '&process_name=' + row[0] + '&timeperiod=' + row[1] %}
+            <form method="GET" onsubmit="window.open('/object_viewer/?{{ url }}','Get Uow',
+                 'toolbar=no,scrollbars=yes,resizable=yes,top=250,left=250,width=400,height=350'); return false;">
+                <input type="submit" value="Get Uow"/>
+            </form>
+        </td>
+        <td>
+            {% set url = 'action=action_get_log' + '&process_name=' + row[0] + '&timeperiod=' + row[1] %}
+            <form method="GET" onsubmit="window.open('/object_viewer/?{{ url }}','View Log',
+                 'toolbar=no,scrollbars=yes,resizable=yes,top=250,left=250,width=720,height=480'); return false;">
+                <input type="submit" value="View Log"/>
+            </form>
+        </td>
     </tr>
     {%- endfor -%}
 
     </tbody>
 </table>
 
-<div class="hide" id="rmenu">
+<div class="context_menu_hide" id="rmenu">
     <ul>
         <li>
-            <a onclick="process_selected('reprocess')" >Reprocess</a>
+            <a onclick="process_batch('action_reprocess', false)">Reprocess</a>
         </li>
         <li>
-            <a onclick="process_selected('skip')">Skip</a>
+            <a onclick="process_batch('action_skip', false)">Skip</a>
         </li>
     </ul>
 </div>
-
 
 {% endblock %}

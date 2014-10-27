@@ -40,7 +40,8 @@ class SimplifiedDiscretePipeline(DiscretePipeline):
                 elif uow.state in [unit_of_work.STATE_PROCESSED,
                                    unit_of_work.STATE_CANCELED]:
                     # create new uow to cover new inserts
-                    uow = self.insert_uow(process_name, start_timeperiod, end_timeperiod, iteration + 1, job_record)
+                    uow = self.create_and_publish_uow(process_name, start_timeperiod, end_timeperiod,
+                                                      0, iteration + 1, job_record)
                     self.timetable.update_job_record(process_name, job_record, uow, job.STATE_IN_PROGRESS)
 
             elif start_timeperiod < actual_timeperiod and can_finalize_job_record is True:
@@ -56,19 +57,19 @@ class SimplifiedDiscretePipeline(DiscretePipeline):
                     timetable_tree = self.timetable.get_tree(process_name)
                     timetable_tree.build_tree()
                     msg = 'Transferred job record %s in timeperiod %s to STATE_PROCESSED for %s' \
-                          % (job_record.document['_id'], job_record.timeperiod, process_name)
+                          % (job_record.db_id, job_record.timeperiod, process_name)
                 elif uow.state == unit_of_work.STATE_CANCELED:
                     self.timetable.update_job_record(process_name, job_record, uow, job.STATE_SKIPPED)
                     msg = 'Transferred job record %s in timeperiod %s to STATE_SKIPPED for %s' \
-                          % (job_record.document['_id'], job_record.timeperiod, process_name)
+                          % (job_record.db_id, job_record.timeperiod, process_name)
                 else:
                     msg = 'Unknown state %s for job record %s in timeperiod %s for %s' \
-                          % (uow.state, job_record.document['_id'], job_record.timeperiod, process_name)
+                          % (uow.state, job_record.db_id, job_record.timeperiod, process_name)
 
                 self._log_message(INFO, process_name, job_record, msg)
             else:
                 msg = 'Job record %s has timeperiod from future %s vs current time %s' \
-                      % (job_record.document['_id'], start_timeperiod, actual_timeperiod)
+                      % (job_record.db_id, start_timeperiod, actual_timeperiod)
                 self._log_message(ERROR, process_name, job_record, msg)
 
         except DuplicateKeyError as e:

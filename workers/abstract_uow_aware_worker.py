@@ -14,26 +14,26 @@ from synergy.conf import settings
 from synergy.system.decimal_encoder import DecimalEncoder
 from synergy.conf.process_context import ProcessContext
 from synergy.workers.abstract_mq_worker import AbstractMqWorker
-from synergy.system.performance_tracker import AggregatorPerformanceTicker
+from synergy.system.performance_tracker import UowAwareTracker
 
 
-class AbstractAwareWorker(AbstractMqWorker):
+class AbstractUowAwareWorker(AbstractMqWorker):
     """ Abstract class is inherited by all workers/aggregators
     that are aware of unit_of_work and capable of processing it"""
 
     def __init__(self, process_name):
-        super(AbstractAwareWorker, self).__init__(process_name)
+        super(AbstractUowAwareWorker, self).__init__(process_name)
         self.aggregated_objects = dict()
         self.uow_dao = UnitOfWorkDao(self.logger)
         self.ds = ds_manager.ds_factory(self.logger)
 
     def __del__(self):
         self._flush_aggregated_objects()
-        super(AbstractAwareWorker, self).__del__()
+        super(AbstractUowAwareWorker, self).__del__()
 
     # **************** Abstract Methods ************************
     def _init_performance_ticker(self, logger):
-        self.performance_ticker = AggregatorPerformanceTicker(logger)
+        self.performance_ticker = UowAwareTracker(logger)
         self.performance_ticker.start()
 
     def _get_tunnel_port(self):
@@ -175,9 +175,17 @@ class AbstractAwareWorker(AbstractMqWorker):
             self.uow_dao.update(uow)
             self.performance_ticker.finish_uow()
         except Exception as e:
-            uow.state = unit_of_work.STATE_INVALID
-            self.uow_dao.update(uow)
-            self.performance_ticker.cancel_uow()
+            fresh_uow = self.uow_dao.get_one(mq_request.unit_of_work_id)
+            if fresh_uow.state in [unit_of_work.STATE_CANCELED]:
+                self.logger.warning('unit_of_work: id %s was likely marked by MX as SKIPPED. '
+                                    'No unit_of_work update is performed.' % str(message.body),
+                                    exc_info=False)
+            else:
+                self.logger.error('Safety fuse while processing unit_of_work %s in timeperiod %s : %r'
+                                  % (message.body, uow.timeperiod, e), exc_info=True)
+                uow.state = unit_of_work.STATE_INVALID
+                self.uow_dao.update(uow)
+                self.performance_ticker.cancel_uow()
 
             del self.aggregated_objects
             self.aggregated_objects = dict()

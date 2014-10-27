@@ -8,7 +8,7 @@ from synergy.system import time_helper
 
 
 class SiteDailyAggregator(AbstractVerticalWorker):
-    """ class works as an aggregator from the hourly_site_collection into the daily_site_collection """
+    """ class works as an aggregator from the site_hourly into the site_daily """
 
     def __init__(self, process_name):
         super(SiteDailyAggregator, self).__init__(process_name)

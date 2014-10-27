@@ -4,6 +4,7 @@ from collections import deque
 from threading import Lock
 
 import amqp
+import sys
 
 from synergy.conf import settings
 from synergy.system.decorator import thread_safe
@@ -275,3 +276,25 @@ class PublishersPool(object):
         pool_names = self.pools.keys()
         for name in pool_names:
             self._close(name, suppress_logging)
+
+
+def purge_mq_queue(mq_queue_name):
+    """ function purges
+    :param mq_queue_name: <string> name of the message queue
+    :return: number of purged messages
+    """
+    conn = None
+    chan = None
+    try:
+        conn = Connection()
+        chan = conn.connection.channel()
+        n = chan.queue_purge(mq_queue_name)
+        sys.stdout.write('Purged %s messages from %s queue\n' % (n, mq_queue_name))
+        return n
+    except Exception as e:
+        sys.stderr.write('Unable to purge %s due to %s\n' % (mq_queue_name, str(e)))
+    finally:
+        if chan is not None:
+            chan.close()
+        if conn is not None:
+            conn.close()

@@ -5,7 +5,7 @@ from synergy.system import time_helper
 
 
 class SiteYearlyAggregator(SiteDailyAggregator):
-    """ class works as an aggregator from the monthly_site_collection into the yearly_site_collection """
+    """ class works as an aggregator from the site_monthly collection into the site_yearly collection """
 
     def __init__(self, process_name):
         super(SiteYearlyAggregator, self).__init__(process_name)

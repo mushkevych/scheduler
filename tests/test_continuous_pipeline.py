@@ -1,6 +1,8 @@
 __author__ = 'Bohdan Mushkevych'
 
 import unittest
+from settings import enable_test_mode
+enable_test_mode()
 
 from mockito import spy, verify, mock, when
 from mockito.matchers import any
@@ -10,6 +12,7 @@ from synergy.db.error import DuplicateKeyError
 from synergy.db.model import job, unit_of_work
 from synergy.db.model.job import Job
 from synergy.db.model.unit_of_work import UnitOfWork
+from synergy.db.manager.ds_manager import BaseManager
 from tests.base_fixtures import create_unit_of_work
 from synergy.system import time_helper
 from synergy.system.time_qualifier import *
@@ -25,16 +28,16 @@ TEST_ACTUAL_TIMEPERIOD = time_helper.actual_timeperiod(QUALIFIER_HOURLY)
 TEST_FUTURE_TIMEPERIOD = time_helper.increment_timeperiod(QUALIFIER_HOURLY, TEST_ACTUAL_TIMEPERIOD)
 
 
-def then_raise(process_name, start_timeperiod, end_timeperiod, job_record):
-    exc = DuplicateKeyError('Simulated Exception')
-    exc.start_id = '0'
-    exc.end_id = '1'
-    exc.process_name = process_name
-    exc.timeperiod = start_timeperiod
+def then_raise(process_name, start_timeperiod, end_timeperiod, start_id, end_id, job_record):
+    exc = DuplicateKeyError(process_name,
+                            start_timeperiod,
+                            start_id,
+                            end_id,
+                            'Simulated Exception')
     raise exc
 
 
-def then_return_uow(process_name, start_timeperiod, end_timeperiod, job_record):
+def then_return_uow(process_name, start_timeperiod, end_timeperiod, start_id, end_id, job_record):
     return create_unit_of_work(PROCESS_UNIT_TEST, 0, 1, None)
 
 
@@ -47,7 +50,7 @@ def get_job_record(state, timeperiod, process_name):
     return job_record
 
 
-class RegularPipelineUnitTest(unittest.TestCase):
+class ContinuousPipelineUnitTest(unittest.TestCase):
     def setUp(self):
         self.logger = ProcessContext.get_logger(PROCESS_UNIT_TEST)
         self.time_table_mocked = mock(Timetable)
@@ -59,20 +62,24 @@ class RegularPipelineUnitTest(unittest.TestCase):
 
     def test_state_embryo(self):
         """ method tests job records in STATE_EMBRYO state"""
-        self.pipeline_real.compute_scope_of_processing = then_return_uow
-        pipeline = spy(self.pipeline_real)
+        self.pipeline_real.create_and_publish_uow = then_return_uow
 
+        ds_mock = mock(BaseManager)
+        when(ds_mock).highest_primary_key(any(str), any(str), any(str)).thenReturn(1)
+        when(ds_mock).lowest_primary_key(any(str), any(str), any(str)).thenReturn(0)
+        self.pipeline_real.ds = ds_mock
+
+        pipeline = spy(self.pipeline_real)
         job_record = get_job_record(job.STATE_EMBRYO,
                                     TEST_PRESET_TIMEPERIOD,
                                     PROCESS_SITE_HOURLY)
 
         pipeline.manage_pipeline_for_process(job_record.process_name, job_record)
-        verify(self.time_table_mocked). \
-            update_job_record(any(str), any(Job), any(UnitOfWork), any(str))
+        verify(self.time_table_mocked).update_job_record(any(str), any(Job), any(UnitOfWork), any(str))
 
     def test_duplicatekeyerror_state_embryo(self):
         """ method tests job records in STATE_EMBRYO state"""
-        self.pipeline_real.compute_scope_of_processing = then_raise
+        self.pipeline_real.create_and_publish_uow = then_raise
         pipeline = spy(self.pipeline_real)
 
         job_record = get_job_record(job.STATE_EMBRYO,
@@ -90,7 +97,7 @@ class RegularPipelineUnitTest(unittest.TestCase):
         when(uow_dao_mock).get_one(any(str)).thenReturn(create_unit_of_work(PROCESS_UNIT_TEST, 0, 1, None))
         self.pipeline_real.uow_dao = uow_dao_mock
 
-        self.pipeline_real.compute_scope_of_processing = then_raise
+        self.pipeline_real.create_and_publish_uow = then_raise
         pipeline = spy(self.pipeline_real)
 
         job_record = get_job_record(job.STATE_IN_PROGRESS,
@@ -108,9 +115,15 @@ class RegularPipelineUnitTest(unittest.TestCase):
         when(uow_dao_mock).get_one(any()). \
             thenReturn(create_unit_of_work(PROCESS_UNIT_TEST, 1, 1, None, unit_of_work.STATE_REQUESTED)). \
             thenReturn(create_unit_of_work(PROCESS_UNIT_TEST, 1, 1, None, unit_of_work.STATE_PROCESSED))
-        self.pipeline_real.uow_dao = uow_dao_mock
 
-        self.pipeline_real.compute_scope_of_processing = then_return_uow
+        ds_mock = mock(BaseManager)
+        when(ds_mock).highest_primary_key(any(str), any(str), any(str)).thenReturn(1)
+        when(ds_mock).lowest_primary_key(any(str), any(str), any(str)).thenReturn(0)
+
+        self.pipeline_real.uow_dao = uow_dao_mock
+        self.pipeline_real.ds = ds_mock
+
+        self.pipeline_real.create_and_publish_uow = then_return_uow
         pipeline = spy(self.pipeline_real)
 
         job_record = get_job_record(job.STATE_IN_PROGRESS,
@@ -132,9 +145,15 @@ class RegularPipelineUnitTest(unittest.TestCase):
         when(uow_dao_mock).get_one(any()). \
             thenReturn(create_unit_of_work(PROCESS_UNIT_TEST, 1, 1, None, unit_of_work.STATE_REQUESTED)). \
             thenReturn(create_unit_of_work(PROCESS_UNIT_TEST, 1, 1, None, unit_of_work.STATE_PROCESSED))
-        self.pipeline_real.uow_dao = uow_dao_mock
 
-        self.pipeline_real.compute_scope_of_processing = then_raise
+        ds_mock = mock(BaseManager)
+        when(ds_mock).highest_primary_key(any(str), any(str), any(str)).thenReturn(1)
+        when(ds_mock).lowest_primary_key(any(str), any(str), any(str)).thenReturn(0)
+
+        self.pipeline_real.uow_dao = uow_dao_mock
+        self.pipeline_real.ds = ds_mock
+
+        self.pipeline_real.create_and_publish_uow = then_raise
         pipeline = spy(self.pipeline_real)
 
         job_record = get_job_record(job.STATE_IN_PROGRESS,

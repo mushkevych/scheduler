@@ -10,9 +10,9 @@ from synergy.conf import settings
 
 class SiteHourlyAggregator(AbstractVerticalWorker):
     """
-    class works as an aggregator from the single_session_collection and produces/updates records in the hourly_site_collection
-    principle of work is following: we extract all of the sessions for the hour (for example: from 13:00:00 till 13:59:59) 
-    and aggregate them into one record of hourly_site_collection
+    class works as an aggregator from the single_session collection and produces/updates records in the site_hourly
+    principle of work is following: we extract all of the sessions for the hour
+    (for example: from 13:00:00 till 13:59:59) and aggregate them into one record of site_hourly collection
     """
 
     def __init__(self, process_name):

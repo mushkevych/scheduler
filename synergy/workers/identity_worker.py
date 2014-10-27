@@ -1,5 +1,3 @@
-""" Module contains logic for YES worker - one that marks any units_of_work as complete """
-
 __author__ = 'Bohdan Mushkevych'
 
 from datetime import datetime
@@ -7,11 +5,11 @@ from synergy.db.model import unit_of_work
 from synergy.db.model.worker_mq_request import WorkerMqRequest
 from synergy.db.dao.unit_of_work_dao import UnitOfWorkDao
 from synergy.workers.abstract_mq_worker import AbstractMqWorker
-from synergy.system.performance_tracker import AggregatorPerformanceTicker
+from synergy.system.performance_tracker import UowAwareTracker
 
 
 class IdentityWorker(AbstractMqWorker):
-    """ Marks all unit_of_work as <complete>"""
+    """ Marks any incoming unit_of_work as <complete> """
 
     def __init__(self, process_name):
         super(IdentityWorker, self).__init__(process_name)
@@ -23,7 +21,7 @@ class IdentityWorker(AbstractMqWorker):
 
     # **************** Abstract Methods ************************
     def _init_performance_ticker(self, logger):
-        self.performance_ticker = AggregatorPerformanceTicker(logger)
+        self.performance_ticker = UowAwareTracker(logger)
         self.performance_ticker.start()
 
     # ********************** thread-related methods ****************************
@@ -56,11 +54,18 @@ class IdentityWorker(AbstractMqWorker):
             self.uow_dao.update(uow)
             self.performance_ticker.finish_uow()
         except Exception as e:
-            uow.state = unit_of_work.STATE_INVALID
-            self.uow_dao.update(uow)
+            fresh_uow = self.uow_dao.get_one(mq_request.unit_of_work_id)
+            if fresh_uow.state in [unit_of_work.STATE_CANCELED]:
+                self.logger.warning('unit_of_work: id %s was likely marked by MX as SKIPPED. '
+                                    'No unit_of_work update is performed.' % str(message.body),
+                                    exc_info=False)
+            else:
+                self.logger.error('Safety fuse while processing unit_of_work %s in timeperiod %s : %r'
+                                  % (message.body, uow.timeperiod, e), exc_info=True)
+                uow.state = unit_of_work.STATE_INVALID
+                self.uow_dao.update(uow)
+
             self.performance_ticker.cancel_uow()
-            self.logger.error('Safety fuse while processing unit_of_work %s in timeperiod %s : %r'
-                              % (message.body, uow.timeperiod, e), exc_info=True)
         finally:
             self.consumer.acknowledge(message.delivery_tag)
             self.consumer.close()

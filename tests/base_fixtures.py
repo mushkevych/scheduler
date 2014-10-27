@@ -4,6 +4,8 @@ import inspect
 import random
 from datetime import datetime, timedelta
 
+from db.model import raw_data
+from db.model.site_statistics import SiteStatistics
 from db.model.single_session import SingleSession
 from db.dao.single_session_dao import SingleSessionDao
 from synergy.db.dao.unit_of_work_dao import UnitOfWorkDao
@@ -12,8 +14,9 @@ from synergy.db.model.unit_of_work import UnitOfWork
 from synergy.db.model.worker_mq_request import WorkerMqRequest
 from synergy.db.manager import ds_manager
 from synergy.system import time_helper
-from synergy.conf.process_context import ProcessContext
 from synergy.system.time_qualifier import *
+from synergy.scheduler.scheduler_constants import TYPE_MANAGED
+from synergy.conf.process_context import ProcessContext
 from tests.ut_context import PROCESS_UNIT_TEST
 
 
@@ -121,17 +124,19 @@ def create_unit_of_work(process_name,
         target_collection = None
 
     uow = UnitOfWork()
+    uow.process_name = process_name
     uow.timeperiod = timeperiod
-    uow.start_timeperiod = timeperiod
-    uow.end_timeperiod = timeperiod
     uow.start_id = start_id
     uow.end_id = end_id
+    uow.start_timeperiod = timeperiod
+    uow.end_timeperiod = timeperiod
+    uow.created_at = creation_at
     uow.source = source_collection
     uow.sink = target_collection
     uow.state = state
-    uow.created_at = creation_at
-    uow.process_name = process_name
+    uow.unit_of_work_type = TYPE_MANAGED
     uow.number_of_retries = 0
+    uow.arguments = ProcessContext.get_arguments(process_name)
 
     if uow_id is not None:
         uow.document['_id'] = uow_id
@@ -159,8 +164,7 @@ def create_session_stats(composite_key_function, seed='RANDOM_SEED_OBJECT'):
     for i in range(TOTAL_ENTRIES):
         key = composite_key_function(i, TOTAL_ENTRIES)
         session = SingleSession()
-        session.key = (key[0], key[1])
-        session.session_id = 'session_id_%s' % str(i)
+        session.key = (key[0], key[1], 'session_id_%s' % str(i))
         session.ip = '192.168.0.2'
         if i % 3 == 0:
             session.screen_res = (240, 360)
@@ -200,14 +204,27 @@ def _generate_entries(token, number, value):
     return items
 
 
-def create_site_stats(collection, composite_key_function, statistics_klass, seed='RANDOM_SEED_OBJECT'):
+def generate_site_composite_key(index, time_qualifier):
+    start_time = '20010303101010'  # YYYYMMDDHHmmSS
+
+    iteration_index = index // 33  # number larger than number of hours in a day and days in a month
+    iteration_timeperiod = time_helper.cast_to_time_qualifier(time_qualifier, start_time)
+    if iteration_index:
+        iteration_timeperiod = time_helper.increment_timeperiod(time_qualifier,
+                                                                iteration_timeperiod,
+                                                                delta=iteration_index)
+
+    return 'domain_name_%s' % str(index - iteration_index * 33), iteration_timeperiod
+
+
+def create_site_stats(collection_name, time_qualifier, seed='RANDOM_SEED_OBJECT'):
     logger = ProcessContext.get_logger(PROCESS_UNIT_TEST)
     ds = ds_manager.ds_factory(logger)
     random.seed(seed)
     object_ids = []
     for i in range(TOTAL_ENTRIES):
-        key = composite_key_function(i, TOTAL_ENTRIES)
-        site_stat = statistics_klass()
+        key = generate_site_composite_key(i, time_qualifier)
+        site_stat = SiteStatistics()
         site_stat.key = (key[0], key[1])
         site_stat.number_of_visits = random.randint(1, 1000)
         site_stat.total_duration = random.randint(0, 100)
@@ -239,10 +256,19 @@ def create_site_stats(collection, composite_key_function, statistics_klass, seed
         items['us'] = 9
         site_stat.countries = items
 
-        stat_id = ds.insert(site_stat.document)
+        stat_id = ds.insert(collection_name, site_stat.document)
         object_ids.append(stat_id)
 
     return object_ids
+
+
+def clean_site_entries(collection_name, time_qualifier):
+    logger = ProcessContext.get_logger(PROCESS_UNIT_TEST)
+    ds = ds_manager.ds_factory(logger)
+    connection = ds.connection(collection_name)
+    for i in range(TOTAL_ENTRIES):
+        key = generate_site_composite_key(i, time_qualifier)
+        connection.remove({raw_data.DOMAIN_NAME: key[0], raw_data.TIMEPERIOD: key[1]})
 
 
 def wind_actual_timeperiod(new_time):
