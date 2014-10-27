@@ -75,6 +75,7 @@ function get_checked_boxes(checkbox_name) {
     return selected_checkboxes.length > 0 ? selected_checkboxes : null;
 }
 
+// function applies given "action" to all records with selected checkboxes
 function process_batch(action, is_freerun) {
     var selected = get_checked_boxes('batch_processing');
     var msg = 'You are about to ' + action + ' all selected';
@@ -117,12 +118,11 @@ function process_batch(action, is_freerun) {
     }
 }
 
+// function applies given "action" to the record identified by "process_name+timeperiod"
 function process_timeperiod(action, process_name, timeperiod, show_confirmation_dialog) {
     if (show_confirmation_dialog) {
         var msg = 'You are about to ' + action + ' ' + timeperiod + ' for ' + process_name;
-        if (confirm(msg)) {
-            // fall thru
-        } else {
+        if (!confirm(msg)) {
             return;
         }
     }
@@ -133,12 +133,11 @@ function process_timeperiod(action, process_name, timeperiod, show_confirmation_
     });
 }
 
+// function applies given "action" to the SchedulerThreadHandler entry
 function process_trigger(action, process_name, timeperiod, entry_name, is_freerun, is_batch, show_confirmation_dialog) {
     if (show_confirmation_dialog) {
         var msg = 'You are about to ' + action + ' ' + timeperiod + ' for ' + process_name;
-        if (confirm(msg)) {
-            // fall thru
-        } else {
+        if (!confirm(msg)) {
             return;
         }
     }

@@ -1,16 +1,16 @@
-// document holds all Scheduler MX UI client
+// document holds all Synergy Scheduler MX UI content
 var OUTPUT_DOCUMENT = {};
 
 // main method for Scheduler MX UI client
 $(document).ready(function () {
     $.get('/request_verticals/', function (response) {
         var result = OUTPUT_DOCUMENT.build_navigational_panel(response);
-        $('#navigation').append(result);
-        $('.menu').initMenu();
+        $('#navigation').append(result);    // appends to the HTML document panel to the right (timeperiods)
+        $('.menu').initMenu();              // appends to the HTML document navigational menu to the left (tree names)
     }, 'json');
 });
 
-// method returns empty table for timetable records (panel on the right)
+// method returns empty table for timeperiod records (panel on the right)
 OUTPUT_DOCUMENT.get_empty_table = function (table_id, enable_pagination) {
     var table_class = 'one-column-emphasis context-menu';
     if (enable_pagination) {
@@ -24,8 +24,6 @@ OUTPUT_DOCUMENT.get_empty_table = function (table_id, enable_pagination) {
                             <th scope="col">Process</th>\
                             <th scope="col">#Fail Calls</th>\
                             <th scope="col">State</th>\
-<!--                            <th scope="col"></th> --> \
-<!--                            <th scope="col"></th> --> \
                             <th scope="col"></th>\
                             <th scope="col"></th>\
                         </tr>\
@@ -33,7 +31,7 @@ OUTPUT_DOCUMENT.get_empty_table = function (table_id, enable_pagination) {
               </table>');
 };
 
-// small helper method to wrap text into <td> tags
+// helper method to wrap text into <td> tags
 OUTPUT_DOCUMENT._to_td = function (text) {
     return $('<td>' + text + '</td>');
 };
@@ -54,15 +52,6 @@ OUTPUT_DOCUMENT.construct_table_row = function (k, v, handler) {
     var checkbox_value = "{ process_name: '" + v.process_name + "', timeperiod: '" + k + "' }";
     var checkbox_td = '<td> <input type="checkbox" name="batch_processing" value="' + checkbox_value + '"/></td>';
 
-//    var reprocess_button = $('<button>Reprocess</button>').click(function (e) {
-//        process_timeperiod('action_reprocess', v.process_name, v.timeperiod, true)
-//
-//    });
-//    var skip_button = $('<button>Skip</button>').click(function (e) {
-//        process_timeperiod('action_skip', v.process_name, v.timeperiod, true)
-//
-//    });
-
     var uow_button = $('<button>Get&nbsp;Uow</button>').click(function (e) {
         var params = { action: 'action_get_uow', timeperiod: v.timeperiod, process_name: v.process_name };
         var viewer_url = '/object_viewer/?' + $.param(params);
@@ -73,8 +62,7 @@ OUTPUT_DOCUMENT.construct_table_row = function (k, v, handler) {
         var viewer_url = '/object_viewer/?' + $.param(params);
         window.open(viewer_url, 'Object Viewer', 'width=720,height=480,screenX=400,screenY=200,scrollbars=1');
     });
-//    var td_button_repr = $('<td></td>').append(reprocess_button);
-//    var td_button_skip = $('<td></td>').append(skip_button);
+
     var td_button_uow = $('<td></td>').append(uow_button);
     var td_button_log = $('<td></td>').append(log_button);
     return tr.append(checkbox_td)
@@ -82,8 +70,6 @@ OUTPUT_DOCUMENT.construct_table_row = function (k, v, handler) {
         .append(OUTPUT_DOCUMENT._to_td(v.process_name))
         .append(OUTPUT_DOCUMENT._to_td(v.number_of_failed_calls))
         .append(OUTPUT_DOCUMENT._to_td(v.state))
-//        .append(td_button_repr)
-//        .append(td_button_skip)
         .append(td_button_uow)
         .append(td_button_log);
 };
@@ -101,7 +87,7 @@ OUTPUT_DOCUMENT.build_timerecords_panel = function (children, enable_pagination)
             $.get('/request_children/', params, function (response) {
                 $('#content').html(OUTPUT_DOCUMENT.build_timerecords_panel(response.children, enable_pagination));
                 OUTPUT_DOCUMENT.build_timerecord_entry(k, v, handler);
-                assign_context_menu();  // assign context menu for under-lying levels of the tree
+                assign_context_menu();  // assign context menu to underlying levels of the tree (monthly, daily, hourly)
             });
         };
         var tr = OUTPUT_DOCUMENT.construct_table_row(k, v, handler);
@@ -135,8 +121,7 @@ OUTPUT_DOCUMENT.build_timerecord_entry = function (k, v, handler) {
     }
 };
 
-
-// method builds navigational panel on the left
+// method builds panel with the timeperiods on the right
 OUTPUT_DOCUMENT.build_navigational_panel = function (vertical_json) {
 
     // phase 1: sort process names
@@ -177,7 +162,7 @@ OUTPUT_DOCUMENT.build_navigational_panel = function (vertical_json) {
                     });
 
                     $('.dataTables_wrapper').width('65%');  // change dataTable container width
-                    assign_context_menu();                  // assign context menu for the top level of the tree
+                    assign_context_menu();                  // assign context menu to the table with top-level timeperiods (yearly, linear)
                 } else {
                     $('#content').hide().html('No report to show at this moment.').fadeIn('1500');
                 }
