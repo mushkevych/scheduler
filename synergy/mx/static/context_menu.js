@@ -1,4 +1,5 @@
-// Select all checkboxes
+// function iterates over all checkboxes with name "batch_processing"
+// and marks/unmarks them accordingly to the state of the "source" checkbox
 function toggle_all_checkboxes(source) {
     var checkboxes = document.getElementsByName('batch_processing');
     for (var i = 0, n = checkboxes.length; i < n; i++) {
@@ -6,7 +7,11 @@ function toggle_all_checkboxes(source) {
     }
 }
 
-$(window).load(function () {
+// event call-back for "window.load" event
+$(window).load(assign_context_menu());
+
+// function replaces standard right-mouse-click menu with the custom one
+function assign_context_menu() {
     var els = document.getElementsByClassName('context-menu');
     if (els) {
         Array.prototype.forEach.call(els, function(el) {
@@ -23,7 +28,7 @@ $(window).load(function () {
             }, false);
         });
     }
-});
+}
 
 // hide the right-click-menu if user clicked outside its boundaries
 $(document).bind('click', function (event) {
@@ -32,6 +37,7 @@ $(document).bind('click', function (event) {
     }
 });
 
+// function allows to identify X coordinate to rendering context menu
 function mouse_x(event) {
     if (event.pageX) {
         return event.pageX;
@@ -43,6 +49,7 @@ function mouse_x(event) {
     }
 }
 
+// function allows to identify Y coordinate to rendering context menu
 function mouse_y(event) {
     if (event.pageY) {
         return event.pageY;
@@ -54,7 +61,7 @@ function mouse_y(event) {
     }
 }
 
-// Get all checked rows
+// function iterates over all checkboxes in the document and selects checked ones
 function get_checked_boxes(checkbox_name) {
     var checkboxes = document.getElementsByName(checkbox_name);
     var selected_checkboxes = [];

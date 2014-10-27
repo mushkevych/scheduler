@@ -101,6 +101,7 @@ OUTPUT_DOCUMENT.build_timerecords_panel = function (children, enable_pagination)
             $.get('/request_children/', params, function (response) {
                 $('#content').html(OUTPUT_DOCUMENT.build_timerecords_panel(response.children, enable_pagination));
                 OUTPUT_DOCUMENT.build_timerecord_entry(k, v, handler);
+                assign_context_menu();  // assign context menu for under-lying levels of the tree
             });
         };
         var tr = OUTPUT_DOCUMENT.construct_table_row(k, v, handler);
@@ -161,10 +162,11 @@ OUTPUT_DOCUMENT.build_navigational_panel = function (vertical_json) {
                 $('#level').empty();
                 $('#content').empty();
                 if (response.children) {
+                    // construct HTML table with the list of timeperiods
                     var right_ul = OUTPUT_DOCUMENT.build_timerecords_panel(response.children, v.number_of_levels == 1);
                     $('#content').hide().html(right_ul).fadeIn('1500');
 
-                    // render dataTable
+                    // convert HTML table into JS dataTable
                     $('.synergy_pagination').dataTable({"bPaginate": true,
                         "bSort": true,
                         "iDisplayLength": 36,
@@ -174,9 +176,8 @@ OUTPUT_DOCUMENT.build_navigational_panel = function (vertical_json) {
                         ]
                     });
 
-                    // change dataTable container width
-                    $('.dataTables_wrapper').width('65%');
-
+                    $('.dataTables_wrapper').width('65%');  // change dataTable container width
+                    assign_context_menu();                  // assign context menu for the top level of the tree
                 } else {
                     $('#content').hide().html('No report to show at this moment.').fadeIn('1500');
                 }
