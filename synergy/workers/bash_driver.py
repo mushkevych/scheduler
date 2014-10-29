@@ -64,7 +64,7 @@ class BashRunnable(threading.Thread):
                                    uow.arguments[ARGUMENT_CMD_FILE])
             command += ' %s' % uow.arguments[ARGUMENT_CMD_ARGS]
 
-            run_result = fabric.operations.run(command)
+            run_result = fabric.operations.run(command, pty=False)
             if run_result.succeeded:
                 self.return_code = 0
 
@@ -79,7 +79,7 @@ class BashRunnable(threading.Thread):
             self.uow_dao.update(uow)
         finally:
             self.logger.info('}')
-            self.is_alive = False
+            self.alive = False
 
     def run(self):
         try:
@@ -88,6 +88,7 @@ class BashRunnable(threading.Thread):
             alive = True
             while alive:
                 alive, code = self._poll_process()
+                time.sleep(0.1)
 
             if code == 0:
                 self.performance_ticker.tracker.increment_success()
@@ -107,13 +108,12 @@ class BashDriver(AbstractMqWorker):
 
     def __init__(self, process_name):
         super(BashDriver, self).__init__(process_name)
-        self.is_alive = False
         self.initial_thread_count = threading.active_count()
 
     def _mq_callback(self, message):
         """ reads JSON request from the mq message and delivers it for processing """
         while threading.active_count() > settings.settings['bash_runnable_count'] + self.initial_thread_count:
-            time.sleep(0.01)
+            time.sleep(0.1)
 
         t = BashRunnable(self.logger, message, self.consumer, self.performance_ticker)
         t.daemon = True

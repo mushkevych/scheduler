@@ -3,6 +3,7 @@ It executes shell command and updates unit_of_work base on command's return code
 
 __author__ = 'Bohdan Mushkevych'
 
+import time
 from datetime import datetime
 from psutil.error import TimeoutExpired
 from synergy.db.model import unit_of_work
@@ -93,6 +94,7 @@ class AbstractCliWorker(AbstractMqWorker):
             alive = True
             while alive:
                 alive, code = self._poll_process()
+                time.sleep(0.1)
 
             if code == 0:
                 uow.number_of_processed_documents = self.performance_ticker.per_job
