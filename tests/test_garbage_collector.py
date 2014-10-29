@@ -7,6 +7,9 @@ from datetime import datetime, timedelta
 from mockito import spy, verify, mock, when
 from mockito.matchers import any
 
+from settings import enable_test_mode
+enable_test_mode()
+
 from synergy.db.model import unit_of_work
 from synergy.db.dao.unit_of_work_dao import UnitOfWorkDao
 
@@ -16,7 +19,6 @@ from synergy.mq.flopsy import PublishersPool
 from synergy.scheduler.scheduler_constants import PROCESS_GC
 from synergy.workers.garbage_collector_worker import GarbageCollectorWorker, LIFE_SUPPORT_HOURS
 from tests.ut_context import *
-import settings as module_settings
 
 
 def get_invalid_and_fresh_uow():
@@ -67,7 +69,6 @@ class GarbageCollectorUnitTest(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         super(GarbageCollectorUnitTest, cls).setUpClass()
-        module_settings.enable_test_mode()
 
     def setUp(self):
         self.worker = GarbageCollectorWorker(PROCESS_GC)

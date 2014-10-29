@@ -2,7 +2,9 @@ __author__ = 'Bohdan Mushkevych'
 
 import unittest
 
-import settings as settings_module
+from settings import enable_test_mode
+enable_test_mode()
+
 from constants import TOKEN_SITE, TOKEN_CLIENT, PROCESS_SITE_YEARLY, PROCESS_SITE_MONTHLY, \
     PROCESS_SITE_DAILY, PROCESS_SITE_HOURLY, PROCESS_CLIENT_MONTHLY
 from synergy.system import time_helper
@@ -15,7 +17,6 @@ class TestTreeNode(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
-        settings_module.enable_test_mode()
         super(TestTreeNode, cls).setUpClass()
 
     def setUp(self):

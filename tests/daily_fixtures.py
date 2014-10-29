@@ -1,4 +1,4 @@
-import base_fixtures
+from tests import base_fixtures
 from constants import COLLECTION_SITE_DAILY
 from synergy.system.time_qualifier import QUALIFIER_DAILY
 

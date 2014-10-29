@@ -1,7 +1,7 @@
 __author__ = 'Bohdan Mushkevych'
 
 import unittest
-from base_fixtures import compare_dictionaries
+from tests.base_fixtures import compare_dictionaries
 from synergy.db.model import box_configuration
 from synergy.db.model.box_configuration import BoxConfiguration
 from synergy.db.model.scheduler_managed_entry import SchedulerManagedEntry

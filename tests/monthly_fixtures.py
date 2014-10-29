@@ -1,6 +1,6 @@
 __author__ = 'Bohdan Mushkevych'
 
-import base_fixtures
+from tests import base_fixtures
 from constants import COLLECTION_SITE_MONTHLY
 from synergy.system.time_qualifier import QUALIFIER_MONTHLY
 
