@@ -80,7 +80,7 @@
                 {%- if handler -%}
                     {{ handler.scheduler_entry.arguments|jsonify }}
                 {%- else -%}
-                    {"script_path": "", "script_name": "", "script_params": "", "host": "" }
+                    {"cmd_path": "", "cmd_file": "", "cmd_args": "", "cmd_host": "" }
                 {%- endif -%}</textarea></td>
             <td>This is process-specific set of arguments that are used to construct and run an actual job</td>
         </tr>

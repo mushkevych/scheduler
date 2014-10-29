@@ -3,11 +3,9 @@ LAG_5_MINUTES = 5  # lag in minutes between finish of the timeperiod and beginni
 
 PROCESS_SCHEDULER = 'Scheduler'
 PROCESS_GC = 'GarbageCollectorWorker'
-PROCESS_BASH_DRIVER = 'BashDriver'
 
 TOKEN_SCHEDULER = 'scheduler'
 TOKEN_GC = 'gc'
-TOKEN_BASH_DRIVER = 'bash'
 
 # State Machine (a.k.a. Pipeline) names
 PIPELINE_CONTINUOUS = 'continuous'

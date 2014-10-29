@@ -8,14 +8,10 @@ from datetime import datetime
 
 from synergy.conf import settings
 from synergy.workers.abstract_mq_worker import AbstractMqWorker
+from synergy.workers.worker_constants import *
 from synergy.db.model import unit_of_work
 from synergy.db.model.worker_mq_request import WorkerMqRequest
 from synergy.db.dao.unit_of_work_dao import UnitOfWorkDao
-
-ARGUMENT_SCRIPT_PATH = 'script_path'
-ARGUMENT_SCRIPT_NAME = 'script_name'
-ARGUMENT_SCRIPT_PARAMS = 'script_params'
-ARGUMENT_HOST = 'host'
 
 
 class BashRunnable(threading.Thread):
@@ -62,11 +58,11 @@ class BashRunnable(threading.Thread):
             fabric.operations.env.warn_only = True
             fabric.operations.env.abort_on_prompts = True
             fabric.operations.env.use_ssh_config = True
-            fabric.operations.env.host_string = uow.arguments[ARGUMENT_HOST]
+            fabric.operations.env.host_string = uow.arguments[ARGUMENT_CMD_HOST]
 
-            command = os.path.join(uow.arguments[ARGUMENT_SCRIPT_PATH],
-                                   uow.arguments[ARGUMENT_SCRIPT_NAME])
-            command += ' %s' % uow.arguments[ARGUMENT_SCRIPT_PARAMS]
+            command = os.path.join(uow.arguments[ARGUMENT_CMD_PATH],
+                                   uow.arguments[ARGUMENT_CMD_FILE])
+            command += ' %s' % uow.arguments[ARGUMENT_CMD_ARGS]
 
             run_result = fabric.operations.run(command)
             if run_result.succeeded:
@@ -125,7 +121,5 @@ class BashDriver(AbstractMqWorker):
 
 
 if __name__ == '__main__':
-    from synergy.scheduler.scheduler_constants import PROCESS_BASH_DRIVER
-
     source = BashDriver(PROCESS_BASH_DRIVER)
     source.start()
