@@ -12,6 +12,10 @@
         function refreshParent() {
             window.opener.location.reload();
         }
+
+        function closeWindow() {
+            setTimeout("window.close()", 750);
+        }
     </script>
 
     <title>Scheduler Freerun Trigger</title>
@@ -86,10 +90,10 @@
         </tr>
         <td colspan="3" align="center">
             <div id="buttons">
-                <input type="submit" name="insert_button" value="Insert" onclick="window.close()"/>
-                <input type="submit" name="update_button" value="Update" onclick="window.close()" {% if not handler %} disabled {% endif %}/>
-                <input type="submit" name="delete_button" value="Delete" onclick="window.close()" {% if not handler %} disabled {% endif %}/>
-                <input type="submit" name="cancel_button" value="Cancel" onclick="window.close()"/>
+                <input type="submit" name="insert_button" value="Insert" onclick="closeWindow()"/>
+                <input type="submit" name="update_button" value="Update" onclick="closeWindow()" {% if not handler %} disabled {% endif %}/>
+                <input type="submit" name="delete_button" value="Delete" onclick="closeWindow()" {% if not handler %} disabled {% endif %}/>
+                <input type="submit" name="cancel_button" value="Cancel" onclick="closeWindow()"/>
 
                 <!-- Need this to have the buttons actually inside div#buttons -->
                 <div style="clear:both"></div>
