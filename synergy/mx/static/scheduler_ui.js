@@ -11,11 +11,9 @@ $(document).ready(function () {
 });
 
 // method returns empty table for timeperiod records (panel on the right)
-OUTPUT_DOCUMENT.get_empty_table = function (table_id, enable_pagination) {
-    var table_class = 'one-column-emphasis context-menu';
-    if (enable_pagination) {
-        table_class += ' synergy_pagination';
-    }
+OUTPUT_DOCUMENT.get_empty_table = function (table_id) {
+    var table_class = 'one-column-emphasis context-menu  synergy_datatable';
+
     return $('<table style="width: 60%" class="' + table_class + '" id="' + table_id + '">\
                     <thead>\
                         <tr class="oce-first">\
@@ -94,8 +92,18 @@ OUTPUT_DOCUMENT.build_timerecords_panel = function (children, enable_pagination)
         tbody.append(tr);
     });
 
-    var table = OUTPUT_DOCUMENT.get_empty_table(table_id, enable_pagination);
+    var table = OUTPUT_DOCUMENT.get_empty_table(table_id);
     table.append(tbody);
+
+    if (!enable_pagination) {
+        // this is multi-level case tree
+        // convert HTML table into JS dataTable
+        table.dataTable({"bSort": true,
+            "aaSorting": [
+                [ 1, "desc" ]
+            ]
+        });
+    }
 
     return table;
 };
@@ -105,7 +113,7 @@ OUTPUT_DOCUMENT.build_timerecord_entry = function (k, v, handler) {
     var tr = OUTPUT_DOCUMENT.construct_table_row(k, v, handler);
     tr.addClass(v.time_qualifier);
     if (typeof $('#level').find('table').val() == 'undefined') {
-        var table = OUTPUT_DOCUMENT.get_empty_table(v.process_name, false);
+        var table = OUTPUT_DOCUMENT.get_empty_table(v.process_name);
         var tbody = $('<tbody></tbody>');
         tbody.append(tr);
         table.append(tbody);
@@ -133,11 +141,12 @@ OUTPUT_DOCUMENT.build_navigational_panel = function (vertical_json) {
 
     // phase 2: define function to build expandable panel per process
     function per_process(k, v) {
+        var enable_pagination = v.number_of_levels == 1;
         var li = $('<li></li>');
         var a = $('<a href="#">' + k + '</a>').click(function (e) {
             e.preventDefault();
             var params = {};
-            if (v.number_of_levels == 1) {
+            if (enable_pagination) {
                 params = { process_name: v.processes.linear };
             } else {
                 params = { process_name: v.processes.yearly };
@@ -148,20 +157,23 @@ OUTPUT_DOCUMENT.build_navigational_panel = function (vertical_json) {
                 $('#content').empty();
                 if (response.children) {
                     // construct HTML table with the list of timeperiods
-                    var right_ul = OUTPUT_DOCUMENT.build_timerecords_panel(response.children, v.number_of_levels == 1);
+                    var right_ul = OUTPUT_DOCUMENT.build_timerecords_panel(response.children, enable_pagination);
                     $('#content').hide().html(right_ul).fadeIn('1500');
 
-                    // convert HTML table into JS dataTable
-                    $('.synergy_pagination').dataTable({"bPaginate": true,
-                        "bSort": true,
-                        "iDisplayLength": 36,
-                        "bLengthChange": false,
-                        "aaSorting": [
-                            [ 1, "desc" ]
-                        ]
-                    });
+                    if (enable_pagination) {
+                        // this is linear-case tree
+                        // convert HTML table into JS dataTable
+                        $('.synergy_datatable').dataTable({"bPaginate": true,
+                            "bSort": true,
+                            "iDisplayLength": 36,
+                            "bLengthChange": false,
+                            "aaSorting": [
+                                [ 1, "desc" ]
+                            ]
+                        });
 
-                    $('.dataTables_wrapper').width('65%');  // change dataTable container width
+                        $('.dataTables_wrapper').width('65%');  // change dataTable container width
+                    }
                     assign_context_menu();                  // assign context menu to the table with top-level timeperiods (yearly, linear)
                 } else {
                     $('#content').hide().html('No report to show at this moment.').fadeIn('1500');
