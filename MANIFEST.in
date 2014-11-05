@@ -2,3 +2,4 @@ include README.md LICENSE MANIFEST.in
 graft db/schema
 graft scripts
 graft synergy
+prune .ve
