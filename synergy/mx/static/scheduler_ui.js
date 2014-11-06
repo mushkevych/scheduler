@@ -99,6 +99,7 @@ OUTPUT_DOCUMENT.build_timerecords_panel = function (children, enable_pagination)
         // this is multi-level case tree
         // convert HTML table into JS dataTable
         table.dataTable({"bSort": true,
+            "iDisplayLength": 36,
             "aaSorting": [
                 [ 1, "desc" ]
             ]
