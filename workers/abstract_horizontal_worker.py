@@ -1,14 +1,13 @@
-""" Module contains common logic for all workers that work with chunks of data from DB """
-from synergy.db.model import base_model
-
 __author__ = 'Bohdan Mushkevych'
 
-from workers.abstract_uow_aware_worker import AbstractUowAwareWorker
+from synergy.db.model import base_model
+from workers.abstract_mongo_worker import AbstractMongoWorker
 
 
-class AbstractHorizontalWorker(AbstractUowAwareWorker):
+class AbstractHorizontalWorker(AbstractMongoWorker):
     """
-    this class has different _engine_ that in contrary to sequential reading, reads bulks from DB  
+    This class could be inherited by workers that work with chunks/batches of data from DB
+    Its _engine_, in contrary to sequential reading, reads batches of records from DB
     """
 
     def __init__(self, process_name):

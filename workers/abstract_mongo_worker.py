@@ -7,7 +7,7 @@ import socket
 from datetime import datetime
 
 from synergy.db.model import unit_of_work
-from synergy.db.model.worker_mq_request import WorkerMqRequest
+from synergy.db.model.synergy_mq_transmission import SynergyMqTransmission
 from synergy.db.manager import ds_manager
 from synergy.db.dao.unit_of_work_dao import UnitOfWorkDao
 from synergy.conf import settings
@@ -17,19 +17,19 @@ from synergy.workers.abstract_mq_worker import AbstractMqWorker
 from synergy.system.performance_tracker import UowAwareTracker
 
 
-class AbstractUowAwareWorker(AbstractMqWorker):
+class AbstractMongoWorker(AbstractMqWorker):
     """ Abstract class is inherited by all workers/aggregators
     that are aware of unit_of_work and capable of processing it"""
 
     def __init__(self, process_name):
-        super(AbstractUowAwareWorker, self).__init__(process_name)
+        super(AbstractMongoWorker, self).__init__(process_name)
         self.aggregated_objects = dict()
         self.uow_dao = UnitOfWorkDao(self.logger)
         self.ds = ds_manager.ds_factory(self.logger)
 
     def __del__(self):
         self._flush_aggregated_objects()
-        super(AbstractUowAwareWorker, self).__del__()
+        super(AbstractMongoWorker, self).__del__()
 
     # **************** Abstract Methods ************************
     def _init_performance_ticker(self, logger):
@@ -115,7 +115,7 @@ class AbstractUowAwareWorker(AbstractMqWorker):
         - logs the exception
         - marks unit of work as INVALID"""
         try:
-            mq_request = WorkerMqRequest(message.body)
+            mq_request = SynergyMqTransmission(message.body)
             uow = self.uow_dao.get_one(mq_request.unit_of_work_id)
             if uow.state in [unit_of_work.STATE_CANCELED, unit_of_work.STATE_PROCESSED]:
                 # garbage collector might have reposted this UOW

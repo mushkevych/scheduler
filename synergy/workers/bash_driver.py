@@ -10,7 +10,7 @@ from synergy.conf import settings
 from synergy.workers.abstract_mq_worker import AbstractMqWorker
 from synergy.workers.worker_constants import *
 from synergy.db.model import unit_of_work
-from synergy.db.model.worker_mq_request import WorkerMqRequest
+from synergy.db.model.synergy_mq_transmission import SynergyMqTransmission
 from synergy.db.dao.unit_of_work_dao import UnitOfWorkDao
 
 
@@ -20,14 +20,14 @@ class BashRunnable(threading.Thread):
     def __init__(self, logger, message, consumer, performance_ticker):
         self.logger = logger
         self.message = message
-        self.mq_request = WorkerMqRequest(message.body)
+        self.mq_request = SynergyMqTransmission(message.body)
         self.consumer = consumer
         self.performance_ticker = performance_ticker
         self.alive = False
         self.return_code = -1
         self.uow_dao = UnitOfWorkDao(self.logger)
 
-        self.thread_name = '%s::%s' % (self.mq_request.process_name, self.mq_request.entry_name)
+        self.thread_name = '%r' % (self.mq_request.key,)
         super(BashRunnable, self).__init__(name=self.thread_name)
 
     def _poll_process(self):

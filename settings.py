@@ -15,6 +15,7 @@ settings = dict(
     remote_source_host_list=['user@f.q.h.n'],
     remote_source_password={'user@f.q.h.n': '***SSH_PASSWORD***'},
     remote_source_folder='/mnt/remote_folder/',
+    compute_gzip_md5=True,
     bash_runnable_count=5,
 
     ds_type='mongo_db',

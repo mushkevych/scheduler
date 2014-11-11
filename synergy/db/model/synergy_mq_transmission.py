@@ -7,11 +7,13 @@ ENTRY_NAME = 'entry_name'               # name of the schedulable, if applicable
 UNIT_OF_WORK_ID = 'unit_of_work_id'     # associated Unit Of Work, if applicable
 
 
-class WorkerMqRequest(BaseModel):
-    """ Non-persistent model. Instance of this class presents single request from Synergy Scheduler to any worker """
+class SynergyMqTransmission(BaseModel):
+    """ Non-persistent model. Instance of this class presents either:
+     - single request from Synergy Scheduler to any worker
+     - response/report from the worker to the Synergy Scheduler """
 
     def __init__(self, document=None):
-        super(WorkerMqRequest, self).__init__(document)
+        super(SynergyMqTransmission, self).__init__(document)
 
     @property
     def key(self):
@@ -19,9 +21,12 @@ class WorkerMqRequest(BaseModel):
 
     @key.setter
     def key(self, value):
-        assert not isinstance(value, str)
-        self.process_name = value[0]
-        self.entry_name = value[1]
+        if not isinstance(value, str):
+            self.process_name = value[0]
+            self.entry_name = value[1]
+        else:
+            self.process_name = value
+            self.entry_name = None
 
     @property
     def process_name(self):

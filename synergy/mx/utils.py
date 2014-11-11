@@ -12,6 +12,7 @@ from werkzeug.routing import Map, Rule
 
 from synergy.conf import context
 from synergy.conf import settings
+from synergy.conf.process_context import ProcessContext
 
 TEMPLATE_PATH = path.join(path.dirname(__file__), 'templates')
 STATIC_PATH = path.join(path.dirname(__file__), 'static')
@@ -66,4 +67,5 @@ jinja_env.globals['local'] = local
 jinja_env.globals['get_current_time'] = get_current_time
 jinja_env.globals['get_version'] = get_version
 jinja_env.globals['mx_processing_context'] = context.mx_page_context
+jinja_env.globals['synergy_process_context'] = context.process_context
 jinja_env.filters['jsonify'] = json.dumps

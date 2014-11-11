@@ -11,7 +11,7 @@ from db.dao.single_session_dao import SingleSessionDao
 from synergy.db.dao.unit_of_work_dao import UnitOfWorkDao
 from synergy.db.model import unit_of_work
 from synergy.db.model.unit_of_work import UnitOfWork
-from synergy.db.model.worker_mq_request import WorkerMqRequest
+from synergy.db.model.synergy_mq_transmission import SynergyMqTransmission
 from synergy.db.manager import ds_manager
 from synergy.system import time_helper
 from synergy.system.time_qualifier import *
@@ -43,7 +43,7 @@ class TestMessage(object):
     """ empty class that should substitute MQ Message. Used for testing only """
 
     def __init__(self, process_name=None, uow_id=None):
-        mq_request = WorkerMqRequest()
+        mq_request = SynergyMqTransmission()
         mq_request.process_name = process_name
         mq_request.unit_of_work_id = uow_id
 

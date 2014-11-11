@@ -8,7 +8,7 @@ from synergy.mq.flopsy import PublishersPool
 from synergy.system.decorator import thread_safe
 from synergy.workers.abstract_mq_worker import AbstractMqWorker
 from synergy.db.model import unit_of_work, scheduler_managed_entry
-from synergy.db.model.worker_mq_request import WorkerMqRequest
+from synergy.db.model.synergy_mq_transmission import SynergyMqTransmission
 from synergy.db.dao.unit_of_work_dao import UnitOfWorkDao
 from synergy.db.model.scheduler_managed_entry import SchedulerManagedEntry
 from synergy.db.dao.scheduler_managed_entry_dao import SchedulerManagedEntryDao
@@ -95,7 +95,7 @@ class GarbageCollectorWorker(AbstractMqWorker):
                 uow.number_of_retries += 1
                 self.uow_dao.update(uow)
 
-                mq_request = WorkerMqRequest()
+                mq_request = SynergyMqTransmission()
                 mq_request.process_name = uow.process_name
                 mq_request.unit_of_work_id = uow.db_id
 

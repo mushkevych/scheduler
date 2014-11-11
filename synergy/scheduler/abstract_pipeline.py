@@ -9,7 +9,7 @@ from synergy.db.dao.unit_of_work_dao import UnitOfWorkDao
 from synergy.db.dao.job_dao import JobDao
 from synergy.db.model import unit_of_work
 from synergy.db.model.unit_of_work import UnitOfWork
-from synergy.db.model.worker_mq_request import WorkerMqRequest
+from synergy.db.model.synergy_mq_transmission import SynergyMqTransmission
 from synergy.mq.flopsy import PublishersPool
 from synergy.conf.process_context import ProcessContext
 from synergy.system.decorator import with_reconnect
@@ -60,7 +60,7 @@ class AbstractPipeline(object):
         uow.arguments = ProcessContext.get_arguments(process_name)
         uow_id = self.uow_dao.insert(uow)
 
-        mq_request = WorkerMqRequest()
+        mq_request = SynergyMqTransmission()
         mq_request.process_name = process_name
         mq_request.unit_of_work_id = uow_id
 

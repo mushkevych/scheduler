@@ -8,7 +8,7 @@ from amqp import AMQPError
 from synergy.conf.process_context import ProcessContext
 from synergy.mq.flopsy import PublishersPool
 from synergy.mx.synergy_mx import MX
-from synergy.db.model.worker_mq_request import WorkerMqRequest
+from synergy.db.model.synergy_mq_transmission import SynergyMqTransmission
 from synergy.db.model import scheduler_managed_entry, job
 from synergy.db.dao.scheduler_managed_entry_dao import SchedulerManagedEntryDao
 from synergy.db.dao.scheduler_freerun_entry_dao import SchedulerFreerunEntryDao
@@ -218,7 +218,7 @@ class Scheduler(SynergyProcess):
             assert isinstance(thread_handler_arguments, ThreadHandlerArguments)
             self.logger.info('%r {' % (thread_handler_arguments.key, ))
 
-            mq_request = WorkerMqRequest()
+            mq_request = SynergyMqTransmission()
             mq_request.process_name = thread_handler_arguments.key
 
             publisher = self.publishers.get(thread_handler_arguments.key)

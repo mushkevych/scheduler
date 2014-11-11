@@ -7,7 +7,7 @@ from synergy.conf.process_context import ProcessContext
 from synergy.db.error import DuplicateKeyError
 from synergy.db.model import unit_of_work
 from synergy.db.model.unit_of_work import UnitOfWork
-from synergy.db.model.worker_mq_request import WorkerMqRequest
+from synergy.db.model.synergy_mq_transmission import SynergyMqTransmission
 from synergy.db.model.scheduler_freerun_entry import SchedulerFreerunEntry, MAX_NUMBER_OF_LOG_ENTRIES
 from synergy.db.dao.unit_of_work_dao import UnitOfWorkDao
 from synergy.db.dao.scheduler_freerun_entry_dao import SchedulerFreerunEntryDao
@@ -76,7 +76,7 @@ class FreerunPipeline(object):
 
     def publish_uow(self, freerun_entry, uow):
         schedulable_name = '%s::%s' % (freerun_entry.process_name, freerun_entry.entry_name)
-        mq_request = WorkerMqRequest()
+        mq_request = SynergyMqTransmission()
         mq_request.process_name = freerun_entry.process_name
         mq_request.entry_name = freerun_entry.entry_name
         mq_request.unit_of_work_id = uow.db_id

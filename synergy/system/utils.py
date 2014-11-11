@@ -1,5 +1,7 @@
 __author__ = 'Bohdan Mushkevych'
 
+import gzip
+import hashlib
 from synergy.conf import settings
 
 
@@ -26,3 +28,14 @@ def break_s3_file_uri(fully_qualified_file):
 def unicode_truncate(s, length, encoding='utf-8'):
     encoded = s.encode(encoding)[:length]
     return encoded.decode(encoding, errors='ignore')
+
+
+def compute_gzip_md5(file_name):
+    """ method traverses compressed file and calculates its MD5 checksum """
+    md5 = hashlib.md5()
+    file_obj = gzip.open(file_name, 'rb')
+    for chunk in iter(lambda: file_obj.read(8192), ''):
+        md5.update(chunk)
+
+    file_obj.close()
+    return md5.hexdigest()

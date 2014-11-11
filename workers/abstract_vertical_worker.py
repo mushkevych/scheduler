@@ -1,12 +1,10 @@
-""" Module contains common logic for aggregators and workers that work on constant flow from DB """
-
 __author__ = 'Bohdan Mushkevych'
 
-from workers.abstract_uow_aware_worker import AbstractUowAwareWorker
+from workers.abstract_mongo_worker import AbstractMongoWorker
 
 
-class AbstractVerticalWorker(AbstractUowAwareWorker):
-    """ Class provides stream-reader for all vertical aggregators """
+class AbstractVerticalWorker(AbstractMongoWorker):
+    """ Class contains common logic for aggregators that work on sequential flow from the DB """
 
     def __init__(self, process_name):
         super(AbstractVerticalWorker, self).__init__(process_name)

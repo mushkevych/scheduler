@@ -1,23 +1,17 @@
 __author__ = 'Bohdan Mushkevych'
 
 import os
-import gzip
 import shutil
 import tempfile
-import hashlib
-from datetime import datetime
 
 import fabric.operations
+from synergy.system.utils import compute_gzip_md5
 from synergy.conf import settings
-from synergy.workers.abstract_mq_worker import AbstractMqWorker
-from synergy.system.performance_tracker import UowAwareTracker
+from synergy.workers.abstract_uow_aware_worker import AbstractUowAwareWorker
 from synergy.db.model import unit_of_work
-from synergy.db.model.worker_mq_request import WorkerMqRequest
-from synergy.db.manager import ds_manager
-from synergy.db.dao.unit_of_work_dao import UnitOfWorkDao
 
 
-class AbstractFileCollectorWorker(AbstractMqWorker):
+class AbstractFileCollectorWorker(AbstractUowAwareWorker):
     """
     module holds common logic to process unit_of_work, access remote locations and copy files to temporary local folder
     individual files are later passed to child classes for processing
@@ -27,19 +21,13 @@ class AbstractFileCollectorWorker(AbstractMqWorker):
 
     def __init__(self, process_name):
         super(AbstractFileCollectorWorker, self).__init__(process_name)
-        self.uow_dao = UnitOfWorkDao(self.logger)
-        self.ds = ds_manager.ds_factory(self.logger)
         self.tempdir_copying = None
 
     def __del__(self):
-        self._clean_directories()
+        self._clean_up()
         super(AbstractFileCollectorWorker, self).__del__()
 
     # **************** Abstract Methods ************************
-    def _init_performance_ticker(self, logger):
-        self.performance_ticker = UowAwareTracker(logger)
-        self.performance_ticker.start()
-
     def _get_source_folder(self):
         """ Abstract method: identifies a folder with source files """
         pass
@@ -118,82 +106,35 @@ class AbstractFileCollectorWorker(AbstractMqWorker):
         """ abstract method to perform post-processing """
         pass
 
-    def _mq_callback(self, message):
-        """ workflow looks like following:
-        - read the unit_of_work from Data Source
-        - finds the files on remote location base on requested timeperiod
-        - copy files to local temporary folder
-        - in case no files are found and copied - raise LookupError
-        - for every file: un-archive it and process"""
-        try:
-            mq_request = WorkerMqRequest(message.body)
-            uow = self.uow_dao.get_one(mq_request.unit_of_work_id)
-            if uow.state in [unit_of_work.STATE_CANCELED, unit_of_work.STATE_PROCESSED]:
-                # garbage collector might have reposted this UOW
-                self.logger.warning('Skipping unit_of_work: id %s; state %s;' % (str(message.body), uow.state),
-                                    exc_info=False)
-                self.consumer.acknowledge(message.delivery_tag)
-                return
-        except Exception:
-            self.logger.error('Safety fuse. Can not identify unit_of_work %s' % str(message.body), exc_info=True)
-            self.consumer.acknowledge(message.delivery_tag)
-            return
+    def _process_uow(self, uow):
+        self._create_directories()
+        number_of_aggregated_objects = 0
 
-        try:
-            uow.state = unit_of_work.STATE_IN_PROGRESS
-            uow.started_at = datetime.utcnow()
-            self.uow_dao.update(uow)
-            self.performance_ticker.start_uow(uow)
+        processed_log = dict()
+        fqsf = os.path.join(self._get_source_folder(), uow.start_timeperiod)
+        list_of_archives = self.copy_archives_from_source(uow.start_timeperiod)
+        list_of_headers = self.copy_header_files_from_source(uow.start_timeperiod)
 
-            self._create_directories()
-            number_of_aggregated_objects = 0
+        for file_name in list_of_headers:
+            metadata = self._parse_header_metadata(file_name)
+            self.process_header_file(os.path.join(fqsf, file_name), metadata)
 
-            processed_log = dict()
-            fqsf = os.path.join(self._get_source_folder(), uow.start_timeperiod)
-            list_of_archives = self.copy_archives_from_source(uow.start_timeperiod)
-            list_of_headers = self.copy_header_files_from_source(uow.start_timeperiod)
+        for file_name in list_of_archives:
+            metadata = self._parse_metadata(file_name)
+            number_of_processed_docs = self.process_report_archive(os.path.join(fqsf, file_name), metadata)
+            number_of_aggregated_objects += number_of_processed_docs
+            self.performance_ticker.increment()
 
-            for file_name in list_of_headers:
-                metadata = self._parse_header_metadata(file_name)
-                self.process_header_file(os.path.join(fqsf, file_name), metadata)
+            tiny_log = dict()
+            if settings.settings['compute_gzip_md5']:
+                tiny_log[unit_of_work.MD5] = compute_gzip_md5(os.path.join(fqsf, file_name))
 
-            for file_name in list_of_archives:
-                metadata = self._parse_metadata(file_name)
-                number_of_processed_docs = self.process_report_archive(os.path.join(fqsf, file_name), metadata)
-                number_of_aggregated_objects += number_of_processed_docs
-                self.performance_ticker.increment()
+            tiny_log[unit_of_work.FILE_NAME] = file_name
+            tiny_log[unit_of_work.NUMBER_OF_PROCESSED_DOCUMENTS] = number_of_processed_docs
+            processed_log[file_name.replace('.', '-')] = tiny_log
 
-                tiny_log = dict()
-                tiny_log[unit_of_work.FILE_NAME] = file_name
-                tiny_log[unit_of_work.MD5] = self._get_md5(os.path.join(fqsf, file_name))
-                tiny_log[unit_of_work.NUMBER_OF_PROCESSED_DOCUMENTS] = number_of_processed_docs
-                processed_log[file_name.replace('.', '-')] = tiny_log
-
-            self.perform_post_processing(uow.start_timeperiod)
-
-            uow.number_of_aggregated_documents = number_of_aggregated_objects
-            uow.number_of_processed_documents = self.performance_ticker.per_job
-            uow.finished_at = datetime.utcnow()
-            uow.state = unit_of_work.STATE_PROCESSED
-            self.uow_dao.update(uow)
-            self.performance_ticker.finish_uow()
-        except Exception as e:
-            fresh_uow = self.uow_dao.get_one(mq_request.unit_of_work_id)
-            if fresh_uow.state in [unit_of_work.STATE_CANCELED]:
-                self.logger.warning('unit_of_work: id %s was likely marked by MX as SKIPPED. '
-                                    'No unit_of_work update is performed.' % str(message.body),
-                                    exc_info=False)
-            else:
-                self.logger.error('Safety fuse while processing unit_of_work %s in timeperiod %s : %r'
-                                  % (message.body, uow.timeperiod, e), exc_info=True)
-                uow.state = unit_of_work.STATE_INVALID
-                self.uow_dao.update(uow)
-
-            self.performance_ticker.cancel_uow()
-        finally:
-            self.consumer.acknowledge(message.delivery_tag)
-            self._clean_directories()
-            self.consumer.close()
+        self.perform_post_processing(uow.start_timeperiod)
+        return number_of_aggregated_objects
 
     def _create_directories(self):
         """ method creates temporary directories:
@@ -201,19 +142,9 @@ class AbstractFileCollectorWorker(AbstractMqWorker):
           - uncompressed files """
         self.tempdir_copying = tempfile.mkdtemp()
 
-    def _clean_directories(self):
+    def _clean_up(self):
         """ method verifies if temporary folders exists and remove them (and nested content) """
         if self.tempdir_copying:
             self.logger.info('Cleaning up %r' % self.tempdir_copying)
             shutil.rmtree(self.tempdir_copying, True)
             self.tempdir_copying = None
-
-    def _get_md5(self, file_name):
-        """ method traverses compressed file and calculates its MD5 checksum """
-        md5 = hashlib.md5()
-        file_obj = gzip.open(file_name, 'rb')
-        for chunk in iter(lambda: file_obj.read(8192), ''):
-            md5.update(chunk)
-
-        file_obj.close()
-        return md5.hexdigest()
