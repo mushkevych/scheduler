@@ -2,14 +2,14 @@
 {% block body %}
 
 <form style="text-align: center" method="get">
-    Year:  <input type="text" name="year" value=""/>
-    Month: <input type="text" name="month" value=""/>
-    Day: <input type="text" name="day" value=""/>
+    Year *:  <input type="text" name="year" value=""/>
+    Month *: <input type="text" name="month" value=""/>
+    Day *: <input type="text" name="day" value=""/>
     Hour: <input type="text" name="hour" value=""/>
     Unprocessed only: <input type="checkbox" name="state" checked="true"/>
     <input type="submit" value="List"/>
     <br/>
-    <b><i>at least year, month and day must be filled</i></b>
+    <b><i>* mandatory fields</i></b>
 </form>
 
 <table style="width: 90%" class="one-column-emphasis context-menu">

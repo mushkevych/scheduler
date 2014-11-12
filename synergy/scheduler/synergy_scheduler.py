@@ -15,6 +15,7 @@ from synergy.db.dao.scheduler_freerun_entry_dao import SchedulerFreerunEntryDao
 from synergy.system import time_helper
 from synergy.system.decorator import with_reconnect, thread_safe
 from synergy.system.synergy_process import SynergyProcess
+# from synergy.scheduler.status_bus_listener import StatusBusListener
 from synergy.scheduler.scheduler_constants import *
 from synergy.scheduler.continuous_pipeline import ContinuousPipeline
 from synergy.scheduler.dicrete_pipeline import DiscretePipeline
@@ -40,6 +41,7 @@ class Scheduler(SynergyProcess):
         self.se_managed_dao = SchedulerManagedEntryDao(self.logger)
         self.se_freerun_dao = SchedulerFreerunEntryDao(self.logger)
         self.mx = None
+        self.bus_listener = None
         self.logger.info('Started %s' % self.process_name)
 
     def __del__(self):
@@ -142,7 +144,11 @@ class Scheduler(SynergyProcess):
         except LookupError as e:
             self.logger.warn('DB Lookup: %s' % str(e))
 
-        # Scheduler is now initialized and running - we can safely start its MX
+        # Scheduler is initialized and running. Status Bus Listener can be safely started
+        # self.bus_listener = StatusBusListener(self)
+        # self.bus_listener.start()
+
+        # All Scheduler components are initialized and running. Management Extension (MX) can be safely started
         self.mx = MX(self)
         self.mx.start_mx_thread()
 

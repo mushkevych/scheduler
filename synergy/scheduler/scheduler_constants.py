@@ -34,3 +34,5 @@ COLLECTION_JOB_HOURLY = 'job_hourly'
 COLLECTION_JOB_DAILY = 'job_daily'
 COLLECTION_JOB_MONTHLY = 'job_monthly'
 COLLECTION_JOB_YEARLY = 'job_yearly'
+
+QUEUE_UOW_REPORT = 'q_uow_report'

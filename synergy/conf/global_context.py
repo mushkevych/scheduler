@@ -1,5 +1,6 @@
+from synergy.db.model.queue_context_entry import _queue_context_entry
 from synergy.scheduler.scheduler_constants import PROCESS_GC, TOKEN_GC, EXCHANGE_UTILS, TYPE_GARBAGE_COLLECTOR, \
-    PROCESS_SCHEDULER, TOKEN_SCHEDULER, COLLECTION_UNIT_OF_WORK
+    PROCESS_SCHEDULER, TOKEN_SCHEDULER, COLLECTION_UNIT_OF_WORK, QUEUE_UOW_REPORT
 from synergy.supervisor.supervisor_constants import PROCESS_SUPERVISOR, TOKEN_SUPERVISOR, COLLECTION_BOX_CONFIGURATION
 from synergy.system.time_qualifier import QUALIFIER_BY_SCHEDULE
 from synergy.db.model.process_context_entry import _process_context_entry
@@ -39,6 +40,7 @@ process_context = {
 
 
 mq_queue_context = {
+    QUEUE_UOW_REPORT: _queue_context_entry(exchange=EXCHANGE_UTILS, queue_name=QUEUE_UOW_REPORT),
 }
 
 

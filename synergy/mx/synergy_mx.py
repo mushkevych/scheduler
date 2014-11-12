@@ -43,7 +43,7 @@ class MX(object):
         return self.dispatch(environ, start_response)
 
     def start_mx_thread(self, hostname=None, port=None):
-        """Spawns a new HTTP server, residing on defined hostname and port
+        """ Spawns a new HTTP server, residing on defined hostname and port
         :param hostname: the default hostname the server should listen on.
         :param port: the default port of the server.
         """
