@@ -27,7 +27,7 @@ class BashRunnable(threading.Thread):
         self.return_code = -1
         self.uow_dao = UnitOfWorkDao(self.logger)
 
-        self.thread_name = '%r' % (self.mq_request.key,)
+        self.thread_name = str(self.mq_request)
         super(BashRunnable, self).__init__(name=self.thread_name)
 
     def _poll_process(self):

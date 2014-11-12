@@ -48,19 +48,19 @@ class AbstractCliWorker(AbstractUowAwareWorker):
             return False, 999
 
     def _process_uow(self, uow):
-            self._start_process(uow.start_timeperiod, uow.end_timeperiod, uow.arguments)
-            code = None
-            alive = True
-            while alive:
-                alive, code = self._poll_process()
-                time.sleep(0.1)
+        self._start_process(uow.start_timeperiod, uow.end_timeperiod, uow.arguments)
+        code = None
+        alive = True
+        while alive:
+            alive, code = self._poll_process()
+            time.sleep(0.1)
 
-            if code == 0:
-                uow.number_of_processed_documents = self.performance_ticker.per_job
-                uow.finished_at = datetime.utcnow()
-                uow.state = unit_of_work.STATE_PROCESSED
-                self.performance_ticker.finish_uow()
-                self.logger.info('Command Line Command return code is %r' % code)
-                self.uow_dao.update(uow)
-            else:
-                raise UserWarning('Command Line Command return code is not 0 but %r' % code)
+        if code == 0:
+            uow.number_of_processed_documents = self.performance_ticker.per_job
+            uow.finished_at = datetime.utcnow()
+            uow.state = unit_of_work.STATE_PROCESSED
+            self.performance_ticker.finish_uow()
+            self.logger.info('Command Line Command return code is %r' % code)
+            self.uow_dao.update(uow)
+        else:
+            raise UserWarning('Command Line Command return code is not 0 but %r' % code)
