@@ -19,8 +19,6 @@
         <th scope="col">Process Name</th>
         <th scope="col">Time period</th>
         <th scope="col">State</th>
-        <th scope="col">Reprocess</th>
-        <th scope="col">Skip</th>
         <th scope="col">Get Uow</th>
         <th scope="col">View Log</th>
     </tr>
@@ -34,20 +32,6 @@
         <td>{{ row[0] }}</td>
         <td>{{ row[1] }}</td>
         <td>{{ row[2] }}</td>
-        <td>
-            <form method="GET" action="/action_reprocess/">
-                <input type="hidden" name="process_name" value="{{ row[0] }}" />
-                <input type="hidden" name="timeperiod" value="{{ row[1] }}" />
-                <input type="submit" value="Reprocess" />
-            </form>
-        </td>
-        <td>
-            <form method="GET" action="/action_skip/">
-                <input type="hidden" name="process_name" value="{{ row[0] }}" />
-                <input type="hidden" name="timeperiod" value="{{ row[1] }}" />
-                <input type="submit" value="Skip" />
-            </form>
-        </td>
         <td>
             {% set url = 'action=action_get_uow' + '&process_name=' + row[0] + '&timeperiod=' + row[1] %}
             <form method="GET" onsubmit="window.open('/object_viewer/?{{ url }}','Get Uow',
