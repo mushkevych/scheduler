@@ -15,6 +15,9 @@ class SynergyMqTransmission(BaseModel):
     def __init__(self, document=None):
         super(SynergyMqTransmission, self).__init__(document)
 
+    def __str__(self):
+        return '%s::%s#%s' % (self.process_name, self.entry_name, self.unit_of_work_id)
+
     @property
     def key(self):
         return self.process_name, self.entry_name
@@ -38,7 +41,7 @@ class SynergyMqTransmission(BaseModel):
 
     @property
     def entry_name(self):
-        return self.data[ENTRY_NAME]
+        return self.data.get(ENTRY_NAME)
 
     @entry_name.setter
     def entry_name(self, value):
