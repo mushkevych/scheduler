@@ -27,7 +27,7 @@ class DiscretePipeline(AbstractPipeline):
         end_timeperiod = time_helper.increment_timeperiod(time_qualifier, start_timeperiod)
 
         try:
-            uow = self.create_and_publish_uow(process_name, start_timeperiod, end_timeperiod, 0, 0, job_record)
+            uow = self.insert_uow(process_name, start_timeperiod, end_timeperiod, 0, 0, job_record)
         except DuplicateKeyError as e:
             msg = 'Catching up with latest unit_of_work %s in timeperiod %s, because of: %r' \
                   % (process_name, job_record.timeperiod, e)
@@ -35,6 +35,9 @@ class DiscretePipeline(AbstractPipeline):
             uow = self.recover_from_duplicatekeyerror(e)
 
         if uow is not None:
+            # publish the created/caught up unit_of_work
+            self.publish_uow(job_record, uow)
+
             self.timetable.update_job_record(process_name, job_record, uow, job.STATE_IN_PROGRESS)
         else:
             msg = 'MANUAL INTERVENTION REQUIRED! Unable to locate unit_of_work for %s in %s' \
@@ -61,8 +64,8 @@ class DiscretePipeline(AbstractPipeline):
                 elif uow.state in [unit_of_work.STATE_PROCESSED,
                                    unit_of_work.STATE_CANCELED]:
                     # create new uow to cover new inserts
-                    uow = self.create_and_publish_uow(process_name, start_timeperiod, end_timeperiod,
-                                                      0, iteration + 1, job_record)
+                    uow = self.insert_uow(process_name, start_timeperiod, end_timeperiod, 0, iteration + 1, job_record)
+                    self.publish_uow(job_record, uow)
                     self.timetable.update_job_record(process_name, job_record, uow, job.STATE_IN_PROGRESS)
 
             elif start_timeperiod < actual_timeperiod and can_finalize_job_record is True:
@@ -75,8 +78,8 @@ class DiscretePipeline(AbstractPipeline):
                 elif uow.state in [unit_of_work.STATE_PROCESSED,
                                    unit_of_work.STATE_CANCELED]:
                     # create new uow for FINAL RUN
-                    uow = self.create_and_publish_uow(process_name, start_timeperiod, end_timeperiod,
-                                                      0, iteration + 1, job_record)
+                    uow = self.insert_uow(process_name, start_timeperiod, end_timeperiod, 0, iteration + 1, job_record)
+                    self.publish_uow(job_record, uow)
                     self.timetable.update_job_record(process_name, job_record, uow, job.STATE_FINAL_RUN)
             else:
                 msg = 'Job record %s has timeperiod from future %s vs current time %s' \

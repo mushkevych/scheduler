@@ -94,29 +94,29 @@ class FreerunPipeline(object):
 
         assert isinstance(freerun_entry, SchedulerFreerunEntry)
         if freerun_entry.related_unit_of_work is None:
-            uow_record = None
+            uow = None
         else:
-            uow_record = self.uow_dao.get_one(freerun_entry.related_unit_of_work)
+            uow = self.uow_dao.get_one(freerun_entry.related_unit_of_work)
 
         try:
-            if uow_record is None:
+            if uow is None:
                 self._process_state_embryo(freerun_entry)
 
-            elif uow_record.state in [unit_of_work.STATE_REQUESTED, unit_of_work.STATE_IN_PROGRESS]:
-                self._process_state_in_progress(freerun_entry, uow_record)
+            elif uow.state in [unit_of_work.STATE_REQUESTED, unit_of_work.STATE_IN_PROGRESS]:
+                self._process_state_in_progress(freerun_entry, uow)
 
-            elif uow_record.state in [unit_of_work.STATE_PROCESSED,
-                                      unit_of_work.STATE_INVALID,
-                                      unit_of_work.STATE_CANCELED]:
-                self._process_terminal_state(freerun_entry, uow_record)
+            elif uow.state in [unit_of_work.STATE_PROCESSED,
+                               unit_of_work.STATE_INVALID,
+                               unit_of_work.STATE_CANCELED]:
+                self._process_terminal_state(freerun_entry, uow)
 
             else:
-                msg = 'Unknown state %s of the unit_of_work %s' % (uow_record.state, uow_record.db_id)
+                msg = 'Unknown state %s of the unit_of_work %s' % (uow.state, uow.db_id)
                 self._log_message(ERROR, freerun_entry, msg)
 
         except LookupError as e:
             msg = 'Lookup issue for schedulable: %r in timeperiod %s, because of: %r' \
-                  % (freerun_entry.db_id, uow_record.timeperiod, e)
+                  % (freerun_entry.db_id, uow.timeperiod, e)
             self._log_message(WARNING, freerun_entry, msg)
 
     def _process_state_embryo(self, freerun_entry):
@@ -131,15 +131,15 @@ class FreerunPipeline(object):
                   % (freerun_entry.process_name, freerun_entry.entry_name, e)
             self._log_message(WARNING, freerun_entry, msg)
 
-    def _process_state_in_progress(self, freerun_entry, uow_record):
+    def _process_state_in_progress(self, freerun_entry, uow):
         """ method that takes care of processing unit_of_work records in STATE_REQUESTED or STATE_IN_PROGRESS states"""
-        self.publish_uow(freerun_entry, uow_record)
+        self.publish_uow(freerun_entry, uow)
 
-    def _process_terminal_state(self, freerun_entry, uow_record):
+    def _process_terminal_state(self, freerun_entry, uow):
         """ method that takes care of processing unit_of_work records in
         STATE_PROCESSED, STATE_INVALID, STATE_CANCELED states"""
         msg = 'unit_of_work for %s::%s found in %s state.' \
-              % (freerun_entry.process_name, freerun_entry.entry_name, uow_record.state)
+              % (freerun_entry.process_name, freerun_entry.entry_name, uow.state)
         self._log_message(INFO, freerun_entry, msg)
         try:
             uow = self.insert_uow(freerun_entry)

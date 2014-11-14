@@ -171,7 +171,7 @@ class UowAwareTracker(SimpleTracker):
         super(UowAwareTracker, self).__init__(logger)
         self.state = self.STATE_IDLE
         self.per_job = 0
-        self.uow_obj = None
+        self.uow = None
         self.state_triggered_at = time.time()
 
     def _run_tick_thread(self):
@@ -188,21 +188,21 @@ class UowAwareTracker(SimpleTracker):
         self.tracker.increment_success()
         self.per_job += 1
 
-    def start_uow(self, uow_obj):
+    def start_uow(self, uow):
         self.state = self.STATE_PROCESSING
-        self.uow_obj = uow_obj
+        self.uow = uow
         self.state_triggered_at = time.time()
 
     def finish_uow(self):
         self.logger.info('Success: unit_of_work %s in timeperiod %s; processed %d entries in %d seconds'
-                         % (self.uow_obj.db_id,
-                            self.uow_obj.timeperiod,
+                         % (self.uow.db_id,
+                            self.uow.timeperiod,
                             self.per_job,
                             time.time() - self.state_triggered_at))
         self.cancel_uow()
 
     def cancel_uow(self):
         self.state = self.STATE_IDLE
-        self.uow_obj = None
+        self.uow = None
         self.state_triggered_at = time.time()
         self.per_job = 0

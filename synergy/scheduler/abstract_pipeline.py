@@ -40,10 +40,9 @@ class AbstractPipeline(object):
         self.logger.log(level, msg)
 
     @with_reconnect
-    def create_and_publish_uow(self, process_name, start_timeperiod, end_timeperiod, start_id, end_id, job_record):
+    def insert_uow(self, process_name, start_timeperiod, end_timeperiod, start_id, end_id, job_record):
         """creates unit_of_work and inserts it into the DB
             :raise DuplicateKeyError: if unit_of_work with given parameters already exists """
-
         uow = UnitOfWork()
         uow.process_name = process_name
         uow.timeperiod = start_timeperiod
@@ -58,19 +57,24 @@ class AbstractPipeline(object):
         uow.unit_of_work_type = TYPE_MANAGED
         uow.number_of_retries = 0
         uow.arguments = ProcessContext.get_arguments(process_name)
-        uow_id = self.uow_dao.insert(uow)
+        uow.document['_id'] = self.uow_dao.insert(uow)
 
+        msg = 'Created: UOW %s for %s in timeperiod [%s:%s).' \
+              % (uow.db_id, process_name, start_timeperiod, end_timeperiod)
+        self._log_message(INFO, uow.process_name, job_record, msg)
+        return uow
+
+    def publish_uow(self, job_record, uow):
         mq_request = SynergyMqTransmission()
-        mq_request.process_name = process_name
-        mq_request.unit_of_work_id = uow_id
+        mq_request.process_name = uow.process_name
+        mq_request.unit_of_work_id = uow.db_id
 
-        publisher = self.publishers.get(process_name)
+        publisher = self.publishers.get(uow.process_name)
         publisher.publish(mq_request.document)
         publisher.release()
 
-        msg = 'Published: UOW %r for %r in timeperiod %r.' % (uow_id, process_name, start_timeperiod)
-        self._log_message(INFO, process_name, job_record, msg)
-        return uow
+        msg = 'Published: UOW %r for %r in timeperiod %r.' % (uow.db_id, uow.process_name, uow.start_timeperiod)
+        self._log_message(INFO, uow.process_name, job_record, msg)
 
     @with_reconnect
     def recover_from_duplicatekeyerror(self, e):

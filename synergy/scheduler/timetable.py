@@ -103,17 +103,17 @@ class Timetable(object):
         uow_id = tree_node.job_record.related_unit_of_work
         if uow_id is not None:
             tree_node.job_record.state = job.STATE_IN_PROGRESS
-            uow_obj = self.uow_dao.get_one(uow_id)
-            uow_obj.state = unit_of_work.STATE_INVALID
-            uow_obj.number_of_retries = 0
-            uow_obj.created_at = datetime.utcnow()
-            self.uow_dao.update(uow_obj)
+            uow = self.uow_dao.get_one(uow_id)
+            uow.state = unit_of_work.STATE_INVALID
+            uow.number_of_retries = 0
+            uow.created_at = datetime.utcnow()
+            self.uow_dao.update(uow)
             msg = 'Transferred job record %s for %s in timeperiod %s to %s; Transferred unit_of_work to %s' \
                   % (tree_node.job_record.db_id,
                      tree_node.process_name,
                      tree_node.job_record.timeperiod,
                      tree_node.job_record.state,
-                     uow_obj.state)
+                     uow.state)
 
             if tree_node.process_name not in self.reprocess:
                 self.reprocess[tree_node.process_name] = dict()
@@ -155,14 +155,14 @@ class Timetable(object):
         tree_node.job_record.state = job.STATE_SKIPPED
         uow_id = tree_node.job_record.related_unit_of_work
         if uow_id is not None:
-            uow_obj = self.uow_dao.get_one(uow_id)
-            uow_obj.state = unit_of_work.STATE_CANCELED
-            self.uow_dao.update(uow_obj)
+            uow = self.uow_dao.get_one(uow_id)
+            uow.state = unit_of_work.STATE_CANCELED
+            self.uow_dao.update(uow)
             msg = 'Transferred job record %s in timeperiod %s to %s; Transferred unit_of_work to %s' \
                   % (tree_node.job_record.db_id,
                      tree_node.job_record.timeperiod,
                      tree_node.job_record.state,
-                     uow_obj.state)
+                     uow.state)
         else:
             msg = 'Transferred job record %s in timeperiod %s to %s;' \
                   % (tree_node.job_record.db_id,

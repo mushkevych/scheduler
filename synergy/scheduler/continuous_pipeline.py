@@ -49,21 +49,23 @@ class ContinuousPipeline(AbstractPipeline):
             source_collection_name = ProcessContext.get_source(process_name)
             start_id = self.ds.highest_primary_key(source_collection_name, start_timeperiod, end_timeperiod)
             end_id = self.ds.lowest_primary_key(source_collection_name, start_timeperiod, end_timeperiod)
-            uow_obj = self.create_and_publish_uow(process_name,
-                                                  start_timeperiod,
-                                                  end_timeperiod,
-                                                  start_id,
-                                                  end_id,
-                                                  job_record)
+            uow = self.insert_uow(process_name,
+                                  start_timeperiod,
+                                  end_timeperiod,
+                                  start_id,
+                                  end_id,
+                                  job_record)
         except DuplicateKeyError as e:
-            uow_obj = self.recover_from_duplicatekeyerror(e)
+            uow = self.recover_from_duplicatekeyerror(e)
             msg = 'No new data to process by %s in timeperiod %s, because of: %r' \
                   % (process_name, job_record.timeperiod, e)
             self._log_message(WARNING, process_name, job_record, msg)
 
-        if uow_obj is not None:
-            # we need to read existing uow from DB and make sure it is referenced by job_record
-            self.timetable.update_job_record(process_name, job_record, uow_obj, job.STATE_IN_PROGRESS)
+        if uow is not None:
+            # publish the created/catch up unit_of_work
+            self.publish_uow(job_record, uow)
+
+            self.timetable.update_job_record(process_name, job_record, uow, job.STATE_IN_PROGRESS)
         else:
             msg = 'MANUAL INTERVENTION REQUIRED! Unable to locate unit_of_work for %s in %s' \
                   % (process_name, job_record.timeperiod)
@@ -77,18 +79,21 @@ class ContinuousPipeline(AbstractPipeline):
             source_collection_name = ProcessContext.get_source(process_name)
             start_id = self.ds.highest_primary_key(source_collection_name, start_timeperiod, end_timeperiod)
             end_id = self.ds.lowest_primary_key(source_collection_name, start_timeperiod, end_timeperiod)
-            uow_obj = self.create_and_publish_uow(process_name,
-                                                  start_timeperiod,
-                                                  end_timeperiod,
-                                                  start_id,
-                                                  end_id,
-                                                  job_record)
+            uow = self.insert_uow(process_name,
+                                  start_timeperiod,
+                                  end_timeperiod,
+                                  start_id,
+                                  end_id,
+                                  job_record)
         except DuplicateKeyError as e:
             transfer_to_final = True
-            uow_obj = self.recover_from_duplicatekeyerror(e)
+            uow = self.recover_from_duplicatekeyerror(e)
 
-        if uow_obj is not None:
-            self.timetable.update_job_record(process_name, job_record, uow_obj, job.STATE_FINAL_RUN)
+        if uow is not None:
+            # publish the created/caught up unit_of_work
+            self.publish_uow(job_record, uow)
+
+            self.timetable.update_job_record(process_name, job_record, uow, job.STATE_FINAL_RUN)
         else:
             msg = 'MANUAL INTERVENTION REQUIRED! Unable to locate unit_of_work for %s in %s' \
                   % (process_name, job_record.timeperiod)

@@ -40,9 +40,10 @@ class StatusBusListener(object):
             if uow.state in [unit_of_work.STATE_PROCESSED]:
                 # unit_of_work was successfully completed. update the job record
                 # 1. get process_name and timeperiod
-                # 2. get the job record from self.timetable
-                # 3. make sure the UOW from the message is the UOW from the job entry
-                # 4. update the job record within the @safe_thread
+                # 2. make sure the UOW type is MANAGED
+                # 3. get the job record from self.timetable
+                # 4. make sure the UOW from the message is the UOW from the job entry
+                # 5. retrieve appropriate pipeline from Scheduler and call update_uow method
                 pass
 
         except Exception:
