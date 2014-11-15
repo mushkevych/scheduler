@@ -4,9 +4,10 @@ from threading import Thread
 
 from amqp import AMQPError
 
-from synergy.db.model import unit_of_work
 from synergy.db.model.synergy_mq_transmission import SynergyMqTransmission
 from synergy.db.dao.unit_of_work_dao import UnitOfWorkDao
+from synergy.scheduler.abstract_pipeline import AbstractPipeline
+from synergy.scheduler.scheduler_constants import TYPE_MANAGED
 from synergy.scheduler.scheduler_constants import QUEUE_UOW_REPORT
 from synergy.mq.flopsy import Consumer
 
@@ -37,15 +38,24 @@ class StatusBusListener(object):
         try:
             mq_request = SynergyMqTransmission(message.body)
             uow = self.uow_dao.get_one(mq_request.unit_of_work_id)
-            if uow.state in [unit_of_work.STATE_PROCESSED]:
-                # unit_of_work was successfully completed. update the job record
-                # 1. get process_name and timeperiod
-                # 2. make sure the UOW type is MANAGED
-                # 3. get the job record from self.timetable
-                # 4. make sure the UOW from the message is the UOW from the job entry
-                # 5. retrieve appropriate pipeline from Scheduler and call update_uow method
-                pass
+            if uow.unit_of_work_type != TYPE_MANAGED:
+                # this is a transmission from TYPE_FREERUN execution. Ignoring it.
+                return
 
+            tree = self.timetable.get_tree(uow.process_name)
+            node = tree.get_node_by_process(uow.process_name, uow.timeperiod)
+
+            if uow.db_id != node.job_record.related_unit_of_work:
+                # this transmission is was likely received with significant lag. Ignoring it.
+                return
+
+            scheduler_entry_obj = self.scheduler.managed_handlers[uow.process_name]
+            pipeline = self.scheduler.pipelines[scheduler_entry_obj.state_machine_name]
+            assert isinstance(pipeline, AbstractPipeline)
+            pipeline.shallow_state_update(uow.process_name, uow.timeperiod)
+
+        except KeyError:
+            self.logger.error('StatusBusListener: Access error for unit_of_work %s' % str(message.body), exc_info=True)
         except Exception:
             self.logger.error('StatusBusListener: Can not identify unit_of_work %s' % str(message.body), exc_info=True)
         finally:

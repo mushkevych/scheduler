@@ -26,10 +26,6 @@ TEST_ACTUAL_TIMEPERIOD = time_helper.actual_timeperiod(QUALIFIER_HOURLY)
 TEST_FUTURE_TIMEPERIOD = time_helper.increment_timeperiod(QUALIFIER_HOURLY, TEST_ACTUAL_TIMEPERIOD)
 
 
-def override_recover_function(e):
-    return create_unit_of_work(PROCESS_UNIT_TEST, 0, 1, None)
-
-
 def then_raise(process_name, start_timeperiod, end_timeperiod, start_id, end_id, job_record):
     exc = DuplicateKeyError(process_name,
                             start_timeperiod,
@@ -160,11 +156,12 @@ class DiscretePipelineUnitTest(unittest.TestCase):
         uow_dao_mock = mock(UnitOfWorkDao)
         when(uow_dao_mock).get_one(any()).thenReturn(
             create_unit_of_work(PROCESS_UNIT_TEST, 1, 1, None, unit_of_work.STATE_PROCESSED))
+        when(uow_dao_mock).recover_from_duplicatekeyerror(any()).thenReturn(
+            create_unit_of_work(PROCESS_UNIT_TEST, 0, 1, None))
         self.pipeline_real.uow_dao = uow_dao_mock
 
         self.pipeline_real.insert_uow = then_raise
         self.pipeline_real.publish_uow = mock()
-        self.pipeline_real.recover_from_duplicatekeyerror = override_recover_function
         pipeline = spy(self.pipeline_real)
 
         job_record = get_job_record(job.STATE_IN_PROGRESS,

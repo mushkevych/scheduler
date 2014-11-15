@@ -32,7 +32,7 @@ class DiscretePipeline(AbstractPipeline):
             msg = 'Catching up with latest unit_of_work %s in timeperiod %s, because of: %r' \
                   % (process_name, job_record.timeperiod, e)
             self._log_message(WARNING, process_name, job_record, msg)
-            uow = self.recover_from_duplicatekeyerror(e)
+            uow = self.uow_dao.recover_from_duplicatekeyerror(e)
 
         if uow is not None:
             # publish the created/caught up unit_of_work
@@ -87,7 +87,7 @@ class DiscretePipeline(AbstractPipeline):
                 self._log_message(ERROR, process_name, job_record, msg)
 
         except DuplicateKeyError as e:
-            uow = self.recover_from_duplicatekeyerror(e)
+            uow = self.uow_dao.recover_from_duplicatekeyerror(e)
             if uow is not None:
                 self.timetable.update_job_record(process_name, job_record, uow, job_record.state)
             else:

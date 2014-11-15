@@ -88,6 +88,25 @@ class FreerunPipeline(object):
         msg = 'Published: UOW %s for %s.' % (uow.db_id, schedulable_name)
         self._log_message(INFO, freerun_entry, msg)
 
+    def insert_and_publish_uow(self, freerun_entry):
+        try:
+            uow = self.insert_uow(freerun_entry)
+        except DuplicateKeyError as e:
+            msg = 'Duplication of unit_of_work found for %s::%s. Error msg: %r' \
+                  % (freerun_entry.process_name, freerun_entry.entry_name, e)
+            self._log_message(WARNING, freerun_entry, msg)
+            uow = self.uow_dao.recover_from_duplicatekeyerror(e)
+
+        if uow is not None:
+            # publish the created/caught up unit_of_work
+            self.publish_uow(freerun_entry, uow)
+            freerun_entry.related_unit_of_work = uow.db_id
+            self.sfe_dao.update(freerun_entry)
+        else:
+            msg = 'SYSTEM IS LIKELY IN UNSTABLE STATE! Unable to locate unit_of_work for %s::%s' \
+                  % (freerun_entry.process_name, freerun_entry.entry_name,)
+            self._log_message(WARNING, freerun_entry, msg)
+
     def manage_pipeline_for_schedulable(self, freerun_entry):
         """ method main duty - is to _avoid_ publishing another unit_of_work, if previous was not yet processed
         In case the Scheduler sees that the unit_of_work is pending it will fire another WorkerMqRequest """
@@ -121,15 +140,7 @@ class FreerunPipeline(object):
 
     def _process_state_embryo(self, freerun_entry):
         """ method creates unit_of_work and associates it with the SchedulerFreerunEntry """
-        try:
-            uow = self.insert_uow(freerun_entry)
-            self.publish_uow(freerun_entry, uow)
-            freerun_entry.related_unit_of_work = uow.db_id
-            self.sfe_dao.update(freerun_entry)
-        except DuplicateKeyError as e:
-            msg = 'Duplication of unit_of_work found for %s::%s. Ignoring this request. Error msg: %r' \
-                  % (freerun_entry.process_name, freerun_entry.entry_name, e)
-            self._log_message(WARNING, freerun_entry, msg)
+        self.insert_and_publish_uow(freerun_entry)
 
     def _process_state_in_progress(self, freerun_entry, uow):
         """ method that takes care of processing unit_of_work records in STATE_REQUESTED or STATE_IN_PROGRESS states"""
@@ -141,12 +152,4 @@ class FreerunPipeline(object):
         msg = 'unit_of_work for %s::%s found in %s state.' \
               % (freerun_entry.process_name, freerun_entry.entry_name, uow.state)
         self._log_message(INFO, freerun_entry, msg)
-        try:
-            uow = self.insert_uow(freerun_entry)
-            self.publish_uow(freerun_entry, uow)
-            freerun_entry.related_unit_of_work = uow.db_id
-            self.sfe_dao.update(freerun_entry)
-        except DuplicateKeyError as e:
-            msg = 'Duplication of unit_of_work found for %s::%s. Ignoring this request. Error msg: %r' \
-                  % (freerun_entry.process_name, freerun_entry.entry_name, e)
-            self._log_message(WARNING, freerun_entry, msg)
+        self.insert_and_publish_uow(freerun_entry)

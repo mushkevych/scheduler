@@ -45,11 +45,11 @@ class Scheduler(SynergyProcess):
         self.logger.info('Started %s' % self.process_name)
 
     def __del__(self):
-        for handler in self.managed_handlers:
+        for key, handler in self.managed_handlers.iteritems():
             handler.deactivate(update_persistent=False)
         self.managed_handlers.clear()
 
-        for handler in self.freerun_handlers:
+        for key, handler in self.freerun_handlers.iteritems():
             handler.deactivate(update_persistent=False)
         self.freerun_handlers.clear()
 

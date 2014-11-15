@@ -3,7 +3,6 @@ __author__ = 'Bohdan Mushkevych'
 from datetime import datetime
 from logging import INFO, WARNING, ERROR
 
-from synergy.db.error import DuplicateKeyError
 from synergy.db.model import job
 from synergy.db.dao.unit_of_work_dao import UnitOfWorkDao
 from synergy.db.dao.job_dao import JobDao
@@ -76,17 +75,10 @@ class AbstractPipeline(object):
         msg = 'Published: UOW %r for %r in timeperiod %r.' % (uow.db_id, uow.process_name, uow.start_timeperiod)
         self._log_message(INFO, uow.process_name, job_record, msg)
 
-    @with_reconnect
-    def recover_from_duplicatekeyerror(self, e):
-        """ try to recover from DuplicateKeyError """
-        if isinstance(e, DuplicateKeyError):
-            try:
-                return self.uow_dao.get_by_params(e.process_name, e.timeperiod, e.start_id, e.end_id)
-            except LookupError as e:
-                self.logger.error('Unable to recover from DB error due to %s' % e.message, exc_info=True)
-        else:
-            msg = 'Unable to locate unit_of_work due to missing primary key'
-            self.logger.error(msg)
+    def shallow_state_update(self, process_name, timeperiod):
+        """ method does not trigger any new actions
+        if applicable, it will update job_record state and Timetable tree node state"""
+        pass
 
     def _process_state_embryo(self, process_name, job_record, start_timeperiod):
         """ method that takes care of processing job records in STATE_EMBRYO state"""

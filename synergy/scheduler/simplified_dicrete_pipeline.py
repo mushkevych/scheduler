@@ -73,7 +73,7 @@ class SimplifiedDiscretePipeline(DiscretePipeline):
                 self._log_message(ERROR, process_name, job_record, msg)
 
         except DuplicateKeyError as e:
-            uow = self.recover_from_duplicatekeyerror(e)
+            uow = self.uow_dao.recover_from_duplicatekeyerror(e)
             if uow is not None:
                 self.timetable.update_job_record(process_name, job_record, uow, job_record.state)
             else:

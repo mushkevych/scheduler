@@ -123,3 +123,14 @@ class UnitOfWorkDao(object):
         assert isinstance(uow_id, (str, ObjectId))
         collection = self.ds.connection(COLLECTION_UNIT_OF_WORK)
         return collection.remove(uow_id, safe=True)
+
+    def recover_from_duplicatekeyerror(self, e):
+        """ method tries to recover from DuplicateKeyError """
+        if isinstance(e, DuplicateKeyError):
+            try:
+                return self.get_by_params(e.process_name, e.timeperiod, e.start_id, e.end_id)
+            except LookupError as e:
+                self.logger.error('Unable to recover from DuplicateKeyError error due to %s' % e.message, exc_info=True)
+        else:
+            msg = 'Unable to recover from DuplicateKeyError due to unspecified unit_of_work primary key'
+            self.logger.error(msg)

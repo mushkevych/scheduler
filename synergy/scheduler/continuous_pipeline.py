@@ -56,13 +56,13 @@ class ContinuousPipeline(AbstractPipeline):
                                   end_id,
                                   job_record)
         except DuplicateKeyError as e:
-            uow = self.recover_from_duplicatekeyerror(e)
+            uow = self.uow_dao.recover_from_duplicatekeyerror(e)
             msg = 'No new data to process by %s in timeperiod %s, because of: %r' \
                   % (process_name, job_record.timeperiod, e)
             self._log_message(WARNING, process_name, job_record, msg)
 
         if uow is not None:
-            # publish the created/catch up unit_of_work
+            # publish the created/caught up unit_of_work
             self.publish_uow(job_record, uow)
 
             self.timetable.update_job_record(process_name, job_record, uow, job.STATE_IN_PROGRESS)
@@ -87,7 +87,7 @@ class ContinuousPipeline(AbstractPipeline):
                                   job_record)
         except DuplicateKeyError as e:
             transfer_to_final = True
-            uow = self.recover_from_duplicatekeyerror(e)
+            uow = self.uow_dao.recover_from_duplicatekeyerror(e)
 
         if uow is not None:
             # publish the created/caught up unit_of_work

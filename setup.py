@@ -1,7 +1,7 @@
 from distutils.core import setup
 
 setup(name = 'synergy_scheduler',
-      version = '1.4',
+      version = '1.5',
       description = 'Synergy Scheduler',
       author = 'Bohdan Mushkevych',
       author_email = 'mushkevych@gmail.com',
