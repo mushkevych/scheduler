@@ -33,8 +33,8 @@
             {%- if not handler -%}
                 <select name="process_name" style="width: 236px">
                 {%- for process_name, process_entry in synergy_process_context.iteritems() -%}
-                    {%- if process_entry.process_type is not none -%}
-                        <option value="{{ process_name }}">{{ process_name }}</option>
+                    {%- if process_entry.process_type is not none and process_entry.process_type != 'type_gc' -%}
+                        <option value="{{ process_name }}" {%- if process_name == 'BashDriver' -%} selected {%- endif -%} >{{ process_name }}</option>
                     {%- endif -%}
                 {%- endfor -%}
                 </select>
