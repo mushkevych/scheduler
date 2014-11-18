@@ -78,7 +78,7 @@ div#footer {
  */
 .one-column-emphasis
 {
-    font-family: "Lucida Sans Unicode", "Lucida Grande", Sans-Serif;
+    font-family: "Lucida Sans Unicode", "Lucida Grande", sans-serif;
     font-size: 12px;
     margin: 45px;
     width: 560px;
@@ -115,7 +115,7 @@ div#footer {
  */
 .header-table
 {
-    font-family: "Lucida Sans Unicode", "Lucida Grande", Sans-Serif;
+    font-family: "Lucida Sans Unicode", "Lucida Grande", sans-serif;
     font-size: 12px;
     width: 100%;
     text-align: left;
@@ -152,7 +152,7 @@ div#footer {
 
 
 /*
- * menu that builds navigational panel with names of aggregators
+ * navigation menu on the right, with names of the MX Trees and their details
  */
 ul.menu, ul.menu ul {
     list-style-type:none;
@@ -202,7 +202,11 @@ span.detail {
     padding-left: 40px;
 }
 
-
+textarea.reprocessing_queues {
+    /*border-style: none;*/
+    /*border-color: transparent;*/
+    overflow: auto;
+}
 
 ul.menu li ul li a:hover, ul.menu ul.menu li ul li a:hover {
     background: #aaa;

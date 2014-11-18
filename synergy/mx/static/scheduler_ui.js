@@ -12,7 +12,7 @@ $(document).ready(function () {
 
 // method returns empty table for timeperiod records (panel on the right)
 OUTPUT_DOCUMENT.get_empty_table = function (table_id) {
-    var table_class = 'one-column-emphasis context-menu  synergy_datatable';
+    var table_class = 'one-column-emphasis context-menu synergy_datatable';
 
     return $('<table style="width: 60%" class="' + table_class + '" id="' + table_id + '">\
                     <thead>\
@@ -175,7 +175,7 @@ OUTPUT_DOCUMENT.build_navigational_panel = function (vertical_json) {
 
                         $('.dataTables_wrapper').width('65%');  // change dataTable container width
                     }
-                    assign_context_menu();                  // assign context menu to the table with top-level timeperiods (yearly, linear)
+                    assign_context_menu();                      // assign context menu to the table with top-level timeperiods (yearly, linear)
                 } else {
                     $('#content').hide().html('No report to show at this moment.').fadeIn('1500');
                 }
@@ -186,14 +186,20 @@ OUTPUT_DOCUMENT.build_navigational_panel = function (vertical_json) {
         var ul1 = $('<ul class="acitem"></ul>');
         var next_timeperiods_li = $('<li><span class="subtitle">Next TimePeriods</span></li>');
         ul1.append(next_timeperiods_li);
-        $.each(v.next_timeperiods, function (k1, v1) {
-            ul1.append('<li><span class="detail">' + k1 + ':' + v1 + '</span></li>');
+        $.each(v.next_timeperiods, function (tree_level, next_timeperiod) {
+            ul1.append('<li><span class="detail">' + tree_level + ':' + next_timeperiod + '</span></li>');
         });
 
         var reprocessing_queues_li = $('<li><span class="subtitle">Reprocessing Queues</span></li>');
         ul1.append(reprocessing_queues_li);
-        $.each(v.reprocessing_queues, function (k2, v2) {
-            ul1.append('<li><span class="detail">' + k2 + ':' + v2 + '</span></li>');
+        $.each(v.reprocessing_queues, function (tree_level, reprocessing_queue) {
+            var list_item = '<span class="detail">' + tree_level + ':';
+            if (reprocessing_queue.length > 0) {
+                list_item += '<textarea class="reprocessing_queues" rows="2" cols="32" readonly>' + reprocessing_queue + '</textarea>';
+            } else {
+                list_item += '';
+            }
+            ul1.append('<li>' + list_item + '</li>');
         });
         li.append(ul1);
         ul.append(li);
