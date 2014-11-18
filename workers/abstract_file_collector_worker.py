@@ -143,7 +143,7 @@ class AbstractFileCollectorWorker(AbstractUowAwareWorker):
         self.tempdir_copying = tempfile.mkdtemp()
 
     def _clean_up(self):
-        """ method verifies if temporary folders exists and remove them (and nested content) """
+        """ method verifies if temporary folder exists and removes it (and nested content) """
         if self.tempdir_copying:
             self.logger.info('Cleaning up %r' % self.tempdir_copying)
             shutil.rmtree(self.tempdir_copying, True)

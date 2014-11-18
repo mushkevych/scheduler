@@ -1,10 +1,8 @@
 __author__ = 'Bohdan Mushkevych'
 
 import time
-from datetime import datetime
-from psutil.error import TimeoutExpired
-from synergy.db.model import unit_of_work
 
+from psutil.error import TimeoutExpired
 from synergy.workers.abstract_uow_aware_worker import AbstractUowAwareWorker
 
 
@@ -19,9 +17,8 @@ class AbstractCliWorker(AbstractUowAwareWorker):
     def __del__(self):
         super(AbstractCliWorker, self).__del__()
 
-    # **************** Process Supervisor Methods ************************
     def _start_process(self, start_timeperiod, end_timeperiod, arguments):
-        raise NotImplementedError('method _start_process must be implemented by AbstractCliWorker child classes')
+        raise NotImplementedError('method _start_process must be implemented by %s' % self.__class__.__name__)
 
     def _poll_process(self):
         """ between death of a process and its actual termination lies poorly documented requirement -
@@ -56,11 +53,7 @@ class AbstractCliWorker(AbstractUowAwareWorker):
             time.sleep(0.1)
 
         if code == 0:
-            uow.number_of_processed_documents = self.performance_ticker.per_job
-            uow.finished_at = datetime.utcnow()
-            uow.state = unit_of_work.STATE_PROCESSED
-            self.performance_ticker.finish_uow()
             self.logger.info('Command Line Command return code is %r' % code)
-            self.uow_dao.update(uow)
+            return 0
         else:
             raise UserWarning('Command Line Command return code is not 0 but %r' % code)
