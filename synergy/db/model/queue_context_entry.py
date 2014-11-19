@@ -19,9 +19,7 @@ class QueueContextEntry(BaseModel):
 
     @key.setter
     def key(self, value):
-        """
-        @param value: name of the process
-        """
+        """ :param value: name of the process """
         self.data[MQ_QUEUE] = value
 
     @property

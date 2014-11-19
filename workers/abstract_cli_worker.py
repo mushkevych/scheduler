@@ -24,7 +24,7 @@ class AbstractCliWorker(AbstractUowAwareWorker):
         """ between death of a process and its actual termination lies poorly documented requirement -
             <purging process' io pipes and reading exit status>.
             this can be done either by os.wait() or process.wait()
-            @return tuple (boolean: alive, int: return_code) """
+            :return tuple (boolean: alive, int: return_code) """
         try:
             self.logger.warn(self.cli_process.stderr.read())
             self.logger.info(self.cli_process.stdout.read())

@@ -48,7 +48,7 @@ class Job(BaseModel):
     @key.setter
     def key(self, value):
         """
-        @param value: tuple - value[0] - name of the process
+        :param value: tuple - value[0] - name of the process
         value[1] - timeperiod as string in Synergy Data format
         """
         self.data[PROCESS_NAME] = value[0]

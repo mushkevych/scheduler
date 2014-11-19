@@ -20,9 +20,10 @@ class AbstractTree(object):
 
     def __init__(self, node_klass, full_name=None, mx_name=None, mx_page=None):
         """
-        @parameter node_klass: descendant of the AbstractNode class, used for instantiating tree nodes
-        @optional @parameter mx_name: is used by MX only as visual vertical name
-        @optional @parameter mx_page: is used by MX only as anchor to specific page
+        :param node_klass: descendant of the AbstractNode class, used for instantiating tree nodes
+        :param full_name <optional>: full name of the tree. used as an identifier
+        :param mx_name <optional>: is used by MX only as visual vertical name
+        :param mx_page <optional>: is used by MX only as anchor to specific page
         """
         self.build_timeperiod = None
         self.validation_timestamp = None

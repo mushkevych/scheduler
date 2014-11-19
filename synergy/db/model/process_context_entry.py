@@ -31,9 +31,7 @@ class ProcessContextEntry(BaseModel):
 
     @key.setter
     def key(self, value):
-        """
-        @param value: name of the process
-        """
+        """ :param value: name of the process """
         self.data[PROCESS_NAME] = value
 
     @property

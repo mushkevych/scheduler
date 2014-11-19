@@ -22,7 +22,7 @@ class AbstractNode(object):
 
     def request_reprocess(self):
         """ method marks this and all parents node as such that requires reprocessing
-        @return list of nodes that have been effected """
+        :return list of nodes that have been effected """
         effected_nodes = []
         if self.parent is None:
             # do not process 'root' - the only node that has None as 'parent'
@@ -69,9 +69,9 @@ class AbstractNode(object):
     @staticmethod
     def find_counterpart_for(node_a, tree_b):
         """ Finds a counterpart TreeNode from tree_b to node_a from tree_a
-        @param node_a: source node from tree_a
-        @param tree_b: target tree that hosts counterpart to node_a
-        @return: TreeNode from tree_b that has the same timeperiod as the node_a, or None if no counterpart ware found
+        :param node_a: source node from tree_a
+        :param tree_b: target tree that hosts counterpart to node_a
+        :return: TreeNode from tree_b that has the same timeperiod as the node_a, or None if no counterpart ware found
         """
 
         def match_time_qualifier(time_qualifier, candidate_process_name):
@@ -119,7 +119,7 @@ class AbstractNode(object):
             - alerts to make sure they are run only when all data is present and finalized
             - financial daily nodes to make sure that input data is available
             - financial post processing timeperiods to track completion of both financial and traffic data
-            @return tuple (all_finalized, all_processed, skipped_present) indicating
+            :return tuple (all_finalized, all_processed, skipped_present) indicating
                 all_finalized - True if all <dependent on> periods are in STATE_PROCESSED or STATE_SKIPPED
                 all_processed - True if all <dependent on> periods are in STATE_PROCESSED
                 skipped_present - True if among <dependent on> periods are some in STATE_SKIPPED

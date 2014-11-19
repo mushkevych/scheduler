@@ -34,7 +34,7 @@ class StatusBusListener(object):
     def _mq_callback(self, message):
         """ method processes messages from Synergy Worker and updates corresponding Timetable record,
         as well as the job itself
-        @param message: <SynergyMqTransmission> mq message """
+        :param message: <SynergyMqTransmission> mq message """
         try:
             mq_request = SynergyMqTransmission(message.body)
             uow = self.uow_dao.get_one(mq_request.unit_of_work_id)

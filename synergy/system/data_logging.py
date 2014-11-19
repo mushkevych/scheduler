@@ -15,8 +15,8 @@ class Logger(object):
     def __init__(self, file_name, context):
         """
         Constructor: dictionary of loggers available for this Python process
-        @param file_name: path+name of the output file
-        @param context: tag that is printed ahead of every logged message
+        :param file_name: path+name of the output file
+        :param context: tag that is printed ahead of every logged message
         """
         self.logger = logging.getLogger(context)
 
@@ -62,7 +62,7 @@ class Logger(object):
         """ is the sys.stdout attached to the terminal?
         python -c "import sys; print(sys.stdout.isatty())" (should write True)
         python -c "import sys; print(sys.stdout.isatty())" | grep . (should write False).
-        @return: False, indicating that the output is pipped or redirected
+        :return: False, indicating that the output is pipped or redirected
         """
         return False
 

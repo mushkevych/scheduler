@@ -9,7 +9,7 @@ import traceback
 def current_process_aware(class_method):
     """
     this decorator is used in ProcessContext to handle case where callers have no notion of the process they run within
-    @param class_method: method to wrap
+    :param class_method: method to wrap
     """
 
     @functools.wraps(class_method)
@@ -69,8 +69,8 @@ def with_reconnect(func):
 def singleton(cls):
     """
     turns class to singleton
-    @param cls: class itself
-    @return: function that either creates new instance of the class or returns existing one
+    :param cls: class itself
+    :return: function that either creates new instance of the class or returns existing one
     """
 
     # the only way to implement nonlocal closure variables in Python 2.X

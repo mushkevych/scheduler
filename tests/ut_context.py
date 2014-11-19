@@ -29,7 +29,7 @@ def register_processes():
 
     process_entry = _process_context_entry(
         process_name=PROCESS_CLASS_EXAMPLE,
-        classname='workers.abstract_worker.AbstractWorker.start',
+        classname='synergy.workers.abstract_mq_worker.AbstractMqWorker.start',
         token=TOKEN_CLASS_EXAMPLE,
         time_qualifier=QUALIFIER_DAILY,
         exchange=EXCHANGE_UTILS)

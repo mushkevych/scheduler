@@ -43,8 +43,8 @@ class AbstractFileCollectorWorker(AbstractUowAwareWorker):
     def copy_header_files_from_source(self, timeperiod):
         """ method accesses remote location and copies files, specified by _get_source_folder
         and _get_header_file_pattern to local temporary folder
-        @return: list of file names that were copied to local file system and are available for further processing
-        @raise LookupError: in case no file names on remote location were found or copied requested date"""
+        :return: list of file names that were copied to local file system and are available for further processing
+        :raise LookupError: in case no file names on remote location were found or copied requested date"""
 
         fabric.operations.env.warn_only = True
         fqsf = os.path.join(self._get_source_folder(), self.HEADER_FOLDER)
@@ -64,8 +64,8 @@ class AbstractFileCollectorWorker(AbstractUowAwareWorker):
     def copy_archives_from_source(self, timeperiod):
         """ method accesses remote location and copies files, specified by _get_source_folder and _get_file_pattern
         to local temporary folder
-        @return: list of file names that were copied to local file system and are available for further processing
-        @raise LookupError: in case no file names on remote location were found or copied requested date"""
+        :return: list of file names that were copied to local file system and are available for further processing
+        :raise LookupError: in case no file names on remote location were found or copied requested date"""
 
         fabric.operations.env.warn_only = True
         summary_file_list = []
@@ -94,12 +94,12 @@ class AbstractFileCollectorWorker(AbstractUowAwareWorker):
 
     def process_report_archive(self, file_name, metadata):
         """ Abstract method: takes archived report and process it
-        @return number of document processed in this report """
+        :return number of document processed in this report """
         pass
 
     def process_header_file(self, file_name, metadata):
         """ Abstract method: takes header file and process it
-        @return None """
+        :return None """
         pass
 
     def perform_post_processing(self, timeperiod):

@@ -19,7 +19,7 @@ class AbstractMqWorker(SynergyProcess):
     """
 
     def __init__(self, process_name):
-        """@param process_name: id of the process, the worker will be performing """
+        """:param process_name: id of the process, the worker will be performing """
         super(AbstractMqWorker, self).__init__(process_name)
         self.queue_source = ProcessContext.get_source(self.process_name)
         self.queue_sink = ProcessContext.get_sink(self.process_name)
@@ -60,7 +60,7 @@ class AbstractMqWorker(SynergyProcess):
     # ********************** thread-related methods ****************************
     def _mq_callback(self, message):
         """ abstract method to process messages from MQ
-        @param message: mq message"""
+        :param message: mq message"""
         pass
 
     def _run_mq_listener(self):
