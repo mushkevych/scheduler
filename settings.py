@@ -15,7 +15,7 @@ settings = dict(
     remote_source_host_list=['user@f.q.h.n'],
     remote_source_password={'user@f.q.h.n': '***SSH_PASSWORD***'},
     remote_source_folder='/mnt/remote_folder/',
-    compute_gzip_md5=True,
+    compute_gzip_md5=True,     # True, if AbstractFileCollector should compute MD5 for every file it processes
     bash_runnable_count=5,
 
     ds_type='mongo_db',
@@ -28,8 +28,7 @@ settings = dict(
     under_test=False
 )
 
-# For now just two level... we can have configs for all deployments
-# Need to have a better way for switching these
+# Update current dict with the environment-specific settings
 try:
     overrides = __import__('settings_' + ENVIRONMENT)
 except:
@@ -39,12 +38,8 @@ settings.update(overrides.settings)
 
 # Modules to test and verify (pylint/pep8)
 testable_modules = [
-    'model',
-    'event_stream_generator',
-    'mq',
-    'supervisor',
-    'scheduler',
-    'system',
+    'synergy',
+    'db',
     'workers',
 ]
 
