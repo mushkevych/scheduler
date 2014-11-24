@@ -59,7 +59,7 @@ class TestProcessStarter(unittest.TestCase):
         assert not isinstance(instance, (type, types.FunctionType))
         assert isinstance(instance, (type, types.MethodType))
 
-    @skip('todo: disable performance_ticker and Flopsy consumer. otherwise process hangs')
+    @skip('TODO: disable performance_ticker and Flopsy consumer. otherwise Unit Test can not finish')
     def test_starting_method(self):
         from tests.ut_context import PROCESS_CLASS_EXAMPLE
         process_starter.start_by_process_name(PROCESS_CLASS_EXAMPLE, None)
