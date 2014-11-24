@@ -52,7 +52,7 @@ class StatusBusListener(object):
             scheduler_entry_obj = self.scheduler.managed_handlers[uow.process_name]
             pipeline = self.scheduler.pipelines[scheduler_entry_obj.state_machine_name]
             assert isinstance(pipeline, AbstractPipeline)
-            pipeline.shallow_state_update(uow.process_name, uow.timeperiod)
+            pipeline.shallow_state_update(uow.process_name, uow.timeperiod, uow.state)
 
         except KeyError:
             self.logger.error('StatusBusListener: Access error for unit_of_work %s' % str(message.body), exc_info=True)

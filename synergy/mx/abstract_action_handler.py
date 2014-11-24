@@ -1,6 +1,6 @@
-from synergy.mx.mx_decorators import valid_action_request
-
 __author__ = 'Bohdan Mushkevych'
+
+from synergy.mx.mx_decorators import valid_action_request
 
 
 class AbstractActionHandler(object):

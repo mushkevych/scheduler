@@ -21,6 +21,31 @@ class DiscretePipeline(AbstractPipeline):
     def __del__(self):
         super(DiscretePipeline, self).__del__()
 
+    def shallow_state_update(self, process_name, timeperiod, uow_state):
+        if uow_state != unit_of_work.STATE_PROCESSED:
+            # rely on Garbage Collector to re-trigger the failing unit_of_work
+            return
+
+        try:
+            tree = self.timetable.get_tree(process_name)
+            node = tree.get_node_by_process(process_name, timeperiod)
+            job_record = node.job_record
+
+            if job_record.state in [job.STATE_EMBRYO, job.STATE_IN_PROGRESS, job.STATE_SKIPPED, job.STATE_PROCESSED]:
+                # nothing to do - the job is not in the STATE_FINAL_RUN yet
+                pass
+
+            elif job_record.state == job.STATE_FINAL_RUN:
+                self._process_state_final_run(process_name, job_record)
+
+            else:
+                msg = 'Unknown state %s of the job %s' % (job_record.state, job_record.db_id)
+                self._log_message(ERROR, process_name, job_record, msg)
+
+        except LookupError as e:
+            self.logger.warning('Unable to perform shallow state update for %s in timeperiod %s, because of: %r'
+                                % (process_name, timeperiod, e))
+
     def _process_state_embryo(self, process_name, job_record, start_timeperiod):
         """ method that takes care of processing job records in STATE_EMBRYO state"""
         time_qualifier = ProcessContext.get_time_qualifier(process_name)

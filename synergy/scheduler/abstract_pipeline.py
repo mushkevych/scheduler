@@ -75,7 +75,7 @@ class AbstractPipeline(object):
         msg = 'Published: UOW %r for %r in timeperiod %r.' % (uow.db_id, uow.process_name, uow.start_timeperiod)
         self._log_message(INFO, uow.process_name, job_record, msg)
 
-    def shallow_state_update(self, process_name, timeperiod):
+    def shallow_state_update(self, process_name, timeperiod, uow_state):
         """ method does not trigger any new actions
         if applicable, it will update job_record state and Timetable tree node state"""
         pass
