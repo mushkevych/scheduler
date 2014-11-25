@@ -3,7 +3,6 @@ __author__ = 'Bohdan Mushkevych'
 from datetime import datetime
 from logging import ERROR, WARNING, INFO
 
-from synergy.db.error import DuplicateKeyError
 from synergy.db.model import job, unit_of_work
 from synergy.scheduler.scheduler_constants import PIPELINE_DISCRETE
 from synergy.scheduler.abstract_pipeline import AbstractPipeline
@@ -50,27 +49,34 @@ class DiscretePipeline(AbstractPipeline):
         """ method that takes care of processing job records in STATE_EMBRYO state"""
         time_qualifier = ProcessContext.get_time_qualifier(process_name)
         end_timeperiod = time_helper.increment_timeperiod(time_qualifier, start_timeperiod)
-
-        try:
-            uow = self.insert_uow(process_name, start_timeperiod, end_timeperiod, 0, 0, job_record)
-        except DuplicateKeyError as e:
-            msg = 'Catching up with latest unit_of_work %s in timeperiod %s, because of: %r' \
-                  % (process_name, job_record.timeperiod, e)
-            self._log_message(WARNING, process_name, job_record, msg)
-            uow = self.uow_dao.recover_from_duplicatekeyerror(e)
-
-        if uow is not None:
-            # publish the created/caught up unit_of_work
-            self.publish_uow(job_record, uow)
-
-            self.timetable.update_job_record(process_name, job_record, uow, job.STATE_IN_PROGRESS)
-        else:
-            msg = 'MANUAL INTERVENTION REQUIRED! Unable to locate unit_of_work for %s in %s' \
-                  % (process_name, job_record.timeperiod)
-            self._log_message(WARNING, process_name, job_record, msg)
+        uow, is_duplicate = self.insert_and_publish_uow(process_name,
+                                                        start_timeperiod,
+                                                        end_timeperiod,
+                                                        0,
+                                                        0,
+                                                        job_record)
+        self.timetable.update_job_record(process_name, job_record, uow, job.STATE_IN_PROGRESS)
 
     def _process_state_in_progress(self, process_name, job_record, start_timeperiod):
         """ method that takes care of processing job records in STATE_IN_PROGRESS state"""
+        def _process_state(target_state, uow):
+            if uow.state in [unit_of_work.STATE_REQUESTED,
+                             unit_of_work.STATE_IN_PROGRESS,
+                             unit_of_work.STATE_INVALID]:
+                # Large Job processing takes more than 1 tick of Scheduler
+                # Let the Job processing complete - do no updates to Scheduler records
+                pass
+            elif uow.state in [unit_of_work.STATE_PROCESSED,
+                               unit_of_work.STATE_CANCELED]:
+                # create new uow to cover new inserts
+                uow, is_duplicate = self.insert_and_publish_uow(process_name,
+                                                                start_timeperiod,
+                                                                end_timeperiod,
+                                                                0,
+                                                                iteration + 1,
+                                                                job_record)
+                self.timetable.update_job_record(process_name, job_record, uow, target_state)
+
         time_qualifier = ProcessContext.get_time_qualifier(process_name)
         end_timeperiod = time_helper.increment_timeperiod(time_qualifier, start_timeperiod)
         actual_timeperiod = time_helper.actual_timeperiod(time_qualifier)
@@ -78,47 +84,16 @@ class DiscretePipeline(AbstractPipeline):
         uow = self.uow_dao.get_one(job_record.related_unit_of_work)
         iteration = int(uow.end_id)
 
-        try:
-            if start_timeperiod == actual_timeperiod or can_finalize_job_record is False:
-                if uow.state in [unit_of_work.STATE_REQUESTED,
-                                 unit_of_work.STATE_IN_PROGRESS,
-                                 unit_of_work.STATE_INVALID]:
-                    # Large Job processing takes more than 1 tick of Scheduler
-                    # Let the Job processing complete - do no updates to Scheduler records
-                    pass
-                elif uow.state in [unit_of_work.STATE_PROCESSED,
-                                   unit_of_work.STATE_CANCELED]:
-                    # create new uow to cover new inserts
-                    uow = self.insert_uow(process_name, start_timeperiod, end_timeperiod, 0, iteration + 1, job_record)
-                    self.publish_uow(job_record, uow)
-                    self.timetable.update_job_record(process_name, job_record, uow, job.STATE_IN_PROGRESS)
+        if start_timeperiod == actual_timeperiod or can_finalize_job_record is False:
+            _process_state(job.STATE_IN_PROGRESS, uow)
 
-            elif start_timeperiod < actual_timeperiod and can_finalize_job_record is True:
-                if uow.state in [unit_of_work.STATE_REQUESTED,
-                                 unit_of_work.STATE_IN_PROGRESS,
-                                 unit_of_work.STATE_INVALID]:
-                    # Large Job processing has not started yet
-                    # Let the Job processing complete - do no updates to Scheduler records
-                    pass
-                elif uow.state in [unit_of_work.STATE_PROCESSED,
-                                   unit_of_work.STATE_CANCELED]:
-                    # create new uow for FINAL RUN
-                    uow = self.insert_uow(process_name, start_timeperiod, end_timeperiod, 0, iteration + 1, job_record)
-                    self.publish_uow(job_record, uow)
-                    self.timetable.update_job_record(process_name, job_record, uow, job.STATE_FINAL_RUN)
-            else:
-                msg = 'Job record %s has timeperiod from future %s vs current time %s' \
-                      % (job_record.db_id, start_timeperiod, actual_timeperiod)
-                self._log_message(ERROR, process_name, job_record, msg)
+        elif start_timeperiod < actual_timeperiod and can_finalize_job_record is True:
+            _process_state(job.STATE_FINAL_RUN, uow)
 
-        except DuplicateKeyError as e:
-            uow = self.uow_dao.recover_from_duplicatekeyerror(e)
-            if uow is not None:
-                self.timetable.update_job_record(process_name, job_record, uow, job_record.state)
-            else:
-                msg = 'MANUAL INTERVENTION REQUIRED! Unable to identify unit_of_work for %s in %s' \
-                      % (process_name, job_record.timeperiod)
-                self._log_message(ERROR, process_name, job_record, msg)
+        else:
+            msg = 'Job record %s has timeperiod from future %s vs current time %s' \
+                  % (job_record.db_id, start_timeperiod, actual_timeperiod)
+            self._log_message(ERROR, process_name, job_record, msg)
 
     def _process_state_final_run(self, process_name, job_record):
         """method takes care of processing job records in STATE_FINAL_RUN state"""

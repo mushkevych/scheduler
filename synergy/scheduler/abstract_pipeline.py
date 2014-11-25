@@ -4,6 +4,7 @@ from datetime import datetime
 from logging import INFO, WARNING, ERROR
 
 from synergy.db.model import job
+from synergy.db.error import DuplicateKeyError
 from synergy.db.dao.unit_of_work_dao import UnitOfWorkDao
 from synergy.db.dao.job_dao import JobDao
 from synergy.db.model import unit_of_work
@@ -39,7 +40,7 @@ class AbstractPipeline(object):
         self.logger.log(level, msg)
 
     @with_reconnect
-    def insert_uow(self, process_name, start_timeperiod, end_timeperiod, start_id, end_id, job_record):
+    def _insert_uow(self, process_name, start_timeperiod, end_timeperiod, start_id, end_id, job_record):
         """creates unit_of_work and inserts it into the DB
             :raise DuplicateKeyError: if unit_of_work with given parameters already exists """
         uow = UnitOfWork()
@@ -63,7 +64,7 @@ class AbstractPipeline(object):
         self._log_message(INFO, uow.process_name, job_record, msg)
         return uow
 
-    def publish_uow(self, job_record, uow):
+    def _publish_uow(self, job_record, uow):
         mq_request = SynergyMqTransmission()
         mq_request.process_name = uow.process_name
         mq_request.unit_of_work_id = uow.db_id
@@ -74,6 +75,31 @@ class AbstractPipeline(object):
 
         msg = 'Published: UOW %r for %r in timeperiod %r.' % (uow.db_id, uow.process_name, uow.start_timeperiod)
         self._log_message(INFO, uow.process_name, job_record, msg)
+
+    def insert_and_publish_uow(self, process_name, start_timeperiod, end_timeperiod, start_id, end_id, job_record):
+        """ method creates and publishes a unit_of_work. it also handles DuplicateKeyError and attempts recovery
+        :return: tuple (uow, is_duplicate)
+        :raise UserWarning: if the recovery from DuplicateKeyError was unsuccessful
+        """
+        is_duplicate = False
+        try:
+            uow = self._insert_uow(process_name, start_timeperiod, end_timeperiod, start_id, end_id, job_record)
+        except DuplicateKeyError as e:
+            is_duplicate = True
+            msg = 'Catching up with latest unit_of_work %s in timeperiod %s, because of: %r' \
+                  % (process_name, job_record.timeperiod, e)
+            self._log_message(WARNING, process_name, job_record, msg)
+            uow = self.uow_dao.recover_from_duplicatekeyerror(e)
+
+        if uow is None:
+            msg = 'MANUAL INTERVENTION REQUIRED! Unable to locate unit_of_work for %s in %s' \
+                  % (process_name, job_record.timeperiod)
+            self._log_message(WARNING, process_name, job_record, msg)
+            raise UserWarning(msg)
+
+        # publish the created/caught up unit_of_work
+        self._publish_uow(job_record, uow)
+        return uow, is_duplicate
 
     def shallow_state_update(self, process_name, timeperiod, uow_state):
         """ method does not trigger any new actions

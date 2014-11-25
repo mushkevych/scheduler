@@ -3,7 +3,6 @@ __author__ = 'Bohdan Mushkevych'
 from datetime import datetime
 from logging import ERROR, WARNING, INFO
 
-from synergy.db.error import DuplicateKeyError
 from synergy.db.model import job, unit_of_work
 from synergy.db.manager import ds_manager
 from synergy.conf.process_context import ProcessContext
@@ -70,59 +69,30 @@ class ContinuousPipeline(AbstractPipeline):
         -- in case unit_of_work can be located - we update job record and proceed normally
         -- in case unit_of_work can not be located (what is equal to fatal data corruption) - we log exception and
         ask/expect manual intervention to resolve the corruption"""
-        try:
-            source_collection_name = ProcessContext.get_source(process_name)
-            start_id = self.ds.highest_primary_key(source_collection_name, start_timeperiod, end_timeperiod)
-            end_id = self.ds.lowest_primary_key(source_collection_name, start_timeperiod, end_timeperiod)
-            uow = self.insert_uow(process_name,
-                                  start_timeperiod,
-                                  end_timeperiod,
-                                  start_id,
-                                  end_id,
-                                  job_record)
-        except DuplicateKeyError as e:
-            uow = self.uow_dao.recover_from_duplicatekeyerror(e)
-            msg = 'No new data to process by %s in timeperiod %s, because of: %r' \
-                  % (process_name, job_record.timeperiod, e)
-            self._log_message(WARNING, process_name, job_record, msg)
-
-        if uow is not None:
-            # publish the created/caught up unit_of_work
-            self.publish_uow(job_record, uow)
-
-            self.timetable.update_job_record(process_name, job_record, uow, job.STATE_IN_PROGRESS)
-        else:
-            msg = 'MANUAL INTERVENTION REQUIRED! Unable to locate unit_of_work for %s in %s' \
-                  % (process_name, job_record.timeperiod)
-            self._log_message(WARNING, process_name, job_record, msg)
+        source_collection_name = ProcessContext.get_source(process_name)
+        start_id = self.ds.highest_primary_key(source_collection_name, start_timeperiod, end_timeperiod)
+        end_id = self.ds.lowest_primary_key(source_collection_name, start_timeperiod, end_timeperiod)
+        uow, is_duplicate = self.insert_and_publish_uow(process_name,
+                                                        start_timeperiod,
+                                                        end_timeperiod,
+                                                        start_id,
+                                                        end_id,
+                                                        job_record)
+        self.timetable.update_job_record(process_name, job_record, uow, job.STATE_IN_PROGRESS)
 
     def _compute_and_transfer_to_final_run(self, process_name, start_timeperiod, end_timeperiod, job_record):
         """ method computes new unit_of_work and transfers the job to STATE_FINAL_RUN
         it also shares _fuzzy_ DuplicateKeyError logic from _compute_and_transfer_to_progress method"""
-        transfer_to_final = False
-        try:
-            source_collection_name = ProcessContext.get_source(process_name)
-            start_id = self.ds.highest_primary_key(source_collection_name, start_timeperiod, end_timeperiod)
-            end_id = self.ds.lowest_primary_key(source_collection_name, start_timeperiod, end_timeperiod)
-            uow = self.insert_uow(process_name,
-                                  start_timeperiod,
-                                  end_timeperiod,
-                                  start_id,
-                                  end_id,
-                                  job_record)
-        except DuplicateKeyError as e:
-            transfer_to_final = True
-            uow = self.uow_dao.recover_from_duplicatekeyerror(e)
-
-        if uow is not None:
-            # publish the created/caught up unit_of_work
-            self.publish_uow(job_record, uow)
-
-            self.timetable.update_job_record(process_name, job_record, uow, job.STATE_FINAL_RUN)
-        else:
-            msg = 'MANUAL INTERVENTION REQUIRED! Unable to locate unit_of_work for %s in %s' \
-                  % (process_name, job_record.timeperiod)
-            self._log_message(WARNING, process_name, job_record, msg)
+        source_collection_name = ProcessContext.get_source(process_name)
+        start_id = self.ds.highest_primary_key(source_collection_name, start_timeperiod, end_timeperiod)
+        end_id = self.ds.lowest_primary_key(source_collection_name, start_timeperiod, end_timeperiod)
+        uow, transfer_to_final = self.insert_and_publish_uow(process_name,
+                                                             start_timeperiod,
+                                                             end_timeperiod,
+                                                             start_id,
+                                                             end_id,
+                                                             job_record)
+        self.timetable.update_job_record(process_name, job_record, uow, job.STATE_FINAL_RUN)
 
         if transfer_to_final:
             self._process_state_final_run(process_name, job_record)

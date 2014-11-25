@@ -48,7 +48,7 @@ class FreerunPipeline(object):
         self.sfe_dao.update(freerun_entry)
 
     @with_reconnect
-    def insert_uow(self, freerun_entry):
+    def _insert_uow(self, freerun_entry):
         """ creates unit_of_work and inserts it into the DB
             :raise DuplicateKeyError: if unit_of_work with given parameters already exists """
         schedulable_name = '%s::%s' % (freerun_entry.process_name, freerun_entry.entry_name)
@@ -74,7 +74,7 @@ class FreerunPipeline(object):
         self._log_message(INFO, freerun_entry, msg)
         return uow
 
-    def publish_uow(self, freerun_entry, uow):
+    def _publish_uow(self, freerun_entry, uow):
         schedulable_name = '%s::%s' % (freerun_entry.process_name, freerun_entry.entry_name)
         mq_request = SynergyMqTransmission()
         mq_request.process_name = freerun_entry.process_name
@@ -90,7 +90,7 @@ class FreerunPipeline(object):
 
     def insert_and_publish_uow(self, freerun_entry):
         try:
-            uow = self.insert_uow(freerun_entry)
+            uow = self._insert_uow(freerun_entry)
         except DuplicateKeyError as e:
             msg = 'Duplication of unit_of_work found for %s::%s. Error msg: %r' \
                   % (freerun_entry.process_name, freerun_entry.entry_name, e)
@@ -99,7 +99,7 @@ class FreerunPipeline(object):
 
         if uow is not None:
             # publish the created/caught up unit_of_work
-            self.publish_uow(freerun_entry, uow)
+            self._publish_uow(freerun_entry, uow)
             freerun_entry.related_unit_of_work = uow.db_id
             self.sfe_dao.update(freerun_entry)
         else:
@@ -144,7 +144,7 @@ class FreerunPipeline(object):
 
     def _process_state_in_progress(self, freerun_entry, uow):
         """ method that takes care of processing unit_of_work records in STATE_REQUESTED or STATE_IN_PROGRESS states"""
-        self.publish_uow(freerun_entry, uow)
+        self._publish_uow(freerun_entry, uow)
 
     def _process_terminal_state(self, freerun_entry, uow):
         """ method that takes care of processing unit_of_work records in

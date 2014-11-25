@@ -62,8 +62,8 @@ class ContinuousPipelineUnitTest(unittest.TestCase):
 
     def test_state_embryo(self):
         """ method tests job records in STATE_EMBRYO state"""
-        self.pipeline_real.insert_uow = then_return_uow
-        when(self.pipeline_real).publish_uow(any(object), any(object)).thenReturn(True)
+        self.pipeline_real._insert_uow = then_return_uow
+        when(self.pipeline_real)._publish_uow(any(object), any(object)).thenReturn(True)
 
         ds_mock = mock(BaseManager)
         when(ds_mock).highest_primary_key(any(str), any(str), any(str)).thenReturn(1)
@@ -80,8 +80,8 @@ class ContinuousPipelineUnitTest(unittest.TestCase):
 
     def test_duplicatekeyerror_state_embryo(self):
         """ method tests job records in STATE_EMBRYO state"""
-        self.pipeline_real.insert_uow = then_raise
-        when(self.pipeline_real).publish_uow(any(object), any(object)).thenReturn(True)
+        self.pipeline_real._insert_uow = then_raise
+        when(self.pipeline_real)._publish_uow(any(object), any(object)).thenReturn(True)
         pipeline = spy(self.pipeline_real)
 
         job_record = get_job_record(job.STATE_EMBRYO,
@@ -99,8 +99,8 @@ class ContinuousPipelineUnitTest(unittest.TestCase):
         when(uow_dao_mock).get_one(any(str)).thenReturn(create_unit_of_work(PROCESS_UNIT_TEST, 0, 1, None))
         self.pipeline_real.uow_dao = uow_dao_mock
 
-        self.pipeline_real.insert_uow = then_raise
-        when(self.pipeline_real).publish_uow(any(object), any(object)).thenReturn(True)
+        self.pipeline_real._insert_uow = then_raise
+        when(self.pipeline_real)._publish_uow(any(object), any(object)).thenReturn(True)
         pipeline = spy(self.pipeline_real)
 
         job_record = get_job_record(job.STATE_IN_PROGRESS,
@@ -126,8 +126,8 @@ class ContinuousPipelineUnitTest(unittest.TestCase):
         self.pipeline_real.uow_dao = uow_dao_mock
         self.pipeline_real.ds = ds_mock
 
-        self.pipeline_real.insert_uow = then_return_uow
-        when(self.pipeline_real).publish_uow(any(object), any(object)).thenReturn(True)
+        self.pipeline_real._insert_uow = then_return_uow
+        when(self.pipeline_real)._publish_uow(any(object), any(object)).thenReturn(True)
         pipeline = spy(self.pipeline_real)
 
         job_record = get_job_record(job.STATE_IN_PROGRESS,
@@ -157,8 +157,8 @@ class ContinuousPipelineUnitTest(unittest.TestCase):
         self.pipeline_real.uow_dao = uow_dao_mock
         self.pipeline_real.ds = ds_mock
 
-        self.pipeline_real.insert_uow = then_raise
-        when(self.pipeline_real).publish_uow(any(object), any(object)).thenReturn(True)
+        self.pipeline_real._insert_uow = then_raise
+        when(self.pipeline_real)._publish_uow(any(object), any(object)).thenReturn(True)
         pipeline = spy(self.pipeline_real)
 
         job_record = get_job_record(job.STATE_IN_PROGRESS,
