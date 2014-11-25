@@ -5,8 +5,10 @@ from datetime import datetime
 from synergy.db.model import unit_of_work
 from synergy.db.model.synergy_mq_transmission import SynergyMqTransmission
 from synergy.db.dao.unit_of_work_dao import UnitOfWorkDao
+from synergy.mq.flopsy import PublishersPool
 from synergy.workers.abstract_mq_worker import AbstractMqWorker
 from synergy.system.performance_tracker import UowAwareTracker
+from synergy.scheduler.scheduler_constants import QUEUE_UOW_REPORT
 
 
 class AbstractUowAwareWorker(AbstractMqWorker):
@@ -16,8 +18,10 @@ class AbstractUowAwareWorker(AbstractMqWorker):
     def __init__(self, process_name):
         super(AbstractUowAwareWorker, self).__init__(process_name)
         self.uow_dao = UnitOfWorkDao(self.logger)
+        self.publishers = PublishersPool(self.logger)
 
     def __del__(self):
+        self.publishers.close()
         super(AbstractUowAwareWorker, self).__del__()
 
     # **************** Abstract Methods ************************
@@ -83,3 +87,14 @@ class AbstractUowAwareWorker(AbstractMqWorker):
             self.consumer.acknowledge(message.delivery_tag)
             self.consumer.close()
             self._clean_up()
+
+        publisher = None
+        try:
+            publisher = self.publishers.get(QUEUE_UOW_REPORT)
+            publisher.publish(mq_request.document)
+        except Exception:
+            self.logger.error('Error on unit_of_work report publishing', exc_info=True)
+        finally:
+            if publisher is not None:
+                publisher.release()
+            self.logger.info('Published processing report into %s queue' % QUEUE_UOW_REPORT)
