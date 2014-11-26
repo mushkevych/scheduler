@@ -1,7 +1,6 @@
 __author__ = 'Bohdan Mushkevych'
 
 import unittest
-
 from settings import enable_test_mode
 enable_test_mode()
 
@@ -21,19 +20,13 @@ from synergy.scheduler.timetable import Timetable
 from synergy.scheduler.abstract_pipeline import AbstractPipeline
 from tests.ut_context import PROCESS_UNIT_TEST
 
-
 TEST_PRESET_TIMEPERIOD = '2013010122'
 TEST_ACTUAL_TIMEPERIOD = time_helper.actual_timeperiod(QUALIFIER_HOURLY)
 TEST_FUTURE_TIMEPERIOD = time_helper.increment_timeperiod(QUALIFIER_HOURLY, TEST_ACTUAL_TIMEPERIOD)
 
 
 def then_raise(process_name, start_timeperiod, end_timeperiod, start_id, end_id, job_record):
-    exc = DuplicateKeyError(process_name,
-                            start_timeperiod,
-                            start_id,
-                            end_id,
-                            'Simulated Exception')
-    raise exc
+    raise DuplicateKeyError(process_name, start_timeperiod, start_id, end_id, 'Simulated Exception')
 
 
 def then_return_uow(process_name, start_timeperiod, end_timeperiod, start_id, end_id, job_record):

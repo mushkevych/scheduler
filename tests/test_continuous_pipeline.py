@@ -8,7 +8,6 @@ from mockito import spy, verify, mock, when
 from mockito.matchers import any
 
 from synergy.db.dao.unit_of_work_dao import UnitOfWorkDao
-from synergy.db.error import DuplicateKeyError
 from synergy.db.model import job, unit_of_work
 from synergy.db.model.job import Job
 from synergy.db.model.unit_of_work import UnitOfWork
@@ -21,7 +20,6 @@ from constants import PROCESS_SITE_HOURLY
 from synergy.scheduler.timetable import Timetable
 from synergy.scheduler.continuous_pipeline import ContinuousPipeline
 from tests.ut_context import PROCESS_UNIT_TEST
-
 
 TEST_PRESET_TIMEPERIOD = '2013010122'
 TEST_ACTUAL_TIMEPERIOD = time_helper.actual_timeperiod(QUALIFIER_HOURLY)
@@ -122,8 +120,7 @@ class ContinuousPipelineUnitTest(unittest.TestCase):
 
         verify(self.time_table_mocked, times=1).update_job_record(any(str), any(Job), any(UnitOfWork), any(str))
         # verify(pipeline, times=1)._compute_and_transfer_to_final_run(any(str), any(str), any(str), any(Job))
-        # verify(pipeline, times=0).\
-        #     _process_state_final_run(any(str), any(Job))
+        # verify(pipeline, times=0)._process_state_final_run(any(str), any(Job))
 
     def test_transfer_to_final_state_from_in_progress(self):
         """ method tests job records in STATE_IN_PROGRESS state"""
@@ -142,10 +139,8 @@ class ContinuousPipelineUnitTest(unittest.TestCase):
         pipeline.manage_pipeline_for_process(job_record.process_name, job_record)
 
         verify(self.time_table_mocked, times=2).update_job_record(any(str), any(Job), any(UnitOfWork), any(str))
-        # verify(pipeline, times=1).\
-        # _compute_and_transfer_to_final_run(any(str), any(str), any(str), any(Job))
-        # verify(pipeline, times=1).\
-        #     _process_state_final_run(any(str), any(Job))
+        # verify(pipeline, times=1)._compute_and_transfer_to_final_run(any(str), any(str), any(str), any(Job))
+        # verify(pipeline, times=1)._process_state_final_run(any(str), any(Job))
 
     def test_processed_state_final_run(self):
         """method tests job records in STATE_FINAL_RUN state"""
