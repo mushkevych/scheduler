@@ -103,7 +103,7 @@ class GarbageCollectorUnitTest(unittest.TestCase):
         self.worker.uow_dao.update = assume_uow_is_cancelled
         spy_worker = spy(self.worker)
         spy_worker._process_single_document(get_valid_and_stale_uow())
-        verify(self.publisher, times=0).publish(any(dict))
+        verify(self.publisher, times=1).publish(any(dict))
 
     def test_select_reprocessing_candidates(self):
         logger = ProcessContext.get_logger(PROCESS_UNIT_TEST)
