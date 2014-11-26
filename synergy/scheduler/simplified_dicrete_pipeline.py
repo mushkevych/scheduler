@@ -48,10 +48,29 @@ class SimplifiedDiscretePipeline(DiscretePipeline):
                   'since the job could not be finalized' % (uow.process_name, uow.timeperiod)
             self._log_message(WARNING, uow.process_name, job_record, msg)
 
+    def __process_non_finalizable_job(self, process_name, job_record, uow, start_timeperiod, end_timeperiod):
+        """ method handles given job_record based on the unit_of_work status
+        Assumption: job_record is in STATE_IN_PROGRESS and is not yet finalizable """
+        if uow.state in [unit_of_work.STATE_REQUESTED,
+                         unit_of_work.STATE_IN_PROGRESS,
+                         unit_of_work.STATE_INVALID]:
+            # Large Job processing takes more than 1 tick of Scheduler
+            # Let the Large Job processing complete - do no updates to Scheduler records
+            pass
+        elif uow.state in [unit_of_work.STATE_PROCESSED,
+                           unit_of_work.STATE_CANCELED]:
+            # create new uow to cover new inserts
+            uow, is_duplicate = self.insert_and_publish_uow(process_name,
+                                                            start_timeperiod,
+                                                            end_timeperiod,
+                                                            0,
+                                                            int(uow.end_id) + 1,
+                                                            job_record)
+            self.timetable.update_job_record(process_name, job_record, uow, job.STATE_IN_PROGRESS)
+
     def __process_finalizable_job(self, process_name, job_record, uow):
         """ method handles given job_record based on the unit_of_work status
         Assumption: job_record is in STATE_IN_PROGRESS and is finalizable """
-
         if uow.state in [unit_of_work.STATE_REQUESTED,
                          unit_of_work.STATE_IN_PROGRESS,
                          unit_of_work.STATE_INVALID]:
@@ -82,25 +101,9 @@ class SimplifiedDiscretePipeline(DiscretePipeline):
         actual_timeperiod = time_helper.actual_timeperiod(time_qualifier)
         can_finalize_job_record = self.timetable.can_finalize_job_record(process_name, job_record)
         uow = self.uow_dao.get_one(job_record.related_unit_of_work)
-        iteration = int(uow.end_id)
 
         if start_timeperiod == actual_timeperiod or can_finalize_job_record is False:
-            if uow.state in [unit_of_work.STATE_REQUESTED,
-                             unit_of_work.STATE_IN_PROGRESS,
-                             unit_of_work.STATE_INVALID]:
-                # Large Job processing takes more than 1 tick of Scheduler
-                # Let the Large Job processing complete - do no updates to Scheduler records
-                pass
-            elif uow.state in [unit_of_work.STATE_PROCESSED,
-                               unit_of_work.STATE_CANCELED]:
-                # create new uow to cover new inserts
-                uow, is_duplicate = self.insert_and_publish_uow(process_name,
-                                                                start_timeperiod,
-                                                                end_timeperiod,
-                                                                0,
-                                                                iteration + 1,
-                                                                job_record)
-                self.timetable.update_job_record(process_name, job_record, uow, job.STATE_IN_PROGRESS)
+            self.__process_non_finalizable_job(process_name, job_record, uow, start_timeperiod, end_timeperiod)
 
         elif start_timeperiod < actual_timeperiod and can_finalize_job_record is True:
             self.__process_finalizable_job(process_name, job_record, uow)

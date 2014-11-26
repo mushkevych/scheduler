@@ -13,8 +13,8 @@ from synergy.scheduler.abstract_pipeline import AbstractPipeline
 
 
 class ContinuousPipeline(AbstractPipeline):
-    """ Continuous State Machine re-run process for timeperiod A until A+1, and the transfers the timeperiod to
-     STATE_FINAL_RUN """
+    """ Continuous State Machine re-run process for timeperiod A until A+1,
+        then transfers the timeperiod A to STATE_FINAL_RUN """
 
     def __init__(self, logger, timetable):
         super(ContinuousPipeline, self).__init__(logger, timetable, name=PIPELINE_CONTINUOUS)
@@ -120,11 +120,8 @@ class ContinuousPipeline(AbstractPipeline):
     def _process_state_final_run(self, process_name, job_record):
         """method takes care of processing job records in STATE_FINAL_RUN state"""
         uow = self.uow_dao.get_one(job_record.related_unit_of_work)
-
         if uow.state == unit_of_work.STATE_PROCESSED:
             self.timetable.update_job_record(process_name, job_record, uow, job.STATE_PROCESSED)
-            timetable_tree = self.timetable.get_tree(process_name)
-            timetable_tree.build_tree()
             msg = 'Transferred job record %s in timeperiod %s to STATE_PROCESSED for %s' \
                   % (job_record.db_id, job_record.timeperiod, process_name)
         elif uow.state == unit_of_work.STATE_CANCELED:
@@ -134,6 +131,9 @@ class ContinuousPipeline(AbstractPipeline):
         else:
             msg = 'Suppressed creating uow for %s in timeperiod %s; job record is in %s; uow is in %s' \
                   % (process_name, job_record.timeperiod, job_record.state, uow.state)
+
+        timetable_tree = self.timetable.get_tree(process_name)
+        timetable_tree.build_tree()
         self._log_message(INFO, process_name, job_record, msg)
 
     def _process_state_skipped(self, process_name, job_record):
