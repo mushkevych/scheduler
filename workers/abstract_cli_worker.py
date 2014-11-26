@@ -55,8 +55,8 @@ class AbstractCliWorker(AbstractUowAwareWorker):
             alive, code = self._poll_process()
             time.sleep(0.1)
 
+        self.logger.info('Command Line Command return code is %r' % code)
         if code == 0:
-            self.logger.info('Command Line Command return code is %r' % code)
             return 0, unit_of_work.STATE_PROCESSED
         elif code == RETURN_CODE_CANCEL_UOW:
             return 0, unit_of_work.STATE_CANCELED

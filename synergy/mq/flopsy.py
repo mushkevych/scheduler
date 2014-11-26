@@ -55,7 +55,7 @@ class Connection(object):
         )
 
     def close(self):
-        if getattr(self, 'connection'):
+        if hasattr(self, 'connection'):
             self.connection.close()
 
 
@@ -106,10 +106,10 @@ class Consumer(SynergyAware):
     def close(self):
         self.is_running = False
 
-        if getattr(self, 'channel'):
+        if hasattr(self, 'channel'):
             self.channel.close()
 
-        if getattr(self, 'connection'):
+        if hasattr(self, 'connection'):
             self.connection.close()
 
     def wait(self, timeout=None):
@@ -172,19 +172,19 @@ class Publisher(SynergyAware):
         return message
 
     def release(self):
-        if getattr(self, 'parent_pool'):
+        if hasattr(self, 'parent_pool'):
             self.parent_pool.put(self)
         else:
             self.close()
 
     def close(self):
-        if getattr(self, 'channel'):
+        if hasattr(self, 'channel'):
             self.channel.close()
 
-        if getattr(self, 'connection'):
+        if hasattr(self, 'connection'):
             self.connection.close()
 
-        if getattr(self, 'parent_pool'):
+        if hasattr(self, 'parent_pool'):
             del self.parent_pool
 
 
