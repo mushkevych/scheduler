@@ -32,7 +32,7 @@ class AbstractUowAwareWorker(AbstractMqWorker):
     def _process_uow(self, uow):
         """
         :param uow: unit_of_work to process
-        :return: number of processed items/documents/etc
+        :return: a tuple (number of processed items/documents/etc, desired unit_of_work state)
         :raise an Exception if the UOW shall be marked as STATE_INVALID
         """
         raise NotImplementedError('_process_uow must be overridden in the child class %s' % self.__class__.__name__)
@@ -62,12 +62,12 @@ class AbstractUowAwareWorker(AbstractMqWorker):
             self.uow_dao.update(uow)
             self.performance_ticker.start_uow(uow)
 
-            number_of_aggregated_objects = self._process_uow(uow)
+            number_of_aggregated_objects, target_state = self._process_uow(uow)
 
             uow.number_of_aggregated_documents = number_of_aggregated_objects
             uow.number_of_processed_documents = self.performance_ticker.per_job
             uow.finished_at = datetime.utcnow()
-            uow.state = unit_of_work.STATE_PROCESSED
+            uow.state = target_state
             self.uow_dao.update(uow)
             self.performance_ticker.finish_uow()
         except Exception as e:

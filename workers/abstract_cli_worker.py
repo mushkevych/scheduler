@@ -3,7 +3,10 @@ __author__ = 'Bohdan Mushkevych'
 import time
 
 from psutil.error import TimeoutExpired
+from synergy.db.model import unit_of_work
 from synergy.workers.abstract_uow_aware_worker import AbstractUowAwareWorker
+
+RETURN_CODE_CANCEL_UOW = 987654321
 
 
 class AbstractCliWorker(AbstractUowAwareWorker):
@@ -54,6 +57,8 @@ class AbstractCliWorker(AbstractUowAwareWorker):
 
         if code == 0:
             self.logger.info('Command Line Command return code is %r' % code)
-            return 0
+            return 0, unit_of_work.STATE_PROCESSED
+        elif code == RETURN_CODE_CANCEL_UOW:
+            return 0, unit_of_work.STATE_CANCELED
         else:
             raise UserWarning('Command Line Command return code is not 0 but %r' % code)

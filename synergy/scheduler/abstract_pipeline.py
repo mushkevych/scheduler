@@ -101,7 +101,7 @@ class AbstractPipeline(object):
         self._publish_uow(job_record, uow)
         return uow, is_duplicate
 
-    def shallow_state_update(self, process_name, timeperiod, uow_state):
+    def shallow_state_update(self, uow):
         """ method does not trigger any new actions
         if applicable, it will update job_record state and Timetable tree node state"""
         pass

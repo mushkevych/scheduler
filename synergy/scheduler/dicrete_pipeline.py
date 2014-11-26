@@ -20,30 +20,18 @@ class DiscretePipeline(AbstractPipeline):
     def __del__(self):
         super(DiscretePipeline, self).__del__()
 
-    def shallow_state_update(self, process_name, timeperiod, uow_state):
-        if uow_state != unit_of_work.STATE_PROCESSED:
+    def shallow_state_update(self, uow):
+        if uow.state not in [unit_of_work.STATE_PROCESSED, unit_of_work.STATE_CANCELED]:
             # rely on Garbage Collector to re-trigger the failing unit_of_work
             return
 
-        try:
-            tree = self.timetable.get_tree(process_name)
-            node = tree.get_node_by_process(process_name, timeperiod)
-            job_record = node.job_record
+        tree = self.timetable.get_tree(uow.process_name)
+        node = tree.get_node_by_process(uow.process_name, uow.timeperiod)
 
-            if job_record.state in [job.STATE_EMBRYO, job.STATE_IN_PROGRESS, job.STATE_SKIPPED, job.STATE_PROCESSED]:
-                # nothing to do - the job is not in the STATE_FINAL_RUN yet
-                pass
-
-            elif job_record.state == job.STATE_FINAL_RUN:
-                self._process_state_final_run(process_name, job_record)
-
-            else:
-                msg = 'Unknown state %s of the job %s' % (job_record.state, job_record.db_id)
-                self._log_message(ERROR, process_name, job_record, msg)
-
-        except LookupError as e:
-            self.logger.warning('Unable to perform shallow state update for %s in timeperiod %s, because of: %r'
-                                % (process_name, timeperiod, e))
+        job_record = node.job_record
+        if job_record.state != job.STATE_FINAL_RUN:
+            return
+        self._process_state_final_run(uow.process_name, job_record)
 
     def _process_state_embryo(self, process_name, job_record, start_timeperiod):
         """ method that takes care of processing job records in STATE_EMBRYO state"""
@@ -98,11 +86,8 @@ class DiscretePipeline(AbstractPipeline):
     def _process_state_final_run(self, process_name, job_record):
         """method takes care of processing job records in STATE_FINAL_RUN state"""
         uow = self.uow_dao.get_one(job_record.related_unit_of_work)
-
         if uow.state == unit_of_work.STATE_PROCESSED:
             self.timetable.update_job_record(process_name, job_record, uow, job.STATE_PROCESSED)
-            timetable_tree = self.timetable.get_tree(process_name)
-            timetable_tree.build_tree()
             msg = 'Transferred job record %s in timeperiod %s to STATE_PROCESSED for %s' \
                   % (job_record.db_id, job_record.timeperiod, process_name)
         elif uow.state == unit_of_work.STATE_CANCELED:
@@ -112,6 +97,9 @@ class DiscretePipeline(AbstractPipeline):
         else:
             msg = 'Suppressed creating uow for %s in timeperiod %s; job record is in %s; uow is in %s' \
                   % (process_name, job_record.timeperiod, job_record.state, uow.state)
+
+        timetable_tree = self.timetable.get_tree(process_name)
+        timetable_tree.build_tree()
         self._log_message(INFO, process_name, job_record, msg)
 
     def _process_state_skipped(self, process_name, job_record):

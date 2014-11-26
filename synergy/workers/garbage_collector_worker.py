@@ -6,6 +6,7 @@ from datetime import datetime, timedelta
 from synergy.conf import settings
 from synergy.mq.flopsy import PublishersPool
 from synergy.system.decorator import thread_safe
+from synergy.scheduler.scheduler_constants import QUEUE_UOW_REPORT
 from synergy.workers.abstract_mq_worker import AbstractMqWorker
 from synergy.db.model import unit_of_work, scheduler_managed_entry
 from synergy.db.model.synergy_mq_transmission import SynergyMqTransmission
@@ -89,15 +90,14 @@ class GarbageCollectorWorker(AbstractMqWorker):
                 repost = True
 
         if repost:
-            creation_time = uow.created_at
-            if datetime.utcnow() - creation_time < timedelta(hours=LIFE_SUPPORT_HOURS):
+            mq_request = SynergyMqTransmission()
+            mq_request.process_name = uow.process_name
+            mq_request.unit_of_work_id = uow.db_id
+
+            if datetime.utcnow() - uow.created_at < timedelta(hours=LIFE_SUPPORT_HOURS):
                 uow.state = unit_of_work.STATE_REQUESTED
                 uow.number_of_retries += 1
                 self.uow_dao.update(uow)
-
-                mq_request = SynergyMqTransmission()
-                mq_request.process_name = uow.process_name
-                mq_request.unit_of_work_id = uow.db_id
 
                 publisher = self.publishers.get(uow.process_name)
                 publisher.publish(mq_request.document)
@@ -109,6 +109,11 @@ class GarbageCollectorWorker(AbstractMqWorker):
             else:
                 uow.state = unit_of_work.STATE_CANCELED
                 self.uow_dao.update(uow)
+
+                publisher = self.publishers.get(QUEUE_UOW_REPORT)
+                publisher.publish(mq_request.document)
+                publisher.release()
+
                 self.logger.info('UOW transferred to STATE_CANCELED: process %s; timeperiod %s; id %s; attempt %d'
                                  % (uow.process_name, uow.timeperiod, uow.db_id, uow.number_of_retries))
 

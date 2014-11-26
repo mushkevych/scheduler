@@ -39,7 +39,7 @@ class StatusBusListener(object):
             mq_request = SynergyMqTransmission(message.body)
             uow = self.uow_dao.get_one(mq_request.unit_of_work_id)
             if uow.unit_of_work_type != TYPE_MANAGED:
-                # this is a transmission from TYPE_FREERUN execution. Ignoring it.
+                # this is a transmission from a TYPE_FREERUN execution. Ignore it.
                 return
 
             tree = self.timetable.get_tree(uow.process_name)
@@ -52,12 +52,16 @@ class StatusBusListener(object):
             scheduler_entry_obj = self.scheduler.managed_handlers[uow.process_name]
             pipeline = self.scheduler.pipelines[scheduler_entry_obj.state_machine_name]
             assert isinstance(pipeline, AbstractPipeline)
-            pipeline.shallow_state_update(uow.process_name, uow.timeperiod, uow.state)
+            pipeline.shallow_state_update(uow)
 
         except KeyError:
-            self.logger.error('StatusBusListener: Access error for unit_of_work %s' % str(message.body), exc_info=True)
+            self.logger.error('StatusBusListener: Access error for %s' % str(message.body), exc_info=True)
+        except LookupError:
+            self.logger.warning('StatusBusListener: Can not perform shallow state update for %s'
+                                % str(message.body), exc_info=True)
         except Exception:
-            self.logger.error('StatusBusListener: Can not identify unit_of_work %s' % str(message.body), exc_info=True)
+            self.logger.error('StatusBusListener: Unexpected error during shallow state update for %s'
+                              % str(message.body), exc_info=True)
         finally:
             self.consumer.acknowledge(message.delivery_tag)
 

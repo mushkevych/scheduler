@@ -1,5 +1,6 @@
 __author__ = 'Bohdan Mushkevych'
 
+from synergy.db.model import unit_of_work
 from synergy.workers.abstract_uow_aware_worker import AbstractUowAwareWorker
 
 
@@ -13,4 +14,4 @@ class IdentityWorker(AbstractUowAwareWorker):
         super(IdentityWorker, self).__del__()
 
     def _process_uow(self, uow):
-        return 0
+        return 0, unit_of_work.STATE_PROCESSED

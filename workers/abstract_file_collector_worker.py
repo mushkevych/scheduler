@@ -47,6 +47,8 @@ class AbstractFileCollectorWorker(AbstractUowAwareWorker):
         :raise LookupError: in case no file names on remote location were found or copied requested date"""
 
         fabric.operations.env.warn_only = True
+        fabric.operations.env.abort_on_prompts = True
+
         fqsf = os.path.join(self._get_source_folder(), self.HEADER_FOLDER)
         for host_name in settings.settings['remote_source_host_list']:
             self.logger.info('Initiating header files copy procedure from source location %s:%s'
@@ -68,6 +70,8 @@ class AbstractFileCollectorWorker(AbstractUowAwareWorker):
         :raise LookupError: in case no file names on remote location were found or copied requested date"""
 
         fabric.operations.env.warn_only = True
+        fabric.operations.env.abort_on_prompts = True
+
         summary_file_list = []
         fqsf = os.path.join(self._get_source_folder(), timeperiod[:-2])
         for host_name in settings.settings['remote_source_host_list']:
@@ -134,7 +138,7 @@ class AbstractFileCollectorWorker(AbstractUowAwareWorker):
             processed_log[file_name.replace('.', '-')] = tiny_log
 
         self.perform_post_processing(uow.start_timeperiod)
-        return number_of_aggregated_objects
+        return number_of_aggregated_objects, unit_of_work.STATE_PROCESSED
 
     def _create_directories(self):
         """ method creates temporary directories:
