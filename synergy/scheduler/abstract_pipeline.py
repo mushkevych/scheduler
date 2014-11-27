@@ -103,7 +103,8 @@ class AbstractPipeline(object):
 
     def shallow_state_update(self, uow):
         """ method does not trigger any new actions
-        if applicable, it will update job_record state and Timetable tree node state"""
+        if applicable, it will update job_record state and Timetable tree node state
+        :assumptions: uow is either in STATE_CANCELED or STATE_PROCESSED """
         pass
 
     def _process_state_embryo(self, process_name, job_record, start_timeperiod):

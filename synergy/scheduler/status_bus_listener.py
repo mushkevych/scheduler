@@ -41,19 +41,28 @@ class StatusBusListener(object):
             mq_request = SynergyMqTransmission(message.body)
             uow = self.uow_dao.get_one(mq_request.unit_of_work_id)
             if uow.unit_of_work_type != TYPE_MANAGED:
-                # this is a transmission from a TYPE_FREERUN execution. Ignore it.
+                self.logger.info('Received transmission from TYPE_FREERUN execution. Ignoring it.')
                 return
 
             tree = self.timetable.get_tree(uow.process_name)
             node = tree.get_node_by_process(uow.process_name, uow.timeperiod)
 
             if uow.db_id != node.job_record.related_unit_of_work:
-                # this transmission is was likely received with significant lag. Ignoring it.
+                self.logger.info('Received transmission is likely outdated. Ignoring it.')
+                return
+
+            if uow.state not in [unit_of_work.STATE_PROCESSED, unit_of_work.STATE_CANCELED]:
+                # rely on Garbage Collector to re-trigger the failing unit_of_work
+                self.logger.info('Received unit_of_work status report from %s at %s in non-final state %s. Ignoring it.'
+                                 % (uow.process_name, uow.timeperiod, uow.state))
                 return
 
             scheduler_entry_obj = self.scheduler.managed_handlers[uow.process_name].arguments.scheduler_entry_obj
             pipeline = self.scheduler.pipelines[scheduler_entry_obj.state_machine_name]
             assert isinstance(pipeline, AbstractPipeline)
+
+            self.logger.info('Commencing shallow state update for unit_of_work from %s at %s in %s.'
+                             % (uow.process_name, uow.timeperiod, uow.state))
             pipeline.shallow_state_update(uow)
 
         except KeyError:
@@ -69,7 +78,7 @@ class StatusBusListener(object):
     def _run_mq_listener(self):
         try:
             self.consumer.register(self._mq_callback)
-            self.logger.info('StatusBusListener: registered MQ callback. Active.')
+            self.logger.info('StatusBusListener: instantiated and actived.')
             self.consumer.wait()
         except (AMQPError, IOError) as e:
             self.logger.error('StatusBusListener: AMQPError %s' % str(e))

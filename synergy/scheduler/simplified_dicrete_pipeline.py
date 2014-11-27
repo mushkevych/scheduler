@@ -1,6 +1,6 @@
 __author__ = 'Bohdan Mushkevych'
 
-from logging import ERROR, INFO, WARNING
+from logging import ERROR, INFO
 
 from synergy.db.model import job, unit_of_work
 from synergy.scheduler.scheduler_constants import PIPELINE_SIMPLIFIED_DISCRETE
@@ -20,15 +20,13 @@ class SimplifiedDiscretePipeline(DiscretePipeline):
         super(SimplifiedDiscretePipeline, self).__del__()
 
     def shallow_state_update(self, uow):
-        if uow.state not in [unit_of_work.STATE_PROCESSED, unit_of_work.STATE_CANCELED]:
-            # rely on Garbage Collector to re-trigger the failing unit_of_work
-            return
-
         tree = self.timetable.get_tree(uow.process_name)
         node = tree.get_node_by_process(uow.process_name, uow.timeperiod)
 
         job_record = node.job_record
         if job_record.state != job.STATE_IN_PROGRESS:
+            self.logger.info('Can not perform shallow status update for %s in timeperiod %s '
+                             'since the job state is not STATE_IN_PROGRESS' % (uow.process_name, uow.timeperiod))
             return
 
         time_qualifier = ProcessContext.get_time_qualifier(uow.process_name)
@@ -39,14 +37,12 @@ class SimplifiedDiscretePipeline(DiscretePipeline):
             self.__process_finalizable_job(uow.process_name, job_record, uow)
 
         elif uow.timeperiod >= actual_timeperiod:
-            msg = 'Can not complete shallow status update for %s in timeperiod %s ' \
-                  'since the working timeperiod has not finished yet' % (uow.process_name, uow.timeperiod)
-            self._log_message(WARNING, uow.process_name, job_record, msg)
+            self.logger.info('Can not complete shallow status update for %s in timeperiod %s '
+                             'since the working timeperiod has not finished yet' % (uow.process_name, uow.timeperiod))
 
         elif not can_finalize_job_record:
-            msg = 'Can not complete shallow status update for %s in timeperiod %s ' \
-                  'since the job could not be finalized' % (uow.process_name, uow.timeperiod)
-            self._log_message(WARNING, uow.process_name, job_record, msg)
+            self.logger.info('Can not complete shallow status update for %s in timeperiod %s '
+                             'since the job could not be finalized' % (uow.process_name, uow.timeperiod))
 
     def __process_non_finalizable_job(self, process_name, job_record, uow, start_timeperiod, end_timeperiod):
         """ method handles given job_record based on the unit_of_work status
@@ -78,6 +74,7 @@ class SimplifiedDiscretePipeline(DiscretePipeline):
             # Let the processing complete - do no updates to Scheduler records
             msg = 'Suppressed creating uow for %s in timeperiod %s; job record is in %s; uow is in %s' \
                   % (process_name, job_record.timeperiod, job_record.state, uow.state)
+            self._log_message(INFO, process_name, job_record, msg)
         elif uow.state == unit_of_work.STATE_PROCESSED:
             self.timetable.update_job_record(process_name, job_record, uow, job.STATE_PROCESSED)
         elif uow.state == unit_of_work.STATE_CANCELED:
@@ -111,4 +108,4 @@ class SimplifiedDiscretePipeline(DiscretePipeline):
 
     def _process_state_final_run(self, process_name, job_record):
         """method takes care of processing job records in STATE_FINAL_RUN state"""
-        raise NotImplementedError('Method _process_state_final_run is not supported by SimplifiedDiscretePipeline')
+        raise NotImplementedError('Method _process_state_final_run is not supported by %s' % self.__class__.__name__)

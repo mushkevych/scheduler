@@ -21,15 +21,13 @@ class DiscretePipeline(AbstractPipeline):
         super(DiscretePipeline, self).__del__()
 
     def shallow_state_update(self, uow):
-        if uow.state not in [unit_of_work.STATE_PROCESSED, unit_of_work.STATE_CANCELED]:
-            # rely on Garbage Collector to re-trigger the failing unit_of_work
-            return
-
         tree = self.timetable.get_tree(uow.process_name)
         node = tree.get_node_by_process(uow.process_name, uow.timeperiod)
-
         job_record = node.job_record
+
         if job_record.state != job.STATE_FINAL_RUN:
+            self.logger.info('Can not perform shallow status update for %s in timeperiod %s '
+                             'since the job state is not STATE_FINAL_RUN' % (uow.process_name, uow.timeperiod))
             return
         self._process_state_final_run(uow.process_name, job_record)
 

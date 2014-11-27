@@ -271,8 +271,11 @@ class Timetable(object):
 
         tree = self.get_tree(process_name)
         tree.update_node_by_process(process_name, job_record)
-        self.logger.info('Updated job record %s in timeperiod %s for %s as %s'
-                         % (job_record.db_id, job_record.timeperiod, process_name, new_state))
+
+        msg = 'Transferred job %s for %s in timeperiod %s to new state %s' \
+              % (job_record.db_id, job_record.timeperiod, process_name, new_state)
+        self.logger.info(msg)
+        self.add_log_entry(process_name, job_record, datetime.utcnow(), msg)
 
     @thread_safe
     def failed_on_processing_job_record(self, process_name, timeperiod):
