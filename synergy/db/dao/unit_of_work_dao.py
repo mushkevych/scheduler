@@ -39,7 +39,7 @@ class UnitOfWorkDao(object):
         document = collection.find_one(query)
         if document is None:
             msg = 'Unit_of_work with ID=%s was not found' % str(key)
-            self.logger.warning(msg)
+            self.logger.warn(msg)
             raise LookupError(msg)
         return UnitOfWork(document)
 

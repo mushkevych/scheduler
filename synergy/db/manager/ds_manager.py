@@ -124,7 +124,7 @@ class MongoDbManager(BaseManager):
         db_entry = conn.find_one(query)
         if db_entry is None:
             msg = 'Instance with ID=%s was not found' % str(primary_key)
-            self.logger.warning(msg)
+            self.logger.warn(msg)
             raise LookupError(msg)
         return db_entry
 

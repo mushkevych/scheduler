@@ -119,8 +119,8 @@ class AbstractMongoWorker(AbstractMqWorker):
             uow = self.uow_dao.get_one(mq_request.unit_of_work_id)
             if uow.state in [unit_of_work.STATE_CANCELED, unit_of_work.STATE_PROCESSED]:
                 # garbage collector might have reposted this UOW
-                self.logger.warning('Skipping unit_of_work: id %s; state %s;' % (str(message.body), uow.state),
-                                    exc_info=False)
+                self.logger.warn('Skipping unit_of_work: id %s; state %s;' % (str(message.body), uow.state),
+                                 exc_info=False)
                 self.consumer.acknowledge(message.delivery_tag)
                 return
         except Exception:
@@ -153,7 +153,7 @@ class AbstractMongoWorker(AbstractMqWorker):
                 count = cursor.count(with_limit_and_skip=True)
                 if count == 0 and iteration == 0:
                     msg = 'No entries in %s at range [%s : %s]' % (collection_name, uow.start_id, uow.end_id)
-                    self.logger.warning(msg)
+                    self.logger.warn(msg)
                     break
                 else:
                     shall_continue, new_start_id = self._process_not_empty_cursor(cursor)
@@ -177,9 +177,9 @@ class AbstractMongoWorker(AbstractMqWorker):
         except Exception as e:
             fresh_uow = self.uow_dao.get_one(mq_request.unit_of_work_id)
             if fresh_uow.state in [unit_of_work.STATE_CANCELED]:
-                self.logger.warning('unit_of_work: id %s was likely marked by MX as SKIPPED. '
-                                    'No unit_of_work update is performed.' % str(message.body),
-                                    exc_info=False)
+                self.logger.warn('unit_of_work: id %s was likely marked by MX as SKIPPED. '
+                                 'No unit_of_work update is performed.' % str(message.body),
+                                 exc_info=False)
             else:
                 self.logger.error('Safety fuse while processing unit_of_work %s in timeperiod %s : %r'
                                   % (message.body, uow.timeperiod, e), exc_info=True)

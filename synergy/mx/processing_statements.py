@@ -83,7 +83,7 @@ class ProcessingStatements(object):
 
             job_record_list = self.job_dao.run_query(collection_name, query)
             if len(job_record_list) == 0:
-                self.logger.warning('No Job Records in %s.' % collection_name)
+                self.logger.warn('No Job Records in %s.' % collection_name)
 
             for job_record in job_record_list:
                 resp[job_record.key] = job_record

@@ -38,8 +38,8 @@ class BashRunnable(threading.Thread):
             uow = self.uow_dao.get_one(self.mq_request.unit_of_work_id)
             if uow.state in [unit_of_work.STATE_CANCELED, unit_of_work.STATE_PROCESSED, unit_of_work.STATE_INVALID]:
                 # Synergy Scheduler might have re-posted this UOW
-                self.logger.warning('Skipping unit_of_work: id %s; state %s;' % (str(self.message.body), uow.state),
-                                    exc_info=False)
+                self.logger.warn('Skipping unit_of_work: id %s; state %s;' % (str(self.message.body), uow.state),
+                                 exc_info=False)
                 self.consumer.acknowledge(self.message.delivery_tag)
                 return
         except Exception:

@@ -59,7 +59,7 @@ class StatusBusListener(object):
         except KeyError:
             self.logger.error('Access error for %s' % str(message.body), exc_info=True)
         except LookupError:
-            self.logger.warning('Can not perform shallow state update for %s' % str(message.body), exc_info=True)
+            self.logger.error('Can not perform shallow state update for %s' % str(message.body), exc_info=True)
         except Exception:
             self.logger.error('Unexpected error during shallow state update for %s' % str(message.body), exc_info=True)
         finally:

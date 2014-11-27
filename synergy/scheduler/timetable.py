@@ -129,7 +129,7 @@ class Timetable(object):
 
         tree_node.job_record.number_of_failures = 0
         self.job_dao.update(tree_node.job_record)
-        self.logger.warning(msg)
+        self.logger.warn(msg)
         tree_node.add_log_entry([datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S'), msg])
 
     @thread_safe
@@ -170,7 +170,7 @@ class Timetable(object):
                      tree_node.job_record.state)
 
         self.job_dao.update(tree_node.job_record)
-        self.logger.warning(msg)
+        self.logger.warn(msg)
         tree_node.add_log_entry([datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S'), msg])
 
         if tree_node.process_name in self.reprocess \
@@ -216,10 +216,10 @@ class Timetable(object):
                     unsupported_records[document.process_name] = unsupported_records.get(document.process_name, 0) + 1
 
             for name, counter in unsupported_records.items():
-                self.logger.warning('Skipping %r Job records for %s as no tree is handling it.' % (counter, name))
+                self.logger.warn('Skipping %r Job records for %s as no tree is handling it.' % (counter, name))
 
         except LookupError:
-            self.logger.warning('No Job Records in %s.' % str(collection_name))
+            self.logger.warn('No Job Records in %s.' % str(collection_name))
 
     @thread_safe
     def load_tree(self):
