@@ -36,6 +36,8 @@ class StatusBusListener(object):
         as well as the job itself
         :param message: <SynergyMqTransmission> mq message """
         try:
+            self.logger.info('StatusBusListener {')
+
             mq_request = SynergyMqTransmission(message.body)
             uow = self.uow_dao.get_one(mq_request.unit_of_work_id)
             if uow.unit_of_work_type != TYPE_MANAGED:
@@ -49,26 +51,25 @@ class StatusBusListener(object):
                 # this transmission is was likely received with significant lag. Ignoring it.
                 return
 
-            scheduler_entry_obj = self.scheduler.managed_handlers[uow.process_name]
+            scheduler_entry_obj = self.scheduler.managed_handlers[uow.process_name].arguments.scheduler_entry_obj
             pipeline = self.scheduler.pipelines[scheduler_entry_obj.state_machine_name]
             assert isinstance(pipeline, AbstractPipeline)
             pipeline.shallow_state_update(uow)
 
         except KeyError:
-            self.logger.error('StatusBusListener: Access error for %s' % str(message.body), exc_info=True)
+            self.logger.error('Access error for %s' % str(message.body), exc_info=True)
         except LookupError:
-            self.logger.warning('StatusBusListener: Can not perform shallow state update for %s'
-                                % str(message.body), exc_info=True)
+            self.logger.warning('Can not perform shallow state update for %s' % str(message.body), exc_info=True)
         except Exception:
-            self.logger.error('StatusBusListener: Unexpected error during shallow state update for %s'
-                              % str(message.body), exc_info=True)
+            self.logger.error('Unexpected error during shallow state update for %s' % str(message.body), exc_info=True)
         finally:
             self.consumer.acknowledge(message.delivery_tag)
+            self.logger.info('StatusBusListener }')
 
     def _run_mq_listener(self):
-        self.logger.info('StatusBusListener: Starting...')
         try:
             self.consumer.register(self._mq_callback)
+            self.logger.info('StatusBusListener: registered MQ callback. Active.')
             self.consumer.wait()
         except (AMQPError, IOError) as e:
             self.logger.error('StatusBusListener: AMQPError %s' % str(e))

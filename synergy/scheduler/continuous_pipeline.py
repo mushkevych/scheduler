@@ -122,19 +122,15 @@ class ContinuousPipeline(AbstractPipeline):
         uow = self.uow_dao.get_one(job_record.related_unit_of_work)
         if uow.state == unit_of_work.STATE_PROCESSED:
             self.timetable.update_job_record(process_name, job_record, uow, job.STATE_PROCESSED)
-            msg = 'Transferred job record %s in timeperiod %s to STATE_PROCESSED for %s' \
-                  % (job_record.db_id, job_record.timeperiod, process_name)
         elif uow.state == unit_of_work.STATE_CANCELED:
             self.timetable.update_job_record(process_name, job_record, uow, job.STATE_SKIPPED)
-            msg = 'Transferred job record %s in timeperiod %s to STATE_SKIPPED for %s' \
-                  % (job_record.db_id, job_record.timeperiod, process_name)
         else:
             msg = 'Suppressed creating uow for %s in timeperiod %s; job record is in %s; uow is in %s' \
                   % (process_name, job_record.timeperiod, job_record.state, uow.state)
+            self._log_message(INFO, process_name, job_record, msg)
 
         timetable_tree = self.timetable.get_tree(process_name)
         timetable_tree.build_tree()
-        self._log_message(INFO, process_name, job_record, msg)
 
     def _process_state_skipped(self, process_name, job_record):
         """method takes care of processing job records in STATE_SKIPPED state"""

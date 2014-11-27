@@ -80,19 +80,15 @@ class SimplifiedDiscretePipeline(DiscretePipeline):
                   % (process_name, job_record.timeperiod, job_record.state, uow.state)
         elif uow.state == unit_of_work.STATE_PROCESSED:
             self.timetable.update_job_record(process_name, job_record, uow, job.STATE_PROCESSED)
-            msg = 'Transferred job record %s in timeperiod %s to STATE_PROCESSED for %s' \
-                  % (job_record.db_id, job_record.timeperiod, process_name)
         elif uow.state == unit_of_work.STATE_CANCELED:
             self.timetable.update_job_record(process_name, job_record, uow, job.STATE_SKIPPED)
-            msg = 'Transferred job record %s in timeperiod %s to STATE_SKIPPED for %s' \
-                  % (job_record.db_id, job_record.timeperiod, process_name)
         else:
             msg = 'Unknown state %s for job record %s in timeperiod %s for %s' \
                   % (uow.state, job_record.db_id, job_record.timeperiod, process_name)
+            self._log_message(INFO, process_name, job_record, msg)
 
         timetable_tree = self.timetable.get_tree(process_name)
         timetable_tree.build_tree()
-        self._log_message(INFO, process_name, job_record, msg)
 
     def _process_state_in_progress(self, process_name, job_record, start_timeperiod):
         """ method that takes care of processing job records in STATE_IN_PROGRESS state """
