@@ -34,13 +34,13 @@ class AbstractPipeline(object):
         except Exception as e:
             self.logger.error('Exception caught while closing Flopsy Publishers Pool: %s' % str(e))
 
-    def _log_message(self, level, process_name, job_record, msg):
+    def _log_message(self, level, process_name, timeperiod, msg):
         """ method performs logging into log file and Timetable's tree node"""
-        self.timetable.add_log_entry(process_name, job_record, datetime.utcnow(), msg)
+        self.timetable.add_log_entry(process_name, timeperiod, msg)
         self.logger.log(level, msg)
 
     @with_reconnect
-    def _insert_uow(self, process_name, start_timeperiod, end_timeperiod, start_id, end_id, job_record):
+    def _insert_uow(self, process_name, start_timeperiod, end_timeperiod, start_id, end_id):
         """creates unit_of_work and inserts it into the DB
             :raise DuplicateKeyError: if unit_of_work with given parameters already exists """
         uow = UnitOfWork()
@@ -61,10 +61,10 @@ class AbstractPipeline(object):
 
         msg = 'Created: UOW %s for %s in timeperiod [%s:%s).' \
               % (uow.db_id, process_name, start_timeperiod, end_timeperiod)
-        self._log_message(INFO, uow.process_name, job_record, msg)
+        self._log_message(INFO, process_name, start_timeperiod, msg)
         return uow
 
-    def _publish_uow(self, job_record, uow):
+    def _publish_uow(self, uow):
         mq_request = SynergyMqTransmission()
         mq_request.process_name = uow.process_name
         mq_request.unit_of_work_id = uow.db_id
@@ -74,31 +74,31 @@ class AbstractPipeline(object):
         publisher.release()
 
         msg = 'Published: UOW %r for %r in timeperiod %r.' % (uow.db_id, uow.process_name, uow.start_timeperiod)
-        self._log_message(INFO, uow.process_name, job_record, msg)
+        self._log_message(INFO, uow.process_name, uow.start_timeperiod, msg)
 
-    def insert_and_publish_uow(self, process_name, start_timeperiod, end_timeperiod, start_id, end_id, job_record):
+    def insert_and_publish_uow(self, process_name, start_timeperiod, end_timeperiod, start_id, end_id):
         """ method creates and publishes a unit_of_work. it also handles DuplicateKeyError and attempts recovery
         :return: tuple (uow, is_duplicate)
         :raise UserWarning: if the recovery from DuplicateKeyError was unsuccessful
         """
         is_duplicate = False
         try:
-            uow = self._insert_uow(process_name, start_timeperiod, end_timeperiod, start_id, end_id, job_record)
+            uow = self._insert_uow(process_name, start_timeperiod, end_timeperiod, start_id, end_id)
         except DuplicateKeyError as e:
             is_duplicate = True
             msg = 'Catching up with latest unit_of_work %s in timeperiod %s, because of: %r' \
-                  % (process_name, job_record.timeperiod, e)
-            self._log_message(WARNING, process_name, job_record, msg)
+                  % (process_name, start_timeperiod, e)
+            self._log_message(WARNING, process_name, start_timeperiod, msg)
             uow = self.uow_dao.recover_from_duplicatekeyerror(e)
 
         if uow is None:
             msg = 'MANUAL INTERVENTION REQUIRED! Unable to locate unit_of_work for %s in %s' \
-                  % (process_name, job_record.timeperiod)
-            self._log_message(WARNING, process_name, job_record, msg)
+                  % (process_name, start_timeperiod)
+            self._log_message(WARNING, process_name, start_timeperiod, msg)
             raise UserWarning(msg)
 
         # publish the created/caught up unit_of_work
-        self._publish_uow(job_record, uow)
+        self._publish_uow(uow)
         return uow, is_duplicate
 
     def shallow_state_update(self, uow):
@@ -136,7 +136,7 @@ class AbstractPipeline(object):
         else:
             msg = '%s for timeperiod %r is blocked by unprocessed children/dependencies. Waiting another tick' \
                   % (process_name, job_record.timeperiod)
-            self._log_message(INFO, process_name, job_record, msg)
+            self._log_message(INFO, process_name, job_record.timeperiod, msg)
 
     def manage_pipeline_with_blocking_dependencies(self, process_name, job_record):
         """ method will trigger job processing only if _all_ dependencies are in STATE_PROCESSED
@@ -156,11 +156,11 @@ class AbstractPipeline(object):
 
             msg = '%s for timeperiod %r is blocked by STATE_SKIPPED dependencies. ' \
                   'Transferred the job to STATE_SKIPPED' % (process_name, job_record.timeperiod)
-            self._log_message(WARNING, process_name, job_record, msg)
+            self._log_message(WARNING, process_name, job_record.timeperiod, msg)
         else:
             msg = '%s for timeperiod %r is blocked by unprocessed dependencies. Waiting another tick' \
                   % (process_name, job_record.timeperiod)
-            self._log_message(INFO, process_name, job_record, msg)
+            self._log_message(INFO, process_name, job_record.timeperiod, msg)
 
     def manage_pipeline_for_process(self, process_name, job_record):
         """ method main duty - is to _avoid_ publishing another unit_of_work, if previous was not yet processed
@@ -184,10 +184,10 @@ class AbstractPipeline(object):
 
             else:
                 msg = 'Unknown state %s of the job %s' % (job_record.state, job_record.db_id)
-                self._log_message(ERROR, process_name, job_record, msg)
+                self._log_message(ERROR, process_name, job_record.timeperiod, msg)
 
         except LookupError as e:
             self.timetable.failed_on_processing_job_record(process_name, job_record.timeperiod)
             msg = 'Increasing fail counter for %s in timeperiod %s, because of: %r' \
                   % (process_name, job_record.timeperiod, e)
-            self._log_message(WARNING, process_name, job_record, msg)
+            self._log_message(WARNING, process_name, job_record.timeperiod, msg)

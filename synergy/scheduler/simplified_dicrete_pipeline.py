@@ -60,8 +60,7 @@ class SimplifiedDiscretePipeline(DiscretePipeline):
                                                             start_timeperiod,
                                                             end_timeperiod,
                                                             0,
-                                                            int(uow.end_id) + 1,
-                                                            job_record)
+                                                            int(uow.end_id) + 1)
             self.timetable.update_job_record(process_name, job_record, uow, job.STATE_IN_PROGRESS)
 
     def __process_finalizable_job(self, process_name, job_record, uow):
@@ -74,15 +73,15 @@ class SimplifiedDiscretePipeline(DiscretePipeline):
             # Let the processing complete - do no updates to Scheduler records
             msg = 'Suppressed creating uow for %s in timeperiod %s; job record is in %s; uow is in %s' \
                   % (process_name, job_record.timeperiod, job_record.state, uow.state)
-            self._log_message(INFO, process_name, job_record, msg)
+            self._log_message(INFO, process_name, job_record.timeperiod, msg)
         elif uow.state == unit_of_work.STATE_PROCESSED:
-            self.timetable.update_job_record(process_name, job_record, uow, job.STATE_PROCESSED)
+            self.timetable.update_job_record(process_name, job_record.timeperiod, uow, job.STATE_PROCESSED)
         elif uow.state == unit_of_work.STATE_CANCELED:
-            self.timetable.update_job_record(process_name, job_record, uow, job.STATE_SKIPPED)
+            self.timetable.update_job_record(process_name, job_record.timeperiod, uow, job.STATE_SKIPPED)
         else:
             msg = 'Unknown state %s for job record %s in timeperiod %s for %s' \
                   % (uow.state, job_record.db_id, job_record.timeperiod, process_name)
-            self._log_message(INFO, process_name, job_record, msg)
+            self._log_message(INFO, process_name, job_record.timeperiod, msg)
 
         timetable_tree = self.timetable.get_tree(process_name)
         timetable_tree.build_tree()
@@ -104,7 +103,7 @@ class SimplifiedDiscretePipeline(DiscretePipeline):
         else:
             msg = 'Job record %s has timeperiod from future %s vs current time %s' \
                   % (job_record.db_id, start_timeperiod, actual_timeperiod)
-            self._log_message(ERROR, process_name, job_record, msg)
+            self._log_message(ERROR, process_name, job_record.timeperiod, msg)
 
     def _process_state_final_run(self, process_name, job_record):
         """method takes care of processing job records in STATE_FINAL_RUN state"""

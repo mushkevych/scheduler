@@ -48,25 +48,33 @@ class ManagedActionHandler(AbstractActionHandler):
     @valid_action_request
     def action_reprocess(self):
         node = self._get_tree_node()
-        self.logger.info('MX (requesting re-process timeperiod %r for %r) {' % (self.timeperiod, self.process_name))
+
+        msg = 'MX: requesting REPROCESS for %s in timeperiod %s' % (self.process_name, self.timeperiod)
+        self.mbean.timetable.add_log_entry(self.process_name, self.timeperiod, msg)
+        self.logger.info(msg + ' {')
+
         effected_nodes = node.request_reprocess()
 
         resp = dict()
         for node in effected_nodes:
             resp[node.timeperiod] = TreeNodeDetails.get_details(self.logger, node)
-        self.logger.info('}')
+        self.logger.info('MX }')
         return resp
 
     @valid_action_request
     def action_skip(self):
         node = self._get_tree_node()
-        self.logger.info('MX (requesting skip timeperiod %r for %r) { ' % (self.timeperiod, self.process_name))
+
+        msg = 'MX: requesting SKIP for %s in timeperiod %s' % (self.process_name, self.timeperiod)
+        self.mbean.timetable.add_log_entry(self.process_name, self.timeperiod, msg)
+        self.logger.info(msg + ' {')
+
         effected_nodes = node.request_skip()
 
         resp = dict()
         for node in effected_nodes:
             resp[node.timeperiod] = TreeNodeDetails.get_details(self.logger, node)
-        self.logger.info('}')
+        self.logger.info('MX }')
         return resp
 
     @valid_action_request

@@ -57,11 +57,6 @@ class Scheduler(SynergyProcess):
 
         super(Scheduler, self).__del__()
 
-    def _log_message(self, level, process_name, job_record, msg):
-        """ method performs logging into log file, Tree node and the Job instance"""
-        self.timetable.add_log_entry(process_name, job_record, datetime.utcnow(), msg)
-        self.logger.log(level, msg)
-
     def _construct_pipelines(self):
         """ :return: dict in format <state_machine_common_name: instance_of_the_state_machine> """
         pipelines = dict()

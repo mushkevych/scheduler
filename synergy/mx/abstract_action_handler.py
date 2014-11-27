@@ -19,9 +19,6 @@ class AbstractActionHandler(object):
     def scheduler_entry(self):
         raise NotImplementedError('not implemented yet')
 
-    def update_job_log(self, message):
-        raise NotImplementedError('not implemented yet')
-
     def action_get_uow(self):
         raise NotImplementedError('not implemented yet')
 

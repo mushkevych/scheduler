@@ -35,7 +35,7 @@ class ContinuousPipeline(AbstractPipeline):
         self._process_state_final_run(uow.process_name, job_record)
 
     @with_reconnect
-    def update_scope_of_processing(self, process_name, uow, start_timeperiod, end_timeperiod, job_record):
+    def update_scope_of_processing(self, process_name, uow, start_timeperiod, end_timeperiod):
         """method reads collection and refine slice upper bound for processing"""
         source_collection_name = uow.source
         last_object_id = self.ds.lowest_primary_key(source_collection_name, start_timeperiod, end_timeperiod)
@@ -43,9 +43,9 @@ class ContinuousPipeline(AbstractPipeline):
         self.uow_dao.update(uow)
 
         msg = 'Updated range to process for %s in timeperiod %s for collection %s: [%s : %s]' \
-              % (process_name, job_record.timeperiod, source_collection_name,
+              % (process_name, start_timeperiod, source_collection_name,
                  uow.start_id, str(last_object_id))
-        self._log_message(INFO, process_name, job_record, msg)
+        self._log_message(INFO, process_name, start_timeperiod, msg)
 
     def _compute_and_transfer_to_progress(self, process_name, start_timeperiod, end_timeperiod, job_record):
         """ method computes new unit_of_work for job record in STATE_IN_PROGRESS
@@ -62,8 +62,7 @@ class ContinuousPipeline(AbstractPipeline):
                                                         start_timeperiod,
                                                         end_timeperiod,
                                                         start_id,
-                                                        end_id,
-                                                        job_record)
+                                                        end_id)
         self.timetable.update_job_record(process_name, job_record, uow, job.STATE_IN_PROGRESS)
 
     def _compute_and_transfer_to_final_run(self, process_name, start_timeperiod, end_timeperiod, job_record):
@@ -76,8 +75,7 @@ class ContinuousPipeline(AbstractPipeline):
                                                              start_timeperiod,
                                                              end_timeperiod,
                                                              start_id,
-                                                             end_id,
-                                                             job_record)
+                                                             end_id)
         self.timetable.update_job_record(process_name, job_record, uow, job.STATE_FINAL_RUN)
 
         if transfer_to_final:
@@ -100,7 +98,7 @@ class ContinuousPipeline(AbstractPipeline):
         if start_timeperiod == actual_timeperiod or can_finalize_job_record is False:
             if uow.state in [unit_of_work.STATE_INVALID, unit_of_work.STATE_REQUESTED]:
                 # current uow has not been processed yet. update it
-                self.update_scope_of_processing(process_name, uow, start_timeperiod, end_timeperiod, job_record)
+                self.update_scope_of_processing(process_name, uow, start_timeperiod, end_timeperiod)
             else:
                 # cls.STATE_IN_PROGRESS, cls.STATE_PROCESSED, cls.STATE_CANCELED
                 # create new uow to cover new inserts
@@ -113,7 +111,7 @@ class ContinuousPipeline(AbstractPipeline):
         else:
             msg = 'job record %s has timeperiod from future %s vs current time %s' \
                   % (job_record.db_id, start_timeperiod, actual_timeperiod)
-            self._log_message(ERROR, process_name, job_record, msg)
+            self._log_message(ERROR, process_name, job_record.timeperiod, msg)
 
     def _process_state_final_run(self, process_name, job_record):
         """method takes care of processing job records in STATE_FINAL_RUN state"""
@@ -125,7 +123,7 @@ class ContinuousPipeline(AbstractPipeline):
         else:
             msg = 'Suppressed creating uow for %s in timeperiod %s; job record is in %s; uow is in %s' \
                   % (process_name, job_record.timeperiod, job_record.state, uow.state)
-            self._log_message(INFO, process_name, job_record, msg)
+            self._log_message(INFO, process_name, job_record.timeperiod, msg)
 
         timetable_tree = self.timetable.get_tree(process_name)
         timetable_tree.build_tree()
@@ -134,9 +132,9 @@ class ContinuousPipeline(AbstractPipeline):
         """method takes care of processing job records in STATE_SKIPPED state"""
         msg = 'Skipping job record %s in timeperiod %s. Apparently its most current timeperiod as of %s UTC' \
               % (job_record.db_id, job_record.timeperiod, str(datetime.utcnow()))
-        self._log_message(WARNING, process_name, job_record, msg)
+        self._log_message(WARNING, process_name, job_record.timeperiod, msg)
 
     def _process_state_processed(self, process_name, job_record):
         """method takes care of processing job records in STATE_PROCESSED state"""
         msg = 'Unexpected state %s of job record %s' % (job_record.state, job_record.db_id)
-        self._log_message(ERROR, process_name, job_record, msg)
+        self._log_message(ERROR, process_name, job_record.timeperiod, msg)

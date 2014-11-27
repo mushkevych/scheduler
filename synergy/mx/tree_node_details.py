@@ -30,11 +30,11 @@ class TreeNodeDetails(object):
         description = dict()
         try:
             description['process_name'] = node.process_name
+            description['timeperiod'] = node.timeperiod
             description['time_qualifier'] = node.time_qualifier
             description['number_of_children'] = len(node.children)
-            description['number_of_failed_calls'] = node.job_record.number_of_failures
-            description['timeperiod'] = node.job_record.timeperiod
-            description['state'] = node.job_record.state
+            description['number_of_failed_calls'] = 'NA' if not node.job_record else node.job_record.number_of_failures
+            description['state'] = 'NA' if not node.job_record else node.job_record.state
         except Exception as e:
             logger.error('MX Exception: %s' % str(e), exc_info=True)
         finally:

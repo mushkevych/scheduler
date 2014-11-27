@@ -39,8 +39,7 @@ class DiscretePipeline(AbstractPipeline):
                                                         start_timeperiod,
                                                         end_timeperiod,
                                                         0,
-                                                        0,
-                                                        job_record)
+                                                        0)
         self.timetable.update_job_record(process_name, job_record, uow, job.STATE_IN_PROGRESS)
 
     def _process_state_in_progress(self, process_name, job_record, start_timeperiod):
@@ -55,13 +54,12 @@ class DiscretePipeline(AbstractPipeline):
             elif uow.state in [unit_of_work.STATE_PROCESSED,
                                unit_of_work.STATE_CANCELED]:
                 # create new uow to cover new inserts
-                uow, is_duplicate = self.insert_and_publish_uow(process_name,
-                                                                start_timeperiod,
-                                                                end_timeperiod,
-                                                                0,
-                                                                iteration + 1,
-                                                                job_record)
-                self.timetable.update_job_record(process_name, job_record, uow, target_state)
+                new_uow, is_duplicate = self.insert_and_publish_uow(process_name,
+                                                                    start_timeperiod,
+                                                                    end_timeperiod,
+                                                                    0,
+                                                                    iteration + 1)
+                self.timetable.update_job_record(process_name, job_record, new_uow, target_state)
 
         time_qualifier = ProcessContext.get_time_qualifier(process_name)
         end_timeperiod = time_helper.increment_timeperiod(time_qualifier, start_timeperiod)
@@ -79,7 +77,7 @@ class DiscretePipeline(AbstractPipeline):
         else:
             msg = 'Job record %s has timeperiod from future %s vs current time %s' \
                   % (job_record.db_id, start_timeperiod, actual_timeperiod)
-            self._log_message(ERROR, process_name, job_record, msg)
+            self._log_message(ERROR, process_name, job_record.timeperiod, msg)
 
     def _process_state_final_run(self, process_name, job_record):
         """method takes care of processing job records in STATE_FINAL_RUN state"""
@@ -91,7 +89,7 @@ class DiscretePipeline(AbstractPipeline):
         else:
             msg = 'Suppressed creating uow for %s in timeperiod %s; job record is in %s; uow is in %s' \
                   % (process_name, job_record.timeperiod, job_record.state, uow.state)
-            self._log_message(INFO, process_name, job_record, msg)
+            self._log_message(INFO, process_name, job_record.timeperiod, msg)
 
         timetable_tree = self.timetable.get_tree(process_name)
         timetable_tree.build_tree()
@@ -100,9 +98,9 @@ class DiscretePipeline(AbstractPipeline):
         """method takes care of processing job records in STATE_SKIPPED state"""
         msg = 'Skipping job record %s in timeperiod %s. Apparently its most current timeperiod as of %s UTC' \
               % (job_record.db_id, job_record.timeperiod, str(datetime.utcnow()))
-        self._log_message(WARNING, process_name, job_record, msg)
+        self._log_message(WARNING, process_name, job_record.timeperiod, msg)
 
     def _process_state_processed(self, process_name, job_record):
         """method takes care of processing job records in STATE_PROCESSED state"""
         msg = 'Unexpected state %s of job record %s' % (job_record.state, job_record.db_id)
-        self._log_message(ERROR, process_name, job_record, msg)
+        self._log_message(ERROR, process_name, job_record.timeperiod, msg)

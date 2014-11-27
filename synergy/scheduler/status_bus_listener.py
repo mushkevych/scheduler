@@ -4,6 +4,7 @@ from threading import Thread
 
 from amqp import AMQPError
 
+from synergy.db.model import unit_of_work
 from synergy.db.model.synergy_mq_transmission import SynergyMqTransmission
 from synergy.db.dao.unit_of_work_dao import UnitOfWorkDao
 from synergy.scheduler.abstract_pipeline import AbstractPipeline

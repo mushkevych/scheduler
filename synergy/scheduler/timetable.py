@@ -275,7 +275,7 @@ class Timetable(object):
         msg = 'Transferred job %s for %s in timeperiod %s to new state %s' \
               % (job_record.db_id, job_record.timeperiod, process_name, new_state)
         self.logger.info(msg)
-        self.add_log_entry(process_name, job_record, datetime.utcnow(), msg)
+        self.add_log_entry(process_name, job_record.timeperiod, msg)
 
     @thread_safe
     def failed_on_processing_job_record(self, process_name, timeperiod):
@@ -314,8 +314,8 @@ class Timetable(object):
         return node.can_finalize_job_record()
 
     @thread_safe
-    def add_log_entry(self, process_name, job_record, msg_dt, msg):
+    def add_log_entry(self, process_name, timeperiod, msg):
         """ adds a log entry to the tree node. log entries has no persistence """
         tree = self.get_tree(process_name)
-        node = tree.get_node_by_process(process_name, job_record.timeperiod)
-        node.add_log_entry([msg_dt.strftime('%Y-%m-%d %H:%M:%S'), msg])
+        node = tree.get_node_by_process(process_name, timeperiod)
+        node.add_log_entry([datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S'), msg])

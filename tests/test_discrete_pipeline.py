@@ -26,15 +26,15 @@ TEST_ACTUAL_TIMEPERIOD = time_helper.actual_timeperiod(QUALIFIER_HOURLY)
 TEST_FUTURE_TIMEPERIOD = time_helper.increment_timeperiod(QUALIFIER_HOURLY, TEST_ACTUAL_TIMEPERIOD)
 
 
-def then_raise(process_name, start_timeperiod, end_timeperiod, start_id, end_id, job_record):
+def then_raise(process_name, start_timeperiod, end_timeperiod, start_id, end_id):
     raise UserWarning('Simulated UserWarning Exception')
 
 
-def then_return_uow(process_name, start_timeperiod, end_timeperiod, start_id, end_id, job_record):
+def then_return_uow(process_name, start_timeperiod, end_timeperiod, start_id, end_id):
     return create_unit_of_work(process_name, start_id, end_id, start_timeperiod), False
 
 
-def then_return_duplicate_uow(process_name, start_timeperiod, end_timeperiod, start_id, end_id, job_record):
+def then_return_duplicate_uow(process_name, start_timeperiod, end_timeperiod, start_id, end_id):
     return create_unit_of_work(process_name, start_id, end_id, start_timeperiod), True
 
 

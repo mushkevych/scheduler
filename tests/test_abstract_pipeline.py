@@ -9,7 +9,6 @@ from mockito.matchers import any
 
 from synergy.db.dao.unit_of_work_dao import UnitOfWorkDao
 from synergy.db.error import DuplicateKeyError
-from synergy.db.model import job
 from synergy.db.model.job import Job
 from tests.base_fixtures import create_unit_of_work
 from synergy.system import time_helper
@@ -25,11 +24,11 @@ TEST_ACTUAL_TIMEPERIOD = time_helper.actual_timeperiod(QUALIFIER_HOURLY)
 TEST_FUTURE_TIMEPERIOD = time_helper.increment_timeperiod(QUALIFIER_HOURLY, TEST_ACTUAL_TIMEPERIOD)
 
 
-def then_raise(process_name, start_timeperiod, end_timeperiod, start_id, end_id, job_record):
+def then_raise(process_name, start_timeperiod, end_timeperiod, start_id, end_id):
     raise DuplicateKeyError(process_name, start_timeperiod, start_id, end_id, 'Simulated Exception')
 
 
-def then_return_uow(process_name, start_timeperiod, end_timeperiod, start_id, end_id, job_record):
+def then_return_uow(process_name, start_timeperiod, end_timeperiod, start_id, end_id):
     return create_unit_of_work(process_name, start_id, end_id, start_timeperiod, uow_id='a_uow_id')
 
 
@@ -56,47 +55,40 @@ class ContinuousPipelineUnitTest(unittest.TestCase):
     def test_insert_and_publish_uow(self):
         """ method tests happy-flow for insert_and_publish_uow method """
         self.pipeline_real._insert_uow = then_return_uow
-        when(self.pipeline_real)._publish_uow(any(object), any(object)).thenReturn(True)
-
-        job_record = get_job_record(job.STATE_EMBRYO, TEST_PRESET_TIMEPERIOD, PROCESS_SITE_HOURLY)
+        when(self.pipeline_real)._publish_uow(any(object)).thenReturn(True)
 
         pipeline = spy(self.pipeline_real)
         uow, is_duplicate = pipeline.insert_and_publish_uow(PROCESS_SITE_HOURLY,
                                                             TEST_PRESET_TIMEPERIOD,
-                                                            None, 0, 1,
-                                                            job_record)
-        manual_uow = then_return_uow(PROCESS_SITE_HOURLY, TEST_PRESET_TIMEPERIOD, None, 0, 1, job_record)
+                                                            None, 0, 1)
+        manual_uow = then_return_uow(PROCESS_SITE_HOURLY, TEST_PRESET_TIMEPERIOD, None, 0, 1)
         self.assertFalse(is_duplicate)
         self.assertDictEqual(uow.document, manual_uow.document)
 
     def test_unhandled_exception_iapu(self):
         """ method tests unhandled UserWarning exception at insert_and_publish_uow method """
         self.pipeline_real._insert_uow = then_raise
-        when(self.pipeline_real)._publish_uow(any(object), any(object)).thenReturn(True)
+        when(self.pipeline_real)._publish_uow(any(object)).thenReturn(True)
 
-        job_record = get_job_record(job.STATE_EMBRYO, TEST_PRESET_TIMEPERIOD, PROCESS_SITE_HOURLY)
         pipeline = spy(self.pipeline_real)
-
         try:
-            pipeline.insert_and_publish_uow(PROCESS_SITE_HOURLY, TEST_PRESET_TIMEPERIOD, None, 0, 1, job_record)
+            pipeline.insert_and_publish_uow(PROCESS_SITE_HOURLY, TEST_PRESET_TIMEPERIOD, None, 0, 1)
             self.assertTrue(False, 'UserWarning exception should have been thrown')
         except UserWarning:
             self.assertTrue(True)
 
     def test_handled_exception_iapu(self):
         """ method tests handled UserWarning exception at insert_and_publish_uow method """
-        job_record = get_job_record(job.STATE_EMBRYO, TEST_PRESET_TIMEPERIOD, PROCESS_SITE_HOURLY)
-        manual_uow = then_return_uow(PROCESS_SITE_HOURLY, TEST_PRESET_TIMEPERIOD, None, 0, 1, job_record)
+        manual_uow = then_return_uow(PROCESS_SITE_HOURLY, TEST_PRESET_TIMEPERIOD, None, 0, 1)
 
         self.pipeline_real._insert_uow = then_raise
-        when(self.pipeline_real)._publish_uow(any(object), any(object)).thenReturn(True)
+        when(self.pipeline_real)._publish_uow(any(object)).thenReturn(True)
         when(self.uow_dao_mocked).recover_from_duplicatekeyerror(any(object)).thenReturn(manual_uow)
 
         pipeline = spy(self.pipeline_real)
         uow, is_duplicate = pipeline.insert_and_publish_uow(PROCESS_SITE_HOURLY,
                                                             TEST_PRESET_TIMEPERIOD,
-                                                            None, 0, 1,
-                                                            job_record)
+                                                            None, 0, 1)
         self.assertTrue(is_duplicate)
         self.assertDictEqual(uow.document, manual_uow.document)
 
