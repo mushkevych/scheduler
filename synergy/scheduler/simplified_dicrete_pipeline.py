@@ -75,9 +75,9 @@ class SimplifiedDiscretePipeline(DiscretePipeline):
                   % (process_name, job_record.timeperiod, job_record.state, uow.state)
             self._log_message(INFO, process_name, job_record.timeperiod, msg)
         elif uow.state == unit_of_work.STATE_PROCESSED:
-            self.timetable.update_job_record(process_name, job_record.timeperiod, uow, job.STATE_PROCESSED)
+            self.timetable.update_job_record(process_name, job_record, uow, job.STATE_PROCESSED)
         elif uow.state == unit_of_work.STATE_CANCELED:
-            self.timetable.update_job_record(process_name, job_record.timeperiod, uow, job.STATE_SKIPPED)
+            self.timetable.update_job_record(process_name, job_record, uow, job.STATE_SKIPPED)
         else:
             msg = 'Unknown state %s for job record %s in timeperiod %s for %s' \
                   % (uow.state, job_record.db_id, job_record.timeperiod, process_name)
