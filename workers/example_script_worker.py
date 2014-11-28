@@ -5,9 +5,9 @@ import time
 
 def main(*args):
     secs = 1
-    print ('in the main function body')
-    print ('called with the arguments %r' % args)
-    print ('will sleep now for %r seconds' % secs)
+    print ('Example Script: entered main function body')
+    print ('Example Script: called with the arguments %r' % args)
+    print ('Example Script: falling asleep for %r seconds' % secs)
     time.sleep(secs)
 
 #if __name__ == '__main__':
