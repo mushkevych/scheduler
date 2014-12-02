@@ -1,6 +1,6 @@
 __author__ = 'Bohdan Mushkevych'
 
-from subprocess import PIPE, STDOUT
+from subprocess import PIPE
 import sys
 
 import psutil
@@ -54,7 +54,7 @@ def start_process(process_name, *args):
                          cwd=settings.settings['process_cwd'],
                          stdin=PIPE,
                          stdout=PIPE,
-                         stderr=STDOUT)
+                         stderr=PIPE)
         sys.stdout.write('Started %s with pid = %r \n' % (process_name, p.pid))
     except Exception as e:
         sys.stderr.write('Exception on starting %s : %s \n' % (process_name, str(e)))
