@@ -685,7 +685,7 @@ table.display tr.odd.row_selected td {
 }
 
 .context_menu_show li a {
-    font-weight: 100;
+    font-weight: 400;
     font-size: 12px;
     text-shadow: 2px 2px #3b3b3b;
     cursor: pointer;

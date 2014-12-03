@@ -16,8 +16,8 @@ function assign_context_menu() {
     if (els) {
         Array.prototype.forEach.call(els, function(el) {
             el.addEventListener('contextmenu', function(event) {
-                var y = mouse_y(event);
-                var x = mouse_x(event);
+                var y = mouse_y(event) - 2;  // subtract 2px to position pointer within the menu frame
+                var x = mouse_x(event) - 2;  // subtract 2px to position pointer within the menu frame
                 document.getElementById('rmenu').style.top = y + 'px';
                 document.getElementById('rmenu').style.left = x + 'px';
                 document.getElementById('rmenu').className = 'context_menu_show';
