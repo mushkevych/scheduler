@@ -2,15 +2,12 @@ html,
 body {
     margin: 0;
     padding: 0;
+    font-family: "Lucida Sans Unicode", "Lucida Grande", sans-serif;
 }
 
 body {
     color: #006;
     padding: 10px;
-}
-
-a, span {
-    font-family: "Lucida Sans Unicode", "Lucida Grande", sans-serif;
 }
 
 div#header {
@@ -84,7 +81,6 @@ div#footer {
  */
 .one-column-emphasis
 {
-    font-family: "Lucida Sans Unicode", "Lucida Grande", sans-serif;
     font-size: 12px;
     margin: 45px;
     width: 560px;
@@ -121,7 +117,6 @@ div#footer {
  */
 .header-table
 {
-    font-family: "Lucida Sans Unicode", "Lucida Grande", sans-serif;
     font-size: 12px;
     width: 100%;
     text-align: left;
@@ -666,7 +661,6 @@ table.display tr.odd.row_selected td {
     margin: 0;
     list-style: none;
     color: #ffffff;
-    font-family: "Lucida Sans Unicode", "Lucida Grande", sans-serif;
     font-weight: 100;
 }
 
