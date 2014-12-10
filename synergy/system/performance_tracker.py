@@ -55,14 +55,14 @@ class Tracker(object):
 class TrackerPair(object):
     def __init__(self, name, success='Success', failure='Failure'):
         self.name = name
-        self.success = Tracker(failure)
-        self.failure = Tracker(success)
+        self.success = Tracker(success)
+        self.failure = Tracker(failure)
 
     def increment_success(self, delta=1):
-        self.failure.increment(delta)
+        self.success.increment(delta)
 
     def increment_failure(self, delta=1):
-        self.success.increment(delta)
+        self.failure.increment(delta)
 
     def reset_tick(self):
         self.success.reset_tick()
@@ -73,13 +73,13 @@ class TrackerPair(object):
         self.failure.reset_24h()
 
     def to_string(self, tick_interval_seconds, show_header=True):
-        header = self.name + ' : ' + self.failure.name + '/' + self.success.name + '.' if show_header else ''
+        header = self.name + ' : ' + self.success.name + '/' + self.failure.name + '.' if show_header else ''
         return header + 'In last {0:d} seconds: {1:d}/{2:d}. In last 24 hours: {3:d}/{4:d}'.format(
             tick_interval_seconds,
-            self.failure.per_tick,
             self.success.per_tick,
-            self.failure.per_24h,
-            self.success.per_24h)
+            self.failure.per_tick,
+            self.success.per_24h,
+            self.failure.per_24h)
 
 
 class TickerThread(object):
