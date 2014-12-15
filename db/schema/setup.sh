@@ -1,5 +1,22 @@
 #!/bin/bash
 
-mongo mongodb_scheduler_schema.js
-mongo mongodb_supervisor_schema.js
-mongo mongodb_workers_schema.js
+ENVIRONMENT="%ENVIRONMENT%"
+
+SCRIPTS_NAMES=("mongodb_scheduler_schema" "mongodb_supervisor_schema" "mongodb_workers_schema")
+
+for SINGLE_SCRIPT in ${SCRIPTS_NAMES[@]}; do
+   mongo ${SINGLE_SCRIPT}.js
+done
+
+if [ -n "${ENVIRONMENT}" ]; then
+    # if ENVIRONMENT was defined
+
+    for SINGLE_SCRIPT in ${SCRIPTS_NAMES[@]}; do
+        if [ -a ${SINGLE_SCRIPT}_${ENVIRONMENT}.js ]; then
+            # if the file exist
+            echo "Executing ${ENVIRONMENT}-specific script: ${SINGLE_SCRIPT}_${ENVIRONMENT}.js"
+            mongo ${SINGLE_SCRIPT}_${ENVIRONMENT}.js
+        fi
+    done
+
+fi
