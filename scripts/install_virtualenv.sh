@@ -10,6 +10,20 @@ if [ -z "$2" ]; then
     exit 1
 fi
 
+# ccache speeds up recompilation by caching previous compilations
+which ccache > /dev/null 2>&1
+if [ $? == 0 ]; then
+    export CC='ccache gcc'
+    export CXX="ccache g++"    
+fi
+
+# Ignore some CLANG errors on OSX else install will fail
+if [ `uname` == "Darwin" ]; then
+    export ARCHFLAGS="-arch i386 -arch x86_64"
+    export CFLAGS=-Qunused-arguments
+    export CPPFLAGS=-Qunused-arguments
+fi
+
 . $2/bin/activate
 
 vendor=$1/vendors
