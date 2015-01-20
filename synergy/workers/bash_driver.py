@@ -20,7 +20,7 @@ class BashRunnable(threading.Thread):
     def __init__(self, logger, message, consumer, performance_ticker):
         self.logger = logger
         self.message = message
-        self.mq_request = SynergyMqTransmission(message.body)
+        self.mq_request = SynergyMqTransmission.from_json(message.body)
         self.consumer = consumer
         self.performance_ticker = performance_ticker
         self.alive = False

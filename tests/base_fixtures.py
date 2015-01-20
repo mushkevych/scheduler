@@ -43,11 +43,9 @@ class TestMessage(object):
     """ empty class that should substitute MQ Message. Used for testing only """
 
     def __init__(self, process_name=None, uow_id=None):
-        mq_request = SynergyMqTransmission()
-        mq_request.process_name = process_name
-        mq_request.unit_of_work_id = uow_id
+        mq_request = SynergyMqTransmission(process_name=process_name, unit_of_work_id=uow_id)
 
-        self.body = mq_request.document
+        self.body = mq_request.to_json()
         self.delivery_tag = None
 
 

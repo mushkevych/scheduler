@@ -115,7 +115,7 @@ class AbstractMongoWorker(AbstractMqWorker):
         - logs the exception
         - marks unit of work as INVALID"""
         try:
-            mq_request = SynergyMqTransmission(message.body)
+            mq_request = SynergyMqTransmission.from_json(message.body)
             uow = self.uow_dao.get_one(mq_request.unit_of_work_id)
             if uow.state in [unit_of_work.STATE_CANCELED, unit_of_work.STATE_PROCESSED]:
                 # garbage collector might have reposted this UOW

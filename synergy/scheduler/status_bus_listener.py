@@ -39,7 +39,7 @@ class StatusBusListener(object):
         try:
             self.logger.info('StatusBusListener {')
 
-            mq_request = SynergyMqTransmission(message.body)
+            mq_request = SynergyMqTransmission.from_json(message.body)
             uow = self.uow_dao.get_one(mq_request.unit_of_work_id)
             if uow.unit_of_work_type != TYPE_MANAGED:
                 self.logger.info('Received transmission from TYPE_FREERUN execution. Ignoring it.')

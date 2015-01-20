@@ -65,12 +65,10 @@ class AbstractPipeline(object):
         return uow
 
     def _publish_uow(self, uow):
-        mq_request = SynergyMqTransmission()
-        mq_request.process_name = uow.process_name
-        mq_request.unit_of_work_id = uow.db_id
+        mq_request = SynergyMqTransmission(process_name=uow.process_name, unit_of_work_id=uow.db_id)
 
         publisher = self.publishers.get(uow.process_name)
-        publisher.publish(mq_request.document)
+        publisher.publish(mq_request.to_json())
         publisher.release()
 
         msg = 'Published: UOW %r for %r in timeperiod %r.' % (uow.db_id, uow.process_name, uow.start_timeperiod)

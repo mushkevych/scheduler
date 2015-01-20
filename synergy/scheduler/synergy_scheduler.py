@@ -220,12 +220,10 @@ class Scheduler(SynergyProcess):
         try:
             assert isinstance(thread_handler_arguments, ThreadHandlerArguments)
             self.logger.info('%r {' % (thread_handler_arguments.key, ))
-
-            mq_request = SynergyMqTransmission()
-            mq_request.process_name = thread_handler_arguments.key
+            mq_request = SynergyMqTransmission(process_name=thread_handler_arguments.key)
 
             publisher = self.publishers.get(thread_handler_arguments.key)
-            publisher.publish(mq_request.document)
+            publisher.publish(mq_request.to_json())
             publisher.release()
             self.logger.info('Published trigger for %s' % thread_handler_arguments.key)
 

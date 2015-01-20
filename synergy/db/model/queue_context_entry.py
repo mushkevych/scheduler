@@ -1,50 +1,28 @@
 __author__ = 'Bohdan Mushkevych'
 
-from synergy.db.model.base_model import *
+from odm.document import BaseDocument
+from odm.fields import StringField
 
 MQ_QUEUE = 'mq_queue'
 MQ_EXCHANGE = 'mq_exchange'
 MQ_ROUTING_KEY = 'mq_routing_key'
 
 
-class QueueContextEntry(BaseModel):
-    """ Non-persistent model. This class presents Process Context Entry record """
+class QueueContextEntry(BaseDocument):
+    """ Non-persistent model. This class presents Queue Context Entry record """
 
-    def __init__(self, document=None):
-        super(QueueContextEntry, self).__init__(document)
-
-    @BaseModel.key.getter
+    @BaseDocument.key.getter
     def key(self):
-        return self.data[MQ_QUEUE]
+        return self.mq_queue
 
     @key.setter
     def key(self, value):
-        """ :param value: name of the process """
-        self.data[MQ_QUEUE] = value
+        """ :param value: name of the mq queue """
+        self.mq_queue = value
 
-    @property
-    def mq_queue(self):
-        return self.data[MQ_QUEUE]
-
-    @mq_queue.setter
-    def mq_queue(self, value):
-        self.data[MQ_QUEUE] = value
-
-    @property
-    def mq_exchange(self):
-        return self.data[MQ_EXCHANGE]
-
-    @mq_exchange.setter
-    def mq_exchange(self, value):
-        self.data[MQ_EXCHANGE] = value
-
-    @property
-    def mq_routing_key(self):
-        return self.data[MQ_ROUTING_KEY]
-
-    @mq_routing_key.setter
-    def mq_routing_key(self, value):
-        self.data[MQ_ROUTING_KEY] = value
+    mq_queue = StringField(MQ_QUEUE)
+    mq_exchange = StringField(MQ_EXCHANGE)
+    mq_routing_key = StringField(MQ_ROUTING_KEY)
 
 
 def _queue_context_entry(exchange,

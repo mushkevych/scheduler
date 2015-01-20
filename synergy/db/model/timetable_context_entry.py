@@ -1,6 +1,7 @@
 __author__ = 'Bohdan Mushkevych'
 
-from synergy.db.model.base_model import *
+from odm.document import BaseDocument
+from odm.fields import StringField, ListField
 
 TREE_NAME = 'tree_name'
 TREE_CLASSNAME = 'tree_classname'
@@ -10,67 +11,23 @@ MX_PAGE = 'mx_page'
 MX_NAME = 'mx_name'
 
 
-class TimetableContextEntry(BaseModel):
+class TimetableContextEntry(BaseDocument):
     """ Non-persistent model. Class presents single process tree (an atomic entry for the Timetable) """
-
-    def __init__(self, document=None):
-        super(TimetableContextEntry, self).__init__(document)
 
     @property
     def key(self):
-        return self.data[TREE_NAME]
+        return self.tree_name
 
     @key.setter
     def key(self, value):
-        self.data[TREE_NAME] = value
+        self.tree_name = value
 
-    @property
-    def tree_name(self):
-        return self.data[TREE_NAME]
-
-    @tree_name.setter
-    def tree_name(self, value):
-        self.data[TREE_NAME] = value
-
-    @property
-    def tree_classname(self):
-        return self.data[TREE_CLASSNAME]
-
-    @tree_classname.setter
-    def tree_classname(self, value):
-        self.data[TREE_CLASSNAME] = value
-
-    @property
-    def dependent_on(self):
-        return self.data.get(DEPENDENT_ON, [])
-
-    @dependent_on.setter
-    def dependent_on(self, value):
-        self.data[DEPENDENT_ON] = value
-
-    @property
-    def enclosed_processes(self):
-        return self.data[ENCLOSED_PROCESSES]
-
-    @enclosed_processes.setter
-    def enclosed_processes(self, value):
-        self.data[ENCLOSED_PROCESSES] = value
-
-    @property
-    def mx_name(self):
-        return self.data[MX_NAME]
-
-    @mx_name.setter
-    def mx_name(self, value):
-        self.data[MX_NAME] = value
-
-    @property
-    def mx_page(self):
-        return self.data[MX_PAGE]
-
-    @mx_page.setter
-    def mx_page(self, value):
-        self.data[MX_PAGE] = value
+    tree_name = StringField(TREE_NAME)
+    tree_classname = StringField(TREE_CLASSNAME)
+    dependent_on = ListField(DEPENDENT_ON)
+    enclosed_processes = ListField(ENCLOSED_PROCESSES)
+    mx_name = StringField(MX_NAME)
+    mx_page = StringField(MX_PAGE)
 
 
 def _timetable_context_entry(tree_name,

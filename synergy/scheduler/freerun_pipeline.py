@@ -76,13 +76,12 @@ class FreerunPipeline(object):
 
     def _publish_uow(self, freerun_entry, uow):
         schedulable_name = '%s::%s' % (freerun_entry.process_name, freerun_entry.entry_name)
-        mq_request = SynergyMqTransmission()
-        mq_request.process_name = freerun_entry.process_name
-        mq_request.entry_name = freerun_entry.entry_name
-        mq_request.unit_of_work_id = uow.db_id
+        mq_request = SynergyMqTransmission(process_name=freerun_entry.process_name,
+                                           entry_name=freerun_entry.entry_name,
+                                           unit_of_work_id=uow.db_id)
 
         publisher = self.publishers.get(freerun_entry.process_name)
-        publisher.publish(mq_request.document)
+        publisher.publish(mq_request.to_json())
         publisher.release()
 
         msg = 'Published: UOW %s for %s.' % (uow.db_id, schedulable_name)

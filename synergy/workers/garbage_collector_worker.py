@@ -90,9 +90,8 @@ class GarbageCollectorWorker(AbstractMqWorker):
                 repost = True
 
         if repost:
-            mq_request = SynergyMqTransmission()
-            mq_request.process_name = uow.process_name
-            mq_request.unit_of_work_id = uow.db_id
+            mq_request = SynergyMqTransmission(process_name=uow.process_name,
+                                               unit_of_work_id=uow.db_id)
 
             if datetime.utcnow() - uow.created_at < timedelta(hours=LIFE_SUPPORT_HOURS):
                 uow.state = unit_of_work.STATE_REQUESTED
@@ -100,7 +99,7 @@ class GarbageCollectorWorker(AbstractMqWorker):
                 self.uow_dao.update(uow)
 
                 publisher = self.publishers.get(uow.process_name)
-                publisher.publish(mq_request.document)
+                publisher.publish(mq_request.to_json())
                 publisher.release()
 
                 self.logger.info('UOW marked for re-processing: process %s; timeperiod %s; id %s; attempt %d'
@@ -111,7 +110,7 @@ class GarbageCollectorWorker(AbstractMqWorker):
                 self.uow_dao.update(uow)
 
                 publisher = self.publishers.get(QUEUE_UOW_REPORT)
-                publisher.publish(mq_request.document)
+                publisher.publish(mq_request.to_json())
                 publisher.release()
 
                 self.logger.info('UOW transferred to STATE_CANCELED: process %s; timeperiod %s; id %s; attempt %d'
