@@ -23,6 +23,9 @@ class AbstractMqWorker(SynergyProcess):
         super(AbstractMqWorker, self).__init__(process_name)
         self.queue_source = ProcessContext.get_source(self.process_name)
         self.queue_sink = ProcessContext.get_sink(self.process_name)
+        self.mq_timeout_seconds = 0
+        self._init_mq_timeout_seconds()
+
         self.consumer = None
         self._init_mq_consumer()
 
@@ -57,6 +60,10 @@ class AbstractMqWorker(SynergyProcess):
     def _init_mq_consumer(self):
         self.consumer = Consumer(self.process_name)
 
+    def _init_mq_timeout_seconds(self):
+        if 'mq_timeout_sec' in settings.settings:
+            self.mq_timeout_seconds = settings.settings['mq_timeout_sec']
+
     # ********************** thread-related methods ****************************
     def _mq_callback(self, message):
         """ abstract method to process messages from MQ
@@ -66,7 +73,7 @@ class AbstractMqWorker(SynergyProcess):
     def _run_mq_listener(self):
         try:
             self.consumer.register(self._mq_callback)
-            self.consumer.wait(settings.settings['mq_timeout_sec'])
+            self.consumer.wait(self.mq_timeout_seconds)
         except socket.timeout as e:
             self.logger.warn('Queue %s is likely empty. Worker exits due to: %s' % (self.consumer.queue, str(e)))
         except (AMQPError, IOError) as e:

@@ -71,3 +71,4 @@ easy_install $vendor/MarkupSafe-0.18.tar.gz
 easy_install $vendor/Jinja2-2.7.1.tar.gz
 easy_install $vendor/Werkzeug-0.9.4.tar.gz
 easy_install $vendor/psutil-1.2.0.tar.gz
+easy_install $vendor/synergy_odm-0.2.tar.gz
