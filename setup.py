@@ -28,5 +28,5 @@ setup(name = 'synergy_scheduler',
           'Topic :: Office/Business :: Scheduling',
           'Topic :: Utilities',
           ],
-      requires=['werkzeug', 'jinja2', 'amqp', 'pymongo', 'psutil', 'fabric', 'setproctitle', 'mockito']
+      requires=['werkzeug', 'jinja2', 'amqp', 'pymongo', 'psutil', 'fabric', 'setproctitle', 'mockito', 'synergy_odm']
 )
