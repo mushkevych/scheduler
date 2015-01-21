@@ -173,9 +173,9 @@ class Scheduler(SynergyProcess):
 
             process_type = ProcessContext.get_process_type(scheduler_entry_obj.process_name)
             if process_type == TYPE_BLOCKING_DEPENDENCIES:
-                pipeline.manage_pipeline_with_blocking_dependencies(process_name, job_record)
+                pipeline.manage_pipeline_with_blocking_dependencies(process_name, job_record, run_on_active_timeperiod)
             elif process_type == TYPE_BLOCKING_CHILDREN:
-                pipeline.manage_pipeline_with_blocking_children(process_name, job_record)
+                pipeline.manage_pipeline_with_blocking_children(process_name, job_record, run_on_active_timeperiod)
             elif process_type == TYPE_MANAGED:
                 pipeline.manage_pipeline_for_process(process_name, job_record)
             else:
