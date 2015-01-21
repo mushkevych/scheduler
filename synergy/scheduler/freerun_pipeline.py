@@ -81,7 +81,7 @@ class FreerunPipeline(object):
                                            unit_of_work_id=uow.db_id)
 
         publisher = self.publishers.get(freerun_entry.process_name)
-        publisher.publish(mq_request.to_json())
+        publisher.publish(mq_request.document)
         publisher.release()
 
         msg = 'Published: UOW %s for %s.' % (uow.db_id, schedulable_name)

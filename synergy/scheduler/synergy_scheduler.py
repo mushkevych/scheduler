@@ -223,7 +223,7 @@ class Scheduler(SynergyProcess):
             mq_request = SynergyMqTransmission(process_name=thread_handler_arguments.key)
 
             publisher = self.publishers.get(thread_handler_arguments.key)
-            publisher.publish(mq_request.to_json())
+            publisher.publish(mq_request.document)
             publisher.release()
             self.logger.info('Published trigger for %s' % thread_handler_arguments.key)
 

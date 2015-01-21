@@ -99,7 +99,7 @@ class GarbageCollectorWorker(AbstractMqWorker):
                 self.uow_dao.update(uow)
 
                 publisher = self.publishers.get(uow.process_name)
-                publisher.publish(mq_request.to_json())
+                publisher.publish(mq_request.document)
                 publisher.release()
 
                 self.logger.info('UOW marked for re-processing: process %s; timeperiod %s; id %s; attempt %d'
@@ -110,7 +110,7 @@ class GarbageCollectorWorker(AbstractMqWorker):
                 self.uow_dao.update(uow)
 
                 publisher = self.publishers.get(QUEUE_UOW_REPORT)
-                publisher.publish(mq_request.to_json())
+                publisher.publish(mq_request.document)
                 publisher.release()
 
                 self.logger.info('UOW transferred to STATE_CANCELED: process %s; timeperiod %s; id %s; attempt %d'

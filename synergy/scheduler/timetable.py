@@ -249,15 +249,17 @@ class Timetable(object):
             tree.validate()
 
     @thread_safe
-    def is_dependent_on_finalized(self, process_name, job_record):
-        """ :return tuple (all_finalized, all_processed, skipped_present) indicating
+    def dependent_on_composite_state(self, process_name, job_record):
+        """
+        :return tuple (all_finalized, all_processed, all_active, skipped_present) indicating
                 all_finalized - True if all <dependent on> periods are in STATE_PROCESSED or STATE_SKIPPED
                 all_processed - True if all <dependent on> periods are in STATE_PROCESSED
+                all_active - True if all <dependent on> periods are in STATE_PROCESSED or STATE_IN_PROGRESS
                 skipped_present - True if among <dependent on> periods are some in STATE_SKIPPED
         """
         tree = self.get_tree(process_name)
         node = tree.get_node_by_process(process_name, job_record.timeperiod)
-        return node.is_dependent_on_finalized()
+        return node.dependent_on_composite_state()
 
     # *** Job manipulation methods ***
     @thread_safe

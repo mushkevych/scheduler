@@ -112,28 +112,27 @@ class AbstractNode(object):
             node_b = None
         return node_b
 
-    def is_dependent_on_finalized(self):
-        """ method is used by:
-            - horizontal nodes to verify that particular time period has been finalized in verticals
-            prior to finalization of the horizontal time-period
-            - alerts to make sure they are run only when all data is present and finalized
-            - financial daily nodes to make sure that input data is available
-            - financial post processing timeperiods to track completion of both financial and traffic data
-            :return tuple (all_finalized, all_processed, skipped_present) indicating
+    def dependent_on_composite_state(self):
+        """ method iterates over all nodes that provide dependency to the current node,
+            and compile composite state of all them
+            :return tuple (all_finalized, all_processed, all_active, skipped_present) indicating
                 all_finalized - True if all <dependent on> periods are in STATE_PROCESSED or STATE_SKIPPED
                 all_processed - True if all <dependent on> periods are in STATE_PROCESSED
+                all_active - True if all <dependent on> periods are in STATE_PROCESSED or STATE_IN_PROGRESS
                 skipped_present - True if among <dependent on> periods are some in STATE_SKIPPED
              """
 
-        all_finalized = True   # True if all dependent_on periods are either in STATE_PROCESSED or STATE_SKIPPED
-        all_processed = True   # True if all dependent_on periods are in STATE_PROCESSED
-        skipped_present = False   # True if among dependent_on periods are some in STATE_SKIPPED
+        all_finalized = True  # True if all dependent_on periods are either in STATE_PROCESSED or STATE_SKIPPED
+        all_processed = True  # True if all dependent_on periods are in STATE_PROCESSED
+        all_active = True     # True if all dependent_on periods are in STATE_PROCESSED or STATE_IN_PROGRESS
+        skipped_present = False  # True if among dependent_on periods are some in STATE_SKIPPED
+
         for dependent_on in self.tree.dependent_on:
             node_b = AbstractNode.find_counterpart_for(self, dependent_on)
 
             if node_b is None:
                 # special case when counterpart tree has no process with corresponding time_qualifier
-                # for example Financial Monthly has no counterpart in Google Daily Report -
+                # for example Financial Monthly has no counterpart in Third-party Daily Report -
                 # so we assume that its not blocked
                 continue
 
@@ -141,10 +140,12 @@ class AbstractNode(object):
                 all_finalized = False
             if node_b.job_record.state != job.STATE_PROCESSED:
                 all_processed = False
+            if node_b.job_record.state not in [job.STATE_PROCESSED, job.STATE_IN_PROGRESS]:
+                all_active = False
             if node_b.job_record.state == job.STATE_SKIPPED:
                 skipped_present = True
 
-        return all_finalized, all_processed, skipped_present
+        return all_finalized, all_processed, all_active, skipped_present
 
 
 class LinearNode(AbstractNode):
@@ -158,7 +159,7 @@ class LinearNode(AbstractNode):
             # this is root node
             return False
 
-        all_finalized, all_processed, skipped_present = self.is_dependent_on_finalized()
+        all_finalized, all_processed, all_active, skipped_present = self.dependent_on_composite_state()
         if not all_finalized:
             return False
 
@@ -183,7 +184,7 @@ class TreeNode(AbstractNode):
          - all counterpart of this node in dependent_on trees, if they all are finalized
          - all children of the node, and if any is _not_ finalized - refuses to finalize the node"""
 
-        all_finalized, all_processed, skipped_present = self.is_dependent_on_finalized()
+        all_finalized, all_processed, all_active, skipped_present = self.dependent_on_composite_state()
         if not all_finalized:
             return False
 

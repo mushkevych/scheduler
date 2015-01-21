@@ -68,7 +68,7 @@ class AbstractPipeline(object):
         mq_request = SynergyMqTransmission(process_name=uow.process_name, unit_of_work_id=uow.db_id)
 
         publisher = self.publishers.get(uow.process_name)
-        publisher.publish(mq_request.to_json())
+        publisher.publish(mq_request.document)
         publisher.release()
 
         msg = 'Published: UOW %r for %r in timeperiod %r.' % (uow.db_id, uow.process_name, uow.start_timeperiod)
@@ -125,23 +125,31 @@ class AbstractPipeline(object):
         """method takes care of processing job records in STATE_FINAL_SKIPPED state"""
         pass
 
-    def manage_pipeline_with_blocking_children(self, process_name, job_record):
+    def manage_pipeline_with_blocking_children(self, process_name, job_record, run_on_active_timeperiod):
         """ method will trigger job processing only if all children are in STATE_PROCESSED or STATE_SKIPPED
          and if all external dependencies are finalized (i.e. in STATE_PROCESSED or STATE_SKIPPED) """
         green_light = self.timetable.can_finalize_job_record(process_name, job_record)
+        all_finalized, all_processed, all_active, skipped_present = \
+            self.timetable.dependent_on_composite_state(process_name, job_record)
+
         if green_light:
+            self.manage_pipeline_for_process(process_name, job_record)
+        elif all_active and run_on_active_timeperiod:
             self.manage_pipeline_for_process(process_name, job_record)
         else:
             msg = '%s for timeperiod %r is blocked by unprocessed children/dependencies. Waiting another tick' \
                   % (process_name, job_record.timeperiod)
             self._log_message(INFO, process_name, job_record.timeperiod, msg)
 
-    def manage_pipeline_with_blocking_dependencies(self, process_name, job_record):
+    def manage_pipeline_with_blocking_dependencies(self, process_name, job_record, run_on_active_timeperiod):
         """ method will trigger job processing only if _all_ dependencies are in STATE_PROCESSED
          method will transfer current job into STATE_SKIPPED if any dependency is in STATE_SKIPPED """
-        all_finalized, all_processed, skipped_present = self.timetable.is_dependent_on_finalized(process_name,
-                                                                                                 job_record)
+        all_finalized, all_processed, all_active, skipped_present = \
+            self.timetable.dependent_on_composite_state(process_name, job_record)
+
         if all_processed:
+            self.manage_pipeline_for_process(process_name, job_record)
+        elif all_active and run_on_active_timeperiod:
             self.manage_pipeline_for_process(process_name, job_record)
         elif skipped_present:
             # As soon as among <dependent on> periods are in STATE_SKIPPED
