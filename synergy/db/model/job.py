@@ -1,7 +1,8 @@
 __author__ = 'Bohdan Mushkevych'
 
-from synergy.db.model.base_model import *
+from odm.document import BaseDocument
 from odm.fields import StringField, ObjectIdField, ListField, IntegerField
+from synergy.db.model.base_model import TIMEPERIOD
 
 MAX_NUMBER_OF_LOG_ENTRIES = 32
 PROCESS_NAME = 'process_name'
@@ -36,8 +37,19 @@ STATE_IN_PROGRESS = 'state_in_progress'
 STATE_EMBRYO = 'state_embryo'
 
 
-class Job(BaseModel):
+class Job(BaseDocument):
     """ class presents status for the time-period, and indicates whether data was process by particular process"""
+
+    db_id = ObjectIdField('_id', null=True)
+    process_name = StringField(PROCESS_NAME)
+    timeperiod = StringField(TIMEPERIOD)
+    start_id = ObjectIdField(START_OBJ_ID)
+    end_id = ObjectIdField(END_OBJ_ID)
+    state = StringField(STATE,
+                        choices=[STATE_IN_PROGRESS, STATE_PROCESSED, STATE_FINAL_RUN, STATE_EMBRYO, STATE_SKIPPED])
+    related_unit_of_work = ObjectIdField(RELATED_UNIT_OF_WORK)
+    log = ListField(HISTORIC_LOG)
+    number_of_failures = IntegerField(NUMBER_OF_FAILURES)
 
     @property
     def key(self):
@@ -48,13 +60,3 @@ class Job(BaseModel):
         """ :param value: tuple (name of the process, timeperiod as string in Synergy Data format) """
         self.process_name = value[0]
         self.timeperiod = value[1]
-
-    process_name = StringField(PROCESS_NAME)
-    timeperiod = StringField(TIMEPERIOD)
-    start_id = ObjectIdField(START_OBJ_ID)
-    end_id = ObjectIdField(END_OBJ_ID)
-    state = StringField(STATE,
-                        choices=[STATE_IN_PROGRESS, STATE_PROCESSED, STATE_FINAL_RUN, STATE_EMBRYO, STATE_SKIPPED])
-    related_unit_of_work = ObjectIdField(RELATED_UNIT_OF_WORK)
-    log = ListField(HISTORIC_LOG)
-    number_of_failures = IntegerField(NUMBER_OF_FAILURES)

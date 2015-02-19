@@ -43,7 +43,8 @@ def get_job_record(state, timeperiod, process_name):
     job_record.state = state
     job_record.timeperiod = timeperiod
     job_record.process_name = process_name
-    job_record.document['_id'] = 'alpha_id'
+    job_record.db_id = 'alpha_id'
+    job_record.document
     return job_record
 
 

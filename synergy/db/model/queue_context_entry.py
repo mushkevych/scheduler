@@ -11,6 +11,10 @@ MQ_ROUTING_KEY = 'mq_routing_key'
 class QueueContextEntry(BaseDocument):
     """ Non-persistent model. This class presents Queue Context Entry record """
 
+    mq_queue = StringField(MQ_QUEUE)
+    mq_exchange = StringField(MQ_EXCHANGE)
+    mq_routing_key = StringField(MQ_ROUTING_KEY)
+
     @BaseDocument.key.getter
     def key(self):
         return self.mq_queue
@@ -19,10 +23,6 @@ class QueueContextEntry(BaseDocument):
     def key(self, value):
         """ :param value: name of the mq queue """
         self.mq_queue = value
-
-    mq_queue = StringField(MQ_QUEUE)
-    mq_exchange = StringField(MQ_EXCHANGE)
-    mq_routing_key = StringField(MQ_ROUTING_KEY)
 
 
 def _queue_context_entry(exchange,

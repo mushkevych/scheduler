@@ -36,7 +36,7 @@ class SingleSessionWorker(AbstractMqWorker):
         - logs the exception
         - marks unit of work as INVALID"""
         try:
-            raw_data = RawData(message.body)
+            raw_data = RawData.from_json(message.body)
             try:
                 session = self.ss_dao.get_one(raw_data.key[0], raw_data.session_id)
 

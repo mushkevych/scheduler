@@ -13,6 +13,10 @@ class SynergyMqTransmission(BaseDocument):
      - single request from Synergy Scheduler to any worker
      - response/report from the worker to the Synergy Scheduler """
 
+    process_name = StringField(PROCESS_NAME)
+    entry_name = StringField(ENTRY_NAME)
+    unit_of_work_id = ObjectIdField(UNIT_OF_WORK_ID)
+
     @property
     def key(self):
         return self.process_name, self.entry_name
@@ -25,10 +29,6 @@ class SynergyMqTransmission(BaseDocument):
         else:
             self.process_name = value
             self.entry_name = None
-
-    process_name = StringField(PROCESS_NAME)
-    entry_name = StringField(ENTRY_NAME)
-    unit_of_work_id = ObjectIdField(UNIT_OF_WORK_ID)
 
     def __str__(self):
         return '%s::%s#%s' % (self.process_name, self.entry_name, self.unit_of_work_id)

@@ -44,8 +44,9 @@ FAMILY_SCREEN_RESOLUTIONS = 'screen_resolution'
 FAMILY_LANGUAGES = 'language'
 
 
-class RawData(BaseModel):
+class RawData(BaseDocument):
     """ Non-persistent model. Instance of this class presents single message to the SingleSessionWorker """
+
     domain_name = StringField(DOMAIN_NAME)
     timeperiod = StringField(TIMEPERIOD)
     session_id = StringField(SESSION_ID)

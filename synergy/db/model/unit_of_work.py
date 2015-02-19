@@ -1,8 +1,9 @@
 __author__ = 'Bohdan Mushkevych'
 
+from odm.document import BaseDocument
 from odm.fields import StringField, ObjectIdField, IntegerField, DictField, DateTimeField
 from synergy.scheduler.scheduler_constants import TYPE_FREERUN, TYPE_MANAGED
-from synergy.db.model.base_model import BaseModel, TIMEPERIOD
+from synergy.db.model.base_model import TIMEPERIOD
 
 START_TIMEPERIOD = 'start_timeperiod'  # lower boundary (as Synergy date) of the period that needs to be processed
 END_TIMEPERIOD = 'end_timeperiod'      # upper boundary (as Synergy date) of the period that needs to be processed
@@ -32,10 +33,11 @@ STATE_CANCELED = 'state_canceled'
 STATE_INVALID = 'state_invalid'
 
 
-class UnitOfWork(BaseModel):
+class UnitOfWork(BaseDocument):
     """ Module represents persistent Model for atomic unit of work performed by the system.
     UnitOfWork Instances are stored in the <unit_of_work> collection """
 
+    db_id = ObjectIdField('_id', null=True)
     process_name = StringField(PROCESS_NAME)
     timeperiod = StringField(TIMEPERIOD)
     start_timeperiod = StringField(START_TIMEPERIOD)

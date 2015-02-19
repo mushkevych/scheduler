@@ -55,7 +55,7 @@ class JobDao(object):
 
         if document is None:
             raise LookupError('MongoDB has no job record in %s collection for (%s, %s)' % (collection, key, timeperiod))
-        return Job(document)
+        return Job.from_json(document)
 
     @thread_safe
     def get_all(self, collection_name, since=None):
@@ -69,13 +69,13 @@ class JobDao(object):
         cursor = collection.find(query)
         if cursor.count() == 0:
             raise LookupError('MongoDB has no job records in %s collection since %r' % (collection_name, since))
-        return [Job(document) for document in cursor]
+        return [Job.from_json(document) for document in cursor]
 
     @thread_safe
     def run_query(self, collection_name, query):
         """ method runs query on a specified collection and return a list of filtered Job records """
         cursor = self.ds.filter(collection_name, query)
-        return [Job(document) for document in cursor]
+        return [Job.from_json(document) for document in cursor]
 
     @thread_safe
     def update(self, instance):

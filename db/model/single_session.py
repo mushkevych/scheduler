@@ -1,5 +1,6 @@
 __author__ = 'Bohdan Mushkevych'
 
+from odm.fields import ObjectIdField
 from db.model.raw_data import *
 from synergy.db.model.base_model import *
 
@@ -10,6 +11,11 @@ class SingleSession(BaseModel):
     """
     class presents statistics, gathered during the life of the session
     """
+
+    db_id = ObjectIdField('_id', null=True)
+    domain_name = StringField(DOMAIN_NAME)
+    timeperiod = StringField(TIMEPERIOD)
+    session_id = StringField(SESSION_ID)
 
     @BaseModel.key.getter
     def key(self):

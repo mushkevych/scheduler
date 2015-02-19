@@ -25,7 +25,7 @@ class SiteHourlyAggregator(AbstractVerticalWorker):
         return args[0], time_helper.session_to_hour(args[1])
 
     def _init_source_object(self, document):
-        return SingleSession(document)
+        return SingleSession.from_json(document)
 
     def _init_sink_object(self, composite_key):
         obj = SiteStatistics()

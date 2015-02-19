@@ -27,7 +27,7 @@ class SchedulerFreerunEntryDao(object):
         document = collection.find_one(query)
         if document is None:
             raise LookupError('SchedulerFreerunEntry for process=%s was not found' % str(key))
-        return SchedulerFreerunEntry(document)
+        return SchedulerFreerunEntry.from_json(document)
 
     @thread_safe
     def get_all(self):
@@ -37,7 +37,7 @@ class SchedulerFreerunEntryDao(object):
         cursor = collection.find(query)
         if cursor.count() == 0:
             raise LookupError('MongoDB has no SchedulerFreerunEntry records')
-        return [SchedulerFreerunEntry(entry) for entry in cursor]
+        return [SchedulerFreerunEntry.from_json(entry) for entry in cursor]
 
     @thread_safe
     def update(self, instance):

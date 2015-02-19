@@ -22,14 +22,6 @@ RUN_ON_ACTIVE_TIMEPERIOD = 'run_on_active_timeperiod'
 
 class ProcessContextEntry(BaseDocument):
     """ Non-persistent model. This class presents Process Context Entry record """
-    @BaseDocument.key.getter
-    def key(self):
-        return self.process_name
-
-    @key.setter
-    def key(self, value):
-        """ :param value: name of the process """
-        self.process_name = value
 
     process_name = StringField(PROCESS_NAME)
     classname = StringField(CLASSNAME)
@@ -45,6 +37,15 @@ class ProcessContextEntry(BaseDocument):
     run_on_active_timeperiod = BooleanField(RUN_ON_ACTIVE_TIMEPERIOD)
     pid_filename = StringField(PID_FILENAME)
     log_filename = StringField(LOG_FILENAME)
+
+    @BaseDocument.key.getter
+    def key(self):
+        return self.process_name
+
+    @key.setter
+    def key(self, value):
+        """ :param value: name of the process """
+        self.process_name = value
 
     @property
     def log_tag(self):

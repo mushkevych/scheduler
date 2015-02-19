@@ -41,7 +41,7 @@ class UnitOfWorkDao(object):
             msg = 'Unit_of_work with ID=%s was not found' % str(key)
             self.logger.warn(msg)
             raise LookupError(msg)
-        return UnitOfWork(document)
+        return UnitOfWork.from_json(document)
 
     @thread_safe
     def get_reprocessing_candidates(self, since=None):
@@ -56,7 +56,7 @@ class UnitOfWorkDao(object):
 
         if since is None:
             cursor = collection.find(query).sort('_id', ASCENDING)
-            candidates = [UnitOfWork(document) for document in cursor]
+            candidates = [UnitOfWork.from_json(document) for document in cursor]
         else:
             candidates = []
             yearly_timeperiod = time_helper.cast_to_time_qualifier(QUALIFIER_YEARLY, since)
@@ -64,7 +64,7 @@ class UnitOfWorkDao(object):
 
             cursor = collection.find(query).sort('_id', ASCENDING)
             for document in cursor:
-                uow = UnitOfWork(document)
+                uow = UnitOfWork.from_json(document)
                 if uow.process_name not in ProcessContext.CONTEXT:
                     # this is a decommissioned process
                     continue
@@ -93,7 +93,7 @@ class UnitOfWorkDao(object):
         document = collection.find_one(query)
         if document is None:
             raise LookupError('Unit_of_work satisfying query %r was not found' % query)
-        return UnitOfWork(document)
+        return UnitOfWork.from_json(document)
 
     @thread_safe
     def update(self, instance):

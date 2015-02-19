@@ -23,7 +23,7 @@ class BoxConfigurationDao(object):
         document = collection.find_one({box_configuration.BOX_ID: key})
         if document is None:
             raise LookupError('MongoDB has no process list for box_id = %r' % key)
-        return BoxConfiguration(document)
+        return BoxConfiguration.from_json(document)
 
     @thread_safe
     def update(self, instance):

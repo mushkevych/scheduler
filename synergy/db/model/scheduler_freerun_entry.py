@@ -1,8 +1,7 @@
-from odm.fields import StringField, DictField, ListField
-
 __author__ = 'Bohdan Mushkevych'
 
-from synergy.db.model.base_model import *
+from odm.document import BaseDocument
+from odm.fields import StringField, DictField, ListField, ObjectIdField
 
 PROCESS_NAME = 'process_name'           # name of the process to handle the schedulables
 ENTRY_NAME = 'entry_name'               # name of the schedulable
@@ -19,8 +18,18 @@ STATE_ON = 'state_on'
 STATE_OFF = 'state_off'
 
 
-class SchedulerFreerunEntry(BaseModel):
+class SchedulerFreerunEntry(BaseDocument):
     """ Class presents single configuration entry for the freerun process/bash_driver . """
+
+    db_id = ObjectIdField('_id', null=True)
+    process_name = StringField(PROCESS_NAME)
+    entry_name = StringField(ENTRY_NAME)
+    description = StringField(DESCRIPTION)
+    trigger_time = StringField(TRIGGER_TIME)
+    state = StringField(STATE, choices=[STATE_ON, STATE_OFF])
+    arguments = DictField(ARGUMENTS)
+    log = ListField(HISTORIC_LOG)
+    related_unit_of_work = ObjectIdField(RELATED_UNIT_OF_WORK)
 
     @property
     def key(self):
@@ -30,12 +39,3 @@ class SchedulerFreerunEntry(BaseModel):
     def key(self, value):
         self.process_name = value[0]
         self.entry_name = value[1]
-
-    process_name = StringField(PROCESS_NAME)
-    entry_name = StringField(ENTRY_NAME)
-    description = StringField(DESCRIPTION)
-    trigger_time = StringField(TRIGGER_TIME)
-    state = StringField(STATE, choices=[STATE_ON, STATE_OFF])
-    arguments = DictField(ARGUMENTS)
-    log = ListField(HISTORIC_LOG)
-    related_unit_of_work = ObjectIdField(RELATED_UNIT_OF_WORK)

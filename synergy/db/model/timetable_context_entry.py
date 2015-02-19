@@ -14,6 +14,13 @@ MX_NAME = 'mx_name'
 class TimetableContextEntry(BaseDocument):
     """ Non-persistent model. Class presents single process tree (an atomic entry for the Timetable) """
 
+    tree_name = StringField(TREE_NAME)
+    tree_classname = StringField(TREE_CLASSNAME)
+    dependent_on = ListField(DEPENDENT_ON)
+    enclosed_processes = ListField(ENCLOSED_PROCESSES)
+    mx_name = StringField(MX_NAME)
+    mx_page = StringField(MX_PAGE)
+
     @property
     def key(self):
         return self.tree_name
@@ -21,13 +28,6 @@ class TimetableContextEntry(BaseDocument):
     @key.setter
     def key(self, value):
         self.tree_name = value
-
-    tree_name = StringField(TREE_NAME)
-    tree_classname = StringField(TREE_CLASSNAME)
-    dependent_on = ListField(DEPENDENT_ON)
-    enclosed_processes = ListField(ENCLOSED_PROCESSES)
-    mx_name = StringField(MX_NAME)
-    mx_page = StringField(MX_PAGE)
 
 
 def _timetable_context_entry(tree_name,

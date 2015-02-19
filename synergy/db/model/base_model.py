@@ -1,7 +1,6 @@
 __author__ = 'Bohdan Mushkevych'
 
 from odm.document import BaseDocument
-from odm.fields import ObjectIdField
 
 KEY = 'key'
 TIMEPERIOD = 'timeperiod'
@@ -11,8 +10,6 @@ class BaseModel(BaseDocument):
     """
     This class presents common functionality for all Models within the Synergy Scheduler project
     """
-    db_id = ObjectIdField('_id', null=True)
-
     def _get_column_family(self, family_name):
         if family_name not in self._data:
             self._data[family_name] = dict()

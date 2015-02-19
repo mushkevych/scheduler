@@ -25,7 +25,7 @@ class SingleSessionDao(object):
         document = collection.find_one(query)
         if document is None:
             raise LookupError('MongoDB has no single session record for (%s, %s)' % (domain_name, session_id))
-        return SingleSession(document)
+        return SingleSession.from_json(document)
 
     @thread_safe
     def insert(self, instance):

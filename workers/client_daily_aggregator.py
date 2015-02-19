@@ -24,7 +24,7 @@ class ClientDailyAggregator(AbstractHorizontalWorker):
         return args[0], time_helper.hour_to_day(args[1])
 
     def _init_source_object(self, document):
-        return SiteStatistics(document)
+        return SiteStatistics.from_json(document)
 
     def _init_sink_object(self, composite_key):
         obj = ClientStatistics()

@@ -25,7 +25,7 @@ class SchedulerManagedEntryDao(object):
         document = collection.find_one(query)
         if document is None:
             raise LookupError('SchedulerManagedEntry for process=%s was not found' % str(key))
-        return SchedulerManagedEntry(document)
+        return SchedulerManagedEntry.from_json(document)
 
     @thread_safe
     def get_all(self):
@@ -35,7 +35,7 @@ class SchedulerManagedEntryDao(object):
         cursor = collection.find(query)
         if cursor.count() == 0:
             raise LookupError('MongoDB has no SchedulerManagedEntry records')
-        return [SchedulerManagedEntry(entry) for entry in cursor]
+        return [SchedulerManagedEntry.from_json(entry) for entry in cursor]
 
     @thread_safe
     def update(self, instance):

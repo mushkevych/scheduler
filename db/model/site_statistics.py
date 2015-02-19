@@ -1,5 +1,6 @@
 __author__ = 'Bohdan Mushkevych'
 
+from odm.fields import ObjectIdField
 from db.model.raw_data import *
 from synergy.db.model.base_model import *
 
@@ -9,6 +10,7 @@ class SiteStatistics(BaseModel):
     class presents site statistics, such as number of visits per defined period or list of search keywords
     """
 
+    db_id = ObjectIdField('_id', null=True)
     domain_name = StringField(DOMAIN_NAME)
     timeperiod = StringField(TIMEPERIOD)
 

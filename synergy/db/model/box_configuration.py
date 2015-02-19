@@ -1,6 +1,6 @@
 __author__ = 'Bohdan Mushkevych'
 
-from synergy.db.model.base_model import BaseModel
+from odm.document import BaseDocument
 from odm.fields import DictField, StringField
 
 BOX_ID = 'box_id'
@@ -11,7 +11,7 @@ STATE_ON = 'state_on'
 STATE_OFF = 'state_off'
 
 
-class BoxConfiguration(BaseModel):
+class BoxConfiguration(BaseDocument):
     """
     Class presents list of processes that are supposed to run on particular box.
     """

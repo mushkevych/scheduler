@@ -16,7 +16,7 @@ class ClientMonthlyAggregator(ClientDailyAggregator):
         return args[0], time_helper.day_to_month(args[1])
 
     def _init_source_object(self, document):
-        return ClientStatistics(document)
+        return ClientStatistics.from_json(document)
 
     def _init_sink_object(self, composite_key):
         obj = ClientStatistics()
