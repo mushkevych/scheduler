@@ -32,14 +32,14 @@ class SiteDailyAggregator(AbstractVerticalWorker):
         composite_key = self._init_sink_key(source_obj.key[0], source_obj.key[1])
         target_obj = self._get_aggregated_object(composite_key)
 
-        target_obj.number_of_visits += source_obj.number_of_visits
-        target_obj.number_of_pageviews += source_obj.number_of_pageviews
-        target_obj.total_duration += source_obj.total_duration
-        BaseModel._copy_and_sum_families(source_obj.os, target_obj.os)
-        BaseModel._copy_and_sum_families(source_obj.browsers, target_obj.browsers)
-        BaseModel._copy_and_sum_families(source_obj.screen_res, target_obj.screen_res)
-        BaseModel._copy_and_sum_families(source_obj.languages, target_obj.languages)
-        BaseModel._copy_and_sum_families(source_obj.countries, target_obj.countries)
+        target_obj.stat.number_of_visits += source_obj.stat.number_of_visits
+        target_obj.stat.number_of_pageviews += source_obj.stat.number_of_pageviews
+        target_obj.stat.total_duration += source_obj.stat.total_duration
+        BaseModel._copy_and_sum_families(source_obj.stat.os, target_obj.stat.os)
+        BaseModel._copy_and_sum_families(source_obj.stat.browsers, target_obj.stat.browsers)
+        BaseModel._copy_and_sum_families(source_obj.stat.screen_res, target_obj.stat.screen_res)
+        BaseModel._copy_and_sum_families(source_obj.stat.languages, target_obj.stat.languages)
+        BaseModel._copy_and_sum_families(source_obj.stat.countries, target_obj.stat.countries)
 
 
 if __name__ == '__main__':

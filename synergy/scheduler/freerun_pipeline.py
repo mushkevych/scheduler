@@ -68,7 +68,7 @@ class FreerunPipeline(object):
         uow.unit_of_work_type = TYPE_FREERUN
         uow.number_of_retries = 0
         uow.arguments = freerun_entry.arguments
-        uow.document['_id'] = self.uow_dao.insert(uow)
+        uow.db_id = self.uow_dao.insert(uow)
 
         msg = 'Created: UOW %s for %s in timeperiod %s.' % (uow.db_id, schedulable_name, current_timeperiod)
         self._log_message(INFO, freerun_entry, msg)

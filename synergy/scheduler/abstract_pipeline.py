@@ -57,7 +57,7 @@ class AbstractPipeline(object):
         uow.unit_of_work_type = TYPE_MANAGED
         uow.number_of_retries = 0
         uow.arguments = ProcessContext.get_arguments(process_name)
-        uow.document['_id'] = self.uow_dao.insert(uow)
+        uow.db_id = self.uow_dao.insert(uow)
 
         msg = 'Created: UOW %s for %s in timeperiod [%s:%s).' \
               % (uow.db_id, process_name, start_timeperiod, end_timeperiod)

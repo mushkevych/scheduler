@@ -137,7 +137,7 @@ def create_unit_of_work(process_name,
     uow.arguments = ProcessContext.get_arguments(process_name)
 
     if uow_id is not None:
-        uow.document['_id'] = uow_id
+        uow.db_id = uow_id
 
     return uow
 
