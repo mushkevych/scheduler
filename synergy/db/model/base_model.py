@@ -1,42 +1,22 @@
 __author__ = 'Bohdan Mushkevych'
 
+from odm.document import BaseDocument
+from odm.fields import ObjectIdField
+
 KEY = 'key'
 TIMEPERIOD = 'timeperiod'
 
 
-class BaseModel(object):
+class BaseModel(BaseDocument):
     """
     This class presents common functionality for all Models within the Synergy Scheduler project
     """
-
-    def __init__(self, document=None):
-        if document is None:
-            self.data = dict()
-        else:
-            self.data = document
-
-    @property
-    def key(self):
-        raise NotImplementedError('property key.getter is not implemented in BaseModel child %s'
-                                  % self.__class__.__name__)
-
-    @key.setter
-    def key(self, value):
-        raise NotImplementedError('property key.getter is not implemented in BaseModel child %s'
-                                  % self.__class__.__name__)
-
-    @property
-    def db_id(self):
-        return str(self.data['_id'])
+    db_id = ObjectIdField('_id', null=True)
 
     def _get_column_family(self, family_name):
-        if family_name not in self.data:
-            self.data[family_name] = dict()
-        return self.data[family_name]
-
-    @property
-    def document(self):
-        return self.data
+        if family_name not in self._data:
+            self._data[family_name] = dict()
+        return self._data[family_name]
 
     @classmethod
     def _increment_family_property(cls, key, family):

@@ -1,6 +1,7 @@
 __author__ = 'Bohdan Mushkevych'
 
-from db.model.site_statistics import *
+from db.model.site_statistics import SiteStatistics, TIMEPERIOD
+from odm.fields import StringField
 
 CLIENT_ID = 'client_id'
 
@@ -10,17 +11,17 @@ class ClientStatistics(SiteStatistics):
     class presents statistics for site owners: number of visits per defined period or list of search keywords
     """
 
-    def __init__(self, document=None):
-        super(ClientStatistics, self).__init__(document)
+    client_id = StringField(CLIENT_ID)
+    timeperiod = StringField(TIMEPERIOD)
 
-    @property
+    @SiteStatistics.key.getter
     def key(self):
-        return self.data[CLIENT_ID], self.data[TIMEPERIOD]
+        return self.client_id, self.timeperiod
 
-    @key.setter
+    @SiteStatistics.key.setter
     def key(self, value):
         """
         :param value: tuple (client_id <string>, timeperiod <string in YYYYMMDDHH format>)
         """
-        self.data[CLIENT_ID] = value[0]
-        self.data[TIMEPERIOD] = value[1]
+        self.client_id = value[0]
+        self.timeperiod = value[1]

@@ -1,5 +1,6 @@
 __author__ = 'Bohdan Mushkevych'
 
+from odm.fields import StringField, IntegerField, BooleanField
 from synergy.db.model.base_model import *
 
 
@@ -9,13 +10,10 @@ IP = 'ip'
 OS = 'os'
 BROWSER = 'browser'
 USER_ID = 'user_id'
-SCREEN_RESOLUTION_X = 'screen_resolution_x'
-SCREEN_RESOLUTION_Y = 'screen_resolution_y'
 LANGUAGE = 'language'
 COUNTRY = 'country'
 PAGE = 'page'
 
-SESSION = 'session'
 USER = 'user'
 DOMAIN_NAME = 'domain'
 PAGE_VIEW = 'page_view'
@@ -48,82 +46,33 @@ FAMILY_LANGUAGES = 'language'
 
 class RawData(BaseModel):
     """ Non-persistent model. Instance of this class presents single message to the SingleSessionWorker """
-    def __init__(self, document=None):
-        super(RawData, self).__init__(document)
+    domain_name = StringField(DOMAIN_NAME)
+    timeperiod = StringField(TIMEPERIOD)
+    session_id = StringField(SESSION_ID)
+    ip = StringField(IP)
+    screen_x = IntegerField(SCREEN_X)
+    screen_y = IntegerField(SCREEN_Y)
+    os = StringField(OS)
+    browser = StringField(BROWSER)
+    language = StringField(LANGUAGE)
+    country = StringField(COUNTRY)
+    is_page_view = BooleanField(PAGE_VIEW)
 
     @BaseModel.key.getter
     def key(self):
-        return self.data[DOMAIN_NAME], self.data[TIMEPERIOD], self.session_id
+        return self.domain_name, self.timeperiod, self.session_id
 
     @key.setter
     def key(self, value):
-        self.data[DOMAIN_NAME] = value[0]
-        self.data[TIMEPERIOD] = value[1]
+        self.domain_name = value[0]
+        self.timeperiod = value[1]
         self.session_id = value[2]
 
     @property
-    def session_id(self):
-        return self.data[SESSION]
-
-    @session_id.setter
-    def session_id(self, value):
-        self.data[SESSION] = value
-
-    @property
-    def ip(self):
-        return self.data[IP]
-
-    @ip.setter
-    def ip(self, value):
-        self.data[IP] = value
-
-    @property
     def screen_res(self):
-        return self.data.get(SCREEN_X), self.data.get(SCREEN_Y)
+        return self.screen_x, self.screen_y
 
     @screen_res.setter
     def screen_res(self, value):
-        self.data[SCREEN_X] = value[0]
-        self.data[SCREEN_Y] = value[1]
-
-    @property
-    def os(self):
-        return self.data.get(OS)
-
-    @os.setter
-    def os(self, value):
-        self.data[OS] = value
-
-    @property
-    def browser(self):
-        return self.data.get(BROWSER)
-
-    @browser.setter
-    def browser(self, value):
-        self.data[BROWSER] = value
-
-    @property
-    def language(self):
-        return self.data.get(LANGUAGE)
-
-    @language.setter
-    def language(self, value):
-        self.data[LANGUAGE] = value
-
-    @property
-    def country(self):
-        return self.data.get(COUNTRY)
-
-    @country.setter
-    def country(self, value):
-        self.data[COUNTRY] = value
-
-    @property
-    def is_page_view(self):
-        if PAGE_VIEW in self.data:
-            return True
-        return False
-
-    @is_page_view.setter
-    def is_page_view(self, _):
-        self.data[PAGE_VIEW] = 1
+        self.screen_x = value[0]
+        self.screen_y = value[1]

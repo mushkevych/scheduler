@@ -1,6 +1,7 @@
 __author__ = 'Bohdan Mushkevych'
 
 from synergy.db.model.base_model import *
+from odm.fields import StringField, ObjectIdField, ListField, IntegerField
 
 MAX_NUMBER_OF_LOG_ENTRIES = 32
 PROCESS_NAME = 'process_name'
@@ -38,95 +39,22 @@ STATE_EMBRYO = 'state_embryo'
 class Job(BaseModel):
     """ class presents status for the time-period, and indicates whether data was process by particular process"""
 
-    def __init__(self, document=None):
-        super(Job, self).__init__(document)
-
     @property
     def key(self):
-        return self.data[PROCESS_NAME], self.data[TIMEPERIOD]
+        return self.process_name, self.timeperiod
 
     @key.setter
     def key(self, value):
-        """
-        :param value: tuple - value[0] - name of the process
-        value[1] - timeperiod as string in Synergy Data format
-        """
-        self.data[PROCESS_NAME] = value[0]
-        self.data[TIMEPERIOD] = value[1]
+        """ :param value: tuple (name of the process, timeperiod as string in Synergy Data format) """
+        self.process_name = value[0]
+        self.timeperiod = value[1]
 
-    @property
-    def process_name(self):
-        return self.data[PROCESS_NAME]
-
-    @process_name.setter
-    def process_name(self, value):
-        self.data[PROCESS_NAME] = value
-
-    @property
-    def timeperiod(self):
-        return self.data[TIMEPERIOD]
-
-    @timeperiod.setter
-    def timeperiod(self, value):
-        self.data[TIMEPERIOD] = value
-
-    @property
-    def start_id(self):
-        return self.data[START_OBJ_ID]
-
-    @start_id.setter
-    def start_id(self, value):
-        self.data[START_OBJ_ID] = value
-
-    @property
-    def end_id(self):
-        return self.data[END_OBJ_ID]
-
-    @end_id.setter
-    def end_id(self, value):
-        self.data[END_OBJ_ID] = value
-
-    @property
-    def state(self):
-        return self.data[STATE]
-
-    @state.setter
-    def state(self, value):
-        if not Job.is_state_valid(value):
-            raise ValueError('unit of work is in incorrect state')
-        self.data[STATE] = value
-
-    @classmethod
-    def is_state_valid(cls, value):
-        decision = True
-        if value not in [STATE_IN_PROGRESS, STATE_PROCESSED, STATE_FINAL_RUN, STATE_EMBRYO, STATE_SKIPPED]:
-            decision = False
-        return decision
-
-    @property
-    def related_unit_of_work(self):
-        return self.data.get(RELATED_UNIT_OF_WORK)
-
-    @related_unit_of_work.setter
-    def related_unit_of_work(self, value):
-        self.data[RELATED_UNIT_OF_WORK] = value
-
-    @property
-    def log(self):
-        if HISTORIC_LOG not in self.data:
-            self.data[HISTORIC_LOG] = []
-        return self.data[HISTORIC_LOG]
-
-    @log.setter
-    def log(self, value):
-        self.data[HISTORIC_LOG] = value
-
-    @property
-    def number_of_failures(self):
-        if NUMBER_OF_FAILURES not in self.data:
-            self.data[NUMBER_OF_FAILURES] = 0
-        return self.data[NUMBER_OF_FAILURES]
-
-    @number_of_failures.setter
-    def number_of_failures(self, value):
-        self.data[NUMBER_OF_FAILURES] = value
+    process_name = StringField(PROCESS_NAME)
+    timeperiod = StringField(TIMEPERIOD)
+    start_id = ObjectIdField(START_OBJ_ID)
+    end_id = ObjectIdField(END_OBJ_ID)
+    state = StringField(STATE,
+                        choices=[STATE_IN_PROGRESS, STATE_PROCESSED, STATE_FINAL_RUN, STATE_EMBRYO, STATE_SKIPPED])
+    related_unit_of_work = ObjectIdField(RELATED_UNIT_OF_WORK)
+    log = ListField(HISTORIC_LOG)
+    number_of_failures = IntegerField(NUMBER_OF_FAILURES)

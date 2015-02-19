@@ -11,17 +11,14 @@ class SingleSession(BaseModel):
     class presents statistics, gathered during the life of the session
     """
 
-    def __init__(self, document=None):
-        super(SingleSession, self).__init__(document)
-
     @BaseModel.key.getter
     def key(self):
-        return self.data[DOMAIN_NAME], self.data[TIMEPERIOD], self.session_id
+        return self.domain_name, self.timeperiod, self.session_id
 
     @key.setter
     def key(self, value):
-        self.data[DOMAIN_NAME] = value[0]
-        self.data[TIMEPERIOD] = value[1]
+        self.domain_name = value[0]
+        self.timeperiod = value[1]
         self.session_id = value[2]
 
     @property
@@ -67,13 +64,13 @@ class SingleSession(BaseModel):
     @property
     def screen_res(self):
         family_column = self._get_column_family(FAMILY_USER_PROFILE)
-        return family_column.get(SCREEN_RESOLUTION_X), family_column.get(SCREEN_RESOLUTION_Y)
+        return family_column.get(SCREEN_X), family_column.get(SCREEN_Y)
 
     @screen_res.setter
     def screen_res(self, value):
         family_column = self._get_column_family(FAMILY_USER_PROFILE)
-        family_column[SCREEN_RESOLUTION_X] = value[0]
-        family_column[SCREEN_RESOLUTION_Y] = value[1]
+        family_column[SCREEN_X] = value[0]
+        family_column[SCREEN_Y] = value[1]
 
     @property
     def language(self):

@@ -1,6 +1,7 @@
 __author__ = 'Bohdan Mushkevych'
 
-from synergy.db.model.base_model import *
+from synergy.db.model.base_model import BaseModel
+from odm.fields import DictField, StringField
 
 BOX_ID = 'box_id'
 PROCESS_LIST = 'process_list'
@@ -14,31 +15,13 @@ class BoxConfiguration(BaseModel):
     """
     Class presents list of processes that are supposed to run on particular box.
     """
-
-    def __init__(self, document=None):
-        super(BoxConfiguration, self).__init__(document)
-
-    @property
-    def box_id(self):
-        return self.data[BOX_ID]
-
-    @box_id.setter
-    def box_id(self, value):
-        self.data[BOX_ID] = value
-
-    @property
-    def process_list(self):
-        return self._get_column_family(PROCESS_LIST)
-
-    @process_list.setter
-    def process_list(self, value):
-        self.data[PROCESS_LIST] = value
+    box_id = StringField(BOX_ID)
+    process_list = DictField(PROCESS_LIST)
 
     def _get_process_entry(self, process_name):
-        family = self.process_list
-        if process_name not in family:
-            family[process_name] = dict()
-        return family[process_name]
+        if process_name not in self.process_list:
+            self.process_list[process_name] = dict()
+        return self.process_list[process_name]
 
     def set_process_state(self, process_name, value):
         if value not in [STATE_ON, STATE_OFF]:
