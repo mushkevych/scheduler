@@ -24,58 +24,49 @@ class TestSingleSession(unittest.TestCase):
     def test_session_id(self):
         value = 'value_1234567890'
         self.obj.session_id = value
-        temp = self.obj.session_id
-        assert temp == value
+        assert self.obj.session_id == value
 
     def test_os(self):
         value = 'Windows MS PS 7.0.0.0.1.1.2'
-        self.obj.ip = value
-        temp = self.obj.ip
-        assert temp == value
+        self.obj.user_profile.os = value
+        assert self.obj.user_profile.os == value
 
     def test_browser(self):
         value = 'FF 3.4.5.6.7.8.9'
-        self.obj.ip = value
-        temp = self.obj.ip
-        assert temp == value
+        self.obj.user_profile.browser = value
+        assert self.obj.user_profile.browser == value
 
     def test_ip(self):
         value = '100.100.200.200'
-        self.obj.ip = value
-        temp = self.obj.ip
-        assert temp == value
+        self.obj.user_profile.ip = value
+        assert self.obj.user_profile.ip == value
 
     def test_screen_res(self):
         value_x = 1080
         value_y = 980
-        self.obj.screen_res = (value_x, value_y)
-        temp = self.obj.screen_res
-        assert temp[0] == value_x
-        assert temp[1] == value_y
+        self.obj.user_profile.screen_res = (value_x, value_y)
+        assert self.obj.user_profile.screen_x == value_x
+        assert self.obj.user_profile.screen_y == value_y
 
     def test_language(self):
         value = 'ca-uk'
-        self.obj.language = value
-        temp = self.obj.language
-        assert temp == value
+        self.obj.user_profile.language = value
+        assert self.obj.user_profile.language == value
 
     def test_country(self):
         value = 'ca'
-        self.obj.country = value
-        temp = self.obj.country
-        assert temp == value
+        self.obj.user_profile.country = value
+        assert self.obj.user_profile.country == value
 
     def test_total_duration(self):
         value = 123
-        self.obj.total_duration = value
-        temp = self.obj.total_duration
-        assert temp == value
+        self.obj.browsing_history.total_duration = value
+        assert self.obj.browsing_history.total_duration == value
 
     def test_number_of_entries(self):
         value = 12
-        self.obj.number_of_entries = value
-        temp = self.obj.number_of_entries
-        assert temp == value
+        self.obj.browsing_history.number_of_entries = value
+        assert self.obj.browsing_history.number_of_entries == value
 
 
 if __name__ == '__main__':

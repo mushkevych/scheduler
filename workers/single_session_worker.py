@@ -1,5 +1,4 @@
 """ Module is responsible for reading MQ queue and updating/inserting data records to the MongoDB """
-
 __author__ = 'Bohdan Mushkevych'
 
 import time
@@ -9,6 +8,7 @@ from db.model.raw_data import *
 from db.dao.single_session_dao import SingleSessionDao
 from synergy.system import time_helper
 from synergy.system.performance_tracker import SessionPerformanceTracker
+from synergy.system.time_qualifier import QUALIFIER_REAL_TIME
 from synergy.workers.abstract_mq_worker import AbstractMqWorker
 
 
@@ -42,7 +42,7 @@ class SingleSessionWorker(AbstractMqWorker):
 
                 # update the click_xxx info
                 session = self.update_session_body(raw_data, session)
-                duration = raw_data.timeperiod - time_helper.session_to_epoch(session.timeperiod)
+                duration = raw_data.timestamp - time_helper.session_to_epoch(session.timeperiod)
                 session.browsing_history.total_duration = duration
 
                 index = session.browsing_history.number_of_entries
@@ -53,7 +53,9 @@ class SingleSessionWorker(AbstractMqWorker):
                 session = SingleSession()
 
                 # input data constraints - both session_id and user_id must be present in MQ message
-                session.key = (raw_data.domain_name, time_helper.raw_to_session(raw_data.timestamp), raw_data.session_id)
+                session.key = (raw_data.domain_name,
+                               time_helper.datetime_to_synergy(QUALIFIER_REAL_TIME, raw_data.timestamp),
+                               raw_data.session_id)
                 session.ip = raw_data.ip
                 session.total_duration = 0
 
@@ -99,7 +101,8 @@ class SingleSessionWorker(AbstractMqWorker):
 
     def add_entry(self, session, index, raw_data):
         session.browsing_history.number_of_entries = index + 1
-        session.browsing_history.set_entry_timestamp(index, time_helper.raw_to_session(raw_data.timestamp))
+        session.browsing_history.set_entry_timestamp(
+            index, time_helper.datetime_to_synergy(QUALIFIER_REAL_TIME, raw_data.timestamp))
 
 
 if __name__ == '__main__':
