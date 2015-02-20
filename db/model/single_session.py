@@ -31,9 +31,13 @@ class NestedBrowsingHistory(BaseDocument):
     entries_timestamps = DictField(FAMILY_ENTRIES)
 
     def set_entry_timestamp(self, entry_id, value):
+        if not isinstance(entry_id, basestring):
+            entry_id = str(entry_id)
         self.entries_timestamps[entry_id] = value
 
     def get_entry_timestamp(self, entry_id):
+        if not isinstance(entry_id, basestring):
+            entry_id = str(entry_id)
         return self.entries_timestamps[entry_id]
 
 

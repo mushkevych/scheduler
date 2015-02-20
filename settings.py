@@ -47,7 +47,6 @@ test_cases = [
     'tests.test_abstract_pipeline',
     'tests.test_continuous_pipeline',
     'tests.test_discrete_pipeline',
-    'tests.test_decorator',
     'tests.test_publishers_pool',
     'tests.test_garbage_collector',
     'tests.test_system_collections',

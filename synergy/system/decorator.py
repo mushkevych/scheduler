@@ -82,25 +82,3 @@ def singleton(cls):
         return instances[cls]
 
     return get_instance
-
-
-def base_model_derived(base_model_class):
-    """ wraps setter/getter with a convertor to/from BaseModel and dict """
-
-    def actual_decorator(method):
-        @functools.wraps(method)
-        def wrapper(self, *args):
-            if args:
-                # we are in the setter
-                if isinstance(args[0], base_model_class):
-                    method(self, args[0].document)
-                else:
-                    method(self, *args)
-            else:
-                # we are in the getter
-                field_value = method(self)
-                if isinstance(field_value, dict):
-                    return base_model_class(field_value)
-                return field_value
-        return wrapper
-    return actual_decorator

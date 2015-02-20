@@ -19,7 +19,8 @@ To start using Synergy Scheduler user would have to write an actual job, registe
 
 License:
 ---------
-Modified BSD License. Refer to LICENSE for details.
+[Modified BSD License.](http://en.wikipedia.org/wiki/BSD_licenses#3-clause_license_.28.22Revised_BSD_License.22.2C_.22New_BSD_License.22.2C_or_.22Modified_BSD_License.22.29)  
+Refer to LICENSE for details.
 
 
 Git repository:
