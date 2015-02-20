@@ -165,29 +165,29 @@ def create_session_stats(composite_key_function, seed='RANDOM_SEED_OBJECT'):
         session.key = (key[0], key[1], 'session_id_%s' % str(i))
         session.ip = '192.168.0.2'
         if i % 3 == 0:
-            session.screen_res = (240, 360)
+            session.user_profile.screen_res = (240, 360)
         elif i % 5 == 0:
-            session.screen_res = (360, 480)
+            session.user_profile.screen_res = (360, 480)
         else:
-            session.screen_res = (760, 980)
+            session.user_profile.screen_res = (760, 980)
 
         if i % 2 == 0:
-            session.os = 'Linux'
-            session.browser = 'FF %s' % str(i % 4)
-            session.language = 'en_ca'
-            session.country = 'ca'
+            session.user_profile.os = 'Linux'
+            session.user_profile.browser = 'FF %s' % str(i % 4)
+            session.user_profile.language = 'en_ca'
+            session.user_profile.country = 'ca'
         else:
-            session.os = 'Windows'
-            session.browser = 'IE %s' % str(i % 9)
-            session.language = 'ua_uk'
-            session.country = 'eu'
+            session.user_profile.os = 'Windows'
+            session.user_profile.browser = 'IE %s' % str(i % 9)
+            session.user_profile.language = 'ua_uk'
+            session.user_profile.country = 'eu'
 
-        session.total_duration = random.randint(0, 200)
-        session.number_of_pageviews = random.randint(1, 5)
+        session.browsing_history.total_duration = random.randint(0, 200)
+        session.browsing_history.number_of_pageviews = random.randint(1, 5)
 
         for index in range(random.randint(1, 4)):
-            session.number_of_entries = index + 1
-            session.set_entry_timestamp(index, time_array[index])
+            session.browsing_history.number_of_entries = index + 1
+            session.browsing_history.set_entry_timestamp(index, time_array[index])
 
         sess_id = ss_dao.insert(session)
         object_ids.append(sess_id)
@@ -223,36 +223,36 @@ def create_site_stats(collection_name, time_qualifier, seed='RANDOM_SEED_OBJECT'
     for i in range(TOTAL_ENTRIES):
         key = generate_site_composite_key(i, time_qualifier)
         site_stat = SiteStatistics()
-        site_stat.key = (key[0], key[1])
-        site_stat.number_of_visits = random.randint(1, 1000)
-        site_stat.total_duration = random.randint(0, 100)
+        site_stat.key = key
+        site_stat.stat.number_of_visits = random.randint(1, 1000)
+        site_stat.stat.total_duration = random.randint(0, 100)
 
         items = _generate_entries('os_', 5, i)
-        site_stat.os = items
+        site_stat.stat.os = items
 
         items = _generate_entries('browser_', 5, i)
-        site_stat.browsers = items
+        site_stat.stat.browsers = items
 
         items = dict()
         items['(320, 240)'] = 3
         items['(640, 480)'] = 5
         items['(1024, 960)'] = 7
         items['(1280, 768)'] = 9
-        site_stat.screen_res = items
+        site_stat.stat.screen_res = items
 
         items = dict()
         items['ca_en'] = 3
         items['ca_fr'] = 5
         items['ua_uk'] = 7
         items['us_en'] = 9
-        site_stat.languages = items
+        site_stat.stat.languages = items
 
         items = dict()
         items['ca'] = 3
         items['fr'] = 5
         items['uk'] = 7
         items['us'] = 9
-        site_stat.countries = items
+        site_stat.stat.countries = items
 
         stat_id = ds.insert(collection_name, site_stat.document)
         object_ids.append(stat_id)

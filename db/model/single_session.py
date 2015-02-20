@@ -4,8 +4,6 @@ from odm.fields import ObjectIdField, NestedDocumentField, DictField
 from db.model.raw_data import *
 from synergy.db.model.base_model import *
 
-TIMESTAMP = 'timestamp'
-
 
 class NestedUserProfile(BaseDocument):
     ip = StringField(IP)

@@ -38,14 +38,14 @@ class SingleSessionWorker(AbstractMqWorker):
         try:
             raw_data = RawData.from_json(message.body)
             try:
-                session = self.ss_dao.get_one(raw_data.key[0], raw_data.session_id)
+                session = self.ss_dao.get_one(raw_data.domain_name, raw_data.session_id)
 
                 # update the click_xxx info
                 session = self.update_session_body(raw_data, session)
-                duration = raw_data.key[1] - time_helper.session_to_epoch(session.key[1])
-                session.total_duration = duration
+                duration = raw_data.timeperiod - time_helper.session_to_epoch(session.timeperiod)
+                session.browsing_history.total_duration = duration
 
-                index = session.number_of_entries
+                index = session.browsing_history.number_of_entries
                 self.add_entry(session, index, raw_data)
                 self.performance_ticker.update.increment_success()
             except LookupError:
@@ -53,8 +53,7 @@ class SingleSessionWorker(AbstractMqWorker):
                 session = SingleSession()
 
                 # input data constraints - both session_id and user_id must be present in MQ message
-                session.key = (raw_data.key[0], time_helper.raw_to_session(raw_data.key[1]))
-                session.session_id = raw_data.session_id
+                session.key = (raw_data.domain_name, time_helper.raw_to_session(raw_data.timestamp), raw_data.session_id)
                 session.ip = raw_data.ip
                 session.total_duration = 0
 
@@ -83,26 +82,24 @@ class SingleSessionWorker(AbstractMqWorker):
 
     def update_session_body(self, raw_data, session):
         if raw_data.browser is not None:
-            session.browser = raw_data.browser
+            session.user_profile.browser = raw_data.browser
         if raw_data.screen_res[0] is not None and raw_data.screen_res[1] is not None:
-            session.screen_res = (raw_data.screen_res[0], raw_data.screen_res[1])
+            session.user_profile.screen_res = raw_data.screen_res
         if raw_data.os is not None:
-            session.os = raw_data.os
+            session.user_profile.os = raw_data.os
         if raw_data.language is not None:
-            session.language = raw_data.language
+            session.user_profile.language = raw_data.language
         if raw_data.country is not None:
-            session.country = raw_data.country
+            session.user_profile.country = raw_data.country
 
-        if session.number_of_pageviews is None:
-            session.number_of_pageviews = 0
         if raw_data.is_page_view:
-            session.number_of_pageviews += 1
+            session.browsing_history.number_of_pageviews += 1
 
         return session
 
     def add_entry(self, session, index, raw_data):
-        session.number_of_entries = index + 1
-        session.set_entry_timestamp(index, time_helper.raw_to_session(raw_data.key[1]))
+        session.browsing_history.number_of_entries = index + 1
+        session.browsing_history.set_entry_timestamp(index, time_helper.raw_to_session(raw_data.timestamp))
 
 
 if __name__ == '__main__':

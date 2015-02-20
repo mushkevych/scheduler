@@ -1,9 +1,9 @@
 __author__ = 'Bohdan Mushkevych'
 
-from odm.fields import StringField, IntegerField, BooleanField
+from odm.fields import StringField, IntegerField, BooleanField, DateTimeField
 from synergy.db.model.base_model import *
 
-
+TIMESTAMP = 'timestamp'
 CREATION_TIME = 'creation_time'
 SESSION_ID = 'session_id'
 IP = 'ip'
@@ -48,7 +48,7 @@ class RawData(BaseDocument):
     """ Non-persistent model. Instance of this class presents single message to the SingleSessionWorker """
 
     domain_name = StringField(DOMAIN_NAME)
-    timeperiod = StringField(TIMEPERIOD)
+    timestamp = DateTimeField(TIMESTAMP)
     session_id = StringField(SESSION_ID)
     ip = StringField(IP)
     screen_x = IntegerField(SCREEN_X)
@@ -61,12 +61,12 @@ class RawData(BaseDocument):
 
     @BaseModel.key.getter
     def key(self):
-        return self.domain_name, self.timeperiod, self.session_id
+        return self.domain_name, self.timestamp, self.session_id
 
     @key.setter
     def key(self, value):
         self.domain_name = value[0]
-        self.timeperiod = value[1]
+        self.timestamp = value[1]
         self.session_id = value[2]
 
     @property

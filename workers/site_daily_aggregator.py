@@ -24,12 +24,12 @@ class SiteDailyAggregator(AbstractVerticalWorker):
 
     def _init_sink_object(self, composite_key):
         obj = SiteStatistics()
-        obj.key = (composite_key[0], composite_key[1])
+        obj.key = composite_key
         return obj
 
     def _process_single_document(self, document):
         source_obj = self._init_source_object(document)
-        composite_key = self._init_sink_key(source_obj.key[0], source_obj.key[1])
+        composite_key = self._init_sink_key(source_obj.domain_name, source_obj.timeperiod)
         target_obj = self._get_aggregated_object(composite_key)
 
         target_obj.stat.number_of_visits += source_obj.stat.number_of_visits

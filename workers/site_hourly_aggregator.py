@@ -29,23 +29,22 @@ class SiteHourlyAggregator(AbstractVerticalWorker):
 
     def _init_sink_object(self, composite_key):
         obj = SiteStatistics()
-        obj.key = (composite_key[0], composite_key[1])
-        obj.number_of_visits = 0
+        obj.key = composite_key
         return obj
 
     def _process_single_document(self, document):
         source_obj = self._init_source_object(document)
-        composite_key = self._init_sink_key(source_obj.key[0], source_obj.key[1])
+        composite_key = self._init_sink_key(source_obj.domain_name, source_obj.timeperiod)
         target_obj = self._get_aggregated_object(composite_key)
 
-        target_obj.number_of_visits += 1
-        target_obj.number_of_pageviews += source_obj.number_of_pageviews
-        target_obj.total_duration += source_obj.total_duration
-        BaseModel._increment_family_property(source_obj.os, target_obj.os)
-        BaseModel._increment_family_property(source_obj.browser, target_obj.browsers)
-        BaseModel._increment_family_property(source_obj.screen_res, target_obj.screen_res)
-        BaseModel._increment_family_property(source_obj.language, target_obj.languages)
-        BaseModel._increment_family_property(source_obj.country, target_obj.countries)
+        target_obj.stat.number_of_visits += 1
+        target_obj.stat.number_of_pageviews += source_obj.browsing_history.number_of_pageviews
+        target_obj.stat.total_duration += source_obj.browsing_history.total_duration
+        BaseModel._increment_family_property(source_obj.user_profile.os, target_obj.stat.os)
+        BaseModel._increment_family_property(source_obj.user_profile.browser, target_obj.stat.browsers)
+        BaseModel._increment_family_property(source_obj.user_profile.screen_res, target_obj.stat.screen_res)
+        BaseModel._increment_family_property(source_obj.user_profile.language, target_obj.stat.languages)
+        BaseModel._increment_family_property(source_obj.user_profile.country, target_obj.stat.countries)
 
 
 if __name__ == '__main__':
