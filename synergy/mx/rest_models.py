@@ -1,6 +1,6 @@
 __author__ = 'Bohdan Mushkevych'
 
-from odm.fields import BooleanField, StringField, DictField, ListField, NestedDocumentField, IntegerField
+from odm.fields import BooleanField, StringField, DictField, ListField, NestedDocumentField
 from odm.document import BaseDocument
 
 
@@ -22,17 +22,9 @@ FIELD_MX_PAGE = 'mx_page'
 FIELD_MX_NAME = 'mx_page_name'
 FIELD_REPROCESSING_QUEUE = 'reprocessing_queue'
 
-FIELD_YEARLY = 'yearly'
-FIELD_MONTHLY = 'monthly'
-FIELD_DAILY = 'daily'
-FIELD_HOURLY = 'hourly'
-FIELD_LINEAR = 'linear'
-FIELD_NUMBER_OF_LEVELS = 'number_of_levels'
 FIELD_NUMBER_OF_CHILDREN = 'number_of_children'
 FIELD_NUMBER_OF_FAILED_CALLS = 'number_of_failed_calls'
-FIELD_REPROCESSING_QUEUES = 'reprocessing_queues'
 FIELD_PROCESSES = 'processes'
-FIELD_NEXT_TIMEPERIODS = 'next_timeperiods'     # Synergy timeperiod format
 FIELD_TIMEPERIOD = 'timeperiod'                 # Synergy timeperiod format
 FIELD_TIME_QUALIFIER = 'time_qualifier'
 FIELD_STATE = 'state'
@@ -57,29 +49,6 @@ class RestManagedSchedulerEntry(BaseDocument):
     trigger_frequency = StringField(FIELD_TRIGGER_FREQUENCY)
     next_run_in = StringField(FIELD_NEXT_RUN_IN)
     next_timeperiod = StringField(FIELD_NEXT_TIMEPERIOD)
-
-
-class ReprocessingQueue(BaseDocument):
-    yearly = ListField(FIELD_YEARLY)
-    monthly = ListField(FIELD_MONTHLY)
-    daily = ListField(FIELD_DAILY)
-    hourly = ListField(FIELD_HOURLY)
-    linear = ListField(FIELD_LINEAR)
-
-
-class QualifierBasedCriteria(BaseDocument):
-    yearly = StringField(FIELD_YEARLY)
-    monthly = StringField(FIELD_MONTHLY)
-    daily = StringField(FIELD_DAILY)
-    hourly = StringField(FIELD_HOURLY)
-    linear = StringField(FIELD_LINEAR)
-
-
-class RestTreeDetail(BaseDocument):
-    reprocessing_queues = NestedDocumentField(FIELD_REPROCESSING_QUEUES, ReprocessingQueue)
-    processes = NestedDocumentField(FIELD_PROCESSES, QualifierBasedCriteria)
-    next_timeperiods = NestedDocumentField(FIELD_NEXT_TIMEPERIODS, QualifierBasedCriteria)
-    number_of_levels = IntegerField(FIELD_NUMBER_OF_LEVELS)
 
 
 class RestProcess(BaseDocument):

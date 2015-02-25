@@ -153,3 +153,19 @@ function process_trigger(action, process_name, timeperiod, entry_name, is_freeru
 //        alert("response is " + response);
     });
 }
+
+// function gets top process for given tree
+function get_tree_top_process(tree_obj) {
+    var top_index = -1;
+    var top_process;
+
+    for (var process_name in tree_obj.processes) {
+        var time_qualifier = tree_obj.processes[process_name].time_qualifier;
+        var current_index = ['_hourly', '_daily', '_monthly', '_yearly'].indexOf(time_qualifier);
+        if (current_index > top_index) {
+            top_process = process_name;
+            top_index = current_index;
+        }
+    }
+    return top_process;
+}

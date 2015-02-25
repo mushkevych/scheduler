@@ -40,7 +40,7 @@ def open_schedulable_form(request):
 
 @expose('/timetable_details/')
 def timetable_details(request):
-    details = TimetableDetails(jinja_env.globals['mbean'])
+    details = TimetableDetails(jinja_env.globals['mbean'], request)
     return render_template('timetable_details.html', details=details)
 
 
@@ -59,15 +59,8 @@ def request_children(request):
 
 @expose('/request_verticals/')
 def request_verticals(request):
-    details = TreeDetails(jinja_env.globals['mbean'], request)
-    return Response(response=json.dumps(details.details),
-                    mimetype='application/json')
-
-
-@expose('/request_timeperiods/')
-def request_timeperiods(request):
-    details = TreeDetails(jinja_env.globals['mbean'], request)
-    return Response(response=json.dumps(details.details),
+    details = TimetableDetails(jinja_env.globals['mbean'], request)
+    return Response(response=json.dumps(details.mx_page_entries),
                     mimetype='application/json')
 
 

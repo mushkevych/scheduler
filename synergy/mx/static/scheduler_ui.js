@@ -142,16 +142,11 @@ OUTPUT_DOCUMENT.build_navigational_panel = function (vertical_json) {
 
     // phase 2: define function to build expandable panel per process
     function per_process(k, v) {
-        var enable_pagination = v.number_of_levels == 1;
+        var enable_pagination = v.processes.length == 1;
         var li = $('<li></li>');
         var a = $('<a href="#">' + k + '</a>').click(function (e) {
             e.preventDefault();
-            var params = {};
-            if (enable_pagination) {
-                params = { process_name: v.processes.linear };
-            } else {
-                params = { process_name: v.processes.yearly };
-            }
+            var params = { process_name: get_tree_top_process(v) };
 
             $.get('/request_children/', params, function (response) {
                 $('#level').empty();
@@ -186,16 +181,18 @@ OUTPUT_DOCUMENT.build_navigational_panel = function (vertical_json) {
         var ul1 = $('<ul class="acitem"></ul>');
         var next_timeperiods_li = $('<li><span class="subtitle">Next TimePeriods</span></li>');
         ul1.append(next_timeperiods_li);
-        $.each(v.next_timeperiods, function (tree_level, next_timeperiod) {
-            ul1.append('<li><span class="detail">' + tree_level + ':' + next_timeperiod + '</span></li>');
+        $.each(v.processes, function (process_name, process_obj) {
+            // remove leading underscore from time_qualifier
+            ul1.append('<li><span class="detail">' + process_obj.time_qualifier.replace(/^_/, '') + ':' + process_obj.next_timeperiod + '</span></li>');
         });
 
         var reprocessing_queues_li = $('<li><span class="subtitle">Reprocessing Queues</span></li>');
         ul1.append(reprocessing_queues_li);
-        $.each(v.reprocessing_queues, function (tree_level, reprocessing_queue) {
-            var list_item = '<span class="detail">' + tree_level + ':';
-            if (reprocessing_queue.length > 0) {
-                list_item += '<textarea class="reprocessing_queues" rows="2" cols="32" readonly>' + reprocessing_queue + '</textarea>';
+        $.each(v.processes, function (process_name, process_obj) {
+            // remove leading underscore from time_qualifier
+            var list_item = '<span class="detail">' + process_obj.time_qualifier.replace(/^_/, '') + ':';
+            if (process_obj.reprocessing_queue.length > 0) {
+                list_item += '<textarea class="reprocessing_queues" rows="2" cols="32" readonly>' + process_obj.reprocessing_queue + '</textarea>';
             } else {
                 list_item += '';
             }

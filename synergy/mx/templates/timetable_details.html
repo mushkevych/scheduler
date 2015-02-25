@@ -1,7 +1,7 @@
 {% extends 'main_header.html' %}
 {% block body %}
 
-{% for tree_row in details.entries %}
+{% for tree_name, tree_row in details.entries.iteritems() %}
 
     Details for <b>{{ tree_row["tree_name"] }}</b> (available at <a href="/{{ tree_row["mx_page"] }}">{{ tree_row["mx_page"] }}</a> tab as <b>{{ tree_row["mx_name"] }}</b>):
 
