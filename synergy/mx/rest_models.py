@@ -31,7 +31,6 @@ FIELD_NUMBER_OF_LEVELS = 'number_of_levels'
 FIELD_REPROCESSING_QUEUES = 'reprocessing_queues'
 FIELD_PROCESSES = 'processes'
 FIELD_NEXT_TIMEPERIODS = 'next_timeperiods'     # Synergy timeperiod format
-# FIELD_PROCESS_TYPES = 'process_types'
 FIELD_TIME_QUALIFIER = 'time_qualifier'
 
 
@@ -84,6 +83,7 @@ class RestProcess(BaseDocument):
     process_type = StringField(FIELD_PROCESS_TYPE)
     run_on_active_timeperiod = BooleanField(FIELD_RUN_ON_ACTIVE_TIMEPERIOD)
     reprocessing_queue = ListField(FIELD_REPROCESSING_QUEUE)
+    next_timeperiod = StringField(FIELD_NEXT_TIMEPERIOD)
 
 
 class RestTimetableTree(BaseDocument):

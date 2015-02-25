@@ -50,7 +50,8 @@ class TimetableDetails(object):
                         state_machine=self._state_machine_name(process_name),
                         process_type=ProcessContext.get_process_type(process_name),
                         run_on_active_timeperiod=ProcessContext.run_on_active_timeperiod(process_name),
-                        reprocessing_queue=self._get_reprocessing_details(process_name)
+                        reprocessing_queue=self._get_reprocessing_details(process_name),
+                        next_timeperiod=self.mbean.timetable.get_next_job_record(process_name).timeperiod
                     )
                     rest_tree.processes[process_name] = rest_process.document
                 list_of_trees.append(rest_tree.document)
