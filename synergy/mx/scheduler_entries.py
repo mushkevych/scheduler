@@ -5,6 +5,7 @@ from werkzeug.utils import cached_property
 from synergy.db.model import scheduler_managed_entry
 from synergy.system.event_clock import format_time_trigger_string
 from synergy.system.performance_tracker import FootprintCalculator
+from synergy.mx.rest_models import RestFreerunSchedulerEntry, RestManagedSchedulerEntry
 
 
 # Scheduler Entries Details tab
@@ -37,18 +38,18 @@ class SchedulerEntries(object):
                 thread_handler = self.mbean.managed_handlers[key]
                 process_name = thread_handler.arguments.key
 
-                row = []
+                rest_model = RestManagedSchedulerEntry()
                 # indicate whether process is in active or passive state
                 # parameters are set in Scheduler.run() method
                 is_on = thread_handler.arguments.scheduler_entry_obj.state == scheduler_managed_entry.STATE_ON
-                row.append(is_on)                                                               # index 0
-                row.append(thread_handler.is_alive())                                           # index 1
-                row.append(process_name)                                                        # index 2
-                row.append(format_time_trigger_string(thread_handler.timer_instance))           # index 3
-                row.append(self._handler_next_run(thread_handler))                              # index 4
-                row.append(self._handler_next_timeperiod(process_name))                         # index 5
+                rest_model.is_on = is_on
+                rest_model.is_alive = thread_handler.is_alive()
+                rest_model.process_name = process_name
+                rest_model.trigger_frequency = format_time_trigger_string(thread_handler.timer_instance)
+                rest_model.next_run_in = self._handler_next_run(thread_handler)
+                rest_model.next_timeperiod = self._handler_next_timeperiod(process_name)
 
-                list_of_rows.append(row)
+                list_of_rows.append(rest_model.document)
         except Exception as e:
             self.logger.error('MX Exception %s' % str(e), exc_info=True)
 
@@ -63,19 +64,19 @@ class SchedulerEntries(object):
                 thread_handler = self.mbean.freerun_handlers[key]
                 process_name, entry_name = thread_handler.arguments.key
 
-                row = []
+                rest_model = RestFreerunSchedulerEntry()
                 # indicate whether process is in active or passive state
                 # parameters are set in Scheduler.run() method
                 is_on = thread_handler.arguments.scheduler_entry_obj.state == scheduler_managed_entry.STATE_ON
-                row.append(is_on)                                                               # index 0
-                row.append(thread_handler.is_alive())                                           # index 1
-                row.append(process_name)                                                        # index 2
-                row.append(entry_name)                                                          # index 3
-                row.append(format_time_trigger_string(thread_handler.timer_instance))           # index 4
-                row.append(self._handler_next_run(thread_handler))                              # index 5
-                row.append(thread_handler.arguments.scheduler_entry_obj.arguments)              # index 6
+                rest_model.is_on = is_on
+                rest_model.is_alive = thread_handler.is_alive()
+                rest_model.process_name = process_name
+                rest_model.entry_name = entry_name
+                rest_model.trigger_frequency = format_time_trigger_string(thread_handler.timer_instance)
+                rest_model.next_run_in = self._handler_next_run(thread_handler)
+                rest_model.arguments = thread_handler.arguments.scheduler_entry_obj.arguments
 
-                list_of_rows.append(row)
+                list_of_rows.append(rest_model.document)
         except Exception as e:
             self.logger.error('MX Exception %s' % str(e), exc_info=True)
 
@@ -89,3 +90,4 @@ class SchedulerEntries(object):
             return footprint
         except Exception as e:
             self.logger.error('MX Exception %s' % str(e), exc_info=True)
+            return []

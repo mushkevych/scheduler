@@ -1,6 +1,8 @@
 __author__ = 'Bohdan Mushkevych'
 
+from bson import ObjectId
 from threading import RLock
+
 from db.model.raw_data import *
 from db.model.site_statistics import SiteStatistics
 from synergy.db.manager import ds_manager
@@ -39,4 +41,7 @@ class SiteDao(object):
         """ method finds Site Statistics record and update it DB representation """
         assert isinstance(instance, SiteStatistics)
         collection = self.ds.connection(collection_name)
-        return collection.save(instance.document, safe=is_safe)
+        document = instance.document
+        if instance.db_id:
+            document['_id'] = ObjectId(instance.db_id)
+        return collection.save(document, safe=is_safe)

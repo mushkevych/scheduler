@@ -2,6 +2,7 @@ __author__ = 'Bohdan Mushkevych'
 
 from threading import RLock
 
+from bson import ObjectId
 from synergy.db.manager import ds_manager
 from synergy.db.model import job, base_model
 from synergy.db.model.job import Job
@@ -81,4 +82,7 @@ class JobDao(object):
     def update(self, instance):
         assert isinstance(instance, Job)
         collection = self._get_job_collection(instance.process_name)
-        return collection.save(instance.document, safe=True)
+        document = instance.document
+        if instance.db_id:
+            document['_id'] = ObjectId(instance.db_id)
+        return collection.save(document, safe=True)

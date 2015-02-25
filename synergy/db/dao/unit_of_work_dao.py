@@ -100,7 +100,10 @@ class UnitOfWorkDao(object):
         """ method finds unit_of_work record and change its status"""
         assert isinstance(instance, UnitOfWork)
         collection = self.ds.connection(COLLECTION_UNIT_OF_WORK)
-        return collection.save(instance.document, safe=True)
+        document = instance.document
+        if instance.db_id:
+            document['_id'] = ObjectId(instance.db_id)
+        return collection.save(document, safe=True)
 
     @thread_safe
     def insert(self, instance):

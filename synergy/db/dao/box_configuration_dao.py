@@ -1,5 +1,6 @@
 __author__ = 'Bohdan Mushkevych'
 
+from bson import ObjectId
 from threading import RLock
 from synergy.db.manager import ds_manager
 from synergy.db.model import box_configuration
@@ -30,4 +31,7 @@ class BoxConfigurationDao(object):
         """ method updates box configuration in the MongoDB"""
         assert isinstance(instance, BoxConfiguration)
         collection = self.ds.connection(COLLECTION_BOX_CONFIGURATION)
-        return collection.save(instance.document, safe=True)
+        document = instance.document
+        if instance.db_id:
+            document['_id'] = ObjectId(instance.db_id)
+        return collection.save(document, safe=True)

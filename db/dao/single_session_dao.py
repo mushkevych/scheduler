@@ -1,6 +1,8 @@
 __author__ = 'Bohdan Mushkevych'
 
+from bson import ObjectId
 from threading import RLock
+
 from db.model.raw_data import *
 from db.model.single_session import SingleSession
 from synergy.db.manager import ds_manager
@@ -39,4 +41,7 @@ class SingleSessionDao(object):
         """ method finds Single Session record and update its DB representation"""
         assert isinstance(instance, SingleSession)
         collection = self.ds.connection(COLLECTION_SINGLE_SESSION)
-        return collection.save(instance.document, safe=is_safe)
+        document = instance.document
+        if instance.db_id:
+            document['_id'] = ObjectId(instance.db_id)
+        return collection.save(document, safe=is_safe)

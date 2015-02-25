@@ -55,6 +55,6 @@ class UnitOfWork(BaseDocument):
 
     number_of_aggregated_documents = IntegerField(NUMBER_OF_AGGREGATED_DOCUMENTS)
     number_of_processed_documents = IntegerField(NUMBER_OF_PROCESSED_DOCUMENTS)
-    number_of_retries = IntegerField(NUMBER_OF_RETRIES)
+    number_of_retries = IntegerField(NUMBER_OF_RETRIES, default=0)
     processed_log = DictField(PROCESSED_LOG)
     unit_of_work_type = StringField(UNIT_OF_WORK_TYPE, choices=[TYPE_MANAGED, TYPE_FREERUN])

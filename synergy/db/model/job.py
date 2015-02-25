@@ -49,7 +49,7 @@ class Job(BaseDocument):
                         choices=[STATE_IN_PROGRESS, STATE_PROCESSED, STATE_FINAL_RUN, STATE_EMBRYO, STATE_SKIPPED])
     related_unit_of_work = ObjectIdField(RELATED_UNIT_OF_WORK)
     log = ListField(HISTORIC_LOG)
-    number_of_failures = IntegerField(NUMBER_OF_FAILURES)
+    number_of_failures = IntegerField(NUMBER_OF_FAILURES, default=0)
 
     @property
     def key(self):

@@ -12,7 +12,7 @@ from synergy.mx.scheduler_entries import SchedulerEntries
 from synergy.mx.processing_statements import ProcessingStatementDetails
 from synergy.mx.utils import render_template, expose, jinja_env
 from synergy.mx.tree_node_details import TreeNodeDetails
-from synergy.mx.timeperiod_details import TimeperiodDetails
+from synergy.mx.tree_details import TreeDetails
 from synergy.mx.timetable_details import TimetableDetails
 
 
@@ -59,14 +59,14 @@ def request_children(request):
 
 @expose('/request_verticals/')
 def request_verticals(request):
-    details = TimeperiodDetails(jinja_env.globals['mbean'], request)
+    details = TreeDetails(jinja_env.globals['mbean'], request)
     return Response(response=json.dumps(details.details),
                     mimetype='application/json')
 
 
 @expose('/request_timeperiods/')
 def request_timeperiods(request):
-    details = TimeperiodDetails(jinja_env.globals['mbean'], request)
+    details = TreeDetails(jinja_env.globals['mbean'], request)
     return Response(response=json.dumps(details.details),
                     mimetype='application/json')
 

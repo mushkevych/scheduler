@@ -3,7 +3,7 @@
 
 {% for tree_row in details.entries %}
 
-    Details for <b>{{ tree_row[0] }}</b> (available at <a href="/{{ tree_row[1] }}">{{ tree_row[1] }}</a> tab as <b>{{ tree_row[2] }}</b>):
+    Details for <b>{{ tree_row["tree_name"] }}</b> (available at <a href="/{{ tree_row["mx_page"] }}">{{ tree_row["mx_page"] }}</a> tab as <b>{{ tree_row["mx_name"] }}</b>):
 
     <table style="width: 90%" class="one-column-emphasis">
     <thead>
@@ -19,15 +19,15 @@
     </thead>
     <tbody>
 
-    {% for process_name, process_details in tree_row[3].iteritems() %}
+    {% for process_name, process_details in tree_row["processes"].iteritems() %}
     <tr>
-        <td>{{ process_details[0] }}</td>
-        <td>{{ process_details[1] }}</td>
-        <td>{{ process_details[2] }}</td>
-        <td>{{ process_details[3] }}</td>
-        <td>{{ process_details[4] }}</td>
-        <td>{{ process_details[5] }}</td>
-        <td>{{ process_details[6] }}</td>
+        <td>{{ process_details["process_name"] }}</td>
+        <td>{{ process_details["time_qualifier"] }}</td>
+        <td>{{ process_details["state_machine"] }}</td>
+        <td>{{ process_details["process_type"] }}</td>
+        <td>{{ process_details["run_on_active_timeperiod"] }}</td>
+        <td>{{ tree_row["dependent_on"] }}</td>
+        <td>{{ tree_row["dependant_trees"] }}</td>
     </tr>
     {% endfor %}
 

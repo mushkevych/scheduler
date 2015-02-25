@@ -1,7 +1,7 @@
 __author__ = 'Bohdan Mushkevych'
 
 from odm.document import BaseDocument
-from odm.fields import DictField, StringField
+from odm.fields import DictField, StringField, ObjectIdField
 
 BOX_ID = 'box_id'
 PROCESS_LIST = 'process_list'
@@ -15,6 +15,7 @@ class BoxConfiguration(BaseDocument):
     """
     Class presents list of processes that are supposed to run on particular box.
     """
+    db_id = ObjectIdField('_id', null=True)
     box_id = StringField(BOX_ID)
     process_list = DictField(PROCESS_LIST)
 

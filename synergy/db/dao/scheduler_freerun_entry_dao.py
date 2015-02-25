@@ -1,5 +1,6 @@
 __author__ = 'Bohdan Mushkevych'
 
+from bson import ObjectId
 from threading import RLock
 
 from synergy.db.manager import ds_manager
@@ -44,7 +45,10 @@ class SchedulerFreerunEntryDao(object):
         """ method finds scheduler_freerun_entry record and update its DB representation"""
         assert isinstance(instance, SchedulerFreerunEntry)
         collection = self.ds.connection(COLLECTION_SCHEDULER_FREERUN_ENTRY)
-        return collection.save(instance.document, safe=True)
+        document = instance.document
+        if instance.db_id:
+            document['_id'] = ObjectId(instance.db_id)
+        return collection.save(document, safe=True)
 
     @thread_safe
     def remove(self, key):
