@@ -12,7 +12,6 @@ from synergy.mx.scheduler_entries import SchedulerEntries
 from synergy.mx.processing_statements import ProcessingStatementDetails
 from synergy.mx.utils import render_template, expose, jinja_env
 from synergy.mx.tree_node_details import TreeNodeDetails
-from synergy.mx.tree_details import TreeDetails
 from synergy.mx.timetable_details import TimetableDetails
 
 

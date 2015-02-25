@@ -1,9 +1,9 @@
 {% extends 'main_header.html' %}
 {% block body %}
 
-{% for tree_name, tree_row in details.entries.iteritems() %}
+{% for tree_name, tree_obj in details.timetable_entries.iteritems() %}
 
-    Details for <b>{{ tree_row["tree_name"] }}</b> (available at <a href="/{{ tree_row["mx_page"] }}">{{ tree_row["mx_page"] }}</a> tab as <b>{{ tree_row["mx_name"] }}</b>):
+    Details for <b>{{ tree_obj.tree_name }}</b> (available at <a href="/{{ tree_obj.mx_page }}">{{ tree_obj.mx_page }}</a> tab as <b>{{ tree_obj.mx_name }}</b>):
 
     <table style="width: 90%" class="one-column-emphasis">
     <thead>
@@ -19,15 +19,15 @@
     </thead>
     <tbody>
 
-    {% for process_name, process_details in tree_row["processes"].iteritems() %}
+    {% for process_name, process_details in tree_obj.processes.iteritems() %}
     <tr>
-        <td>{{ process_details["process_name"] }}</td>
-        <td>{{ process_details["time_qualifier"] }}</td>
-        <td>{{ process_details["state_machine"] }}</td>
-        <td>{{ process_details["process_type"] }}</td>
-        <td>{{ process_details["run_on_active_timeperiod"] }}</td>
-        <td>{{ tree_row["dependent_on"] }}</td>
-        <td>{{ tree_row["dependant_trees"] }}</td>
+        <td>{{ process_details.process_name }}</td>
+        <td>{{ process_details.time_qualifier }}</td>
+        <td>{{ process_details.state_machine }}</td>
+        <td>{{ process_details.process_type }}</td>
+        <td>{{ process_details.run_on_active_timeperiod }}</td>
+        <td>{{ tree_obj.dependent_on }}</td>
+        <td>{{ tree_obj.dependant_trees }}</td>
     </tr>
     {% endfor %}
 

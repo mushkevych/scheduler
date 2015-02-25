@@ -7,7 +7,6 @@ from synergy.mx.rest_models import RestTimetableTree, RestProcess
 from synergy.conf.process_context import ProcessContext
 
 
-# Scheduler Entries Details tab
 class TimetableDetails(object):
     def __init__(self, mbean, request):
         self.mbean = mbean
@@ -53,7 +52,7 @@ class TimetableDetails(object):
         return rest_tree
 
     @cached_property
-    def entries(self):
+    def timetable_entries(self):
         trees = dict()
         try:
             sorter_keys = sorted(context.timetable_context.keys())
