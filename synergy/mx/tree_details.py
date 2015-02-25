@@ -7,7 +7,7 @@ from synergy.mx.rest_models import RestTimetableTree, RestProcess
 from synergy.conf.process_context import ProcessContext
 
 
-class TimetableDetails(object):
+class TreeDetails(object):
     def __init__(self, mbean, request):
         self.mbean = mbean
         self.referrer = request.referrer

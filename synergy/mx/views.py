@@ -12,7 +12,7 @@ from synergy.mx.scheduler_entries import SchedulerEntries
 from synergy.mx.processing_statements import ProcessingStatementDetails
 from synergy.mx.utils import render_template, expose, jinja_env
 from synergy.mx.tree_node_details import TreeNodeDetails
-from synergy.mx.timetable_details import TimetableDetails
+from synergy.mx.tree_details import TreeDetails
 
 
 @expose('/')
@@ -39,8 +39,8 @@ def open_schedulable_form(request):
 
 @expose('/timetable_details/')
 def timetable_details(request):
-    details = TimetableDetails(jinja_env.globals['mbean'], request)
-    return render_template('timetable_details.html', details=details)
+    details = TreeDetails(jinja_env.globals['mbean'], request)
+    return render_template('timetable_details.html', details=details.timetable_entries)
 
 
 @expose('/processing_statements/')
@@ -49,16 +49,16 @@ def processing_statements(request):
     return render_template('processing_statements.html', details=details)
 
 
-@expose('/request_children/')
-def request_children(request):
+@expose('/request_tree_nodes/')
+def request_tree_nodes(request):
     details = TreeNodeDetails(jinja_env.globals['mbean'], request)
     return Response(response=json.dumps(details.details),
                     mimetype='application/json')
 
 
-@expose('/request_verticals/')
-def request_verticals(request):
-    details = TimetableDetails(jinja_env.globals['mbean'], request)
+@expose('/request_trees/')
+def request_trees(request):
+    details = TreeDetails(jinja_env.globals['mbean'], request)
     return Response(response=json.dumps(details.mx_page_entries),
                     mimetype='application/json')
 

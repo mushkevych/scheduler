@@ -10,9 +10,9 @@ from constants import PROCESS_ALERT_DAILY, PROCESS_SITE_HOURLY, PROCESS_CLIENT_D
 
 
 class TestSchedulerMx(unittest.TestCase):
-    REQUEST_CHILDREN = '/request_children/'
+    REQUEST_CHILDREN = '/request_tree_nodes/'
     REQUEST_SCHED_DETAILS = '/scheduler_details/'
-    REQUEST_VERTICAL_DETAILS = '/request_verticals/'
+    REQUEST_VERTICAL_DETAILS = '/request_trees/'
 
     def setUp(self):
         host = settings.settings['mx_host']

@@ -1,7 +1,7 @@
 {% extends 'main_header.html' %}
 {% block body %}
 
-{% for tree_name, tree_obj in details.timetable_entries.iteritems() %}
+{% for tree_name, tree_obj in details.iteritems() %}
 
     Details for <b>{{ tree_obj.tree_name }}</b> (available at <a href="/{{ tree_obj.mx_page }}">{{ tree_obj.mx_page }}</a> tab as <b>{{ tree_obj.mx_name }}</b>):
 

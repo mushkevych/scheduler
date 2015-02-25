@@ -12,22 +12,13 @@ from synergy.mx.mx_decorators import valid_action_request
 class TreeNodeDetails(object):
     def __init__(self, mbean, request):
         self.mbean = mbean
-        self.logger = self.mbean.logger
-        self.request = request
         self.process_name = request.args.get('process_name')
         self.timeperiod = request.args.get('timeperiod')
         self.is_request_valid = self.mbean is not None
 
     @classmethod
     def get_details(cls, node, as_model=False):
-        """method returns {
-                process_name : string,
-                timeperiod : string,
-                number_of_children : integer,
-                number_of_failed_calls : integer,
-                state : STATE_SKIPPED, STATE_IN_PROGRESS, STATE_PROCESSED, STATE_FINAL_RUN, STATE_EMBRYO
-            }
-        """
+        """method returns either RestJob instance or corresponding document, depending on the as_model argument """
         rest_job = RestJob(
             process_name=node.process_name,
             timeperiod=node.timeperiod,
