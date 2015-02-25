@@ -12,7 +12,6 @@ from werkzeug.routing import Map, Rule
 
 from synergy.conf import context
 from synergy.conf import settings
-from synergy.conf.process_context import ProcessContext
 
 TEMPLATE_PATH = path.join(path.dirname(__file__), 'templates')
 STATIC_PATH = path.join(path.dirname(__file__), 'static')

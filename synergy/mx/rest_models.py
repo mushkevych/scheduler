@@ -28,10 +28,16 @@ FIELD_DAILY = 'daily'
 FIELD_HOURLY = 'hourly'
 FIELD_LINEAR = 'linear'
 FIELD_NUMBER_OF_LEVELS = 'number_of_levels'
+FIELD_NUMBER_OF_CHILDREN = 'number_of_children'
+FIELD_NUMBER_OF_FAILED_CALLS = 'number_of_failed_calls'
 FIELD_REPROCESSING_QUEUES = 'reprocessing_queues'
 FIELD_PROCESSES = 'processes'
 FIELD_NEXT_TIMEPERIODS = 'next_timeperiods'     # Synergy timeperiod format
+FIELD_TIMEPERIOD = 'timeperiod'                 # Synergy timeperiod format
 FIELD_TIME_QUALIFIER = 'time_qualifier'
+FIELD_STATE = 'state'
+FIELD_CHILDREN = 'children'
+FIELD_NODE = 'node'
 
 
 class RestFreerunSchedulerEntry(BaseDocument):
@@ -93,3 +99,17 @@ class RestTimetableTree(BaseDocument):
     dependent_on = ListField(FIELD_DEPENDENT_ON)
     dependant_trees = ListField(FIELD_DEPENDANT_TREES)
     processes = DictField(FIELD_PROCESSES)
+
+
+class RestJob(BaseDocument):
+    process_name = StringField(FIELD_PROCESS_NAME)
+    time_qualifier = StringField(FIELD_TIME_QUALIFIER)
+    timeperiod = StringField(FIELD_TIMEPERIOD)
+    number_of_children = StringField(FIELD_NUMBER_OF_CHILDREN)
+    number_of_failed_calls = StringField(FIELD_NUMBER_OF_FAILED_CALLS)
+    state = StringField(FIELD_STATE)
+
+
+class RestTimetableTreeNode(BaseDocument):
+    node = NestedDocumentField(FIELD_NODE, RestJob, null=True)
+    children = DictField(FIELD_CHILDREN)

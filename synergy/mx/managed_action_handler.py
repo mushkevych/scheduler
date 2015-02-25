@@ -57,7 +57,7 @@ class ManagedActionHandler(AbstractActionHandler):
 
         resp = dict()
         for node in effected_nodes:
-            resp[node.timeperiod] = TreeNodeDetails.get_details(self.logger, node)
+            resp[node.timeperiod] = TreeNodeDetails.get_details(node)
         self.logger.info('MX }')
         return resp
 
@@ -73,7 +73,7 @@ class ManagedActionHandler(AbstractActionHandler):
 
         resp = dict()
         for node in effected_nodes:
-            resp[node.timeperiod] = TreeNodeDetails.get_details(self.logger, node)
+            resp[node.timeperiod] = TreeNodeDetails.get_details(node)
         self.logger.info('MX }')
         return resp
 
