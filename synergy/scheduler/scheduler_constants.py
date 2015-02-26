@@ -7,18 +7,19 @@ PROCESS_GC = 'GarbageCollectorWorker'
 TOKEN_SCHEDULER = 'scheduler'
 TOKEN_GC = 'gc'
 
-# State Machine (a.k.a. Pipeline) names
-PIPELINE_CONTINUOUS = 'continuous'
-PIPELINE_DISCRETE = 'discrete'
-PIPELINE_SIMPLIFIED_DISCRETE = 'simplified_discrete'
-PIPELINE_FREERUN = 'freerun'
+# State Machine names
+STATE_MACHINE_CONTINUOUS = 'continuous'
+STATE_MACHINE_DISCRETE = 'discrete'
+STATE_MACHINE_SIMPLE_DISCRETE = 'simple_discrete'
+STATE_MACHINE_FREERUN = 'freerun'
 
 # Supported worker types
 TYPE_MANAGED = 'type_managed'
 TYPE_FREERUN = 'type_freerun'
 TYPE_GARBAGE_COLLECTOR = 'type_gc'
-TYPE_BLOCKING_DEPENDENCIES = 'type_blocking_dependencies'
-TYPE_BLOCKING_CHILDREN = 'type_blocking_children'
+BLOCKING_NORMAL = 'blocking_normal'
+BLOCKING_DEPENDENCIES = 'blocking_dependencies'
+BLOCKING_CHILDREN = 'blocking_children'
 
 # MQ exchanges that are required by Synergy Scheduler
 EXCHANGE_MANAGED_WORKER = 'ex_managed_worker'

@@ -7,7 +7,7 @@ from amqp import AMQPError
 from synergy.db.model import unit_of_work
 from synergy.db.model.synergy_mq_transmission import SynergyMqTransmission
 from synergy.db.dao.unit_of_work_dao import UnitOfWorkDao
-from synergy.scheduler.abstract_pipeline import AbstractPipeline
+from synergy.scheduler.abstract_state_machine import AbstractStateMachine
 from synergy.scheduler.scheduler_constants import TYPE_MANAGED
 from synergy.scheduler.scheduler_constants import QUEUE_UOW_REPORT
 from synergy.mq.flopsy import Consumer
@@ -59,12 +59,12 @@ class StatusBusListener(object):
                 return
 
             scheduler_entry_obj = self.scheduler.managed_handlers[uow.process_name].arguments.scheduler_entry_obj
-            pipeline = self.scheduler.pipelines[scheduler_entry_obj.state_machine_name]
-            assert isinstance(pipeline, AbstractPipeline)
+            state_machine = self.scheduler.state_machines[scheduler_entry_obj.state_machine_name]
+            assert isinstance(state_machine, AbstractStateMachine)
 
             self.logger.info('Commencing shallow state update for unit_of_work from %s at %s in %s.'
                              % (uow.process_name, uow.timeperiod, uow.state))
-            pipeline.shallow_state_update(uow)
+            state_machine.shallow_state_update(uow)
 
         except KeyError:
             self.logger.error('Access error for %s' % str(message.body), exc_info=True)

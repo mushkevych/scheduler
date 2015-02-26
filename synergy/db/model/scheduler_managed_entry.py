@@ -6,8 +6,8 @@ from odm.fields import StringField, ObjectIdField
 PROCESS_NAME = 'process_name'
 STATE = 'state'
 TRIGGER_TIME = 'trigger_time'
-PIPELINE_NAME = 'pipeline_name'
-PROCESS_TYPE = 'process_type'
+STATE_MACHINE_NAME = 'state_machine_name'
+BLOCKING_TYPE = 'blocking_type'
 
 STATE_ON = 'state_on'
 STATE_OFF = 'state_off'
@@ -19,10 +19,10 @@ class SchedulerManagedEntry(BaseDocument):
     process_name = StringField(PROCESS_NAME)
     trigger_time = StringField(TRIGGER_TIME)
     state = StringField(STATE, choices=[STATE_ON, STATE_OFF])
-    state_machine_name = StringField(PIPELINE_NAME)
-    process_type = StringField(PROCESS_TYPE)
+    state_machine_name = StringField(STATE_MACHINE_NAME)
+    blocking_type = StringField(BLOCKING_TYPE)
 
-    @property
+    @BaseDocument.key.getter
     def key(self):
         return self.process_name
 

@@ -9,6 +9,7 @@ from synergy.conf.process_context import ProcessContext
 from synergy.mq.flopsy import PublishersPool
 from synergy.mx.synergy_mx import MX
 from synergy.db.model.synergy_mq_transmission import SynergyMqTransmission
+from synergy.db.model.scheduler_managed_entry import SchedulerManagedEntry
 from synergy.db.model import scheduler_managed_entry, job
 from synergy.db.dao.scheduler_managed_entry_dao import SchedulerManagedEntryDao
 from synergy.db.dao.scheduler_freerun_entry_dao import SchedulerFreerunEntryDao
@@ -17,16 +18,16 @@ from synergy.system.decorator import with_reconnect, thread_safe
 from synergy.system.synergy_process import SynergyProcess
 from synergy.scheduler.status_bus_listener import StatusBusListener
 from synergy.scheduler.scheduler_constants import *
-from synergy.scheduler.continuous_pipeline import ContinuousPipeline
-from synergy.scheduler.dicrete_pipeline import DiscretePipeline
-from synergy.scheduler.simplified_dicrete_pipeline import SimplifiedDiscretePipeline
-from synergy.scheduler.freerun_pipeline import FreerunPipeline
+from synergy.scheduler.state_machine_continuous import StateMachineContinuous
+from synergy.scheduler.state_machine_dicrete import StateMachineDiscrete
+from synergy.scheduler.state_machine_simple_dicrete import StateMachineSimpleDiscrete
+from synergy.scheduler.state_machine_freerun import StateMachineFreerun
 from synergy.scheduler.timetable import Timetable
 from synergy.scheduler.thread_handler import construct_thread_handler, ThreadHandlerArguments
 
 
 class Scheduler(SynergyProcess):
-    """ Scheduler hosts multiple state machines, called pipelines; and encapsulate logic for triggering jobs """
+    """ Scheduler hosts multiple state machines, and logic for triggering jobs """
 
     def __init__(self, process_name):
         super(Scheduler, self).__init__(process_name)
@@ -36,7 +37,7 @@ class Scheduler(SynergyProcess):
         self.managed_handlers = dict()
         self.freerun_handlers = dict()
         self.timetable = Timetable(self.logger)
-        self.pipelines = self._construct_pipelines()
+        self.state_machines = self._construct_state_machines()
 
         self.se_managed_dao = SchedulerManagedEntryDao(self.logger)
         self.se_freerun_dao = SchedulerFreerunEntryDao(self.logger)
@@ -57,15 +58,15 @@ class Scheduler(SynergyProcess):
 
         super(Scheduler, self).__del__()
 
-    def _construct_pipelines(self):
+    def _construct_state_machines(self):
         """ :return: dict in format <state_machine_common_name: instance_of_the_state_machine> """
-        pipelines = dict()
-        for pipe in [ContinuousPipeline(self.logger, self.timetable),
-                     DiscretePipeline(self.logger, self.timetable),
-                     SimplifiedDiscretePipeline(self.logger, self.timetable),
-                     FreerunPipeline(self.logger)]:
-            pipelines[pipe.name] = pipe
-        return pipelines
+        state_machines = dict()
+        for state_machine in [StateMachineContinuous(self.logger, self.timetable),
+                              StateMachineDiscrete(self.logger, self.timetable),
+                              StateMachineSimpleDiscrete(self.logger, self.timetable),
+                              StateMachineFreerun(self.logger)]:
+            state_machines[state_machine.name] = state_machine
+        return state_machines
 
     def _register_scheduler_entry(self, scheduler_entry_obj, call_back):
         """ method parses scheduler_entry_obj and creates a timer_handler out of it
@@ -101,7 +102,7 @@ class Scheduler(SynergyProcess):
                 continue
 
             process_type = ProcessContext.get_process_type(process_name)
-            if process_type in [TYPE_BLOCKING_DEPENDENCIES, TYPE_BLOCKING_CHILDREN, TYPE_MANAGED]:
+            if process_type in TYPE_MANAGED:
                 function = self.fire_managed_worker
             elif process_type == TYPE_GARBAGE_COLLECTOR:
                 function = self.fire_garbage_collector
@@ -154,8 +155,9 @@ class Scheduler(SynergyProcess):
         """requests next valid job for given process and manages its state"""
 
         def _fire_worker(process_name, scheduler_entry_obj):
+            assert isinstance(scheduler_entry_obj, SchedulerManagedEntry)
             job_record = self.timetable.get_next_job_record(process_name)
-            pipeline = self.pipelines[scheduler_entry_obj.state_machine_name]
+            state_machine = self.state_machines[scheduler_entry_obj.state_machine_name]
 
             run_on_active_timeperiod = ProcessContext.run_on_active_timeperiod(scheduler_entry_obj.process_name)
             if not run_on_active_timeperiod:
@@ -171,15 +173,15 @@ class Scheduler(SynergyProcess):
                                         dt_record_timestamp.strftime('%Y-%m-%d %H:%M:%S')))
                     return None
 
-            process_type = ProcessContext.get_process_type(scheduler_entry_obj.process_name)
-            if process_type == TYPE_BLOCKING_DEPENDENCIES:
-                pipeline.manage_pipeline_with_blocking_dependencies(process_name, job_record, run_on_active_timeperiod)
-            elif process_type == TYPE_BLOCKING_CHILDREN:
-                pipeline.manage_pipeline_with_blocking_children(process_name, job_record, run_on_active_timeperiod)
-            elif process_type == TYPE_MANAGED:
-                pipeline.manage_pipeline_for_process(process_name, job_record)
+            blocking_type = scheduler_entry_obj.blocking_type
+            if blocking_type == BLOCKING_DEPENDENCIES:
+                state_machine.manage_job_with_blocking_dependencies(process_name, job_record, run_on_active_timeperiod)
+            elif blocking_type == BLOCKING_CHILDREN:
+                state_machine.manage_job_with_blocking_children(process_name, job_record, run_on_active_timeperiod)
+            elif blocking_type == BLOCKING_NORMAL:
+                state_machine.manage_job(process_name, job_record)
             else:
-                raise ValueError('Unknown managed process type %s' % process_type)
+                raise ValueError('Unknown managed process type %s' % blocking_type)
 
             return job_record
 
@@ -206,8 +208,8 @@ class Scheduler(SynergyProcess):
             assert isinstance(thread_handler_arguments, ThreadHandlerArguments)
             self.logger.info('%r {' % (thread_handler_arguments.key, ))
 
-            pipeline = self.pipelines[PIPELINE_FREERUN]
-            pipeline.manage_pipeline_for_schedulable(thread_handler_arguments.scheduler_entry_obj)
+            state_machine = self.state_machines[STATE_MACHINE_FREERUN]
+            state_machine.manage_schedulable(thread_handler_arguments.scheduler_entry_obj)
 
         except Exception as e:
             self.logger.error('fire_freerun_worker: %s' % str(e))

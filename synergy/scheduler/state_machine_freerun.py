@@ -14,14 +14,14 @@ from synergy.db.dao.scheduler_freerun_entry_dao import SchedulerFreerunEntryDao
 from synergy.system import time_helper
 from synergy.system.time_qualifier import QUALIFIER_REAL_TIME
 from synergy.system.decorator import with_reconnect
-from synergy.scheduler.scheduler_constants import PIPELINE_FREERUN, TYPE_FREERUN
+from synergy.scheduler.scheduler_constants import STATE_MACHINE_FREERUN, TYPE_FREERUN
 from synergy.mq.flopsy import PublishersPool
 
 
-class FreerunPipeline(object):
-    """ Pipeline to handle freerun jobs/triggers """
+class StateMachineFreerun(object):
+    """ State Machine to handle freerun jobs/triggers """
 
-    def __init__(self, logger, name=PIPELINE_FREERUN):
+    def __init__(self, logger, name=STATE_MACHINE_FREERUN):
         self.name = name
         self.logger = logger
         self.publishers = PublishersPool(self.logger)
@@ -106,7 +106,7 @@ class FreerunPipeline(object):
                   % (freerun_entry.process_name, freerun_entry.entry_name,)
             self._log_message(WARNING, freerun_entry, msg)
 
-    def manage_pipeline_for_schedulable(self, freerun_entry):
+    def manage_schedulable(self, freerun_entry):
         """ method main duty - is to _avoid_ publishing another unit_of_work, if previous was not yet processed
         In case the Scheduler sees that the unit_of_work is pending it will fire another WorkerMqRequest """
 

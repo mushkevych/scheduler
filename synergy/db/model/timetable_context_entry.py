@@ -21,7 +21,7 @@ class TimetableContextEntry(BaseDocument):
     mx_name = StringField(MX_NAME)
     mx_page = StringField(MX_PAGE)
 
-    @property
+    @BaseDocument.key.getter
     def key(self):
         return self.tree_name
 

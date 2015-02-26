@@ -122,7 +122,7 @@ process_context = {
         token=TOKEN_ALERT,
         time_qualifier=QUALIFIER_DAILY,
         exchange=EXCHANGE_MANAGED_WORKER,
-        process_type=TYPE_BLOCKING_DEPENDENCIES),
+        process_type=TYPE_MANAGED),
 
     PROCESS_BASH_DRIVER: _process_context_entry(
         process_name=PROCESS_BASH_DRIVER,

@@ -17,7 +17,7 @@ class SynergyMqTransmission(BaseDocument):
     entry_name = StringField(ENTRY_NAME)
     unit_of_work_id = ObjectIdField(UNIT_OF_WORK_ID)
 
-    @property
+    @BaseDocument.key.getter
     def key(self):
         return self.process_name, self.entry_name
 

@@ -2,6 +2,7 @@ __author__ = 'Bohdan Mushkevych'
 
 from odm.document import BaseDocument
 from odm.fields import StringField, BooleanField, DictField
+from synergy.scheduler.scheduler_constants import TYPE_MANAGED, TYPE_FREERUN, TYPE_GARBAGE_COLLECTOR
 
 PROCESS_NAME = 'process_name'
 CLASSNAME = 'classname'
@@ -33,7 +34,7 @@ class ProcessContextEntry(BaseDocument):
     mq_routing_key = StringField(MQ_ROUTING_KEY)
     time_qualifier = StringField(TIME_QUALIFIER)
     arguments = DictField(ARGUMENTS)
-    process_type = StringField(PROCESS_TYPE)
+    process_type = StringField(PROCESS_TYPE, choices=[TYPE_MANAGED, TYPE_FREERUN, TYPE_GARBAGE_COLLECTOR])
     run_on_active_timeperiod = BooleanField(RUN_ON_ACTIVE_TIMEPERIOD)
     pid_filename = StringField(PID_FILENAME)
     log_filename = StringField(LOG_FILENAME)

@@ -143,8 +143,16 @@ class ProcessContext(object):
     @current_process_aware
     def get_process_type(cls, process_name=None):
         """ method returns process type
-        Supported types are listed in process_context starting with TYPE_ prefix and are enumerated in
-        scheduler.start() method"""
+        Supported types are listed in process_context starting with TYPE_ prefix
+        and are defined in ProcessContextEntry """
+        return cls.CONTEXT[process_name].process_type
+
+    @classmethod
+    @current_process_aware
+    def get_blocking_type(cls, process_name=None):
+        """ method returns process blocking type
+        Supported types are listed in process_context starting with BLOCKING_ prefix
+        and are defined in ProcessContextEntry """
         return cls.CONTEXT[process_name].process_type
 
     @classmethod

@@ -31,7 +31,7 @@ class SchedulerFreerunEntry(BaseDocument):
     log = ListField(HISTORIC_LOG)
     related_unit_of_work = ObjectIdField(RELATED_UNIT_OF_WORK)
 
-    @property
+    @BaseDocument.key.getter
     def key(self):
         return self.process_name, self.entry_name
 

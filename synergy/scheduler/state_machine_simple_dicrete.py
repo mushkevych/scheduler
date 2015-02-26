@@ -3,21 +3,21 @@ __author__ = 'Bohdan Mushkevych'
 from logging import ERROR, INFO
 
 from synergy.db.model import job, unit_of_work
-from synergy.scheduler.scheduler_constants import PIPELINE_SIMPLIFIED_DISCRETE
-from synergy.scheduler.dicrete_pipeline import DiscretePipeline
+from synergy.scheduler.scheduler_constants import STATE_MACHINE_SIMPLE_DISCRETE
+from synergy.scheduler.state_machine_dicrete import StateMachineDiscrete
 from synergy.system import time_helper
 from synergy.conf.process_context import ProcessContext
 
 
-class SimplifiedDiscretePipeline(DiscretePipeline):
-    """ Pipeline to handle discrete timeperiod boundaries for jobs
-    in comparison to DiscretePipeline this one does not transfer to STATE_FINAL_RUN"""
+class StateMachineSimpleDiscrete(StateMachineDiscrete):
+    """ State Machine to handle discrete timeperiod boundaries for jobs
+    in comparison to StateMachineDiscrete this one does not transfer to STATE_FINAL_RUN"""
 
     def __init__(self, logger, timetable):
-        super(SimplifiedDiscretePipeline, self).__init__(logger, timetable, name=PIPELINE_SIMPLIFIED_DISCRETE)
+        super(StateMachineSimpleDiscrete, self).__init__(logger, timetable, name=STATE_MACHINE_SIMPLE_DISCRETE)
 
     def __del__(self):
-        super(SimplifiedDiscretePipeline, self).__del__()
+        super(StateMachineSimpleDiscrete, self).__del__()
 
     def shallow_state_update(self, uow):
         tree = self.timetable.get_tree(uow.process_name)

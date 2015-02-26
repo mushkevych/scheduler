@@ -4,21 +4,21 @@ from datetime import datetime
 from logging import ERROR, WARNING, INFO
 
 from synergy.db.model import job, unit_of_work
-from synergy.scheduler.scheduler_constants import PIPELINE_DISCRETE
-from synergy.scheduler.abstract_pipeline import AbstractPipeline
+from synergy.scheduler.scheduler_constants import STATE_MACHINE_DISCRETE
+from synergy.scheduler.abstract_state_machine import AbstractStateMachine
 from synergy.system import time_helper
 from synergy.conf.process_context import ProcessContext
 
 
-class DiscretePipeline(AbstractPipeline):
-    """ Pipeline to handle discrete timeperiod boundaries for batch jobs
-    in comparison to RegularPipeline this one does not re-compute processing boundaries"""
+class StateMachineDiscrete(AbstractStateMachine):
+    """ State Machine to handle discrete timeperiod boundaries for batch jobs
+    in comparison to StateMachineContinuous this one does not re-compute processing boundaries"""
 
-    def __init__(self, logger, timetable, name=PIPELINE_DISCRETE):
-        super(DiscretePipeline, self).__init__(logger, timetable, name)
+    def __init__(self, logger, timetable, name=STATE_MACHINE_DISCRETE):
+        super(StateMachineDiscrete, self).__init__(logger, timetable, name)
 
     def __del__(self):
-        super(DiscretePipeline, self).__del__()
+        super(StateMachineDiscrete, self).__del__()
 
     def shallow_state_update(self, uow):
         tree = self.timetable.get_tree(uow.process_name)

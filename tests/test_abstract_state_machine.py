@@ -1,7 +1,10 @@
 __author__ = 'Bohdan Mushkevych'
 
 import unittest
+
 from settings import enable_test_mode
+
+
 enable_test_mode()
 
 from mockito import spy, mock, when
@@ -16,7 +19,7 @@ from synergy.system.time_qualifier import *
 from synergy.conf.process_context import ProcessContext
 from constants import PROCESS_SITE_HOURLY
 from synergy.scheduler.timetable import Timetable
-from synergy.scheduler.abstract_pipeline import AbstractPipeline
+from synergy.scheduler.abstract_state_machine import AbstractStateMachine
 from tests.ut_context import PROCESS_UNIT_TEST
 
 TEST_PRESET_TIMEPERIOD = '2013010122'
@@ -41,38 +44,38 @@ def get_job_record(state, timeperiod, process_name):
     return job_record
 
 
-class ContinuousPipelineUnitTest(unittest.TestCase):
+class AbstractSMUnitTest(unittest.TestCase):
     def setUp(self):
         self.logger = ProcessContext.get_logger(PROCESS_UNIT_TEST)
         self.time_table_mocked = mock(Timetable)
         self.uow_dao_mocked = mock(UnitOfWorkDao)
-        self.pipeline_real = AbstractPipeline(self.logger, self.time_table_mocked, 'AbstractPipeline')
-        self.pipeline_real.uow_dao = self.uow_dao_mocked
+        self.sm_real = AbstractStateMachine(self.logger, self.time_table_mocked, 'AbstractStateMachine')
+        self.sm_real.uow_dao = self.uow_dao_mocked
 
     def tearDown(self):
         pass
 
     def test_insert_and_publish_uow(self):
         """ method tests happy-flow for insert_and_publish_uow method """
-        self.pipeline_real._insert_uow = then_return_uow
-        when(self.pipeline_real)._publish_uow(any(object)).thenReturn(True)
+        self.sm_real._insert_uow = then_return_uow
+        when(self.sm_real)._publish_uow(any(object)).thenReturn(True)
 
-        pipeline = spy(self.pipeline_real)
-        uow, is_duplicate = pipeline.insert_and_publish_uow(PROCESS_SITE_HOURLY,
-                                                            TEST_PRESET_TIMEPERIOD,
-                                                            None, 0, 1)
+        sm_spy = spy(self.sm_real)
+        uow, is_duplicate = sm_spy.insert_and_publish_uow(PROCESS_SITE_HOURLY,
+                                                          TEST_PRESET_TIMEPERIOD,
+                                                          None, 0, 1)
         manual_uow = then_return_uow(PROCESS_SITE_HOURLY, TEST_PRESET_TIMEPERIOD, None, 0, 1)
         self.assertFalse(is_duplicate)
         self.assertDictEqual(uow.document, manual_uow.document)
 
     def test_unhandled_exception_iapu(self):
         """ method tests unhandled UserWarning exception at insert_and_publish_uow method """
-        self.pipeline_real._insert_uow = then_raise
-        when(self.pipeline_real)._publish_uow(any(object)).thenReturn(True)
+        self.sm_real._insert_uow = then_raise
+        when(self.sm_real)._publish_uow(any(object)).thenReturn(True)
 
-        pipeline = spy(self.pipeline_real)
+        sm_spy = spy(self.sm_real)
         try:
-            pipeline.insert_and_publish_uow(PROCESS_SITE_HOURLY, TEST_PRESET_TIMEPERIOD, None, 0, 1)
+            sm_spy.insert_and_publish_uow(PROCESS_SITE_HOURLY, TEST_PRESET_TIMEPERIOD, None, 0, 1)
             self.assertTrue(False, 'UserWarning exception should have been thrown')
         except UserWarning:
             self.assertTrue(True)
@@ -81,14 +84,14 @@ class ContinuousPipelineUnitTest(unittest.TestCase):
         """ method tests handled UserWarning exception at insert_and_publish_uow method """
         manual_uow = then_return_uow(PROCESS_SITE_HOURLY, TEST_PRESET_TIMEPERIOD, None, 0, 1)
 
-        self.pipeline_real._insert_uow = then_raise
-        when(self.pipeline_real)._publish_uow(any(object)).thenReturn(True)
+        self.sm_real._insert_uow = then_raise
+        when(self.sm_real)._publish_uow(any(object)).thenReturn(True)
         when(self.uow_dao_mocked).recover_from_duplicatekeyerror(any(object)).thenReturn(manual_uow)
 
-        pipeline = spy(self.pipeline_real)
-        uow, is_duplicate = pipeline.insert_and_publish_uow(PROCESS_SITE_HOURLY,
-                                                            TEST_PRESET_TIMEPERIOD,
-                                                            None, 0, 1)
+        sm_spy = spy(self.sm_real)
+        uow, is_duplicate = sm_spy.insert_and_publish_uow(PROCESS_SITE_HOURLY,
+                                                          TEST_PRESET_TIMEPERIOD,
+                                                          None, 0, 1)
         self.assertTrue(is_duplicate)
         self.assertDictEqual(uow.document, manual_uow.document)
 

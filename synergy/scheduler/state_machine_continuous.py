@@ -8,20 +8,20 @@ from synergy.db.manager import ds_manager
 from synergy.conf.process_context import ProcessContext
 from synergy.system.decorator import with_reconnect
 from synergy.system import time_helper
-from synergy.scheduler.scheduler_constants import PIPELINE_CONTINUOUS
-from synergy.scheduler.abstract_pipeline import AbstractPipeline
+from synergy.scheduler.scheduler_constants import STATE_MACHINE_CONTINUOUS
+from synergy.scheduler.abstract_state_machine import AbstractStateMachine
 
 
-class ContinuousPipeline(AbstractPipeline):
+class StateMachineContinuous(AbstractStateMachine):
     """ Continuous State Machine re-run process for timeperiod A until A+1,
         then transfers the timeperiod A to STATE_FINAL_RUN """
 
     def __init__(self, logger, timetable):
-        super(ContinuousPipeline, self).__init__(logger, timetable, name=PIPELINE_CONTINUOUS)
+        super(StateMachineContinuous, self).__init__(logger, timetable, name=STATE_MACHINE_CONTINUOUS)
         self.ds = ds_manager.ds_factory(self.logger)
 
     def __del__(self):
-        super(ContinuousPipeline, self).__del__()
+        super(StateMachineContinuous, self).__del__()
 
     def shallow_state_update(self, uow):
         tree = self.timetable.get_tree(uow.process_name)

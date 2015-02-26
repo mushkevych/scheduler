@@ -51,7 +51,7 @@ class Job(BaseDocument):
     log = ListField(HISTORIC_LOG)
     number_of_failures = IntegerField(NUMBER_OF_FAILURES, default=0)
 
-    @property
+    @BaseDocument.key.getter
     def key(self):
         return self.process_name, self.timeperiod
 
