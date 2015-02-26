@@ -3,7 +3,7 @@ __author__ = 'Bohdan Mushkevych'
 import json
 from rest_client.restful_lib import Connection
 
-from synergy.db.model import base_model
+from synergy.db.model.unit_of_work import TIMEPERIOD
 from synergy.conf import settings
 
 
@@ -39,7 +39,7 @@ class RestClient(object):
     REQUEST_CLIENT = '/admin/clients'
 
     ARGUMENT_DOMAINS = 'domains'
-    ARGUMENT_TIMEPERIOD = base_model.TIMEPERIOD
+    ARGUMENT_TIMEPERIOD = TIMEPERIOD
 
     def __init__(self, logger):
         login = settings.settings['construction_login']

@@ -5,7 +5,7 @@ from pymongo import MongoClient, ASCENDING, DESCENDING
 from bson.objectid import ObjectId
 
 from synergy.conf import settings
-from synergy.db.model import base_model
+from synergy.db.model.unit_of_work import TIMEPERIOD
 
 QUERY_GET_ALL = {}
 
@@ -137,7 +137,7 @@ class MongoDbManager(BaseManager):
         conn.save(instance, safe=True)
 
     def highest_primary_key(self, table_name, timeperiod_low, timeperiod_high):
-        query = {base_model.TIMEPERIOD: {'$gte': timeperiod_low, '$lt': timeperiod_high}}
+        query = {TIMEPERIOD: {'$gte': timeperiod_low, '$lt': timeperiod_high}}
         conn = self._db[table_name]
         asc_search = conn.find(spec=query, fields='_id').sort('_id', ASCENDING).limit(1)
         if asc_search.count() == 0:
@@ -146,7 +146,7 @@ class MongoDbManager(BaseManager):
         return asc_search[0]['_id']
 
     def lowest_primary_key(self, table_name, timeperiod_low, timeperiod_high):
-        query = {base_model.TIMEPERIOD: {'$gte': timeperiod_low, '$lt': timeperiod_high}}
+        query = {TIMEPERIOD: {'$gte': timeperiod_low, '$lt': timeperiod_high}}
         conn = self._db[table_name]
         dec_search = conn.find(spec=query, fields='_id').sort('_id', DESCENDING).limit(1)
         last_object_id = dec_search[0]['_id']
@@ -172,7 +172,7 @@ class MongoDbManager(BaseManager):
 
         if start_timeperiod is not None and end_timeperiod is not None:
             # remove all accident objects that may be in [start_id_obj : end_id_obj] range
-            queue[base_model.TIMEPERIOD] = {'$gte': start_timeperiod, '$lt': end_timeperiod}
+            queue[TIMEPERIOD] = {'$gte': start_timeperiod, '$lt': end_timeperiod}
 
         conn = self._db[table_name]
         return conn.find(queue).sort('_id', ASCENDING).limit(bulk_threshold)

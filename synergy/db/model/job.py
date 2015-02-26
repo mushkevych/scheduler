@@ -2,9 +2,9 @@ __author__ = 'Bohdan Mushkevych'
 
 from odm.document import BaseDocument
 from odm.fields import StringField, ObjectIdField, ListField, IntegerField
-from synergy.db.model.base_model import TIMEPERIOD
 
 MAX_NUMBER_OF_LOG_ENTRIES = 32
+TIMEPERIOD = 'timeperiod'
 PROCESS_NAME = 'process_name'
 START_OBJ_ID = 'start_obj_id'
 END_OBJ_ID = 'end_obj_id'

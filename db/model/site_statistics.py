@@ -25,7 +25,7 @@ class SiteStatistics(BaseDocument):
     timeperiod = StringField(TIMEPERIOD)
     stat = NestedDocumentField(FAMILY_STAT, NestedStat)
 
-    @BaseModel.key.getter
+    @BaseDocument.key.getter
     def key(self):
         return self.domain_name, self.timeperiod
 

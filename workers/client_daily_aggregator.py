@@ -3,11 +3,11 @@ __author__ = 'Bohdan Mushkevych'
 from db.model.raw_data import DOMAIN_NAME
 from db.model.site_statistics import SiteStatistics
 from db.model.client_statistics import ClientStatistics
-from workers.abstract_horizontal_worker import AbstractHorizontalWorker
-from synergy.db.model.base_model import BaseModel
+from synergy.system.utils import copy_and_sum_families
 from synergy.conf import settings
 from synergy.system import time_helper
 from synergy.system.restful_client import RestClient
+from workers.abstract_horizontal_worker import AbstractHorizontalWorker
 
 
 class ClientDailyAggregator(AbstractHorizontalWorker):
@@ -46,11 +46,11 @@ class ClientDailyAggregator(AbstractHorizontalWorker):
                 target_obj.number_of_visits += source_obj.number_of_visits
                 target_obj.number_of_pageviews += source_obj.number_of_pageviews
                 target_obj.total_duration += source_obj.total_duration
-                BaseModel._copy_and_sum_families(source_obj.os, target_obj.os)
-                BaseModel._copy_and_sum_families(source_obj.browsers, target_obj.browsers)
-                BaseModel._copy_and_sum_families(source_obj.screen_res, target_obj.screen_res)
-                BaseModel._copy_and_sum_families(source_obj.languages, target_obj.languages)
-                BaseModel._copy_and_sum_families(source_obj.countries, target_obj.countries)
+                copy_and_sum_families(source_obj.os, target_obj.os)
+                copy_and_sum_families(source_obj.browsers, target_obj.browsers)
+                copy_and_sum_families(source_obj.screen_res, target_obj.screen_res)
+                copy_and_sum_families(source_obj.languages, target_obj.languages)
+                copy_and_sum_families(source_obj.countries, target_obj.countries)
             except KeyError:
                 self.logger.error('domain name %s has no valid owner client_id' % source_obj.key[0])
 

@@ -1,6 +1,6 @@
 __author__ = 'Bohdan Mushkevych'
 
-from synergy.db.model import base_model
+from synergy.db.model.unit_of_work import TIMEPERIOD
 from workers.abstract_mongo_worker import AbstractMongoWorker
 
 
@@ -30,7 +30,7 @@ class AbstractHorizontalWorker(AbstractMongoWorker):
                 self.performance_ticker.increment()
             if len(bulk_array) > 0:
                 # Mongo funny behaviour - cursor may be empty, with cursor.count != 0
-                self._process_bulk_array(bulk_array, bulk_array[0][base_model.TIMEPERIOD])
+                self._process_bulk_array(bulk_array, bulk_array[0][TIMEPERIOD])
                 shall_continue = True
             del bulk_array
         except LookupError as e:

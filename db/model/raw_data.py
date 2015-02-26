@@ -1,8 +1,9 @@
 __author__ = 'Bohdan Mushkevych'
 
+from odm.document import BaseDocument
 from odm.fields import StringField, IntegerField, BooleanField, DateTimeField
-from synergy.db.model.base_model import *
 
+TIMEPERIOD = 'timeperiod'
 TIMESTAMP = 'timestamp'
 CREATION_TIME = 'creation_time'
 SESSION_ID = 'session_id'
@@ -59,7 +60,7 @@ class RawData(BaseDocument):
     country = StringField(COUNTRY)
     is_page_view = BooleanField(PAGE_VIEW)
 
-    @BaseModel.key.getter
+    @BaseDocument.key.getter
     def key(self):
         return self.domain_name, self.timestamp, self.session_id
 

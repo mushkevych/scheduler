@@ -1,10 +1,10 @@
 __author__ = 'Bohdan Mushkevych'
 
 from db.model.site_statistics import SiteStatistics
-from synergy.db.model.base_model import BaseModel
+from synergy.system.utils import copy_and_sum_families
 from synergy.conf import settings
-from workers.abstract_vertical_worker import AbstractVerticalWorker
 from synergy.system import time_helper
+from workers.abstract_vertical_worker import AbstractVerticalWorker
 
 
 class SiteDailyAggregator(AbstractVerticalWorker):
@@ -35,11 +35,11 @@ class SiteDailyAggregator(AbstractVerticalWorker):
         target_obj.stat.number_of_visits += source_obj.stat.number_of_visits
         target_obj.stat.number_of_pageviews += source_obj.stat.number_of_pageviews
         target_obj.stat.total_duration += source_obj.stat.total_duration
-        BaseModel._copy_and_sum_families(source_obj.stat.os, target_obj.stat.os)
-        BaseModel._copy_and_sum_families(source_obj.stat.browsers, target_obj.stat.browsers)
-        BaseModel._copy_and_sum_families(source_obj.stat.screen_res, target_obj.stat.screen_res)
-        BaseModel._copy_and_sum_families(source_obj.stat.languages, target_obj.stat.languages)
-        BaseModel._copy_and_sum_families(source_obj.stat.countries, target_obj.stat.countries)
+        copy_and_sum_families(source_obj.stat.os, target_obj.stat.os)
+        copy_and_sum_families(source_obj.stat.browsers, target_obj.stat.browsers)
+        copy_and_sum_families(source_obj.stat.screen_res, target_obj.stat.screen_res)
+        copy_and_sum_families(source_obj.stat.languages, target_obj.stat.languages)
+        copy_and_sum_families(source_obj.stat.countries, target_obj.stat.countries)
 
 
 if __name__ == '__main__':

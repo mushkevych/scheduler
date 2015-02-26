@@ -2,10 +2,10 @@ __author__ = 'Bohdan Mushkevych'
 
 from db.model.single_session import SingleSession
 from db.model.site_statistics import SiteStatistics
-from workers.abstract_vertical_worker import AbstractVerticalWorker
-from synergy.db.model.base_model import BaseModel
+from synergy.system.utils import increment_family_property
 from synergy.system import time_helper
 from synergy.conf import settings
+from workers.abstract_vertical_worker import AbstractVerticalWorker
 
 
 class SiteHourlyAggregator(AbstractVerticalWorker):
@@ -40,11 +40,11 @@ class SiteHourlyAggregator(AbstractVerticalWorker):
         target_obj.stat.number_of_visits += 1
         target_obj.stat.number_of_pageviews += source_obj.browsing_history.number_of_pageviews
         target_obj.stat.total_duration += source_obj.browsing_history.total_duration
-        BaseModel._increment_family_property(source_obj.user_profile.os, target_obj.stat.os)
-        BaseModel._increment_family_property(source_obj.user_profile.browser, target_obj.stat.browsers)
-        BaseModel._increment_family_property(source_obj.user_profile.screen_res, target_obj.stat.screen_res)
-        BaseModel._increment_family_property(source_obj.user_profile.language, target_obj.stat.languages)
-        BaseModel._increment_family_property(source_obj.user_profile.country, target_obj.stat.countries)
+        increment_family_property(source_obj.user_profile.os, target_obj.stat.os)
+        increment_family_property(source_obj.user_profile.browser, target_obj.stat.browsers)
+        increment_family_property(source_obj.user_profile.screen_res, target_obj.stat.screen_res)
+        increment_family_property(source_obj.user_profile.language, target_obj.stat.languages)
+        increment_family_property(source_obj.user_profile.country, target_obj.stat.countries)
 
 
 if __name__ == '__main__':

@@ -3,8 +3,8 @@ __author__ = 'Bohdan Mushkevych'
 from odm.document import BaseDocument
 from odm.fields import StringField, ObjectIdField, IntegerField, DictField, DateTimeField
 from synergy.scheduler.scheduler_constants import TYPE_FREERUN, TYPE_MANAGED
-from synergy.db.model.base_model import TIMEPERIOD
 
+TIMEPERIOD = 'timeperiod'
 START_TIMEPERIOD = 'start_timeperiod'  # lower boundary (as Synergy date) of the period that needs to be processed
 END_TIMEPERIOD = 'end_timeperiod'      # upper boundary (as Synergy date) of the period that needs to be processed
 START_OBJ_ID = 'start_obj_id'          # lower boundary (as DB _id) of the period that needs to be processed

@@ -2,7 +2,6 @@ __author__ = 'Bohdan Mushkevych'
 
 from odm.fields import ObjectIdField, NestedDocumentField, DictField
 from db.model.raw_data import *
-from synergy.db.model.base_model import *
 
 
 class NestedUserProfile(BaseDocument):
@@ -41,7 +40,7 @@ class NestedBrowsingHistory(BaseDocument):
         return self.entries_timestamps[entry_id]
 
 
-class SingleSession(BaseModel):
+class SingleSession(BaseDocument):
     """
     class presents statistics, gathered during the life of the session
     """
@@ -53,7 +52,7 @@ class SingleSession(BaseModel):
     user_profile = NestedDocumentField(FAMILY_USER_PROFILE, NestedUserProfile)
     browsing_history = NestedDocumentField(FAMILY_BROWSING_HISTORY, NestedBrowsingHistory)
 
-    @BaseModel.key.getter
+    @BaseDocument.key.getter
     def key(self):
         return self.domain_name, self.timeperiod, self.session_id
 

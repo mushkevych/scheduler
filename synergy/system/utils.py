@@ -39,3 +39,26 @@ def compute_gzip_md5(file_name):
 
     file_obj.close()
     return md5.hexdigest()
+
+
+def increment_family_property(key, family):
+    if key is None:
+        return
+
+    if not isinstance(key, basestring):
+        key = str(key)
+
+    if key in family:
+        family[key] += 1
+    else:
+        family[key] = 1
+
+
+def copy_and_sum_families(family_source, family_target):
+    """ methods iterates thru source family and copies its entries to target family
+    in case key already exists in both families - then the values are added"""
+    for every in family_source:
+        if every not in family_target:
+            family_target[every] = family_source[every]
+        else:
+            family_target[every] += family_source[every]

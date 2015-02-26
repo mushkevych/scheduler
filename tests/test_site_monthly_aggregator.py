@@ -4,13 +4,12 @@ import unittest
 from settings import enable_test_mode
 enable_test_mode()
 
-from db.model.raw_data import DOMAIN_NAME
+from db.model.raw_data import DOMAIN_NAME, TIMEPERIOD
 from constants import PROCESS_SITE_MONTHLY
 from tests import daily_fixtures
 from tests import monthly_fixtures
 from tests.test_abstract_worker import AbstractWorkerUnitTest
 from workers.site_monthly_aggregator import SiteMonthlyAggregator
-from synergy.db.model import base_model
 
 
 class SiteMonthlyAggregatorUnitTest(AbstractWorkerUnitTest):
@@ -29,7 +28,7 @@ class SiteMonthlyAggregatorUnitTest(AbstractWorkerUnitTest):
         daily_fixtures.clean_site_entries()
 
     def _get_key(self, obj):
-        return obj[DOMAIN_NAME], obj[base_model.TIMEPERIOD]
+        return obj[DOMAIN_NAME], obj[TIMEPERIOD]
 
     def test_aggregation(self):
         super(SiteMonthlyAggregatorUnitTest, self).perform_aggregation()

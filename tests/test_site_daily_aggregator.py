@@ -5,11 +5,10 @@ from settings import enable_test_mode
 enable_test_mode()
 
 from constants import PROCESS_SITE_DAILY
-from db.model.raw_data import DOMAIN_NAME
+from db.model.raw_data import DOMAIN_NAME, TIMEPERIOD
 from tests import hourly_fixtures, daily_fixtures
 from tests.test_abstract_worker import AbstractWorkerUnitTest
 from workers.site_daily_aggregator import SiteDailyAggregator
-from synergy.db.model import base_model
 
 
 class SiteDailyAggregatorUnitTest(AbstractWorkerUnitTest):
@@ -28,7 +27,7 @@ class SiteDailyAggregatorUnitTest(AbstractWorkerUnitTest):
         hourly_fixtures.clean_site_entries()
 
     def _get_key(self, obj):
-        return obj[DOMAIN_NAME], obj[base_model.TIMEPERIOD]
+        return obj[DOMAIN_NAME], obj[TIMEPERIOD]
 
     def test_aggregation(self):
         super(SiteDailyAggregatorUnitTest, self).perform_aggregation()

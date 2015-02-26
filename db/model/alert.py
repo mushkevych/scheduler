@@ -2,10 +2,9 @@ __author__ = 'Bohdan Mushkevych'
 
 from db.model.raw_data import *
 from odm.fields import StringField, IntegerField, ObjectIdField
-from synergy.db.model.base_model import BaseModel
 
 
-class Alert(BaseModel):
+class Alert(BaseDocument):
     """
     class presents model describing an Alert event, such as 20% increase or decrease in the page views
     """
@@ -16,7 +15,7 @@ class Alert(BaseModel):
     number_of_pageviews = IntegerField(NUMBER_OF_PAGEVIEWS)
     number_of_visits = IntegerField(NUMBER_OF_VISITS)
 
-    @property
+    @BaseDocument.key.getter
     def key(self):
         return self.domain_name, self.timeperiod
 

@@ -4,7 +4,7 @@ from threading import RLock
 
 from bson import ObjectId
 from synergy.db.manager import ds_manager
-from synergy.db.model import job, base_model
+from synergy.db.model import job
 from synergy.db.model.job import Job
 from synergy.system.decorator import thread_safe
 from synergy.system.time_qualifier import *
@@ -14,10 +14,10 @@ from synergy.conf.process_context import ProcessContext
 
 
 QUERY_GET_LIKE_TIMEPERIOD = \
-    lambda timeperiod: {base_model.TIMEPERIOD: {'$regex': timeperiod}}
+    lambda timeperiod: {job.TIMEPERIOD: {'$regex': timeperiod}}
 
 QUERY_GET_LIKE_TIMEPERIOD_AND_NOT_PROCESSED = \
-    lambda timeperiod: {base_model.TIMEPERIOD: {'$regex': timeperiod},
+    lambda timeperiod: {job.TIMEPERIOD: {'$regex': timeperiod},
                         job.STATE: {'$ne': job.STATE_PROCESSED}}
 
 
@@ -52,7 +52,7 @@ class JobDao(object):
     def get_one(self, key, timeperiod):
         """ method finds job record and returns it to the caller"""
         collection = self._get_job_collection(key)
-        document = collection.find_one({job.PROCESS_NAME: key, base_model.TIMEPERIOD: timeperiod})
+        document = collection.find_one({job.PROCESS_NAME: key, job.TIMEPERIOD: timeperiod})
 
         if document is None:
             raise LookupError('MongoDB has no job record in %s collection for (%s, %s)' % (collection, key, timeperiod))
@@ -64,7 +64,7 @@ class JobDao(object):
         if since is None:
             query = {}
         else:
-            query = {base_model.TIMEPERIOD: {'$gte': since}}
+            query = {job.TIMEPERIOD: {'$gte': since}}
         collection = self.ds.connection(collection_name)
 
         cursor = collection.find(query)
