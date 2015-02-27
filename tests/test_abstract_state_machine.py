@@ -3,8 +3,6 @@ __author__ = 'Bohdan Mushkevych'
 import unittest
 
 from settings import enable_test_mode
-
-
 enable_test_mode()
 
 from mockito import spy, mock, when

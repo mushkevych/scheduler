@@ -84,19 +84,19 @@ def _process_context_entry(process_name,
     else:
         assert isinstance(arguments, dict)
 
-    process_entry = ProcessContextEntry()
-    process_entry.process_name = process_name
-    process_entry.classname = classname
-    process_entry.token = token
-    process_entry.source = source
-    process_entry.sink = sink
-    process_entry.mq_queue = queue
-    process_entry.mq_routing_key = routing
-    process_entry.mq_exchange = exchange
-    process_entry.arguments = arguments
-    process_entry.time_qualifier = time_qualifier
-    process_entry.process_type = process_type
-    process_entry.log_filename = log_file
-    process_entry.pid_filename = pid_file
-    process_entry.run_on_active_timeperiod = run_on_active_timeperiod
+    process_entry = ProcessContextEntry(
+        process_name=process_name,
+        classname=classname,
+        token=token,
+        source=source,
+        sink=sink,
+        mq_queue=queue,
+        mq_routing_key=routing,
+        mq_exchange=exchange,
+        arguments=arguments,
+        time_qualifier=time_qualifier,
+        process_type=process_type,
+        log_filename=log_file,
+        pid_filename=pid_file,
+        run_on_active_timeperiod=run_on_active_timeperiod)
     return process_entry
