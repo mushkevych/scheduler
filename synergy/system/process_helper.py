@@ -7,6 +7,7 @@ import psutil
 from psutil import TimeoutExpired
 
 from launch import get_python, PROJECT_ROOT, PROCESS_STARTER
+from synergy.system.utils import remove_pid_file
 from synergy.conf.process_context import ProcessContext
 from synergy.conf import settings
 
@@ -32,7 +33,7 @@ def kill_process(process_name):
             p = psutil.Process(pid)
             p.kill()
             p.wait()
-            ProcessContext.remove_pid_file(process_name)
+            remove_pid_file(process_name)
     except Exception as e:
         sys.stderr.write('Exception on killing %s : %s \n' % (process_name, str(e)))
     finally:

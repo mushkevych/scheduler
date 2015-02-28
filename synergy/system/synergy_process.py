@@ -4,6 +4,7 @@ import setproctitle
 
 from synergy.conf import settings
 from synergy.conf.process_context import ProcessContext
+from synergy.system.utils import create_pid_file, remove_pid_file
 
 
 class SynergyProcess(object):
@@ -16,9 +17,9 @@ class SynergyProcess(object):
 
         # process-related activities
         setproctitle.setproctitle(settings.settings['process_prefix'] + self.process_name)
-        ProcessContext.create_pid_file(self.process_name)
+        create_pid_file(self.process_name)
 
     def __del__(self):
         """ removes PID file """
-        ProcessContext.remove_pid_file(self.process_name)
+        remove_pid_file(self.process_name)
         self.logger.info('Shutdown %s' % self.process_name)

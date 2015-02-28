@@ -9,11 +9,11 @@ from psutil import TimeoutExpired
 
 from launch import get_python, PROJECT_ROOT, PROCESS_STARTER
 from synergy.conf import settings
-from synergy.conf.process_context import ProcessContext
 from synergy.db.model import box_configuration
 from synergy.db.dao.box_configuration_dao import BoxConfigurationDao
 from synergy.supervisor import supervisor_helper
 from synergy.supervisor.supervisor_constants import TRIGGER_INTERVAL
+from synergy.system.utils import remove_pid_file
 from synergy.system.decorator import thread_safe
 from synergy.system.repeat_timer import RepeatTimer
 from synergy.system.synergy_process import SynergyProcess
@@ -48,7 +48,7 @@ class Supervisor(SynergyProcess):
                 p.wait()
                 box_config.set_process_pid(process_name, None)
                 self.bc_dao.update(box_config)
-                ProcessContext.remove_pid_file(process_name)
+                remove_pid_file(process_name)
         except Exception:
             self.logger.error('Exception on killing: %s' % process_name, exc_info=True)
         finally:

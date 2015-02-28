@@ -1,8 +1,14 @@
+from __future__ import print_function
+
 __author__ = 'Bohdan Mushkevych'
 
+import os
+import sys
 import gzip
 import hashlib
+
 from synergy.conf import settings
+from synergy.conf import context
 
 
 def fully_qualified_table_name(table_name):
@@ -62,3 +68,28 @@ def copy_and_sum_families(family_source, family_target):
             family_target[every] = family_source[every]
         else:
             family_target[every] += family_source[every]
+
+
+def get_pid_filename(process_name):
+    """method returns path for the PID FILENAME """
+    return settings.settings['pid_directory'] + context.process_context[process_name].pid_filename
+
+
+def create_pid_file(process_name):
+    """ creates pid file and writes os.pid() in there """
+    pid_filename = get_pid_filename(process_name)
+    try:
+        pid_file = open(pid_filename, mode='w')
+        pid_file.write(str(os.getpid()))
+    except Exception as e:
+        print('Unable to create pid file at: %s, because of: %r' % (pid_filename, e), file=sys.stderr)
+
+
+def remove_pid_file(process_name):
+    """ removes pid file """
+    pid_filename = get_pid_filename(process_name)
+    try:
+        os.remove(pid_filename)
+        print('Removed pid file at: %s' % pid_filename, file=sys.stdout)
+    except Exception as e:
+        print('Unable to remove pid file at: %s, because of: %r' % (pid_filename, e), file=sys.stderr)

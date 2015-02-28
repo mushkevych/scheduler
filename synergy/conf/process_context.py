@@ -50,34 +50,6 @@ class ProcessContext(object):
 
     @classmethod
     @current_process_aware
-    def create_pid_file(cls, process_name=None):
-        """ creates pid file and writes os.pid() in there """
-        pid_filename = cls.get_pid_filename(process_name)
-        try:
-            pid_file = open(pid_filename, mode='w')
-            pid_file.write(str(os.getpid()))
-        except Exception as e:
-            cls.get_logger(process_name).error('Unable to create pid file at: %s, because of: %r' % (pid_filename, e))
-
-    @classmethod
-    @current_process_aware
-    def remove_pid_file(cls, process_name=None):
-        """ removes pid file """
-        pid_filename = cls.get_pid_filename(process_name)
-        try:
-            os.remove(pid_filename)
-            cls.get_logger(process_name).info('Removed pid file at: %s' % pid_filename)
-        except Exception as e:
-            cls.get_logger(process_name).error('Unable to remove pid file at: %s, because of: %r' % (pid_filename, e))
-
-    @classmethod
-    @current_process_aware
-    def get_pid_filename(cls, process_name=None):
-        """method returns path for the PID FILENAME """
-        return settings.settings['pid_directory'] + cls.CONTEXT[process_name].pid_filename
-
-    @classmethod
-    @current_process_aware
     def get_logger(cls, process_name=None):
         """ method returns initiated logger"""
         if process_name not in cls.logger_pool:
