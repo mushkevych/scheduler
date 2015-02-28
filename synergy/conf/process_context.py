@@ -6,7 +6,7 @@ from synergy.conf import context
 from synergy.conf import settings
 from synergy.system.data_logging import Logger
 from synergy.system.decorator import current_process_aware
-from synergy.db.model.process_context_entry import ProcessContextEntry
+from synergy.db.model.daemon_process_entry import DaemonProcessEntry
 
 
 class ProcessContext(object):
@@ -22,15 +22,18 @@ class ProcessContext(object):
         super(ProcessContext, self).__init__()
 
     @classmethod
-    def put_context_entry(cls, context_entry):
-        assert isinstance(context_entry, ProcessContextEntry)
+    def put(cls, context_entry):
+        assert isinstance(context_entry, DaemonProcessEntry)
         cls.CONTEXT[context_entry.process_name] = context_entry
 
     @classmethod
     @current_process_aware
-    def get_context_entry(cls, process_name=None):
-        """ method returns dictionary of strings, preset
-        source collection, target collection, queue name, exchange, routing, etc"""
+    def get(cls, process_name=None):
+        """
+        :return instance of either [DaemonProcessEntry, FreerunProcessEntry, ManagedProcessEntry]
+                associated with the process_name
+        :raise KeyError if no entry is associated with given process_name
+        """
         return cls.CONTEXT[process_name]
 
     @classmethod
@@ -69,6 +72,12 @@ class ProcessContext(object):
 
     @classmethod
     @current_process_aware
+    def get_pid_filename(cls, process_name=None):
+        """method returns path for the PID FILENAME """
+        return settings.settings['pid_directory'] + cls.CONTEXT[process_name].pid_filename
+
+    @classmethod
+    @current_process_aware
     def get_logger(cls, process_name=None):
         """ method returns initiated logger"""
         if process_name not in cls.logger_pool:
@@ -76,12 +85,6 @@ class ProcessContext(object):
             tag = cls.get_log_tag(process_name)
             cls.logger_pool[process_name] = Logger(file_name, tag)
         return cls.logger_pool[process_name].get_logger()
-
-    @classmethod
-    @current_process_aware
-    def get_pid_filename(cls, process_name=None):
-        """method returns path for the PID FILENAME """
-        return settings.settings['pid_directory'] + cls.CONTEXT[process_name].pid_filename
 
     @classmethod
     @current_process_aware

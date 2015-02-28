@@ -30,21 +30,20 @@ class TimetableContextEntry(BaseDocument):
         self.tree_name = value
 
 
-def _timetable_context_entry(tree_name,
-                             tree_classname,
-                             enclosed_processes,
-                             dependent_on=None,
-                             mx_name=None,
-                             mx_page=None):
+def timetable_context_entry(tree_name,
+                            tree_classname,
+                            enclosed_processes,
+                            dependent_on=None,
+                            mx_name=None,
+                            mx_page=None):
     """ creates timetable context entry """
     assert enclosed_processes is not None and not isinstance(enclosed_processes, str)
     assert dependent_on is not None and not isinstance(dependent_on, str)
 
-    timetable_entry = TimetableContextEntry()
-    timetable_entry.tree_name = tree_name
-    timetable_entry.tree_classname = tree_classname
-    timetable_entry.enclosed_processes = enclosed_processes
-    timetable_entry.dependent_on = dependent_on
-    timetable_entry.mx_name = mx_name
-    timetable_entry.mx_page = mx_page
+    timetable_entry = TimetableContextEntry(tree_name=tree_name,
+                                            tree_classname=tree_classname,
+                                            enclosed_processes=enclosed_processes,
+                                            dependent_on=dependent_on,
+                                            mx_name=mx_name,
+                                            mx_page=mx_page)
     return timetable_entry

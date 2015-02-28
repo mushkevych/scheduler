@@ -10,30 +10,30 @@ TRIGGER_PREAMBLE_AT = 'at '
 TRIGGER_PREAMBLE_EVERY = 'every '
 
 
-def parse_time_trigger_string(trigger_time):
+def parse_time_trigger_string(trigger_frequency):
     """
-    :param trigger_time: human-readable and editable string in one of two formats:
+    :param trigger_frequency: human-readable and editable string in one of two formats:
      - 'at Day_of_Week-HH:MM, ..., Day_of_Week-HH:MM'
      - 'every NNN'
-    :return: return tuple (parsed_trigger_time, timer_klass)
+    :return: return tuple (parsed_trigger_frequency, timer_klass)
     """
     # replace multiple spaces with one
-    trigger_time = ' '.join(trigger_time.split())
+    trigger_frequency = ' '.join(trigger_frequency.split())
 
-    if trigger_time.startswith(TRIGGER_PREAMBLE_AT):
+    if trigger_frequency.startswith(TRIGGER_PREAMBLE_AT):
         # EventClock block
-        trigger_time = trigger_time[len(TRIGGER_PREAMBLE_AT):]
-        parsed_trigger_time = trigger_time.replace(' ', '').replace(',', ' ').split(' ')
+        trigger_frequency = trigger_frequency[len(TRIGGER_PREAMBLE_AT):]
+        parsed_trigger_frequency = trigger_frequency.replace(' ', '').replace(',', ' ').split(' ')
         timer_klass = EventClock
-    elif trigger_time.startswith(TRIGGER_PREAMBLE_EVERY):
+    elif trigger_frequency.startswith(TRIGGER_PREAMBLE_EVERY):
         # RepeatTimer block
-        trigger_time = trigger_time[len(TRIGGER_PREAMBLE_EVERY):]
-        parsed_trigger_time = int(trigger_time)
+        trigger_frequency = trigger_frequency[len(TRIGGER_PREAMBLE_EVERY):]
+        parsed_trigger_frequency = int(trigger_frequency)
         timer_klass = RepeatTimer
     else:
-        raise ValueError('Unknown time trigger format %s' % trigger_time)
+        raise ValueError('Unknown time trigger format %s' % trigger_frequency)
 
-    return parsed_trigger_time, timer_klass
+    return parsed_trigger_frequency, timer_klass
 
 
 def format_time_trigger_string(timer_instance):
@@ -53,10 +53,10 @@ def format_time_trigger_string(timer_instance):
 
 
 class EventTime(object):
-    def __init__(self, trigger_time):
-        self.trigger_time = trigger_time
+    def __init__(self, trigger_frequency):
+        self.trigger_frequency = trigger_frequency
 
-        tokens = self.trigger_time.split('-')
+        tokens = self.trigger_frequency.split('-')
         if len(tokens) > 1:
             # Day of Week is provided
             self.day_of_week = tokens[0]
@@ -85,7 +85,7 @@ class EventTime(object):
     def __hash__(self):
         return hash((self.day_of_week, self.time_of_day))
 
-    def next_trigger_time(self, utc_now=None):
+    def next_trigger_frequency(self, utc_now=None):
         """ :param utc_now: optional parameter to be used by Unit Tests as a definition of "now"
             :return: datetime instance presenting next trigger time of the event """
         if utc_now is None:
@@ -171,7 +171,7 @@ class EventClock(object):
         if self.is_alive():
             smallest_timedelta = timedelta(days=99, hours=0, minutes=0, seconds=0, microseconds=0, milliseconds=0)
             for event_time in self.timestamps:
-                next_trigger = event_time.next_trigger_time(utc_now)
+                next_trigger = event_time.next_trigger_frequency(utc_now)
                 if next_trigger - utc_now < smallest_timedelta:
                     smallest_timedelta = next_trigger - utc_now
             return smallest_timedelta

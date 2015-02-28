@@ -1,52 +1,62 @@
 __author__ = 'Bohdan Mushkevych'
 
-from odm.document import BaseDocument
 from odm.fields import StringField, ObjectIdField
 
-from synergy.db.model.process_context_entry import ProcessContextEntry
-from synergy.scheduler.scheduler_constants import BLOCKING_CHILDREN, BLOCKING_DEPENDENCIES, BLOCKING_NORMAL
+from synergy.db.model.daemon_process_entry import DaemonProcessEntry
+from synergy.scheduler.scheduler_constants import BLOCKING_CHILDREN, BLOCKING_DEPENDENCIES, BLOCKING_NORMAL, \
+    EXCHANGE_MANAGED_WORKER, TYPE_MANAGED
 
 
 PROCESS_NAME = 'process_name'
 STATE = 'state'
-TRIGGER_TIME = 'trigger_time'
+TRIGGER_FREQUENCY = 'trigger_frequency'
 STATE_MACHINE_NAME = 'state_machine_name'
 BLOCKING_TYPE = 'blocking_type'
+SOURCE = 'source'
+SINK = 'sink'
+TIME_QUALIFIER = 'time_qualifier'
 
 STATE_ON = 'state_on'
 STATE_OFF = 'state_off'
 
 
-class SchedulerManagedEntry(ProcessContextEntry):
+class ManagedProcessEntry(DaemonProcessEntry):
     """ Class presents single configuration entry for scheduler managed (i.e. - non-freerun) processes. """
     db_id = ObjectIdField('_id', null=True)
-    trigger_time = StringField(TRIGGER_TIME)
+    source = StringField(SOURCE)
+    sink = StringField(SINK)
+    time_qualifier = StringField(TIME_QUALIFIER)
+    trigger_frequency = StringField(TRIGGER_FREQUENCY)
     state = StringField(STATE, choices=[STATE_ON, STATE_OFF])
     state_machine_name = StringField(STATE_MACHINE_NAME)
     blocking_type = StringField(BLOCKING_TYPE, choices=[BLOCKING_CHILDREN, BLOCKING_DEPENDENCIES, BLOCKING_NORMAL])
 
-    @BaseDocument.key.getter
+    @DaemonProcessEntry.key.getter
     def key(self):
         return self.process_name
 
-    @key.setter
+    @DaemonProcessEntry.key.setter
     def key(self, value):
         self.process_name = value
+
+    @property
+    def log_tag(self):
+        return str(self.token) + str(self.time_qualifier)
 
 
 def managed_context_entry(process_name,
                           classname,
                           token,
                           time_qualifier,
-                          exchange,
-                          trigger_time,
+                          trigger_frequency,
                           state_machine_name,
                           state=STATE_ON,
+                          exchange=EXCHANGE_MANAGED_WORKER,
                           blocking_type=BLOCKING_NORMAL,
                           arguments=None,
                           queue=None,
                           routing=None,
-                          process_type=None,
+                          process_type=TYPE_MANAGED,
                           source=None,
                           sink=None,
                           pid_file=None,
@@ -69,9 +79,9 @@ def managed_context_entry(process_name,
     else:
         assert isinstance(arguments, dict)
 
-    process_entry = SchedulerManagedEntry(
+    process_entry = ManagedProcessEntry(
         process_name=process_name,
-        trigger_time=trigger_time,
+        trigger_frequency=trigger_frequency,
         state_machine_name=state_machine_name,
         state=state,
         blocking_type=blocking_type,

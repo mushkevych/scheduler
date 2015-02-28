@@ -4,7 +4,7 @@ import unittest
 from tests.base_fixtures import compare_dictionaries
 from synergy.db.model import box_configuration
 from synergy.db.model.box_configuration import BoxConfiguration
-from synergy.db.model.scheduler_managed_entry import SchedulerManagedEntry
+from synergy.db.model.managed_process_entry import ManagedProcessEntry
 from synergy.db.model.job import Job
 from synergy.db.model.unit_of_work import UnitOfWork
 
@@ -12,7 +12,7 @@ from synergy.db.model.unit_of_work import UnitOfWork
 class TestSystemCollections(unittest.TestCase):
     def setUp(self):
         self.box_configuration = BoxConfiguration()
-        self.managed_entry = SchedulerManagedEntry()
+        self.managed_entry = ManagedProcessEntry()
         self.job_record = Job()
         self.uow = UnitOfWork()
 

@@ -16,6 +16,7 @@ STATE_MACHINE_FREERUN = 'freerun'
 # Supported worker types
 TYPE_MANAGED = 'type_managed'
 TYPE_FREERUN = 'type_freerun'
+TYPE_DAEMON = 'type_daemon'
 TYPE_GARBAGE_COLLECTOR = 'type_gc'
 BLOCKING_NORMAL = 'blocking_normal'
 BLOCKING_DEPENDENCIES = 'blocking_dependencies'

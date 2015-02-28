@@ -77,8 +77,8 @@
 
         <tr>
             <td>Trigger time:</td>
-            <td><input type="text" maxlength="32" name="trigger_time" style="text-align: left"
-                       value="{%- if handler %}{{ handler.scheduler_entry.trigger_time }}{%- endif %}"/></td>
+            <td><input type="text" maxlength="32" name="trigger_frequency" style="text-align: left"
+                       value="{%- if handler %}{{ handler.scheduler_entry.trigger_frequency }}{%- endif %}"/></td>
             <td>Either of:
                 <ul>"every XXX" where XXX stands for seconds; For instance: "every 60"</ul>
                 <ul>"at DoW-HH:MM, ..., DoW-HH:MM" where DoW is numerical Day Of Week (Mon-0, Sun-6, *-every day);

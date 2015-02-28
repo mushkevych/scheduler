@@ -91,7 +91,7 @@ class ContinuousSMUnitTest(unittest.TestCase):
     def test_future_timeperiod_state_in_progress(self):
         """ method tests job records in STATE_IN_PROGRESS state"""
         job_record = get_job_record(job.STATE_IN_PROGRESS, TEST_FUTURE_TIMEPERIOD, PROCESS_SITE_HOURLY)
-        manual_uow = create_unit_of_work(PROCESS_UNIT_TEST, 0, 1, None)
+        manual_uow = create_unit_of_work(PROCESS_SITE_HOURLY, 0, 1, None)
 
         when(self.uow_dao_mocked).get_one(any(str)).thenReturn(manual_uow)
         when(self.time_table_mocked).can_finalize_job_record(any(str), any(Job)).thenReturn(True)
@@ -106,8 +106,8 @@ class ContinuousSMUnitTest(unittest.TestCase):
         """ method tests job records in STATE_IN_PROGRESS state"""
         when(self.time_table_mocked).can_finalize_job_record(any(str), any(Job)).thenReturn(True)
         when(self.uow_dao_mocked).get_one(any()). \
-            thenReturn(create_unit_of_work(PROCESS_UNIT_TEST, 1, 1, None, unit_of_work.STATE_REQUESTED)). \
-            thenReturn(create_unit_of_work(PROCESS_UNIT_TEST, 1, 1, None, unit_of_work.STATE_PROCESSED))
+            thenReturn(create_unit_of_work(PROCESS_SITE_HOURLY, 1, 1, None, unit_of_work.STATE_REQUESTED)). \
+            thenReturn(create_unit_of_work(PROCESS_SITE_HOURLY, 1, 1, None, unit_of_work.STATE_PROCESSED))
 
         when(self.ds_mocked).highest_primary_key(any(str), any(str), any(str)).thenReturn(1)
         when(self.ds_mocked).lowest_primary_key(any(str), any(str), any(str)).thenReturn(0)
@@ -126,8 +126,8 @@ class ContinuousSMUnitTest(unittest.TestCase):
         """ method tests job records in STATE_IN_PROGRESS state"""
         when(self.time_table_mocked).can_finalize_job_record(any(str), any(Job)).thenReturn(True)
         when(self.uow_dao_mocked).get_one(any()). \
-            thenReturn(create_unit_of_work(PROCESS_UNIT_TEST, 1, 1, None, unit_of_work.STATE_REQUESTED)). \
-            thenReturn(create_unit_of_work(PROCESS_UNIT_TEST, 1, 1, None, unit_of_work.STATE_PROCESSED))
+            thenReturn(create_unit_of_work(PROCESS_SITE_HOURLY, 1, 1, None, unit_of_work.STATE_REQUESTED)). \
+            thenReturn(create_unit_of_work(PROCESS_SITE_HOURLY, 1, 1, None, unit_of_work.STATE_PROCESSED))
 
         when(self.ds_mocked).highest_primary_key(any(str), any(str), any(str)).thenReturn(1)
         when(self.ds_mocked).lowest_primary_key(any(str), any(str), any(str)).thenReturn(0)
@@ -145,7 +145,7 @@ class ContinuousSMUnitTest(unittest.TestCase):
     def test_processed_state_final_run(self):
         """method tests job records in STATE_FINAL_RUN state"""
         when(self.uow_dao_mocked).get_one(any()).\
-            thenReturn(create_unit_of_work(PROCESS_UNIT_TEST, 1, 1, None, unit_of_work.STATE_PROCESSED))
+            thenReturn(create_unit_of_work(PROCESS_SITE_HOURLY, 1, 1, None, unit_of_work.STATE_PROCESSED))
 
         sm_spy = spy(self.sm_real)
 
@@ -158,7 +158,7 @@ class ContinuousSMUnitTest(unittest.TestCase):
     def test_cancelled_state_final_run(self):
         """method tests job records in STATE_FINAL_RUN state"""
         when(self.uow_dao_mocked).get_one(any()).\
-            thenReturn(create_unit_of_work(PROCESS_UNIT_TEST, 1, 1, None, unit_of_work.STATE_CANCELED))
+            thenReturn(create_unit_of_work(PROCESS_SITE_HOURLY, 1, 1, None, unit_of_work.STATE_CANCELED))
 
         sm_spy = spy(self.sm_real)
         job_record = get_job_record(job.STATE_FINAL_RUN, TEST_PRESET_TIMEPERIOD, PROCESS_SITE_HOURLY)

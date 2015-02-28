@@ -8,10 +8,10 @@ from synergy.mq.flopsy import PublishersPool
 from synergy.system.decorator import thread_safe
 from synergy.scheduler.scheduler_constants import QUEUE_UOW_REPORT
 from synergy.workers.abstract_mq_worker import AbstractMqWorker
-from synergy.db.model import unit_of_work, scheduler_managed_entry
+from synergy.db.model import unit_of_work, managed_process_entry
 from synergy.db.model.synergy_mq_transmission import SynergyMqTransmission
 from synergy.db.dao.unit_of_work_dao import UnitOfWorkDao
-from synergy.db.model.scheduler_managed_entry import SchedulerManagedEntry
+from synergy.db.model.managed_process_entry import ManagedProcessEntry
 from synergy.db.dao.scheduler_managed_entry_dao import SchedulerManagedEntryDao
 
 
@@ -57,8 +57,8 @@ class GarbageCollectorWorker(AbstractMqWorker):
                     continue
 
                 process_config = self.scheduler_configuration[uow.process_name]
-                assert isinstance(process_config, SchedulerManagedEntry)
-                if process_config.state != scheduler_managed_entry.STATE_ON:
+                assert isinstance(process_config, ManagedProcessEntry)
+                if process_config.state != managed_process_entry.STATE_ON:
                     self.logger.debug('Process %r is inactive at the Synergy Scheduler. Skipping its unit_of_work.'
                                       % uow.process_name)
                     continue

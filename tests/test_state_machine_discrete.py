@@ -91,7 +91,7 @@ class DiscreteSMUnitTest(unittest.TestCase):
     def test_future_timeperiod_state_in_progress(self):
         """ method tests timetable records in STATE_IN_PROGRESS state"""
         when(self.time_table_mocked).can_finalize_job_record(any(str), any(Job)).thenReturn(True)
-        when(self.uow_dao_mocked).get_one(any()).thenReturn(create_unit_of_work(PROCESS_UNIT_TEST, 0, 1, None))
+        when(self.uow_dao_mocked).get_one(any()).thenReturn(create_unit_of_work(PROCESS_SITE_HOURLY, 0, 1, None))
 
         self.sm_real.insert_and_publish_uow = then_raise
         sm_spy = spy(self.sm_real)
@@ -104,7 +104,7 @@ class DiscreteSMUnitTest(unittest.TestCase):
     def test_preset_timeperiod_state_in_progress(self):
         """ method tests timetable records in STATE_IN_PROGRESS state"""
         when(self.time_table_mocked).can_finalize_job_record(any(str), any(Job)).thenReturn(True)
-        when(self.uow_dao_mocked).get_one(any()).thenReturn(create_unit_of_work(PROCESS_UNIT_TEST, 0, 1, None))
+        when(self.uow_dao_mocked).get_one(any()).thenReturn(create_unit_of_work(PROCESS_SITE_HOURLY, 0, 1, None))
 
         self.sm_real.insert_and_publish_uow = then_return_uow
         sm_spy = spy(self.sm_real)
@@ -120,7 +120,7 @@ class DiscreteSMUnitTest(unittest.TestCase):
         """ method tests timetable records in STATE_IN_PROGRESS state"""
         when(self.time_table_mocked).can_finalize_job_record(any(str), any(Job)).thenReturn(True)
         when(self.uow_dao_mocked).get_one(any()).\
-            thenReturn(create_unit_of_work(PROCESS_UNIT_TEST, 1, 1, None, unit_of_work.STATE_PROCESSED))
+            thenReturn(create_unit_of_work(PROCESS_SITE_HOURLY, 1, 1, None, unit_of_work.STATE_PROCESSED))
 
         self.sm_real.insert_and_publish_uow = then_return_duplicate_uow
         sm_spy = spy(self.sm_real)
@@ -136,7 +136,7 @@ class DiscreteSMUnitTest(unittest.TestCase):
         """ method tests timetable records in STATE_IN_PROGRESS state"""
         when(self.time_table_mocked).can_finalize_job_record(any(str), any(Job)).thenReturn(True)
         when(self.uow_dao_mocked).get_one(any()).\
-            thenReturn(create_unit_of_work(PROCESS_UNIT_TEST, 1, 1, None, unit_of_work.STATE_PROCESSED))
+            thenReturn(create_unit_of_work(PROCESS_SITE_HOURLY, 1, 1, None, unit_of_work.STATE_PROCESSED))
 
         self.sm_real.insert_and_publish_uow = then_return_uow
         sm_spy = spy(self.sm_real)
@@ -151,7 +151,7 @@ class DiscreteSMUnitTest(unittest.TestCase):
     def test_processed_state_final_run(self):
         """method tests timetable records in STATE_FINAL_RUN state"""
         when(self.uow_dao_mocked).get_one(any()).\
-            thenReturn(create_unit_of_work(PROCESS_UNIT_TEST, 1, 1, None, unit_of_work.STATE_PROCESSED))
+            thenReturn(create_unit_of_work(PROCESS_SITE_HOURLY, 1, 1, None, unit_of_work.STATE_PROCESSED))
 
         job_record = get_job_record(job.STATE_FINAL_RUN, TEST_PRESET_TIMEPERIOD, PROCESS_SITE_HOURLY)
 
@@ -164,7 +164,7 @@ class DiscreteSMUnitTest(unittest.TestCase):
     def test_cancelled_state_final_run(self):
         """method tests timetable records in STATE_FINAL_RUN state"""
         when(self.uow_dao_mocked).get_one(any()).\
-            thenReturn(create_unit_of_work(PROCESS_UNIT_TEST, 1, 1, None, unit_of_work.STATE_CANCELED))
+            thenReturn(create_unit_of_work(PROCESS_SITE_HOURLY, 1, 1, None, unit_of_work.STATE_CANCELED))
 
         sm_spy = spy(self.sm_real)
         job_record = get_job_record(job.STATE_FINAL_RUN, TEST_PRESET_TIMEPERIOD, PROCESS_SITE_HOURLY)

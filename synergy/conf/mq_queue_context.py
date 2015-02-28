@@ -12,14 +12,16 @@ class MqQueueContext(object):
         super(MqQueueContext, self).__init__()
 
     @classmethod
-    def put_context_entry(cls, context_entry):
+    def put(cls, context_entry):
         assert isinstance(context_entry, QueueContextEntry)
         cls.CONTEXT[context_entry.mq_queue] = context_entry
 
     @classmethod
-    def get_context_entry(cls, process_name=None):
-        """ method returns dictionary of strings, preset
-        source collection, target collection, queue name, exchange, routing, etc"""
+    def get(cls, process_name=None):
+        """
+        :return instance of the QueueContextEntry associated with the process_name
+        :raise KeyError if no entry is associated with given process_name
+        """
         return cls.CONTEXT[process_name]
 
     @classmethod

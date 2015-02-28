@@ -6,7 +6,6 @@ import socket
 from amqp import AMQPError
 
 from synergy.conf import settings
-from synergy.conf.process_context import ProcessContext
 from synergy.mq.flopsy import Consumer
 from synergy.system.performance_tracker import SimpleTracker
 from synergy.system.synergy_process import SynergyProcess
@@ -21,8 +20,6 @@ class AbstractMqWorker(SynergyProcess):
     def __init__(self, process_name):
         """:param process_name: id of the process, the worker will be performing """
         super(AbstractMqWorker, self).__init__(process_name)
-        self.queue_source = ProcessContext.get_source(self.process_name)
-        self.queue_sink = ProcessContext.get_sink(self.process_name)
         self.mq_timeout_seconds = 0
         self._init_mq_timeout_seconds()
 

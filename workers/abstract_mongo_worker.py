@@ -24,6 +24,8 @@ class AbstractMongoWorker(AbstractMqWorker):
     def __init__(self, process_name):
         super(AbstractMongoWorker, self).__init__(process_name)
         self.aggregated_objects = dict()
+        self.queue_source = ProcessContext.get_source(self.process_name)
+        self.queue_sink = ProcessContext.get_sink(self.process_name)
         self.uow_dao = UnitOfWorkDao(self.logger)
         self.ds = ds_manager.ds_factory(self.logger)
 

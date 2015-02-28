@@ -1,6 +1,6 @@
 __author__ = 'Bohdan Mushkevych'
 
-from synergy.db.model.scheduler_managed_entry import SchedulerManagedEntry
+from synergy.db.model.managed_process_entry import ManagedProcessEntry
 from synergy.db.dao.unit_of_work_dao import UnitOfWorkDao
 from synergy.system import time_helper
 from synergy.conf.process_context import ProcessContext
@@ -42,7 +42,7 @@ class ManagedActionHandler(AbstractActionHandler):
     @AbstractActionHandler.scheduler_entry.getter
     def scheduler_entry(self):
         scheduler_entry_obj = self.scheduler_thread_handler.arguments.scheduler_entry_obj
-        assert isinstance(scheduler_entry_obj, SchedulerManagedEntry)
+        assert isinstance(scheduler_entry_obj, ManagedProcessEntry)
         return scheduler_entry_obj
 
     @valid_action_request

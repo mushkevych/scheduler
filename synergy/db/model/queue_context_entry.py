@@ -25,15 +25,14 @@ class QueueContextEntry(BaseDocument):
         self.mq_queue = value
 
 
-def _queue_context_entry(exchange,
-                         queue_name,
-                         routing=None):
+def queue_context_entry(exchange,
+                        queue_name,
+                        routing=None):
     """ forms queue's context entry """
     if routing is None:
         routing = queue_name
 
-    queue_entry = QueueContextEntry()
-    queue_entry.mq_queue = queue_name
-    queue_entry.mq_exchange = exchange
-    queue_entry.mq_routing_key = routing
+    queue_entry = QueueContextEntry(mq_queue=queue_name,
+                                    mq_exchange=exchange,
+                                    mq_routing_key=routing)
     return queue_entry

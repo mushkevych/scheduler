@@ -3,7 +3,7 @@ __author__ = 'Bohdan Mushkevych'
 import json
 
 from synergy.db.model import unit_of_work
-from synergy.db.model.scheduler_freerun_entry import SchedulerFreerunEntry, STATE_ON, STATE_OFF
+from synergy.db.model.freerun_process_entry import FreerunProcessEntry, STATE_ON, STATE_OFF
 from synergy.db.dao.unit_of_work_dao import UnitOfWorkDao
 from synergy.db.dao.scheduler_freerun_entry_dao import SchedulerFreerunEntryDao
 from synergy.mx.mx_decorators import valid_action_request
@@ -33,7 +33,7 @@ class FreerunActionHandler(AbstractActionHandler):
     @AbstractActionHandler.scheduler_entry.getter
     def scheduler_entry(self):
         scheduler_entry_obj = self.scheduler_thread_handler.arguments.scheduler_entry_obj
-        assert isinstance(scheduler_entry_obj, SchedulerFreerunEntry)
+        assert isinstance(scheduler_entry_obj, FreerunProcessEntry)
         return scheduler_entry_obj
 
     @valid_action_request
@@ -68,7 +68,7 @@ class FreerunActionHandler(AbstractActionHandler):
         handler_key = (self.process_name, self.entry_name)
 
         if 'insert_button' in self.request_arguments:
-            scheduler_entry_obj = SchedulerFreerunEntry()
+            scheduler_entry_obj = FreerunProcessEntry()
             scheduler_entry_obj.process_name = self.process_name
             scheduler_entry_obj.entry_name = self.entry_name
 
@@ -80,7 +80,7 @@ class FreerunActionHandler(AbstractActionHandler):
 
             scheduler_entry_obj.description = self.request_arguments['description']
             scheduler_entry_obj.state = self.request_arguments['state']
-            scheduler_entry_obj.trigger_time = self.request_arguments['trigger_time']
+            scheduler_entry_obj.trigger_frequency = self.request_arguments['trigger_frequency']
             self.se_freerun_dao.update(scheduler_entry_obj)
 
             self.mbean._register_scheduler_entry(scheduler_entry_obj, self.mbean.fire_freerun_worker)
@@ -89,7 +89,7 @@ class FreerunActionHandler(AbstractActionHandler):
             thread_handler = self.mbean.freerun_handlers[handler_key]
             scheduler_entry_obj = thread_handler.arguments.scheduler_entry_obj
 
-            is_interval_changed = scheduler_entry_obj.trigger_time != self.request_arguments['trigger_time']
+            is_interval_changed = scheduler_entry_obj.trigger_frequency != self.request_arguments['trigger_frequency']
             is_state_changed = scheduler_entry_obj.state != self.request_arguments['state']
 
             if self.request_arguments['arguments']:
@@ -100,7 +100,7 @@ class FreerunActionHandler(AbstractActionHandler):
 
             scheduler_entry_obj.description = self.request_arguments['description']
             scheduler_entry_obj.state = self.request_arguments['state']
-            scheduler_entry_obj.trigger_time = self.request_arguments['trigger_time']
+            scheduler_entry_obj.trigger_frequency = self.request_arguments['trigger_frequency']
             self.se_freerun_dao.update(scheduler_entry_obj)
 
             if is_interval_changed:

@@ -9,8 +9,8 @@ from synergy.conf.process_context import ProcessContext
 from synergy.mq.flopsy import PublishersPool
 from synergy.mx.synergy_mx import MX
 from synergy.db.model.synergy_mq_transmission import SynergyMqTransmission
-from synergy.db.model.scheduler_managed_entry import SchedulerManagedEntry
-from synergy.db.model import scheduler_managed_entry, job
+from synergy.db.model.managed_process_entry import ManagedProcessEntry
+from synergy.db.model import managed_process_entry, job
 from synergy.db.dao.scheduler_managed_entry_dao import SchedulerManagedEntryDao
 from synergy.db.dao.scheduler_freerun_entry_dao import SchedulerFreerunEntryDao
 from synergy.system import time_helper
@@ -83,7 +83,7 @@ class Scheduler(SynergyProcess):
                               % handler.arguments.handler_type)
             return
 
-        if scheduler_entry_obj.state == scheduler_managed_entry.STATE_ON:
+        if scheduler_entry_obj.state == managed_process_entry.STATE_ON:
             handler.activate()
             self.logger.info('Started scheduler thread for %s:%r.'
                              % (handler.arguments.handler_type, handler.arguments.key))
@@ -106,10 +106,10 @@ class Scheduler(SynergyProcess):
                 function = self.fire_managed_worker
             elif process_type == TYPE_GARBAGE_COLLECTOR:
                 function = self.fire_garbage_collector
-            elif process_type == TYPE_FREERUN:
-                self.logger.error('TYPE_FREERUN process %s was found in scheduler_managed_entry table. '
-                                  'Move the process to the scheduler_freerun_entry table. Skipping the process.'
-                                  % process_type)
+            elif process_type in [TYPE_FREERUN, TYPE_DAEMON]:
+                self.logger.error('%s processes are not managed by Synergy Scheduler. '
+                                  'Remove the process %s from the scheduler_managed_entry table. Skipping the process.'
+                                  % (process_type.upper(), process_name))
                 continue
             else:
                 self.logger.error('Process type %s is not known to the system. Skipping it.' % process_type)
@@ -155,7 +155,7 @@ class Scheduler(SynergyProcess):
         """requests next valid job for given process and manages its state"""
 
         def _fire_worker(process_name, scheduler_entry_obj):
-            assert isinstance(scheduler_entry_obj, SchedulerManagedEntry)
+            assert isinstance(scheduler_entry_obj, ManagedProcessEntry)
             job_record = self.timetable.get_next_job_record(process_name)
             state_machine = self.state_machines[scheduler_entry_obj.state_machine_name]
 

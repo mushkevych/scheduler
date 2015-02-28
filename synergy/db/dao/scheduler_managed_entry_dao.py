@@ -3,7 +3,7 @@ __author__ = 'Bohdan Mushkevych'
 from bson import ObjectId
 from threading import RLock
 from synergy.db.manager import ds_manager
-from synergy.db.model.scheduler_managed_entry import SchedulerManagedEntry
+from synergy.db.model.managed_process_entry import ManagedProcessEntry
 from synergy.system.decorator import thread_safe
 from synergy.scheduler.scheduler_constants import COLLECTION_SCHEDULER_MANAGED_ENTRY
 
@@ -26,7 +26,7 @@ class SchedulerManagedEntryDao(object):
         document = collection.find_one(query)
         if document is None:
             raise LookupError('SchedulerManagedEntry for process=%s was not found' % str(key))
-        return SchedulerManagedEntry.from_json(document)
+        return ManagedProcessEntry.from_json(document)
 
     @thread_safe
     def get_all(self):
@@ -36,12 +36,12 @@ class SchedulerManagedEntryDao(object):
         cursor = collection.find(query)
         if cursor.count() == 0:
             raise LookupError('MongoDB has no SchedulerManagedEntry records')
-        return [SchedulerManagedEntry.from_json(entry) for entry in cursor]
+        return [ManagedProcessEntry.from_json(entry) for entry in cursor]
 
     @thread_safe
     def update(self, instance):
         """ method finds scheduler_managed_entry record and update its DB representation"""
-        assert isinstance(instance, SchedulerManagedEntry)
+        assert isinstance(instance, ManagedProcessEntry)
         collection = self.ds.connection(COLLECTION_SCHEDULER_MANAGED_ENTRY)
         document = instance.document
         if instance.db_id:

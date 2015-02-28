@@ -4,7 +4,7 @@ from bson import ObjectId
 from threading import RLock
 
 from synergy.db.manager import ds_manager
-from synergy.db.model.scheduler_freerun_entry import SchedulerFreerunEntry
+from synergy.db.model.freerun_process_entry import FreerunProcessEntry
 from synergy.system.decorator import thread_safe
 from synergy.scheduler.scheduler_constants import COLLECTION_SCHEDULER_FREERUN_ENTRY
 
@@ -28,7 +28,7 @@ class SchedulerFreerunEntryDao(object):
         document = collection.find_one(query)
         if document is None:
             raise LookupError('SchedulerFreerunEntry for process=%s was not found' % str(key))
-        return SchedulerFreerunEntry.from_json(document)
+        return FreerunProcessEntry.from_json(document)
 
     @thread_safe
     def get_all(self):
@@ -38,12 +38,12 @@ class SchedulerFreerunEntryDao(object):
         cursor = collection.find(query)
         if cursor.count() == 0:
             raise LookupError('MongoDB has no SchedulerFreerunEntry records')
-        return [SchedulerFreerunEntry.from_json(entry) for entry in cursor]
+        return [FreerunProcessEntry.from_json(entry) for entry in cursor]
 
     @thread_safe
     def update(self, instance):
         """ method finds scheduler_freerun_entry record and update its DB representation"""
-        assert isinstance(instance, SchedulerFreerunEntry)
+        assert isinstance(instance, FreerunProcessEntry)
         collection = self.ds.connection(COLLECTION_SCHEDULER_FREERUN_ENTRY)
         document = instance.document
         if instance.db_id:

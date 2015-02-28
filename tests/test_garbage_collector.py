@@ -22,7 +22,7 @@ from tests.ut_context import *
 
 
 def get_invalid_and_fresh_uow():
-    return create_unit_of_work(PROCESS_UNIT_TEST,
+    return create_unit_of_work(PROCESS_SITE_HOURLY,
                                0,
                                1,
                                state=unit_of_work.STATE_INVALID,
@@ -31,7 +31,7 @@ def get_invalid_and_fresh_uow():
 
 
 def get_invalid_and_stale_uow():
-    return create_unit_of_work(PROCESS_UNIT_TEST,
+    return create_unit_of_work(PROCESS_SITE_HOURLY,
                                0,
                                1,
                                state=unit_of_work.STATE_INVALID,
@@ -40,7 +40,7 @@ def get_invalid_and_stale_uow():
 
 
 def get_valid_and_fresh_uow():
-    return create_unit_of_work(PROCESS_UNIT_TEST,
+    return create_unit_of_work(PROCESS_SITE_HOURLY,
                                0,
                                1,
                                state=unit_of_work.STATE_IN_PROGRESS,
@@ -49,7 +49,7 @@ def get_valid_and_fresh_uow():
 
 
 def get_valid_and_stale_uow():
-    return create_unit_of_work(PROCESS_UNIT_TEST,
+    return create_unit_of_work(PROCESS_SITE_HOURLY,
                                0,
                                1,
                                state=unit_of_work.STATE_REQUESTED,
@@ -120,14 +120,12 @@ class GarbageCollectorUnitTest(unittest.TestCase):
         except:
             initial_positive_candidates = []
 
-        positive_timeperiods = {u'20101231231232': PROCESS_UNIT_TEST,  # real-time time qualifier
-                                u'2010123123': PROCESS_SITE_HOURLY,    # hourly time qualifier
+        positive_timeperiods = {u'2010123123': PROCESS_SITE_HOURLY,    # hourly time qualifier
                                 u'2010123100': PROCESS_SITE_DAILY,     # daily time qualifier
                                 u'2010120000': PROCESS_SITE_MONTHLY,   # monthly time qualifier
                                 u'2010000000': PROCESS_SITE_YEARLY}    # yearly time qualifier
 
-        negative_timeperiods = {u'20091231231232': PROCESS_UNIT_TEST,  # real-time time qualifier
-                                u'2009123123': PROCESS_SITE_HOURLY,    # hourly time qualifier
+        negative_timeperiods = {u'2009123123': PROCESS_SITE_HOURLY,    # hourly time qualifier
                                 u'2009123100': PROCESS_SITE_DAILY,     # daily time qualifier
                                 u'2009120000': PROCESS_SITE_MONTHLY,   # monthly time qualifier
                                 u'2009000000': PROCESS_SITE_YEARLY}    # yearly time qualifier

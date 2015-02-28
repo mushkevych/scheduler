@@ -8,7 +8,7 @@ from synergy.db.error import DuplicateKeyError
 from synergy.db.model import unit_of_work
 from synergy.db.model.unit_of_work import UnitOfWork
 from synergy.db.model.synergy_mq_transmission import SynergyMqTransmission
-from synergy.db.model.scheduler_freerun_entry import SchedulerFreerunEntry, MAX_NUMBER_OF_LOG_ENTRIES
+from synergy.db.model.freerun_process_entry import FreerunProcessEntry, MAX_NUMBER_OF_LOG_ENTRIES
 from synergy.db.dao.unit_of_work_dao import UnitOfWorkDao
 from synergy.db.dao.scheduler_freerun_entry_dao import SchedulerFreerunEntryDao
 from synergy.system import time_helper
@@ -40,7 +40,7 @@ class StateMachineFreerun(object):
         """ method performs logging into log file and the freerun_entry """
         self.logger.log(level, msg)
 
-        assert isinstance(freerun_entry, SchedulerFreerunEntry)
+        assert isinstance(freerun_entry, FreerunProcessEntry)
         log = freerun_entry.log
         if len(log) > MAX_NUMBER_OF_LOG_ENTRIES:
             del log[-1]
@@ -110,7 +110,7 @@ class StateMachineFreerun(object):
         """ method main duty - is to _avoid_ publishing another unit_of_work, if previous was not yet processed
         In case the Scheduler sees that the unit_of_work is pending it will fire another WorkerMqRequest """
 
-        assert isinstance(freerun_entry, SchedulerFreerunEntry)
+        assert isinstance(freerun_entry, FreerunProcessEntry)
         if freerun_entry.related_unit_of_work is None:
             uow = None
         else:
