@@ -5,10 +5,9 @@
 """
 
 import sys
-from synergy.conf.mq_queue_context import MqQueueContext
 
+from synergy.conf import context
 from synergy.mq.flopsy import purge_mq_queue
-from synergy.conf.process_context import ProcessContext
 
 
 if __name__ == '__main__':
@@ -19,14 +18,14 @@ if __name__ == '__main__':
 
     if sys.argv[1] == 'all':
         print "Purging process-derived queues..."
-        for process_name in ProcessContext.CONTEXT:
-            queue_name = ProcessContext.get_queue(process_name)
+        for process_name in context.process_context:
+            queue_name = context.process_context[process_name].mq_queue
             if not queue_name:
                 continue
             purge_mq_queue(queue_name)
 
         print "Purging custom queues..."
-        for queue_name in MqQueueContext.CONTEXT:
+        for queue_name in context.mq_queue_context:
             if not queue_name:
                 continue
             purge_mq_queue(queue_name)

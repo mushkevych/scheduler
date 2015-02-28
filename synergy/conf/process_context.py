@@ -1,7 +1,5 @@
 __author__ = 'Bohdan Mushkevych'
 
-import os
-
 from synergy.conf import context
 from synergy.conf import settings
 from synergy.system.data_logging import Logger
@@ -81,26 +79,6 @@ class ProcessContext(object):
     def get_time_qualifier(cls, process_name=None):
         """ method returns worker/aggregator time scale (like daily or yearly)"""
         return cls.CONTEXT[process_name].time_qualifier
-
-    @classmethod
-    @current_process_aware
-    def get_routing(cls, process_name=None):
-        """ method returns routing; it is used to segregate traffic within the queue
-        for instance: routing_hourly for hourly reports, while routing_yearly for yearly reports"""
-        return cls.CONTEXT[process_name].mq_routing_key
-
-    @classmethod
-    @current_process_aware
-    def get_exchange(cls, process_name=None):
-        """ method returns exchange for this classname.
-        Exchange is a component that sits between queue and the publisher"""
-        return cls.CONTEXT[process_name].mq_exchange
-
-    @classmethod
-    @current_process_aware
-    def get_queue(cls, process_name=None):
-        """ method returns queue that is applicable for the worker/aggregator, specified by classname"""
-        return cls.CONTEXT[process_name].mq_queue
 
     @classmethod
     @current_process_aware
