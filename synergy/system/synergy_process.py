@@ -3,7 +3,7 @@ __author__ = 'Bohdan Mushkevych'
 import setproctitle
 
 from synergy.conf import settings
-from synergy.conf.process_context import ProcessContext
+from synergy.system.data_logging import get_logger
 from synergy.system.utils import create_pid_file, remove_pid_file
 
 
@@ -13,7 +13,7 @@ class SynergyProcess(object):
     def __init__(self, process_name):
         """ renames process to SynergyYYY and creates PID file """
         self.process_name = process_name
-        self.logger = ProcessContext.get_logger(process_name)
+        self.logger = get_logger(process_name)
 
         # process-related activities
         setproctitle.setproctitle(settings.settings['process_prefix'] + self.process_name)

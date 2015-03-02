@@ -18,6 +18,7 @@ from constants import *
 from synergy.mq.flopsy import PublishersPool
 from synergy.scheduler.scheduler_constants import PROCESS_GC
 from synergy.workers.garbage_collector_worker import GarbageCollectorWorker, LIFE_SUPPORT_HOURS
+from synergy.system.data_logging import get_logger
 from tests.ut_context import *
 
 
@@ -107,7 +108,7 @@ class GarbageCollectorUnitTest(unittest.TestCase):
         verify(self.publisher, times=1).publish(any(dict))
 
     def test_select_reprocessing_candidates(self):
-        logger = ProcessContext.get_logger(PROCESS_UNIT_TEST)
+        logger = get_logger(PROCESS_UNIT_TEST)
         uow_dao = UnitOfWorkDao(logger)
 
         try:

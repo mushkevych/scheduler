@@ -1,13 +1,12 @@
 __author__ = 'Bohdan Mushkevych'
 
-from synergy.system import time_helper
 from synergy.system.time_qualifier import *
 
 from tests import base_fixtures
 from db.model import raw_data
 from constants import COLLECTION_SINGLE_SESSION, COLLECTION_SITE_HOURLY
 from synergy.db.manager import ds_manager
-from synergy.conf.process_context import ProcessContext
+from synergy.system.data_logging import get_logger
 from tests.ut_context import PROCESS_UNIT_TEST
 
 # pylint: disable=C0301
@@ -254,7 +253,7 @@ def generate_session_composite_key(index, total):
 
 
 def clean_session_entries():
-    logger = ProcessContext.get_logger(PROCESS_UNIT_TEST)
+    logger = get_logger(PROCESS_UNIT_TEST)
     ds = ds_manager.ds_factory(logger)
     connection = ds.connection(COLLECTION_SINGLE_SESSION)
     for i in range(base_fixtures.TOTAL_ENTRIES):

@@ -4,7 +4,7 @@ from werkzeug.utils import cached_property
 
 from synergy.conf import settings
 from synergy.system import time_helper
-from synergy.conf.process_context import ProcessContext
+from synergy.conf import context
 from synergy.mx.rest_models import RestTimetableTreeNode, RestJob
 from synergy.mx.mx_decorators import valid_action_request
 
@@ -48,7 +48,7 @@ class TreeNodeDetails(object):
                 rest_node.children[key] = TreeNodeDetails.get_details(child)
 
         elif tree is not None:
-            time_qualifier = ProcessContext.get_time_qualifier(self.process_name)
+            time_qualifier = context.process_context[self.process_name].time_qualifier
             self.timeperiod = time_helper.cast_to_time_qualifier(time_qualifier, self.timeperiod)
             node = tree.get_node_by_process(self.process_name, self.timeperiod)
             rest_node.node = TreeNodeDetails.get_details(node, as_model=True)

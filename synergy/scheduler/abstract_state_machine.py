@@ -11,7 +11,7 @@ from synergy.db.model import unit_of_work
 from synergy.db.model.unit_of_work import UnitOfWork
 from synergy.db.model.synergy_mq_transmission import SynergyMqTransmission
 from synergy.mq.flopsy import PublishersPool
-from synergy.conf.process_context import ProcessContext
+from synergy.conf import context
 from synergy.system.decorator import with_reconnect
 from synergy.scheduler.scheduler_constants import TYPE_MANAGED
 
@@ -51,12 +51,12 @@ class AbstractStateMachine(object):
         uow.start_timeperiod = start_timeperiod
         uow.end_timeperiod = end_timeperiod
         uow.created_at = datetime.utcnow()
-        uow.source = ProcessContext.get_source(process_name)
-        uow.sink = ProcessContext.get_sink(process_name)
+        uow.source = context.process_context[process_name].source
+        uow.sink = context.process_context[process_name].sink
         uow.state = unit_of_work.STATE_REQUESTED
         uow.unit_of_work_type = TYPE_MANAGED
         uow.number_of_retries = 0
-        uow.arguments = ProcessContext.get_arguments(process_name)
+        uow.arguments = context.process_context[process_name].arguments
         uow.db_id = self.uow_dao.insert(uow)
 
         msg = 'Created: UOW %s for %s in timeperiod [%s:%s).' \

@@ -3,7 +3,7 @@ __author__ = 'Bohdan Mushkevych'
 import sys
 import types
 
-from synergy.conf.process_context import ProcessContext
+from synergy.conf import context
 
 
 def get_class(kls):
@@ -55,8 +55,8 @@ def start_by_process_name(process_name, *args):
     3. if the path name ends with starter function - then retrieves its module
         and calls <code>starter(*args)</code> function on it
     """
-    sys.stdout.write('INFO: Starter path %r \n' % ProcessContext.get_classname(process_name))
-    t, m, starter = get_class(ProcessContext.get_classname(process_name))
+    sys.stdout.write('INFO: Starter path %r \n' % context.process_context[process_name].classname)
+    t, m, starter = get_class(context.process_context[process_name].classname)
     if isinstance(m, (type, types.ClassType)):
         sys.stdout.write('INFO: Starting process by calling starter method %r \n' % starter)
         instance = m(process_name)
@@ -67,7 +67,7 @@ def start_by_process_name(process_name, *args):
         function = m
         function(*args)
     else:
-        raise ValueError('Improper starter path %r' % ProcessContext.get_classname(process_name))
+        raise ValueError('Improper starter path %r' % context.process_context[process_name].classname)
 
 
 if __name__ == "__main__":

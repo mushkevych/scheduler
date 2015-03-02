@@ -5,7 +5,7 @@ from subprocess import PIPE
 import psutil
 
 from synergy.conf import settings
-from synergy.conf.process_context import ProcessContext
+from synergy.conf import context
 from workers.abstract_cli_worker import AbstractCliWorker
 
 
@@ -17,7 +17,7 @@ class PigDriver(AbstractCliWorker):
 
     def _start_process(self, start_timeperiod, end_timeperiod, arguments):
         try:
-            input_file = ProcessContext.get_source(self.process_name)
+            input_file = context.process_context[self.process_name].source
 
             self.logger.info('start: %s {' % self.process_name)
             p = psutil.Popen([settings.settings['bash_shell'],

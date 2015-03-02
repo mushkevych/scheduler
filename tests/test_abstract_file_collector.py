@@ -9,7 +9,7 @@ import unittest
 import socket
 
 from synergy.conf import settings
-from synergy.conf.process_context import ProcessContext
+from synergy.system.data_logging import get_logger
 from synergy.system import time_helper
 from synergy.system.time_qualifier import *
 from workers.abstract_file_collector_worker import AbstractFileCollectorWorker
@@ -66,7 +66,7 @@ class FileCollectorUnitTest(unittest.TestCase):
         self.original_source_host_list = settings.settings['remote_source_host_list']
         self.original_source_folder = settings.settings['remote_source_folder']
 
-        self.logger = ProcessContext.get_logger(PROCESS_UNIT_TEST)
+        self.logger = get_logger(PROCESS_UNIT_TEST)
         self.worker = self.create_file_collector()
         self.actual_timeperiod = self.ACTUAL_TIMEPERIOD
 

@@ -15,7 +15,7 @@ from synergy.db.manager.ds_manager import BaseManager
 from tests.base_fixtures import create_unit_of_work
 from synergy.system import time_helper
 from synergy.system.time_qualifier import *
-from synergy.conf.process_context import ProcessContext
+from synergy.system.data_logging import get_logger
 from constants import PROCESS_SITE_HOURLY
 from synergy.scheduler.timetable import Timetable
 from synergy.scheduler.state_machine_continuous import StateMachineContinuous
@@ -49,7 +49,7 @@ def get_job_record(state, timeperiod, process_name):
 
 class ContinuousSMUnitTest(unittest.TestCase):
     def setUp(self):
-        self.logger = ProcessContext.get_logger(PROCESS_UNIT_TEST)
+        self.logger = get_logger(PROCESS_UNIT_TEST)
         self.time_table_mocked = mock(Timetable)
         when(self.time_table_mocked).get_tree(any(str)).thenReturn(mock())
         self.sm_real = StateMachineContinuous(self.logger, self.time_table_mocked)

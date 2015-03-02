@@ -5,6 +5,7 @@ from threading import Lock
 
 from amqp import AMQPError
 
+from synergy.conf import context
 from synergy.conf.process_context import ProcessContext
 from synergy.mq.flopsy import PublishersPool
 from synergy.mx.synergy_mx import MX
@@ -97,11 +98,11 @@ class Scheduler(SynergyProcess):
         scheduler_entries = self.se_managed_dao.get_all()
         for scheduler_entry_obj in scheduler_entries:
             process_name = scheduler_entry_obj.process_name
-            if scheduler_entry_obj.process_name not in ProcessContext.CONTEXT:
+            if scheduler_entry_obj.process_name not in context.process_context:
                 self.logger.error('Process %r is not known to the system. Skipping it.' % process_name)
                 continue
 
-            process_type = ProcessContext.get_process_type(process_name)
+            process_type = context.process_context[process_name].process_type
             if process_type in TYPE_MANAGED:
                 function = self.fire_managed_worker
             elif process_type == TYPE_GARBAGE_COLLECTOR:
@@ -159,9 +160,9 @@ class Scheduler(SynergyProcess):
             job_record = self.timetable.get_next_job_record(process_name)
             state_machine = self.state_machines[scheduler_entry_obj.state_machine_name]
 
-            run_on_active_timeperiod = ProcessContext.run_on_active_timeperiod(scheduler_entry_obj.process_name)
+            run_on_active_timeperiod = context.process_context[process_name].run_on_active_timeperiod
             if not run_on_active_timeperiod:
-                time_qualifier = ProcessContext.get_time_qualifier(process_name)
+                time_qualifier = context.process_context[process_name].time_qualifier
                 incremented_timeperiod = time_helper.increment_timeperiod(time_qualifier, job_record.timeperiod)
                 dt_record_timestamp = time_helper.synergy_to_datetime(time_qualifier, incremented_timeperiod)
                 dt_record_timestamp += timedelta(minutes=LAG_5_MINUTES)

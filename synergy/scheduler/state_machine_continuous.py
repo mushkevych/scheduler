@@ -5,7 +5,7 @@ from logging import ERROR, WARNING, INFO
 
 from synergy.db.model import job, unit_of_work
 from synergy.db.manager import ds_manager
-from synergy.conf.process_context import ProcessContext
+from synergy.conf import context
 from synergy.system.decorator import with_reconnect
 from synergy.system import time_helper
 from synergy.scheduler.scheduler_constants import STATE_MACHINE_CONTINUOUS
@@ -55,7 +55,7 @@ class StateMachineContinuous(AbstractStateMachine):
         -- in case unit_of_work can be located - we update job record and proceed normally
         -- in case unit_of_work can not be located (what is equal to fatal data corruption) - we log exception and
         ask/expect manual intervention to resolve the corruption"""
-        source_collection_name = ProcessContext.get_source(process_name)
+        source_collection_name = context.process_context[process_name].source
         start_id = self.ds.highest_primary_key(source_collection_name, start_timeperiod, end_timeperiod)
         end_id = self.ds.lowest_primary_key(source_collection_name, start_timeperiod, end_timeperiod)
         uow, is_duplicate = self.insert_and_publish_uow(process_name,
@@ -68,7 +68,7 @@ class StateMachineContinuous(AbstractStateMachine):
     def _compute_and_transfer_to_final_run(self, process_name, start_timeperiod, end_timeperiod, job_record):
         """ method computes new unit_of_work and transfers the job to STATE_FINAL_RUN
         it also shares _fuzzy_ DuplicateKeyError logic from _compute_and_transfer_to_progress method"""
-        source_collection_name = ProcessContext.get_source(process_name)
+        source_collection_name = context.process_context[process_name].source
         start_id = self.ds.highest_primary_key(source_collection_name, start_timeperiod, end_timeperiod)
         end_id = self.ds.lowest_primary_key(source_collection_name, start_timeperiod, end_timeperiod)
         uow, transfer_to_final = self.insert_and_publish_uow(process_name,
@@ -83,13 +83,13 @@ class StateMachineContinuous(AbstractStateMachine):
 
     def _process_state_embryo(self, process_name, job_record, start_timeperiod):
         """ method that takes care of processing job records in STATE_EMBRYO state"""
-        time_qualifier = ProcessContext.get_time_qualifier(process_name)
+        time_qualifier = context.process_context[process_name].time_qualifier
         end_timeperiod = time_helper.increment_timeperiod(time_qualifier, start_timeperiod)
         self._compute_and_transfer_to_progress(process_name, start_timeperiod, end_timeperiod, job_record)
 
     def _process_state_in_progress(self, process_name, job_record, start_timeperiod):
         """ method that takes care of processing job records in STATE_IN_PROGRESS state"""
-        time_qualifier = ProcessContext.get_time_qualifier(process_name)
+        time_qualifier = context.process_context[process_name].time_qualifier
         end_timeperiod = time_helper.increment_timeperiod(time_qualifier, start_timeperiod)
         actual_timeperiod = time_helper.actual_timeperiod(time_qualifier)
         can_finalize_job_record = self.timetable.can_finalize_job_record(process_name, job_record)

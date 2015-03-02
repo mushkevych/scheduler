@@ -16,7 +16,8 @@ from synergy.db.manager import ds_manager
 from synergy.system import time_helper
 from synergy.system.time_qualifier import *
 from synergy.scheduler.scheduler_constants import TYPE_MANAGED
-from synergy.conf.process_context import ProcessContext
+from synergy.conf import context
+from synergy.system.data_logging import get_logger
 from tests.ut_context import PROCESS_UNIT_TEST
 
 
@@ -115,11 +116,11 @@ def create_unit_of_work(process_name,
                         uow_id=None):
     """ method creates and returns unit_of_work """
     try:
-        source_collection = ProcessContext.get_source(process_name)
-        target_collection = ProcessContext.get_sink(process_name)
+        source_collection = context.process_context[process_name].source
+        sink_collection = context.process_context[process_name].sink
     except KeyError:
         source_collection = None
-        target_collection = None
+        sink_collection = None
 
     uow = UnitOfWork()
     uow.process_name = process_name
@@ -130,11 +131,11 @@ def create_unit_of_work(process_name,
     uow.end_timeperiod = timeperiod
     uow.created_at = creation_at
     uow.source = source_collection
-    uow.sink = target_collection
+    uow.sink = sink_collection
     uow.state = state
     uow.unit_of_work_type = TYPE_MANAGED
     uow.number_of_retries = 0
-    uow.arguments = ProcessContext.get_arguments(process_name)
+    uow.arguments = context.process_context[process_name].arguments
 
     if uow_id is not None:
         uow.db_id = uow_id
@@ -147,14 +148,14 @@ def create_and_insert_unit_of_work(process_name, start_id, end_id, state=unit_of
     """ method creates and inserts a unit_of_work into DB
     :return id of the created object in the db"""
     uow = create_unit_of_work(process_name, start_id, end_id, timeperiod, state)
-    logger = ProcessContext.get_logger(process_name)
+    logger = get_logger(process_name)
     uow_dao = UnitOfWorkDao(logger)
     uow_id = uow_dao.insert(uow)
     return uow_id
 
 
 def create_session_stats(composite_key_function, seed='RANDOM_SEED_OBJECT'):
-    logger = ProcessContext.get_logger(PROCESS_UNIT_TEST)
+    logger = get_logger(PROCESS_UNIT_TEST)
     ss_dao = SingleSessionDao(logger)
     time_array = ['20010303102210', '20010303102212', '20010303102215', '20010303102250']
     random.seed(seed)
@@ -216,7 +217,7 @@ def generate_site_composite_key(index, time_qualifier):
 
 
 def create_site_stats(collection_name, time_qualifier, seed='RANDOM_SEED_OBJECT'):
-    logger = ProcessContext.get_logger(PROCESS_UNIT_TEST)
+    logger = get_logger(PROCESS_UNIT_TEST)
     ds = ds_manager.ds_factory(logger)
     random.seed(seed)
     object_ids = []
@@ -261,7 +262,7 @@ def create_site_stats(collection_name, time_qualifier, seed='RANDOM_SEED_OBJECT'
 
 
 def clean_site_entries(collection_name, time_qualifier):
-    logger = ProcessContext.get_logger(PROCESS_UNIT_TEST)
+    logger = get_logger(PROCESS_UNIT_TEST)
     ds = ds_manager.ds_factory(logger)
     connection = ds.connection(collection_name)
     for i in range(TOTAL_ENTRIES):

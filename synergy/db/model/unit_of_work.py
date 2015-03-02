@@ -31,6 +31,7 @@ STATE_IN_PROGRESS = 'state_in_progress'
 STATE_REQUESTED = 'state_requested'
 STATE_CANCELED = 'state_canceled'
 STATE_INVALID = 'state_invalid'
+STATE_NOOP = 'state_noop'
 
 
 class UnitOfWork(BaseDocument):
@@ -47,8 +48,8 @@ class UnitOfWork(BaseDocument):
     source = StringField(SOURCE)
     sink = StringField(SINK)
     arguments = DictField(ARGUMENTS)
-    state = StringField(STATE,
-                        choices=[STATE_INVALID, STATE_REQUESTED, STATE_IN_PROGRESS, STATE_PROCESSED, STATE_CANCELED])
+    state = StringField(STATE, choices=[STATE_INVALID, STATE_REQUESTED, STATE_IN_PROGRESS,
+                                        STATE_PROCESSED, STATE_CANCELED, STATE_NOOP])
     created_at = DateTimeField(CREATED_AT)
     started_at = DateTimeField(STARTED_AT)
     finished_at = DateTimeField(FINISHED_AT)

@@ -2,7 +2,7 @@ __author__ = 'Bohdan Mushkevych'
 
 from synergy.db.model import job
 from synergy.system import time_helper
-from synergy.conf.process_context import ProcessContext
+from synergy.conf import context
 
 
 class AbstractNode(object):
@@ -18,7 +18,7 @@ class AbstractNode(object):
             # special case - node is TREE ROOT
             self.time_qualifier = None
         else:
-            self.time_qualifier = ProcessContext.get_time_qualifier(self.process_name)
+            self.time_qualifier = context.process_context[self.process_name].time_qualifier
 
     def request_reprocess(self):
         """ method marks this and all parents node as such that requires reprocessing
@@ -78,7 +78,7 @@ class AbstractNode(object):
             """ :return: True if candidate_process has the same time qualifier as given """
             if candidate_process_name is None:
                 return False
-            candidate_qualifier = ProcessContext.get_time_qualifier(candidate_process_name)
+            candidate_qualifier = context.process_context[candidate_process_name].time_qualifier
             return time_qualifier == candidate_qualifier
 
         tree_b_process_yearly = getattr(tree_b, 'process_yearly', None)

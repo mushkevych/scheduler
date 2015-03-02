@@ -6,13 +6,13 @@ import json
 import socket
 from datetime import datetime
 
+from synergy.conf import context
 from synergy.db.model import unit_of_work
 from synergy.db.model.synergy_mq_transmission import SynergyMqTransmission
 from synergy.db.manager import ds_manager
 from synergy.db.dao.unit_of_work_dao import UnitOfWorkDao
 from synergy.conf import settings
 from synergy.system.decimal_encoder import DecimalEncoder
-from synergy.conf.process_context import ProcessContext
 from synergy.workers.abstract_mq_worker import AbstractMqWorker
 from synergy.system.performance_tracker import UowAwareTracker
 
@@ -24,8 +24,8 @@ class AbstractMongoWorker(AbstractMqWorker):
     def __init__(self, process_name):
         super(AbstractMongoWorker, self).__init__(process_name)
         self.aggregated_objects = dict()
-        self.queue_source = ProcessContext.get_source(self.process_name)
-        self.queue_sink = ProcessContext.get_sink(self.process_name)
+        self.queue_source = context.process_context[self.process_name].source
+        self.queue_sink = context.process_context[self.process_name].sink
         self.uow_dao = UnitOfWorkDao(self.logger)
         self.ds = ds_manager.ds_factory(self.logger)
 
@@ -144,7 +144,7 @@ class AbstractMongoWorker(AbstractMqWorker):
             bulk_threshold = settings.settings['bulk_threshold']
             iteration = 0
             while True:
-                collection_name = ProcessContext.get_source(self.process_name)
+                collection_name = context.process_context[self.process_name].source
                 cursor = self.ds.cursor_for(collection_name,
                                             start_id_obj,
                                             end_id_obj,

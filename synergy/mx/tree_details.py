@@ -41,10 +41,10 @@ class TreeDetails(object):
         for process_name in context_entry.enclosed_processes:
             rest_process = RestProcess(
                 process_name=process_name,
-                time_qualifier=ProcessContext.get_time_qualifier(process_name),
+                time_qualifier=context.process_context[process_name].time_qualifier,
                 state_machine=self._state_machine_name(process_name),
-                process_type=ProcessContext.get_process_type(process_name),
-                run_on_active_timeperiod=ProcessContext.run_on_active_timeperiod(process_name),
+                process_type=context.process_context[process_name].process_type,
+                run_on_active_timeperiod=context.process_context[process_name].run_on_active_timeperiod,
                 reprocessing_queue=self._get_reprocessing_details(process_name),
                 next_timeperiod=self.mbean.timetable.get_next_job_record(process_name).timeperiod
             )

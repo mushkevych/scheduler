@@ -7,7 +7,7 @@ from synergy.db.model import job, unit_of_work
 from synergy.scheduler.scheduler_constants import STATE_MACHINE_DISCRETE
 from synergy.scheduler.abstract_state_machine import AbstractStateMachine
 from synergy.system import time_helper
-from synergy.conf.process_context import ProcessContext
+from synergy.conf import context
 
 
 class StateMachineDiscrete(AbstractStateMachine):
@@ -33,7 +33,7 @@ class StateMachineDiscrete(AbstractStateMachine):
 
     def _process_state_embryo(self, process_name, job_record, start_timeperiod):
         """ method that takes care of processing job records in STATE_EMBRYO state"""
-        time_qualifier = ProcessContext.get_time_qualifier(process_name)
+        time_qualifier = context.process_context[process_name].time_qualifier
         end_timeperiod = time_helper.increment_timeperiod(time_qualifier, start_timeperiod)
         uow, is_duplicate = self.insert_and_publish_uow(process_name,
                                                         start_timeperiod,
@@ -61,7 +61,7 @@ class StateMachineDiscrete(AbstractStateMachine):
                                                                     iteration + 1)
                 self.timetable.update_job_record(process_name, job_record, new_uow, target_state)
 
-        time_qualifier = ProcessContext.get_time_qualifier(process_name)
+        time_qualifier = context.process_context[process_name].time_qualifier
         end_timeperiod = time_helper.increment_timeperiod(time_qualifier, start_timeperiod)
         actual_timeperiod = time_helper.actual_timeperiod(time_qualifier)
         can_finalize_job_record = self.timetable.can_finalize_job_record(process_name, job_record)

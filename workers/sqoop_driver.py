@@ -7,7 +7,7 @@ import psutil
 from synergy.system import time_helper
 from synergy.system.time_qualifier import QUALIFIER_HOURLY
 from synergy.conf import settings
-from synergy.conf.process_context import ProcessContext
+from synergy.conf import context
 from workers.abstract_cli_worker import AbstractCliWorker
 
 
@@ -27,7 +27,7 @@ class SqoopDriver(AbstractCliWorker):
             end_dt = time_helper.synergy_to_datetime(QUALIFIER_HOURLY, end_timeperiod)
             sqoop_slice_endtime = end_dt.strftime(SqoopDriver.SQOOP_DATE_FORMAT)
 
-            sink_path = ProcessContext.get_sink(self.process_name)
+            sink_path = context.process_context[self.process_name].sink
 
             self.logger.info('start: %s {' % self.process_name)
             p = psutil.Popen([settings.settings['bash_shell'],

@@ -6,7 +6,7 @@ from synergy.db.model import job, unit_of_work
 from synergy.scheduler.scheduler_constants import STATE_MACHINE_SIMPLE_DISCRETE
 from synergy.scheduler.state_machine_dicrete import StateMachineDiscrete
 from synergy.system import time_helper
-from synergy.conf.process_context import ProcessContext
+from synergy.conf import context
 
 
 class StateMachineSimpleDiscrete(StateMachineDiscrete):
@@ -29,7 +29,7 @@ class StateMachineSimpleDiscrete(StateMachineDiscrete):
                              'since the job state is not STATE_IN_PROGRESS' % (uow.process_name, uow.timeperiod))
             return
 
-        time_qualifier = ProcessContext.get_time_qualifier(uow.process_name)
+        time_qualifier = context.process_context[uow.process_name].time_qualifier
         actual_timeperiod = time_helper.actual_timeperiod(time_qualifier)
         can_finalize_job_record = self.timetable.can_finalize_job_record(uow.process_name, job_record)
 
@@ -88,7 +88,7 @@ class StateMachineSimpleDiscrete(StateMachineDiscrete):
 
     def _process_state_in_progress(self, process_name, job_record, start_timeperiod):
         """ method that takes care of processing job records in STATE_IN_PROGRESS state """
-        time_qualifier = ProcessContext.get_time_qualifier(process_name)
+        time_qualifier = context.process_context[process_name].time_qualifier
         end_timeperiod = time_helper.increment_timeperiod(time_qualifier, start_timeperiod)
         actual_timeperiod = time_helper.actual_timeperiod(time_qualifier)
         can_finalize_job_record = self.timetable.can_finalize_job_record(process_name, job_record)

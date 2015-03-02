@@ -7,15 +7,14 @@ import psutil
 from psutil import TimeoutExpired
 
 from launch import get_python, PROJECT_ROOT, PROCESS_STARTER
-from synergy.system.utils import remove_pid_file
-from synergy.conf.process_context import ProcessContext
+from synergy.system.utils import remove_pid_file, get_pid_filename
 from synergy.conf import settings
 
 
 def get_process_pid(process_name):
     """ check for process' pid file and returns pid from there """
     try:
-        pid_filename = ProcessContext.get_pid_filename(process_name)
+        pid_filename = get_pid_filename(process_name)
         pf = file(pid_filename, 'r')
         pid = int(pf.read().strip())
         pf.close()

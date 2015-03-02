@@ -148,11 +148,11 @@ def query_configuration(options):
     else:
         # reads current box configuration and prints it to the console
         from synergy.db.dao.box_configuration_dao import BoxConfigurationDao
-        from synergy.conf.process_context import ProcessContext
+        from synergy.system.data_logging import get_logger
         from synergy.supervisor import supervisor_helper
         from constants import PROCESS_LAUNCH_PY
 
-        logger = ProcessContext.get_logger(PROCESS_LAUNCH_PY)
+        logger = get_logger(PROCESS_LAUNCH_PY)
         box_id = supervisor_helper.get_box_id(logger)
         bc_dao = BoxConfigurationDao(logger)
         sys.stdout.write('\nConfiguration for BOX_ID=%r:\n' % box_id)
@@ -173,11 +173,11 @@ def start_process(options, args):
     from synergy.supervisor import supervisor_helper
     from synergy.db.model import box_configuration
     from synergy.system import process_helper
-    from synergy.conf.process_context import ProcessContext
+    from synergy.system.data_logging import get_logger
     from synergy.supervisor.supervisor_constants import PROCESS_SUPERVISOR
     from constants import PROCESS_LAUNCH_PY
 
-    logger = ProcessContext.get_logger(PROCESS_LAUNCH_PY)
+    logger = get_logger(PROCESS_LAUNCH_PY)
     box_id = supervisor_helper.get_box_id(logger)
     if options.supervisor is True and options.app != PROCESS_SUPERVISOR:
         from synergy.db.dao.box_configuration_dao import BoxConfigurationDao
@@ -213,12 +213,12 @@ def start_process(options, args):
 def stop_process(options):
     """Stop specific daemon"""
     from synergy.system import process_helper
-    from synergy.conf.process_context import ProcessContext
+    from synergy.system.data_logging import get_logger
     from synergy.supervisor import supervisor_helper
     from synergy.supervisor.supervisor_constants import PROCESS_SUPERVISOR
     from constants import PROCESS_LAUNCH_PY
 
-    logger = ProcessContext.get_logger(PROCESS_LAUNCH_PY)
+    logger = get_logger(PROCESS_LAUNCH_PY)
     box_id = supervisor_helper.get_box_id(logger)
     if options.supervisor is True and options.app != PROCESS_SUPERVISOR:
         from synergy.db.model import box_configuration
@@ -291,10 +291,10 @@ def run_tests(options):
         unittest.main(module=None, defaultTest='__main__.load_all_tests',
                       argv=argv)
     except SystemExit as e:
-        from synergy.conf.process_context import ProcessContext
+        from synergy.system.data_logging import get_logger
         from constants import PROCESS_LAUNCH_PY
 
-        logger = ProcessContext.get_logger(PROCESS_LAUNCH_PY)
+        logger = get_logger(PROCESS_LAUNCH_PY)
         if e.code == 0:
             logger.info('PASS')
         else:

@@ -10,7 +10,7 @@ from synergy.system.decorator import thread_safe
 from synergy.system.time_qualifier import *
 from synergy.scheduler.scheduler_constants import COLLECTION_JOB_HOURLY, COLLECTION_JOB_DAILY, \
     COLLECTION_JOB_MONTHLY, COLLECTION_JOB_YEARLY
-from synergy.conf.process_context import ProcessContext
+from synergy.conf import context
 
 
 QUERY_GET_LIKE_TIMEPERIOD = \
@@ -34,7 +34,7 @@ class JobDao(object):
     def _get_job_collection(self, process_name):
         """jobs are stored in 4 collections: hourly, daily, monthly and yearly;
         method looks for the proper job_collection base on process TIME_QUALIFIER"""
-        qualifier = ProcessContext.get_time_qualifier(process_name)
+        qualifier = context.process_context[process_name].time_qualifier
 
         if qualifier == QUALIFIER_HOURLY:
             collection = self.ds.connection(COLLECTION_JOB_HOURLY)

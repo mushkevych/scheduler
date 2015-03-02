@@ -3,7 +3,7 @@ __author__ = 'Bohdan Mushkevych'
 from synergy.db.model.managed_process_entry import ManagedProcessEntry
 from synergy.db.dao.unit_of_work_dao import UnitOfWorkDao
 from synergy.system import time_helper
-from synergy.conf.process_context import ProcessContext
+from synergy.conf import context
 from synergy.mx.mx_decorators import valid_action_request
 from synergy.mx.abstract_action_handler import AbstractActionHandler
 from synergy.mx.tree_node_details import TreeNodeDetails
@@ -29,7 +29,7 @@ class ManagedActionHandler(AbstractActionHandler):
         if tree is None:
             raise UserWarning('No Timetable tree is registered for process %s' % self.process_name)
 
-        time_qualifier = ProcessContext.get_time_qualifier(self.process_name)
+        time_qualifier = context.process_context[self.process_name].time_qualifier
         self.timeperiod = time_helper.cast_to_time_qualifier(time_qualifier, self.timeperiod)
         node = tree.get_node_by_process(self.process_name, self.timeperiod)
         return node

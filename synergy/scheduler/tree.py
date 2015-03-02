@@ -5,7 +5,7 @@ from datetime import datetime, timedelta
 from synergy.db.model import job
 from synergy.scheduler.tree_node import TreeNode, LinearNode
 from synergy.conf import settings
-from synergy.conf.process_context import ProcessContext
+from synergy.conf import context
 from synergy.system import time_helper
 from synergy.system.time_qualifier import *
 from synergy.system.time_helper import cast_to_time_qualifier
@@ -79,7 +79,7 @@ class AbstractTree(object):
     def _build_tree(self, rebuild, process_name, method_get_node):
         """method builds tree by iterating from the synergy_start_timeperiod to current time
         and inserting corresponding nodes"""
-        time_qualifier = ProcessContext.get_time_qualifier(process_name)
+        time_qualifier = context.process_context[process_name].time_qualifier
         if rebuild or self.build_timeperiod is None:
             timeperiod = settings.settings['synergy_start_timeperiod']
             timeperiod = cast_to_time_qualifier(time_qualifier, timeperiod)
@@ -389,6 +389,7 @@ class FourLevelTree(ThreeLevelTree):
         self.process_hourly = process_hourly
 
     # *** PRIVATE METHODS ***
+    # TODO: replace with SUPER._get_node(timeperiod)
     def __get_hourly_node(self, timeperiod):
         timeperiod_daily = cast_to_time_qualifier(QUALIFIER_DAILY, timeperiod)
         parent = self._ThreeLevelTree__get_daily_node(timeperiod_daily)
@@ -400,6 +401,7 @@ class FourLevelTree(ThreeLevelTree):
 
         return node
 
+    # TODO: replace with SUPER._get_next_node()
     def __get_next_hourly_node(self):
         parent = self._ThreeLevelTree__get_next_daily_node()
         return self._get_next_node(parent)

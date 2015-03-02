@@ -3,7 +3,7 @@ __author__ = 'Bohdan Mushkevych'
 from datetime import datetime
 from logging import ERROR, WARNING, INFO
 
-from synergy.conf.process_context import ProcessContext
+from synergy.conf import context
 from synergy.db.error import DuplicateKeyError
 from synergy.db.model import unit_of_work
 from synergy.db.model.unit_of_work import UnitOfWork
@@ -62,8 +62,8 @@ class StateMachineFreerun(object):
         uow.start_timeperiod = current_timeperiod
         uow.end_timeperiod = current_timeperiod
         uow.created_at = datetime.utcnow()
-        uow.source = ProcessContext.get_source(freerun_entry.process_name)
-        uow.sink = ProcessContext.get_source(freerun_entry.process_name)
+        uow.source = context.process_context[freerun_entry.process_name].source
+        uow.sink = context.process_context[freerun_entry.process_name].sink
         uow.state = unit_of_work.STATE_REQUESTED
         uow.unit_of_work_type = TYPE_FREERUN
         uow.number_of_retries = 0

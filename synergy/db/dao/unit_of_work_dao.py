@@ -10,7 +10,7 @@ from synergy.system import time_helper
 from synergy.system.time_qualifier import *
 from synergy.system.decorator import thread_safe
 from synergy.scheduler.scheduler_constants import COLLECTION_UNIT_OF_WORK, TYPE_MANAGED
-from synergy.conf.process_context import ProcessContext
+from synergy.conf import context
 from synergy.db.error import DuplicateKeyError
 from synergy.db.model import unit_of_work
 from synergy.db.model.unit_of_work import UnitOfWork
@@ -65,11 +65,11 @@ class UnitOfWorkDao(object):
             cursor = collection.find(query).sort('_id', ASCENDING)
             for document in cursor:
                 uow = UnitOfWork.from_json(document)
-                if uow.process_name not in ProcessContext.CONTEXT:
+                if uow.process_name not in context.process_context:
                     # this is a decommissioned process
                     continue
 
-                time_qualifier = ProcessContext.get_time_qualifier(uow.process_name)
+                time_qualifier = context.process_context[uow.process_name].time_qualifier
                 if time_qualifier == QUALIFIER_REAL_TIME:
                     time_qualifier = QUALIFIER_HOURLY
                 process_specific_since = time_helper.cast_to_time_qualifier(time_qualifier, since)

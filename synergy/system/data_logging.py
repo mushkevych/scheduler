@@ -5,6 +5,10 @@ import logging
 import logging.handlers
 
 from synergy.conf import settings
+from synergy.conf import context
+from synergy.db.model.daemon_process_entry import DaemonProcessEntry
+from synergy.db.model.freerun_process_entry import FreerunProcessEntry
+from synergy.db.model.managed_process_entry import ManagedProcessEntry
 
 
 class Logger(object):
@@ -12,13 +16,13 @@ class Logger(object):
     Logger presents standard API to log messages and store them for future analysis
     """
 
-    def __init__(self, file_name, context):
+    def __init__(self, file_name, log_tag):
         """
         Constructor: dictionary of loggers available for this Python process
         :param file_name: path+name of the output file
-        :param context: tag that is printed ahead of every logged message
+        :param log_tag: tag that is printed ahead of every logged message
         """
-        self.logger = logging.getLogger(context)
+        self.logger = logging.getLogger(log_tag)
 
         if settings.settings['under_test']:
             # ATTENTION: while running as stand-alone process, stdout and stderr must be muted and redirected to file
@@ -67,11 +71,40 @@ class Logger(object):
         return False
 
 
-if __name__ == '__main__':
-    from synergy.conf.process_context import ProcessContext
+# holds Logger instance per process name (and optional suffix)
+logger_pool = dict()
 
+
+def get_logger(process_name):
+    """ method returns initiated logger"""
+    if process_name not in logger_pool:
+        file_name = get_log_filename(process_name)
+        tag = get_log_tag(process_name)
+        logger_pool[process_name] = Logger(file_name, tag)
+    return logger_pool[process_name].get_logger()
+
+
+def get_log_filename(process_name):
+    """method returns path for the Log filename"""
+    return settings.settings['log_directory'] + context.process_context[process_name].log_filename
+
+
+def get_log_tag(process_name):
+    """method returns tag that all messages will be preceded with"""
+    process_obj = context.process_context[process_name]
+    if isinstance(process_obj, FreerunProcessEntry):
+        return str(process_obj.token)
+    elif isinstance(process_obj, ManagedProcessEntry):
+        return str(process_name.token) + str(process_obj.time_qualifier)
+    elif isinstance(process_obj, DaemonProcessEntry):
+        return str(process_obj.token)
+    else:
+        raise ValueError('Unknown process type: %s' % process_obj.__class__.__name__)
+
+
+if __name__ == '__main__':
     process_name = 'TestAggregator'
-    logger = ProcessContext.get_logger(process_name)
+    logger = get_logger(process_name)
     logger.info('test_message')
     print 'regular print message'
     sys.stdout.flush()

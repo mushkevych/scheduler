@@ -5,7 +5,7 @@ import unittest
 import mock
 
 from synergy.mq.flopsy import PublishersPool, _Pool, Publisher
-from synergy.conf.process_context import ProcessContext
+from synergy.system.data_logging import get_logger
 from tests.ut_context import PROCESS_UNIT_TEST, register_processes
 
 
@@ -17,7 +17,7 @@ class TestPublishersPool(unittest.TestCase):
 
     def setUp(self):
         super(TestPublishersPool, self).setUp()
-        self.logger = ProcessContext.get_logger(PROCESS_UNIT_TEST)
+        self.logger = get_logger(PROCESS_UNIT_TEST)
 
     def test_pop(self):
         """ test to prove that neither Publisher.__del__ nor Publisher.release are called on PublisherPool.get """
