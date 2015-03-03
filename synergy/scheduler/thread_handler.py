@@ -27,7 +27,8 @@ def construct_thread_handler(logger, scheduler_entry_obj, call_back):
 
 
 class ThreadHandlerArguments(object):
-    """ ThreadHandlerArgument is a data structure around Thread Handler arguments """
+    """ ThreadHandlerArgument is a data structure around Thread Handler arguments.
+    It is passed to the Timer instance and later on - to the Scheduler's running function as an argument """
 
     def __init__(self, key, trigger_frequency, scheduler_entry_obj, handler_type):
         self.key = key

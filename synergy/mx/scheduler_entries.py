@@ -2,7 +2,7 @@ __author__ = 'Bohdan Mushkevych'
 
 from werkzeug.utils import cached_property
 
-from synergy.db.model import scheduler_managed_entry
+from synergy.db.model.managed_process_entry import STATE_ON
 from synergy.system.event_clock import format_time_trigger_string
 from synergy.system.performance_tracker import FootprintCalculator
 from synergy.mx.rest_models import RestFreerunSchedulerEntry, RestManagedSchedulerEntry
@@ -41,7 +41,7 @@ class SchedulerEntries(object):
                 rest_model = RestManagedSchedulerEntry()
                 # indicate whether process is in active or passive state
                 # parameters are set in Scheduler.run() method
-                is_on = thread_handler.arguments.scheduler_entry_obj.state == scheduler_managed_entry.STATE_ON
+                is_on = thread_handler.arguments.scheduler_entry_obj.state == STATE_ON
                 rest_model.is_on = is_on
                 rest_model.is_alive = thread_handler.is_alive()
                 rest_model.process_name = process_name
@@ -67,7 +67,7 @@ class SchedulerEntries(object):
                 rest_model = RestFreerunSchedulerEntry()
                 # indicate whether process is in active or passive state
                 # parameters are set in Scheduler.run() method
-                is_on = thread_handler.arguments.scheduler_entry_obj.state == scheduler_managed_entry.STATE_ON
+                is_on = thread_handler.arguments.scheduler_entry_obj.state == STATE_ON
                 rest_model.is_on = is_on
                 rest_model.is_alive = thread_handler.is_alive()
                 rest_model.process_name = process_name

@@ -4,7 +4,6 @@ from werkzeug.utils import cached_property
 
 from synergy.conf import context
 from synergy.mx.rest_models import RestTimetableTree, RestProcess
-from synergy.conf.process_context import ProcessContext
 
 
 class TreeDetails(object):

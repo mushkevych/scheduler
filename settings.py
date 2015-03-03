@@ -59,7 +59,6 @@ test_cases = [
     'tests.test_single_session',
     'tests.test_time_helper',
     'tests.test_repeat_timer',
-    'tests.test_process_context',
     'tests.test_process_starter',
     'tests.test_site_hourly_aggregator',
     'tests.test_site_daily_aggregator',

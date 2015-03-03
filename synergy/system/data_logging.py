@@ -95,7 +95,7 @@ def get_log_tag(process_name):
     if isinstance(process_obj, FreerunProcessEntry):
         return str(process_obj.token)
     elif isinstance(process_obj, ManagedProcessEntry):
-        return str(process_name.token) + str(process_obj.time_qualifier)
+        return str(process_obj.token) + str(process_obj.time_qualifier)
     elif isinstance(process_obj, DaemonProcessEntry):
         return str(process_obj.token)
     else:

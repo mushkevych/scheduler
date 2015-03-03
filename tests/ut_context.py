@@ -1,7 +1,7 @@
 __author__ = 'Bohdan Mushkevych'
 
 from context import ROUTING_IRRELEVANT, EXCHANGE_UTILS
-from synergy.conf.process_context import ProcessContext
+from synergy.conf import context
 from synergy.db.model.daemon_process_entry import deamon_context_entry
 
 # User fields
@@ -23,14 +23,14 @@ def register_processes():
         classname='workers.example_script_worker.main',
         token=TOKEN_SCRIPT_EXAMPLE,
         exchange=EXCHANGE_UTILS)
-    ProcessContext.put(process_entry)
+    context.process_context[process_entry.process_name] = process_entry
 
     process_entry = deamon_context_entry(
         process_name=PROCESS_CLASS_EXAMPLE,
         classname='synergy.workers.abstract_mq_worker.AbstractMqWorker.start',
         token=TOKEN_CLASS_EXAMPLE,
         exchange=EXCHANGE_UTILS)
-    ProcessContext.put(process_entry)
+    context.process_context[process_entry.process_name] = process_entry
 
     process_entry = deamon_context_entry(
         process_name=PROCESS_UNIT_TEST,
@@ -38,4 +38,4 @@ def register_processes():
         token=TOKEN_UNIT_TEST,
         routing=ROUTING_IRRELEVANT,
         exchange=EXCHANGE_UTILS)
-    ProcessContext.put(process_entry)
+    context.process_context[process_entry.process_name] = process_entry

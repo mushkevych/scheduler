@@ -160,12 +160,5 @@ timetable_context = {
 }
 
 
-def get_mx_pages():
-    mx_pages = dict()
-    for tree_name, tree_entry in timetable_context:
-        assert isinstance(tree_entry, TimetableContextEntry)
-        mx_pages[tree_entry.mx_page] = tree_entry.mx_page.replace('_', ' ')
-    return mx_pages
-
-
-mx_page_context = get_mx_pages()
+mx_page_context = {tree_entry.mx_page: tree_entry.mx_page.replace('_', ' ')
+                   for tree_entry in timetable_context.values()}
