@@ -39,11 +39,9 @@ class ManagedActionHandler(AbstractActionHandler):
         handler_key = self.process_name
         return self.mbean.managed_handlers[handler_key]
 
-    @AbstractActionHandler.scheduler_entry.getter
-    def scheduler_entry(self):
-        scheduler_entry_obj = self.scheduler_thread_handler.scheduler_entry_obj
-        assert isinstance(scheduler_entry_obj, ManagedProcessEntry)
-        return scheduler_entry_obj
+    @AbstractActionHandler.process_entry.getter
+    def process_entry(self):
+        return self.scheduler_thread_handler.process_entry
 
     @valid_action_request
     def action_reprocess(self):

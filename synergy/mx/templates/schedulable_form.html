@@ -40,7 +40,7 @@
                 </select>
             {%- else -%}
                 <input type="text" name="process_name" style="text-align: left"
-                       value="{{ handler.scheduler_entry.process_name }}" readonly>
+                       value="{{ handler.process_entry.process_name }}" readonly>
             {%- endif -%}
             </td>
             <td></td>
@@ -48,7 +48,7 @@
         <tr>
             <td>Entry name:</td>
             <td><input type="text" name="entry_name" style="text-align: left"
-                       value="{% if handler %}{{ handler.scheduler_entry.entry_name }}{% endif %}"
+                       value="{% if handler %}{{ handler.process_entry.entry_name }}{% endif %}"
                     {% if handler %} readonly {% endif %}></td>
             <td>Name of the schedulable item. Has to be unique.</td>
         </tr>
@@ -56,7 +56,7 @@
         <tr>
             <td>Description:</td>
             <td><input type="text" name="description" style="text-align: left"
-                       value="{% if handler %}{{ handler.scheduler_entry.description }}{% endif %}"></td>
+                       value="{% if handler %}{{ handler.process_entry.description }}{% endif %}"></td>
             <td>Human-targeted description of the schedulable item</td>
         </tr>
 
@@ -64,11 +64,11 @@
             <td>State:</td>
             <td><select name="state" style="width: 236px">
                 <option value="state_on"
-                        {% if handler and handler.scheduler_entry.state == 'state_on' %} selected {% endif %}>
+                        {% if handler and handler.process_entry.state == 'state_on' %} selected {% endif %}>
                     STATE_ON
                 </option>
                 <option value="state_off"
-                        {% if handler and handler.scheduler_entry.state == 'state_off'%} selected {% endif %}>
+                        {% if handler and handler.process_entry.state == 'state_off'%} selected {% endif %}>
                     STATE_OFF
                 </option>
             </select></td>
@@ -78,7 +78,7 @@
         <tr>
             <td>Trigger time:</td>
             <td><input type="text" maxlength="32" name="trigger_frequency" style="text-align: left"
-                       value="{%- if handler %}{{ handler.scheduler_entry.trigger_frequency }}{%- endif %}"/></td>
+                       value="{%- if handler %}{{ handler.process_entry.trigger_frequency }}{%- endif %}"/></td>
             <td>Either of:
                 <ul>"every XXX" where XXX stands for seconds; For instance: "every 60"</ul>
                 <ul>"at DoW-HH:MM, ..., DoW-HH:MM" where DoW is numerical Day Of Week (Mon-0, Sun-6, *-every day);
@@ -90,7 +90,7 @@
             <td>Arguments:</td>
             <td><textarea rows="10" cols="30" name="arguments">
                 {%- if handler -%}
-                    {{ handler.scheduler_entry.arguments|jsonify }}
+                    {{ handler.process_entry.arguments|jsonify }}
                 {%- else -%}
                     {"cmd_path": "", "cmd_file": "", "cmd_args": "", "cmd_host": "" }
                 {%- endif -%}</textarea></td>

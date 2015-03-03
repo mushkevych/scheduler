@@ -16,7 +16,7 @@ class AbstractActionHandler(object):
         raise NotImplementedError('not implemented yet')
 
     @property
-    def scheduler_entry(self):
+    def process_entry(self):
         raise NotImplementedError('not implemented yet')
 
     def action_get_uow(self):

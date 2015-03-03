@@ -9,11 +9,11 @@ from synergy.system.decorator import thread_safe
 from synergy.scheduler.scheduler_constants import COLLECTION_SCHEDULER_FREERUN_ENTRY
 
 
-class SchedulerFreerunEntryDao(object):
+class FreerunProcessDao(object):
     """ Thread-safe Data Access Object for scheduler_freerun_entry table/collection """
 
     def __init__(self, logger):
-        super(SchedulerFreerunEntryDao, self).__init__()
+        super(FreerunProcessDao, self).__init__()
         self.logger = logger
         self.lock = RLock()
         self.ds = ds_manager.ds_factory(logger)

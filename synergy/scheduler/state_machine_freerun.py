@@ -10,7 +10,7 @@ from synergy.db.model.unit_of_work import UnitOfWork
 from synergy.db.model.synergy_mq_transmission import SynergyMqTransmission
 from synergy.db.model.freerun_process_entry import FreerunProcessEntry, MAX_NUMBER_OF_LOG_ENTRIES
 from synergy.db.dao.unit_of_work_dao import UnitOfWorkDao
-from synergy.db.dao.scheduler_freerun_entry_dao import SchedulerFreerunEntryDao
+from synergy.db.dao.scheduler_freerun_entry_dao import FreerunProcessDao
 from synergy.system import time_helper
 from synergy.system.time_qualifier import QUALIFIER_REAL_TIME
 from synergy.system.decorator import with_reconnect
@@ -26,7 +26,7 @@ class StateMachineFreerun(object):
         self.logger = logger
         self.publishers = PublishersPool(self.logger)
         self.uow_dao = UnitOfWorkDao(self.logger)
-        self.sfe_dao = SchedulerFreerunEntryDao(self.logger)
+        self.sfe_dao = FreerunProcessDao(self.logger)
 
     def __del__(self):
         try:

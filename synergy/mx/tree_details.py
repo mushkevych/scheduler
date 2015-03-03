@@ -16,9 +16,6 @@ class TreeDetails(object):
         trees = self.mbean.timetable._find_dependant_trees(tree_obj)
         return [x.full_name for x in trees]
 
-    def _state_machine_name(self, process_name):
-        return self.mbean.managed_handlers[process_name].scheduler_entry_obj.state_machine_name
-
     def _get_reprocessing_details(self, process_name):
         resp = []
         per_process = self.mbean.timetable.reprocess.get(process_name)
@@ -38,12 +35,13 @@ class TreeDetails(object):
         rest_tree.dependant_trees = self._list_of_dependant_trees(tree_obj)
 
         for process_name in context_entry.enclosed_processes:
+            process_obj = context.process_context[process_name]
             rest_process = RestProcess(
                 process_name=process_name,
-                time_qualifier=context.process_context[process_name].time_qualifier,
-                state_machine=self._state_machine_name(process_name),
-                process_type=context.process_context[process_name].process_type,
-                run_on_active_timeperiod=context.process_context[process_name].run_on_active_timeperiod,
+                time_qualifier=process_obj.time_qualifier,
+                state_machine=process_obj.state_machine_name,
+                process_type=process_obj.process_type,
+                run_on_active_timeperiod=process_obj.run_on_active_timeperiod,
                 reprocessing_queue=self._get_reprocessing_details(process_name),
                 next_timeperiod=self.mbean.timetable.get_next_job_record(process_name).timeperiod
             )

@@ -58,8 +58,8 @@ class StatusBusListener(object):
                                  % (uow.process_name, uow.timeperiod, uow.state))
                 return
 
-            scheduler_entry_obj = self.scheduler.managed_handlers[uow.process_name].scheduler_entry_obj
-            state_machine = self.scheduler.state_machines[scheduler_entry_obj.state_machine_name]
+            process_entry = self.scheduler.managed_handlers[uow.process_name].process_entry
+            state_machine = self.scheduler.state_machines[process_entry.state_machine_name]
             assert isinstance(state_machine, AbstractStateMachine)
 
             self.logger.info('Commencing shallow state update for unit_of_work from %s at %s in %s.'

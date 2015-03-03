@@ -12,7 +12,7 @@ from synergy.db.model import unit_of_work, managed_process_entry
 from synergy.db.model.synergy_mq_transmission import SynergyMqTransmission
 from synergy.db.dao.unit_of_work_dao import UnitOfWorkDao
 from synergy.db.model.managed_process_entry import ManagedProcessEntry
-from synergy.db.dao.scheduler_managed_entry_dao import SchedulerManagedEntryDao
+from synergy.db.dao.managed_process_dao import ManagedProcessDao
 
 
 LIFE_SUPPORT_HOURS = 48  # number of hours from UOW creation time to keep UOW re-posting to MQ
@@ -29,7 +29,7 @@ class GarbageCollectorWorker(AbstractMqWorker):
         self.lock = Lock()
         self.publishers = PublishersPool(self.logger)
         self.uow_dao = UnitOfWorkDao(self.logger)
-        self.managed_dao = SchedulerManagedEntryDao(self.logger)
+        self.managed_dao = ManagedProcessDao(self.logger)
         self.scheduler_configuration = dict()
 
     def __del__(self):

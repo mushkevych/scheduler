@@ -8,11 +8,11 @@ from synergy.system.decorator import thread_safe
 from synergy.scheduler.scheduler_constants import COLLECTION_SCHEDULER_MANAGED_ENTRY
 
 
-class SchedulerManagedEntryDao(object):
+class ManagedProcessDao(object):
     """ Thread-safe Data Access Object for scheduler_managed_entry table/collection """
 
     def __init__(self, logger):
-        super(SchedulerManagedEntryDao, self).__init__()
+        super(ManagedProcessDao, self).__init__()
         self.logger = logger
         self.lock = RLock()
         self.ds = ds_manager.ds_factory(logger)
