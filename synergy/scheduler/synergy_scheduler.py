@@ -8,7 +8,7 @@ from amqp import AMQPError
 from synergy.conf import context
 from synergy.mq.flopsy import PublishersPool
 from synergy.mx.synergy_mx import MX
-from synergy.db.manager import context_manager
+from synergy.db.manager import db_manager
 from synergy.db.model.synergy_mq_transmission import SynergyMqTransmission
 from synergy.db.model.managed_process_entry import ManagedProcessEntry
 from synergy.db.model import managed_process_entry, job
@@ -127,7 +127,7 @@ class Scheduler(SynergyProcess):
     @with_reconnect
     def start(self, *_):
         """ reads scheduler entries and starts timer instances, as well as MX thread """
-        context_manager.synch_db()
+        db_manager.synch_db()
         self._load_managed_entries()
 
         try:

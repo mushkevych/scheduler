@@ -103,7 +103,8 @@ class UnitOfWorkDao(object):
         document = instance.document
         if instance.db_id:
             document['_id'] = ObjectId(instance.db_id)
-        return collection.save(document, safe=True)
+        instance.db_id = collection.save(document, safe=True)
+        return instance.db_id
 
     @thread_safe
     def insert(self, instance):

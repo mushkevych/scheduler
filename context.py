@@ -7,7 +7,7 @@ from synergy.workers.worker_constants import *
 from synergy.db.model.queue_context_entry import queue_context_entry
 from synergy.db.model.daemon_process_entry import deamon_context_entry
 from synergy.db.model.managed_process_entry import managed_context_entry
-from synergy.db.model.timetable_context_entry import timetable_context_entry, TimetableContextEntry
+from synergy.db.model.timetable_context_entry import timetable_context_entry
 
 
 mq_queue_context = {
