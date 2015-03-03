@@ -6,7 +6,6 @@ from threading import Lock
 from amqp import AMQPError
 
 from synergy.conf import context
-from synergy.conf.process_context import ProcessContext
 from synergy.mq.flopsy import PublishersPool
 from synergy.mx.synergy_mx import MX
 from synergy.db.model.synergy_mq_transmission import SynergyMqTransmission
@@ -103,7 +102,7 @@ class Scheduler(SynergyProcess):
                 continue
 
             process_type = context.process_context[process_name].process_type
-            if process_type in TYPE_MANAGED:
+            if process_type == TYPE_MANAGED:
                 function = self.fire_managed_worker
             elif process_type == TYPE_GARBAGE_COLLECTOR:
                 function = self.fire_garbage_collector

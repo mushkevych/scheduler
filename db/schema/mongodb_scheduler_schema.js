@@ -1,3 +1,4 @@
+// *** DEPRECATED ***
 //@author: Bohdan Mushkevych
 
 conn = new Mongo('localhost:27017');

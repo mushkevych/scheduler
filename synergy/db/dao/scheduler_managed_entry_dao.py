@@ -54,3 +54,9 @@ class SchedulerManagedEntryDao(object):
         query = {'process_name': key}
         collection = self.ds.connection(COLLECTION_SCHEDULER_MANAGED_ENTRY)
         return collection.remove(query, safe=True)
+
+    @thread_safe
+    def clear(self):
+        """ removes all documents in this collection """
+        collection = self.ds.connection(COLLECTION_SCHEDULER_MANAGED_ENTRY)
+        return collection.remove()

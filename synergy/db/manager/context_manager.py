@@ -1,0 +1,74 @@
+__author__ = 'Bohdan Mushkevych'
+
+import pymongo
+from synergy.db.manager import ds_manager
+from synergy.db.model.freerun_process_entry import ENTRY_NAME
+from synergy.db.model.managed_process_entry import PROCESS_NAME
+from synergy.db.model.unit_of_work import TIMEPERIOD, START_OBJ_ID, END_OBJ_ID
+
+from synergy.db.dao.scheduler_managed_entry_dao import SchedulerManagedEntryDao
+from constants import PROCESS_LAUNCH_PY
+
+from synergy.conf import context, settings
+from synergy.scheduler.scheduler_constants import *
+from synergy.system.data_logging import get_logger
+
+
+def synch_db():
+    """ function reads scheduler_managed_entry and updates context entries appropriately """
+    logger = get_logger(PROCESS_LAUNCH_PY)
+    se_managed_dao = SchedulerManagedEntryDao(logger)
+
+    scheduler_entries = se_managed_dao.get_all()
+    for scheduler_entry_obj in scheduler_entries:
+        process_name = scheduler_entry_obj.process_name
+        if process_name not in context.process_context:
+            logger.error('Process %r has no reflection in the context. Skipping it.' % process_name)
+            continue
+
+        process_type = context.process_context[process_name].process_type
+        if process_type != TYPE_MANAGED:
+            logger.error('Process type %s is not %s. Skipping it.' % (process_type, TYPE_MANAGED))
+            continue
+
+        context.process_context[process_name] = scheduler_entry_obj
+        logger.error('Context updated with process entry %s.' % scheduler_entry_obj.key)
+
+
+def init_db():
+    """ synchronizes the scheduler_managed_entry state with the current context state"""
+    logger = get_logger(PROCESS_LAUNCH_PY)
+    se_managed_dao = SchedulerManagedEntryDao(logger)
+    se_managed_dao.clear()
+
+    for process_name, scheduler_entry_obj in context.process_context.items():
+        se_managed_dao.update(scheduler_entry_obj)
+        logger.error('Updated DB with process entry %s.' % scheduler_entry_obj.key)
+
+
+def flush_db():
+    """ Removes all data from the *synergy* database, resets schema """
+    logger = get_logger(PROCESS_LAUNCH_PY)
+    ds = ds_manager.ds_factory(logger)
+    ds._db_client.drop_database(settings.settings['mongo_db_name'])
+
+    connection = ds.connection(COLLECTION_SCHEDULER_MANAGED_ENTRY)
+    connection.create_index([(PROCESS_NAME, pymongo.ASCENDING)], unique=True)
+
+    connection = ds.connection(COLLECTION_SCHEDULER_FREERUN_ENTRY)
+    connection.create_index([(PROCESS_NAME, pymongo.ASCENDING), (ENTRY_NAME, pymongo.ASCENDING)], unique=True)
+
+    connection = ds.connection(COLLECTION_UNIT_OF_WORK)
+    connection.create_index([(PROCESS_NAME, pymongo.ASCENDING),
+                             (TIMEPERIOD, pymongo.ASCENDING),
+                             (START_OBJ_ID, pymongo.ASCENDING),
+                             (END_OBJ_ID, pymongo.ASCENDING)], unique=True)
+
+    for collection_name in [COLLECTION_JOB_HOURLY, COLLECTION_JOB_DAILY,
+                            COLLECTION_JOB_MONTHLY, COLLECTION_JOB_YEARLY]:
+        connection = ds.connection(collection_name)
+        connection.create_index([(PROCESS_NAME, pymongo.ASCENDING), (TIMEPERIOD, pymongo.ASCENDING)], unique=True)
+
+
+if __name__ == '__main__':
+    pass

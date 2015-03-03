@@ -40,14 +40,10 @@ class DaemonProcessEntry(BaseDocument):
     def key(self):
         return self.process_name
 
-    @BaseDocument.key.setter
+    @key.setter
     def key(self, value):
         """ :param value: name of the process """
         self.process_name = value
-
-    @property
-    def log_tag(self):
-        return str(self.token)
 
 
 def deamon_context_entry(process_name,

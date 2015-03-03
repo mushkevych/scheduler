@@ -1,7 +1,7 @@
 __author__ = 'Bohdan Mushkevych'
 
-from synergy.scheduler.scheduler_constants import TYPE_FREERUN
-from synergy.db.model.daemon_process_entry import DaemonProcessEntry
+from synergy.scheduler.scheduler_constants import TYPE_FREERUN, STATE_MACHINE_FREERUN
+from synergy.db.model.managed_process_entry import ManagedProcessEntry
 from odm.fields import StringField, ListField, ObjectIdField
 
 PROCESS_NAME = 'process_name'           # name of the process to handle the schedulables
@@ -18,29 +18,22 @@ STATE_ON = 'state_on'
 STATE_OFF = 'state_off'
 
 
-class FreerunProcessEntry(DaemonProcessEntry):
+class FreerunProcessEntry(ManagedProcessEntry):
     """ Class presents single configuration entry for the freerun process/bash_driver . """
 
-    db_id = ObjectIdField('_id', null=True)
     entry_name = StringField(ENTRY_NAME)
     description = StringField(DESCRIPTION)
-    trigger_frequency = StringField(TRIGGER_FREQUENCY)
-    state = StringField(STATE, choices=[STATE_ON, STATE_OFF])
     log = ListField(HISTORIC_LOG)
     related_unit_of_work = ObjectIdField(RELATED_UNIT_OF_WORK)
 
-    @DaemonProcessEntry.key.getter
+    @ManagedProcessEntry.key.getter
     def key(self):
         return self.process_name, self.entry_name
 
-    @DaemonProcessEntry.key.setter
+    @ManagedProcessEntry.key.setter
     def key(self, value):
         self.process_name = value[0]
         self.entry_name = value[1]
-
-    @property
-    def log_tag(self):
-        return str(self.token)
 
 
 def freerun_context_entry(process_name,
@@ -80,6 +73,8 @@ def freerun_context_entry(process_name,
         process_name=process_name,
         entry_name=entry_name,
         trigger_frequency=trigger_frequency,
+        time_qualifier=None,
+        state_machine_name=STATE_MACHINE_FREERUN,
         state=state,
         classname=classname,
         token=token,

@@ -39,10 +39,6 @@ class ManagedProcessEntry(DaemonProcessEntry):
     def key(self, value):
         self.process_name = value
 
-    @property
-    def log_tag(self):
-        return str(self.token) + str(self.time_qualifier)
-
 
 def managed_context_entry(process_name,
                           classname,

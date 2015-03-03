@@ -7,13 +7,7 @@ from synergy.workers.worker_constants import *
 from synergy.db.model.queue_context_entry import queue_context_entry
 from synergy.db.model.daemon_process_entry import deamon_context_entry
 from synergy.db.model.managed_process_entry import managed_context_entry
-from synergy.db.model.timetable_context_entry import timetable_context_entry
-
-
-mx_page_context = {
-    MX_PAGE_FINANCIAL: 'financial details',
-    MX_PAGE_TRAFFIC: 'traffic details',
-}
+from synergy.db.model.timetable_context_entry import timetable_context_entry, TimetableContextEntry
 
 
 mq_queue_context = {
@@ -164,3 +158,14 @@ timetable_context = {
         mx_name=TOKEN_ALERT,
         mx_page=MX_PAGE_TRAFFIC)
 }
+
+
+def get_mx_pages():
+    mx_pages = dict()
+    for tree_name, tree_entry in timetable_context:
+        assert isinstance(tree_entry, TimetableContextEntry)
+        mx_pages[tree_entry.mx_page] = tree_entry.mx_page.replace('_', ' ')
+    return mx_pages
+
+
+mx_page_context = get_mx_pages()
