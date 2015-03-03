@@ -28,8 +28,8 @@ EXCHANGE_FREERUN_WORKER = 'ex_freerun_worker'
 EXCHANGE_UTILS = 'ex_utils'
 
 # DB Collection/Table names
-COLLECTION_SCHEDULER_MANAGED_ENTRY = 'scheduler_managed_entry'
-COLLECTION_SCHEDULER_FREERUN_ENTRY = 'scheduler_freerun_entry'
+COLLECTION_MANAGED_PROCESS = 'managed_process'
+COLLECTION_FREERUN_PROCESS = 'freerun_process'
 COLLECTION_UNIT_OF_WORK = 'unit_of_work'
 
 COLLECTION_JOB_HOURLY = 'job_hourly'

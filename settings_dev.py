@@ -15,7 +15,7 @@ settings = dict(
     mongodb_host_list=['mongodb://127.0.0.1:27017'],
 
     perf_ticker_interval=10,                                            # seconds between performance ticker messages
-    synergy_start_timeperiod='2014091400',    # precision is process dependent
-    # synergy_start_timeperiod=datetime.utcnow().strftime('%Y%m%d%H'),    # precision is process dependent
+    # synergy_start_timeperiod='2015021400',    # precision is process dependent
+    synergy_start_timeperiod=datetime.utcnow().strftime('%Y%m%d%H'),    # precision is process dependent
     debug=True
 )

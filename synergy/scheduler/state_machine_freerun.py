@@ -138,7 +138,7 @@ class StateMachineFreerun(object):
             self._log_message(WARNING, freerun_entry, msg)
 
     def _process_state_embryo(self, freerun_entry):
-        """ method creates unit_of_work and associates it with the SchedulerFreerunEntry """
+        """ method creates unit_of_work and associates it with the FreerunProcessEntry """
         self.insert_and_publish_uow(freerun_entry)
 
     def _process_state_in_progress(self, freerun_entry, uow):

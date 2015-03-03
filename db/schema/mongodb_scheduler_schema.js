@@ -5,11 +5,11 @@ conn = new Mongo('localhost:27017');
 db = conn.getDB('scheduler');
 
 // *** SYSTEM ***
-db.createCollection('scheduler_managed_entry');
-db.scheduler_managed_entry.ensureIndex( { process_name : 1}, {unique: true} );
+db.createCollection('managed_process');
+db.managed_process_entry.ensureIndex( { process_name : 1}, {unique: true} );
 
-db.createCollection('scheduler_freerun_entry');
-db.scheduler_freerun_entry.ensureIndex( { process_name : 1, entry_name : 1}, {unique: true} );
+db.createCollection('freerun_process');
+db.freerun_process.ensureIndex( { process_name : 1, entry_name : 1}, {unique: true} );
 
 db.createCollection('unit_of_work');
 db.unit_of_work.ensureIndex( { process_name : 1, timeperiod : 1, start_obj_id : 1, end_obj_id : 1}, {unique: true} );

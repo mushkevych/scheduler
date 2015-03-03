@@ -3,15 +3,20 @@ from synergy.scheduler.scheduler_constants import PROCESS_GC, TOKEN_GC, EXCHANGE
     PROCESS_SCHEDULER, TOKEN_SCHEDULER, QUEUE_UOW_REPORT
 from synergy.supervisor.supervisor_constants import PROCESS_SUPERVISOR, TOKEN_SUPERVISOR
 from synergy.db.model.daemon_process_entry import deamon_context_entry
+from synergy.db.model.managed_process_entry import managed_context_entry
+from synergy.system.time_qualifier import QUALIFIER_BY_SCHEDULE
 
 
 process_context = {
-    PROCESS_GC: deamon_context_entry(
+    PROCESS_GC: managed_context_entry(
         process_name=PROCESS_GC,
         classname='synergy.workers.garbage_collector_worker.GarbageCollectorWorker.start',
         token=TOKEN_GC,
         exchange=EXCHANGE_UTILS,
-        process_type=TYPE_GARBAGE_COLLECTOR),
+        process_type=TYPE_GARBAGE_COLLECTOR,
+        time_qualifier=QUALIFIER_BY_SCHEDULE,
+        state_machine_name=None,
+        trigger_frequency='every 900'),
 
     PROCESS_SCHEDULER: deamon_context_entry(
         process_name=PROCESS_SCHEDULER,

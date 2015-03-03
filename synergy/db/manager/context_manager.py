@@ -7,7 +7,6 @@ from synergy.db.model.managed_process_entry import PROCESS_NAME
 from synergy.db.model.unit_of_work import TIMEPERIOD, START_OBJ_ID, END_OBJ_ID
 
 from synergy.db.dao.managed_process_dao import ManagedProcessDao
-from constants import PROCESS_LAUNCH_PY
 
 from synergy.conf import context, settings
 from synergy.scheduler.scheduler_constants import *
@@ -15,15 +14,15 @@ from synergy.system.data_logging import get_logger
 
 
 def synch_db():
-    """ function reads scheduler_managed_entry and updates context entries appropriately """
-    logger = get_logger(PROCESS_LAUNCH_PY)
+    """ function reads managed_process and updates context entries appropriately """
+    logger = get_logger(PROCESS_SCHEDULER)
     managed_process_dao = ManagedProcessDao(logger)
 
     try:
         process_entries = managed_process_dao.get_all()
     except LookupError:
         init_db()
-        process_entries = []
+        process_entries = managed_process_dao.get_all()
 
     for process_entry in process_entries:
         process_name = process_entry.process_name
@@ -32,8 +31,9 @@ def synch_db():
             continue
 
         process_type = context.process_context[process_name].process_type
-        if process_type != TYPE_MANAGED:
-            logger.error('Process type %s is not %s. Skipping it.' % (process_type, TYPE_MANAGED))
+        if process_type not in [TYPE_MANAGED, TYPE_GARBAGE_COLLECTOR]:
+            logger.error('Process type %s of %s should not be reflected in the managed_process table. Skipping it.'
+                         % (process_type, process_name))
             continue
 
         context.process_context[process_name] = process_entry
@@ -41,8 +41,8 @@ def synch_db():
 
 
 def init_db():
-    """ synchronizes the scheduler_managed_entry table with the current context state"""
-    logger = get_logger(PROCESS_LAUNCH_PY)
+    """ synchronizes the managed_process table with the current context state"""
+    logger = get_logger(PROCESS_SCHEDULER)
     managed_process_dao = ManagedProcessDao(logger)
     managed_process_dao.clear()
 
@@ -51,19 +51,19 @@ def init_db():
             continue
 
         managed_process_dao.update(process_entry)
-        logger.info('Updated DB with process entry %s.' % process_entry.key)
+        logger.info('Updated DB with process entry %s from the context.' % process_entry.key)
 
 
 def flush_db():
     """ Removes all data from the *synergy* database, resets schema """
-    logger = get_logger(PROCESS_LAUNCH_PY)
+    logger = get_logger(PROCESS_SCHEDULER)
     ds = ds_manager.ds_factory(logger)
     ds._db_client.drop_database(settings.settings['mongo_db_name'])
 
-    connection = ds.connection(COLLECTION_SCHEDULER_MANAGED_ENTRY)
+    connection = ds.connection(COLLECTION_MANAGED_PROCESS)
     connection.create_index([(PROCESS_NAME, pymongo.ASCENDING)], unique=True)
 
-    connection = ds.connection(COLLECTION_SCHEDULER_FREERUN_ENTRY)
+    connection = ds.connection(COLLECTION_FREERUN_PROCESS)
     connection.create_index([(PROCESS_NAME, pymongo.ASCENDING), (ENTRY_NAME, pymongo.ASCENDING)], unique=True)
 
     connection = ds.connection(COLLECTION_UNIT_OF_WORK)

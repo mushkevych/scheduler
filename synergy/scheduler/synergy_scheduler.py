@@ -111,7 +111,8 @@ class Scheduler(SynergyProcess):
             try:
                 self._register_process_entry(process_entry, function)
             except Exception:
-                self.logger.error('Scheduler Handler %r failed to start. Skipping it.' % (process_entry.key,))
+                self.logger.error('Scheduler Handler %r failed to start. Skipping it.' % (process_entry.key,),
+                                  exc_info=True)
 
     def _load_freerun_entries(self):
         """ reads scheduler managed entries and starts their timers to trigger events """
@@ -120,7 +121,8 @@ class Scheduler(SynergyProcess):
             try:
                 self._register_process_entry(freerun_entry, self.fire_freerun_worker)
             except Exception:
-                self.logger.error('Scheduler Handler %r failed to start. Skipping it.' % (freerun_entry.key,))
+                self.logger.error('Scheduler Handler %r failed to start. Skipping it.' % (freerun_entry.key,),
+                                  exc_info=True)
 
     @with_reconnect
     def start(self, *_):
