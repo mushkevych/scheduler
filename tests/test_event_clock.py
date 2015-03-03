@@ -41,7 +41,7 @@ class TestEventClock(unittest.TestCase):
                    'at *-08:01': (['*-08:01'], EventClock),
                    'at 8:30': (['8:30'], EventClock)}
 
-        for line, expected_output in fixture.iteritems():
+        for line, expected_output in fixture.items():
             processed_tuple = parse_time_trigger_string(line)
             self.assertEqual(processed_tuple, expected_output)
 
@@ -54,7 +54,7 @@ class TestEventClock(unittest.TestCase):
                    EventClock(['*-08:01'], None): 'at *-08:01',
                    EventClock(['8:30'], None): 'at *-08:30'}
 
-        for handler, expected_output in fixture.iteritems():
+        for handler, expected_output in fixture.items():
             processed_tuple = format_time_trigger_string(handler)
             self.assertEqual(processed_tuple, expected_output)
 
@@ -71,7 +71,7 @@ class TestEventClock(unittest.TestCase):
                    EventClock(['8:30'], None):
                        timedelta(days=0, hours=19, minutes=30, seconds=0, microseconds=0, milliseconds=0)}
 
-        for handler, expected_output in fixture.iteritems():
+        for handler, expected_output in fixture.items():
             handler.is_alive = lambda: True
             processed_output = handler.next_run_in(utc_now=fixed_utc_now)
             self.assertEqual(processed_output, expected_output)

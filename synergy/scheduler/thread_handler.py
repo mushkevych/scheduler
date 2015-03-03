@@ -42,11 +42,14 @@ class ThreadHandler(object):
 
     def __init__(self, logger, key, trigger_frequency, call_back, scheduler_entry_obj, handler_type):
         self.logger = logger
+        self.key = key
+        self.trigger_frequency = trigger_frequency
         self.call_back = call_back
-        self.arguments = ThreadHandlerArguments(key, trigger_frequency, scheduler_entry_obj, handler_type)
+        self.scheduler_entry_obj = scheduler_entry_obj
+        self.handler_type = handler_type
 
         parsed_trigger_frequency, timer_klass = parse_time_trigger_string(trigger_frequency)
-        self.timer_instance = timer_klass(parsed_trigger_frequency, call_back, args=[self.arguments])
+        self.timer_instance = timer_klass(parsed_trigger_frequency, call_back, args=[self.callback_args])
         self.is_started = False
         self.is_terminated = False
 
@@ -57,26 +60,30 @@ class ThreadHandler(object):
     def __del__(self):
         self.timer_instance.cancel()
 
+    @property
+    def callback_args(self):
+        return ThreadHandlerArguments(self.key, self.trigger_frequency, self.scheduler_entry_obj, self.handler_type)
+
     def _get_dao(self):
-        if isinstance(self.arguments.scheduler_entry_obj, ManagedProcessEntry):
+        if isinstance(self.scheduler_entry_obj, ManagedProcessEntry):
             return self.se_managed_dao
-        elif isinstance(self.arguments.scheduler_entry_obj, FreerunProcessEntry):
+        elif isinstance(self.scheduler_entry_obj, FreerunProcessEntry):
             return self.se_freerun_dao
         else:
             raise ValueError('Scheduler Entry type %s is not known to the system. Skipping it.'
-                             % self.arguments.scheduler_entry_obj.__class__.__name__)
+                             % self.scheduler_entry_obj.__class__.__name__)
 
     def activate(self, update_persistent=True):
         if self.timer_instance.is_alive():
             return
 
         if self.is_terminated:
-            parsed_trigger_frequency, timer_klass = parse_time_trigger_string(self.arguments.trigger_frequency)
-            self.timer_instance = timer_klass(parsed_trigger_frequency, self.call_back, args=[self.arguments])
+            parsed_trigger_frequency, timer_klass = parse_time_trigger_string(self.trigger_frequency)
+            self.timer_instance = timer_klass(parsed_trigger_frequency, self.call_back, args=[self.callback_args])
 
-        self.arguments.scheduler_entry_obj.state = managed_process_entry.STATE_ON
+        self.scheduler_entry_obj.state = managed_process_entry.STATE_ON
         if update_persistent:
-            self._get_dao().update(self.arguments.scheduler_entry_obj)
+            self._get_dao().update(self.scheduler_entry_obj)
 
         self.timer_instance.start()
         self.is_terminated = False
@@ -86,9 +93,9 @@ class ThreadHandler(object):
         self.timer_instance.cancel()
         self.is_terminated = True
 
-        self.arguments.scheduler_entry_obj.state = managed_process_entry.STATE_OFF
+        self.scheduler_entry_obj.state = managed_process_entry.STATE_OFF
         if update_persistent:
-            self._get_dao().update(self.arguments.scheduler_entry_obj)
+            self._get_dao().update(self.scheduler_entry_obj)
 
     def trigger(self):
         self.timer_instance.trigger()
@@ -105,19 +112,19 @@ class ThreadHandler(object):
             self.deactivate()
 
             # 2. create a new timer instance
-            parsed_trigger_frequency, timer_klass = parse_time_trigger_string(self.arguments.trigger_frequency)
-            self.timer_instance = timer_klass(parsed_trigger_frequency, self.call_back, args=[self.arguments])
-            self.arguments.trigger_frequency = value
+            parsed_trigger_frequency, timer_klass = parse_time_trigger_string(self.trigger_frequency)
+            self.timer_instance = timer_klass(parsed_trigger_frequency, self.call_back, args=[self.callback_args])
+            self.trigger_frequency = value
 
             # 3. start if necessary
-            if self.arguments.scheduler_entry_obj.state == managed_process_entry.STATE_ON:
+            if self.scheduler_entry_obj.state == managed_process_entry.STATE_ON:
                 self.timer_instance.start()
                 self.is_terminated = False
                 self.is_started = True
 
-        self.arguments.scheduler_entry_obj.trigger_frequency = value
+        self.scheduler_entry_obj.trigger_frequency = value
         if update_persistent:
-            self._get_dao().update(self.arguments.scheduler_entry_obj)
+            self._get_dao().update(self.scheduler_entry_obj)
 
     def next_run_in(self, utc_now=None):
         return self.timer_instance.next_run_in(utc_now)

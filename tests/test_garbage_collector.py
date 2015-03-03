@@ -136,7 +136,7 @@ class GarbageCollectorUnitTest(unittest.TestCase):
         all_timeperiods.update(negative_timeperiods)
 
         created_uow = []
-        for timeperiod, process_name in all_timeperiods.iteritems():
+        for timeperiod, process_name in all_timeperiods.items():
             created_uow.append(create_and_insert_unit_of_work(process_name,
                                                               0,
                                                               1,

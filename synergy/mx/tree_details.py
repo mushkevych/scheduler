@@ -17,7 +17,7 @@ class TreeDetails(object):
         return [x.full_name for x in trees]
 
     def _state_machine_name(self, process_name):
-        return self.mbean.managed_handlers[process_name].arguments.scheduler_entry_obj.state_machine_name
+        return self.mbean.managed_handlers[process_name].scheduler_entry_obj.state_machine_name
 
     def _get_reprocessing_details(self, process_name):
         resp = []
@@ -69,7 +69,7 @@ class TreeDetails(object):
         resp = dict()
         timetable = self.mbean.timetable
 
-        for tree_name, tree in timetable.trees.iteritems():
+        for tree_name, tree in timetable.trees.items():
             if tree.mx_page in self.referrer:
                 rest_tree = self._get_tree_details(tree_name)
                 resp[tree.mx_name] = rest_tree.document

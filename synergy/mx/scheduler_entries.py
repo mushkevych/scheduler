@@ -36,12 +36,12 @@ class SchedulerEntries(object):
             sorter_keys = sorted(self.mbean.managed_handlers.keys())
             for key in sorter_keys:
                 thread_handler = self.mbean.managed_handlers[key]
-                process_name = thread_handler.arguments.key
+                process_name = thread_handler.key
 
                 rest_model = RestManagedSchedulerEntry()
                 # indicate whether process is in active or passive state
                 # parameters are set in Scheduler.run() method
-                is_on = thread_handler.arguments.scheduler_entry_obj.state == STATE_ON
+                is_on = thread_handler.scheduler_entry_obj.state == STATE_ON
                 rest_model.is_on = is_on
                 rest_model.is_alive = thread_handler.is_alive()
                 rest_model.process_name = process_name
@@ -62,19 +62,19 @@ class SchedulerEntries(object):
             sorter_keys = sorted(self.mbean.freerun_handlers.keys())
             for key in sorter_keys:
                 thread_handler = self.mbean.freerun_handlers[key]
-                process_name, entry_name = thread_handler.arguments.key
+                process_name, entry_name = thread_handler.key
 
                 rest_model = RestFreerunSchedulerEntry()
                 # indicate whether process is in active or passive state
                 # parameters are set in Scheduler.run() method
-                is_on = thread_handler.arguments.scheduler_entry_obj.state == STATE_ON
+                is_on = thread_handler.scheduler_entry_obj.state == STATE_ON
                 rest_model.is_on = is_on
                 rest_model.is_alive = thread_handler.is_alive()
                 rest_model.process_name = process_name
                 rest_model.entry_name = entry_name
                 rest_model.trigger_frequency = format_time_trigger_string(thread_handler.timer_instance)
                 rest_model.next_run_in = self._handler_next_run(thread_handler)
-                rest_model.arguments = thread_handler.arguments.scheduler_entry_obj.arguments
+                rest_model.arguments = thread_handler.scheduler_entry_obj.arguments
 
                 list_of_rows.append(rest_model.document)
         except Exception as e:

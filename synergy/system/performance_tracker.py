@@ -124,7 +124,7 @@ class TickerThread(object):
             self.mark_24_hours = current_time
 
         tracker_outputs = []
-        for tracker_name, tracker in self.trackers.iteritems():
+        for tracker_name, tracker in self.trackers.items():
             tracker_outputs.append(tracker.to_string(self.interval))
             tracker.reset_tick()
             if do_24h_reset:

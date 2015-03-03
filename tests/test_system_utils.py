@@ -14,7 +14,7 @@ class TestSystemUtils(unittest.TestCase):
         fixture["abcdefghijklmnopqrstuvwxyz"] = "abcdefghijklmnopqrst"
         fixture["Jan 06, 2010"] = "Jan 06, 2010"
 
-        for k, v in fixture.iteritems():
+        for k, v in fixture.items():
             actual = unicode_truncate(k, 20)
             self.assertTrue(actual == v, 'actual vs expected: %s vs %s' % (actual, v))
 

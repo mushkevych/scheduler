@@ -58,7 +58,7 @@ class StatusBusListener(object):
                                  % (uow.process_name, uow.timeperiod, uow.state))
                 return
 
-            scheduler_entry_obj = self.scheduler.managed_handlers[uow.process_name].arguments.scheduler_entry_obj
+            scheduler_entry_obj = self.scheduler.managed_handlers[uow.process_name].scheduler_entry_obj
             state_machine = self.scheduler.state_machines[scheduler_entry_obj.state_machine_name]
             assert isinstance(state_machine, AbstractStateMachine)
 

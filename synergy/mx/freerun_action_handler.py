@@ -32,7 +32,7 @@ class FreerunActionHandler(AbstractActionHandler):
 
     @AbstractActionHandler.scheduler_entry.getter
     def scheduler_entry(self):
-        scheduler_entry_obj = self.scheduler_thread_handler.arguments.scheduler_entry_obj
+        scheduler_entry_obj = self.scheduler_thread_handler.scheduler_entry_obj
         assert isinstance(scheduler_entry_obj, FreerunProcessEntry)
         return scheduler_entry_obj
 
@@ -87,7 +87,7 @@ class FreerunActionHandler(AbstractActionHandler):
 
         elif 'update_button' in self.request_arguments:
             thread_handler = self.mbean.freerun_handlers[handler_key]
-            scheduler_entry_obj = thread_handler.arguments.scheduler_entry_obj
+            scheduler_entry_obj = thread_handler.scheduler_entry_obj
 
             is_interval_changed = scheduler_entry_obj.trigger_frequency != self.request_arguments['trigger_frequency']
             is_state_changed = scheduler_entry_obj.state != self.request_arguments['state']

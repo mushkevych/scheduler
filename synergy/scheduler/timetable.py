@@ -23,8 +23,6 @@ from synergy.scheduler.tree_node import AbstractNode
 class Timetable(object):
     """ Timetable holds all known process trees, where every node presents a timeperiod-driven job"""
 
-    CONTEXT = context.timetable_context
-
     def __init__(self, logger):
         self.lock = RLock()
         self.logger = logger
@@ -44,7 +42,7 @@ class Timetable(object):
 
     def _construct_trees_from_context(self):
         trees = dict()
-        for tree_name, context_entry in self.CONTEXT.iteritems():
+        for tree_name, context_entry in context.timetable_context.items():
             _, tree_klass, _ = get_class(context_entry.tree_classname)
             tree = tree_klass(*context_entry.enclosed_processes,
                               full_name=tree_name,
@@ -55,7 +53,7 @@ class Timetable(object):
 
     def _register_dependencies(self):
         """ register dependencies between trees"""
-        for tree_name, context_entry in self.CONTEXT.iteritems():
+        for tree_name, context_entry in context.timetable_context.items():
             tree = self.trees[tree_name]
             assert isinstance(tree, AbstractTree)
             for dependent_on in context_entry.dependent_on:
@@ -68,22 +66,22 @@ class Timetable(object):
         and create embryo timetable record request"""
 
         # reprocessing request
-        for tree_name, tree in self.trees.iteritems():
+        for tree_name, tree in self.trees.items():
             tree.register_reprocess_callback(self._callback_reprocess)
 
         # skip request
-        for tree_name, tree in self.trees.iteritems():
+        for tree_name, tree in self.trees.items():
             tree.register_skip_callback(self._callback_skip)
 
         # callbacks register
-        for tree_name, tree in self.trees.iteritems():
+        for tree_name, tree in self.trees.items():
             tree.register_create_callbacks(self._callback_create_job_record)
 
     # *** Call-back methods ***
     def _find_dependant_trees(self, tree_obj):
         """ returns list of trees that are dependent_on given tree_obj """
         dependant_trees = []
-        for tree_name, tree in self.trees.iteritems():
+        for tree_name, tree in self.trees.items():
             if tree_obj in tree.dependent_on:
                 dependant_trees.append(tree)
         return dependant_trees
@@ -198,7 +196,7 @@ class Timetable(object):
     @thread_safe
     def get_tree(self, process_name):
         """ return tree that is managing time-periods for given process"""
-        for tree_name, tree in self.trees.iteritems():
+        for tree_name, tree in self.trees.items():
             if tree.is_managing_process(process_name):
                 return tree
 
@@ -239,13 +237,13 @@ class Timetable(object):
     @thread_safe
     def build_trees(self):
         """ method iterates thru all trees and ensures that all time-period nodes are created up till <utc_now>"""
-        for tree_name, tree in self.trees.iteritems():
+        for tree_name, tree in self.trees.items():
             tree.build_tree()
 
     @thread_safe
     def validate(self):
         """validates that none of nodes in tree is improperly finalized and that every node has job_record"""
-        for tree_name, tree in self.trees.iteritems():
+        for tree_name, tree in self.trees.items():
             tree.validate()
 
     @thread_safe

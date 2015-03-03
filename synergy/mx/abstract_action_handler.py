@@ -32,7 +32,7 @@ class AbstractActionHandler(object):
         if new_interval is not None:
             thread_handler = self.scheduler_thread_handler
             thread_handler.change_interval(new_interval)
-            resp['status'] = 'changed interval for %r to %r' % (thread_handler.arguments.key, new_interval)
+            resp['status'] = 'changed interval for %r to %r' % (thread_handler.key, new_interval)
 
         return resp
 

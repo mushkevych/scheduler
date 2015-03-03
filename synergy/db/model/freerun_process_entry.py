@@ -1,7 +1,7 @@
 __author__ = 'Bohdan Mushkevych'
 
 from synergy.scheduler.scheduler_constants import TYPE_FREERUN, STATE_MACHINE_FREERUN
-from synergy.db.model.managed_process_entry import ManagedProcessEntry
+from synergy.db.model.daemon_process_entry import DaemonProcessEntry
 from odm.fields import StringField, ListField, ObjectIdField
 
 PROCESS_NAME = 'process_name'           # name of the process to handle the schedulables
@@ -9,6 +9,9 @@ ENTRY_NAME = 'entry_name'               # name of the schedulable
 DESCRIPTION = 'description'             # description of the schedulable
 STATE = 'state'                         # either :STATE_ON or :STATE_OFF
 TRIGGER_FREQUENCY = 'trigger_frequency'  # either 'at DoW-HH:MM' or 'every XXX'
+STATE_MACHINE_NAME = 'state_machine_name'
+SOURCE = 'source'
+SINK = 'sink'
 
 HISTORIC_LOG = 'historic_log'           # contains list of MAX_NUMBER_OF_LOG_ENTRIES last log messages
 MAX_NUMBER_OF_LOG_ENTRIES = 64
@@ -18,19 +21,26 @@ STATE_ON = 'state_on'
 STATE_OFF = 'state_off'
 
 
-class FreerunProcessEntry(ManagedProcessEntry):
+class FreerunProcessEntry(DaemonProcessEntry):
     """ Class presents single configuration entry for the freerun process/bash_driver . """
+
+    db_id = ObjectIdField('_id', null=True)
+    source = StringField(SOURCE)
+    sink = StringField(SINK)
+    trigger_frequency = StringField(TRIGGER_FREQUENCY)
+    state = StringField(STATE, choices=[STATE_ON, STATE_OFF])
+    state_machine_name = StringField(STATE_MACHINE_NAME)
 
     entry_name = StringField(ENTRY_NAME)
     description = StringField(DESCRIPTION)
     log = ListField(HISTORIC_LOG)
     related_unit_of_work = ObjectIdField(RELATED_UNIT_OF_WORK)
 
-    @ManagedProcessEntry.key.getter
+    @DaemonProcessEntry.key.getter
     def key(self):
         return self.process_name, self.entry_name
 
-    @ManagedProcessEntry.key.setter
+    @DaemonProcessEntry.key.setter
     def key(self, value):
         self.process_name = value[0]
         self.entry_name = value[1]

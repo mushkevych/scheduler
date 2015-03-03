@@ -41,7 +41,7 @@ class ManagedActionHandler(AbstractActionHandler):
 
     @AbstractActionHandler.scheduler_entry.getter
     def scheduler_entry(self):
-        scheduler_entry_obj = self.scheduler_thread_handler.arguments.scheduler_entry_obj
+        scheduler_entry_obj = self.scheduler_thread_handler.scheduler_entry_obj
         assert isinstance(scheduler_entry_obj, ManagedProcessEntry)
         return scheduler_entry_obj
 

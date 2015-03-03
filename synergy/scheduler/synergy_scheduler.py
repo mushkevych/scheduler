@@ -1,3 +1,5 @@
+from synergy.db.manager import context_manager
+
 __author__ = 'Bohdan Mushkevych'
 
 from datetime import datetime, timedelta
@@ -11,7 +13,7 @@ from synergy.mx.synergy_mx import MX
 from synergy.db.model.synergy_mq_transmission import SynergyMqTransmission
 from synergy.db.model.managed_process_entry import ManagedProcessEntry
 from synergy.db.model import managed_process_entry, job
-from synergy.db.dao.scheduler_managed_entry_dao import SchedulerManagedEntryDao
+# from synergy.db.dao.scheduler_managed_entry_dao import SchedulerManagedEntryDao
 from synergy.db.dao.scheduler_freerun_entry_dao import SchedulerFreerunEntryDao
 from synergy.system import time_helper
 from synergy.system.decorator import with_reconnect, thread_safe
@@ -39,18 +41,18 @@ class Scheduler(SynergyProcess):
         self.timetable = Timetable(self.logger)
         self.state_machines = self._construct_state_machines()
 
-        self.se_managed_dao = SchedulerManagedEntryDao(self.logger)
+        # self.se_managed_dao = SchedulerManagedEntryDao(self.logger)
         self.se_freerun_dao = SchedulerFreerunEntryDao(self.logger)
         self.mx = None
         self.bus_listener = None
         self.logger.info('Started %s' % self.process_name)
 
     def __del__(self):
-        for key, handler in self.managed_handlers.iteritems():
+        for key, handler in self.managed_handlers.items():
             handler.deactivate(update_persistent=False)
         self.managed_handlers.clear()
 
-        for key, handler in self.freerun_handlers.iteritems():
+        for key, handler in self.freerun_handlers.items():
             handler.deactivate(update_persistent=False)
         self.freerun_handlers.clear()
 
@@ -74,45 +76,39 @@ class Scheduler(SynergyProcess):
          timer_handler is started, unless it is marked as STATE_OFF """
         handler = construct_thread_handler(self.logger, scheduler_entry_obj, call_back)
 
-        if handler.arguments.handler_type == TYPE_MANAGED:
-            self.managed_handlers[handler.arguments.key] = handler
-        elif handler.arguments.handler_type == TYPE_FREERUN:
-            self.freerun_handlers[handler.arguments.key] = handler
+        if handler.handler_type == TYPE_MANAGED:
+            self.managed_handlers[handler.key] = handler
+        elif handler.handler_type == TYPE_FREERUN:
+            self.freerun_handlers[handler.key] = handler
         else:
             self.logger.error('Process/Handler type %s is not known to the system. Skipping it.'
-                              % handler.arguments.handler_type)
+                              % handler.handler_type)
             return
 
         if scheduler_entry_obj.state == managed_process_entry.STATE_ON:
             handler.activate()
             self.logger.info('Started scheduler thread for %s:%r.'
-                             % (handler.arguments.handler_type, handler.arguments.key))
+                             % (handler.handler_type, handler.key))
         else:
             self.logger.info('Handler for %s:%r registered in Scheduler. Idle until activated.'
-                             % (handler.arguments.handler_type, handler.arguments.key))
+                             % (handler.handler_type, handler.key))
 
     # **************** Scheduler Methods ************************
     def _load_managed_entries(self):
         """ loads scheduler managed entries. no start-up procedures are performed """
-        scheduler_entries = self.se_managed_dao.get_all()
-        for scheduler_entry_obj in scheduler_entries:
-            process_name = scheduler_entry_obj.process_name
-            if scheduler_entry_obj.process_name not in context.process_context:
-                self.logger.error('Process %r is not known to the system. Skipping it.' % process_name)
-                continue
-
-            process_type = context.process_context[process_name].process_type
-            if process_type == TYPE_MANAGED:
+        for process_name, scheduler_entry_obj in context.process_context.items():
+            if scheduler_entry_obj.process_type == TYPE_MANAGED:
                 function = self.fire_managed_worker
-            elif process_type == TYPE_GARBAGE_COLLECTOR:
+            elif scheduler_entry_obj.process_type == TYPE_GARBAGE_COLLECTOR:
                 function = self.fire_garbage_collector
-            elif process_type in [TYPE_FREERUN, TYPE_DAEMON]:
-                self.logger.error('%s processes are not managed by Synergy Scheduler. '
-                                  'Remove the process %s from the scheduler_managed_entry table. Skipping the process.'
-                                  % (process_type.upper(), process_name))
+            elif scheduler_entry_obj.process_type in [TYPE_FREERUN, TYPE_DAEMON]:
+                self.logger.info('%s of type %s is found in context, but not managed by Synergy Scheduler. '
+                                 'Skipping the process.'
+                                 % (process_name, scheduler_entry_obj.process_type.upper()))
                 continue
             else:
-                self.logger.error('Process type %s is not known to the system. Skipping it.' % process_type)
+                self.logger.error('Type %s of process %s is not known to the system. Skipping it.' %
+                                  (scheduler_entry_obj.process_type, process_name))
                 continue
 
             try:
@@ -132,10 +128,8 @@ class Scheduler(SynergyProcess):
     @with_reconnect
     def start(self, *_):
         """ reads scheduler entries and starts timer instances, as well as MX thread """
-        try:
-            self._load_managed_entries()
-        except LookupError as e:
-            self.logger.warn('DB Lookup: %s' % str(e))
+        context_manager.synch_db()
+        self._load_managed_entries()
 
         try:
             self._load_freerun_entries()
@@ -159,9 +153,9 @@ class Scheduler(SynergyProcess):
             job_record = self.timetable.get_next_job_record(process_name)
             state_machine = self.state_machines[scheduler_entry_obj.state_machine_name]
 
-            run_on_active_timeperiod = context.process_context[process_name].run_on_active_timeperiod
+            run_on_active_timeperiod = scheduler_entry_obj.run_on_active_timeperiod
             if not run_on_active_timeperiod:
-                time_qualifier = context.process_context[process_name].time_qualifier
+                time_qualifier = scheduler_entry_obj.time_qualifier
                 incremented_timeperiod = time_helper.increment_timeperiod(time_qualifier, job_record.timeperiod)
                 dt_record_timestamp = time_helper.synergy_to_datetime(time_qualifier, incremented_timeperiod)
                 dt_record_timestamp += timedelta(minutes=LAG_5_MINUTES)
