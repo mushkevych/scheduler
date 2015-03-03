@@ -1,5 +1,3 @@
-from synergy.db.manager import context_manager
-
 __author__ = 'Bohdan Mushkevych'
 
 from datetime import datetime, timedelta
@@ -10,6 +8,7 @@ from amqp import AMQPError
 from synergy.conf import context
 from synergy.mq.flopsy import PublishersPool
 from synergy.mx.synergy_mx import MX
+from synergy.db.manager import context_manager
 from synergy.db.model.synergy_mq_transmission import SynergyMqTransmission
 from synergy.db.model.managed_process_entry import ManagedProcessEntry
 from synergy.db.model import managed_process_entry, job

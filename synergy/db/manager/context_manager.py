@@ -19,7 +19,12 @@ def synch_db():
     logger = get_logger(PROCESS_LAUNCH_PY)
     managed_process_dao = ManagedProcessDao(logger)
 
-    process_entries = managed_process_dao.get_all()
+    try:
+        process_entries = managed_process_dao.get_all()
+    except LookupError:
+        init_db()
+        process_entries = []
+
     for process_entry in process_entries:
         process_name = process_entry.process_name
         if process_name not in context.process_context:
@@ -32,18 +37,21 @@ def synch_db():
             continue
 
         context.process_context[process_name] = process_entry
-        logger.error('Context updated with process entry %s.' % process_entry.key)
+        logger.info('Context updated with process entry %s.' % process_entry.key)
 
 
 def init_db():
-    """ synchronizes the scheduler_managed_entry state with the current context state"""
+    """ synchronizes the scheduler_managed_entry table with the current context state"""
     logger = get_logger(PROCESS_LAUNCH_PY)
     managed_process_dao = ManagedProcessDao(logger)
     managed_process_dao.clear()
 
     for process_name, process_entry in context.process_context.items():
+        if process_entry.process_type != TYPE_MANAGED:
+            continue
+
         managed_process_dao.update(process_entry)
-        logger.error('Updated DB with process entry %s.' % process_entry.key)
+        logger.info('Updated DB with process entry %s.' % process_entry.key)
 
 
 def flush_db():
