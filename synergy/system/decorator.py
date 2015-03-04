@@ -6,21 +6,6 @@ import functools
 import traceback
 
 
-def current_process_aware(class_method):
-    """
-    this decorator is used in ProcessContext to handle case where callers have no notion of the process they run within
-    :param class_method: method to wrap
-    """
-
-    @functools.wraps(class_method)
-    def _class_method(cls, process_name):
-        if process_name is None:
-            process_name = cls.get_current_process()
-        return class_method(cls, process_name)
-
-    return _class_method
-
-
 def thread_safe(method):
     """ wraps function with lock acquire/release cycle
      decorator requires class instance to have field self.lock of type threading.Lock or threading.RLock """

@@ -1,6 +1,6 @@
 __author__ = 'Bohdan Mushkevych'
 
-from db.model.site_statistics import SiteStatistics, TIMEPERIOD
+from db.model.site_statistics import SiteStatistics
 from odm.fields import StringField
 
 CLIENT_ID = 'client_id'
@@ -12,7 +12,6 @@ class ClientStatistics(SiteStatistics):
     """
 
     client_id = StringField(CLIENT_ID)
-    timeperiod = StringField(TIMEPERIOD)
 
     @SiteStatistics.key.getter
     def key(self):

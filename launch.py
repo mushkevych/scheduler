@@ -128,8 +128,8 @@ def valid_process_name(function):
         :raise #ValueError otherwise """
 
     def _wrapper(options, *args, **kwargs):
-        from synergy.conf.process_context import ProcessContext
-        if options.app not in ProcessContext.CONTEXT:
+        from synergy.conf import context
+        if options.app not in context.process_context:
             msg = 'Aborting: application <%r> defined by --app option is unknown. \n' % options.app
             sys.stdout.write(msg)
             raise ValueError(msg)
@@ -269,8 +269,8 @@ def run_lint(options):
 
 
 def list_processes(options):
-    from synergy.conf.process_context import ProcessContext
-    msg = 'List of registered applications: %r \n' % ProcessContext.CONTEXT.keys()
+    from synergy.conf import context
+    msg = 'List of registered applications: %r \n' % context.process_context.keys()
     sys.stdout.write(msg)
 
 
