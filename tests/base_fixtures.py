@@ -190,7 +190,7 @@ def create_session_stats(composite_key_function, seed='RANDOM_SEED_OBJECT'):
             session.browsing_history.number_of_entries = index + 1
             session.browsing_history.set_entry_timestamp(index, time_array[index])
 
-        sess_id = ss_dao.insert(session)
+        sess_id = ss_dao.update(session)
         object_ids.append(sess_id)
 
     return object_ids

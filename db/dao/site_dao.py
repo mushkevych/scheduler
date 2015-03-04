@@ -30,13 +30,6 @@ class SiteDao(object):
         return SiteStatistics.from_json(document)
 
     @thread_safe
-    def insert(self, collection_name, instance):
-        """ method inserts new Site Statistics into given collection """
-        assert isinstance(instance, SiteStatistics)
-        collection = self.ds.connection(collection_name)
-        return collection.insert(instance.document, safe=True)
-
-    @thread_safe
     def update(self, collection_name, instance, is_safe):
         """ method finds Site Statistics record and update it DB representation """
         assert isinstance(instance, SiteStatistics)
@@ -44,4 +37,5 @@ class SiteDao(object):
         document = instance.document
         if instance.db_id:
             document['_id'] = ObjectId(instance.db_id)
-        return collection.save(document, safe=is_safe)
+        instance.db_id = collection.save(document, safe=is_safe)
+        return instance.db_id
