@@ -82,8 +82,7 @@ class SchedulerEntries(object):
     def footprint(self):
         try:
             calculator = FootprintCalculator()
-            footprint = calculator.get_snapshot_as_list()
-            return footprint
+            return calculator.document
         except Exception as e:
             self.logger.error('MX Exception %s' % str(e), exc_info=True)
             return []
