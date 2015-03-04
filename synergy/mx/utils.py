@@ -23,11 +23,16 @@ local_manager = LocalManager([local])
 
 url_map = Map([Rule('/static/<file>', endpoint='static', build_only=True)])
 
+# tree/group of trees will be shown on a separate page defined by tree property MX_PAGE
+# mx_page_context is a dictionary in format: {MX_PAGE: MX PAGE}
+mx_page_context = {tree_entry.mx_page: tree_entry.mx_page.replace('_', ' ')
+                   for tree_entry in context.timetable_context.values()}
+
 # loop sets a Rule per every mx_page from context.mx_page_context to be processed by
 # 'processing_details' method from mx.views.py
 # NOTE: given renders template snippet {{ url_for ('function_name') }} invalid,
 # since all mx_page are processed by single method 'processing_details'
-for rule in context.mx_page_context:
+for rule in mx_page_context:
     url_map.add(Rule('/%s/' % rule, endpoint='processing_details'))
 
 
@@ -65,6 +70,6 @@ jinja_env.globals['url_for'] = url_for
 jinja_env.globals['local'] = local
 jinja_env.globals['get_current_time'] = get_current_time
 jinja_env.globals['get_version'] = get_version
-jinja_env.globals['mx_processing_context'] = context.mx_page_context
+jinja_env.globals['mx_processing_context'] = mx_page_context
 jinja_env.globals['synergy_process_context'] = context.process_context
 jinja_env.filters['jsonify'] = json.dumps

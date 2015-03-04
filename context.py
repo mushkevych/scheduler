@@ -158,7 +158,3 @@ timetable_context = {
         mx_name=TOKEN_ALERT,
         mx_page=MX_PAGE_TRAFFIC)
 }
-
-
-mx_page_context = {tree_entry.mx_page: tree_entry.mx_page.replace('_', ' ')
-                   for tree_entry in timetable_context.values()}
