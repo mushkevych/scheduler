@@ -11,7 +11,7 @@ class TestEventClock(unittest.TestCase):
     def test_utc_now(self):
         utc_now = datetime.utcnow()
         self.obj = EventTime.utc_now()
-        print str(self.obj)
+        print(str(self.obj))
         assert self.obj.day_of_week == str(utc_now.weekday()) \
                and self.obj.time_of_day.hour == utc_now.hour \
                and self.obj.time_of_day.minute == utc_now.minute \

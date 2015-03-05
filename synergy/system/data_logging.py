@@ -106,5 +106,5 @@ if __name__ == '__main__':
     process_name = 'TestAggregator'
     logger = get_logger(process_name)
     logger.info('test_message')
-    print 'regular print message'
+    print('regular print message')
     sys.stdout.flush()

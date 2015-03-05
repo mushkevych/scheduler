@@ -24,7 +24,7 @@ class TestRepeatTimer(unittest.TestCase):
         raise AssertionError('Assertion failed as NO was executed with parameters %s %s' % (str(start_datetime), seconds))
 
     def method_checkpoint(self, start_datetime, seconds):
-        print 'Entering method checkpoint with parameters %s %s' % (str(start_datetime), seconds)
+        print('Entering method checkpoint with parameters %s %s' % (str(start_datetime), seconds))
         delta = datetime.utcnow() - start_datetime
         if delta.seconds != seconds:
             raise AssertionError('Assertion failed by %s % s' % (str(delta), seconds))

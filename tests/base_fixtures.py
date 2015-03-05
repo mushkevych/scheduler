@@ -58,7 +58,6 @@ class TestSiteMembershipDictionary(dict):
         random.seed('RANDOM_SEED_OBJECT')
         for site in array_of_sites:
             super(TestSiteMembershipDictionary, self).__setitem__(site, ['portfolio_%d' % random.randint(0, 20)])
-#            print 'key %s value %s len %s' % ( site, self[site],  self.__len__())
 
 
 class TestRestClient():

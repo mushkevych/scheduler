@@ -73,7 +73,7 @@ class AbstractWorkerUnitTest(unittest.TestCase):
         if self.generate_output:
             i = 0
             for key in self.aggregator.aggregated_objects:
-                print self.output_prefix + '_%02d = %s' % (i, self.aggregator.aggregated_objects[key].document)
+                print(self.output_prefix + '_%02d = %s' % (i, self.aggregator.aggregated_objects[key].document))
                 i += 1
 
         if self.compare_results:
