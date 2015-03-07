@@ -2,6 +2,7 @@ __author__ = 'Bohdan Mushkevych'
 
 import sys
 import types
+from six import class_types
 
 from synergy.conf import context
 
@@ -15,16 +16,16 @@ def get_class(kls):
     :return tuple (type, object, starter)
      for instance:
      - (FunctionType, <function_main>, None)
-     - (ClassType, <Class_...>, 'start')
+     - (type, <Class_...>, 'start')
     """
     parts = kls.split('.')
     try:
         # First, try to import module hosting starter function
-        module = ".".join(parts[:-1])
+        module = '.'.join(parts[:-1])
         m = __import__(module)
     except ImportError:
         # If first try fails, try to import module hosting Class with a starter method
-        module = ".".join(parts[:-2])
+        module = '.'.join(parts[:-2])
         m = __import__(module)
 
     t = None
@@ -34,11 +35,11 @@ def get_class(kls):
         starter = parts[i:]
         m = getattr(m, comp)
 
-        if isinstance(m, (type, types.ClassType)):
-            t = types.ClassType
-            starter = None if len(parts[i:]) == 1 else ".".join(parts[i + 1:])
+        if isinstance(m, class_types):
+            t = type
+            starter = None if len(parts[i:]) == 1 else '.'.join(parts[i + 1:])
             break
-        if isinstance(m, (type, types.FunctionType)):
+        if isinstance(m, types.FunctionType):
             t = types.FunctionType
             starter = None
             break
@@ -55,22 +56,22 @@ def start_by_process_name(process_name, *args):
     3. if the path name ends with starter function - then retrieves its module
         and calls <code>starter(*args)</code> function on it
     """
-    sys.stdout.write('INFO: Starter path %r \n' % context.process_context[process_name].classname)
+    sys.stdout.write('INFO: Starter path {0} \n'.format(context.process_context[process_name].classname))
     t, m, starter = get_class(context.process_context[process_name].classname)
-    if isinstance(m, (type, types.ClassType)):
-        sys.stdout.write('INFO: Starting process by calling starter method %r \n' % starter)
+    if isinstance(m, class_types):
+        sys.stdout.write('INFO: Starting process by calling starter method {0} \n'.format(starter))
         instance = m(process_name)
         method = getattr(instance, starter)
         method(*args)
-    elif isinstance(m, (type, types.FunctionType)):
+    elif isinstance(m, types.FunctionType):
         sys.stdout.write('INFO: Starting module.\n')
         function = m
         function(*args)
     else:
-        raise ValueError('Improper starter path %r' % context.process_context[process_name].classname)
+        raise ValueError('Improper starter path {0}'.format(context.process_context[process_name].classname))
 
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     if len(sys.argv) < 2:
         sys.stderr.write('ERROR: no Process Name specified to start \n')
     elif len(sys.argv) == 2:

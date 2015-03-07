@@ -79,10 +79,10 @@ class TestTimeHelper(unittest.TestCase):
                       QUALIFIER_YEARLY]
 
         expected = [datetime(year=2010, month=12, day=31, hour=23, minute=12, second=34),
-                    datetime(year=2010, month=12, day=31, hour=23, minute=00, second=0),
-                    datetime(year=2010, month=12, day=31, hour=00, minute=00, second=0),
-                    datetime(year=2010, month=12, day=01, hour=00, minute=00, second=0),
-                    datetime(year=2010, month=01, day=01, hour=00, minute=00, second=0)]
+                    datetime(year=2010, month=12, day=31, hour=23, minute=0,  second=0),
+                    datetime(year=2010, month=12, day=31, hour=0,  minute=0,  second=0),
+                    datetime(year=2010, month=12, day=1,  hour=0,  minute=0,  second=0),
+                    datetime(year=2010, month=1,  day=1,  hour=0,  minute=0,  second=0)]
 
         params = ['20101231231234',
                   '2010123123',

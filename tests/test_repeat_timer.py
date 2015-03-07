@@ -21,13 +21,14 @@ class TestRepeatTimer(unittest.TestCase):
         return method_yes
 
     def method_no(self, start_datetime, seconds):
-        raise AssertionError('Assertion failed as NO was executed with parameters %s %s' % (str(start_datetime), seconds))
+        raise AssertionError('Assertion failed as NO was executed with parameters {0} {1}'.
+                             format(str(start_datetime), seconds))
 
     def method_checkpoint(self, start_datetime, seconds):
-        print('Entering method checkpoint with parameters %s %s' % (str(start_datetime), seconds))
+        print('Entering method checkpoint with parameters {0} {1}'.format(str(start_datetime), seconds))
         delta = datetime.utcnow() - start_datetime
         if delta.seconds != seconds:
-            raise AssertionError('Assertion failed by %s % s' % (str(delta), seconds))
+            raise AssertionError('Assertion failed by {0} {1}'.format(str(delta), seconds))
 
     def test_normal_workflow(self):
         self.obj = repeat_timer.RepeatTimer(TestRepeatTimer.INTERVAL,

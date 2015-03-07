@@ -15,9 +15,8 @@ def get_process_pid(process_name):
     """ check for process' pid file and returns pid from there """
     try:
         pid_filename = get_pid_filename(process_name)
-        pf = file(pid_filename, 'r')
-        pid = int(pf.read().strip())
-        pf.close()
+        with open(pid_filename, mode='r') as pid_file:
+            pid = int(pid_file.read().strip())
     except IOError:
         pid = None
     return pid
@@ -26,7 +25,7 @@ def get_process_pid(process_name):
 def kill_process(process_name):
     """ method is called to kill a running process """
     try:
-        sys.stdout.write('killing: %s { \n' % process_name)
+        sys.stdout.write('killing: {0} { \n'.format(process_name))
         pid = get_process_pid(process_name)
         if pid is not None and psutil.pid_exists(int(pid)):
             p = psutil.Process(pid)
@@ -34,14 +33,14 @@ def kill_process(process_name):
             p.wait()
             remove_pid_file(process_name)
     except Exception as e:
-        sys.stderr.write('Exception on killing %s : %s \n' % (process_name, str(e)))
+        sys.stderr.write('Exception on killing {0} : {1} \n'.format(process_name, str(e)))
     finally:
         sys.stdout.write('}')
 
 
 def start_process(process_name, *args):
     try:
-        sys.stdout.write('starting: %s { \n' % process_name)
+        sys.stdout.write('starting: {0} { \n'.format(process_name))
         cmd = [get_python(), PROJECT_ROOT + '/' + PROCESS_STARTER, process_name]
         if not args:
             # this blocks triggers when args is either None or an empty list
@@ -55,9 +54,9 @@ def start_process(process_name, *args):
                          stdin=PIPE,
                          stdout=PIPE,
                          stderr=PIPE)
-        sys.stdout.write('Started %s with pid = %r \n' % (process_name, p.pid))
+        sys.stdout.write('Started {0} with pid = {1} \n'.format(process_name, p.pid))
     except Exception as e:
-        sys.stderr.write('Exception on starting %s : %s \n' % (process_name, str(e)))
+        sys.stderr.write('Exception on starting {0} : {1} \n'.format(process_name, str(e)))
     finally:
         sys.stdout.write('}')
 
@@ -70,7 +69,7 @@ def poll_process(process_name):
     try:
         pid = get_process_pid(process_name)
         if pid is None:
-            sys.stdout.write('PID file was not found. Process %s is likely terminated.\n' % process_name)
+            sys.stdout.write('PID file was not found. Process {0} is likely terminated.\n'.format(process_name))
             return False
 
         p = psutil.Process(pid)
@@ -78,12 +77,12 @@ def poll_process(process_name):
 
         if return_code is None:
             # process is already terminated
-            sys.stdout.write('Process %s is terminated \n' % process_name)
+            sys.stdout.write('Process {0} is terminated \n'.format(process_name))
             return False
         else:
             # process is terminated; possibly by OS
-            sys.stdout.write('Process %s got terminated \n' % process_name)
+            sys.stdout.write('Process {0} got terminated \n'.format(process_name))
             return False
     except TimeoutExpired:
-        sys.stdout.write('Process %s is alive and OK \n' % process_name)
+        sys.stdout.write('Process {0} is alive and OK \n'.format(process_name))
         return True

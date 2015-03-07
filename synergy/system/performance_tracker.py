@@ -15,7 +15,7 @@ class FootprintCalculator(object):
 
     def group(self, number):
         """ method formats number and inserts thousands separators """
-        s = '%d' % number
+        s = str(number)
         groups = []
         while s and s[-1].isdigit():
             groups.append(s[-3:])

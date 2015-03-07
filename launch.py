@@ -73,32 +73,46 @@ def go_to_ve():
         pass
 
 
-def install_environment(root):
-    """Install our virtual environment; removing the old one if it exists"""
-    sys.stdout.write('Installing virtualenv into %s \n' % root)
+def install_environment_p2(root, python_version):
+    """Install virtual environment for Python 2.7+; removing the old one if it exists"""
     try:
         import virtualenv
     except ImportError:
         sys.stdout.write('Installing virtualenv into global interpreter \n')
-        subprocess.call([VE_GLOBAL_SCRIPT, PROJECT_ROOT])
-        import virtualenv
+        ret_code = subprocess.call([VE_GLOBAL_SCRIPT, PROJECT_ROOT])
+        sys.stdout.write('Installation finished with code {0}. Re-run ./launch.py --install_ve \n'.format(ret_code))
+        sys.exit(ret_code)
 
     if path.exists(root):
         shutil.rmtree(root)
     virtualenv.logger = virtualenv.Logger(consumers=[])
     virtualenv.create_environment(root, site_packages=False)
-    ret_code = subprocess.call([VE_SCRIPT, PROJECT_ROOT, root])
+    ret_code = subprocess.call([VE_SCRIPT, PROJECT_ROOT, root, python_version])
+    sys.exit(ret_code)
+
+
+def install_environment_p3(root, python_version):
+    """Install virtual environment for Python 3.3+; removing the old one if it exists"""
+    import venv
+    builder = venv.EnvBuilder(system_site_packages=False, clear=True, symlinks=False, upgrade=False)
+    builder.create(root)
+    ret_code = subprocess.call([VE_SCRIPT, PROJECT_ROOT, root, python_version])
     sys.exit(ret_code)
 
 
 def install_or_switch_to_virtualenv(options):
     """Installs, switches, or bails"""
     if options.install_ve:
-        install_environment(VE_ROOT)
+        sys.stdout.write('Installing virtualenv into {0} \n'.format(VE_ROOT))
+        python_version = '.'.join(str(v) for v in sys.version_info[:2])
+        if sys.version_info < (3, 3):
+            install_environment_p2(VE_ROOT, python_version)
+        else:
+            install_environment_p3(VE_ROOT, python_version)
     elif path.exists(VE_ROOT):
         go_to_ve()
     else:
-        sys.stdout.write('No virtualenv detected, please run ./launch.py --install_ve \n')
+        sys.stdout.write('No virtualenv detected. Run ./launch.py --install_ve \n')
         sys.exit(1)
 
 

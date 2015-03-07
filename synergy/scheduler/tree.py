@@ -206,9 +206,7 @@ class TwoLevelTree(AbstractTree):
 
     def is_managing_process(self, process_name):
         """method returns True if process_name is registered on Timeline during creation"""
-        if process_name == self.process_name:
-            return True
-        return False
+        return process_name == self.process_name
 
     def get_next_node_by_process(self, process_name):
         """ method is used to keep consistency with Three/FourLevelTree interface"""

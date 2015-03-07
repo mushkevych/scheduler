@@ -8,6 +8,7 @@ from settings import enable_test_mode
 enable_test_mode()
 
 import process_starter
+from six import class_types, PY2, PY3
 
 
 def main_function(*args):
@@ -27,37 +28,46 @@ class NewClass(object):
 class TestProcessStarter(unittest.TestCase):
     def test_type_old_class(self):
         t, m, starter = process_starter.get_class('tests.test_process_starter.OldClass')
-        assert isinstance(m, (type, types.ClassType))
-        assert starter is None
+        self.assertIn(t, class_types)
+        self.assertIsInstance(m, class_types)
+        self.assertIsNone(starter)
 
     def test_type_new_class(self):
         t, m, starter = process_starter.get_class('tests.test_process_starter.NewClass')
-        assert isinstance(m, (type, types.ClassType))
-        assert starter is None
+        self.assertIn(t, class_types)
+        self.assertIsInstance(m, class_types)
+        self.assertIsNone(starter)
 
     def test_type_function(self):
         t, m, starter = process_starter.get_class('tests.test_process_starter.main_function')
-        assert isinstance(m, (type, types.FunctionType))
-        assert starter is None
+        self.assertEqual(t, types.FunctionType)
+        self.assertIsInstance(m, types.FunctionType)
+        self.assertIsNone(starter)
 
     def test_old_class_method(self):
         t, m, starter = process_starter.get_class('tests.test_process_starter.OldClass.starter_method')
-        assert isinstance(m, (type, types.ClassType))
-        assert starter == 'starter_method'
+        self.assertIn(t, class_types)
+        self.assertIsInstance(m, class_types)
+        self.assertEqual(starter, 'starter_method')
 
     def test_not_class(self):
         t, m, starter = process_starter.get_class('tests.test_process_starter.main_function')
-        assert not isinstance(m, (type, types.ClassType))
-        assert starter is None
+        self.assertEqual(t, types.FunctionType)
+        self.assertIsInstance(m, types.FunctionType)
+        self.assertNotIsInstance(m, class_types)
+        self.assertIsNone(starter)
 
     def test_starter_method(self):
         t, m, starter = process_starter.get_class('tests.test_process_starter.NewClass.starter_method')
-        assert isinstance(m, (type, types.ClassType))
-        assert starter == 'starter_method'
+        self.assertIn(t, class_types)
+        self.assertIsInstance(m, class_types)
+        self.assertEqual(starter, 'starter_method')
 
-        instance = getattr(m, starter)
-        assert not isinstance(instance, (type, types.FunctionType))
-        assert isinstance(instance, (type, types.MethodType))
+        self.assertIsInstance(getattr(m(), starter), types.MethodType)
+        if PY2:
+            self.assertIsInstance(getattr(m, starter), types.MethodType)
+        if PY3:
+            self.assertIsInstance(getattr(m, starter), types.FunctionType)
 
     @skip('TODO: disable performance_ticker and Flopsy consumer. otherwise Unit Test can not finish')
     def test_starting_method(self):

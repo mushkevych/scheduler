@@ -79,10 +79,11 @@ def create_pid_file(process_name):
     """ creates pid file and writes os.pid() in there """
     pid_filename = get_pid_filename(process_name)
     try:
-        pid_file = open(pid_filename, mode='w')
-        pid_file.write(str(os.getpid()))
+        with open(pid_filename, mode='w') as pid_file:
+            pid_file.write(str(os.getpid()))
     except Exception as e:
-        print('Unable to create pid file at: %s, because of: %r' % (pid_filename, e), file=sys.stderr)
+        print('Unable to create pid file at: {0}, because of: {1}'.format(pid_filename, e),
+              file=sys.stderr)
 
 
 def remove_pid_file(process_name):
@@ -90,6 +91,7 @@ def remove_pid_file(process_name):
     pid_filename = get_pid_filename(process_name)
     try:
         os.remove(pid_filename)
-        print('Removed pid file at: %s' % pid_filename, file=sys.stdout)
+        print('Removed pid file at: {0}'.format(pid_filename), file=sys.stdout)
     except Exception as e:
-        print('Unable to remove pid file at: %s, because of: %r' % (pid_filename, e), file=sys.stderr)
+        print('Unable to remove pid file at: {0}, because of: {1}'.format(pid_filename, e),
+              file=sys.stderr)
