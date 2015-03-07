@@ -180,10 +180,10 @@ class UowAwareTracker(SimpleTracker):
         super(UowAwareTracker, self)._run_tick_thread()
 
         if self.state == self.STATE_PROCESSING:
-            msg = 'State: %s for %d sec; %d in this uow;' \
-                  % (self.state, time.time() - self.state_triggered_at, self.per_job)
+            msg = 'State: {0} for {1} sec; {2} in this uow;'.\
+                format(self.state, time.time() - self.state_triggered_at, self.per_job)
         else:
-            msg = 'State: %s for %d sec;' % (self.state, time.time() - self.state_triggered_at)
+            msg = 'State: {0} for {1} sec;'.format(self.state, time.time() - self.state_triggered_at)
         self.logger.info(msg)
 
     def increment(self):
@@ -196,11 +196,9 @@ class UowAwareTracker(SimpleTracker):
         self.state_triggered_at = time.time()
 
     def finish_uow(self):
-        self.logger.info('Success: unit_of_work %s in timeperiod %s; processed %d entries in %d seconds'
-                         % (self.uow.db_id,
-                            self.uow.timeperiod,
-                            self.per_job,
-                            time.time() - self.state_triggered_at))
+        self.logger.info('Success: unit_of_work {0} in timeperiod {1}; processed {2} entries in {3} seconds'.
+                         format(self.uow.db_id, self.uow.timeperiod,
+                                self.per_job, time.time() - self.state_triggered_at))
         self.cancel_uow()
 
     def cancel_uow(self):
