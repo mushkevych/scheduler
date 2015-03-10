@@ -4,7 +4,7 @@ from datetime import datetime, timedelta
 
 from synergy.db.model import job
 from synergy.scheduler.tree_node import TreeNode, LinearNode
-from synergy.scheduler.process_hierarchy import Hierarchy, HierarchyEntry
+from synergy.scheduler.process_hierarchy import ProcessHierarchy, HierarchyEntry
 from synergy.conf import settings
 from synergy.conf import context
 from synergy.system import time_helper
@@ -140,7 +140,7 @@ class AbstractTree(object):
         """ method is used to keep consistency with Three/FourLevelTree interface"""
         pass
 
-    def update_node_by_process(self, process_name, job_record):
+    def update_node(self, process_name, job_record):
         """ method is used to keep consistency with Three/FourLevelTree interface"""
         pass
 
@@ -162,15 +162,15 @@ class MultiLevelTree(AbstractTree):
 
     def __init__(self, full_name=None, mx_name=None, mx_page=None, node_klass=TreeNode, *process_entries):
         super(MultiLevelTree, self).__init__(node_klass, full_name, mx_name, mx_page)
-        self.process_hierarchy = Hierarchy(*process_entries)
+        self.process_hierarchy = ProcessHierarchy(*process_entries)
 
     # *** PRIVATE METHODS TO BUILD AND OPERATE TREE ***
-    def _get_node_at(self, time_qualifier, timeperiod):
+    def _get_node(self, time_qualifier, timeperiod):
         hierarchy_entry = self.process_hierarchy.get_by_qualifier(time_qualifier)
         if hierarchy_entry.parent:
             parent_time_qualifier = hierarchy_entry.parent.process_entry.time_qualifier
             parent_timeperiod = hierarchy_entry.parent.cast_timeperiod(timeperiod)
-            parent = self._get_node_at(parent_time_qualifier, parent_timeperiod)
+            parent = self._get_node(parent_time_qualifier, parent_timeperiod)
         else:
             parent = self.root
 
@@ -207,7 +207,7 @@ class MultiLevelTree(AbstractTree):
             return True
 
         # case 2: this is a bottom-level leaf node. retry this time_period for INFINITE_RETRY_HOURS
-        if node.process_name == self.process_hierarchy.bottom_entry.process_name:
+        if node.process_name == self.process_hierarchy.bottom_process.process_name:
             if len(node.children) == 0:
                 # no children - this is a leaf
                 creation_time = time_helper.synergy_to_datetime(node.time_qualifier, node.timeperiod)
@@ -234,15 +234,16 @@ class MultiLevelTree(AbstractTree):
         """method builds tree by iterating from the synergy_start_timeperiod to current time
         and inserting corresponding nodes"""
 
-        time_qualifier = self.process_hierarchy.bottom_entry.time_qualifier
-        process_name = self.process_hierarchy.bottom_entry.process_name
+        time_qualifier = self.process_hierarchy.bottom_process.time_qualifier
+        process_name = self.process_hierarchy.bottom_process.process_name
         if rebuild or self.build_timeperiod is None:
             timeperiod = settings.settings['synergy_start_timeperiod']
-            timeperiod = self.process_hierarchy.bottom_entry.cast_timeperiod(timeperiod)
         else:
             timeperiod = self.build_timeperiod
 
+        timeperiod = cast_to_time_qualifier(time_qualifier, timeperiod)
         actual_timeperiod = time_helper.actual_timeperiod(time_qualifier)
+
         while actual_timeperiod >= timeperiod:
             self.get_node(process_name, timeperiod)
             timeperiod = time_helper.increment_timeperiod(time_qualifier, timeperiod)
@@ -254,14 +255,14 @@ class MultiLevelTree(AbstractTree):
             raise ValueError('unable to retrieve the node due to unknown process: %s' % process_name)
 
         time_qualifier = self.process_hierarchy[process_name].time_qualifier
-        return self._get_node_at(time_qualifier, timeperiod)
+        return self._get_node(time_qualifier, timeperiod)
 
-    def update_node_by_process(self, process_name, job_record):
+    def update_node(self, process_name, job_record):
         if process_name not in self.process_hierarchy:
             raise ValueError('unable to update the node due to unknown process: %s' % process_name)
 
         time_qualifier = self.process_hierarchy[process_name].time_qualifier
-        node = self._get_node_at(time_qualifier, job_record.timeperiod)
+        node = self._get_node(time_qualifier, job_record.timeperiod)
         node.job_record = job_record
 
     def get_next_node(self, process_name):

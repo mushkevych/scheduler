@@ -209,7 +209,7 @@ class Timetable(object):
             for document in document_list:
                 tree = self.get_tree(document.process_name)
                 if tree is not None:
-                    tree.update_node_by_process(document.process_name, document)
+                    tree.update_node(document.process_name, document)
                 else:
                     unsupported_records[document.process_name] = unsupported_records.get(document.process_name, 0) + 1
 
@@ -270,7 +270,7 @@ class Timetable(object):
         self.job_dao.update(job_record)
 
         tree = self.get_tree(process_name)
-        tree.update_node_by_process(process_name, job_record)
+        tree.update_node(process_name, job_record)
 
         msg = 'Transferred job %s for %s in timeperiod %s to new state %s' \
               % (job_record.db_id, job_record.timeperiod, process_name, new_state)

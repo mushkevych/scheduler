@@ -17,7 +17,7 @@ class HierarchyEntry(object):
         return cast_to_time_qualifier(self.process_entry.time_qualifier, timeperiod)
 
 
-class Hierarchy(object):
+class ProcessHierarchy(object):
     def __init__(self, *process_entries):
         self.entries = OrderedDict()
         self.qualifiers = OrderedDict()
@@ -71,9 +71,14 @@ class Hierarchy(object):
         return self.qualifiers.get(qualifier, None)
 
     @property
-    def top_entry(self):
-        return next(iter(self.entries))
+    def top_process(self):
+        """ :return: <ManagedProcessEntry> of the hierarchy's top entry """
+        key = next(iter(self.entries))
+        return self.entries[key].process_entry
 
     @property
-    def bottom_entry(self):
-        return next(reversed(self.entries))
+    def bottom_process(self):
+        """ :return: <ManagedProcessEntry> of the hierarchy's bottom entry """
+        key = next(reversed(self.entries))
+        return self.entries[key].process_entry
+

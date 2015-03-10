@@ -158,7 +158,7 @@ class AbstractStateMachine(object):
             job_record.state = job.STATE_SKIPPED
             self.job_dao.update(job_record)
             tree = self.timetable.get_tree(process_name)
-            tree.update_node_by_process(process_name, job_record)
+            tree.update_node(process_name, job_record)
 
             msg = '%s for timeperiod %r is blocked by STATE_SKIPPED dependencies. ' \
                   'Transferred the job to STATE_SKIPPED' % (process_name, job_record.timeperiod)
