@@ -70,8 +70,8 @@ class TestTwoLevelTree(unittest.TestCase):
         self._perform_assertions(new_synergy_start_time, 2 * delta)
 
     def test_is_managing_process(self):
-        self.assertTrue(self.tree.is_managing_process(PROCESS_SITE_HOURLY))
-        self.assertFalse(self.tree.is_managing_process('AnyOtherProcess'))
+        self.assertIn(PROCESS_SITE_HOURLY, self.tree)
+        self.assertNotIn('AnyOtherProcess', self.tree)
 
 
 if __name__ == '__main__':

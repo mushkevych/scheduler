@@ -197,7 +197,7 @@ class Timetable(object):
     def get_tree(self, process_name):
         """ return tree that is managing time-periods for given process"""
         for tree_name, tree in self.trees.items():
-            if tree.is_managing_process(process_name):
+            if process_name in tree:
                 return tree
 
     @thread_safe

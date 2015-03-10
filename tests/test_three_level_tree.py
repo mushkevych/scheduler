@@ -111,10 +111,10 @@ class TestThreeLevelTree(unittest.TestCase):
         self._perform_assertions(new_synergy_start_time, 2 * delta / 24)
 
     def test_is_managing_process(self):
-        self.assertTrue(self.tree.is_managing_process(PROCESS_SITE_YEARLY))
-        self.assertTrue(self.tree.is_managing_process(PROCESS_SITE_MONTHLY))
-        self.assertTrue(self.tree.is_managing_process(PROCESS_SITE_DAILY))
-        self.assertFalse(self.tree.is_managing_process(PROCESS_SITE_HOURLY))
+        self.assertIn(PROCESS_SITE_YEARLY, self.tree)
+        self.assertIn(PROCESS_SITE_MONTHLY, self.tree)
+        self.assertIn(PROCESS_SITE_DAILY, self.tree)
+        self.assertNotIn(PROCESS_SITE_HOURLY, self.tree)
 
 
 if __name__ == '__main__':

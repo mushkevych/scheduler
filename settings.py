@@ -44,6 +44,7 @@ testable_modules = [
 ]
 
 test_cases = [
+    'tests.test_process_hierarchy',
     'tests.test_abstract_state_machine',
     'tests.test_state_machine_continuous',
     'tests.test_state_machine_discrete',

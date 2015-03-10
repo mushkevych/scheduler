@@ -4,6 +4,7 @@ from datetime import datetime, timedelta
 
 from synergy.db.model import job
 from synergy.scheduler.tree_node import TreeNode, LinearNode
+from synergy.scheduler.process_hierarchy import Hierarchy
 from synergy.conf import settings
 from synergy.conf import context
 from synergy.system import time_helper
@@ -135,6 +136,13 @@ class AbstractTree(object):
             return self.get_node_by_process(process_name, actual_timeperiod)
 
     # *** INHERITANCE INTERFACE ***
+    def __contains__(self, value):
+        """
+        :param value: process name
+        :return: True if a process_entry with the given name is registered in this hierarchy; False otherwise
+        """
+        pass
+
     def build_tree(self, rebuild=False):
         """method builds tree by iterating from the synergy_start_timeperiod to current time
         and inserting corresponding nodes"""
@@ -143,10 +151,6 @@ class AbstractTree(object):
     def _skip_the_node(self, node):
         """Method is used during _get_next_node calculations.
         Returns True in case node shall be _skipped_"""
-        pass
-
-    def is_managing_process(self, process_name):
-        """method returns True if process_name is registered on Timeline during creation"""
         pass
 
     def get_next_node_by_process(self, process_name):
@@ -175,7 +179,7 @@ class TwoLevelTree(AbstractTree):
 
     def __init__(self, process_name, full_name=None, mx_name=None, mx_page=None, node_klass=LinearNode):
         super(TwoLevelTree, self).__init__(node_klass, full_name, mx_name, mx_page)
-        self.process_name = process_name
+        self.process_hierarchy = Hierarchy(process_name)
 
     # *** SPECIFIC METHODS ***
     def __get_node(self, timeperiod):
@@ -192,6 +196,13 @@ class TwoLevelTree(AbstractTree):
         node.job_record = job_record
 
     # *** INHERITANCE INTERFACE ***
+    def __contains__(self, value):
+        """
+        :param value: process name
+        :return: True if a process_entry with the given name is registered in this hierarchy; False otherwise
+        """
+        return value in self.process_hierarchy
+
     def build_tree(self, rebuild=False):
         """method builds timeline by iterating from the synergy_start_timeperiod to current time
         and inserting nodes"""
@@ -204,30 +215,26 @@ class TwoLevelTree(AbstractTree):
             return True
         return node.job_record.number_of_failures > MAX_NUMBER_OF_RETRIES
 
-    def is_managing_process(self, process_name):
-        """method returns True if process_name is registered on Timeline during creation"""
-        return process_name == self.process_name
-
     def get_next_node_by_process(self, process_name):
         """ method is used to keep consistency with Three/FourLevelTree interface"""
-        if process_name == self.process_name:
+        if process_name in self.process_hierarchy:
             return self._get_next_node(self.root)
         else:
-            raise ValueError('unknown requested process: %s vs %s' % (process_name, self.process_name))
+            raise ValueError('unknown requested process: %s vs %s' % (process_name, self.process_hierarchy))
 
     def update_node_by_process(self, process_name, job_record):
         """ method is used to keep consistency with Three/FourLevelTree interface"""
-        if process_name == self.process_name:
+        if process_name in self.process_hierarchy:
             return self.__update_node(job_record)
         else:
-            raise ValueError('unknown requested process: %s vs %s' % (process_name, self.process_name))
+            raise ValueError('unknown requested process: %s vs %s' % (process_name, self.process_hierarchy))
 
     def get_node_by_process(self, process_name, timeperiod):
         """ method is used to keep consistency with Three/FourLevelTree interface"""
-        if process_name == self.process_name:
+        if process_name in self.process_hierarchy:
             return self.__get_node(timeperiod)
         else:
-            raise ValueError('unknown requested process: %s vs %s' % (process_name, self.process_name))
+            raise ValueError('unknown requested process: %s vs %s' % (process_name, self.process_hierarchy))
 
 
 class ThreeLevelTree(AbstractTree):
@@ -356,14 +363,12 @@ class ThreeLevelTree(AbstractTree):
         else:
             raise ValueError('unable to compute the next_node due to unknown process: %s' % process_name)
 
-    def is_managing_process(self, process_name):
-        """method returns True if process_name is among processes (yearly/monthly/daily etc),
-        registered on Tree creation"""
-        if process_name == self.process_yearly \
-                or process_name == self.process_monthly \
-                or process_name == self.process_daily:
-            return True
-        return False
+    def __contains__(self, value):
+        """
+        :param value: process name
+        :return: True if a process_entry with the given name is registered in this hierarchy; False otherwise
+        """
+        return value in [self.process_yearly, self.process_monthly, self.process_daily]
 
 
 class FourLevelTree(ThreeLevelTree):
@@ -405,16 +410,19 @@ class FourLevelTree(ThreeLevelTree):
         return self._get_next_node(parent)
 
     # *** INHERITANCE INTERFACE ***
+    def __contains__(self, value):
+        """
+        :param value: process name
+        :return: True if a process_entry with the given name is registered in this hierarchy; False otherwise
+        """
+        if value == self.process_hourly:
+            return True
+        else:
+            return super(FourLevelTree, self).__contains__(value)
+
     def build_tree(self, rebuild=False):
         """@see ThreeLevelTree.build_tree """
         self._build_tree(rebuild, self.process_hourly, self.__get_hourly_node)
-
-    def is_managing_process(self, process_name):
-        """@see ThreeLevelTree.is_managing_process"""
-        if process_name == self.process_hourly:
-            return True
-        else:
-            return super(FourLevelTree, self).is_managing_process(process_name)
 
     def get_next_node_by_process(self, process_name):
         if process_name == self.process_hourly:
