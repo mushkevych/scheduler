@@ -25,7 +25,7 @@ class StateMachineContinuous(AbstractStateMachine):
 
     def shallow_state_update(self, uow):
         tree = self.timetable.get_tree(uow.process_name)
-        node = tree.get_node_by_process(uow.process_name, uow.timeperiod)
+        node = tree.get_node(uow.process_name, uow.timeperiod)
         job_record = node.job_record
 
         if job_record.state != job.STATE_FINAL_RUN:

@@ -256,7 +256,7 @@ class Timetable(object):
                 skipped_present - True if among <dependent on> periods are some in STATE_SKIPPED
         """
         tree = self.get_tree(process_name)
-        node = tree.get_node_by_process(process_name, job_record.timeperiod)
+        node = tree.get_node(process_name, job_record.timeperiod)
         return node.dependent_on_composite_state()
 
     # *** Job manipulation methods ***
@@ -282,7 +282,7 @@ class Timetable(object):
         """method increases node's inner counter of failed processing
         if _skip_node logic returns True - node is set to STATE_SKIP"""
         tree = self.get_tree(process_name)
-        node = tree.get_node_by_process(process_name, timeperiod)
+        node = tree.get_node(process_name, timeperiod)
         node.job_record.number_of_failures += 1
         if tree._skip_the_node(node):
             node.request_skip()
@@ -300,7 +300,7 @@ class Timetable(object):
             del self.reprocess[process_name][timeperiod]
         else:
             tree = self.get_tree(process_name)
-            node = tree.get_next_node_by_process(process_name)
+            node = tree.get_next_node(process_name)
 
         if node.job_record is None:
             node.request_embryo_job_record()
@@ -310,12 +310,12 @@ class Timetable(object):
     def can_finalize_job_record(self, process_name, job_record):
         """ :return True, if the node and all its children are either in STATE_PROCESSED or STATE_SKIPPED"""
         tree = self.get_tree(process_name)
-        node = tree.get_node_by_process(process_name, job_record.timeperiod)
+        node = tree.get_node(process_name, job_record.timeperiod)
         return node.can_finalize_job_record()
 
     @thread_safe
     def add_log_entry(self, process_name, timeperiod, msg):
         """ adds a log entry to the tree node. log entries has no persistence """
         tree = self.get_tree(process_name)
-        node = tree.get_node_by_process(process_name, timeperiod)
+        node = tree.get_node(process_name, timeperiod)
         node.add_log_entry([datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S'), msg])

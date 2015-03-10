@@ -107,7 +107,7 @@ class AbstractNode(object):
             tree_b_process_name = None
 
         if tree_b_process_name is not None:
-            node_b = tree_b.get_node_by_process(tree_b_process_name, node_a.timeperiod)
+            node_b = tree_b.get_node(tree_b_process_name, node_a.timeperiod)
         else:
             node_b = None
         return node_b

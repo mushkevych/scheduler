@@ -50,7 +50,7 @@ class TreeNodeDetails(object):
         elif tree is not None:
             time_qualifier = context.process_context[self.process_name].time_qualifier
             self.timeperiod = time_helper.cast_to_time_qualifier(time_qualifier, self.timeperiod)
-            node = tree.get_node_by_process(self.process_name, self.timeperiod)
+            node = tree.get_node(self.process_name, self.timeperiod)
             rest_node.node = TreeNodeDetails.get_details(node, as_model=True)
             for key in node.children:
                 child = node.children[key]

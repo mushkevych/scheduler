@@ -46,7 +46,7 @@ class StatusBusListener(object):
                 return
 
             tree = self.timetable.get_tree(uow.process_name)
-            node = tree.get_node_by_process(uow.process_name, uow.timeperiod)
+            node = tree.get_node(uow.process_name, uow.timeperiod)
 
             if uow.db_id != node.job_record.related_unit_of_work:
                 self.logger.info('Received transmission is likely outdated. Ignoring it.')

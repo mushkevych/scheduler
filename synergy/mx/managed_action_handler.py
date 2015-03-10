@@ -31,7 +31,7 @@ class ManagedActionHandler(AbstractActionHandler):
 
         time_qualifier = context.process_context[self.process_name].time_qualifier
         self.timeperiod = time_helper.cast_to_time_qualifier(time_qualifier, self.timeperiod)
-        node = tree.get_node_by_process(self.process_name, self.timeperiod)
+        node = tree.get_node(self.process_name, self.timeperiod)
         return node
 
     @AbstractActionHandler.scheduler_thread_handler.getter

@@ -33,30 +33,30 @@ class TestThreeLevelTree(unittest.TestCase):
         actual_daily_timeperiod = time_helper.actual_timeperiod(QUALIFIER_DAILY)
         assert len(self.tree.root.children) == 1
         assert actual_yearly_timeperiod in self.tree.root.children
-        self.assertEqual(self.tree.get_node_by_process(PROCESS_SITE_YEARLY, actual_yearly_timeperiod).process_name,
+        self.assertEqual(self.tree.get_node(PROCESS_SITE_YEARLY, actual_yearly_timeperiod).process_name,
                          PROCESS_SITE_YEARLY)
-        self.assertEqual(self.tree.get_node_by_process(PROCESS_SITE_YEARLY, actual_yearly_timeperiod).timeperiod,
+        self.assertEqual(self.tree.get_node(PROCESS_SITE_YEARLY, actual_yearly_timeperiod).timeperiod,
                          actual_yearly_timeperiod)
-        self.assertEqual(self.tree.get_node_by_process(PROCESS_SITE_YEARLY, actual_yearly_timeperiod).time_qualifier,
+        self.assertEqual(self.tree.get_node(PROCESS_SITE_YEARLY, actual_yearly_timeperiod).time_qualifier,
                          QUALIFIER_YEARLY)
 
         assert len(self.tree.root.children[actual_yearly_timeperiod].children) == 1
         assert actual_monthly_timeperiod in self.tree.root.children[actual_yearly_timeperiod].children
-        self.assertEqual(self.tree.get_node_by_process(PROCESS_SITE_MONTHLY, actual_monthly_timeperiod).process_name,
+        self.assertEqual(self.tree.get_node(PROCESS_SITE_MONTHLY, actual_monthly_timeperiod).process_name,
                          PROCESS_SITE_MONTHLY)
-        self.assertEqual(self.tree.get_node_by_process(PROCESS_SITE_MONTHLY, actual_monthly_timeperiod).timeperiod,
+        self.assertEqual(self.tree.get_node(PROCESS_SITE_MONTHLY, actual_monthly_timeperiod).timeperiod,
                          actual_monthly_timeperiod)
-        self.assertEqual(self.tree.get_node_by_process(PROCESS_SITE_MONTHLY, actual_monthly_timeperiod).time_qualifier,
+        self.assertEqual(self.tree.get_node(PROCESS_SITE_MONTHLY, actual_monthly_timeperiod).time_qualifier,
                          QUALIFIER_MONTHLY)
 
         assert len(self.tree.root.children[actual_yearly_timeperiod].children[actual_monthly_timeperiod].children) == 1
         assert actual_daily_timeperiod in self.tree.root.children[actual_yearly_timeperiod].children[
             actual_monthly_timeperiod].children
-        self.assertEqual(self.tree.get_node_by_process(PROCESS_SITE_DAILY, actual_daily_timeperiod).process_name,
+        self.assertEqual(self.tree.get_node(PROCESS_SITE_DAILY, actual_daily_timeperiod).process_name,
                          PROCESS_SITE_DAILY)
-        self.assertEqual(self.tree.get_node_by_process(PROCESS_SITE_DAILY, actual_daily_timeperiod).timeperiod,
+        self.assertEqual(self.tree.get_node(PROCESS_SITE_DAILY, actual_daily_timeperiod).timeperiod,
                          actual_daily_timeperiod)
-        self.assertEqual(self.tree.get_node_by_process(PROCESS_SITE_DAILY, actual_daily_timeperiod).time_qualifier,
+        self.assertEqual(self.tree.get_node(PROCESS_SITE_DAILY, actual_daily_timeperiod).time_qualifier,
                          QUALIFIER_DAILY)
 
     def _perform_assertions(self, start_timeperiod, delta):

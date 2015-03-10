@@ -4,7 +4,7 @@ from datetime import datetime, timedelta
 
 from synergy.db.model import job
 from synergy.scheduler.tree_node import TreeNode, LinearNode
-from synergy.scheduler.process_hierarchy import Hierarchy
+from synergy.scheduler.process_hierarchy import Hierarchy, HierarchyEntry
 from synergy.conf import settings
 from synergy.conf import context
 from synergy.system import time_helper
@@ -77,23 +77,6 @@ class AbstractTree(object):
             self.create_job_record_callbacks.remove(function)
 
     # *** PROTECTED METHODS ***
-    def _build_tree(self, rebuild, process_name, method_get_node):
-        """method builds tree by iterating from the synergy_start_timeperiod to current time
-        and inserting corresponding nodes"""
-        time_qualifier = context.process_context[process_name].time_qualifier
-        if rebuild or self.build_timeperiod is None:
-            timeperiod = settings.settings['synergy_start_timeperiod']
-            timeperiod = cast_to_time_qualifier(time_qualifier, timeperiod)
-        else:
-            timeperiod = self.build_timeperiod
-
-        actual_timeperiod = time_helper.actual_timeperiod(time_qualifier)
-        while actual_timeperiod >= timeperiod:
-            method_get_node(timeperiod)
-            timeperiod = time_helper.increment_timeperiod(time_qualifier, timeperiod)
-
-        self.build_timeperiod = actual_timeperiod
-
     def _get_next_parent_node(self, parent):
         """ Used by _get_next_node, this method is called to find next possible parent.
         For example if timeperiod 2011010200 has all children processed, but is not processed yet
@@ -133,7 +116,7 @@ class AbstractTree(object):
             process_name = parent.children[sorted_keys[0]].process_name
             time_qualifier = parent.children[sorted_keys[0]].time_qualifier
             actual_timeperiod = time_helper.actual_timeperiod(time_qualifier)
-            return self.get_node_by_process(process_name, actual_timeperiod)
+            return self.get_node(process_name, actual_timeperiod)
 
     # *** INHERITANCE INTERFACE ***
     def __contains__(self, value):
@@ -143,17 +126,17 @@ class AbstractTree(object):
         """
         pass
 
-    def build_tree(self, rebuild=False):
-        """method builds tree by iterating from the synergy_start_timeperiod to current time
-        and inserting corresponding nodes"""
-        pass
-
     def _skip_the_node(self, node):
         """Method is used during _get_next_node calculations.
         Returns True in case node shall be _skipped_"""
         pass
 
-    def get_next_node_by_process(self, process_name):
+    def build_tree(self, rebuild=False):
+        """method builds tree by iterating from the synergy_start_timeperiod to current time
+        and inserting corresponding nodes"""
+        pass
+
+    def get_next_node(self, process_name):
         """ method is used to keep consistency with Three/FourLevelTree interface"""
         pass
 
@@ -161,7 +144,7 @@ class AbstractTree(object):
         """ method is used to keep consistency with Three/FourLevelTree interface"""
         pass
 
-    def get_node_by_process(self, process_name, timeperiod):
+    def get_node(self, process_name, timeperiod):
         """ method is used to keep consistency with Three/FourLevelTree interface"""
         pass
 
@@ -174,26 +157,39 @@ class AbstractTree(object):
         self.validation_timestamp = datetime.utcnow()
 
 
-class TwoLevelTree(AbstractTree):
-    """Linear timeline structure, presenting array of job_records"""
+class MultiLevelTree(AbstractTree):
+    """Three level tree present structure, monitoring: yearly, monthly and daily time-periods"""
 
-    def __init__(self, process_name, full_name=None, mx_name=None, mx_page=None, node_klass=LinearNode):
-        super(TwoLevelTree, self).__init__(node_klass, full_name, mx_name, mx_page)
-        self.process_hierarchy = Hierarchy(process_name)
+    def __init__(self, full_name=None, mx_name=None, mx_page=None, node_klass=TreeNode, *process_entries):
+        super(MultiLevelTree, self).__init__(node_klass, full_name, mx_name, mx_page)
+        self.process_hierarchy = Hierarchy(*process_entries)
 
-    # *** SPECIFIC METHODS ***
-    def __get_node(self, timeperiod):
-        node = self.root.children.get(timeperiod)
+    # *** PRIVATE METHODS TO BUILD AND OPERATE TREE ***
+    def _get_node_at(self, time_qualifier, timeperiod):
+        hierarchy_entry = self.process_hierarchy.get_by_qualifier(time_qualifier)
+        if hierarchy_entry.parent:
+            parent_time_qualifier = hierarchy_entry.parent.process_entry.time_qualifier
+            parent_timeperiod = hierarchy_entry.parent.cast_timeperiod(timeperiod)
+            parent = self._get_node_at(parent_time_qualifier, parent_timeperiod)
+        else:
+            parent = self.root
+
+        node = parent.children.get(timeperiod)
         if node is None:
-            node = self.node_klass(self, self.root, self.process_name, timeperiod, None)
-            node.request_embryo_job_record()
-            self.root.children[timeperiod] = node
+            node = self.node_klass(self, parent, hierarchy_entry.process_entry.process_name, timeperiod, None)
+            parent.children[timeperiod] = node
 
         return node
 
-    def __update_node(self, job_record):
-        node = self.__get_node(job_record.timeperiod)
-        node.job_record = job_record
+    def _get_next_node_at(self, time_qualifier):
+        hierarchy_entry = self.process_hierarchy.get_by_qualifier(time_qualifier)
+        if hierarchy_entry.parent:
+            parent_time_qualifier = hierarchy_entry.parent.process_entry.time_qualifier
+            parent = self._get_next_node_at(parent_time_qualifier)
+        else:
+            parent = self.root
+
+        return self._get_next_node(parent)
 
     # *** INHERITANCE INTERFACE ***
     def __contains__(self, value):
@@ -203,125 +199,6 @@ class TwoLevelTree(AbstractTree):
         """
         return value in self.process_hierarchy
 
-    def build_tree(self, rebuild=False):
-        """method builds timeline by iterating from the synergy_start_timeperiod to current time
-        and inserting nodes"""
-        self._build_tree(rebuild, self.process_name, self.__get_node)
-
-    def _skip_the_node(self, node):
-        """Method is used during _get_next_node calculations.
-        Returns True in case node shall be _skipped_"""
-        if node.job_record.state in [job.STATE_SKIPPED, job.STATE_PROCESSED]:
-            return True
-        return node.job_record.number_of_failures > MAX_NUMBER_OF_RETRIES
-
-    def get_next_node_by_process(self, process_name):
-        """ method is used to keep consistency with Three/FourLevelTree interface"""
-        if process_name in self.process_hierarchy:
-            return self._get_next_node(self.root)
-        else:
-            raise ValueError('unknown requested process: %s vs %s' % (process_name, self.process_hierarchy))
-
-    def update_node_by_process(self, process_name, job_record):
-        """ method is used to keep consistency with Three/FourLevelTree interface"""
-        if process_name in self.process_hierarchy:
-            return self.__update_node(job_record)
-        else:
-            raise ValueError('unknown requested process: %s vs %s' % (process_name, self.process_hierarchy))
-
-    def get_node_by_process(self, process_name, timeperiod):
-        """ method is used to keep consistency with Three/FourLevelTree interface"""
-        if process_name in self.process_hierarchy:
-            return self.__get_node(timeperiod)
-        else:
-            raise ValueError('unknown requested process: %s vs %s' % (process_name, self.process_hierarchy))
-
-
-class ThreeLevelTree(AbstractTree):
-    """Three level tree present structure, monitoring: yearly, monthly and daily time-periods"""
-
-    def __init__(self, process_yearly,
-                 process_monthly,
-                 process_daily,
-                 full_name=None,
-                 mx_name=None,
-                 mx_page=None,
-                 node_klass=TreeNode):
-        super(ThreeLevelTree, self).__init__(node_klass, full_name, mx_name, mx_page)
-        self.process_yearly = process_yearly
-        self.process_monthly = process_monthly
-        self.process_daily = process_daily
-
-    # *** PRIVATE METHODS TO BUILD AND OPERATE TREE ***
-    def __get_yearly_node(self, timeperiod):
-        node = self.root.children.get(timeperiod)
-        if node is None:
-            node = self.node_klass(self, self.root, self.process_yearly, timeperiod, None)
-            self.root.children[timeperiod] = node
-
-        return node
-
-    def __get_monthly_node(self, timeperiod):
-        timeperiod_yearly = cast_to_time_qualifier(QUALIFIER_YEARLY, timeperiod)
-        parent = self.__get_yearly_node(timeperiod_yearly)
-
-        node = parent.children.get(timeperiod)
-        if node is None:
-            node = self.node_klass(self, parent, self.process_monthly, timeperiod, None)
-            parent.children[timeperiod] = node
-
-        return node
-
-    def __get_daily_node(self, timeperiod):
-        timeperiod_monthly = cast_to_time_qualifier(QUALIFIER_MONTHLY, timeperiod)
-        parent = self.__get_monthly_node(timeperiod_monthly)
-
-        node = parent.children.get(timeperiod)
-        if node is None:
-            node = self.node_klass(self, parent, self.process_daily, timeperiod, None)
-            parent.children[timeperiod] = node
-
-        return node
-
-    def __get_next_yearly_node(self):
-        parent = self.root
-        return self._get_next_node(parent)
-
-    def __get_next_monthly_node(self):
-        parent = self.__get_next_yearly_node()
-        return self._get_next_node(parent)
-
-    def __get_next_daily_node(self):
-        parent = self.__get_next_monthly_node()
-        return self._get_next_node(parent)
-
-    # *** INHERITANCE INTERFACE ***
-    def build_tree(self, rebuild=False):
-        """method builds tree by iterating from the synergy_start_timeperiod to current time
-        and inserting corresponding nodes"""
-        self._build_tree(rebuild, self.process_daily, self.__get_daily_node)
-
-    def get_node_by_process(self, process_name, timeperiod):
-        if process_name == self.process_yearly:
-            return self.__get_yearly_node(timeperiod)
-        elif process_name == self.process_monthly:
-            return self.__get_monthly_node(timeperiod)
-        elif process_name == self.process_daily:
-            return self.__get_daily_node(timeperiod)
-        else:
-            raise ValueError('unable to retrieve the node due to unknown process: %s' % process_name)
-
-    def update_node_by_process(self, process_name, job_record):
-        if process_name == self.process_yearly:
-            node = self.__get_yearly_node(job_record.timeperiod)
-        elif process_name == self.process_monthly:
-            node = self.__get_monthly_node(job_record.timeperiod)
-        elif process_name == self.process_daily:
-            node = self.__get_daily_node(job_record.timeperiod)
-        else:
-            raise ValueError('unknown process name: %s' % process_name)
-        node.job_record = job_record
-
     def _skip_the_node(self, node):
         """Method is used during _get_next_node calculations.
         Returns True in case node shall be _skipped_"""
@@ -329,8 +206,8 @@ class ThreeLevelTree(AbstractTree):
         if node.job_record.state in [job.STATE_SKIPPED, job.STATE_PROCESSED]:
             return True
 
-        # case 2: this is a daily leaf node. retry this time_period for INFINITE_RETRY_HOURS
-        if node.process_name == self.process_daily:
+        # case 2: this is a bottom-level leaf node. retry this time_period for INFINITE_RETRY_HOURS
+        if node.process_name == self.process_hierarchy.bottom_entry.process_name:
             if len(node.children) == 0:
                 # no children - this is a leaf
                 creation_time = time_helper.synergy_to_datetime(node.time_qualifier, node.timeperiod)
@@ -353,102 +230,43 @@ class ThreeLevelTree(AbstractTree):
                 break
         return all_children_spoiled
 
-    def get_next_node_by_process(self, process_name):
-        if process_name == self.process_yearly:
-            return self.__get_next_yearly_node()
-        elif process_name == self.process_monthly:
-            return self.__get_next_monthly_node()
-        elif process_name == self.process_daily:
-            return self.__get_next_daily_node()
-        else:
-            raise ValueError('unable to compute the next_node due to unknown process: %s' % process_name)
-
-    def __contains__(self, value):
-        """
-        :param value: process name
-        :return: True if a process_entry with the given name is registered in this hierarchy; False otherwise
-        """
-        return value in [self.process_yearly, self.process_monthly, self.process_daily]
-
-
-class FourLevelTree(ThreeLevelTree):
-    """Four level tree present structure, monitoring: yearly, monthly, daily and hourly time-periods"""
-
-    def __init__(self, process_yearly,
-                 process_monthly,
-                 process_daily,
-                 process_hourly,
-                 full_name=None,
-                 mx_name=None,
-                 mx_page=None,
-                 node_klass=TreeNode):
-        super(FourLevelTree, self).__init__(process_yearly,
-                                            process_monthly,
-                                            process_daily,
-                                            full_name=full_name,
-                                            mx_name=mx_name,
-                                            mx_page=mx_page,
-                                            node_klass=node_klass)
-        self.process_hourly = process_hourly
-
-    # *** PRIVATE METHODS ***
-    # TODO: replace with SUPER._get_node(timeperiod)
-    def __get_hourly_node(self, timeperiod):
-        timeperiod_daily = cast_to_time_qualifier(QUALIFIER_DAILY, timeperiod)
-        parent = self._ThreeLevelTree__get_daily_node(timeperiod_daily)
-
-        node = parent.children.get(timeperiod)
-        if node is None:
-            node = TreeNode(self, parent, self.process_hourly, timeperiod, None)
-            parent.children[timeperiod] = node
-
-        return node
-
-    # TODO: replace with SUPER._get_next_node()
-    def __get_next_hourly_node(self):
-        parent = self._ThreeLevelTree__get_next_daily_node()
-        return self._get_next_node(parent)
-
-    # *** INHERITANCE INTERFACE ***
-    def __contains__(self, value):
-        """
-        :param value: process name
-        :return: True if a process_entry with the given name is registered in this hierarchy; False otherwise
-        """
-        if value == self.process_hourly:
-            return True
-        else:
-            return super(FourLevelTree, self).__contains__(value)
-
     def build_tree(self, rebuild=False):
-        """@see ThreeLevelTree.build_tree """
-        self._build_tree(rebuild, self.process_hourly, self.__get_hourly_node)
+        """method builds tree by iterating from the synergy_start_timeperiod to current time
+        and inserting corresponding nodes"""
 
-    def get_next_node_by_process(self, process_name):
-        if process_name == self.process_hourly:
-            return self.__get_next_hourly_node()
+        time_qualifier = self.process_hierarchy.bottom_entry.time_qualifier
+        process_name = self.process_hierarchy.bottom_entry.process_name
+        if rebuild or self.build_timeperiod is None:
+            timeperiod = settings.settings['synergy_start_timeperiod']
+            timeperiod = self.process_hierarchy.bottom_entry.cast_timeperiod(timeperiod)
         else:
-            return super(FourLevelTree, self).get_next_node_by_process(process_name)
+            timeperiod = self.build_timeperiod
 
-    def get_node_by_process(self, process_name, timeperiod):
-        if process_name == self.process_hourly:
-            return self.__get_hourly_node(timeperiod)
-        else:
-            return super(FourLevelTree, self).get_node_by_process(process_name, timeperiod)
+        actual_timeperiod = time_helper.actual_timeperiod(time_qualifier)
+        while actual_timeperiod >= timeperiod:
+            self.get_node(process_name, timeperiod)
+            timeperiod = time_helper.increment_timeperiod(time_qualifier, timeperiod)
+
+        self.build_timeperiod = actual_timeperiod
+
+    def get_node(self, process_name, timeperiod):
+        if process_name not in self.process_hierarchy:
+            raise ValueError('unable to retrieve the node due to unknown process: %s' % process_name)
+
+        time_qualifier = self.process_hierarchy[process_name].time_qualifier
+        return self._get_node_at(time_qualifier, timeperiod)
 
     def update_node_by_process(self, process_name, job_record):
-        if process_name == self.process_hourly:
-            node = self.__get_hourly_node(job_record.timeperiod)
-            node.job_record = job_record
-        else:
-            return super(FourLevelTree, self).update_node_by_process(process_name, job_record)
+        if process_name not in self.process_hierarchy:
+            raise ValueError('unable to update the node due to unknown process: %s' % process_name)
 
-    def _skip_the_node(self, node):
-        """Method is used during _get_next_node calculations.
-        Returns True in case node shall be _skipped_"""
-        if node.process_name == self.process_hourly:
-            if node.job_record.state in [job.STATE_SKIPPED, job.STATE_PROCESSED]:
-                return True
-            return node.job_record.number_of_failures > MAX_NUMBER_OF_RETRIES
-        else:
-            return super(FourLevelTree, self)._skip_the_node(node)
+        time_qualifier = self.process_hierarchy[process_name].time_qualifier
+        node = self._get_node_at(time_qualifier, job_record.timeperiod)
+        node.job_record = job_record
+
+    def get_next_node(self, process_name):
+        if process_name not in self.process_hierarchy:
+            raise ValueError('unable to compute the next_node due to unknown process: %s' % process_name)
+
+        time_qualifier = self.process_hierarchy[process_name].time_qualifier
+        return self._get_next_node_at(time_qualifier)

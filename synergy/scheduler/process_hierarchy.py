@@ -4,6 +4,7 @@ from collections import OrderedDict
 
 from synergy.db.model.managed_process_entry import ManagedProcessEntry
 from synergy.system.time_qualifier import *
+from synergy.system.time_helper import cast_to_time_qualifier
 
 
 class HierarchyEntry(object):
@@ -11,6 +12,9 @@ class HierarchyEntry(object):
         self.hierarchy = hierarchy
         self.parent = parent
         self.process_entry = process_entry
+
+    def cast_timeperiod(self, timeperiod):
+        return cast_to_time_qualifier(self.process_entry.time_qualifier, timeperiod)
 
 
 class Hierarchy(object):
@@ -65,3 +69,11 @@ class Hierarchy(object):
                 or None if no process with given time_qualifier is registered in this hierarchy
         """
         return self.qualifiers.get(qualifier, None)
+
+    @property
+    def top_entry(self):
+        return next(iter(self.entries))
+
+    @property
+    def bottom_entry(self):
+        return next(reversed(self.entries))
