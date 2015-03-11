@@ -31,8 +31,8 @@ class TimetableContextEntry(BaseDocument):
 
 
 def timetable_context_entry(tree_name,
-                            tree_classname,
                             enclosed_processes,
+                            tree_classname='synergy.scheduler.tree.MultiLevelTree',
                             dependent_on=None,
                             mx_name=None,
                             mx_page=None):

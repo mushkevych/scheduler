@@ -136,7 +136,6 @@ process_context = {
 timetable_context = {
     TREE_SITE_VERTICAL: timetable_context_entry(
         tree_name=TREE_SITE_VERTICAL,
-        tree_classname='synergy.scheduler.tree.FourLevelTree',
         enclosed_processes=[PROCESS_SITE_YEARLY, PROCESS_SITE_MONTHLY, PROCESS_SITE_DAILY, PROCESS_SITE_HOURLY],
         dependent_on=[],
         mx_name=TOKEN_SITE,
@@ -144,7 +143,6 @@ timetable_context = {
 
     TREE_CLIENT_HORIZONTAL: timetable_context_entry(
         tree_name=TREE_CLIENT_HORIZONTAL,
-        tree_classname='synergy.scheduler.tree.ThreeLevelTree',
         enclosed_processes=[PROCESS_CLIENT_YEARLY, PROCESS_CLIENT_MONTHLY, PROCESS_CLIENT_DAILY],
         dependent_on=[TREE_SITE_VERTICAL],
         mx_name=TOKEN_CLIENT,
@@ -152,7 +150,6 @@ timetable_context = {
 
     TREE_LINEAR_DAILY: timetable_context_entry(
         tree_name=TREE_LINEAR_DAILY,
-        tree_classname='synergy.scheduler.tree.TwoLevelTree',
         enclosed_processes=[PROCESS_ALERT_DAILY],
         dependent_on=[],
         mx_name=TOKEN_ALERT,

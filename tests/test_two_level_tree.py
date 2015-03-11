@@ -5,7 +5,8 @@ from tests import base_fixtures
 from synergy.system import time_helper
 from synergy.system.time_qualifier import QUALIFIER_HOURLY
 from constants import PROCESS_SITE_HOURLY, TOKEN_SITE
-from synergy.scheduler.tree import TwoLevelTree
+from synergy.scheduler.tree_node import LinearNode
+from synergy.scheduler.tree import MultiLevelTree
 from synergy.conf import settings
 
 
@@ -13,7 +14,8 @@ class TestTwoLevelTree(unittest.TestCase):
     def setUp(self):
         self.initial_actual_timeperiod = time_helper.actual_timeperiod
         self.initial_synergy_start_time = settings.settings['synergy_start_timeperiod']
-        self.tree = TwoLevelTree(PROCESS_SITE_HOURLY, TOKEN_SITE, 'some_mx_page')
+        self.tree = MultiLevelTree(process_entries=[PROCESS_SITE_HOURLY], node_klass=LinearNode,
+                                   mx_name=TOKEN_SITE, mx_page='some_mx_page')
 
     def tearDown(self):
         del self.tree

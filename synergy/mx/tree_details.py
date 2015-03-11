@@ -27,12 +27,11 @@ class TreeDetails(object):
         tree_obj = self.mbean.timetable.trees[tree_name]
         context_entry = context.timetable_context[tree_name]
 
-        rest_tree = RestTimetableTree()
-        rest_tree.tree_name = tree_name
-        rest_tree.mx_page = tree_obj.mx_page
-        rest_tree.mx_name = tree_obj.mx_name
-        rest_tree.dependent_on = context_entry.dependent_on
-        rest_tree.dependant_trees = self._list_of_dependant_trees(tree_obj)
+        rest_tree = RestTimetableTree(tree_name=tree_name,
+                                      mx_page=tree_obj.mx_page,
+                                      mx_name=tree_obj.mx_name,
+                                      dependent_on=context_entry.dependent_on,
+                                      dependant_trees=self._list_of_dependant_trees(tree_obj))
 
         for process_name in context_entry.enclosed_processes:
             process_obj = context.process_context[process_name]

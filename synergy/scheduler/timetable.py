@@ -44,7 +44,7 @@ class Timetable(object):
         trees = dict()
         for tree_name, context_entry in context.timetable_context.items():
             _, tree_klass, _ = get_class(context_entry.tree_classname)
-            tree = tree_klass(*context_entry.enclosed_processes,
+            tree = tree_klass(process_entries=context_entry.enclosed_processes,
                               full_name=tree_name,
                               mx_name=context_entry.mx_name,
                               mx_page=context_entry.mx_page)
