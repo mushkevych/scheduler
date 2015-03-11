@@ -7,6 +7,9 @@ QUALIFIER_DAILY = '_daily'
 QUALIFIER_MONTHLY = '_monthly'
 QUALIFIER_YEARLY = '_yearly'
 
+
+# following dict is used by ProcessHierarchy
+# for ordering ProcessEntries based on their time_qualifier
 QUALIFIER_DICT = {
     QUALIFIER_YEARLY: 1000,
     QUALIFIER_MONTHLY: 900,

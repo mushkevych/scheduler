@@ -8,14 +8,15 @@ from constants import PROCESS_SITE_HOURLY, TOKEN_SITE
 from synergy.scheduler.tree_node import LinearNode
 from synergy.scheduler.tree import MultiLevelTree
 from synergy.conf import settings
+from synergy.conf import context
 
 
 class TestTwoLevelTree(unittest.TestCase):
     def setUp(self):
         self.initial_actual_timeperiod = time_helper.actual_timeperiod
         self.initial_synergy_start_time = settings.settings['synergy_start_timeperiod']
-        self.tree = MultiLevelTree(process_entries=[PROCESS_SITE_HOURLY], node_klass=LinearNode,
-                                   mx_name=TOKEN_SITE, mx_page='some_mx_page')
+        self.tree = MultiLevelTree(process_entries=[context.process_context[PROCESS_SITE_HOURLY]],
+                                   node_klass=LinearNode, mx_name=TOKEN_SITE, mx_page='some_mx_page')
 
     def tearDown(self):
         del self.tree

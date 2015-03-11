@@ -254,7 +254,7 @@ class MultiLevelTree(AbstractTree):
         if process_name not in self.process_hierarchy:
             raise ValueError('unable to retrieve the node due to unknown process: %s' % process_name)
 
-        time_qualifier = self.process_hierarchy[process_name].time_qualifier
+        time_qualifier = self.process_hierarchy[process_name].process_entry.time_qualifier
         return self._get_node(time_qualifier, timeperiod)
 
     def validate(self):
