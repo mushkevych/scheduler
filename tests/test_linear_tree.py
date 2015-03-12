@@ -4,14 +4,14 @@ import unittest
 
 from tests import base_fixtures
 from synergy.system import time_helper
-from synergy.system.time_qualifier import QUALIFIER_HOURLY, QUALIFIER_DAILY
-from constants import PROCESS_SITE_HOURLY, PROCESS_SITE_DAILY, TOKEN_SITE
-from synergy.scheduler.tree_node import TreeNode, AbstractNode
+from synergy.system.time_qualifier import QUALIFIER_HOURLY
+from constants import PROCESS_SITE_HOURLY, TOKEN_SITE
+from synergy.scheduler.tree_node import LinearNode
 from synergy.scheduler.tree import MultiLevelTree
 from synergy.conf import settings
 
 
-class TestTwoLevelTree(unittest.TestCase):
+class TestLinearTree(unittest.TestCase):
     def setUp(self):
         self.initial_actual_timeperiod = time_helper.actual_timeperiod
         self.initial_synergy_start_time = settings.settings['synergy_start_timeperiod']
@@ -19,8 +19,8 @@ class TestTwoLevelTree(unittest.TestCase):
         self.actual_timeperiod = time_helper.actual_timeperiod(QUALIFIER_HOURLY)
         settings.settings['synergy_start_timeperiod'] = self.actual_timeperiod
 
-        self.tree = MultiLevelTree(process_names=[PROCESS_SITE_HOURLY, PROCESS_SITE_DAILY],
-                                   node_klass=TreeNode, mx_name=TOKEN_SITE, mx_page='some_mx_page')
+        self.tree = MultiLevelTree(process_names=[PROCESS_SITE_HOURLY],
+                                   node_klass=LinearNode, mx_name=TOKEN_SITE, mx_page='some_mx_page')
 
     def tearDown(self):
         del self.tree
@@ -31,33 +31,23 @@ class TestTwoLevelTree(unittest.TestCase):
         self.tree.build_tree()
         self.assertEqual(len(self.tree.root.children), 1)
 
-        hourly_timeperiod = time_helper.actual_timeperiod(QUALIFIER_HOURLY)
-        daily_timeperiod = time_helper.actual_timeperiod(QUALIFIER_DAILY)
-        self.assertIn(daily_timeperiod, self.tree.root.children)
-
-        daily_node = self.tree.root.children[daily_timeperiod]
-        self.assertIn(hourly_timeperiod, daily_node.children)
-        self.assertEqual(daily_node.timeperiod, daily_timeperiod)
-        self.assertEqual(daily_node.children[hourly_timeperiod].timeperiod, hourly_timeperiod)
+        actual_timeperiod = time_helper.actual_timeperiod(QUALIFIER_HOURLY)
+        self.assertIn(actual_timeperiod, self.tree.root.children)
+        self.assertEqual(self.tree.root.children[actual_timeperiod].timeperiod, actual_timeperiod)
 
     def _perform_assertions(self, start_timeperiod, delta):
-        def calculate_leafs(tree_node):
-            assert isinstance(tree_node, AbstractNode)
-            if not tree_node.children:
-                # node is the leaf
-                return 1
+        self.assertEqual(len(self.tree.root.children), delta + 1,
+                         'Expected number of child nodes was %d, while actual is %d'
+                         % (delta + 1, len(self.tree.root.children)))
 
-            counter = 0
-            for child_timeperiod, child_node in tree_node.children.items():
-                counter += calculate_leafs(child_node)
-            return counter
-
-        number_of_leafs = calculate_leafs(self.tree.root)
-        self.assertEqual(number_of_leafs, delta + 1, 'Expected number of leaf nodes was %d, while actual is %d'
-                         % (delta + 1, number_of_leafs))
+        loop_timeperiod = start_timeperiod
+        for _ in range(delta + 1):
+            self.assertIn(loop_timeperiod, self.tree.root.children)
+            self.assertEqual(self.tree.root.children[loop_timeperiod].timeperiod, loop_timeperiod)
+            loop_timeperiod = time_helper.increment_timeperiod(QUALIFIER_HOURLY, loop_timeperiod)
 
     def test_less_simple_build_tree(self):
-        delta = 105
+        delta = 5
         new_synergy_start_time = base_fixtures.wind_the_time(QUALIFIER_HOURLY,
                                                              self.actual_timeperiod,
                                                              -delta)

@@ -9,27 +9,24 @@ from constants import TOKEN_SITE, TOKEN_CLIENT, PROCESS_SITE_YEARLY, PROCESS_SIT
     PROCESS_SITE_DAILY, PROCESS_SITE_HOURLY, PROCESS_CLIENT_MONTHLY
 from synergy.system import time_helper
 from synergy.scheduler.tree_node import AbstractNode
-from synergy.scheduler.tree import FourLevelTree, TwoLevelTree
+from synergy.scheduler.tree import MultiLevelTree
 from synergy.system.time_qualifier import *
 
 
 class TestTreeNode(unittest.TestCase):
-
     @classmethod
     def setUpClass(cls):
         super(TestTreeNode, cls).setUpClass()
 
     def setUp(self):
-        self.tree_four_level = FourLevelTree(PROCESS_SITE_YEARLY,
-                                             PROCESS_SITE_MONTHLY,
-                                             PROCESS_SITE_DAILY,
-                                             PROCESS_SITE_HOURLY,
-                                             TOKEN_SITE,
-                                             'some_mx_page')
+        self.tree_four_level = MultiLevelTree(process_names=[PROCESS_SITE_YEARLY,
+                                                             PROCESS_SITE_MONTHLY,
+                                                             PROCESS_SITE_DAILY,
+                                                             PROCESS_SITE_HOURLY],
+                                              full_name=TOKEN_SITE)
 
-        self.tree_two_level = TwoLevelTree(PROCESS_CLIENT_MONTHLY,
-                                           TOKEN_CLIENT,
-                                           'some_mx_page')
+        self.tree_two_level = MultiLevelTree(process_names=[PROCESS_CLIENT_MONTHLY],
+                                             full_name=TOKEN_CLIENT)
 
     def tearDown(self):
         del self.tree_four_level

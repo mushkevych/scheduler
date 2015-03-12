@@ -94,7 +94,7 @@ class ContinuousSMUnitTest(unittest.TestCase):
         manual_uow = create_unit_of_work(PROCESS_SITE_HOURLY, 0, 1, None)
 
         when(self.uow_dao_mocked).get_one(any(str)).thenReturn(manual_uow)
-        when(self.time_table_mocked).can_finalize_job_record(any(str), any(Job)).thenReturn(True)
+        when(self.time_table_mocked).is_healthy_job_record(any(str), any(Job)).thenReturn(True)
 
         self.sm_real.insert_and_publish_uow = then_return_duplicate_uow
         sm_spy = spy(self.sm_real)
@@ -104,7 +104,7 @@ class ContinuousSMUnitTest(unittest.TestCase):
 
     def test_preset_timeperiod_state_in_progress(self):
         """ method tests job records in STATE_IN_PROGRESS state"""
-        when(self.time_table_mocked).can_finalize_job_record(any(str), any(Job)).thenReturn(True)
+        when(self.time_table_mocked).is_healthy_job_record(any(str), any(Job)).thenReturn(True)
         when(self.uow_dao_mocked).get_one(any()). \
             thenReturn(create_unit_of_work(PROCESS_SITE_HOURLY, 1, 1, None, unit_of_work.STATE_REQUESTED)). \
             thenReturn(create_unit_of_work(PROCESS_SITE_HOURLY, 1, 1, None, unit_of_work.STATE_PROCESSED))
@@ -124,7 +124,7 @@ class ContinuousSMUnitTest(unittest.TestCase):
 
     def test_transfer_to_final_state_from_in_progress(self):
         """ method tests job records in STATE_IN_PROGRESS state"""
-        when(self.time_table_mocked).can_finalize_job_record(any(str), any(Job)).thenReturn(True)
+        when(self.time_table_mocked).is_healthy_job_record(any(str), any(Job)).thenReturn(True)
         when(self.uow_dao_mocked).get_one(any()). \
             thenReturn(create_unit_of_work(PROCESS_SITE_HOURLY, 1, 1, None, unit_of_work.STATE_REQUESTED)). \
             thenReturn(create_unit_of_work(PROCESS_SITE_HOURLY, 1, 1, None, unit_of_work.STATE_PROCESSED))

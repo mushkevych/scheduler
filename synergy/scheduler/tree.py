@@ -65,7 +65,7 @@ class MultiLevelTree(AbstractTree):
     """ Multi-level Tree, suited to host both single Process Entry
         or multiple hierarchy-organized Process Entries """
 
-    def __init__(self, process_entries, node_klass=TreeNode, full_name=None, mx_name=None, mx_page=None):
+    def __init__(self, process_names, node_klass=TreeNode, full_name=None, mx_name=None, mx_page=None):
         """
         :param node_klass: descendant of the AbstractNode class, used for instantiating tree nodes
         :param full_name <optional>: full name of the tree. used as an identifier
@@ -73,7 +73,7 @@ class MultiLevelTree(AbstractTree):
         :param mx_page <optional>: is used by MX only as anchor to specific page
         """
         super(MultiLevelTree, self).__init__()
-        self.process_hierarchy = ProcessHierarchy(*process_entries)
+        self.process_hierarchy = ProcessHierarchy(*process_names)
 
         self.build_timeperiod = None
         self.validation_timestamp = None

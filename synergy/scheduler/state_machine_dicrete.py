@@ -64,14 +64,14 @@ class StateMachineDiscrete(AbstractStateMachine):
         time_qualifier = context.process_context[process_name].time_qualifier
         end_timeperiod = time_helper.increment_timeperiod(time_qualifier, start_timeperiod)
         actual_timeperiod = time_helper.actual_timeperiod(time_qualifier)
-        can_finalize_job_record = self.timetable.can_finalize_job_record(process_name, job_record)
+        is_job_healthy = self.timetable.is_healthy_job_record(process_name, job_record)
         uow = self.uow_dao.get_one(job_record.related_unit_of_work)
         iteration = int(uow.end_id)
 
-        if start_timeperiod == actual_timeperiod or can_finalize_job_record is False:
+        if start_timeperiod == actual_timeperiod or is_job_healthy is False:
             _process_state(job.STATE_IN_PROGRESS, uow)
 
-        elif start_timeperiod < actual_timeperiod and can_finalize_job_record is True:
+        elif start_timeperiod < actual_timeperiod and is_job_healthy is True:
             _process_state(job.STATE_FINAL_RUN, uow)
 
         else:

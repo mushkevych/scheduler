@@ -3,8 +3,8 @@ __author__ = 'Bohdan Mushkevych'
 import unittest
 
 from synergy.system.time_qualifier import *
-from context import PROCESS_SITE_HOURLY, PROCESS_SITE_DAILY, PROCESS_SITE_MONTHLY, PROCESS_SITE_YEARLY
-from synergy.conf import context
+from context import PROCESS_SITE_HOURLY, PROCESS_SITE_DAILY, PROCESS_SITE_MONTHLY, PROCESS_SITE_YEARLY, \
+    PROCESS_BASH_DRIVER
 from synergy.scheduler.process_hierarchy import ProcessHierarchy
 
 
@@ -27,11 +27,7 @@ class TestProcessHierarchy(unittest.TestCase):
             self.assertTrue(hierarchy.has_qualifier(qualifier))
 
     def test_four_level(self):
-        hourly = context.process_context[PROCESS_SITE_HOURLY]
-        daily = context.process_context[PROCESS_SITE_DAILY]
-        monthly = context.process_context[PROCESS_SITE_MONTHLY]
-        yearly = context.process_context[PROCESS_SITE_YEARLY]
-        hierarchy = ProcessHierarchy(hourly, yearly, monthly, daily)
+        hierarchy = ProcessHierarchy(PROCESS_SITE_HOURLY, PROCESS_SITE_YEARLY, PROCESS_SITE_MONTHLY, PROCESS_SITE_DAILY)
 
         process_name_desc = [PROCESS_SITE_YEARLY, PROCESS_SITE_MONTHLY, PROCESS_SITE_DAILY, PROCESS_SITE_HOURLY]
         time_qualifier_desc = [QUALIFIER_YEARLY, QUALIFIER_MONTHLY, QUALIFIER_DAILY, QUALIFIER_HOURLY]
@@ -40,10 +36,7 @@ class TestProcessHierarchy(unittest.TestCase):
                                  PROCESS_SITE_YEARLY, PROCESS_SITE_HOURLY)
 
     def test_three_level(self):
-        hourly = context.process_context[PROCESS_SITE_HOURLY]
-        daily = context.process_context[PROCESS_SITE_DAILY]
-        monthly = context.process_context[PROCESS_SITE_MONTHLY]
-        hierarchy = ProcessHierarchy(hourly, monthly, daily)
+        hierarchy = ProcessHierarchy(PROCESS_SITE_HOURLY, PROCESS_SITE_MONTHLY, PROCESS_SITE_DAILY)
 
         process_name_desc = [PROCESS_SITE_MONTHLY, PROCESS_SITE_DAILY, PROCESS_SITE_HOURLY]
         time_qualifier_desc = [QUALIFIER_MONTHLY, QUALIFIER_DAILY, QUALIFIER_HOURLY]
@@ -52,9 +45,7 @@ class TestProcessHierarchy(unittest.TestCase):
                                  PROCESS_SITE_MONTHLY, PROCESS_SITE_HOURLY)
 
     def test_two_level(self):
-        hourly = context.process_context[PROCESS_SITE_HOURLY]
-        daily = context.process_context[PROCESS_SITE_DAILY]
-        hierarchy = ProcessHierarchy(hourly, daily)
+        hierarchy = ProcessHierarchy(PROCESS_SITE_HOURLY, PROCESS_SITE_DAILY)
 
         process_name_desc = [PROCESS_SITE_DAILY, PROCESS_SITE_HOURLY]
         time_qualifier_desc = [QUALIFIER_DAILY, QUALIFIER_HOURLY]
@@ -63,8 +54,7 @@ class TestProcessHierarchy(unittest.TestCase):
                                  PROCESS_SITE_DAILY, PROCESS_SITE_HOURLY)
 
     def test_one_level(self):
-        daily = context.process_context[PROCESS_SITE_DAILY]
-        hierarchy = ProcessHierarchy(daily)
+        hierarchy = ProcessHierarchy(PROCESS_SITE_DAILY)
 
         process_name_desc = [PROCESS_SITE_DAILY]
         time_qualifier_desc = [QUALIFIER_DAILY]
@@ -73,15 +63,20 @@ class TestProcessHierarchy(unittest.TestCase):
                                  PROCESS_SITE_DAILY, PROCESS_SITE_DAILY)
 
     def test_mix(self):
-        hourly = context.process_context[PROCESS_SITE_HOURLY]
-        yearly = context.process_context[PROCESS_SITE_YEARLY]
-        hierarchy = ProcessHierarchy(hourly, yearly)
+        hierarchy = ProcessHierarchy(PROCESS_SITE_HOURLY, PROCESS_SITE_YEARLY)
 
         process_name_desc = [PROCESS_SITE_YEARLY, PROCESS_SITE_HOURLY]
         time_qualifier_desc = [QUALIFIER_YEARLY, QUALIFIER_HOURLY]
 
         self._perform_assertions(hierarchy, process_name_desc, time_qualifier_desc,
                                  PROCESS_SITE_YEARLY, PROCESS_SITE_HOURLY)
+
+    def test_invalid_process_name(self):
+        try:
+            ProcessHierarchy(PROCESS_BASH_DRIVER, PROCESS_SITE_HOURLY)
+            self.assertTrue(False, 'AttributeError should have been thrown for improper hierarchical process')
+        except AttributeError:
+            self.assertTrue(True, 'AttributeError was expected and caught')
 
 
 if __name__ == '__main__':

@@ -92,10 +92,10 @@ class StateMachineContinuous(AbstractStateMachine):
         time_qualifier = context.process_context[process_name].time_qualifier
         end_timeperiod = time_helper.increment_timeperiod(time_qualifier, start_timeperiod)
         actual_timeperiod = time_helper.actual_timeperiod(time_qualifier)
-        can_finalize_job_record = self.timetable.can_finalize_job_record(process_name, job_record)
+        is_job_healthy = self.timetable.is_healthy_job_record(process_name, job_record)
         uow = self.uow_dao.get_one(job_record.related_unit_of_work)
 
-        if start_timeperiod == actual_timeperiod or can_finalize_job_record is False:
+        if start_timeperiod == actual_timeperiod or is_job_healthy is False:
             if uow.state in [unit_of_work.STATE_INVALID, unit_of_work.STATE_REQUESTED]:
                 # current uow has not been processed yet. update it
                 self.update_scope_of_processing(process_name, uow, start_timeperiod, end_timeperiod)
@@ -104,7 +104,7 @@ class StateMachineContinuous(AbstractStateMachine):
                 # create new uow to cover new inserts
                 self._compute_and_transfer_to_progress(process_name, start_timeperiod, end_timeperiod, job_record)
 
-        elif start_timeperiod < actual_timeperiod and can_finalize_job_record is True:
+        elif start_timeperiod < actual_timeperiod and is_job_healthy is True:
             # create new uow for FINAL RUN
             self._compute_and_transfer_to_final_run(process_name, start_timeperiod, end_timeperiod, job_record)
 

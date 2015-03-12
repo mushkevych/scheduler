@@ -31,16 +31,16 @@ class StateMachineSimpleDiscrete(StateMachineDiscrete):
 
         time_qualifier = context.process_context[uow.process_name].time_qualifier
         actual_timeperiod = time_helper.actual_timeperiod(time_qualifier)
-        can_finalize_job_record = self.timetable.can_finalize_job_record(uow.process_name, job_record)
+        is_job_healthy = self.timetable.is_healthy_job_record(uow.process_name, job_record)
 
-        if uow.timeperiod < actual_timeperiod and can_finalize_job_record is True:
+        if uow.timeperiod < actual_timeperiod and is_job_healthy is True:
             self.__process_finalizable_job(uow.process_name, job_record, uow)
 
         elif uow.timeperiod >= actual_timeperiod:
             self.logger.info('Can not complete shallow status update for %s in timeperiod %s '
                              'since the working timeperiod has not finished yet' % (uow.process_name, uow.timeperiod))
 
-        elif not can_finalize_job_record:
+        elif not is_job_healthy:
             self.logger.info('Can not complete shallow status update for %s in timeperiod %s '
                              'since the job could not be finalized' % (uow.process_name, uow.timeperiod))
 
@@ -91,13 +91,13 @@ class StateMachineSimpleDiscrete(StateMachineDiscrete):
         time_qualifier = context.process_context[process_name].time_qualifier
         end_timeperiod = time_helper.increment_timeperiod(time_qualifier, start_timeperiod)
         actual_timeperiod = time_helper.actual_timeperiod(time_qualifier)
-        can_finalize_job_record = self.timetable.can_finalize_job_record(process_name, job_record)
+        is_job_healthy = self.timetable.is_healthy_job_record(process_name, job_record)
         uow = self.uow_dao.get_one(job_record.related_unit_of_work)
 
-        if start_timeperiod == actual_timeperiod or can_finalize_job_record is False:
+        if start_timeperiod == actual_timeperiod or is_job_healthy is False:
             self.__process_non_finalizable_job(process_name, job_record, uow, start_timeperiod, end_timeperiod)
 
-        elif start_timeperiod < actual_timeperiod and can_finalize_job_record is True:
+        elif start_timeperiod < actual_timeperiod and is_job_healthy is True:
             self.__process_finalizable_job(process_name, job_record, uow)
 
         else:

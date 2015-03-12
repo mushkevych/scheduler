@@ -2,6 +2,7 @@ __author__ = 'Bohdan Mushkevych'
 
 from collections import OrderedDict
 
+from synergy.conf import context
 from synergy.db.model.managed_process_entry import ManagedProcessEntry
 from synergy.system.time_qualifier import *
 from synergy.system.time_helper import cast_to_time_qualifier
@@ -18,11 +19,13 @@ class HierarchyEntry(object):
 
 
 class ProcessHierarchy(object):
-    def __init__(self, *process_entries):
+    def __init__(self, *process_names):
         self.entries = OrderedDict()
         self.qualifiers = OrderedDict()
 
         top_node = None
+        process_entries = [context.process_context[process_name] for process_name in process_names]
+
         sorted_process_entries = sorted(process_entries, key=lambda x: QUALIFIER_DICT[x.time_qualifier], reverse=True)
         for process_entry in sorted_process_entries:
             assert isinstance(process_entry, ManagedProcessEntry)
@@ -58,14 +61,14 @@ class ProcessHierarchy(object):
     def has_qualifier(self, qualifier):
         """
         :param qualifier: time_qualifier
-        :return: True if a process_entry with given time_qualifier is registered in this hierarchy; False otherwise
+        :return: True if a HierarchyEntry with given time_qualifier is registered in this hierarchy; False otherwise
         """
         return qualifier in self.qualifiers
 
     def get_by_qualifier(self, qualifier):
         """
         :param qualifier: time_qualifier of the searched process
-        :return: associated process_entry of ManagedProcessEntry type
+        :return: associated entry of HierarchyEntry type
                 or None if no process with given time_qualifier is registered in this hierarchy
         """
         return self.qualifiers.get(qualifier, None)

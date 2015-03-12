@@ -44,7 +44,7 @@ class Timetable(object):
         trees = dict()
         for tree_name, context_entry in context.timetable_context.items():
             _, tree_klass, _ = get_class(context_entry.tree_classname)
-            tree = tree_klass(process_entries=context_entry.enclosed_processes,
+            tree = tree_klass(process_names=context_entry.enclosed_processes,
                               full_name=tree_name,
                               mx_name=context_entry.mx_name,
                               mx_page=context_entry.mx_page)
@@ -311,7 +311,7 @@ class Timetable(object):
         """ :return True, if the node and all its children are either in STATE_PROCESSED or STATE_SKIPPED"""
         tree = self.get_tree(process_name)
         node = tree.get_node(process_name, job_record.timeperiod)
-        return node.can_finalize_job_record()
+        return node.is_healthy_job_record()
 
     @thread_safe
     def add_log_entry(self, process_name, timeperiod, msg):

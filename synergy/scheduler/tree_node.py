@@ -48,8 +48,9 @@ class AbstractNode(object):
             # function signature: tree_node
             function(self)
 
-    def can_finalize_job_record(self):
-        """ method checks all children of the node, and if any is _not_ finalized - refuses to finalize the node """
+    def is_healthy_job_record(self):
+        """ method checks if the job record associated with the node is healthy:
+        i.e: all the """
         pass
 
     def validate(self):
@@ -74,42 +75,18 @@ class AbstractNode(object):
         :return: TreeNode from tree_b that has the same timeperiod as the node_a, or None if no counterpart ware found
         """
 
-        def match_time_qualifier(time_qualifier, candidate_process_name):
-            """ :return: True if candidate_process has the same time qualifier as given """
-            if candidate_process_name is None:
-                return False
-            candidate_qualifier = context.process_context[candidate_process_name].time_qualifier
-            return time_qualifier == candidate_qualifier
-
-        tree_b_process_yearly = getattr(tree_b, 'process_yearly', None)
-        tree_b_process_monthly = getattr(tree_b, 'process_monthly', None)
-        tree_b_process_daily = getattr(tree_b, 'process_daily', None)
-        tree_b_process_hourly = getattr(tree_b, 'process_hourly', None)
-        tree_b_process_linear = getattr(tree_b, 'process_name', None)
-
-        if match_time_qualifier(node_a.time_qualifier, tree_b_process_yearly):
-            tree_b_process_name = tree_b_process_yearly
-        elif match_time_qualifier(node_a.time_qualifier, tree_b_process_monthly):
-            tree_b_process_name = tree_b_process_monthly
-        elif match_time_qualifier(node_a.time_qualifier, tree_b_process_daily):
-            tree_b_process_name = tree_b_process_daily
-        elif match_time_qualifier(node_a.time_qualifier, tree_b_process_hourly):
-            tree_b_process_name = tree_b_process_hourly
-        elif match_time_qualifier(node_a.time_qualifier, tree_b_process_linear):
-            tree_b_process_name = tree_b_process_linear
-        else:
+        tree_b_hierarchy_entry = tree_b.process_hierarchy.get_by_qualifier(node_a.time_qualifier)
+        if not tree_b_hierarchy_entry:
             # special case when tree with more levels depends on the tree with smaller amount of levels
             # for example ThreeLevel Financial tree depends on TwoLevel Google Channel
             # in this case - we just verify time-periods that matches in both trees;
             # for levels that have no match, we assume that dependency does not exists
             # for example Financial Monthly has no counterpart in Google Daily Report -
             # so we assume that its not blocked
-            tree_b_process_name = None
-
-        if tree_b_process_name is not None:
-            node_b = tree_b.get_node(tree_b_process_name, node_a.timeperiod)
-        else:
             node_b = None
+        else:
+            node_b = tree_b.get_node(tree_b_hierarchy_entry.process_entry.process_name, node_a.timeperiod)
+
         return node_b
 
     def dependent_on_composite_state(self):
@@ -152,17 +129,17 @@ class LinearNode(AbstractNode):
     def __init__(self, tree, parent, process_name, timeperiod, job_record):
         super(LinearNode, self).__init__(tree, parent, process_name, timeperiod, job_record)
 
-    def can_finalize_job_record(self):
+    def is_healthy_job_record(self):
         """ method checks the if this particular node can be finalized: i.e. all dependents are finalized
             and node itself is satisfying success criteria """
         if self.parent is None:
             # this is root node
             return False
 
-        all_finalized, all_processed, all_active, skipped_present = self.dependent_on_composite_state()
-        if not all_finalized:
-            return False
-
+        # all_finalized, all_processed, all_active, skipped_present = self.dependent_on_composite_state()
+        # if not all_finalized:
+        #     return False
+        #
         if self.job_record is None:
             self.request_embryo_job_record()
 
@@ -179,21 +156,20 @@ class TreeNode(AbstractNode):
     def __init__(self, tree, parent, process_name, timeperiod, job_record):
         super(TreeNode, self).__init__(tree, parent, process_name, timeperiod, job_record)
 
-    def can_finalize_job_record(self):
+    def is_healthy_job_record(self):
         """method checks:
          - all counterpart of this node in dependent_on trees, if they all are finalized
          - all children of the node, and if any is _not_ finalized - refuses to finalize the node"""
 
-        all_finalized, all_processed, all_active, skipped_present = self.dependent_on_composite_state()
-        if not all_finalized:
-            return False
-
+        # all_finalized, all_processed, all_active, skipped_present = self.dependent_on_composite_state()
+        # if not all_finalized:
+        #     return False
+        #
         if self.job_record is None:
             self.request_embryo_job_record()
 
         children_processed = True
-        for timeperiod in self.children:
-            child = self.children[timeperiod]
+        for _, child in self.children.items():
             if child.job_record.state in [job.STATE_FINAL_RUN, job.STATE_IN_PROGRESS, job.STATE_EMBRYO]:
                 children_processed = False
                 break

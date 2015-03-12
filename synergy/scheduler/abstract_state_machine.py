@@ -128,11 +128,11 @@ class AbstractStateMachine(object):
     def manage_job_with_blocking_children(self, process_name, job_record, run_on_active_timeperiod):
         """ method will trigger job processing only if all children are in STATE_PROCESSED or STATE_SKIPPED
          and if all external dependencies are finalized (i.e. in STATE_PROCESSED or STATE_SKIPPED) """
-        green_light = self.timetable.can_finalize_job_record(process_name, job_record)
+        is_job_healthy = self.timetable.is_healthy_job_record(process_name, job_record)
         all_finalized, all_processed, all_active, skipped_present = \
             self.timetable.dependent_on_composite_state(process_name, job_record)
 
-        if green_light:
+        if is_job_healthy:
             self.manage_job(process_name, job_record)
         elif all_active and run_on_active_timeperiod:
             self.manage_job(process_name, job_record)
