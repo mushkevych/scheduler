@@ -65,9 +65,8 @@ class MultiLevelTree(AbstractTree):
     """ Multi-level Tree, suited to host both single Process Entry
         or multiple hierarchy-organized Process Entries """
 
-    def __init__(self, process_names, node_klass=TreeNode, full_name=None, mx_name=None, mx_page=None):
+    def __init__(self, process_names, full_name=None, mx_name=None, mx_page=None):
         """
-        :param node_klass: descendant of the AbstractNode class, used for instantiating tree nodes
         :param full_name <optional>: full name of the tree. used as an identifier
         :param mx_name <optional>: is used by MX only as visual vertical name
         :param mx_page <optional>: is used by MX only as anchor to specific page
@@ -80,8 +79,7 @@ class MultiLevelTree(AbstractTree):
         self.full_name = full_name
         self.mx_name = mx_name
         self.mx_page = mx_page
-        self.node_klass = node_klass
-        self.root = self.node_klass(self, None, None, None, None)
+        self.root = TreeNode(self, None, None, None, None)
 
     def __contains__(self, value):
         """
@@ -153,7 +151,7 @@ class MultiLevelTree(AbstractTree):
 
         node = parent.children.get(timeperiod)
         if node is None:
-            node = self.node_klass(self, parent, hierarchy_entry.process_entry.process_name, timeperiod, None)
+            node = TreeNode(self, parent, hierarchy_entry.process_entry.process_name, timeperiod, None)
             parent.children[timeperiod] = node
 
         return node
@@ -164,7 +162,7 @@ class MultiLevelTree(AbstractTree):
         there in search of the next suitable node for processing
         to the level defined by the given time_qualifier
         :param time_qualifier: defines target level of the tree
-        :return: located node; type <AbstractNode>
+        :return: located node; type <TreeNode>
         """
         hierarchy_entry = self.process_hierarchy.get_by_qualifier(time_qualifier)
         if hierarchy_entry.parent:
@@ -259,7 +257,7 @@ class MultiLevelTree(AbstractTree):
 
     def validate(self):
         """method starts validation of the tree.
-        @see AbstractNode.validate"""
+        @see TreeNode.validate"""
         for timeperiod in self.root.children:
             child = self.root.children[timeperiod]
             child.validate()

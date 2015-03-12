@@ -17,7 +17,7 @@ from synergy.system.decorator import thread_safe
 from synergy.scheduler.scheduler_constants import COLLECTION_JOB_HOURLY, COLLECTION_JOB_DAILY, \
     COLLECTION_JOB_MONTHLY, COLLECTION_JOB_YEARLY
 from synergy.scheduler.tree import AbstractTree
-from synergy.scheduler.tree_node import AbstractNode
+from synergy.scheduler.tree_node import TreeNode
 
 
 class Timetable(object):
@@ -89,7 +89,7 @@ class Timetable(object):
     def _find_dependant_tree_nodes(self, node_a):
         dependant_nodes = set()
         for tree_b in self._find_dependant_trees(node_a.tree):
-            node_b = AbstractNode.find_counterpart_for(node_a, tree_b)
+            node_b = node_a.find_counterpart_in(tree_b)
             if node_b is None:
                 continue
             dependant_nodes.add(node_b)
@@ -248,13 +248,7 @@ class Timetable(object):
 
     @thread_safe
     def dependent_on_composite_state(self, process_name, job_record):
-        """
-        :return tuple (all_finalized, all_processed, all_active, skipped_present) indicating
-                all_finalized - True if all <dependent on> periods are in STATE_PROCESSED or STATE_SKIPPED
-                all_processed - True if all <dependent on> periods are in STATE_PROCESSED
-                all_active - True if all <dependent on> periods are in STATE_PROCESSED or STATE_IN_PROGRESS
-                skipped_present - True if among <dependent on> periods are some in STATE_SKIPPED
-        """
+        """ :return instance of <NodesCompositeState> """
         tree = self.get_tree(process_name)
         node = tree.get_node(process_name, job_record.timeperiod)
         return node.dependent_on_composite_state()
@@ -307,11 +301,11 @@ class Timetable(object):
         return node.job_record
 
     @thread_safe
-    def can_finalize_job_record(self, process_name, job_record):
+    def is_job_record_finalizable(self, process_name, job_record):
         """ :return True, if the node and all its children are either in STATE_PROCESSED or STATE_SKIPPED"""
         tree = self.get_tree(process_name)
         node = tree.get_node(process_name, job_record.timeperiod)
-        return node.is_healthy_job_record()
+        return node.is_finalizable()
 
     @thread_safe
     def add_log_entry(self, process_name, timeperiod, msg):

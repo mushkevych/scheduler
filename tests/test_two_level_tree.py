@@ -6,7 +6,7 @@ from tests import base_fixtures
 from synergy.system import time_helper
 from synergy.system.time_qualifier import QUALIFIER_HOURLY, QUALIFIER_DAILY
 from constants import PROCESS_SITE_HOURLY, PROCESS_SITE_DAILY, TOKEN_SITE
-from synergy.scheduler.tree_node import TreeNode, AbstractNode
+from synergy.scheduler.tree_node import TreeNode
 from synergy.scheduler.tree import MultiLevelTree
 from synergy.conf import settings
 
@@ -20,7 +20,7 @@ class TestTwoLevelTree(unittest.TestCase):
         settings.settings['synergy_start_timeperiod'] = self.actual_timeperiod
 
         self.tree = MultiLevelTree(process_names=[PROCESS_SITE_HOURLY, PROCESS_SITE_DAILY],
-                                   node_klass=TreeNode, mx_name=TOKEN_SITE, mx_page='some_mx_page')
+                                   mx_name=TOKEN_SITE, mx_page='some_mx_page')
 
     def tearDown(self):
         del self.tree
@@ -42,7 +42,7 @@ class TestTwoLevelTree(unittest.TestCase):
 
     def _perform_assertions(self, start_timeperiod, delta):
         def calculate_leafs(tree_node):
-            assert isinstance(tree_node, AbstractNode)
+            assert isinstance(tree_node, TreeNode)
             if not tree_node.children:
                 # node is the leaf
                 return 1

@@ -90,7 +90,7 @@ class DiscreteSMUnitTest(unittest.TestCase):
 
     def test_future_timeperiod_state_in_progress(self):
         """ method tests timetable records in STATE_IN_PROGRESS state"""
-        when(self.time_table_mocked).is_healthy_job_record(any(str), any(Job)).thenReturn(True)
+        when(self.time_table_mocked).is_job_record_finalizable(any(str), any(Job)).thenReturn(True)
         when(self.uow_dao_mocked).get_one(any()).thenReturn(create_unit_of_work(PROCESS_SITE_HOURLY, 0, 1, None))
 
         self.sm_real.insert_and_publish_uow = then_raise
@@ -103,7 +103,7 @@ class DiscreteSMUnitTest(unittest.TestCase):
 
     def test_preset_timeperiod_state_in_progress(self):
         """ method tests timetable records in STATE_IN_PROGRESS state"""
-        when(self.time_table_mocked).is_healthy_job_record(any(str), any(Job)).thenReturn(True)
+        when(self.time_table_mocked).is_job_record_finalizable(any(str), any(Job)).thenReturn(True)
         when(self.uow_dao_mocked).get_one(any()).thenReturn(create_unit_of_work(PROCESS_SITE_HOURLY, 0, 1, None))
 
         self.sm_real.insert_and_publish_uow = then_return_uow
@@ -118,7 +118,7 @@ class DiscreteSMUnitTest(unittest.TestCase):
 
     def test_transfer_to_final_state_from_in_progress(self):
         """ method tests timetable records in STATE_IN_PROGRESS state"""
-        when(self.time_table_mocked).is_healthy_job_record(any(str), any(Job)).thenReturn(True)
+        when(self.time_table_mocked).is_job_record_finalizable(any(str), any(Job)).thenReturn(True)
         when(self.uow_dao_mocked).get_one(any()).\
             thenReturn(create_unit_of_work(PROCESS_SITE_HOURLY, 1, 1, None, unit_of_work.STATE_PROCESSED))
 
@@ -134,7 +134,7 @@ class DiscreteSMUnitTest(unittest.TestCase):
 
     def test_retry_state_in_progress(self):
         """ method tests timetable records in STATE_IN_PROGRESS state"""
-        when(self.time_table_mocked).is_healthy_job_record(any(str), any(Job)).thenReturn(True)
+        when(self.time_table_mocked).is_job_record_finalizable(any(str), any(Job)).thenReturn(True)
         when(self.uow_dao_mocked).get_one(any()).\
             thenReturn(create_unit_of_work(PROCESS_SITE_HOURLY, 1, 1, None, unit_of_work.STATE_PROCESSED))
 

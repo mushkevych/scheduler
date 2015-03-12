@@ -1,3 +1,5 @@
+from synergy.scheduler.tree_node import NodesCompositeState
+
 __author__ = 'Bohdan Mushkevych'
 
 from datetime import datetime
@@ -128,13 +130,12 @@ class AbstractStateMachine(object):
     def manage_job_with_blocking_children(self, process_name, job_record, run_on_active_timeperiod):
         """ method will trigger job processing only if all children are in STATE_PROCESSED or STATE_SKIPPED
          and if all external dependencies are finalized (i.e. in STATE_PROCESSED or STATE_SKIPPED) """
-        is_job_healthy = self.timetable.is_healthy_job_record(process_name, job_record)
-        all_finalized, all_processed, all_active, skipped_present = \
-            self.timetable.dependent_on_composite_state(process_name, job_record)
+        is_job_finalizable = self.timetable.is_job_record_finalizable(process_name, job_record)
+        composite_state = self.timetable.dependent_on_composite_state(process_name, job_record)
 
-        if is_job_healthy:
+        if is_job_finalizable:
             self.manage_job(process_name, job_record)
-        elif all_active and run_on_active_timeperiod:
+        elif composite_state.all_healthy and run_on_active_timeperiod:
             self.manage_job(process_name, job_record)
         else:
             msg = '%s for timeperiod %r is blocked by unprocessed children/dependencies. Waiting another tick' \
@@ -144,14 +145,14 @@ class AbstractStateMachine(object):
     def manage_job_with_blocking_dependencies(self, process_name, job_record, run_on_active_timeperiod):
         """ method will trigger job processing only if _all_ dependencies are in STATE_PROCESSED
          method will transfer current job into STATE_SKIPPED if any dependency is in STATE_SKIPPED """
-        all_finalized, all_processed, all_active, skipped_present = \
-            self.timetable.dependent_on_composite_state(process_name, job_record)
+        composite_state = self.timetable.dependent_on_composite_state(process_name, job_record)
+        assert isinstance(composite_state, NodesCompositeState)
 
-        if all_processed:
+        if composite_state.all_processed:
             self.manage_job(process_name, job_record)
-        elif all_active and run_on_active_timeperiod:
+        elif composite_state.all_healthy and run_on_active_timeperiod:
             self.manage_job(process_name, job_record)
-        elif skipped_present:
+        elif composite_state.skipped_present:
             # As soon as among <dependent on> periods are in STATE_SKIPPED
             # there is very little sense in waiting for them to become STATE_PROCESSED
             # Skip this timeperiod itself
