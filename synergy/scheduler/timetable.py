@@ -17,7 +17,6 @@ from synergy.system.decorator import thread_safe
 from synergy.scheduler.scheduler_constants import COLLECTION_JOB_HOURLY, COLLECTION_JOB_DAILY, \
     COLLECTION_JOB_MONTHLY, COLLECTION_JOB_YEARLY
 from synergy.scheduler.tree import AbstractTree
-from synergy.scheduler.tree_node import TreeNode
 
 
 class Timetable(object):
@@ -205,13 +204,14 @@ class Timetable(object):
         """ method iterated thru all documents in all job collections and builds a tree of known system state"""
         try:
             unsupported_records = dict()
-            document_list = self.job_dao.get_all(collection_name, since)
-            for document in document_list:
-                tree = self.get_tree(document.process_name)
+            job_records = self.job_dao.get_all(collection_name, since)
+            for job_record in job_records:
+                tree = self.get_tree(job_record.process_name)
                 if tree is not None:
-                    tree.update_node(document.process_name, document)
+                    tree.update_node(job_record)
                 else:
-                    unsupported_records[document.process_name] = unsupported_records.get(document.process_name, 0) + 1
+                    unsupported_records[job_record.process_name] = \
+                        unsupported_records.get(job_record.process_name, 0) + 1
 
             for name, counter in unsupported_records.items():
                 self.logger.warn('Skipping %r Job records for %s as no tree is handling it.' % (counter, name))
@@ -247,15 +247,16 @@ class Timetable(object):
             tree.validate()
 
     @thread_safe
-    def dependent_on_composite_state(self, process_name, job_record):
+    def dependent_on_composite_state(self, job_record):
         """ :return instance of <NodesCompositeState> """
-        tree = self.get_tree(process_name)
-        node = tree.get_node(process_name, job_record.timeperiod)
+        assert isinstance(job_record, Job)
+        tree = self.get_tree(job_record.process_name)
+        node = tree.get_node(job_record.process_name, job_record.timeperiod)
         return node.dependent_on_composite_state()
 
     # *** Job manipulation methods ***
     @thread_safe
-    def update_job_record(self, process_name, job_record, uow, new_state):
+    def update_job_record(self, job_record, uow, new_state):
         """ method updates job record with a new unit_of_work and new state"""
         job_record.state = new_state
         job_record.related_unit_of_work = uow.db_id
@@ -263,13 +264,13 @@ class Timetable(object):
         job_record.end_id = uow.end_id
         self.job_dao.update(job_record)
 
-        tree = self.get_tree(process_name)
-        tree.update_node(process_name, job_record)
+        tree = self.get_tree(job_record.process_name)
+        tree.update_node(job_record)
 
         msg = 'Transferred job %s for %s in timeperiod %s to new state %s' \
-              % (job_record.db_id, job_record.timeperiod, process_name, new_state)
+              % (job_record.db_id, job_record.timeperiod, job_record.process_name, new_state)
         self.logger.info(msg)
-        self.add_log_entry(process_name, job_record.timeperiod, msg)
+        self.add_log_entry(job_record.process_name, job_record.timeperiod, msg)
 
     @thread_safe
     def failed_on_processing_job_record(self, process_name, timeperiod):
@@ -301,10 +302,11 @@ class Timetable(object):
         return node.job_record
 
     @thread_safe
-    def is_job_record_finalizable(self, process_name, job_record):
+    def is_job_record_finalizable(self, job_record):
         """ :return True, if the node and all its children are either in STATE_PROCESSED or STATE_SKIPPED"""
-        tree = self.get_tree(process_name)
-        node = tree.get_node(process_name, job_record.timeperiod)
+        assert isinstance(job_record, Job)
+        tree = self.get_tree(job_record.process_name)
+        node = tree.get_node(job_record.process_name, job_record.timeperiod)
         return node.is_finalizable()
 
     @thread_safe

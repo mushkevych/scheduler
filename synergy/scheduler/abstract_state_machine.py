@@ -1,11 +1,10 @@
-from synergy.db.model.job import Job
-
 __author__ = 'Bohdan Mushkevych'
 
 from datetime import datetime
 from logging import INFO, WARNING, ERROR
 
 from synergy.db.model import job
+from synergy.db.model.job import Job
 from synergy.db.error import DuplicateKeyError
 from synergy.db.dao.unit_of_work_dao import UnitOfWorkDao
 from synergy.db.dao.job_dao import JobDao
@@ -108,95 +107,95 @@ class AbstractStateMachine(object):
         :assumptions: uow is either in STATE_CANCELED or STATE_PROCESSED """
         pass
 
-    def _process_state_embryo(self, process_name, job_record, start_timeperiod):
+    def _process_state_embryo(self, job_record):
         """ method that takes care of processing job records in STATE_EMBRYO state"""
         pass
 
-    def _process_state_in_progress(self, process_name, job_record, start_timeperiod):
+    def _process_state_in_progress(self, job_record):
         """ method that takes care of processing job records in STATE_IN_PROGRESS state"""
         pass
 
-    def _process_state_final_run(self, process_name, job_record):
+    def _process_state_final_run(self, job_record):
         """method takes care of processing job records in STATE_FINAL_RUN state"""
         pass
 
-    def _process_state_skipped(self, process_name, job_record):
+    def _process_state_skipped(self, job_record):
         """method takes care of processing job records in STATE_FINAL_SKIPPED state"""
         pass
 
-    def _process_state_processed(self, process_name, job_record):
+    def _process_state_processed(self, job_record):
         """method takes care of processing job records in STATE_FINAL_SKIPPED state"""
         pass
 
-    def manage_job_with_blocking_children(self, process_name, job_record, run_on_active_timeperiod):
+    def manage_job_with_blocking_children(self, job_record, run_on_active_timeperiod):
         """ method will trigger job processing only if all children are in STATE_PROCESSED or STATE_SKIPPED
          and if all external dependencies are finalized (i.e. in STATE_PROCESSED or STATE_SKIPPED) """
-        is_job_finalizable = self.timetable.is_job_record_finalizable(process_name, job_record)
-        composite_state = self.timetable.dependent_on_composite_state(process_name, job_record)
+        is_job_finalizable = self.timetable.is_job_record_finalizable(job_record)
+        composite_state = self.timetable.dependent_on_composite_state(job_record)
 
         if is_job_finalizable:
-            self.manage_job(process_name, job_record)
+            self.manage_job(job_record)
         elif composite_state.all_healthy and run_on_active_timeperiod:
-            self.manage_job(process_name, job_record)
+            self.manage_job(job_record)
         else:
             msg = '%s for timeperiod %r is blocked by unprocessed children/dependencies. Waiting another tick' \
-                  % (process_name, job_record.timeperiod)
-            self._log_message(INFO, process_name, job_record.timeperiod, msg)
+                  % (job_record.process_name, job_record.timeperiod)
+            self._log_message(INFO, job_record.process_name, job_record.timeperiod, msg)
 
-    def manage_job_with_blocking_dependencies(self, process_name, job_record, run_on_active_timeperiod):
+    def manage_job_with_blocking_dependencies(self, job_record, run_on_active_timeperiod):
         """ method will trigger job processing only if _all_ dependencies are in STATE_PROCESSED
          method will transfer current job into STATE_SKIPPED if any dependency is in STATE_SKIPPED """
-        composite_state = self.timetable.dependent_on_composite_state(process_name, job_record)
+        composite_state = self.timetable.dependent_on_composite_state(job_record)
         assert isinstance(composite_state, NodesCompositeState)
 
         if composite_state.all_processed:
-            self.manage_job(process_name, job_record)
+            self.manage_job(job_record)
         elif composite_state.all_healthy and run_on_active_timeperiod:
-            self.manage_job(process_name, job_record)
+            self.manage_job(job_record)
         elif composite_state.skipped_present:
             # As soon as among <dependent on> periods are in STATE_SKIPPED
             # there is very little sense in waiting for them to become STATE_PROCESSED
             # Skip this timeperiod itself
             job_record.state = job.STATE_SKIPPED
             self.job_dao.update(job_record)
-            tree = self.timetable.get_tree(process_name)
-            tree.update_node(process_name, job_record)
+            tree = self.timetable.get_tree(job_record.process_name)
+            tree.update_node(job_record)
 
             msg = '%s for timeperiod %r is blocked by STATE_SKIPPED dependencies. ' \
-                  'Transferred the job to STATE_SKIPPED' % (process_name, job_record.timeperiod)
-            self._log_message(WARNING, process_name, job_record.timeperiod, msg)
+                  'Transferred the job to STATE_SKIPPED' % (job_record.process_name, job_record.timeperiod)
+            self._log_message(WARNING, job_record.process_name, job_record.timeperiod, msg)
         else:
             msg = '%s for timeperiod %r is blocked by unprocessed dependencies. Waiting another tick' \
-                  % (process_name, job_record.timeperiod)
-            self._log_message(INFO, process_name, job_record.timeperiod, msg)
+                  % (job_record.process_name, job_record.timeperiod)
+            self._log_message(INFO, job_record.process_name, job_record.timeperiod, msg)
 
-    def manage_job(self, process_name, job_record):
+    def manage_job(self, job_record):
         """ method main duty - is to _avoid_ publishing another unit_of_work, if previous was not yet processed
         In case the Scheduler sees that the unit_of_work is pending it could either update boundaries of the processing
         or wait another tick """
         assert isinstance(job_record, Job)
         try:
             if job_record.is_embryo:
-                self._process_state_embryo(process_name, job_record, job_record.timeperiod)
+                self._process_state_embryo(job_record)
 
             elif job_record.is_in_progress:
-                self._process_state_in_progress(process_name, job_record, job_record.timeperiod)
+                self._process_state_in_progress(job_record)
 
             elif job_record.is_final_run:
-                self._process_state_final_run(process_name, job_record)
+                self._process_state_final_run(job_record)
 
             elif job_record.is_skipped:
-                self._process_state_skipped(process_name, job_record)
+                self._process_state_skipped(job_record)
 
             elif job_record.is_processed:
-                self._process_state_processed(process_name, job_record)
+                self._process_state_processed(job_record)
 
             else:
                 msg = 'Unknown state %s of the job %s' % (job_record.state, job_record.db_id)
-                self._log_message(ERROR, process_name, job_record.timeperiod, msg)
+                self._log_message(ERROR, job_record.process_name, job_record.timeperiod, msg)
 
         except LookupError as e:
-            self.timetable.failed_on_processing_job_record(process_name, job_record.timeperiod)
+            self.timetable.failed_on_processing_job_record(job_record.process_name, job_record.timeperiod)
             msg = 'Increasing fail counter for %s in timeperiod %s, because of: %r' \
-                  % (process_name, job_record.timeperiod, e)
-            self._log_message(WARNING, process_name, job_record.timeperiod, msg)
+                  % (job_record.process_name, job_record.timeperiod, e)
+            self._log_message(WARNING, job_record.process_name, job_record.timeperiod, msg)

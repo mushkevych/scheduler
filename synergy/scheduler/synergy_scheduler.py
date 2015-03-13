@@ -168,11 +168,11 @@ class Scheduler(SynergyProcess):
 
             blocking_type = process_entry.blocking_type
             if blocking_type == BLOCKING_DEPENDENCIES:
-                state_machine.manage_job_with_blocking_dependencies(process_name, job_record, run_on_active_timeperiod)
+                state_machine.manage_job_with_blocking_dependencies(job_record, run_on_active_timeperiod)
             elif blocking_type == BLOCKING_CHILDREN:
-                state_machine.manage_job_with_blocking_children(process_name, job_record, run_on_active_timeperiod)
+                state_machine.manage_job_with_blocking_children(job_record, run_on_active_timeperiod)
             elif blocking_type == BLOCKING_NORMAL:
-                state_machine.manage_job(process_name, job_record)
+                state_machine.manage_job(job_record)
             else:
                 raise ValueError('Unknown managed process type %s' % blocking_type)
 

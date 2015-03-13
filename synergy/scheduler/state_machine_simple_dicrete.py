@@ -31,10 +31,10 @@ class StateMachineSimpleDiscrete(StateMachineDiscrete):
 
         time_qualifier = context.process_context[uow.process_name].time_qualifier
         actual_timeperiod = time_helper.actual_timeperiod(time_qualifier)
-        is_job_finalizable = self.timetable.is_job_record_finalizable(uow.process_name, job_record)
+        is_job_finalizable = self.timetable.is_job_record_finalizable(job_record)
 
         if uow.timeperiod < actual_timeperiod and is_job_finalizable is True:
-            self.__process_finalizable_job(uow.process_name, job_record, uow)
+            self.__process_finalizable_job(job_record, uow)
 
         elif uow.timeperiod >= actual_timeperiod:
             self.logger.info('Can not complete shallow status update for %s in timeperiod %s '
@@ -44,7 +44,7 @@ class StateMachineSimpleDiscrete(StateMachineDiscrete):
             self.logger.info('Can not complete shallow status update for %s in timeperiod %s '
                              'since the job could not be finalized' % (uow.process_name, uow.timeperiod))
 
-    def __process_non_finalizable_job(self, process_name, job_record, uow, start_timeperiod, end_timeperiod):
+    def __process_non_finalizable_job(self, job_record, uow, start_timeperiod, end_timeperiod):
         """ method handles given job_record based on the unit_of_work status
         Assumption: job_record is in STATE_IN_PROGRESS and is not yet finalizable """
         if uow.state in [unit_of_work.STATE_REQUESTED,
@@ -56,14 +56,14 @@ class StateMachineSimpleDiscrete(StateMachineDiscrete):
         elif uow.state in [unit_of_work.STATE_PROCESSED,
                            unit_of_work.STATE_CANCELED]:
             # create new uow to cover new inserts
-            uow, is_duplicate = self.insert_and_publish_uow(process_name,
+            uow, is_duplicate = self.insert_and_publish_uow(job_record.process_name,
                                                             start_timeperiod,
                                                             end_timeperiod,
                                                             0,
                                                             int(uow.end_id) + 1)
-            self.timetable.update_job_record(process_name, job_record, uow, job.STATE_IN_PROGRESS)
+            self.timetable.update_job_record(job_record, uow, job.STATE_IN_PROGRESS)
 
-    def __process_finalizable_job(self, process_name, job_record, uow):
+    def __process_finalizable_job(self, job_record, uow):
         """ method handles given job_record based on the unit_of_work status
         Assumption: job_record is in STATE_IN_PROGRESS and is finalizable """
         if uow.state in [unit_of_work.STATE_REQUESTED,
@@ -72,39 +72,39 @@ class StateMachineSimpleDiscrete(StateMachineDiscrete):
             # Job processing has not started yet
             # Let the processing complete - do no updates to Scheduler records
             msg = 'Suppressed creating uow for %s in timeperiod %s; job record is in %s; uow is in %s' \
-                  % (process_name, job_record.timeperiod, job_record.state, uow.state)
-            self._log_message(INFO, process_name, job_record.timeperiod, msg)
+                  % (job_record.process_name, job_record.timeperiod, job_record.state, uow.state)
+            self._log_message(INFO, job_record.process_name, job_record.timeperiod, msg)
         elif uow.state == unit_of_work.STATE_PROCESSED:
-            self.timetable.update_job_record(process_name, job_record, uow, job.STATE_PROCESSED)
+            self.timetable.update_job_record(job_record, uow, job.STATE_PROCESSED)
         elif uow.state == unit_of_work.STATE_CANCELED:
-            self.timetable.update_job_record(process_name, job_record, uow, job.STATE_SKIPPED)
+            self.timetable.update_job_record(job_record, uow, job.STATE_SKIPPED)
         else:
             msg = 'Unknown state %s for job record %s in timeperiod %s for %s' \
-                  % (uow.state, job_record.db_id, job_record.timeperiod, process_name)
-            self._log_message(INFO, process_name, job_record.timeperiod, msg)
+                  % (uow.state, job_record.db_id, job_record.timeperiod, job_record.process_name)
+            self._log_message(INFO, job_record.process_name, job_record.timeperiod, msg)
 
-        timetable_tree = self.timetable.get_tree(process_name)
+        timetable_tree = self.timetable.get_tree(job_record.process_name)
         timetable_tree.build_tree()
 
-    def _process_state_in_progress(self, process_name, job_record, start_timeperiod):
+    def _process_state_in_progress(self, job_record):
         """ method that takes care of processing job records in STATE_IN_PROGRESS state """
-        time_qualifier = context.process_context[process_name].time_qualifier
-        end_timeperiod = time_helper.increment_timeperiod(time_qualifier, start_timeperiod)
+        time_qualifier = context.process_context[job_record.process_name].time_qualifier
+        end_timeperiod = time_helper.increment_timeperiod(time_qualifier, job_record.timeperiod)
         actual_timeperiod = time_helper.actual_timeperiod(time_qualifier)
-        is_job_finalizable = self.timetable.is_job_record_finalizable(process_name, job_record)
+        is_job_finalizable = self.timetable.is_job_record_finalizable(job_record)
         uow = self.uow_dao.get_one(job_record.related_unit_of_work)
 
-        if start_timeperiod == actual_timeperiod or is_job_finalizable is False:
-            self.__process_non_finalizable_job(process_name, job_record, uow, start_timeperiod, end_timeperiod)
+        if job_record.timeperiod == actual_timeperiod or is_job_finalizable is False:
+            self.__process_non_finalizable_job(job_record, uow, job_record.timeperiod, end_timeperiod)
 
-        elif start_timeperiod < actual_timeperiod and is_job_finalizable is True:
-            self.__process_finalizable_job(process_name, job_record, uow)
+        elif job_record.timeperiod < actual_timeperiod and is_job_finalizable is True:
+            self.__process_finalizable_job(job_record, uow)
 
         else:
             msg = 'Job record %s has timeperiod from future %s vs current time %s' \
-                  % (job_record.db_id, start_timeperiod, actual_timeperiod)
-            self._log_message(ERROR, process_name, job_record.timeperiod, msg)
+                  % (job_record.db_id, job_record.timeperiod, actual_timeperiod)
+            self._log_message(ERROR, job_record.process_name, job_record.timeperiod, msg)
 
-    def _process_state_final_run(self, process_name, job_record):
+    def _process_state_final_run(self, job_record):
         """method takes care of processing job records in STATE_FINAL_RUN state"""
         raise NotImplementedError('Method _process_state_final_run is not supported by %s' % self.__class__.__name__)

@@ -74,7 +74,7 @@ class DiscreteSMUnitTest(unittest.TestCase):
         job_record = get_job_record(job.STATE_EMBRYO, TEST_PRESET_TIMEPERIOD, PROCESS_SITE_HOURLY)
         sm_spy.manage_job(job_record.process_name, job_record)
 
-        verify(self.time_table_mocked).update_job_record(any(str), any(Job), any(UnitOfWork), any(str))
+        verify(self.time_table_mocked).update_job_record(any(Job), any(UnitOfWork), any(str))
 
     def test_duplicatekeyerror_state_embryo(self):
         """ method tests job records in STATE_EMBRYO state"""
@@ -90,7 +90,7 @@ class DiscreteSMUnitTest(unittest.TestCase):
 
     def test_future_timeperiod_state_in_progress(self):
         """ method tests timetable records in STATE_IN_PROGRESS state"""
-        when(self.time_table_mocked).is_job_record_finalizable(any(str), any(Job)).thenReturn(True)
+        when(self.time_table_mocked).is_job_record_finalizable(any(Job)).thenReturn(True)
         when(self.uow_dao_mocked).get_one(any()).thenReturn(create_unit_of_work(PROCESS_SITE_HOURLY, 0, 1, None))
 
         self.sm_real.insert_and_publish_uow = then_raise
@@ -99,11 +99,11 @@ class DiscreteSMUnitTest(unittest.TestCase):
         job_record = get_job_record(job.STATE_IN_PROGRESS, TEST_FUTURE_TIMEPERIOD, PROCESS_SITE_HOURLY)
 
         sm_spy.manage_job(job_record.process_name, job_record)
-        verify(self.time_table_mocked, times=0).update_job_record(any(str), any(Job), any(UnitOfWork), any(str))
+        verify(self.time_table_mocked, times=0).update_job_record(any(Job), any(UnitOfWork), any(str))
 
     def test_preset_timeperiod_state_in_progress(self):
         """ method tests timetable records in STATE_IN_PROGRESS state"""
-        when(self.time_table_mocked).is_job_record_finalizable(any(str), any(Job)).thenReturn(True)
+        when(self.time_table_mocked).is_job_record_finalizable(any(Job)).thenReturn(True)
         when(self.uow_dao_mocked).get_one(any()).thenReturn(create_unit_of_work(PROCESS_SITE_HOURLY, 0, 1, None))
 
         self.sm_real.insert_and_publish_uow = then_return_uow
@@ -112,13 +112,13 @@ class DiscreteSMUnitTest(unittest.TestCase):
         job_record = get_job_record(job.STATE_IN_PROGRESS, TEST_PRESET_TIMEPERIOD, PROCESS_SITE_HOURLY)
 
         sm_spy.manage_job(job_record.process_name, job_record)
-        verify(self.time_table_mocked, times=0).update_job_record(any(str), any(Job), any(UnitOfWork), any(str))
+        verify(self.time_table_mocked, times=0).update_job_record(any(Job), any(UnitOfWork), any(str))
         # verify(sm_spy, times=1)._compute_and_transfer_to_final_run(any(str), any(str), any(str), any(Job))
         # verify(sm_spy, times=0)._process_state_final_run(any(str), any(Job))
 
     def test_transfer_to_final_state_from_in_progress(self):
         """ method tests timetable records in STATE_IN_PROGRESS state"""
-        when(self.time_table_mocked).is_job_record_finalizable(any(str), any(Job)).thenReturn(True)
+        when(self.time_table_mocked).is_job_record_finalizable(any(Job)).thenReturn(True)
         when(self.uow_dao_mocked).get_one(any()).\
             thenReturn(create_unit_of_work(PROCESS_SITE_HOURLY, 1, 1, None, unit_of_work.STATE_PROCESSED))
 
@@ -128,13 +128,13 @@ class DiscreteSMUnitTest(unittest.TestCase):
         job_record = get_job_record(job.STATE_IN_PROGRESS, TEST_PRESET_TIMEPERIOD, PROCESS_SITE_HOURLY)
         sm_spy.manage_job(job_record.process_name, job_record)
 
-        verify(self.time_table_mocked, times=1).update_job_record(any(str), any(Job), any(UnitOfWork), any(str))
+        verify(self.time_table_mocked, times=1).update_job_record(any(Job), any(UnitOfWork), any(str))
         # verify(sm_spy, times=1)._compute_and_transfer_to_final_run(any(str), any(str), any(str), any(Job))
         # verify(sm_spy, times=1)._process_state_final_run(any(str), any(Job))
 
     def test_retry_state_in_progress(self):
         """ method tests timetable records in STATE_IN_PROGRESS state"""
-        when(self.time_table_mocked).is_job_record_finalizable(any(str), any(Job)).thenReturn(True)
+        when(self.time_table_mocked).is_job_record_finalizable(any(Job)).thenReturn(True)
         when(self.uow_dao_mocked).get_one(any()).\
             thenReturn(create_unit_of_work(PROCESS_SITE_HOURLY, 1, 1, None, unit_of_work.STATE_PROCESSED))
 
@@ -144,7 +144,7 @@ class DiscreteSMUnitTest(unittest.TestCase):
         job_record = get_job_record(job.STATE_IN_PROGRESS, TEST_PRESET_TIMEPERIOD, PROCESS_SITE_HOURLY)
         sm_spy.manage_job(job_record.process_name, job_record)
 
-        verify(self.time_table_mocked, times=1).update_job_record(any(str), any(Job), any(UnitOfWork), any(str))
+        verify(self.time_table_mocked, times=1).update_job_record(any(Job), any(UnitOfWork), any(str))
         # verify(sm_spy, times=1)._compute_and_transfer_to_final_run(any(str), any(str), any(str), any(Job))
         # verify(sm_spy, times=1)._process_state_final_run(any(str), any(Job))
 
@@ -158,7 +158,7 @@ class DiscreteSMUnitTest(unittest.TestCase):
         sm_spy = spy(self.sm_real)
         sm_spy.manage_job(job_record.process_name, job_record)
 
-        verify(self.time_table_mocked, times=1).update_job_record(any(str), any(Job), any(UnitOfWork), any(str))
+        verify(self.time_table_mocked, times=1).update_job_record(any(Job), any(UnitOfWork), any(str))
         verify(self.time_table_mocked, times=1).get_tree(any(str))
 
     def test_cancelled_state_final_run(self):
@@ -170,7 +170,7 @@ class DiscreteSMUnitTest(unittest.TestCase):
         job_record = get_job_record(job.STATE_FINAL_RUN, TEST_PRESET_TIMEPERIOD, PROCESS_SITE_HOURLY)
 
         sm_spy.manage_job(job_record.process_name, job_record)
-        verify(self.time_table_mocked, times=1).update_job_record(any(str), any(Job), any(UnitOfWork), any(str))
+        verify(self.time_table_mocked, times=1).update_job_record(any(Job), any(UnitOfWork), any(str))
 
     def test_state_skipped(self):
         """method tests timetable records in STATE_SKIPPED state"""
@@ -178,7 +178,7 @@ class DiscreteSMUnitTest(unittest.TestCase):
         job_record = get_job_record(job.STATE_SKIPPED, TEST_PRESET_TIMEPERIOD, PROCESS_SITE_HOURLY)
 
         sm_spy.manage_job(job_record.process_name, job_record)
-        verify(self.time_table_mocked, times=0).update_job_record(any(str), any(Job), any(UnitOfWork), any(str))
+        verify(self.time_table_mocked, times=0).update_job_record(any(Job), any(UnitOfWork), any(str))
         verify(self.time_table_mocked, times=0).get_tree(any(str))
 
     def test_state_processed(self):
@@ -187,7 +187,7 @@ class DiscreteSMUnitTest(unittest.TestCase):
         job_record = get_job_record(job.STATE_PROCESSED, TEST_PRESET_TIMEPERIOD, PROCESS_SITE_HOURLY)
 
         sm_spy.manage_job(job_record.process_name, job_record)
-        verify(self.time_table_mocked, times=0).update_job_record(any(str), any(Job), any(UnitOfWork), any(str))
+        verify(self.time_table_mocked, times=0).update_job_record(any(Job), any(UnitOfWork), any(str))
         verify(self.time_table_mocked, times=0).get_tree(any(str))
 
 
