@@ -40,8 +40,10 @@ STATE_REQUESTED = 'state_requested'
 # or the life-support threshold has been crossed for failing UOW
 STATE_CANCELED = 'state_canceled'
 
-# UOW was either marked for reprocessing via MX
-# or have failed with an exception at the worker level
+# UOW can get into STATE_INVALID if:
+# a. related Job was marked for reprocessing via MX
+# b. have failed with an exception at the worker level
+# NOTICE: GarbageCollector changes STATE_INVALID -> STATE_REQUESTED during re-posting
 STATE_INVALID = 'state_invalid'
 
 # UOW was received by a worker,
@@ -77,19 +79,19 @@ class UnitOfWork(BaseDocument):
 
     @property
     def is_active(self):
-        return self.state in STATE_REQUESTED, STATE_IN_PROGRESS
+        return self.state in STATE_REQUESTED, STATE_IN_PROGRESS, STATE_INVALID
 
     @property
     def is_finished(self):
-        return self.state in STATE_PROCESSED, STATE_CANCELED, STATE_NOOP, STATE_INVALID
+        return self.state in STATE_PROCESSED, STATE_CANCELED, STATE_NOOP
 
     @property
     def is_processed(self):
-        return self.state in STATE_PROCESSED
+        return self.state == STATE_PROCESSED
 
     @property
     def is_noop(self):
-        return self.state in STATE_NOOP
+        return self.state == STATE_NOOP
 
     @property
     def is_canceled(self):

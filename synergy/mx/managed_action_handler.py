@@ -1,6 +1,5 @@
 __author__ = 'Bohdan Mushkevych'
 
-from synergy.db.model.managed_process_entry import ManagedProcessEntry
 from synergy.db.dao.unit_of_work_dao import UnitOfWorkDao
 from synergy.system import time_helper
 from synergy.conf import context
@@ -34,14 +33,14 @@ class ManagedActionHandler(AbstractActionHandler):
         node = tree.get_node(self.process_name, self.timeperiod)
         return node
 
-    @AbstractActionHandler.scheduler_thread_handler.getter
-    def scheduler_thread_handler(self):
+    @AbstractActionHandler.thread_handler.getter
+    def thread_handler(self):
         handler_key = self.process_name
         return self.mbean.managed_handlers[handler_key]
 
     @AbstractActionHandler.process_entry.getter
     def process_entry(self):
-        return self.scheduler_thread_handler.process_entry
+        return self.thread_handler.process_entry
 
     @valid_action_request
     def action_reprocess(self):

@@ -4,7 +4,6 @@ from threading import Thread
 
 from amqp import AMQPError
 
-from synergy.db.model import unit_of_work
 from synergy.db.model.synergy_mq_transmission import SynergyMqTransmission
 from synergy.db.dao.unit_of_work_dao import UnitOfWorkDao
 from synergy.scheduler.abstract_state_machine import AbstractStateMachine
@@ -52,7 +51,7 @@ class StatusBusListener(object):
                 self.logger.info('Received transmission is likely outdated. Ignoring it.')
                 return
 
-            if uow.state not in [unit_of_work.STATE_PROCESSED, unit_of_work.STATE_CANCELED]:
+            if not uow.is_finished:
                 # rely on Garbage Collector to re-trigger the failing unit_of_work
                 self.logger.info('Received unit_of_work status report from %s at %s in non-final state %s. Ignoring it.'
                                  % (uow.process_name, uow.timeperiod, uow.state))
@@ -79,7 +78,7 @@ class StatusBusListener(object):
     def _run_mq_listener(self):
         try:
             self.consumer.register(self._mq_callback)
-            self.logger.info('StatusBusListener: instantiated and actived.')
+            self.logger.info('StatusBusListener: instantiated and activated.')
             self.consumer.wait()
         except (AMQPError, IOError) as e:
             self.logger.error('StatusBusListener: AMQPError %s' % str(e))

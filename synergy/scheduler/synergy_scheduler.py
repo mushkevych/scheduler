@@ -11,7 +11,6 @@ from synergy.mx.synergy_mx import MX
 from synergy.db.manager import db_manager
 from synergy.db.model.synergy_mq_transmission import SynergyMqTransmission
 from synergy.db.model.managed_process_entry import ManagedProcessEntry
-from synergy.db.model import managed_process_entry, job
 from synergy.db.dao.freerun_process_dao import FreerunProcessDao
 from synergy.system import time_helper
 from synergy.system.decorator import with_reconnect, thread_safe
@@ -147,9 +146,9 @@ class Scheduler(SynergyProcess):
     def fire_managed_worker(self, thread_handler_arguments):
         """requests next valid job for given process and manages its state"""
 
-        def _fire_worker(process_name, process_entry):
+        def _fire_worker(process_entry):
             assert isinstance(process_entry, ManagedProcessEntry)
-            job_record = self.timetable.get_next_job_record(process_name)
+            job_record = self.timetable.get_next_job_record(process_entry.process_name)
             state_machine = self.state_machines[process_entry.state_machine_name]
 
             run_on_active_timeperiod = process_entry.run_on_active_timeperiod
@@ -182,9 +181,9 @@ class Scheduler(SynergyProcess):
             assert isinstance(thread_handler_arguments, ThreadHandlerArguments)
             self.logger.info('%r {' % (thread_handler_arguments.key, ))
 
-            job_record = _fire_worker(thread_handler_arguments.key, thread_handler_arguments.process_entry)
-            while job_record is not None and job_record.state in [job.STATE_SKIPPED, job.STATE_PROCESSED]:
-                job_record = _fire_worker(thread_handler_arguments.key, thread_handler_arguments.process_entry)
+            job_record = _fire_worker(thread_handler_arguments.process_entry)
+            while job_record is not None and not job_record.is_finished:
+                job_record = _fire_worker(thread_handler_arguments.process_entry)
 
         except (AMQPError, IOError) as e:
             self.logger.error('AMQPError: %s' % str(e), exc_info=True)

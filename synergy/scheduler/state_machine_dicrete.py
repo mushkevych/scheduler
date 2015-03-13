@@ -3,7 +3,7 @@ __author__ = 'Bohdan Mushkevych'
 from datetime import datetime
 from logging import ERROR, WARNING, INFO
 
-from synergy.db.model import job, unit_of_work
+from synergy.db.model import job
 from synergy.scheduler.scheduler_constants import STATE_MACHINE_DISCRETE
 from synergy.scheduler.abstract_state_machine import AbstractStateMachine
 from synergy.system import time_helper
@@ -25,7 +25,7 @@ class StateMachineDiscrete(AbstractStateMachine):
         node = tree.get_node(uow.process_name, uow.timeperiod)
         job_record = node.job_record
 
-        if job_record.state != job.STATE_FINAL_RUN:
+        if not job_record.is_final_run:
             self.logger.info('Can not perform shallow status update for %s in timeperiod %s '
                              'since the job state is not STATE_FINAL_RUN' % (uow.process_name, uow.timeperiod))
             return
@@ -45,14 +45,11 @@ class StateMachineDiscrete(AbstractStateMachine):
     def _process_state_in_progress(self, job_record):
         """ method that takes care of processing job records in STATE_IN_PROGRESS state"""
         def _process_state(target_state, uow):
-            if uow.state in [unit_of_work.STATE_REQUESTED,
-                             unit_of_work.STATE_IN_PROGRESS,
-                             unit_of_work.STATE_INVALID]:
-                # Large Job processing takes more than 1 tick of Scheduler
+            if uow.is_active:
+                # Large Job processing takes more than 1 tick of the Scheduler
                 # Let the Job processing complete - do no updates to Scheduler records
                 pass
-            elif uow.state in [unit_of_work.STATE_PROCESSED,
-                               unit_of_work.STATE_CANCELED]:
+            elif uow.is_finished:
                 # create new uow to cover new inserts
                 new_uow, is_duplicate = self.insert_and_publish_uow(job_record.process_name,
                                                                     job_record.timeperiod,
@@ -82,9 +79,9 @@ class StateMachineDiscrete(AbstractStateMachine):
     def _process_state_final_run(self, job_record):
         """method takes care of processing job records in STATE_FINAL_RUN state"""
         uow = self.uow_dao.get_one(job_record.related_unit_of_work)
-        if uow.state == unit_of_work.STATE_PROCESSED:
+        if uow.is_processed:
             self.timetable.update_job_record(job_record, uow, job.STATE_PROCESSED)
-        elif uow.state == unit_of_work.STATE_CANCELED:
+        elif uow.is_canceled:
             self.timetable.update_job_record(job_record, uow, job.STATE_SKIPPED)
         else:
             msg = 'Suppressed creating uow for %s in timeperiod %s; job record is in %s; uow is in %s' \

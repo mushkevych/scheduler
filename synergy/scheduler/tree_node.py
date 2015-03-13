@@ -81,7 +81,7 @@ class TreeNode(object):
     def is_finalizable(self):
         """method checks whether:
          - all counterpart of this node in dependent_on trees are finished
-         - all children of the node are finished
+         - all direct children of the node are finished
          - the node itself is in active state"""
 
         composite_state = self.dependent_on_composite_state()

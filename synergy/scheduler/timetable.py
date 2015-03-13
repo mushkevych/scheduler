@@ -7,8 +7,6 @@ from synergy.db.dao.unit_of_work_dao import UnitOfWorkDao
 from synergy.db.dao.job_dao import JobDao
 from synergy.db.model.job import Job
 from synergy.db.model import job, unit_of_work
-
-from process_starter import get_class
 from synergy.conf import context
 from synergy.conf import settings
 from synergy.system import time_helper
@@ -16,7 +14,7 @@ from synergy.system.time_qualifier import *
 from synergy.system.decorator import thread_safe
 from synergy.scheduler.scheduler_constants import COLLECTION_JOB_HOURLY, COLLECTION_JOB_DAILY, \
     COLLECTION_JOB_MONTHLY, COLLECTION_JOB_YEARLY
-from synergy.scheduler.tree import AbstractTree
+from synergy.scheduler.tree import MultiLevelTree
 
 
 class Timetable(object):
@@ -42,11 +40,10 @@ class Timetable(object):
     def _construct_trees_from_context(self):
         trees = dict()
         for tree_name, context_entry in context.timetable_context.items():
-            _, tree_klass, _ = get_class(context_entry.tree_classname)
-            tree = tree_klass(process_names=context_entry.enclosed_processes,
-                              full_name=tree_name,
-                              mx_name=context_entry.mx_name,
-                              mx_page=context_entry.mx_page)
+            tree = MultiLevelTree(process_names=context_entry.enclosed_processes,
+                                  full_name=tree_name,
+                                  mx_name=context_entry.mx_name,
+                                  mx_page=context_entry.mx_page)
             trees[tree_name] = tree
         return trees
 
@@ -54,10 +51,10 @@ class Timetable(object):
         """ register dependencies between trees"""
         for tree_name, context_entry in context.timetable_context.items():
             tree = self.trees[tree_name]
-            assert isinstance(tree, AbstractTree)
+            assert isinstance(tree, MultiLevelTree)
             for dependent_on in context_entry.dependent_on:
                 dependent_on_tree = self.trees[dependent_on]
-                assert isinstance(dependent_on_tree, AbstractTree)
+                assert isinstance(dependent_on_tree, MultiLevelTree)
                 tree.register_dependent_on(dependent_on_tree)
 
     def _register_callbacks(self):
@@ -133,8 +130,7 @@ class Timetable(object):
     def _callback_reprocess(self, tree_node):
         """ is called from tree to answer reprocessing request.
         It is possible that job record will be transferred to STATE_IN_PROGRESS with no related unit_of_work"""
-        if (tree_node.job_record.state == job.STATE_EMBRYO
-                and tree_node.job_record.number_of_failures == 0) \
+        if (tree_node.job_record.is_embryo and tree_node.job_record.number_of_failures == 0) \
             or (tree_node.process_name in self.reprocess
                 and tree_node.timeperiod in self.reprocess[tree_node.process_name]):
             # the node has already been marked for re-processing or does not require one

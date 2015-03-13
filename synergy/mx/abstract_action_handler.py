@@ -12,7 +12,7 @@ class AbstractActionHandler(object):
         self.is_request_valid = False
 
     @property
-    def scheduler_thread_handler(self):
+    def thread_handler(self):
         raise NotImplementedError('not implemented yet')
 
     @property
@@ -30,7 +30,7 @@ class AbstractActionHandler(object):
         resp = dict()
         new_interval = self.request_arguments['interval']
         if new_interval is not None:
-            thread_handler = self.scheduler_thread_handler
+            thread_handler = self.thread_handler
             thread_handler.change_interval(new_interval)
             resp['status'] = 'changed interval for %r to %r' % (thread_handler.key, new_interval)
 
@@ -38,15 +38,15 @@ class AbstractActionHandler(object):
 
     @valid_action_request
     def action_trigger_now(self):
-        self.scheduler_thread_handler.trigger()
+        self.thread_handler.trigger()
         return {'status': 'OK'}
 
     @valid_action_request
     def action_activate_trigger(self):
-        self.scheduler_thread_handler.activate()
+        self.thread_handler.activate()
         return {'status': 'OK'}
 
     @valid_action_request
     def action_deactivate_trigger(self):
-        self.scheduler_thread_handler.deactivate()
+        self.thread_handler.deactivate()
         return {'status': 'OK'}

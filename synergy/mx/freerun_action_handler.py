@@ -25,14 +25,14 @@ class FreerunActionHandler(AbstractActionHandler):
             self.process_name = self.process_name.strip()
             self.entry_name = self.entry_name.strip()
 
-    @AbstractActionHandler.scheduler_thread_handler.getter
-    def scheduler_thread_handler(self):
+    @AbstractActionHandler.thread_handler.getter
+    def thread_handler(self):
         handler_key = (self.process_name, self.entry_name)
         return self.mbean.freerun_handlers[handler_key]
 
     @AbstractActionHandler.process_entry.getter
     def process_entry(self):
-        return self.scheduler_thread_handler.process_entry
+        return self.thread_handler.process_entry
 
     @valid_action_request
     def action_cancel_uow(self):
@@ -106,7 +106,7 @@ class FreerunActionHandler(AbstractActionHandler):
 
         elif 'delete_button' in self.request_arguments:
             handler_key = (self.process_name, self.entry_name)
-            self.scheduler_thread_handler.deactivate()
+            self.thread_handler.deactivate()
             self.freerun_process_dao.remove(handler_key)
             del self.mbean.freerun_handlers[handler_key]
 

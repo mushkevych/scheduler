@@ -76,11 +76,11 @@ class Job(BaseDocument):
 
     @property
     def is_processed(self):
-        return self.state in STATE_PROCESSED
+        return self.state == STATE_PROCESSED
 
     @property
     def is_noop(self):
-        return self.state in STATE_NOOP
+        return self.state == STATE_NOOP
 
     @property
     def is_skipped(self):

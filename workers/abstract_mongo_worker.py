@@ -119,8 +119,8 @@ class AbstractMongoWorker(AbstractMqWorker):
         try:
             mq_request = SynergyMqTransmission.from_json(message.body)
             uow = self.uow_dao.get_one(mq_request.unit_of_work_id)
-            if uow.state in [unit_of_work.STATE_CANCELED, unit_of_work.STATE_PROCESSED]:
-                # garbage collector might have reposted this UOW
+            if not uow.is_requested:
+                # accept only UOW in STATE_REQUESTED
                 self.logger.warn('Skipping unit_of_work: id %s; state %s;' % (str(message.body), uow.state),
                                  exc_info=False)
                 self.consumer.acknowledge(message.delivery_tag)
@@ -178,7 +178,7 @@ class AbstractMongoWorker(AbstractMqWorker):
             self.performance_ticker.finish_uow()
         except Exception as e:
             fresh_uow = self.uow_dao.get_one(mq_request.unit_of_work_id)
-            if fresh_uow.state in [unit_of_work.STATE_CANCELED]:
+            if fresh_uow.is_canceled:
                 self.logger.warn('unit_of_work: id %s was likely marked by MX as SKIPPED. '
                                  'No unit_of_work update is performed.' % str(message.body),
                                  exc_info=False)

@@ -120,12 +120,10 @@ class StateMachineFreerun(object):
             if uow is None:
                 self._process_state_embryo(freerun_entry)
 
-            elif uow.state in [unit_of_work.STATE_REQUESTED, unit_of_work.STATE_IN_PROGRESS]:
+            elif uow.is_requested or uow.is_in_progress:
                 self._process_state_in_progress(freerun_entry, uow)
 
-            elif uow.state in [unit_of_work.STATE_PROCESSED,
-                               unit_of_work.STATE_INVALID,
-                               unit_of_work.STATE_CANCELED]:
+            elif uow.is_finished or uow.is_invalid:
                 self._process_terminal_state(freerun_entry, uow)
 
             else:

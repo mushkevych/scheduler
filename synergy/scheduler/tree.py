@@ -2,7 +2,6 @@ __author__ = 'Bohdan Mushkevych'
 
 from datetime import datetime, timedelta
 
-from synergy.db.model import job
 from synergy.scheduler.process_hierarchy import ProcessHierarchy
 from synergy.scheduler.tree_node import TreeNode
 from synergy.conf import settings
@@ -89,8 +88,8 @@ class MultiLevelTree(AbstractTree):
         return value in self.process_hierarchy
 
     def _get_next_parent_node(self, parent):
-        """ Used by _get_next_node, this method is called to find next possible parent.
-        For example if timeperiod 2011010200 has all children processed, but is not processed yet
+        """ Used by _get_next_child_node, this method is called to find next possible parent.
+        For example if timeperiod 2011010200 has all children processed, but is not yet processed itself
         then it makes sense to look in 2011010300 for hourly nodes"""
         parent_of_parent = parent.parent
         if parent_of_parent is None:
@@ -118,7 +117,7 @@ class MultiLevelTree(AbstractTree):
                 return node
             elif self._skip_the_node(node):
                 continue
-            elif node.job_record.state in [job.STATE_FINAL_RUN, job.STATE_IN_PROGRESS, job.STATE_EMBRYO]:
+            elif node.job_record.is_active:
                 return node
 
         # special case, when all children of the parent node are not suitable for processing
@@ -177,7 +176,7 @@ class MultiLevelTree(AbstractTree):
         """Method is used during _get_next_node calculations.
         :return True: in case the node shall be _skipped_"""
         # case 1: node processing is complete
-        if node.job_record.state in [job.STATE_SKIPPED, job.STATE_PROCESSED]:
+        if node.job_record.is_finished:
             return True
 
         # case 2: this is a bottom-level leaf node. retry this time_period for INFINITE_RETRY_HOURS
@@ -199,7 +198,7 @@ class MultiLevelTree(AbstractTree):
             child = node.children[key]
             if child.job_record is None or \
                     (child.job_record.number_of_failures <= MAX_NUMBER_OF_RETRIES
-                     and child.job_record.state != job.STATE_SKIPPED):
+                     and not child.job_record.is_skipped):
                 all_children_spoiled = False
                 break
         return all_children_spoiled
