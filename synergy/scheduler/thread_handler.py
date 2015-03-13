@@ -65,9 +65,9 @@ class ThreadHandler(object):
         return ThreadHandlerArguments(self.key, self.trigger_frequency, self.process_entry, self.handler_type)
 
     def _get_dao(self):
-        if isinstance(self.process_entry, ManagedProcessEntry):
+        if self.is_managed:
             return self.se_managed_dao
-        elif isinstance(self.process_entry, FreerunProcessEntry):
+        elif self.is_freerun:
             return self.se_freerun_dao
         else:
             raise ValueError('Scheduler Entry type %s is not known to the system. Skipping it.'
@@ -117,7 +117,7 @@ class ThreadHandler(object):
             self.trigger_frequency = value
 
             # 3. start if necessary
-            if self.process_entry.state == managed_process_entry.STATE_ON:
+            if self.process_entry.is_on:
                 self.timer_instance.start()
                 self.is_terminated = False
                 self.is_started = True
@@ -129,5 +129,14 @@ class ThreadHandler(object):
     def next_run_in(self, utc_now=None):
         return self.timer_instance.next_run_in(utc_now)
 
+    @property
     def is_alive(self):
         return self.timer_instance.is_alive()
+
+    @property
+    def is_managed(self):
+        return isinstance(self.process_entry, ManagedProcessEntry)
+
+    @property
+    def is_freerun(self):
+        return isinstance(self.process_entry, FreerunProcessEntry)

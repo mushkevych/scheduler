@@ -15,7 +15,7 @@ class SchedulerEntries(object):
         self.logger = self.mbean.logger
 
     def _handler_next_run(self, thread_handler):
-        if not thread_handler.is_alive():
+        if not thread_handler.is_alive:
             return 'NA'
 
         next_run = thread_handler.next_run_in()
@@ -39,8 +39,8 @@ class SchedulerEntries(object):
                 process_name = thread_handler.key
 
                 rest_model = RestManagedSchedulerEntry(
-                    is_on=thread_handler.process_entry.state == STATE_ON,
-                    is_alive=thread_handler.is_alive(),
+                    is_on=thread_handler.process_entry.is_on,
+                    is_alive=thread_handler.is_alive,
                     process_name=process_name,
                     trigger_frequency=format_time_trigger_string(thread_handler.timer_instance),
                     next_run_in=self._handler_next_run(thread_handler),
@@ -63,8 +63,8 @@ class SchedulerEntries(object):
                 process_name, entry_name = thread_handler.key
 
                 rest_model = RestFreerunSchedulerEntry(
-                    is_on=thread_handler.process_entry.state == STATE_ON,
-                    is_alive=thread_handler.is_alive(),
+                    is_on=thread_handler.process_entry.is_on,
+                    is_alive=thread_handler.is_alive,
                     process_name=process_name,
                     entry_name=entry_name,
                     trigger_frequency=format_time_trigger_string(thread_handler.timer_instance),

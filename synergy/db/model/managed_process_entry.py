@@ -39,6 +39,10 @@ class ManagedProcessEntry(DaemonProcessEntry):
     def key(self, value):
         self.process_name = value
 
+    @property
+    def is_on(self):
+        return self.state == STATE_ON
+
 
 def managed_context_entry(process_name,
                           classname,

@@ -1,3 +1,6 @@
+from synergy.db.model.job import Job
+from synergy.db.model.unit_of_work import UnitOfWork
+
 __author__ = 'Bohdan Mushkevych'
 
 from datetime import datetime
@@ -27,8 +30,9 @@ class StateMachineContinuous(AbstractStateMachine):
         tree = self.timetable.get_tree(uow.process_name)
         node = tree.get_node(uow.process_name, uow.timeperiod)
         job_record = node.job_record
+        assert isinstance(job_record, Job)
 
-        if job_record.state != job.STATE_FINAL_RUN:
+        if not job_record.is_final_run:
             self.logger.info('Can not perform shallow status update for %s in timeperiod %s '
                              'since the job state is not STATE_FINAL_RUN' % (uow.process_name, uow.timeperiod))
             return
@@ -96,11 +100,11 @@ class StateMachineContinuous(AbstractStateMachine):
         uow = self.uow_dao.get_one(job_record.related_unit_of_work)
 
         if start_timeperiod == actual_timeperiod or is_job_finalizable is False:
-            if uow.state in [unit_of_work.STATE_INVALID, unit_of_work.STATE_REQUESTED]:
+            if uow.is_invalid or uow.is_requested:
                 # current uow has not been processed yet. update it
                 self.update_scope_of_processing(process_name, uow, start_timeperiod, end_timeperiod)
             else:
-                # cls.STATE_IN_PROGRESS, cls.STATE_PROCESSED, cls.STATE_CANCELED
+                # STATE_IN_PROGRESS, STATE_PROCESSED, STATE_CANCELED
                 # create new uow to cover new inserts
                 self._compute_and_transfer_to_progress(process_name, start_timeperiod, end_timeperiod, job_record)
 
@@ -116,9 +120,11 @@ class StateMachineContinuous(AbstractStateMachine):
     def _process_state_final_run(self, process_name, job_record):
         """method takes care of processing job records in STATE_FINAL_RUN state"""
         uow = self.uow_dao.get_one(job_record.related_unit_of_work)
-        if uow.state == unit_of_work.STATE_PROCESSED:
+        assert isinstance(uow, UnitOfWork)
+
+        if uow.is_processed:
             self.timetable.update_job_record(process_name, job_record, uow, job.STATE_PROCESSED)
-        elif uow.state == unit_of_work.STATE_CANCELED:
+        elif uow.is_canceled:
             self.timetable.update_job_record(process_name, job_record, uow, job.STATE_SKIPPED)
         else:
             msg = 'Suppressed creating uow for %s in timeperiod %s; job record is in %s; uow is in %s' \

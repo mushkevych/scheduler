@@ -45,6 +45,10 @@ class FreerunProcessEntry(DaemonProcessEntry):
         self.process_name = value[0]
         self.entry_name = value[1]
 
+    @property
+    def is_on(self):
+        return self.state == STATE_ON
+
 
 def freerun_context_entry(process_name,
                           entry_name,

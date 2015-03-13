@@ -1,4 +1,4 @@
-from synergy.scheduler.tree_node import NodesCompositeState
+from synergy.db.model.job import Job
 
 __author__ = 'Bohdan Mushkevych'
 
@@ -15,6 +15,7 @@ from synergy.db.model.synergy_mq_transmission import SynergyMqTransmission
 from synergy.mq.flopsy import PublishersPool
 from synergy.conf import context
 from synergy.system.decorator import with_reconnect
+from synergy.scheduler.tree_node import NodesCompositeState
 from synergy.scheduler.scheduler_constants import TYPE_MANAGED
 
 
@@ -173,20 +174,21 @@ class AbstractStateMachine(object):
         """ method main duty - is to _avoid_ publishing another unit_of_work, if previous was not yet processed
         In case the Scheduler sees that the unit_of_work is pending it could either update boundaries of the processing
         or wait another tick """
+        assert isinstance(job_record, Job)
         try:
-            if job_record.state == job.STATE_EMBRYO:
+            if job_record.is_embryo:
                 self._process_state_embryo(process_name, job_record, job_record.timeperiod)
 
-            elif job_record.state == job.STATE_IN_PROGRESS:
+            elif job_record.is_in_progress:
                 self._process_state_in_progress(process_name, job_record, job_record.timeperiod)
 
-            elif job_record.state == job.STATE_FINAL_RUN:
+            elif job_record.is_final_run:
                 self._process_state_final_run(process_name, job_record)
 
-            elif job_record.state == job.STATE_SKIPPED:
+            elif job_record.is_skipped:
                 self._process_state_skipped(process_name, job_record)
 
-            elif job_record.state == job.STATE_PROCESSED:
+            elif job_record.is_processed:
                 self._process_state_processed(process_name, job_record)
 
             else:

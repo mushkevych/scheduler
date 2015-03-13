@@ -85,3 +85,15 @@ class Job(BaseDocument):
     @property
     def is_skipped(self):
         return self.state == STATE_SKIPPED
+
+    @property
+    def is_embryo(self):
+        return self.state == STATE_EMBRYO
+
+    @property
+    def is_in_progress(self):
+        return self.state == STATE_IN_PROGRESS
+
+    @property
+    def is_final_run(self):
+        return self.state == STATE_FINAL_RUN

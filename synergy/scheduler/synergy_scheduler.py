@@ -73,16 +73,16 @@ class Scheduler(SynergyProcess):
          timer_handler is started, unless it is marked as STATE_OFF """
         handler = construct_thread_handler(self.logger, process_entry, call_back)
 
-        if handler.handler_type == TYPE_MANAGED:
+        if handler.is_managed:
             self.managed_handlers[handler.key] = handler
-        elif handler.handler_type == TYPE_FREERUN:
+        elif handler.is_freerun:
             self.freerun_handlers[handler.key] = handler
         else:
             self.logger.error('Process/Handler type %s is not known to the system. Skipping it.'
                               % handler.handler_type)
             return
 
-        if process_entry.state == managed_process_entry.STATE_ON:
+        if process_entry.is_on:
             handler.activate()
             self.logger.info('Started scheduler thread for %s:%r.'
                              % (handler.handler_type, handler.key))

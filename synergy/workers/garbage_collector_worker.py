@@ -8,7 +8,7 @@ from synergy.mq.flopsy import PublishersPool
 from synergy.system.decorator import thread_safe
 from synergy.scheduler.scheduler_constants import QUEUE_UOW_REPORT
 from synergy.workers.abstract_mq_worker import AbstractMqWorker
-from synergy.db.model import unit_of_work, managed_process_entry
+from synergy.db.model import unit_of_work
 from synergy.db.model.synergy_mq_transmission import SynergyMqTransmission
 from synergy.db.dao.unit_of_work_dao import UnitOfWorkDao
 from synergy.db.model.managed_process_entry import ManagedProcessEntry
@@ -30,7 +30,7 @@ class GarbageCollectorWorker(AbstractMqWorker):
         self.publishers = PublishersPool(self.logger)
         self.uow_dao = UnitOfWorkDao(self.logger)
         self.managed_dao = ManagedProcessDao(self.logger)
-        self.scheduler_configuration = dict()
+        self.managed_entries = dict()
 
     def __del__(self):
         try:
@@ -45,20 +45,20 @@ class GarbageCollectorWorker(AbstractMqWorker):
     def _mq_callback(self, message):
         """ method looks for stale or invalid units of work re-runs them if needed"""
         try:
-            sc_list = self.managed_dao.get_all()
-            self._update_scheduler_configuration(sc_list)
+            managed_entries = self.managed_dao.get_all()
+            self._update_managed_entries(managed_entries)
 
             since = settings.settings['synergy_start_timeperiod']
             uow_list = self.uow_dao.get_reprocessing_candidates(since)
             for uow in uow_list:
-                if uow.process_name not in self.scheduler_configuration:
+                if uow.process_name not in self.managed_entries:
                     self.logger.debug('Process %r is not known to the Synergy Scheduler. Skipping its unit_of_work.'
                                       % uow.process_name)
                     continue
 
-                process_config = self.scheduler_configuration[uow.process_name]
-                assert isinstance(process_config, ManagedProcessEntry)
-                if process_config.state != managed_process_entry.STATE_ON:
+                process_entry = self.managed_entries[uow.process_name]
+                assert isinstance(process_entry, ManagedProcessEntry)
+                if not process_entry.is_on:
                     self.logger.debug('Process %r is inactive at the Synergy Scheduler. Skipping its unit_of_work.'
                                       % uow.process_name)
                     continue
@@ -72,16 +72,16 @@ class GarbageCollectorWorker(AbstractMqWorker):
         finally:
             self.consumer.acknowledge(message.delivery_tag)
 
-    def _update_scheduler_configuration(self, sc_list):
-        self.scheduler_configuration = {sc.process_name: sc for sc in sc_list}
+    def _update_managed_entries(self, managed_entries):
+        self.managed_entries = {me.process_name: me for me in managed_entries}
 
     def _process_single_document(self, uow):
         """ actually inspects UOW retrieved from the database"""
         repost = False
-        if uow.state == unit_of_work.STATE_INVALID:
+        if uow.is_invalid:
             repost = True
 
-        elif uow.state in [unit_of_work.STATE_IN_PROGRESS, unit_of_work.STATE_REQUESTED]:
+        elif uow.is_in_progress or uow.is_requested:
             last_activity = uow.started_at
             if last_activity is None:
                 last_activity = uow.created_at

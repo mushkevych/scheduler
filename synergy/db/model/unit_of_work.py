@@ -26,11 +26,26 @@ MD5 = 'md5'                            # MD5 tag for the hash of the file
 ARGUMENTS = 'arguments'                # task-level arguments that could supplement or override process-level ones
 UNIT_OF_WORK_TYPE = 'unit_of_work_type'  # whether the unit_of_work is TYPE_MANAGED or TYPE_FREERUN
 
+# UOW was successfully processed by the worker
 STATE_PROCESSED = 'state_processed'
+
+# UOW was received by the worker and it started the processing
 STATE_IN_PROGRESS = 'state_in_progress'
+
+# UOW was instantiated and send to the worker
 STATE_REQUESTED = 'state_requested'
+
+# Job has been manually marked as SKIPPED via MX
+# and so the associated UOW got cancelled
+# or the life-support threshold has been crossed for failing UOW
 STATE_CANCELED = 'state_canceled'
+
+# UOW was either marked for reprocessing via MX
+# or have failed with an exception at the worker level
 STATE_INVALID = 'state_invalid'
+
+# UOW was received by a worker,
+# but no data was found to process
 STATE_NOOP = 'state_noop'
 
 
@@ -59,3 +74,35 @@ class UnitOfWork(BaseDocument):
     number_of_retries = IntegerField(NUMBER_OF_RETRIES, default=0)
     processed_log = DictField(PROCESSED_LOG)
     unit_of_work_type = StringField(UNIT_OF_WORK_TYPE, choices=[TYPE_MANAGED, TYPE_FREERUN])
+
+    @property
+    def is_active(self):
+        return self.state in STATE_REQUESTED, STATE_IN_PROGRESS
+
+    @property
+    def is_finished(self):
+        return self.state in STATE_PROCESSED, STATE_CANCELED, STATE_NOOP, STATE_INVALID
+
+    @property
+    def is_processed(self):
+        return self.state in STATE_PROCESSED
+
+    @property
+    def is_noop(self):
+        return self.state in STATE_NOOP
+
+    @property
+    def is_canceled(self):
+        return self.state == STATE_CANCELED
+
+    @property
+    def is_invalid(self):
+        return self.state == STATE_INVALID
+
+    @property
+    def is_requested(self):
+        return self.state == STATE_REQUESTED
+
+    @property
+    def is_in_progress(self):
+        return self.state == STATE_IN_PROGRESS
