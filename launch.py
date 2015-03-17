@@ -29,10 +29,9 @@ VE_ROOT = path.join(PROJECT_ROOT, '.ve')
 def init_parser():
     try:
         from synergy.conf import context
-        process_choices = context.process_context.keys()
+        process_names = context.process_context.keys()
     except ImportError:
-        process_choices = ['Virtual Environement is pending installation']
-
+        process_names = ['Virtual Environment is pending installation']
 
     main_parser = argparse.ArgumentParser(prog='launch.py')
     subparsers = main_parser.add_subparsers(title='sub-commands', description='list of available sub-commands')
@@ -46,22 +45,30 @@ def init_parser():
     list_parser = subparsers.add_parser('list', help='list available processes')
     list_parser.set_defaults(func=list_processes)
 
+    db_parser = subparsers.add_parser('db', help='manages Synergy DB')
+    db_parser.set_defaults(func=db_command)
+    db_group = db_parser.add_mutually_exclusive_group()
+    db_group.add_argument('--init', action='store_true',
+                          help='writes to managed_process table records from the context.process_context')
+    db_group.add_argument('--flush', action='store_true',
+                          help='drops the *synergy* database, resets schema, initializes db')
+
     start_parser = subparsers.add_parser('start', help='start a process by name')
     start_parser.set_defaults(func=start_process)
-    start_parser.add_argument('process_name', choices=process_choices)
+    start_parser.add_argument('process_name', choices=process_names)
     start_parser.add_argument('--console', action='store_true', help='process is run in interactive (non-daemon) mode')
     start_parser.add_argument('--super', action='store_true', help='operation is performed via Supervisor')
 
     stop_parser = subparsers.add_parser('stop', help='kill a process by name')
     stop_parser.set_defaults(func=stop_process)
-    stop_parser.add_argument('process_name', choices=process_choices)
+    stop_parser.add_argument('process_name', choices=process_names)
     stop_parser.add_argument('--super', action='store_true', help='operation is performed via Supervisor')
 
     query_parser = subparsers.add_parser('query',
                                          help='query a process state [RUNNING, TERMINATED] by name')
     query_parser.set_defaults(func=query_configuration)
     query_group = query_parser.add_mutually_exclusive_group()
-    query_group.add_argument('process_name', nargs='?', choices=process_choices)
+    query_group.add_argument('process_name', nargs='?', choices=process_names)
     query_group.add_argument('--super', action='store_true', help='operation is performed via Supervisor')
 
     test_parser = subparsers.add_parser('test', help='run unit tests from the settings.test_cases list')
@@ -143,10 +150,14 @@ def query_configuration(parser_args):
     """ Queries process state """
     if not parser_args.super:
         from synergy.system import process_helper
-        # reads status of one process only
-        process_helper.poll_process(parser_args.process_name)
+        from synergy.conf import context
+
+        process_names = [parser_args.process_name] if parser_args.process_name else context.process_context.keys()
+        for process_name in process_names:
+            process_helper.poll_process(process_name)
+        sys.stdout.write('\n')
+
     else:
-        # reads current box configuration and prints it to the console
         from constants import PROCESS_LAUNCH_PY
         from synergy.db.dao.box_configuration_dao import BoxConfigurationDao
         from synergy.system.data_logging import get_logger
@@ -157,12 +168,23 @@ def query_configuration(parser_args):
         bc_dao = BoxConfigurationDao(logger)
         sys.stdout.write('\nSupervisor Snapshot for BOX_ID=%r:\n' % box_id)
         box_configuration = bc_dao.get_one(box_id)
-        process_list = box_configuration.get_process_list()
-        i = 1
-        for process in process_list:
-            sys.stdout.write('{0}\t{1}:{2} \n'.format(i, process, process_list[process]))
-            i += 1
+
+        for process_name in box_configuration.process_list:
+            sys.stdout.write('{1}:{2} \n'.format(process_name, box_configuration.process_list[process_name]))
         sys.stdout.write('\n')
+
+
+def db_command(parser_args):
+    """ Manages Synergy DB state """
+    from synergy.db.manager import db_manager
+
+    if parser_args.flush:
+        db_manager.flush_db()
+        # initialize DB with the context.process_context entries
+        parser_args.init = True
+
+    if parser_args.init:
+        db_manager.init_db()
 
 
 def super_change_state(process_name, new_state):
@@ -302,6 +324,10 @@ def run_tests(parser_args):
 
 
 if __name__ == '__main__':
+    python = get_python()
+    if path.exists(python):
+        go_to_ve()
+
     parser = init_parser()
     parser_namespace, extra_parameters = parser.parse_known_args()
     parser_namespace.extra_parameters = extra_parameters

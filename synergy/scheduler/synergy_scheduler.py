@@ -125,7 +125,7 @@ class Scheduler(SynergyProcess):
 
     @with_reconnect
     def start(self, *_):
-        """ reads scheduler entries and starts timer instances, as well as MX thread """
+        """ reads managed process entries and starts timer instances; starts MX thread """
         db_manager.synch_db()
         self._load_managed_entries()
 

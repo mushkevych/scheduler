@@ -1,6 +1,5 @@
 __author__ = 'Bohdan Mushkevych'
 
-from abc import abstractmethod, ABCMeta
 from pymongo import MongoClient, ASCENDING, DESCENDING
 from bson.objectid import ObjectId
 
@@ -34,50 +33,40 @@ if 'ds_factory' not in globals():
     ds_factory = factory()
 
 
-class BaseManager:
+class BaseManager(object):
     """
-    AbstractManager holds definition of the Data Source and an interface to read, write, delete and update (CRUD)
+    BaseManager holds definition of the Data Source and an interface to read, write, delete and update (CRUD)
     models withing the DataSource
     """
-    __metaclass__ = ABCMeta
-
     def __init__(self, logger):
         super(BaseManager, self).__init__()
         self.logger = logger
 
     def __str__(self):
-        raise NotImplementedError('method __str__ is not yet implemented')
+        raise NotImplementedError('method __str__ must be implemented by {0}'.format(self.__class__.__name__))
 
-    @abstractmethod
     def is_alive(self):
         """ :return: True if the database server is available. False otherwise """
-        pass
+        raise NotImplementedError('method is_alive must be implemented by {0}'.format(self.__class__.__name__))
 
-    @abstractmethod
     def get(self, table_name, primary_key):
-        pass
+        raise NotImplementedError('method get must be implemented by {0}'.format(self.__class__.__name__))
 
-    @abstractmethod
     def filter(self, table_name, query):
-        pass
+        raise NotImplementedError('method filter must be implemented by {0}'.format(self.__class__.__name__))
 
-    @abstractmethod
     def update(self, table_name, instance):
-        pass
+        raise NotImplementedError('method update must be implemented by {0}'.format(self.__class__.__name__))
 
-    @abstractmethod
     def delete(self, table_name, primary_key):
-        pass
+        raise NotImplementedError('method delete must be implemented by {0}'.format(self.__class__.__name__))
 
-    @abstractmethod
     def highest_primary_key(self, table_name, timeperiod_low, timeperiod_high):
-        pass
+        raise NotImplementedError('method highest_primary_key must be implemented by {0}'.format(self.__class__.__name__))
 
-    @abstractmethod
     def lowest_primary_key(self, table_name, timeperiod_low, timeperiod_high):
-        pass
+        raise NotImplementedError('method lowest_primary_key must be implemented by {0}'.format(self.__class__.__name__))
 
-    @abstractmethod
     def cursor_for(self,
                    table_name,
                    start_id_obj,
@@ -86,7 +75,7 @@ class BaseManager:
                    start_timeperiod,
                    end_timeperiod,
                    bulk_threshold):
-        pass
+        raise NotImplementedError('method cursor_for must be implemented by {0}'.format(self.__class__.__name__))
 
 
 class MongoDbManager(BaseManager):

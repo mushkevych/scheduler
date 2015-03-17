@@ -21,8 +21,8 @@ def synch_db():
     try:
         process_entries = managed_process_dao.get_all()
     except LookupError:
-        init_db()
-        process_entries = managed_process_dao.get_all()
+        logger.error('Synergy DB is not initialized. Aborting.')
+        exit(1)
 
     for process_entry in process_entries:
         process_name = process_entry.process_name
@@ -41,7 +41,7 @@ def synch_db():
 
 
 def init_db():
-    """ synchronizes the managed_process table with the current context state"""
+    """ writes to managed_process table records from the context.process_context """
     logger = get_logger(PROCESS_SCHEDULER)
     managed_process_dao = ManagedProcessDao(logger)
     managed_process_dao.clear()
@@ -55,10 +55,13 @@ def init_db():
 
 
 def flush_db():
-    """ Removes all data from the *synergy* database, resets schema """
+    """ drops the *synergy* database, resets schema """
     logger = get_logger(PROCESS_SCHEDULER)
+    logger.info('Starting *synergy* DB flush')
+
     ds = ds_manager.ds_factory(logger)
     ds._db_client.drop_database(settings.settings['mongo_db_name'])
+    logger.info('*synergy* db has been dropped')
 
     connection = ds.connection(COLLECTION_MANAGED_PROCESS)
     connection.create_index([(PROCESS_NAME, pymongo.ASCENDING)], unique=True)
@@ -76,6 +79,7 @@ def flush_db():
                             COLLECTION_JOB_MONTHLY, COLLECTION_JOB_YEARLY]:
         connection = ds.connection(collection_name)
         connection.create_index([(PROCESS_NAME, pymongo.ASCENDING), (TIMEPERIOD, pymongo.ASCENDING)], unique=True)
+    logger.info('*synergy* db has been recreated')
 
 
 if __name__ == '__main__':
