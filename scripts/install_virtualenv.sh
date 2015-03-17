@@ -9,9 +9,8 @@ packagelist=(
     # pylint section start
     "logilab-common-0.63.2.tar.gz"
     "logilab-astng-0.24.3.tar.gz"
-    "astroid-1.3.4.tar.gz"
+    "astroid-1.3.5.tar.gz"
     "pylint-1.4.1.tar.gz"
-    # pylint section end
 
     "coverage-4.0a5.tar.gz"
     "unittest-xml-reporting-1.11.0.tar.gz"
@@ -63,7 +62,7 @@ if [[ $3 == 2* ]]; then
     easy_install_bin="easy_install"
 
     # adding python2 specific packages
-    packagelist=("virtualenv-12.0.7.tar.gz" "setuptools-1.4.tar.gz" "distribute-0.7.3.zip"
+    packagelist=("virtualenv-12.0.7.tar.gz" "setuptools-14.0.tar.gz" "distribute-0.7.3.zip"
                  "unittest2-0.8.0.tar.gz" "nose-1.3.4.tar.gz" "mock-1.0.1.tar.gz" "${packagelist[@]}")
 elif [[ $3 == 3* ]]; then
     export PYTHONPATH="$2/lib/python$3/site-packages/"
