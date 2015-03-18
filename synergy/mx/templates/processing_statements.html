@@ -1,15 +1,20 @@
 {% extends 'main_header.html' %}
 {% block body %}
 
-<form style="text-align: center" method="get">
-    Year *:  <input type="text" name="year" value=""/>
-    Month *: <input type="text" name="month" value=""/>
-    Day *: <input type="text" name="day" value=""/>
-    Hour: <input type="text" name="hour" value=""/>
-    Unprocessed only: <input type="checkbox" name="state" checked="true"/>
-    <input type="submit" value="List"/>
-    <br/>
-    <b><i>* mandatory fields</i></b>
+<form style="text-align: center" method="get" id="form_time_window">
+    <label for="days_1">Today</label>
+    <input type="radio" name="time_window" id="days_1" value="days_1"/><br/>
+
+    <label for="days_7">Last 7 Days</label>
+    <input type="radio" name="time_window" id="days_7" value="days_7"/><br/>
+
+    <label for="days_30">Last 30 Days</label>
+    <input type="radio" name="time_window" id="days_30" value="days_30"/><br/>
+
+    <label for="state">Unprocessed only</label>
+    <input type="checkbox" name="state" id="state" checked="true"/>
+
+    <input type="submit" value="List"/> <br/>
 </form>
 
 <table style="width: 90%" class="one-column-emphasis context-menu">
@@ -25,25 +30,25 @@
     </thead>
     <tbody>
 
-    {%- for row in details.entries -%}
-    <tr class="{{ row[2] }}">
-        {% set value = "{ process_name: '" + row[0] + "', timeperiod: '" + row[1] + "' }" %}
+    {%- for process_name, job_entry in details.entries.items() -%}
+    <tr class="{{ job_entry.state }}">
+        {% set value = "{ process_name: '" + job_entry.process_name + "', timeperiod: '" + job_entry.timeperiod + "' }" %}
         <td><input type='checkbox' name='batch_processing' value="{{ value }}" /></td>
-        <td>{{ row[0] }}</td>
-        <td>{{ row[1] }}</td>
-        <td>{{ row[2] }}</td>
+        <td>{{ job_entry.process_name }}</td>
+        <td>{{ job_entry.timeperiod }}</td>
+        <td>{{ job_entry.state }}</td>
         <td>
-            {% set url = 'action=action_get_uow' + '&process_name=' + row[0] + '&timeperiod=' + row[1] %}
+            {% set url = 'action=action_get_uow' + '&process_name=' + job_entry.process_name + '&timeperiod=' + job_entry.timeperiod %}
             <form method="GET" onsubmit="window.open('/object_viewer/?{{ url }}','Get Uow',
                  'toolbar=no,scrollbars=yes,resizable=yes,top=250,left=250,width=400,height=350'); return false;">
-                <input type="submit" value="Get Uow"/>
+                <input type="submit" value="Get&nbsp;Uow"/>
             </form>
         </td>
         <td>
-            {% set url = 'action=action_get_log' + '&process_name=' + row[0] + '&timeperiod=' + row[1] %}
+            {% set url = 'action=action_get_log' + '&process_name=' + job_entry.process_name + '&timeperiod=' + job_entry.timeperiod %}
             <form method="GET" onsubmit="window.open('/object_viewer/?{{ url }}','View Log',
                  'toolbar=no,scrollbars=yes,resizable=yes,top=250,left=250,width=720,height=480'); return false;">
-                <input type="submit" value="View Log"/>
+                <input type="submit" value="View&nbsp;Log"/>
             </form>
         </td>
     </tr>
@@ -62,5 +67,11 @@
         </li>
     </ul>
 </div>
+
+<script type="text/javascript">
+    $(document).ready(function(){
+        $('#form_time_window').submit();
+    });
+</script>
 
 {% endblock %}

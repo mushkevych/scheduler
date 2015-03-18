@@ -17,9 +17,7 @@ class FreerunActionHandler(AbstractActionHandler):
         self.entry_name = self.request_arguments.get('entry_name')
         self.freerun_process_dao = FreerunProcessDao(self.logger)
         self.uow_dao = UnitOfWorkDao(self.logger)
-        self.is_request_valid = self.mbean is not None \
-                                and not not self.process_name \
-                                and not not self.entry_name
+        self.is_request_valid = self.mbean and self.process_name and self.entry_name
 
         if self.is_request_valid:
             self.process_name = self.process_name.strip()

@@ -7,7 +7,7 @@ class AbstractActionHandler(object):
     def __init__(self, mbean, request):
         self.mbean = mbean
         self.logger = self.mbean.logger
-        # self.request = request
+        self.request = request
         self.request_arguments = request.args if request.args else request.form
         self.is_request_valid = False
 

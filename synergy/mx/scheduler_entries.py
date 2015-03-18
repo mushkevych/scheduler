@@ -2,7 +2,6 @@ __author__ = 'Bohdan Mushkevych'
 
 from werkzeug.utils import cached_property
 
-from synergy.db.model.managed_process_entry import STATE_ON
 from synergy.system.event_clock import format_time_trigger_string
 from synergy.system.performance_tracker import FootprintCalculator
 from synergy.mx.rest_models import RestFreerunSchedulerEntry, RestManagedSchedulerEntry

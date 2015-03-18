@@ -14,10 +14,10 @@ from synergy.conf import context
 
 
 QUERY_GET_LIKE_TIMEPERIOD = \
-    lambda timeperiod: {job.TIMEPERIOD: {'$regex': timeperiod}}
+    lambda timeperiod: {job.TIMEPERIOD: {'$gte': timeperiod}}
 
 QUERY_GET_LIKE_TIMEPERIOD_AND_NOT_PROCESSED = \
-    lambda timeperiod: {job.TIMEPERIOD: {'$regex': timeperiod},
+    lambda timeperiod: {job.TIMEPERIOD: {'$gte': timeperiod},
                         job.STATE: {'$ne': job.STATE_PROCESSED}}
 
 

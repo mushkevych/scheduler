@@ -111,19 +111,19 @@ class TreeNode(object):
 
         # step 2: define if all children are done and if perhaps they all are in STATE_SKIPPED
         all_children_skipped = True
-        all_children_done = True
+        all_children_finished = True
         for timeperiod in self.children:
             child = self.children[timeperiod]
             child.validate()
 
             if child.job_record.is_active:
-                all_children_done = False
+                all_children_finished = False
             if not child.job_record.is_skipped:
                 all_children_skipped = False
 
         # step 3: request this node's reprocessing if it is enroute to STATE_PROCESSED
         # while some of its children are still performing processing
-        if all_children_done is False and self.job_record.is_finished:
+        if all_children_finished is False and self.job_record.is_finished:
             self.request_reprocess()
 
         # step 4: verify if this node should be transferred to STATE_SKIPPED

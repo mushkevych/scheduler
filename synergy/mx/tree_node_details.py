@@ -14,7 +14,7 @@ class TreeNodeDetails(object):
         self.mbean = mbean
         self.process_name = request.args.get('process_name')
         self.timeperiod = request.args.get('timeperiod')
-        self.is_request_valid = self.mbean is not None
+        self.is_request_valid = True if self.mbean else False
 
     @classmethod
     def get_details(cls, node, as_model=False):

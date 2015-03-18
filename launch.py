@@ -158,14 +158,12 @@ def query_configuration(parser_args):
         sys.stdout.write('\n')
 
     else:
-        from constants import PROCESS_LAUNCH_PY
+        import logging
         from synergy.db.dao.box_configuration_dao import BoxConfigurationDao
-        from synergy.system.data_logging import get_logger
         from synergy.supervisor import supervisor_helper
 
-        logger = get_logger(PROCESS_LAUNCH_PY)
-        box_id = supervisor_helper.get_box_id(logger)
-        bc_dao = BoxConfigurationDao(logger)
+        box_id = supervisor_helper.get_box_id(logging)
+        bc_dao = BoxConfigurationDao(logging)
         sys.stdout.write('\nSupervisor Snapshot for BOX_ID=%r:\n' % box_id)
         box_configuration = bc_dao.get_one(box_id)
 
@@ -188,17 +186,15 @@ def db_command(parser_args):
 
 
 def super_change_state(process_name, new_state):
-    from constants import PROCESS_LAUNCH_PY
+    import logging
     from synergy.db.dao.box_configuration_dao import BoxConfigurationDao
     from synergy.supervisor import supervisor_helper
-    from synergy.system.data_logging import get_logger
 
-    logger = get_logger(PROCESS_LAUNCH_PY)
-    box_id = supervisor_helper.get_box_id(logger)
+    box_id = supervisor_helper.get_box_id(logging)
     message = 'INFO: Supervisor configuration: setting state {0} for process {1} \n'.format(new_state, process_name)
     sys.stdout.write(message)
 
-    bc_dao = BoxConfigurationDao(logger)
+    bc_dao = BoxConfigurationDao(logging)
     box_config = bc_dao.get_one(box_id)
     box_config.set_process_state(process_name, new_state)
     bc_dao.update(box_config)
@@ -284,7 +280,6 @@ def run_tests(parser_args):
     import unittest
     import logging
     import settings
-
     settings.enable_test_mode()
 
     def unittest_main(test_runner=None):
