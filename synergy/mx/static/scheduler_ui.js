@@ -142,7 +142,7 @@ OUTPUT_DOCUMENT.build_navigational_panel = function (vertical_json) {
 
     // phase 2: define function to build expandable panel per process
     function per_process(k, v) {
-        var enable_pagination = v.processes.length == 1;
+        var enable_pagination = Object.keys(v.processes).length == 1;
         var li = $('<li></li>');
         var a = $('<a href="#">' + k + '</a>').click(function (e) {
             e.preventDefault();
