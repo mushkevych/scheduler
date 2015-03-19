@@ -1,9 +1,9 @@
 {% extends 'main_header.html' %}
 {% block body %}
 
-<form style="text-align: center" method="get" id="form_time_window">
+<form data-form_initial_load="{{ 'true' if details.is_request_valid else 'false' }}" style="text-align: center" method="get" id="form_time_window">
     <label for="days_1">Today</label>
-    <input type="radio" name="time_window" id="days_1" value="days_1"/><br/>
+    <input type="radio" name="time_window" id="days_1" value="days_1" checked/><br/>
 
     <label for="days_7">Last 7 Days</label>
     <input type="radio" name="time_window" id="days_7" value="days_7"/><br/>
@@ -69,9 +69,11 @@
 </div>
 
 <script type="text/javascript">
-    $(document).ready(function(){
-        $('#form_time_window').submit();
-    });
+    if ($('#form_time_window').data('form_initial_load') == false) {
+        $(document).ready(function () {
+            $('#form_time_window').submit();
+        });
+    }
 </script>
 
 {% endblock %}
