@@ -15,7 +15,6 @@ from synergy.mx.tree_node_details import TreeNodeDetails
 from synergy.mx.tree_details import TreeDetails
 
 
-@expose('/')
 @expose('/scheduler_managed_entries/')
 def scheduler_managed_entries(request):
     details = SchedulerEntries(jinja_env.globals['mbean'])
@@ -43,6 +42,7 @@ def timetable_details(request):
     return render_template('timetable_details.html', details=details.timetable_entries)
 
 
+@expose('/')
 @expose('/processing_statements/')
 def processing_statements(request):
     details = ProcessingStatementDetails(jinja_env.globals['mbean'], request)

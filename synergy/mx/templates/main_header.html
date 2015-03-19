@@ -28,12 +28,12 @@
     </thead>
     <tbody>
     <tr>
+        <td><a href="{{ url_for('processing_statements') }}">processing statements</a></td>
         <td><a href="{{ url_for('scheduler_managed_entries') }}">scheduler managed entries</a></td>
         <td><a href="{{ url_for('scheduler_freerun_entries') }}">scheduler freerun entries</a></td>
         {%- for mx_rule, mx_page_name in mx_processing_context.items() %}
             <td><a href="/{{ mx_rule }}">{{ mx_page_name }}</a></td>
         {%- endfor -%}
-        <td><a href="{{ url_for('processing_statements') }}">processing statements</a></td>
         <td><a href="{{ url_for('timetable_details') }}">timetable details</a></td>
     </tr>
     </tbody>

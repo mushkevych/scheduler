@@ -1,5 +1,6 @@
 __author__ = 'Bohdan Mushkevych'
 
+from collections import OrderedDict
 from threading import RLock
 
 from werkzeug.utils import cached_property
@@ -22,11 +23,7 @@ class ProcessingStatementDetails(object):
         self.logger = self.mbean.logger
         self.request = request
         self.time_window = self.request.args.get('time_window')
-        self.state = self.request.args.get('state')
-        if self.state is not None and self.state == 'on':
-            self.state = True
-        else:
-            self.state = False
+        self.state = self.request.args.get('state') == 'on'
 
         self.is_request_valid = self.mbean and self.time_window
 
@@ -35,22 +32,15 @@ class ProcessingStatementDetails(object):
     def entries(self):
         processor = ProcessingStatements(self.logger)
         actual_timeperiod = time_helper.actual_timeperiod(QUALIFIER_DAILY)
-        delta = int(self.time_window[len(TIME_WINDOW_DAY_PREFIX):])
+        delta = int(self.time_window[len(TIME_WINDOW_DAY_PREFIX) + 1:])
         start_timeperiod = time_helper.increment_timeperiod(QUALIFIER_DAILY, actual_timeperiod, -delta)
 
         selection = processor.retrieve_for_timeperiod(start_timeperiod, self.state)
-        sorter_keys = sorted(selection.keys())
-
-        resp = []
-        for key in sorter_keys:
-            t = (key[0], key[1], selection[key].state)
-            resp.append(t)
+        resp = OrderedDict(sorted(selection.items()))
         return resp
 
 
 class ProcessingStatements(object):
-    """ Reads from DB status of timeperiods and their processing status """
-
     def __init__(self, logger):
         self.lock = RLock()
         self.logger = logger

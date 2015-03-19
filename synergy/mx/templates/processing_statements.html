@@ -2,18 +2,11 @@
 {% block body %}
 
 <form data-form_initial_load="{{ 'true' if details.is_request_valid else 'false' }}" style="text-align: center" method="get" id="form_time_window">
-    <label for="days_1">Today</label>
-    <input type="radio" name="time_window" id="days_1" value="days_1" checked/><br/>
-
-    <label for="days_7">Last 7 Days</label>
-    <input type="radio" name="time_window" id="days_7" value="days_7"/><br/>
-
-    <label for="days_30">Last 30 Days</label>
-    <input type="radio" name="time_window" id="days_30" value="days_30"/><br/>
-
-    <label for="state">Unprocessed only</label>
-    <input type="checkbox" name="state" id="state" checked="true"/>
-
+    <label><input type="radio" name="time_window" id="days_1" value="days_1" checked/>Today</label>
+    <label><input type="radio" name="time_window" id="days_7" value="days_7"/>Last 7 Days</label>
+    <label><input type="radio" name="time_window" id="days_30" value="days_30"/>Last 30 Days</label>
+    <br/>
+    <label><input type="checkbox" name="state" id="state" checked="true"/>Unprocessed only</label>
     <input type="submit" value="List"/> <br/>
 </form>
 
