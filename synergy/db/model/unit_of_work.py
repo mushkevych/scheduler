@@ -79,11 +79,11 @@ class UnitOfWork(BaseDocument):
 
     @property
     def is_active(self):
-        return self.state in STATE_REQUESTED, STATE_IN_PROGRESS, STATE_INVALID
+        return self.state in [STATE_REQUESTED, STATE_IN_PROGRESS, STATE_INVALID]
 
     @property
     def is_finished(self):
-        return self.state in STATE_PROCESSED, STATE_CANCELED, STATE_NOOP
+        return self.state in [STATE_PROCESSED, STATE_CANCELED, STATE_NOOP]
 
     @property
     def is_processed(self):

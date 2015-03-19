@@ -230,7 +230,7 @@ class MultiLevelTree(AbstractTree):
         if process_name not in self.process_hierarchy:
             raise ValueError('unable to compute the next_node due to unknown process: %s' % process_name)
 
-        time_qualifier = self.process_hierarchy[process_name].time_qualifier
+        time_qualifier = self.process_hierarchy[process_name].process_entry.time_qualifier
         return self._get_next_node(time_qualifier)
 
     def update_node(self, job_record):
@@ -240,7 +240,7 @@ class MultiLevelTree(AbstractTree):
         if job_record.process_name not in self.process_hierarchy:
             raise ValueError('unable to update the node due to unknown process: %s' % job_record.process_name)
 
-        time_qualifier = self.process_hierarchy[job_record.process_name].time_qualifier
+        time_qualifier = self.process_hierarchy[job_record.process_name].process_entry.time_qualifier
         node = self._get_node(time_qualifier, job_record.timeperiod)
         node.job_record = job_record
 

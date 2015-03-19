@@ -68,11 +68,11 @@ class Job(BaseDocument):
 
     @property
     def is_active(self):
-        return self.state in STATE_FINAL_RUN, STATE_IN_PROGRESS, STATE_EMBRYO
+        return self.state in [STATE_FINAL_RUN, STATE_IN_PROGRESS, STATE_EMBRYO]
 
     @property
     def is_finished(self):
-        return self.state in STATE_PROCESSED, STATE_SKIPPED, STATE_NOOP
+        return self.state in [STATE_PROCESSED, STATE_SKIPPED, STATE_NOOP]
 
     @property
     def is_processed(self):
