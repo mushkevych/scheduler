@@ -10,7 +10,7 @@
     <input type="submit" value="List"/> <br/>
 </form>
 
-<table style="width: 90%" class="one-column-emphasis context-menu">
+<table style="width: 90%" class="one-column-emphasis context-menu synergy_datatable">
     <thead>
     <tr class="oce-first">
         <th scope="col"><input type='checkbox' name ='select_all' onclick='toggle_all_checkboxes(this)'/> </th>
@@ -67,6 +67,17 @@
             $('#form_time_window').submit();
         });
     }
+
+    // convert HTML table into JS dataTable
+    $('.synergy_datatable').dataTable({"bPaginate": true,
+        "bSort": true,
+        "iDisplayLength": 36,
+        "bLengthChange": false,
+        "aaSorting": [
+            [ 1, "asc" ],
+            [ 2, "asc" ]
+        ]
+    });
 </script>
 
 {% endblock %}
