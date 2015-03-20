@@ -1,0 +1,23 @@
+{% extends 'main_header.html' %}
+{% block body %}
+
+    <div class="">
+        <div id="mx_tree-grid" class="grid-15"></div>
+        <div id="column_1-grid" class="grid-15 context-menu"></div>
+        <div id="column_2-grid" class="grid-15 context-menu"></div>
+        <div id="column_3-grid" class="grid-15 context-menu"></div>
+        <div id="column_4-grid" class="grid-15 context-menu"></div>
+    </div>
+
+    <div class="context_menu_hide" id="rmenu">
+        <ul>
+            <li>
+                <a onclick="process_batch('action_skip', false)">Skip</a>
+            </li>
+            <li>
+                <a onclick="process_batch('action_reprocess', false)">Reprocess</a>
+            </li>
+        </ul>
+    </div>
+
+{% endblock %}

@@ -1,0 +1,56 @@
+body {
+    padding: 20px;
+    font-family: Arial;
+}
+
+.grid-container {
+    width: 55%;
+    float: left;
+}
+
+.grid-15 {
+    width: 15%;
+    height: 600px;
+    position: relative;
+    overflow-x: hidden;
+    overflow-y: scroll;
+    background-color: #ddd;
+    margin: 10px 0px;
+    border: 10px solid #ddd;
+    float: left;
+}
+
+.grid {
+    width: 95%;
+    height: 600px;
+    position: relative;
+    overflow-x: hidden;
+    overflow-y: scroll;
+    background-color: #ddd;
+    margin: 10px 0px;
+    border: 10px solid #ddd;
+    clear: both;
+}
+
+.grid > div {
+    background-color: #fff;
+    position: absolute;
+}
+
+.grid-15 > div {
+    background-color: #fff;
+    position: absolute;
+}
+
+.dev-tile-number, .dev-tile-size {
+    font-size: 36px;
+    padding: 10px;
+}
+
+.dev-title-content {
+    font-size: 16px;
+}
+
+.dev-tiles-templates ul {
+    margin-bottom: 10px;
+}

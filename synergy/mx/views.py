@@ -165,6 +165,11 @@ def object_viewer(request):
     return render_template('object_viewer.html')
 
 
+@expose('/mx_page_tiles/')
+def mx_page_tiles(request):
+    return render_template('mx_page_tiles.html')
+
+
 # referenced from mx.utils.py module
 def processing_details(request):
     return render_template('processing_details.html')

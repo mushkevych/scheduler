@@ -5,11 +5,14 @@
 <head profile="http://www.w3.org/2005/10/profile">
     <meta http-equiv="content-type" content="text/html; charset=UTF-8"/>
     <link rel="stylesheet" type="text/css" href="{{ url_for('static', file='scheduler_ui.css') }}">
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', file='mx_page.css') }}">
     <link rel="icon" type="image/png" href="{{ url_for('static', file='images/sy_brown.png') }}">
     <script type="text/javascript" src="{{ url_for('static', file='jquery-1.8.2.min.js') }}"></script>
     <script type="text/javascript" src="{{ url_for('static', file='jquery.dataTables-1.9.4.min.js') }}"></script>
     <script type="text/javascript" src="{{ url_for('static', file='scheduler_ui.js') }}"></script>
     <script type="text/javascript" src="{{ url_for('static', file='navigation_menu.js') }}"></script>
+    <script type="text/javascript" src="{{ url_for('static', file='tiles.js') }}"></script>
+    <script type="text/javascript" src="{{ url_for('static', file='mx_page.js') }}"></script>
     <title>Synergy Scheduler</title>
 </head>
 
@@ -23,13 +26,14 @@
         {%- for mx_rule, mx_name in mx_processing_context.items() -%}
         <th></th>
         {%- endfor -%}
-        <th colspan="2" style="text-align: right">page last updated: {{ get_current_time() }}</th>
+        <th colspan="3" style="text-align: right">page last updated: {{ get_current_time() }}</th>
     </tr>
     </thead>
     <tbody>
     <tr>
         <td><a href="{{ url_for('dashboard_managed') }}">dashboard jobs</a></td>
         <td><a href="{{ url_for('dashboard_freeruns') }}">dashboard freeruns</a></td>
+        <td><a href="{{ url_for('mx_page_tiles') }}">tiles poc</a></td>
         {%- for mx_rule, mx_page_name in mx_processing_context.items() %}
             <td><a href="/{{ mx_rule }}">{{ mx_page_name }}</a></td>
         {%- endfor -%}
