@@ -72,7 +72,7 @@ class ContinuousSMUnitTest(unittest.TestCase):
         when(self.ds_mocked).lowest_primary_key(any(str), any(str), any(str)).thenReturn(0)
 
         job_record = get_job_record(job.STATE_EMBRYO, TEST_PRESET_TIMEPERIOD, PROCESS_SITE_HOURLY)
-        sm_spy.manage_job(job_record.process_name, job_record)
+        sm_spy.manage_job(job_record)
 
         verify(self.time_table_mocked).update_job_record(any(Job), any(UnitOfWork), any(str))
 
@@ -83,7 +83,7 @@ class ContinuousSMUnitTest(unittest.TestCase):
 
         job_record = get_job_record(job.STATE_EMBRYO, TEST_PRESET_TIMEPERIOD, PROCESS_SITE_HOURLY)
         try:
-            sm_spy.manage_job(job_record.process_name, job_record)
+            sm_spy.manage_job(job_record)
             self.assertTrue(False, 'UserWarning exception should have been thrown')
         except UserWarning:
             self.assertTrue(True)
@@ -99,7 +99,7 @@ class ContinuousSMUnitTest(unittest.TestCase):
         self.sm_real.insert_and_publish_uow = then_return_duplicate_uow
         sm_spy = spy(self.sm_real)
 
-        sm_spy.manage_job(job_record.process_name, job_record)
+        sm_spy.manage_job(job_record)
         verify(self.time_table_mocked, times=0).update_job_record(any(Job), any(UnitOfWork), any(str))
 
     def test_preset_timeperiod_state_in_progress(self):
@@ -116,7 +116,7 @@ class ContinuousSMUnitTest(unittest.TestCase):
         sm_spy = spy(self.sm_real)
 
         job_record = get_job_record(job.STATE_IN_PROGRESS, TEST_PRESET_TIMEPERIOD, PROCESS_SITE_HOURLY)
-        sm_spy.manage_job(job_record.process_name, job_record)
+        sm_spy.manage_job(job_record)
 
         verify(self.time_table_mocked, times=1).update_job_record(any(Job), any(UnitOfWork), any(str))
         # verify(sm_spy, times=1)._compute_and_transfer_to_final_run(any(str), any(str), any(str), any(Job))
@@ -136,7 +136,7 @@ class ContinuousSMUnitTest(unittest.TestCase):
         sm_spy = spy(self.sm_real)
 
         job_record = get_job_record(job.STATE_IN_PROGRESS, TEST_PRESET_TIMEPERIOD, PROCESS_SITE_HOURLY)
-        sm_spy.manage_job(job_record.process_name, job_record)
+        sm_spy.manage_job(job_record)
 
         verify(self.time_table_mocked, times=2).update_job_record(any(Job), any(UnitOfWork), any(str))
         # verify(sm_spy, times=1)._compute_and_transfer_to_final_run(any(str), any(str), any(str), any(Job))
@@ -150,7 +150,7 @@ class ContinuousSMUnitTest(unittest.TestCase):
         sm_spy = spy(self.sm_real)
 
         job_record = get_job_record(job.STATE_FINAL_RUN, TEST_PRESET_TIMEPERIOD, PROCESS_SITE_HOURLY)
-        sm_spy.manage_job(job_record.process_name, job_record)
+        sm_spy.manage_job(job_record)
 
         verify(self.time_table_mocked, times=1).update_job_record(any(Job), any(UnitOfWork), any(str))
         verify(self.time_table_mocked, times=1).get_tree(any(str))
@@ -162,7 +162,7 @@ class ContinuousSMUnitTest(unittest.TestCase):
 
         sm_spy = spy(self.sm_real)
         job_record = get_job_record(job.STATE_FINAL_RUN, TEST_PRESET_TIMEPERIOD, PROCESS_SITE_HOURLY)
-        sm_spy.manage_job(job_record.process_name, job_record)
+        sm_spy.manage_job(job_record)
 
         verify(self.time_table_mocked, times=1).update_job_record(any(Job), any(UnitOfWork), any(str))
         verify(self.time_table_mocked, times=1).get_tree(any(str))
@@ -171,7 +171,7 @@ class ContinuousSMUnitTest(unittest.TestCase):
         """method tests job records in STATE_SKIPPED state"""
         sm_spy = spy(self.sm_real)
         job_record = get_job_record(job.STATE_SKIPPED, TEST_PRESET_TIMEPERIOD, PROCESS_SITE_HOURLY)
-        sm_spy.manage_job(job_record.process_name, job_record)
+        sm_spy.manage_job(job_record)
 
         verify(self.time_table_mocked, times=0).update_job_record(any(Job), any(UnitOfWork), any(str))
         verify(self.time_table_mocked, times=0).get_tree(any(str))
@@ -180,7 +180,7 @@ class ContinuousSMUnitTest(unittest.TestCase):
         """method tests job records in STATE_PROCESSED state"""
         sm_spy = spy(self.sm_real)
         job_record = get_job_record(job.STATE_PROCESSED, TEST_PRESET_TIMEPERIOD, PROCESS_SITE_HOURLY)
-        sm_spy.manage_job(job_record.process_name, job_record)
+        sm_spy.manage_job(job_record)
 
         verify(self.time_table_mocked, times=0).update_job_record(any(Job), any(UnitOfWork), any(str))
         verify(self.time_table_mocked, times=0).get_tree(any(str))

@@ -36,7 +36,7 @@ class StateMachineDiscrete(AbstractStateMachine):
         time_qualifier = context.process_context[job_record.process_name].time_qualifier
         end_timeperiod = time_helper.increment_timeperiod(time_qualifier, job_record.timeperiod)
         uow, is_duplicate = self.insert_and_publish_uow(job_record.process_name,
-                                                        job_record.start_timeperiod,
+                                                        job_record.timeperiod,
                                                         end_timeperiod,
                                                         0,
                                                         0)

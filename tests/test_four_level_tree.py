@@ -6,7 +6,7 @@ from constants import PROCESS_SITE_HOURLY, TOKEN_SITE, PROCESS_SITE_YEARLY, PROC
 from tests.ut_context import PROCESS_UNIT_TEST
 from synergy.system import time_helper
 from synergy.system.time_qualifier import *
-from synergy.scheduler.tree import FourLevelTree
+from synergy.scheduler.tree import MultiLevelTree
 from synergy.conf import settings
 
 
@@ -14,12 +14,9 @@ class TestFourLevelTree(unittest.TestCase):
     def setUp(self):
         self.initial_actual_timeperiod = time_helper.actual_timeperiod
         self.initial_synergy_start_time = settings.settings['synergy_start_timeperiod']
-        self.tree = FourLevelTree(PROCESS_SITE_YEARLY,
-                                  PROCESS_SITE_MONTHLY,
-                                  PROCESS_SITE_DAILY,
-                                  PROCESS_SITE_HOURLY,
-                                  TOKEN_SITE,
-                                  'some_mx_page')
+        self.tree = MultiLevelTree(process_names=[PROCESS_SITE_YEARLY, PROCESS_SITE_MONTHLY,
+                                                  PROCESS_SITE_DAILY,  PROCESS_SITE_HOURLY],
+                                   mx_name=TOKEN_SITE, mx_page='some_mx_page')
 
     def tearDown(self):
         del self.tree
