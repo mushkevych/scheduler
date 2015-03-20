@@ -24,11 +24,53 @@ var DemoTemplateRows = [
     fillArray(" . ", 24)   // hourly
 ];
 
+function sidebar_tree_tile(mx_tree, html_el) {
+    html_el.append('<div class="dev-tile-content">Tree Name</div>'
+        + '<div class="dev-tile-content">' + mx_tree.tree_name + '</div>'
+        + '<div class="dev-tile-content">Dependent On</div>'
+        + '<div class="dev-tile-content">' + mx_tree.dependent_on + '</div>'
+        + '<div class="dev-tile-content">Dependant Trees</div>'
+        + '<div class="dev-tile-content">' + mx_tree.dependant_trees + '</div>');
+}
+
+function sidebar_process_tile(process_entry, html_el) {
+    html_el.append('<div class="dev-tile-content">Process Name</div>'
+        + '<div class="dev-tile-content">' + process_entry.process_name + '</div>'
+        + '<div class="dev-tile-content">Time Qualifier</div>'
+        + '<div class="dev-tile-content">' + process_entry.time_qualifier + '</div>'
+        + '<div class="dev-tile-content">State Machine</div>'
+        + '<div class="dev-tile-content">' + process_entry.state_machine + '</div>'
+        + '<div class="dev-tile-content">Blocking type</div>'
+        + '<div class="dev-tile-content">' + process_entry.blocking_type + '</div>'
+        + '<div class="dev-tile-content">Run On Active Timeperiod</div>'
+        + '<div class="dev-tile-content">' + process_entry.run_on_active_timeperiod + '</div>'
+        + '<div class="dev-tile-content">Blocking type</div>'
+        + '<div class="dev-tile-content">' + process_entry.blocking_type + '</div>'
+        + '<div class="dev-tile-content">Trigger Frequency</div>'
+        + '<input type="text" size="8" maxlength="32" name="interval" value="' + process_entry.trigger_frequency + '" />');
+
+}
+
+function header_process_tile(process_entry, html_el) {
+    html_el.append('<div class="dev-tile-content">Trigger On/Alive</div>'
+        + '<div class="dev-tile-content">' + process_entry.is_on + '/' + process_entry.is_alive + '</div>'
+        + '<div class="dev-tile-content">Process Name</div>'
+        + '<div class="dev-tile-content">' + process_entry.process_name + '</div>'
+        + '<div class="dev-tile-content">Next Timeperiod</div>'
+        + '<div class="dev-tile-content">' + process_entry.next_timeperiod + '</div>'
+        + '<div class="dev-tile-content">Next Run In</div>'
+        + '<div class="dev-tile-content">' + process_entry.next_run_in + '</div>'
+        + '<div class="dev-tile-content">' + 'Trigger Now Button' + '</div>'
+        + '<div class="dev-tile-content">Reprocessing Queue</div>'
+        + '<div class="dev-tile-content">' + row.next_timeperiod + '</div>');
+}
+
+
 $(function () {
-    var sample_grids = [1, 2, 3, 4];
+    var mx_trees = [1, 2, 3, 4];
     var i;
-    for (i in sample_grids) {
-        var x = sample_grids[i];
+    for (i in mx_trees) {
+        var x = mx_trees[i];
 
         var grid_name = "column_" + x + "-grid";
         var el = document.getElementById(grid_name);
@@ -63,9 +105,10 @@ $(function () {
             });
 
             var tile = new Tiles.Tile(tileId);
+            tile.$el.attr('class', tile_state);
             tile.$el.append(checkbox_div);
             tile.$el.append(
-                    '<div class="dev-tile-content">column id:' + i +'</div>'
+                    '<div class="dev-tile-content">column id:' + i + '</div>'
                     + '<div class="dev-tile-content">tile id:' + tileId + '</div>'
                     + '<div class="dev-title-content">timeperiod:' + tile_timeperiod + '</div>'
                     + '<div class="dev-title-content">state:' + tile_state + '</div>'

@@ -501,6 +501,14 @@ tr.state_skipped td {
     color: #000000;
 }
 
+tr.state_noop {
+    background-color: #FFCCAA;
+}
+
+tr.state_noop td {
+    color: #000000;
+}
+
 tr.state_inconsistent {
     background-color: #d28aff;
 }

@@ -14,9 +14,9 @@ body {
     position: relative;
     overflow-x: hidden;
     overflow-y: scroll;
-    background-color: #ddd;
+    background-color: whitesmoke;
     margin: 10px 0px;
-    border: 10px solid #ddd;
+    border: 5px solid white;
     float: left;
 }
 
@@ -53,4 +53,60 @@ body {
 
 .dev-tiles-templates ul {
     margin-bottom: 10px;
+}
+
+div.state_embryo {
+    background-color: #eff2ff;
+}
+
+div.state_embryo div {
+    color: #669;
+}
+
+div.state_in_progress {
+    background-color: #C3FDB8;
+}
+
+div.state_in_progress div {
+    color: #000000;
+}
+
+div.state_processed {
+    background-color: #15C200;
+}
+
+div.state_processed div {
+    color: #FFFFFF;
+}
+
+div.state_final_run {
+    background-color: #ADFF2F;
+}
+
+div.state_final_run div {
+    color: #000000;
+}
+
+div.state_skipped {
+    background-color: #FF4500;
+}
+
+div.state_skipped div {
+    color: #000000;
+}
+
+div.state_noop {
+    background-color: #FFCCAA;
+}
+
+div.state_noop div {
+    color: #000000;
+}
+
+div.state_inconsistent {
+    background-color: #d28aff;
+}
+
+div.state_inactive {
+    background-color: lightgray;
 }
