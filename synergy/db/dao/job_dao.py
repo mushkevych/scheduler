@@ -13,12 +13,10 @@ from synergy.scheduler.scheduler_constants import COLLECTION_JOB_HOURLY, COLLECT
 from synergy.conf import context
 
 
-QUERY_GET_LIKE_TIMEPERIOD = \
-    lambda timeperiod: {job.TIMEPERIOD: {'$gte': timeperiod}}
-
-QUERY_GET_LIKE_TIMEPERIOD_AND_NOT_PROCESSED = \
-    lambda timeperiod: {job.TIMEPERIOD: {'$gte': timeperiod},
-                        job.STATE: {'$ne': job.STATE_PROCESSED}}
+QUERY_GET_LIKE_TIMEPERIOD = lambda timeperiod, unprocessed_only: {
+    job.TIMEPERIOD: {'$gte': timeperiod},
+    job.STATE: {'$ne': job.STATE_PROCESSED if unprocessed_only else None}
+}
 
 
 class JobDao(object):

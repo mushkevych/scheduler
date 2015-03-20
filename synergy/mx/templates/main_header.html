@@ -23,12 +23,13 @@
         {%- for mx_rule, mx_name in mx_processing_context.items() -%}
         <th></th>
         {%- endfor -%}
-        <th style="text-align: right">page last updated: {{ get_current_time() }}</th>
+        <th colspan="2" style="text-align: right">page last updated: {{ get_current_time() }}</th>
     </tr>
     </thead>
     <tbody>
     <tr>
-        <td><a href="{{ url_for('processing_statements') }}">dashboard</a></td>
+        <td><a href="{{ url_for('dashboard_managed') }}">dashboard jobs</a></td>
+        <td><a href="{{ url_for('dashboard_freeruns') }}">dashboard freeruns</a></td>
         {%- for mx_rule, mx_page_name in mx_processing_context.items() %}
             <td><a href="/{{ mx_rule }}">{{ mx_page_name }}</a></td>
         {%- endfor -%}

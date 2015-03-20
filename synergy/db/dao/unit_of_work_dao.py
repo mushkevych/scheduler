@@ -16,6 +16,12 @@ from synergy.db.model import unit_of_work
 from synergy.db.model.unit_of_work import UnitOfWork
 from synergy.db.manager import ds_manager
 
+QUERY_GET_FREERUN_SINCE = lambda timeperiod, unprocessed_only: {
+    unit_of_work.TIMEPERIOD: {'$gte': timeperiod},
+    unit_of_work.UNIT_OF_WORK_TYPE: unit_of_work.TYPE_FREERUN,
+    unit_of_work.STATE: {'$ne': unit_of_work.STATE_PROCESSED if unprocessed_only else None}
+}
+
 
 class UnitOfWorkDao(object):
     """ Thread-safe Data Access Object from units_of_work table/collection """
@@ -127,6 +133,12 @@ class UnitOfWorkDao(object):
         assert isinstance(uow_id, (str, ObjectId))
         collection = self.ds.connection(COLLECTION_UNIT_OF_WORK)
         return collection.remove(uow_id, safe=True)
+
+    @thread_safe
+    def run_query(self, query):
+        """ method runs the query and returns a list of filtered UnitOfWork records """
+        cursor = self.ds.filter(COLLECTION_UNIT_OF_WORK, query)
+        return [UnitOfWork.from_json(document) for document in cursor]
 
     def recover_from_duplicatekeyerror(self, e):
         """ method tries to recover from DuplicateKeyError """

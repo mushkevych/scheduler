@@ -78,6 +78,10 @@ class UnitOfWork(BaseDocument):
     unit_of_work_type = StringField(UNIT_OF_WORK_TYPE, choices=[TYPE_MANAGED, TYPE_FREERUN])
 
     @property
+    def key(self):
+        return self.process_name, self.timeperiod, self.start_id, self.end_id
+
+    @property
     def is_active(self):
         return self.state in [STATE_REQUESTED, STATE_IN_PROGRESS, STATE_INVALID]
 

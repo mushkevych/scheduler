@@ -9,7 +9,7 @@ from werkzeug.wrappers import Response
 from synergy.mx.freerun_action_handler import FreerunActionHandler
 from synergy.mx.managed_action_handler import ManagedActionHandler
 from synergy.mx.scheduler_entries import SchedulerEntries
-from synergy.mx.processing_statements import ProcessingStatementDetails
+from synergy.mx.dashboard_handler import DashboardHandler
 from synergy.mx.utils import render_template, expose, jinja_env
 from synergy.mx.tree_node_details import TreeNodeDetails
 from synergy.mx.tree_details import TreeDetails
@@ -43,10 +43,16 @@ def timetable_details(request):
 
 
 @expose('/')
-@expose('/processing_statements/')
-def processing_statements(request):
-    details = ProcessingStatementDetails(jinja_env.globals['mbean'], request)
-    return render_template('processing_statements.html', details=details)
+@expose('/dashboard_managed/')
+def dashboard_managed(request):
+    details = DashboardHandler(jinja_env.globals['mbean'], request)
+    return render_template('dashboard_managed.html', details=details)
+
+
+@expose('/dashboard_freeruns/')
+def dashboard_freeruns(request):
+    details = DashboardHandler(jinja_env.globals['mbean'], request)
+    return render_template('dashboard_freeruns.html', details=details)
 
 
 @expose('/request_tree_nodes/')

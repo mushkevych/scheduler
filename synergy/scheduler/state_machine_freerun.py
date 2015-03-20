@@ -51,11 +51,10 @@ class StateMachineFreerun(object):
     def _insert_uow(self, freerun_entry):
         """ creates unit_of_work and inserts it into the DB
             :raise DuplicateKeyError: if unit_of_work with given parameters already exists """
-        schedulable_name = '%s::%s' % (freerun_entry.process_name, freerun_entry.entry_name)
         current_timeperiod = time_helper.actual_timeperiod(QUALIFIER_REAL_TIME)
 
         uow = UnitOfWork()
-        uow.process_name = schedulable_name
+        uow.process_name = freerun_entry.schedulable_name
         uow.timeperiod = current_timeperiod
         uow.start_id = 0
         uow.end_id = 0
@@ -70,12 +69,12 @@ class StateMachineFreerun(object):
         uow.arguments = freerun_entry.arguments
         uow.db_id = self.uow_dao.insert(uow)
 
-        msg = 'Created: UOW %s for %s in timeperiod %s.' % (uow.db_id, schedulable_name, current_timeperiod)
+        msg = 'Created: UOW %s for %s in timeperiod %s.' \
+              % (uow.db_id, freerun_entry.schedulable_name, current_timeperiod)
         self._log_message(INFO, freerun_entry, msg)
         return uow
 
     def _publish_uow(self, freerun_entry, uow):
-        schedulable_name = '%s::%s' % (freerun_entry.process_name, freerun_entry.entry_name)
         mq_request = SynergyMqTransmission(process_name=freerun_entry.process_name,
                                            entry_name=freerun_entry.entry_name,
                                            unit_of_work_id=uow.db_id)
@@ -84,15 +83,14 @@ class StateMachineFreerun(object):
         publisher.publish(mq_request.document)
         publisher.release()
 
-        msg = 'Published: UOW %s for %s.' % (uow.db_id, schedulable_name)
+        msg = 'Published: UOW %s for %s.' % (uow.db_id, freerun_entry.schedulable_name)
         self._log_message(INFO, freerun_entry, msg)
 
     def insert_and_publish_uow(self, freerun_entry):
         try:
             uow = self._insert_uow(freerun_entry)
         except DuplicateKeyError as e:
-            msg = 'Duplication of unit_of_work found for %s::%s. Error msg: %r' \
-                  % (freerun_entry.process_name, freerun_entry.entry_name, e)
+            msg = 'Duplication of unit_of_work found for %s. Error msg: %r' % (freerun_entry.schedulable_name, e)
             self._log_message(WARNING, freerun_entry, msg)
             uow = self.uow_dao.recover_from_duplicatekeyerror(e)
 
@@ -102,8 +100,8 @@ class StateMachineFreerun(object):
             freerun_entry.related_unit_of_work = uow.db_id
             self.sfe_dao.update(freerun_entry)
         else:
-            msg = 'SYSTEM IS LIKELY IN UNSTABLE STATE! Unable to locate unit_of_work for %s::%s' \
-                  % (freerun_entry.process_name, freerun_entry.entry_name,)
+            msg = 'SYSTEM IS LIKELY IN UNSTABLE STATE! Unable to locate unit_of_work for %s' \
+                  % freerun_entry.schedulable_name
             self._log_message(WARNING, freerun_entry, msg)
 
     def manage_schedulable(self, freerun_entry):
@@ -146,7 +144,6 @@ class StateMachineFreerun(object):
     def _process_terminal_state(self, freerun_entry, uow):
         """ method that takes care of processing unit_of_work records in
         STATE_PROCESSED, STATE_INVALID, STATE_CANCELED states"""
-        msg = 'unit_of_work for %s::%s found in %s state.' \
-              % (freerun_entry.process_name, freerun_entry.entry_name, uow.state)
+        msg = 'unit_of_work for %s found in %s state.' % (freerun_entry.schedulable_name, uow.state)
         self._log_message(INFO, freerun_entry, msg)
         self.insert_and_publish_uow(freerun_entry)

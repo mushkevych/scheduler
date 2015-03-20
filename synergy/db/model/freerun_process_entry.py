@@ -49,6 +49,10 @@ class FreerunProcessEntry(DaemonProcessEntry):
     def is_on(self):
         return self.state == STATE_ON
 
+    @property
+    def schedulable_name(self):
+        return '{0}::{1}'.format(self.process_name, self.entry_name)
+
 
 def freerun_context_entry(process_name,
                           entry_name,

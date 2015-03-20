@@ -1,0 +1,64 @@
+{% extends 'main_header.html' %}
+{% block body %}
+
+<form data-form_initial_load="{{ 'true' if details.is_request_valid else 'false' }}" style="text-align: center" method="get" id="form_time_window">
+    <label><input type="radio" name="time_window" id="days_1" value="days_1" checked/>Today</label>
+    <label><input type="radio" name="time_window" id="days_7" value="days_7"/>Last 7 Days</label>
+    <label><input type="radio" name="time_window" id="days_30" value="days_30"/>Last 30 Days</label>
+    <br/>
+    <label><input type="checkbox" name="state" id="state" checked="true"/>Unprocessed only</label>
+    <input type="submit" value="List"/> <br/>
+</form>
+
+<div><table style="width: 90%" class="one-column-emphasis synergy_datatable" id="dashboard_table">
+    <thead>
+    <tr class="oce-first">
+        <th scope="col">Process Name</th>
+        <th scope="col">Entry Name</th>
+        <th scope="col">Time period</th>
+        <th scope="col">State</th>
+        <th scope="col">Get Uow</th>
+    </tr>
+    </thead>
+    <tbody>
+
+    {%- for uow_key, uow_entry in details.freeruns.items() -%}
+    <tr class="{{ uow_entry.state }}">
+        <td>{{ uow_entry.process_name }}</td>
+        <td>{{ uow_entry.entry_name }}</td>
+        <td>{{ uow_entry.timeperiod }}</td>
+        <td>{{ uow_entry.state }}</td>
+        <td>
+            {% set url = 'action=action_get_uow' + '&process_name=' + uow_entry.process_name + '&entry_name=' + uow_entry.entry_name + '&is_freerun=True' %}
+            <form method="GET" onsubmit="window.open('/object_viewer/?{{ url }}','Get Uow',
+                    'toolbar=no,scrollbars=yes,resizable=yes,top=250,left=250,width=400,height=350'); return false;">
+                <input type="submit" value="Get Uow"/>
+            </form>
+        </td>
+    </tr>
+    {%- endfor -%}
+
+    </tbody>
+</table></div>
+
+<script type="text/javascript">
+    if ($('#form_time_window').data('form_initial_load') == false) {
+        $(document).ready(function () {
+            $('#form_time_window').submit();
+        });
+    }
+
+    // convert HTML table into JS dataTable
+    $('.synergy_datatable').dataTable({"bPaginate": true,
+        "bSort": true,
+        "iDisplayLength": 36,
+        "bLengthChange": false,
+        "aaSorting": [
+            [ 1, "asc" ],
+            [ 2, "asc" ],
+            [ 3, "asc" ]
+        ]
+    });
+</script>
+
+{% endblock %}
