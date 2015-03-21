@@ -656,7 +656,7 @@ table.display tr.odd.row_selected td {
 }
 
 /*
- * Right-mouse menu for the
+ * Right-mouse menu for Job records in the data tables
  */
 .context_menu_show {
     z-index: 1000;

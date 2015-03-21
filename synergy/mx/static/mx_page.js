@@ -7,10 +7,16 @@ var TILE_IDS = [
 ];
 
 
-function fillArray(value, len) {
+function fillArray(len) {
     var arr = [];
     for (var i = 0; i < len; i++) {
-        arr.push(value);
+        if (i % 2 == 0){
+            arr.push(" A A A ");
+            arr.push(" A A A ");
+        } else {
+            arr.push(" B B B ");
+            arr.push(" B B B ");
+        }
     }
     return arr;
 }
@@ -18,10 +24,10 @@ function fillArray(value, len) {
 // templates in JSON matching the predefined selections you can
 // choose on the demo page
 var DemoTemplateRows = [
-    fillArray(" . ", 3),   // yearly
-    fillArray(" . ", 12),  // monthly
-    fillArray(" . ", 31),  // daily
-    fillArray(" . ", 24)   // hourly
+    fillArray(3),   // yearly
+    fillArray(12),  // monthly
+    fillArray(31),  // daily
+    fillArray(24)   // hourly
 ];
 
 function sidebar_tree_tile(mx_tree, html_el) {
@@ -106,13 +112,10 @@ $(function () {
 
             var tile = new Tiles.Tile(tileId);
             tile.$el.attr('class', tile_state);
-            tile.$el.append(checkbox_div);
-            tile.$el.append(
-                    '<div class="dev-tile-content">column id:' + i + '</div>'
-                    + '<div class="dev-tile-content">tile id:' + tileId + '</div>'
-                    + '<div class="dev-title-content">timeperiod:' + tile_timeperiod + '</div>'
-                    + '<div class="dev-title-content">state:' + tile_state + '</div>'
-                    + '<div class="dev-title-content">#fails:' + tile_num_failed + '</div>'
+            tile.$el.append($('<div></div>').append(checkbox_div).append(' column/tile: ' + i + '/' + tileId));
+            tile.$el.append('<div class="dev-title-content">timeperiod: ' + tile_timeperiod + '</div>'
+                    + '<div class="dev-title-content">state: ' + tile_state + '</div>'
+                    + '<div class="dev-title-content">#fails: ' + tile_num_failed + '</div>'
             );
             tile.$el.append($('<div></div>').append(uow_button));
             tile.$el.append($('<div></div>').append(log_button));

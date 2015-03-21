@@ -16,21 +16,26 @@ class Logger(object):
     Logger presents standard API to log messages and store them for future analysis
     """
 
-    def __init__(self, file_name, log_tag):
+    def __init__(self, file_name, log_tag, append_to_console):
         """
         Constructor: dictionary of loggers available for this Python process
         :param file_name: path+name of the output file
         :param log_tag: tag that is printed ahead of every logged message
+        :param append_to_console: True if messages should be printed to the terminal console
         """
         self.logger = logging.getLogger(log_tag)
 
-        if settings.settings['under_test']:
+        if append_to_console:
             # ATTENTION: while running as stand-alone process, stdout and stderr must be muted and redirected to file
             # otherwise the their pipes get overfilled, and process halts
             stream_handler = logging.StreamHandler()
             stream_formatter = logging.Formatter('%(name)-12s: %(levelname)-8s %(message)s')
             stream_handler.setFormatter(stream_formatter)
             self.logger.addHandler(stream_handler)
+        else:
+            # While under_test, tools as xml_unittest_runner are doing complex sys.stdXXX reassignments
+            sys.stdout = self
+            sys.stderr = self
 
         if settings.settings['debug']:
             self.logger.setLevel(logging.DEBUG)
@@ -43,11 +48,6 @@ class Logger(object):
                                                 datefmt='%Y-%m-%d %H:%M:%S')
         roto_file_handler.setFormatter(roto_file_formatter)
         self.logger.addHandler(roto_file_handler)
-
-        # While under_test, tools as xml_unittest_runner are doing complex sys.stdXXX reassignments
-        if not settings.settings['under_test']:
-            sys.stdout = self
-            sys.stderr = self
 
     def get_logger(self):
         return self.logger
@@ -79,8 +79,8 @@ def get_logger(process_name):
     """ method returns initiated logger"""
     if process_name not in logger_pool:
         file_name = get_log_filename(process_name)
-        tag = get_log_tag(process_name)
-        logger_pool[process_name] = Logger(file_name, tag)
+        log_tag = get_log_tag(process_name)
+        logger_pool[process_name] = Logger(file_name, log_tag, append_to_console=settings.settings['under_test'])
     return logger_pool[process_name].get_logger()
 
 
