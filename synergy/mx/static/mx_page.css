@@ -8,9 +8,21 @@ body {
     float: left;
 }
 
-.grid-15 {
+.grid-header {
     width: 15%;
-    height: 600px;
+    height: 100px;
+    position: relative;
+    overflow-x: hidden;
+    overflow-y: hidden;
+    background-color: whitesmoke;
+    margin: 10px 0px;
+    border: 5px solid white;
+    float: left;
+}
+
+.grid-info {
+    width: 15%;
+    height: 400px;
     position: relative;
     overflow-x: hidden;
     overflow-y: scroll;
@@ -37,7 +49,7 @@ body {
     position: absolute;
 }
 
-.grid-15 > div {
+.grid-info > div {
     background-color: #fff;
     position: absolute;
 }

@@ -1,12 +1,25 @@
 {% extends 'main_header.html' %}
 {% block body %}
 
+    {% set tree_name = 'TreeSite' %}
+    {% set process_1 = 'SiteYearly' %}
+    {% set process_2 = 'SiteMonthly' %}
+    {% set process_3 = 'SiteDaily' %}
+    {% set process_4 = 'SiteHourly' %}
+
     <div class="">
-        <div id="mx_tree-grid" class="grid-15"></div>
-        <div id="column_1-grid" class="grid-15 context-menu"></div>
-        <div id="column_2-grid" class="grid-15 context-menu"></div>
-        <div id="column_3-grid" class="grid-15 context-menu"></div>
-        <div id="column_4-grid" class="grid-15 context-menu"></div>
+        <div id="grid-header-{{ tree_name }}" class="grid-header"></div>
+        <div id="grid-header-{{ process_1 }}" class="grid-header"></div>
+        <div id="grid-header-{{ process_2 }}" class="grid-header"></div>
+        <div id="grid-header-{{ process_3 }}" class="grid-header"></div>
+        <div id="grid-header-{{ process_4 }}" class="grid-header"></div>
+    </div> <br/>
+    <div class="">
+        <div id="grid-info-{{ tree_name }}" class="grid-info"></div>
+        <div id="grid-info-{{ process_1 }}" class="grid-info context-menu"></div>
+        <div id="grid-info-{{ process_2 }}" class="grid-info context-menu"></div>
+        <div id="grid-info-{{ process_3 }}" class="grid-info context-menu"></div>
+        <div id="grid-info-{{ process_4 }}" class="grid-info context-menu"></div>
     </div>
 
     <div class="context_menu_hide" id="rmenu">
