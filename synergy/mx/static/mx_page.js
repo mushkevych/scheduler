@@ -7,6 +7,22 @@ var TILE_IDS = [
 ];
 
 
+// debounce utility from underscorejs.org
+function debounce(func, wait, immediate) {
+    var timeout;
+    return function () {
+        var context = this, args = arguments;
+        var later = function () {
+            timeout = null;
+            if (!immediate) func.apply(context, args);
+        };
+        if (immediate && !timeout) func.apply(context, args);
+        clearTimeout(timeout);
+        timeout = setTimeout(later, wait);
+    };
+}
+
+
 // function returns a Tiles.js template for job records
 // template contains tiles_number of tiles
 // each tile has proportion 3x2 (wider than taller)
@@ -28,8 +44,8 @@ function grid_info_template(tiles_number) {
 var GridHeaderTemplate = [" . "];
 
 
-function header_tree_tile(mx_tree, html_el) {
-    html_el.append('<div class="dev-tile-content">Tree Name</div>'
+function header_tree_tile(mx_tree, tile) {
+    tile.$el.append('<div class="dev-tile-content">Tree Name</div>'
         + '<div class="dev-tile-content">' + mx_tree.tree_name + '</div>'
         + '<div class="dev-tile-content">Dependent On</div>'
         + '<div class="dev-tile-content">' + mx_tree.dependent_on + '</div>'
@@ -38,8 +54,8 @@ function header_tree_tile(mx_tree, html_el) {
 }
 
 
-function header_process_tile(process_entry, html_el) {
-    html_el.append('<div class="dev-tile-content">Trigger On/Alive</div>'
+function header_process_tile(process_entry, tile) {
+    tile.$el.append('<div class="dev-tile-content">Trigger On/Alive</div>'
         + '<div class="dev-tile-content">' + process_entry.is_on + '/' + process_entry.is_alive + '</div>'
         + '<div class="dev-tile-content">Process Name</div>'
         + '<div class="dev-tile-content">' + process_entry.process_name + '</div>'
@@ -49,12 +65,12 @@ function header_process_tile(process_entry, html_el) {
         + '<div class="dev-tile-content">' + process_entry.next_run_in + '</div>'
         + '<div class="dev-tile-content">' + 'Trigger Now Button' + '</div>'
         + '<div class="dev-tile-content">Reprocessing Queue</div>'
-        + '<div class="dev-tile-content">' + row.next_timeperiod + '</div>');
+        + '<div class="dev-tile-content">' + process_entry.reprocessing_queue + '</div>');
 }
 
 
-function info_process_tile(process_entry, html_el) {
-    html_el.append('<div class="dev-tile-content">Process Name</div>'
+function info_process_tile(process_entry, tile) {
+    tile.$el.append('<div class="dev-tile-content">Process Name</div>'
         + '<div class="dev-tile-content">' + process_entry.process_name + '</div>'
         + '<div class="dev-tile-content">Time Qualifier</div>'
         + '<div class="dev-tile-content">' + process_entry.time_qualifier + '</div>'
@@ -64,54 +80,74 @@ function info_process_tile(process_entry, html_el) {
         + '<div class="dev-tile-content">' + process_entry.blocking_type + '</div>'
         + '<div class="dev-tile-content">Run On Active Timeperiod</div>'
         + '<div class="dev-tile-content">' + process_entry.run_on_active_timeperiod + '</div>'
-        + '<div class="dev-tile-content">Blocking type</div>'
-        + '<div class="dev-tile-content">' + process_entry.blocking_type + '</div>'
         + '<div class="dev-tile-content">Trigger Frequency</div>'
         + '<input type="text" size="8" maxlength="32" name="interval" value="' + process_entry.trigger_frequency + '" />');
 }
 
 
-function info_job_tile(process_entry, html_el) {
-    var tile_process_name = "my_process_name";
-    var tile_timeperiod = "2015010100";
-    var tile_state = "state_processed";
-    var tile_num_failed = "10";
-
-    var checkbox_value = "{ process_name: '" + tile_process_name + "', timeperiod: '" + tile_timeperiod + "' }";
+function info_job_tile(job_entry, tile) {
+    var checkbox_value = "{ process_name: '" + job_entry.process_name + "', timeperiod: '" + job_entry.timeperiod + "' }";
     var checkbox_div = '<input type="checkbox" name="batch_processing" value="' + checkbox_value + '"/>';
 
     var uow_button = $('<button>Get&nbsp;Uow</button>').click(function (e) {
-        var params = { action: 'action_get_uow', timeperiod: tile_timeperiod, process_name: tile_process_name };
+        var params = { action: 'action_get_uow', timeperiod: job_entry.timeperiod, process_name: job_entry.process_name };
         var viewer_url = '/object_viewer/?' + $.param(params);
         window.open(viewer_url, 'Object Viewer', 'width=400,height=350,screenX=400,screenY=200,scrollbars=1');
     });
     var log_button = $('<button>View&nbsp;Log</button>').click(function (e) {
-        var params = { action: 'action_get_log', timeperiod: tile_timeperiod, process_name: tile_process_name };
+        var params = { action: 'action_get_log', timeperiod: job_entry.timeperiod, process_name: job_entry.process_name };
         var viewer_url = '/object_viewer/?' + $.param(params);
         window.open(viewer_url, 'Object Viewer', 'width=720,height=480,screenX=400,screenY=200,scrollbars=1');
     });
 
-    html_el.attr('class', tile_state);
-    html_el.append($('<div></div>').append(checkbox_div).append(' column/tile: ' + i + '/' + tileId));
-    html_el.append('<div class="dev-title-content">timeperiod: ' + tile_timeperiod + '</div>'
-        + '<div class="dev-title-content">state: ' + tile_state + '</div>'
-        + '<div class="dev-title-content">#fails: ' + tile_num_failed + '</div>'
+    tile.$el.attr('class', job_entry.state);
+    tile.$el.append($('<div></div>').append(checkbox_div).append(' p/t: ' + job_entry.process_name + '/' + tile.id));
+    tile.$el.append('<div class="dev-title-content">timeperiod: ' + job_entry.timeperiod + '</div>'
+            + '<div class="dev-title-content">state: ' + job_entry.state + '</div>'
+            + '<div class="dev-title-content">#fails: ' + job_entry.num_failed + '</div>'
     );
-    html_el.append($('<div></div>').append(uow_button));
-    html_el.append($('<div></div>').append(log_button));
+    tile.$el.append($('<div></div>').append(uow_button));
+    tile.$el.append($('<div></div>').append(log_button));
 }
 
 
-var mx_trees = [
-    {'tree_name': 'TreeSite',
+var mx_trees = {
+    'TreeSite': {'tree_name': 'TreeSite',
         'dependent_on': [],
         'dependant_trees': [],
         'processes': ['SiteYearly', 'SiteMonthly', 'SiteDaily', 'SiteHourly']},
-    {'tree_name': 'TreeAlert',
+    'TreeAlert': {'tree_name': 'TreeAlert',
         'dependent_on': [],
         'dependant_trees': [],
-        'processes': ['AlertDaily'],}
-];
+        'processes': ['AlertDaily']}
+};
+
+
+function get_process_entry(process_name) {
+    return {
+        'process_name': process_name,
+        'is_on': true,
+        'is_alive': true,
+        'next_timeperiod': '2019098822',
+        'next_run_in': '25:10',
+        'reprocessing_queue': [],
+        'time_qualifier': '_hourly',
+        'state_machine': 'descrete',
+        'blocking_type': 'blocking_children',
+        'run_on_active_timeperiod': false,
+        'trigger_frequency': 'every 600 sec'
+    };
+}
+
+
+function get_job_record(process_name) {
+    return {
+        'process_name': process_name,
+        'timeperiod': '2019098822',
+        'state': 'state_in_progress',
+        'num_failed': 10
+    };
+}
 
 
 function build_grid(grid_name, grid_template, builder_function, info_obj) {
@@ -128,7 +164,7 @@ function build_grid(grid_name, grid_template, builder_function, info_obj) {
     // to add a tile number to each div
     grid.createTile = function (tileId) {
         var tile = new Tiles.Tile(tileId);
-        builder_function(info_obj, tile.$el);
+        builder_function(info_obj, tile);
         return tile;
     };
 
@@ -145,57 +181,41 @@ function build_grid(grid_name, grid_template, builder_function, info_obj) {
 
 
 $(function () {
-    var i;
-    for (i in mx_trees) {
-        var tree_obj = mx_trees[i];
+    for (var tree_name in mx_trees) {
+        var tree_obj = mx_trees[tree_name];
         var grid_name;
         var builder_function;
         var info_obj;
+        var process_name;
 
         // *** HEADER ***
-        grid_name = "grid-header-" + tree_obj.tree_name;
-        builder_function = header_tree_tile;
-        info_obj = tree_obj;
-        build_grid(grid_name, GridHeaderTemplate, builder_function, info_obj);
+        build_grid("grid-header-" + tree_obj.tree_name, GridHeaderTemplate, header_tree_tile, tree_obj);
 
         var p_length = tree_obj.processes.length;
-        for (var j = 0; j < p_length; j++) {
-            var process_obj = tree_obj.processes[i];
-            grid_name = "grid-header-" + process_obj.process_name;
-            builder_function = header_process_tile;
-            info_obj = process_obj;
-            build_grid(grid_name,  GridHeaderTemplate, builder_function, info_obj);
+        for (var i = 0; i < p_length; i++) {
+            process_name = tree_obj.processes[i];
+            build_grid("grid-header-" + process_name, GridHeaderTemplate, header_process_tile, get_process_entry(process_name));
         }
 
 
         // *** INFO ***
-        p_length = tree_obj.processes.length;
-        grid_name = "grid-info-" + tree_obj.tree_name;
-        builder_function = info_process_tile;
-        info_obj = tree_obj;
-        build_grid(grid_name, grid_info_template(p_length), builder_function, info_obj);
-
         for (var j = 0; j < p_length; j++) {
-            process_obj = tree_obj.processes[i];
-            grid_name = "grid-info-" + process_obj.process_name;
-            builder_function = info_process_tile;
-            info_obj = process_obj;
+            process_name = tree_obj.processes[j];
+            build_grid("grid-info-" + tree_obj.tree_name, grid_info_template(p_length), info_process_tile, get_process_entry(process_name));
 
             var j_length = 10;
-
             for (var k = 0; k < j_length; k++) {
-
-                build_grid(grid_name, grid_info_template(j_length), builder_function, info_obj);
+                build_grid("grid-info-" + process_name, grid_info_template(j_length), info_job_tile, get_job_record(process_name));
             }
         }
     }
 
     // wait until users finishes resizing the browser
-    var debouncedResize = debounce(function () {
+    var debounced_resize = debounce(function () {
         grid.resize();
         grid.redraw(true);
     }, 200);
 
     // when the window resizes, redraw the grid
-    $(window).resize(debouncedResize);
+    $(window).resize(debounced_resize);
 });

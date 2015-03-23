@@ -1,26 +1,31 @@
 {% extends 'main_header.html' %}
 {% block body %}
 
-    {% set tree_name = 'TreeSite' %}
-    {% set process_1 = 'SiteYearly' %}
-    {% set process_2 = 'SiteMonthly' %}
-    {% set process_3 = 'SiteDaily' %}
-    {% set process_4 = 'SiteHourly' %}
+    {% set mx_trees = {
+    'TreeSite': {
+            'tree_name': 'TreeSite',
+            'processes': ['SiteYearly', 'SiteMonthly', 'SiteDaily', 'SiteHourly']
+        },
+        'TreeAlert': {
+            'tree_name': 'TreeAlert',
+            'processes': ['AlertDaily']
+        }
+    } %}
 
-    <div class="">
-        <div id="grid-header-{{ tree_name }}" class="grid-header"></div>
-        <div id="grid-header-{{ process_1 }}" class="grid-header"></div>
-        <div id="grid-header-{{ process_2 }}" class="grid-header"></div>
-        <div id="grid-header-{{ process_3 }}" class="grid-header"></div>
-        <div id="grid-header-{{ process_4 }}" class="grid-header"></div>
-    </div> <br/>
-    <div class="">
-        <div id="grid-info-{{ tree_name }}" class="grid-info"></div>
-        <div id="grid-info-{{ process_1 }}" class="grid-info context-menu"></div>
-        <div id="grid-info-{{ process_2 }}" class="grid-info context-menu"></div>
-        <div id="grid-info-{{ process_3 }}" class="grid-info context-menu"></div>
-        <div id="grid-info-{{ process_4 }}" class="grid-info context-menu"></div>
-    </div>
+    {%- for tree_name, tree_obj in mx_trees.items() -%}
+        <div class="grid-container">
+            <div id="grid-header-{{ tree_name }}" class="grid-header"></div>
+            {%- for process_name in tree_obj.processes -%}
+            <div id="grid-header-{{ process_name }}" class="grid-header"></div>
+            {%- endfor -%}
+        </div>
+        <div class="grid-container">
+            <div id="grid-info-{{ tree_name }}" class="grid-info"></div>
+            {%- for process_name in tree_obj.processes -%}
+            <div id="grid-header-{{ process_name }}" class="grid-info context-menu"></div>
+            {%- endfor -%}
+        </div>
+    {%- endfor -%}
 
     <div class="context_menu_hide" id="rmenu">
         <ul>

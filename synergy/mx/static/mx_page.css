@@ -1,21 +1,22 @@
 body {
     padding: 20px;
-    font-family: Arial;
+    font-family: "Lucida Sans Unicode", "Lucida Grande", sans-serif;
 }
 
 .grid-container {
-    width: 55%;
+    width: 85%;
     float: left;
+    clear: left;
 }
 
 .grid-header {
     width: 15%;
-    height: 100px;
+    height: 140px;
     position: relative;
     overflow-x: hidden;
     overflow-y: hidden;
     background-color: whitesmoke;
-    margin: 10px 0px;
+    margin: 10px 0 0;
     border: 5px solid white;
     float: left;
 }
@@ -27,7 +28,7 @@ body {
     overflow-x: hidden;
     overflow-y: scroll;
     background-color: whitesmoke;
-    margin: 10px 0px;
+    margin: 0 0 10px;
     border: 5px solid white;
     float: left;
 }
