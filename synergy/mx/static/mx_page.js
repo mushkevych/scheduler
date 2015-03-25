@@ -70,12 +70,13 @@ function header_process_tile(process_entry, tile) {
 
 
 function info_process_tile(process_entry, tile) {
+    tile.process_name = process_entry.process_name;
     tile.$el.append('<div class="dev-tile-content">Process Name</div>'
         + '<div class="dev-tile-content">' + process_entry.process_name + '</div>'
         + '<div class="dev-tile-content">Time Qualifier</div>'
         + '<div class="dev-tile-content">' + process_entry.time_qualifier + '</div>'
         + '<div class="dev-tile-content">State Machine</div>'
-        + '<div class="dev-tile-content">' + process_entry.state_machine + '</div>'
+        + '<div class="dev-tile-content">' + process_entry.state_machine_name + '</div>'
         + '<div class="dev-tile-content">Blocking type</div>'
         + '<div class="dev-tile-content">' + process_entry.blocking_type + '</div>'
         + '<div class="dev-tile-content">Run On Active Timeperiod</div>'
@@ -100,11 +101,14 @@ function info_job_tile(job_entry, tile) {
         window.open(viewer_url, 'Object Viewer', 'width=720,height=480,screenX=400,screenY=200,scrollbars=1');
     });
 
+    tile.process_name = job_entry.process_name;
+    tile.timeperiod = job_entry.timeperiod;
+
     tile.$el.attr('class', job_entry.state);
     tile.$el.append($('<div></div>').append(checkbox_div).append(' p/t: ' + job_entry.process_name + '/' + tile.id));
     tile.$el.append('<div class="dev-title-content">timeperiod: ' + job_entry.timeperiod + '</div>'
             + '<div class="dev-title-content">state: ' + job_entry.state + '</div>'
-            + '<div class="dev-title-content">#fails: ' + job_entry.num_failed + '</div>'
+            + '<div class="dev-title-content">#fails: ' + job_entry.number_of_failures + '</div>'
     );
     tile.$el.append($('<div></div>').append(uow_button));
     tile.$el.append($('<div></div>').append(log_button));
@@ -118,38 +122,50 @@ var mx_trees = {
             'SiteYearly': {
                 'process_name': 'SiteYearly',
                 'time_qualifier': '_yearly',
-                'state_machine': 'discrete',
+                'state_machine_name': 'discrete',
                 'process_type': 'type_managed',
-                'run_on_active_timeperiod': False,
+                'run_on_active_timeperiod': false,
                 'reprocessing_queue': [],
-                'next_timeperiod': '2015000000'
+                'next_timeperiod': '2015000000',
+                'trigger_frequency': 'every 14000',
+                'state': 'state_on',
+                'blocking_type': 'blocking_normal'
             },
             'SiteMonthly': {
                 'process_name': 'SiteMonthly',
                 'time_qualifier': '_monthly',
-                'state_machine': 'discrete',
+                'state_machine_name': 'discrete',
                 'process_type': 'type_managed',
-                'run_on_active_timeperiod': False,
+                'run_on_active_timeperiod': false,
                 'reprocessing_queue': [],
-                'next_timeperiod': '2015030000'
+                'next_timeperiod': '2015030000',
+                'trigger_frequency': 'every 7000',
+                'state': 'state_on',
+                'blocking_type': 'blocking_normal'
             },
             'SiteDaily': {
                 'process_name': 'SiteDaily',
                 'time_qualifier': '_daily',
-                'state_machine': 'discrete',
+                'state_machine_name': 'discrete',
                 'process_type': 'type_managed',
-                'run_on_active_timeperiod': False,
+                'run_on_active_timeperiod': false,
                 'reprocessing_queue': [],
-                'next_timeperiod': '2015030100'
+                'next_timeperiod': '2015030100',
+                'trigger_frequency': 'every 3600',
+                'state': 'state_on',
+                'blocking_type': 'blocking_normal'
             },
             'SiteHourly': {
                 'process_name': 'SiteHourly',
                 'time_qualifier': '_hourly',
-                'state_machine': 'discrete',
+                'state_machine_name': 'discrete',
                 'process_type': 'type_managed',
-                'run_on_active_timeperiod': False,
+                'run_on_active_timeperiod': false,
                 'reprocessing_queue': [],
-                'next_timeperiod': '2015030101'
+                'next_timeperiod': '2015030101',
+                'trigger_frequency': 'every 900',
+                'state': 'state_on',
+                'blocking_type': 'blocking_normal'
             }
         }
     },
@@ -159,14 +175,14 @@ var mx_trees = {
             'AlertDaily': {
                 'process_name': 'AlertDaily',
                 'time_qualifier': '_daily',
-                'state': 'state_on',
-                'state_machine': 'discrete',
+                'state_machine_name': 'discrete',
                 'process_type': 'type_managed',
-                'blocking_type': 'blocking_normal',
-                'run_on_active_timeperiod': False,
+                'run_on_active_timeperiod': false,
                 'reprocessing_queue': [],
                 'next_timeperiod': '2015030100',
-                'trigger_frequency': 'every 300'
+                'trigger_frequency': 'every 900',
+                'state': 'state_on',
+                'blocking_type': 'blocking_normal'
             }
         }
     }
@@ -176,27 +192,34 @@ var mx_trees = {
 function get_process_entry(process_name) {
     return {
         'process_name': process_name,
+        'time_qualifier': '_hourly',
+        'state_machine_name': 'discrete',
+        'process_type': 'type_managed',
+        'run_on_active_timeperiod': false,
+        'reprocessing_queue': [],
+        'next_timeperiod': '2019098822',
+        'state': 'state_on',
         'is_on': true,
         'is_alive': true,
         'next_run_in': '25:10',
-
-        'next_timeperiod': '2019098822',
-        'reprocessing_queue': [],
-        'time_qualifier': '_hourly',
-        'state_machine': 'descrete',
         'blocking_type': 'blocking_children',
-        'run_on_active_timeperiod': false,
-        'trigger_frequency': 'every 600 sec'
+        'trigger_frequency': 'every 600'
     };
 }
 
 
 function get_job_record(process_name) {
     return {
+        'time_qualifier': '_custom',
+        'number_of_children': 5,
+        'start_id': '',
+        'end_id': '',
+        'related_unit_of_work': '',
+        'log': [],
         'process_name': process_name,
         'timeperiod': '2019098822',
         'state': 'state_in_progress',
-        'num_failed': 10
+        'number_of_failures': 10
     };
 }
 
@@ -247,15 +270,21 @@ $(function () {
 
 
         // *** INFO ***
-        for (var j = 0; j < p_length; j++) {
-            process_name = tree_obj.processes[j];
+        for (process_name in tree_obj.processes) {
+            process_obj = tree_obj.processes[process_name];
             build_grid("grid-info-" + tree_obj.tree_name, grid_info_template(p_length), info_process_tile, get_process_entry(process_name));
-
-            var j_length = 10;
-            for (var k = 0; k < j_length; k++) {
-                build_grid("grid-info-" + process_name, grid_info_template(j_length), info_job_tile, get_job_record(process_name));
-            }
         }
+
+        // fetch RestTimetableTreeNode for root and go from there
+        var root = get_request_tree_nodes(get_tree_top_process(tree_obj));
+        var child_job_obj
+        for (var child_timeperiod in root.children) {
+            child_job_obj = root.children[child_timeperiod];
+            build_grid("grid-info-" + process_name, grid_info_template(root.children.length), info_job_tile, child_job_obj);
+        }
+
+        // do the same as for root for other levels of the tree
+
     }
 
     // wait until users finishes resizing the browser

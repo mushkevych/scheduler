@@ -8,38 +8,50 @@
                 'SiteYearly': {
                     'process_name': 'SiteYearly',
                     'time_qualifier': '_yearly',
-                    'state_machine': 'discrete',
+                    'state_machine_name': 'discrete',
                     'process_type': 'type_managed',
                     'run_on_active_timeperiod': False,
                     'reprocessing_queue': [],
-                    'next_timeperiod': '2015000000'
+                    'next_timeperiod': '2015000000',
+                    'trigger_frequency': 'every 14000',
+                    'state': 'state_on',
+                    'blocking_type': 'blocking_normal'
                 },
                 'SiteMonthly': {
                     'process_name': 'SiteMonthly',
                     'time_qualifier': '_monthly',
-                    'state_machine': 'discrete',
+                    'state_machine_name': 'discrete',
                     'process_type': 'type_managed',
                     'run_on_active_timeperiod': False,
                     'reprocessing_queue': [],
-                    'next_timeperiod': '2015030000'
+                    'next_timeperiod': '2015030000',
+                    'trigger_frequency': 'every 7000',
+                    'state': 'state_on',
+                    'blocking_type': 'blocking_normal'
                 },
                 'SiteDaily': {
                     'process_name': 'SiteDaily',
                     'time_qualifier': '_daily',
-                    'state_machine': 'discrete',
+                    'state_machine_name': 'discrete',
                     'process_type': 'type_managed',
                     'run_on_active_timeperiod': False,
                     'reprocessing_queue': [],
-                    'next_timeperiod': '2015030100'
+                    'next_timeperiod': '2015030100',
+                    'trigger_frequency': 'every 3600',
+                    'state': 'state_on',
+                    'blocking_type': 'blocking_normal'
                 },
                 'SiteHourly': {
                     'process_name': 'SiteHourly',
                     'time_qualifier': '_hourly',
-                    'state_machine': 'discrete',
+                    'state_machine_name': 'discrete',
                     'process_type': 'type_managed',
                     'run_on_active_timeperiod': False,
                     'reprocessing_queue': [],
-                    'next_timeperiod': '2015030101'
+                    'next_timeperiod': '2015030101',
+                    'trigger_frequency': 'every 600',
+                    'state': 'state_on',
+                    'blocking_type': 'blocking_normal'
                 }
             }
         },
@@ -49,11 +61,14 @@
                 'AlertDaily': {
                     'process_name': 'AlertDaily',
                     'time_qualifier': '_daily',
-                    'state_machine': 'discrete',
+                    'state_machine_name': 'discrete',
                     'process_type': 'type_managed',
                     'run_on_active_timeperiod': False,
                     'reprocessing_queue': [],
-                    'next_timeperiod': '2015030100'
+                    'next_timeperiod': '2015030100',
+                    'trigger_frequency': 'every 3600',
+                    'state': 'state_on',
+                    'blocking_type': 'blocking_normal'
                 }
             }
         }

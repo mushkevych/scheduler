@@ -24,7 +24,7 @@ class TreeNodeDetails(object):
             timeperiod=node.timeperiod,
             time_qualifier=node.time_qualifier,
             number_of_children=len(node.children),
-            number_of_failed_calls='NA' if not node.job_record else node.job_record.number_of_failures,
+            number_of_failures='NA' if not node.job_record else node.job_record.number_of_failures,
             state='NA' if not node.job_record else node.job_record.state)
         if as_model:
             return rest_job

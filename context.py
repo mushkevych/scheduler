@@ -7,7 +7,7 @@ from synergy.workers.worker_constants import *
 from synergy.db.model.queue_context_entry import queue_context_entry
 from synergy.db.model.daemon_process_entry import deamon_context_entry
 from synergy.db.model.managed_process_entry import managed_context_entry
-from synergy.db.model.timetable_context_entry import timetable_context_entry
+from synergy.db.model.timetable_tree_entry import timetable_tree_entry
 
 
 mq_queue_context = {
@@ -134,21 +134,21 @@ process_context = {
 
 
 timetable_context = {
-    TREE_SITE_VERTICAL: timetable_context_entry(
+    TREE_SITE_VERTICAL: timetable_tree_entry(
         tree_name=TREE_SITE_VERTICAL,
         enclosed_processes=[PROCESS_SITE_YEARLY, PROCESS_SITE_MONTHLY, PROCESS_SITE_DAILY, PROCESS_SITE_HOURLY],
         dependent_on=[],
         mx_name=TOKEN_SITE,
         mx_page=MX_PAGE_TRAFFIC),
 
-    TREE_CLIENT_HORIZONTAL: timetable_context_entry(
+    TREE_CLIENT_HORIZONTAL: timetable_tree_entry(
         tree_name=TREE_CLIENT_HORIZONTAL,
         enclosed_processes=[PROCESS_CLIENT_YEARLY, PROCESS_CLIENT_MONTHLY, PROCESS_CLIENT_DAILY],
         dependent_on=[TREE_SITE_VERTICAL],
         mx_name=TOKEN_CLIENT,
         mx_page=MX_PAGE_TRAFFIC),
 
-    TREE_LINEAR_DAILY: timetable_context_entry(
+    TREE_LINEAR_DAILY: timetable_tree_entry(
         tree_name=TREE_LINEAR_DAILY,
         enclosed_processes=[PROCESS_ALERT_DAILY],
         dependent_on=[],

@@ -66,7 +66,7 @@ OUTPUT_DOCUMENT.construct_table_row = function (k, v, handler) {
     return tr.append(checkbox_td)
         .append(tda)
         .append(OUTPUT_DOCUMENT._to_td(v.process_name))
-        .append(OUTPUT_DOCUMENT._to_td(v.number_of_failed_calls))
+        .append(OUTPUT_DOCUMENT._to_td(v.number_of_failures))
         .append(OUTPUT_DOCUMENT._to_td(v.state))
         .append(td_button_uow)
         .append(td_button_log);
