@@ -68,6 +68,10 @@ body {
     margin-bottom: 10px;
 }
 
+div.is_next_timeperiod {
+    border: 2px solid darkorange;
+}
+
 div.state_embryo {
     background-color: #eff2ff;
 }

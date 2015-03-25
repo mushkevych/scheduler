@@ -86,7 +86,7 @@ function info_process_tile(process_entry, tile) {
 }
 
 
-function info_job_tile(job_entry, tile) {
+function info_job_tile(job_entry, tile, is_next_timeperiod) {
     var checkbox_value = "{ process_name: '" + job_entry.process_name + "', timeperiod: '" + job_entry.timeperiod + "' }";
     var checkbox_div = '<input type="checkbox" name="batch_processing" value="' + checkbox_value + '"/>';
 
@@ -105,6 +105,10 @@ function info_job_tile(job_entry, tile) {
     tile.timeperiod = job_entry.timeperiod;
 
     tile.$el.attr('class', job_entry.state);
+    if (is_next_timeperiod) {
+        tile.$el.className += ' is_next_timeperiod';
+    }
+
     tile.$el.append($('<div></div>').append(checkbox_div).append(' p/t: ' + job_entry.process_name + '/' + tile.id));
     tile.$el.append('<div class="dev-title-content">timeperiod: ' + job_entry.timeperiod + '</div>'
             + '<div class="dev-title-content">state: ' + job_entry.state + '</div>'
@@ -254,7 +258,7 @@ function build_grid(grid_name, grid_template, builder_function, info_obj) {
 }
 
 
-function build_info_grid(grid_name, tree_node) {
+function build_info_grid(grid_name, tree_node, next_timeperiod) {
     var el = document.getElementById(grid_name);
     var grid = new Tiles.Grid(el);
 
@@ -275,7 +279,7 @@ function build_info_grid(grid_name, tree_node) {
         // retrieve job_record
         var info_obj = tree_node.children[timeperiod];
 
-        info_job_tile(info_obj, tile);
+        info_job_tile(info_obj, tile, next_timeperiod==timeperiod);
         return tile;
     };
 
@@ -324,7 +328,7 @@ $(function () {
                 higher_next_timeperiod = process_obj.next_timeperiod;
             }
 
-            build_info_grid("grid-info-" + process_name, tree_node);
+            build_info_grid("grid-info-" + process_name, tree_node, process_obj.next_timeperiod);
         }
     }
 
