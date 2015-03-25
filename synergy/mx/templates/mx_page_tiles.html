@@ -2,15 +2,63 @@
 {% block body %}
 
     {% set mx_trees = {
-    'TreeSite': {
+        'TreeSite': {
             'tree_name': 'TreeSite',
-            'processes': ['SiteYearly', 'SiteMonthly', 'SiteDaily', 'SiteHourly']
+            'processes': {
+                'SiteYearly': {
+                    'process_name': 'SiteYearly',
+                    'time_qualifier': '_yearly',
+                    'state_machine': 'discrete',
+                    'process_type': 'type_managed',
+                    'run_on_active_timeperiod': False,
+                    'reprocessing_queue': [],
+                    'next_timeperiod': '2015000000'
+                },
+                'SiteMonthly': {
+                    'process_name': 'SiteMonthly',
+                    'time_qualifier': '_monthly',
+                    'state_machine': 'discrete',
+                    'process_type': 'type_managed',
+                    'run_on_active_timeperiod': False,
+                    'reprocessing_queue': [],
+                    'next_timeperiod': '2015030000'
+                },
+                'SiteDaily': {
+                    'process_name': 'SiteDaily',
+                    'time_qualifier': '_daily',
+                    'state_machine': 'discrete',
+                    'process_type': 'type_managed',
+                    'run_on_active_timeperiod': False,
+                    'reprocessing_queue': [],
+                    'next_timeperiod': '2015030100'
+                },
+                'SiteHourly': {
+                    'process_name': 'SiteHourly',
+                    'time_qualifier': '_hourly',
+                    'state_machine': 'discrete',
+                    'process_type': 'type_managed',
+                    'run_on_active_timeperiod': False,
+                    'reprocessing_queue': [],
+                    'next_timeperiod': '2015030101'
+                }
+            }
         },
         'TreeAlert': {
             'tree_name': 'TreeAlert',
-            'processes': ['AlertDaily']
+            'processes': {
+                'AlertDaily': {
+                    'process_name': 'AlertDaily',
+                    'time_qualifier': '_daily',
+                    'state_machine': 'discrete',
+                    'process_type': 'type_managed',
+                    'run_on_active_timeperiod': False,
+                    'reprocessing_queue': [],
+                    'next_timeperiod': '2015030100'
+                }
+            }
         }
     } %}
+
 
     {%- for tree_name, tree_obj in mx_trees.items() -%}
         <div class="grid-container">
@@ -22,7 +70,7 @@
         <div class="grid-container">
             <div id="grid-info-{{ tree_name }}" class="grid-info"></div>
             {%- for process_name in tree_obj.processes -%}
-            <div id="grid-header-{{ process_name }}" class="grid-info context-menu"></div>
+            <div id="grid-info-{{ process_name }}" class="grid-info context-menu"></div>
             {%- endfor -%}
         </div>
     {%- endfor -%}

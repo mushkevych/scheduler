@@ -112,14 +112,64 @@ function info_job_tile(job_entry, tile) {
 
 
 var mx_trees = {
-    'TreeSite': {'tree_name': 'TreeSite',
-        'dependent_on': [],
-        'dependant_trees': [],
-        'processes': ['SiteYearly', 'SiteMonthly', 'SiteDaily', 'SiteHourly']},
-    'TreeAlert': {'tree_name': 'TreeAlert',
-        'dependent_on': [],
-        'dependant_trees': [],
-        'processes': ['AlertDaily']}
+    'TreeSite': {
+        'tree_name': 'TreeSite',
+        'processes': {
+            'SiteYearly': {
+                'process_name': 'SiteYearly',
+                'time_qualifier': '_yearly',
+                'state_machine': 'discrete',
+                'process_type': 'type_managed',
+                'run_on_active_timeperiod': False,
+                'reprocessing_queue': [],
+                'next_timeperiod': '2015000000'
+            },
+            'SiteMonthly': {
+                'process_name': 'SiteMonthly',
+                'time_qualifier': '_monthly',
+                'state_machine': 'discrete',
+                'process_type': 'type_managed',
+                'run_on_active_timeperiod': False,
+                'reprocessing_queue': [],
+                'next_timeperiod': '2015030000'
+            },
+            'SiteDaily': {
+                'process_name': 'SiteDaily',
+                'time_qualifier': '_daily',
+                'state_machine': 'discrete',
+                'process_type': 'type_managed',
+                'run_on_active_timeperiod': False,
+                'reprocessing_queue': [],
+                'next_timeperiod': '2015030100'
+            },
+            'SiteHourly': {
+                'process_name': 'SiteHourly',
+                'time_qualifier': '_hourly',
+                'state_machine': 'discrete',
+                'process_type': 'type_managed',
+                'run_on_active_timeperiod': False,
+                'reprocessing_queue': [],
+                'next_timeperiod': '2015030101'
+            }
+        }
+    },
+    'TreeAlert': {
+        'tree_name': 'TreeAlert',
+        'processes': {
+            'AlertDaily': {
+                'process_name': 'AlertDaily',
+                'time_qualifier': '_daily',
+                'state': 'state_on',
+                'state_machine': 'discrete',
+                'process_type': 'type_managed',
+                'blocking_type': 'blocking_normal',
+                'run_on_active_timeperiod': False,
+                'reprocessing_queue': [],
+                'next_timeperiod': '2015030100',
+                'trigger_frequency': 'every 300'
+            }
+        }
+    }
 };
 
 
@@ -128,8 +178,9 @@ function get_process_entry(process_name) {
         'process_name': process_name,
         'is_on': true,
         'is_alive': true,
-        'next_timeperiod': '2019098822',
         'next_run_in': '25:10',
+
+        'next_timeperiod': '2019098822',
         'reprocessing_queue': [],
         'time_qualifier': '_hourly',
         'state_machine': 'descrete',
@@ -183,17 +234,14 @@ function build_grid(grid_name, grid_template, builder_function, info_obj) {
 $(function () {
     for (var tree_name in mx_trees) {
         var tree_obj = mx_trees[tree_name];
-        var grid_name;
-        var builder_function;
-        var info_obj;
+        var process_obj;
         var process_name;
 
         // *** HEADER ***
         build_grid("grid-header-" + tree_obj.tree_name, GridHeaderTemplate, header_tree_tile, tree_obj);
 
-        var p_length = tree_obj.processes.length;
-        for (var i = 0; i < p_length; i++) {
-            process_name = tree_obj.processes[i];
+        for (process_name in tree_obj.processes) {
+            process_obj = tree_obj.processes[process_name];
             build_grid("grid-header-" + process_name, GridHeaderTemplate, header_process_tile, get_process_entry(process_name));
         }
 

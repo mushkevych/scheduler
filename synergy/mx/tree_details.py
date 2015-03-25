@@ -37,12 +37,15 @@ class TreeDetails(object):
             process_obj = context.process_context[process_name]
             rest_process = RestProcess(
                 process_name=process_name,
+                state=process_obj.state,
                 time_qualifier=process_obj.time_qualifier,
                 state_machine=process_obj.state_machine_name,
                 process_type=process_obj.process_type,
+                blocking_type=process_obj.blocking_type,
                 run_on_active_timeperiod=process_obj.run_on_active_timeperiod,
                 reprocessing_queue=self._get_reprocessing_details(process_name),
-                next_timeperiod=self.mbean.timetable.get_next_job_record(process_name).timeperiod
+                next_timeperiod=self.mbean.timetable.get_next_job_record(process_name).timeperiod,
+                trigger_frequency=process_obj.trigger_frequency
             )
             rest_tree.processes[process_name] = rest_process.document
         return rest_tree
@@ -69,6 +72,6 @@ class TreeDetails(object):
         for tree_name, tree in timetable.trees.items():
             if tree.mx_page in self.referrer:
                 rest_tree = self._get_tree_details(tree_name)
-                resp[tree.mx_name] = rest_tree.document
+                resp[tree.tree_name] = rest_tree.document
 
         return resp
