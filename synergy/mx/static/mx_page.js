@@ -1,3 +1,77 @@
+var test_mx_trees = {
+    'TreeSite': {
+        'tree_name': 'TreeSite',
+        'processes': {
+            'SiteYearly': {
+                'process_name': 'SiteYearly',
+                'time_qualifier': '_yearly',
+                'state_machine_name': 'discrete',
+                'process_type': 'type_managed',
+                'run_on_active_timeperiod': false,
+                'reprocessing_queue': [],
+                'next_timeperiod': '2015000000',
+                'trigger_frequency': 'every 14000',
+                'state': 'state_on',
+                'blocking_type': 'blocking_normal'
+            },
+            'SiteMonthly': {
+                'process_name': 'SiteMonthly',
+                'time_qualifier': '_monthly',
+                'state_machine_name': 'discrete',
+                'process_type': 'type_managed',
+                'run_on_active_timeperiod': false,
+                'reprocessing_queue': [],
+                'next_timeperiod': '2015030000',
+                'trigger_frequency': 'every 7000',
+                'state': 'state_on',
+                'blocking_type': 'blocking_normal'
+            },
+            'SiteDaily': {
+                'process_name': 'SiteDaily',
+                'time_qualifier': '_daily',
+                'state_machine_name': 'discrete',
+                'process_type': 'type_managed',
+                'run_on_active_timeperiod': false,
+                'reprocessing_queue': [],
+                'next_timeperiod': '2015030100',
+                'trigger_frequency': 'every 3600',
+                'state': 'state_on',
+                'blocking_type': 'blocking_normal'
+            },
+            'SiteHourly': {
+                'process_name': 'SiteHourly',
+                'time_qualifier': '_hourly',
+                'state_machine_name': 'discrete',
+                'process_type': 'type_managed',
+                'run_on_active_timeperiod': false,
+                'reprocessing_queue': [],
+                'next_timeperiod': '2015030101',
+                'trigger_frequency': 'every 900',
+                'state': 'state_on',
+                'blocking_type': 'blocking_normal'
+            }
+        }
+    },
+    'TreeAlert': {
+        'tree_name': 'TreeAlert',
+        'processes': {
+            'AlertDaily': {
+                'process_name': 'AlertDaily',
+                'time_qualifier': '_daily',
+                'state_machine_name': 'discrete',
+                'process_type': 'type_managed',
+                'run_on_active_timeperiod': false,
+                'reprocessing_queue': [],
+                'next_timeperiod': '2015030100',
+                'trigger_frequency': 'every 900',
+                'state': 'state_on',
+                'blocking_type': 'blocking_normal'
+            }
+        }
+    }
+};
+
+
 // The grid manages tiles using ids, which you can define. For our
 // examples we'll just use the tile number as the unique id.
 var TILE_IDS = [
@@ -5,6 +79,8 @@ var TILE_IDS = [
     15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26,
     27, 28, 29, 30, 31
 ];
+
+var GridHeaderTemplate = [" . "];
 
 
 // debounce utility from underscorejs.org
@@ -20,6 +96,22 @@ function debounce(func, wait, immediate) {
         clearTimeout(timeout);
         timeout = setTimeout(later, wait);
     };
+}
+
+
+function keys_to_list(dictionary, sorted) {
+    var keys = [];
+    for (var key in dictionary) {
+        if (dictionary.hasOwnProperty(key)) {
+            keys.push(key);
+        }
+    }
+
+    if (sorted) {
+        return keys.sort();
+    } else {
+        return keys;
+    }
 }
 
 
@@ -39,9 +131,6 @@ function grid_info_template(tiles_number) {
     }
     return arr;
 }
-
-
-var GridHeaderTemplate = [" . "];
 
 
 function header_tree_tile(mx_tree, tile) {
@@ -119,115 +208,6 @@ function info_job_tile(job_entry, tile, is_next_timeperiod) {
 }
 
 
-var mx_trees = {
-    'TreeSite': {
-        'tree_name': 'TreeSite',
-        'processes': {
-            'SiteYearly': {
-                'process_name': 'SiteYearly',
-                'time_qualifier': '_yearly',
-                'state_machine_name': 'discrete',
-                'process_type': 'type_managed',
-                'run_on_active_timeperiod': false,
-                'reprocessing_queue': [],
-                'next_timeperiod': '2015000000',
-                'trigger_frequency': 'every 14000',
-                'state': 'state_on',
-                'blocking_type': 'blocking_normal'
-            },
-            'SiteMonthly': {
-                'process_name': 'SiteMonthly',
-                'time_qualifier': '_monthly',
-                'state_machine_name': 'discrete',
-                'process_type': 'type_managed',
-                'run_on_active_timeperiod': false,
-                'reprocessing_queue': [],
-                'next_timeperiod': '2015030000',
-                'trigger_frequency': 'every 7000',
-                'state': 'state_on',
-                'blocking_type': 'blocking_normal'
-            },
-            'SiteDaily': {
-                'process_name': 'SiteDaily',
-                'time_qualifier': '_daily',
-                'state_machine_name': 'discrete',
-                'process_type': 'type_managed',
-                'run_on_active_timeperiod': false,
-                'reprocessing_queue': [],
-                'next_timeperiod': '2015030100',
-                'trigger_frequency': 'every 3600',
-                'state': 'state_on',
-                'blocking_type': 'blocking_normal'
-            },
-            'SiteHourly': {
-                'process_name': 'SiteHourly',
-                'time_qualifier': '_hourly',
-                'state_machine_name': 'discrete',
-                'process_type': 'type_managed',
-                'run_on_active_timeperiod': false,
-                'reprocessing_queue': [],
-                'next_timeperiod': '2015030101',
-                'trigger_frequency': 'every 900',
-                'state': 'state_on',
-                'blocking_type': 'blocking_normal'
-            }
-        }
-    },
-    'TreeAlert': {
-        'tree_name': 'TreeAlert',
-        'processes': {
-            'AlertDaily': {
-                'process_name': 'AlertDaily',
-                'time_qualifier': '_daily',
-                'state_machine_name': 'discrete',
-                'process_type': 'type_managed',
-                'run_on_active_timeperiod': false,
-                'reprocessing_queue': [],
-                'next_timeperiod': '2015030100',
-                'trigger_frequency': 'every 900',
-                'state': 'state_on',
-                'blocking_type': 'blocking_normal'
-            }
-        }
-    }
-};
-
-
-function get_process_entry(process_name) {
-    return {
-        'process_name': process_name,
-        'time_qualifier': '_hourly',
-        'state_machine_name': 'discrete',
-        'process_type': 'type_managed',
-        'run_on_active_timeperiod': false,
-        'reprocessing_queue': [],
-        'next_timeperiod': '2019098822',
-        'state': 'state_on',
-        'is_on': true,
-        'is_alive': true,
-        'next_run_in': '25:10',
-        'blocking_type': 'blocking_children',
-        'trigger_frequency': 'every 600'
-    };
-}
-
-
-function get_job_record(process_name) {
-    return {
-        'time_qualifier': '_custom',
-        'number_of_children': 5,
-        'start_id': '',
-        'end_id': '',
-        'related_unit_of_work': '',
-        'log': [],
-        'process_name': process_name,
-        'timeperiod': '2019098822',
-        'state': 'state_in_progress',
-        'number_of_failures': 10
-    };
-}
-
-
 function build_grid(grid_name, grid_template, builder_function, info_obj) {
     var el = document.getElementById(grid_name);
     var grid = new Tiles.Grid(el);
@@ -251,16 +231,16 @@ function build_grid(grid_name, grid_template, builder_function, info_obj) {
     grid.isDirty = true;
     grid.resize();
 
-    // adjust number of tiles to match selected template
-    var ids = TILE_IDS.slice(0, grid.template.rects.length);
-    grid.updateTiles(ids);
-    grid.redraw(true);
+    // common post-build function calls per grid
+    grid_post_constructor(grid);
 }
 
 
-function build_info_grid(grid_name, tree_node, next_timeperiod) {
+function build_info_grid(grid_name, tree_level, next_timeperiod) {
     var el = document.getElementById(grid_name);
     var grid = new Tiles.Grid(el);
+    var timeperiods = keys_to_list(tree_level.children, true);
+    var number_of_nodes = Object.keys(tree_level.children).length;
 
     // template is selected by user, not generated so just
     // return the number of columns in the current template
@@ -274,63 +254,32 @@ function build_info_grid(grid_name, tree_node, next_timeperiod) {
         var tile = new Tiles.Tile(tileId);
 
         // translate sequential IDs to the Timeperiods
-        var timeperiod = ...;
+        var reverse_index = number_of_nodes - tileId;
+        var timeperiod = timeperiods[reverse_index];
 
         // retrieve job_record
-        var info_obj = tree_node.children[timeperiod];
+        var info_obj = tree_level.children[timeperiod];
 
         info_job_tile(info_obj, tile, next_timeperiod==timeperiod);
         return tile;
     };
 
     // set the new template and resize the grid
-    grid.template = Tiles.Template.fromJSON(tree_node.children.length);
+    var template = grid_info_template(number_of_nodes);
+    grid.template = Tiles.Template.fromJSON(template);
     grid.isDirty = true;
     grid.resize();
 
+    // common post-build function calls per grid
+    grid_post_constructor(grid);
+}
+
+
+function grid_post_constructor(grid) {
     // adjust number of tiles to match selected template
     var ids = TILE_IDS.slice(0, grid.template.rects.length);
     grid.updateTiles(ids);
     grid.redraw(true);
-}
-
-
-$(function () {
-    for (var tree_name in mx_trees) {
-        var tree_obj = mx_trees[tree_name];
-        var process_obj;
-        var process_name;
-
-        // *** HEADER ***
-        build_grid("grid-header-" + tree_obj.tree_name, GridHeaderTemplate, header_tree_tile, tree_obj);
-
-        for (process_name in tree_obj.processes) {
-            process_obj = tree_obj.processes[process_name];
-            build_grid("grid-header-" + process_name, GridHeaderTemplate, header_process_tile, get_process_entry(process_name));
-        }
-
-
-        // *** INFO ***
-        var higher_next_timeperiod = null;
-        var higher_process_name = null;
-        for (process_name in tree_obj.processes) {
-            process_obj = tree_obj.processes[process_name];
-            build_grid("grid-info-" + tree_obj.tree_name, grid_info_template(p_length), info_process_tile, get_process_entry(process_name));
-
-            if (process_name == get_tree_top_process(tree_obj)) {
-                // this is root
-                var tree_node = get_request_tree_nodes(process_name, higher_next_timeperiod);
-                higher_process_name = process_name;
-                higher_next_timeperiod = process_obj.next_timeperiod;
-            } else {
-                var tree_node = get_request_tree_nodes(higher_process_name, higher_next_timeperiod);
-                higher_process_name = process_name;
-                higher_next_timeperiod = process_obj.next_timeperiod;
-            }
-
-            build_info_grid("grid-info-" + process_name, tree_node, process_obj.next_timeperiod);
-        }
-    }
 
     // wait until users finishes resizing the browser
     var debounced_resize = debounce(function () {
@@ -340,4 +289,75 @@ $(function () {
 
     // when the window resizes, redraw the grid
     $(window).resize(debounced_resize);
+}
+
+
+function get_tree_nodes(process_name, timeperiod){
+    return $.ajax({
+        data: {'process_name': process_name, 'timeperiod': timeperiod},
+        dataType: "json",
+        type: "GET",
+        url: '/request_tree_nodes/',
+        cache: false,
+        async: false
+    });
+}
+
+
+function build_trees(mx_trees) {
+    for (var tree_name in mx_trees) {
+        if (!mx_trees.hasOwnProperty(tree_name)) {
+            continue;
+        }
+
+        var tree_obj = mx_trees[tree_name];
+        var process_obj;
+        var process_name;
+        var number_of_processes = Object.keys(tree_obj.processes).length;
+
+        // *** HEADER ***
+        build_grid("grid-header-" + tree_obj.tree_name, GridHeaderTemplate, header_tree_tile, tree_obj);
+
+        for (process_name in tree_obj.processes) {
+            if (!tree_obj.processes.hasOwnProperty(process_name)) {
+                continue;
+            }
+
+            process_obj = tree_obj.processes[process_name];
+            build_grid("grid-header-" + process_name, GridHeaderTemplate, header_process_tile, process_obj);
+        }
+
+
+        // *** INFO ***
+        var tree_level;
+        var higher_next_timeperiod = null;
+        var higher_process_name = null;
+        for (process_name in tree_obj.processes) {
+            if (!tree_obj.processes.hasOwnProperty(process_name)) {
+                continue;
+            }
+
+            process_obj = tree_obj.processes[process_name];
+            build_grid("grid-info-" + tree_obj.tree_name, grid_info_template(number_of_processes), info_process_tile, process_obj);
+
+            if (process_name == get_tree_top_process(tree_obj)) {
+                // fetching top level of the tree
+                tree_level = get_tree_nodes(process_name, higher_next_timeperiod);
+            } else {
+                tree_level = get_tree_nodes(higher_process_name, higher_next_timeperiod);
+            }
+            higher_process_name = process_name;
+            higher_next_timeperiod = process_obj.next_timeperiod;
+
+            build_info_grid("grid-info-" + process_name, tree_level, process_obj.next_timeperiod);
+        }
+    }
+}
+
+
+// main method for the MX PAGE script
+$(document).ready(function () {
+    $.get('/request_trees/', function (response) {
+        build_trees(response);
+    }, 'json');
 });
