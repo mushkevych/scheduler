@@ -254,6 +254,43 @@ function build_grid(grid_name, grid_template, builder_function, info_obj) {
 }
 
 
+function build_info_grid(grid_name, tree_node) {
+    var el = document.getElementById(grid_name);
+    var grid = new Tiles.Grid(el);
+
+    // template is selected by user, not generated so just
+    // return the number of columns in the current template
+    grid.resizeColumns = function () {
+        return this.template.numCols;
+    };
+
+    // by default, each tile is an empty div, we'll override creation
+    // to add a tile number to each div
+    grid.createTile = function (tileId) {
+        var tile = new Tiles.Tile(tileId);
+
+        // translate sequential IDs to the Timeperiods
+        var timeperiod = ...;
+
+        // retrieve job_record
+        var info_obj = tree_node.children[timeperiod];
+
+        info_job_tile(info_obj, tile);
+        return tile;
+    };
+
+    // set the new template and resize the grid
+    grid.template = Tiles.Template.fromJSON(tree_node.children.length);
+    grid.isDirty = true;
+    grid.resize();
+
+    // adjust number of tiles to match selected template
+    var ids = TILE_IDS.slice(0, grid.template.rects.length);
+    grid.updateTiles(ids);
+    grid.redraw(true);
+}
+
+
 $(function () {
     for (var tree_name in mx_trees) {
         var tree_obj = mx_trees[tree_name];
@@ -270,21 +307,25 @@ $(function () {
 
 
         // *** INFO ***
+        var higher_next_timeperiod = null;
+        var higher_process_name = null;
         for (process_name in tree_obj.processes) {
             process_obj = tree_obj.processes[process_name];
             build_grid("grid-info-" + tree_obj.tree_name, grid_info_template(p_length), info_process_tile, get_process_entry(process_name));
+
+            if (process_name == get_tree_top_process(tree_obj)) {
+                // this is root
+                var tree_node = get_request_tree_nodes(process_name, higher_next_timeperiod);
+                higher_process_name = process_name;
+                higher_next_timeperiod = process_obj.next_timeperiod;
+            } else {
+                var tree_node = get_request_tree_nodes(higher_process_name, higher_next_timeperiod);
+                higher_process_name = process_name;
+                higher_next_timeperiod = process_obj.next_timeperiod;
+            }
+
+            build_info_grid("grid-info-" + process_name, tree_node);
         }
-
-        // fetch RestTimetableTreeNode for root and go from there
-        var root = get_request_tree_nodes(get_tree_top_process(tree_obj));
-        var child_job_obj
-        for (var child_timeperiod in root.children) {
-            child_job_obj = root.children[child_timeperiod];
-            build_grid("grid-info-" + process_name, grid_info_template(root.children.length), info_job_tile, child_job_obj);
-        }
-
-        // do the same as for root for other levels of the tree
-
     }
 
     // wait until users finishes resizing the browser
