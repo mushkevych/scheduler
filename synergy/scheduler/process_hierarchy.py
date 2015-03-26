@@ -49,7 +49,8 @@ class ProcessHierarchy(object):
         return self.entries[key]
 
     def __iter__(self):
-        """ for x in self """
+        """ for x in self
+        :return process_names in descending order of their time_qualifier: yearly->monthly->daily->hourly """
         return iter(self.entries)
 
     def __str__(self):

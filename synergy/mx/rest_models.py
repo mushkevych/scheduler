@@ -14,6 +14,7 @@ FIELD_IS_ALIVE = 'is_alive'                 # actual state of the trigger
 FIELD_NEXT_RUN_IN = 'next_run_in'           # duration until the next trigger event in HH:MM:SS format
 FIELD_NEXT_TIMEPERIOD = 'next_timeperiod'   # Synergy timeperiod format
 FIELD_DEPENDANT_TREES = 'dependant_trees'
+FIELD_SORTED_PROCESS_NAMES = 'sorted_process_names'     # process names sorted by their time_qualifier
 FIELD_REPROCESSING_QUEUE = 'reprocessing_queue'
 
 FIELD_NUMBER_OF_CHILDREN = 'number_of_children'
@@ -43,6 +44,7 @@ class RestProcess(ManagedProcessEntry):
 
 class RestTimetableTree(TimetableTreeEntry):
     dependant_trees = ListField(FIELD_DEPENDANT_TREES)
+    sorted_process_names = ListField(FIELD_SORTED_PROCESS_NAMES)
     processes = DictField(FIELD_PROCESSES)
 
 

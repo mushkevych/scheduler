@@ -9,8 +9,8 @@ from synergy.mx.rest_models import RestTimetableTree, RestProcess
 class TreeDetails(object):
     def __init__(self, mbean, request):
         self.mbean = mbean
-        self.referrer = request.referrer
         self.logger = self.mbean.logger
+        self.referrer = request.referrer
 
     def _list_of_dependant_trees(self, tree_obj):
         trees = self.mbean.timetable._find_dependant_trees(tree_obj)
@@ -31,7 +31,8 @@ class TreeDetails(object):
                                       mx_page=tree_obj.mx_page,
                                       mx_name=tree_obj.mx_name,
                                       dependent_on=context_entry.dependent_on,
-                                      dependant_trees=self._list_of_dependant_trees(tree_obj))
+                                      dependant_trees=self._list_of_dependant_trees(tree_obj),
+                                      sorted_process_names=[x for x in tree_obj.process_hierarchy])
 
         for process_name in context_entry.enclosed_processes:
             process_obj = context.process_context[process_name]

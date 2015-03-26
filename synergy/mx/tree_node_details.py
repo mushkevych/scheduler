@@ -12,9 +12,15 @@ from synergy.mx.mx_decorators import valid_action_request
 class TreeNodeDetails(object):
     def __init__(self, mbean, request):
         self.mbean = mbean
+        self.logger = self.mbean.logger
         self.process_name = request.args.get('process_name')
         self.timeperiod = request.args.get('timeperiod')
-        self.is_request_valid = True if self.mbean else False
+        self.tree = self.mbean.timetable.get_tree(self.process_name)
+
+        if self.tree:
+            self.is_request_valid = True
+        else:
+            self.is_request_valid = False
 
     @classmethod
     def get_details(cls, node, as_model=False):
@@ -35,22 +41,20 @@ class TreeNodeDetails(object):
     @valid_action_request
     def details(self):
         rest_node = RestTimetableTreeNode()
-        timetable = self.mbean.timetable
-        tree = timetable.get_tree(self.process_name)
 
-        if self.timeperiod is None and tree is not None:
+        if not self.timeperiod:
             # return list of yearly nodes OR leafs for linear tree
             # limit number of children to return, since a linear tree can holds thousands of nodes
-            sorted_keys = sorted(tree.root.children.keys(), reverse=True)
+            sorted_keys = sorted(self.tree.root.children.keys(), reverse=True)
             sorted_keys = sorted_keys[:settings.settings['mx_children_limit']]
             for key in sorted_keys:
-                child = tree.root.children[key]
+                child = self.tree.root.children[key]
                 rest_node.children[key] = TreeNodeDetails.get_details(child)
 
-        elif tree is not None:
+        else:
             time_qualifier = context.process_context[self.process_name].time_qualifier
             self.timeperiod = time_helper.cast_to_time_qualifier(time_qualifier, self.timeperiod)
-            node = tree.get_node(self.process_name, self.timeperiod)
+            node = self.tree.get_node(self.process_name, self.timeperiod)
             rest_node.node = TreeNodeDetails.get_details(node, as_model=True)
             for key in node.children:
                 child = node.children[key]
