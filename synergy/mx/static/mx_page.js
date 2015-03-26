@@ -208,15 +208,9 @@ function info_job_tile(job_entry, tile, is_next_timeperiod) {
 }
 
 
-function build_grid(grid_name, grid_template, builder_function, info_obj) {
+function build_header_grid(grid_name, grid_template, builder_function, info_obj) {
     var el = document.getElementById(grid_name);
     var grid = new Tiles.Grid(el);
-
-    // template is selected by user, not generated so just
-    // return the number of columns in the current template
-    grid.resizeColumns = function () {
-        return this.template.numCols;
-    };
 
     // by default, each tile is an empty div, we'll override creation
     // to add a tile number to each div
@@ -226,27 +220,39 @@ function build_grid(grid_name, grid_template, builder_function, info_obj) {
         return tile;
     };
 
-    // set the new template and resize the grid
-    grid.template = Tiles.Template.fromJSON(grid_template);
-    grid.isDirty = true;
-    grid.resize();
-
     // common post-build function calls per grid
-    grid_post_constructor(grid);
+    grid_post_constructor(grid, grid_template);
 }
 
 
-function build_info_grid(grid_name, tree_level, next_timeperiod) {
+function build_process_grid(grid_name, tree_obj) {
+    var el = document.getElementById(grid_name);
+    var grid = new Tiles.Grid(el);
+    var process_names = keys_to_list(tree_obj.processes, true);
+
+    // by default, each tile is an empty div, we'll override creation
+    // to add a tile number to each div
+    grid.createTile = function (tileId) {
+        var tile = new Tiles.Tile(tileId);
+
+        // retrieve process entry
+        var process_name = process_names[tileId];
+        var info_obj = tree_obj.processes[process_name];
+
+        info_process_tile(info_obj, tile);
+        return tile;
+    };
+
+    // common post-build function calls per grid
+    var template = grid_info_template(process_names.length);
+    grid_post_constructor(grid, template);
+}
+
+
+function build_job_grid(grid_name, tree_level, next_timeperiod) {
     var el = document.getElementById(grid_name);
     var grid = new Tiles.Grid(el);
     var timeperiods = keys_to_list(tree_level.children, true);
-    var number_of_nodes = Object.keys(tree_level.children).length;
-
-    // template is selected by user, not generated so just
-    // return the number of columns in the current template
-    grid.resizeColumns = function () {
-        return this.template.numCols;
-    };
 
     // by default, each tile is an empty div, we'll override creation
     // to add a tile number to each div
@@ -254,7 +260,7 @@ function build_info_grid(grid_name, tree_level, next_timeperiod) {
         var tile = new Tiles.Tile(tileId);
 
         // translate sequential IDs to the Timeperiods
-        var reverse_index = number_of_nodes - tileId;
+        var reverse_index = timeperiods.length - tileId;
         var timeperiod = timeperiods[reverse_index];
 
         // retrieve job_record
@@ -264,18 +270,23 @@ function build_info_grid(grid_name, tree_level, next_timeperiod) {
         return tile;
     };
 
-    // set the new template and resize the grid
-    var template = grid_info_template(number_of_nodes);
+    // common post-build function calls per grid
+    var template = grid_info_template(timeperiods.length);
+    grid_post_constructor(grid, template);
+}
+
+
+function grid_post_constructor(grid, template) {
     grid.template = Tiles.Template.fromJSON(template);
     grid.isDirty = true;
     grid.resize();
 
-    // common post-build function calls per grid
-    grid_post_constructor(grid);
-}
+    // template is selected by user, not generated so just
+    // return the number of columns in the current template
+    grid.resizeColumns = function () {
+        return this.template.numCols;
+    };
 
-
-function grid_post_constructor(grid) {
     // adjust number of tiles to match selected template
     var ids = TILE_IDS.slice(0, grid.template.rects.length);
     grid.updateTiles(ids);
@@ -313,10 +324,9 @@ function build_trees(mx_trees) {
         var tree_obj = mx_trees[tree_name];
         var process_obj;
         var process_name;
-        var number_of_processes = Object.keys(tree_obj.processes).length;
 
         // *** HEADER ***
-        build_grid("grid-header-" + tree_obj.tree_name, GridHeaderTemplate, header_tree_tile, tree_obj);
+        build_header_grid("grid-header-" + tree_obj.tree_name, GridHeaderTemplate, header_tree_tile, tree_obj);
 
         for (process_name in tree_obj.processes) {
             if (!tree_obj.processes.hasOwnProperty(process_name)) {
@@ -324,11 +334,13 @@ function build_trees(mx_trees) {
             }
 
             process_obj = tree_obj.processes[process_name];
-            build_grid("grid-header-" + process_name, GridHeaderTemplate, header_process_tile, process_obj);
+            build_header_grid("grid-header-" + process_name, GridHeaderTemplate, header_process_tile, process_obj);
         }
 
 
         // *** INFO ***
+        build_process_grid("grid-info-" + tree_obj.tree_name, tree_obj);
+
         var tree_level;
         var higher_next_timeperiod = null;
         var higher_process_name = null;
@@ -337,19 +349,18 @@ function build_trees(mx_trees) {
                 continue;
             }
 
-            process_obj = tree_obj.processes[process_name];
-            build_grid("grid-info-" + tree_obj.tree_name, grid_info_template(number_of_processes), info_process_tile, process_obj);
-
             if (process_name == get_tree_top_process(tree_obj)) {
                 // fetching top level of the tree
                 tree_level = get_tree_nodes(process_name, higher_next_timeperiod);
             } else {
                 tree_level = get_tree_nodes(higher_process_name, higher_next_timeperiod);
             }
+
+            process_obj = tree_obj.processes[process_name];
             higher_process_name = process_name;
             higher_next_timeperiod = process_obj.next_timeperiod;
 
-            build_info_grid("grid-info-" + process_name, tree_level, process_obj.next_timeperiod);
+            build_job_grid("grid-info-" + process_name, tree_level, process_obj.next_timeperiod);
         }
     }
 }
@@ -358,6 +369,7 @@ function build_trees(mx_trees) {
 // main method for the MX PAGE script
 $(document).ready(function () {
     $.get('/request_trees/', function (response) {
-        build_trees(response);
+        build_trees(test_mx_trees);
+//        build_trees(response);
     }, 'json');
 });
