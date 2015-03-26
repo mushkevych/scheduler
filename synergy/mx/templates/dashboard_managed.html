@@ -62,21 +62,8 @@
 </div>
 
 <script type="text/javascript">
-    if ($('#form_time_window').data('form_initial_load') == false) {
-        $(document).ready(function () {
-            $('#form_time_window').submit();
-        });
-    }
-
-    // convert HTML table into JS dataTable
-    $('.synergy_datatable').dataTable({"bPaginate": true,
-        "bSort": true,
-        "iDisplayLength": 36,
-        "bLengthChange": false,
-        "aaSorting": [
-            [ 1, "asc" ],
-            [ 2, "asc" ]
-        ]
+    $(document).ready(function () {
+        load_dataset('#form_time_window', 'form_initial_load', [ [ 1, "asc" ], [ 2, "asc" ] ]);
     });
 </script>
 

@@ -41,7 +41,7 @@ class Timetable(object):
         trees = dict()
         for tree_name, context_entry in context.timetable_context.items():
             tree = MultiLevelTree(process_names=context_entry.enclosed_processes,
-                                  full_name=tree_name,
+                                  tree_name=tree_name,
                                   mx_name=context_entry.mx_name,
                                   mx_page=context_entry.mx_page)
             trees[tree_name] = tree

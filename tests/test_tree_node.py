@@ -22,10 +22,10 @@ class TestTreeNode(unittest.TestCase):
                                                              PROCESS_SITE_MONTHLY,
                                                              PROCESS_SITE_DAILY,
                                                              PROCESS_SITE_HOURLY],
-                                              full_name=TOKEN_SITE)
+                                              tree_name=TOKEN_SITE)
 
         self.tree_two_level = MultiLevelTree(process_names=[PROCESS_CLIENT_MONTHLY],
-                                             full_name=TOKEN_CLIENT)
+                                             tree_name=TOKEN_CLIENT)
 
     def tearDown(self):
         del self.tree_four_level

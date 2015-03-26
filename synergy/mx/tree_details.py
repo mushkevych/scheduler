@@ -14,7 +14,7 @@ class TreeDetails(object):
 
     def _list_of_dependant_trees(self, tree_obj):
         trees = self.mbean.timetable._find_dependant_trees(tree_obj)
-        return [x.full_name for x in trees]
+        return [x.tree_name for x in trees]
 
     def _get_reprocessing_details(self, process_name):
         resp = []
@@ -40,7 +40,7 @@ class TreeDetails(object):
                 process_name=process_name,
                 state=process_obj.state,
                 time_qualifier=process_obj.time_qualifier,
-                state_machine=process_obj.state_machine_name,
+                state_machine_name=process_obj.state_machine_name,
                 process_type=process_obj.process_type,
                 blocking_type=process_obj.blocking_type,
                 run_on_active_timeperiod=process_obj.run_on_active_timeperiod,

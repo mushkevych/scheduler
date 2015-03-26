@@ -146,7 +146,7 @@ OUTPUT_DOCUMENT.build_navigational_panel = function (vertical_json) {
         var li = $('<li></li>');
         var a = $('<a href="#">' + k + '</a>').click(function (e) {
             e.preventDefault();
-            var params = { process_name: get_tree_top_process(v) };
+            var params = { process_name: v.sorted_process_names[0] };  // top process name for the given tree, represented by *v*
 
             $.get('/request_tree_nodes/', params, function (response) {
                 $('#level').empty();

@@ -34,7 +34,7 @@ var test_mx_trees = {
                 'process_type': 'type_managed',
                 'run_on_active_timeperiod': false,
                 'reprocessing_queue': [],
-                'next_timeperiod': '2015030100',
+                'next_timeperiod': '2015032000',
                 'trigger_frequency': 'every 3600',
                 'state': 'state_on',
                 'blocking_type': 'blocking_normal'
@@ -46,7 +46,7 @@ var test_mx_trees = {
                 'process_type': 'type_managed',
                 'run_on_active_timeperiod': false,
                 'reprocessing_queue': [],
-                'next_timeperiod': '2015030101',
+                'next_timeperiod': '2015032001',
                 'trigger_frequency': 'every 900',
                 'state': 'state_on',
                 'blocking_type': 'blocking_normal'
@@ -64,7 +64,7 @@ var test_mx_trees = {
                 'process_type': 'type_managed',
                 'run_on_active_timeperiod': false,
                 'reprocessing_queue': [],
-                'next_timeperiod': '2015030100',
+                'next_timeperiod': '2015032000',
                 'trigger_frequency': 'every 900',
                 'state': 'state_on',
                 'blocking_type': 'blocking_normal'
@@ -83,38 +83,6 @@ var TILE_IDS = [
 ];
 
 var GridHeaderTemplate = [" . "];
-
-
-// debounce utility from underscorejs.org
-function debounce(func, wait, immediate) {
-    var timeout;
-    return function () {
-        var context = this, args = arguments;
-        var later = function () {
-            timeout = null;
-            if (!immediate) func.apply(context, args);
-        };
-        if (immediate && !timeout) func.apply(context, args);
-        clearTimeout(timeout);
-        timeout = setTimeout(later, wait);
-    };
-}
-
-
-function keys_to_list(dictionary, sorted) {
-    var keys = [];
-    for (var key in dictionary) {
-        if (dictionary.hasOwnProperty(key)) {
-            keys.push(key);
-        }
-    }
-
-    if (sorted) {
-        return keys.sort();
-    } else {
-        return keys;
-    }
-}
 
 
 // function returns a Tiles.js template for job records
@@ -136,42 +104,37 @@ function grid_info_template(tiles_number) {
 
 
 function header_tree_tile(mx_tree, tile) {
-    tile.$el.append('<div class="dev-tile-content">Tree Name</div>'
-        + '<div class="dev-tile-content">' + mx_tree.tree_name + '</div>'
-        + '<div class="dev-tile-content">Dependent On</div>'
-        + '<div class="dev-tile-content">' + mx_tree.dependent_on + '</div>'
-        + '<div class="dev-tile-content">Dependant Trees</div>'
-        + '<div class="dev-tile-content">' + mx_tree.dependant_trees + '</div>');
+    tile.$el.append('<div class="dev-tile-content">Tree Name: ' + mx_tree.tree_name + '</div>'
+        + '<div class="dev-tile-content">Dependent On: ' + mx_tree.dependent_on + '</div>'
+        + '<div class="dev-tile-content">Dependant Trees: ' + mx_tree.dependant_trees + '</div>');
 }
 
 
 function header_process_tile(process_entry, tile) {
-    tile.$el.append('<div class="dev-tile-content">Trigger On/Alive</div>'
-        + '<div class="dev-tile-content">' + process_entry.is_on + '/' + process_entry.is_alive + '</div>'
-        + '<div class="dev-tile-content">Process Name</div>'
-        + '<div class="dev-tile-content">' + process_entry.process_name + '</div>'
-        + '<div class="dev-tile-content">Next Timeperiod</div>'
-        + '<div class="dev-tile-content">' + process_entry.next_timeperiod + '</div>'
-        + '<div class="dev-tile-content">Next Run In</div>'
-        + '<div class="dev-tile-content">' + process_entry.next_run_in + '</div>'
-        + '<div class="dev-tile-content">' + 'Trigger Now Button' + '</div>'
-        + '<div class="dev-tile-content">Reprocessing Queue</div>'
-        + '<div class="dev-tile-content">' + process_entry.reprocessing_queue + '</div>');
+    var trigger_button = $('<button>Trigger&nbsp;Now</button>').click(function (e) {
+        var params = { 'process_name': process_entry.process_name, 'timeperiod': 'NA' };
+        $.get('/' + action + '/', params, function (response) {
+//        alert("response is " + response);
+        });
+    });
+
+    tile.$el.append('<div class="dev-tile-content">Trigger On/Alive: ' + process_entry.is_on + '/' + process_entry.is_alive + '</div>'
+        + '<div class="dev-tile-content">Process Name: ' + process_entry.process_name + '</div>'
+        + '<div class="dev-tile-content">Next Timeperiod: ' + process_entry.next_timeperiod + '</div>'
+        + '<div class="dev-tile-content">Next Run In: ' + process_entry.next_run_in + '</div>');
+
+    tile.$el.append($('<div></div>').append(trigger_button));
+    tile.$el.append('<div class="dev-tile-content">Reprocessing Queue: '+ process_entry.reprocessing_queue + '</div>');
 }
 
 
 function info_process_tile(process_entry, tile) {
     tile.process_name = process_entry.process_name;
-    tile.$el.append('<div class="dev-tile-content">Process Name</div>'
-        + '<div class="dev-tile-content">' + process_entry.process_name + '</div>'
-        + '<div class="dev-tile-content">Time Qualifier</div>'
-        + '<div class="dev-tile-content">' + process_entry.time_qualifier + '</div>'
-        + '<div class="dev-tile-content">State Machine</div>'
-        + '<div class="dev-tile-content">' + process_entry.state_machine_name + '</div>'
-        + '<div class="dev-tile-content">Blocking type</div>'
-        + '<div class="dev-tile-content">' + process_entry.blocking_type + '</div>'
-        + '<div class="dev-tile-content">Run On Active Timeperiod</div>'
-        + '<div class="dev-tile-content">' + process_entry.run_on_active_timeperiod + '</div>'
+    tile.$el.append('<div class="dev-tile-content">Process Name: ' + process_entry.process_name + '</div>'
+        + '<div class="dev-tile-content">Time Qualifier: ' + process_entry.time_qualifier + '</div>'
+        + '<div class="dev-tile-content">State Machine: ' + process_entry.state_machine_name + '</div>'
+        + '<div class="dev-tile-content">Blocking type: ' + process_entry.blocking_type + '</div>'
+        + '<div class="dev-tile-content">Run On Active Timeperiod: ' + process_entry.run_on_active_timeperiod + '</div>'
         + '<div class="dev-tile-content">Trigger Frequency</div>'
         + '<input type="text" size="8" maxlength="32" name="interval" value="' + process_entry.trigger_frequency + '" />');
 }
@@ -197,7 +160,7 @@ function info_job_tile(job_entry, tile, is_next_timeperiod) {
 
     tile.$el.attr('class', job_entry.state);
     if (is_next_timeperiod) {
-        tile.$el.className += ' is_next_timeperiod';
+        tile.$el.attr('class', tile.$el.attr('class') + ' is_next_timeperiod');
     }
 
     tile.$el.append($('<div></div>').append(checkbox_div).append(' p/t: ' + job_entry.process_name + '/' + tile.id));
@@ -349,7 +312,7 @@ function build_trees(mx_trees) {
         for (i = 0; i < process_number; i++) {
             process_name = tree_obj.sorted_process_names[i];
 
-            if (process_name == get_tree_top_process(tree_obj)) {
+            if (i == 0) {
                 // fetching top level of the tree
                 tree_level = get_tree_nodes(process_name, higher_next_timeperiod);
             } else {
