@@ -91,7 +91,13 @@ var GridHeaderTemplate = [" . "];
 function grid_info_template(tiles_number) {
     var arr = [];
     for (var i = 0; i < tiles_number; i++) {
-        if (i % 2 == 0) {
+        if (i % 3 == 0) {
+            arr.push(" C C C ");
+            arr.push(" C C C ");
+        } else if (i % 4 == 0) {
+            arr.push(" D D D ");
+            arr.push(" D D D ");
+        } else if (i % 2 == 0) {
             arr.push(" A A A ");
             arr.push(" A A A ");
         } else {
@@ -158,9 +164,10 @@ function info_job_tile(job_entry, tile, is_next_timeperiod) {
     tile.process_name = job_entry.process_name;
     tile.timeperiod = job_entry.timeperiod;
 
-    tile.$el.attr('class', job_entry.state);
     if (is_next_timeperiod) {
-        tile.$el.attr('class', tile.$el.attr('class') + ' is_next_timeperiod');
+        tile.$el.attr('class', job_entry.state + ' is_next_timeperiod');
+    } else {
+        tile.$el.attr('class', job_entry.state);
     }
 
     tile.$el.append($('<div></div>').append(checkbox_div).append(' p/t: ' + job_entry.process_name + '/' + tile.id));
