@@ -2,7 +2,7 @@
  * Taken from http://joncom.be/code/realtypeof/
  */
 
-function RealTypeOf(v) {
+function realTypeOf(v) {
   if (typeof(v) == "object") {
     if (v === null) return "null";
     if (v.constructor == (new Array).constructor) return "array";
@@ -13,32 +13,34 @@ function RealTypeOf(v) {
   return typeof(v);
 }
 
-function FormatJSON(oData, sIndent) {
+function formatJSON(oData, sIndent) {
     if (arguments.length < 2) {
-        var sIndent = "";
+        sIndent = "";
     }
     var sIndentStyle = "    ";
-    var sDataType = RealTypeOf(oData);
+    var sDataType = realTypeOf(oData);
+    var iCount = 0;
+    var sHTML;
 
     // open object
     if (sDataType == "array") {
         if (oData.length == 0) {
             return "[]";
         }
-        var sHTML = "[";
+        sHTML = "[";
     } else {
-        var iCount = 0;
+        iCount = 0;
         $.each(oData, function() {
             iCount++;
         });
         if (iCount == 0) { // object is empty
             return "{}";
         }
-        var sHTML = "{";
+        sHTML = "{";
     }
 
     // loop through items
-    var iCount = 0;
+    iCount = 0;
     $.each(oData, function(sKey, vValue) {
         if (iCount > 0) {
             sHTML += ",";
@@ -50,10 +52,10 @@ function FormatJSON(oData, sIndent) {
         }
 
         // display relevant data type
-        switch (RealTypeOf(vValue)) {
+        switch (realTypeOf(vValue)) {
             case "array":
             case "object":
-                sHTML += FormatJSON(vValue, (sIndent + sIndentStyle));
+                sHTML += formatJSON(vValue, (sIndent + sIndentStyle));
                 break;
             case "boolean":
             case "number":
@@ -80,6 +82,5 @@ function FormatJSON(oData, sIndent) {
         sHTML += ("\n" + sIndent + "}");
     }
 
-    // return
     return sHTML;
 }

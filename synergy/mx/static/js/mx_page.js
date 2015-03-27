@@ -110,15 +110,11 @@ function grid_info_template(tiles_number) {
 
 
 function header_tree_tile(mx_tree, tile) {
-//    <ul class="fa-ul">
-//      <li><i class="fa-li fa fa-sitemap"></i>Tree Name: + mx_tree.tree_name</li>
-//      <li><i class="fa-li fa fa-expand"></i>Dependent On: + mx_tree.dependent_on</li>
-//      <li><i class="fa-li fa fa-compress"></i>Dependant Trees: + mx_tree.dependant_trees</li>
-//    </ul>
-
-    tile.$el.append('<div class="dev-tile-content">Tree Name: ' + mx_tree.tree_name + '</div>'
-        + '<div class="dev-tile-content">Dependent On: ' + mx_tree.dependent_on + '</div>'
-        + '<div class="dev-tile-content">Dependant Trees: ' + mx_tree.dependant_trees + '</div>');
+    tile.$el.append('<ul class="fa-ul">'
+        + '<li title="Tree Name"><i class="fa-li fa fa-sitemap"></i>' + mx_tree.tree_name + '</li>'
+        + '<li title="Dependent On"><i class="fa-li fa fa-expand"></i>' + mx_tree.dependent_on + '</li>'
+        + '<li title="Dependant Trees"><i class="fa-li fa fa-compress"></i>' + mx_tree.dependant_trees + '</li>'
+        + '</ul>');
 }
 
 
@@ -130,50 +126,58 @@ function header_process_tile(process_entry, tile) {
         });
     });
 
-//    trigger on/alive: <i class="fa fa-power-off"></i>
-//    process name: <i class="fa fa-terminal"></i>
-//    Next Timeperiod: <i class="fa fa-play"></i>
-//    Next Run In: <i class="fa fa-rocket"></i>
-//    Reprocessing Queue: <i class="fa fa-retweet"></i>
+    var is_on;
+    if (process_entry.is_on) {
+        is_on = '<i class="fa fa-toggle-on" title="is ON"></i>';
+    } else {
+        is_on = '<i class="fa fa-toggle-off" title="is OFF"></i>';
+    }
 
+    var is_alive;
+    if (process_entry.is_alive) {
+        is_alive = '<i class="fa fa-toggle-on" title="is ON"></i>';
+    } else {
+        is_alive = '<i class="fa fa-toggle-off" title="is OFF"></i>';
+    }
 
-    tile.$el.append('<div class="dev-tile-content">Trigger On/Alive: ' + process_entry.is_on + '/' + process_entry.is_alive + '</div>'
-        + '<div class="dev-tile-content">Process Name: ' + process_entry.process_name + '</div>'
-        + '<div class="dev-tile-content">Next Timeperiod: ' + process_entry.next_timeperiod + '</div>'
-        + '<div class="dev-tile-content">Next Run In: ' + process_entry.next_run_in + '</div>');
+    tile.$el.append('<ul class="fa-ul">'
+        + '<li title="Trigger On/Off"><i class="fa-li fa fa-power-off"></i>' + is_on + '</li>'
+        + '<li title="Trigger Alive"><i class="fa-li fa fa-bolt"></i>' + is_alive + '</li>'
+        + '<li title="Process Name"><i class="fa-li fa fa-terminal"></i>' + process_entry.process_name + '</li>'
+        + '<li title="Next Timeperiod"><i class="fa-li fa fa-play"></i>' + process_entry.next_timeperiod + '</li>'
+        + '<li title="Next Run In"><i class="fa-li fa fa-rocket"></i>' + process_entry.next_run_in + '</li>'
+        + '<li title="Reprocessing Queue"><i class="fa-li fa fa-retweet"></i>'
+            + '<div class="dev-tile-content">'+ process_entry.reprocessing_queue + '</div>'
+        + '</li>'
+        + '</ul>');
 
     tile.$el.append($('<div></div>').append(trigger_button));
-    tile.$el.append('<div class="dev-tile-content">Reprocessing Queue: '+ process_entry.reprocessing_queue + '</div>');
 }
 
 
 function info_process_tile(process_entry, tile) {
-//    trigger on/alive: <i class="fa fa-power-off"></i>
-//    process name: <i class="fa fa-terminal"></i>
-//    time qualifier: <i class="fa fa-calendar"></i>
-//    state machine: <i class="fa fa-puzzle-piece"></i>
-//    blocking type: <i class="fa fa-anchor"></i>
-//    Run On Active Timeperiod: <i class="fa fa-unlock-alt"></i>
-//    Trigger Frequency: <i class="fa fa-heartbeat"></i>
-
+    var run_on_active_timeperiod;
+    if (process_entry.run_on_active_timeperiod) {
+        run_on_active_timeperiod = '<i class="fa fa-toggle-on" title="is ON"></i>';
+    } else {
+        run_on_active_timeperiod = '<i class="fa fa-toggle-off" title="is OFF"></i>';
+    }
 
     tile.process_name = process_entry.process_name;
-    tile.$el.append('<div class="dev-tile-content">Process Name: ' + process_entry.process_name + '</div>'
-        + '<div class="dev-tile-content">Time Qualifier: ' + process_entry.time_qualifier + '</div>'
-        + '<div class="dev-tile-content">State Machine: ' + process_entry.state_machine_name + '</div>'
-        + '<div class="dev-tile-content">Blocking type: ' + process_entry.blocking_type + '</div>'
-        + '<div class="dev-tile-content">Run On Active Timeperiod: ' + process_entry.run_on_active_timeperiod + '</div>'
-        + '<div class="dev-tile-content">Trigger Frequency</div>'
-        + '<input type="text" size="8" maxlength="32" name="interval" value="' + process_entry.trigger_frequency + '" />');
+    tile.$el.append('<ul class="fa-ul">'
+        + '<li title="Process Name"><i class="fa-li fa fa-terminal"></i>' + process_entry.process_name + '</li>'
+        + '<li title="Time Qualifier"><i class="fa-li fa fa-calendar"></i>' + process_entry.next_timeperiod + '</li>'
+        + '<li title="State Machine"><i class="fa-li fa fa-puzzle-piece"></i>' + process_entry.state_machine_name + '</li>'
+        + '<li title="Blocking type"><i class="fa-li fa fa-anchor"></i>' + process_entry.blocking_type + '</li>'
+        + '<li title="Run On Active Timeperiod"><i class="fa-li fa fa-unlock-alt"></i>' + run_on_active_timeperiod + '</li>'
+        + '<li title="Trigger Frequency"><i class="fa-li fa fa-heartbeat"></i>'
+            + '<input type="text" size="8" maxlength="32" name="interval" value="' + process_entry.trigger_frequency + '" />'
+        + '</li>'
+        + '</ul>');
 }
 
 
 function info_job_tile(job_entry, tile, is_next_timeperiod) {
-//    process name: <i class="fa fa-terminal"></i>
-//    timeperiod: <i class="fa fa-clock-o"></i>
-//    state: <i class="fa fa-flag-o"></i>
-//    #fails: <i class="fa fa-exclamation-triangle"></i>
-
     var checkbox_value = "{ process_name: '" + job_entry.process_name + "', timeperiod: '" + job_entry.timeperiod + "' }";
     var checkbox_div = '<input type="checkbox" name="batch_processing" value="' + checkbox_value + '"/>';
 
@@ -197,11 +201,14 @@ function info_job_tile(job_entry, tile, is_next_timeperiod) {
         tile.$el.attr('class', job_entry.state);
     }
 
-    tile.$el.append($('<div></div>').append(checkbox_div).append(' p/t: ' + job_entry.process_name + '/' + tile.id));
-    tile.$el.append('<div class="dev-title-content">timeperiod: ' + job_entry.timeperiod + '</div>'
-            + '<div class="dev-title-content">state: ' + job_entry.state + '</div>'
-            + '<div class="dev-title-content">#fails: ' + job_entry.number_of_failures + '</div>'
-    );
+    tile.$el.append($('<div></div>').append(checkbox_div)
+        .append('<i class="fa fa-terminal" title="Process Name"></i> ' + job_entry.process_name)
+        .append(' / <i class="fa fa-square-o" title="Tile Id"></i> ' + tile.id));
+    tile.$el.append('<ul class="fa-ul">'
+        + '<li title="Timeperiod"><i class="fa-li fa fa-clock-o"></i>' + job_entry.timeperiod + '</li>'
+        + '<li title="State"><i class="fa-li fa fa-flag-o"></i>' + job_entry.state + '</li>'
+        + '<li title="# of fails"><i class="fa-li fa fa-exclamation-triangle"></i>' + job_entry.number_of_failures + '</li>'
+        + '</ul>');
     tile.$el.append($('<div></div>').append(uow_button));
     tile.$el.append($('<div></div>').append(log_button));
 }
