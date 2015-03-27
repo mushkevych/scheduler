@@ -110,6 +110,12 @@ function grid_info_template(tiles_number) {
 
 
 function header_tree_tile(mx_tree, tile) {
+//    <ul class="fa-ul">
+//      <li><i class="fa-li fa fa-sitemap"></i>Tree Name: + mx_tree.tree_name</li>
+//      <li><i class="fa-li fa fa-expand"></i>Dependent On: + mx_tree.dependent_on</li>
+//      <li><i class="fa-li fa fa-compress"></i>Dependant Trees: + mx_tree.dependant_trees</li>
+//    </ul>
+
     tile.$el.append('<div class="dev-tile-content">Tree Name: ' + mx_tree.tree_name + '</div>'
         + '<div class="dev-tile-content">Dependent On: ' + mx_tree.dependent_on + '</div>'
         + '<div class="dev-tile-content">Dependant Trees: ' + mx_tree.dependant_trees + '</div>');
@@ -124,6 +130,13 @@ function header_process_tile(process_entry, tile) {
         });
     });
 
+//    trigger on/alive: <i class="fa fa-power-off"></i>
+//    process name: <i class="fa fa-terminal"></i>
+//    Next Timeperiod: <i class="fa fa-play"></i>
+//    Next Run In: <i class="fa fa-rocket"></i>
+//    Reprocessing Queue: <i class="fa fa-retweet"></i>
+
+
     tile.$el.append('<div class="dev-tile-content">Trigger On/Alive: ' + process_entry.is_on + '/' + process_entry.is_alive + '</div>'
         + '<div class="dev-tile-content">Process Name: ' + process_entry.process_name + '</div>'
         + '<div class="dev-tile-content">Next Timeperiod: ' + process_entry.next_timeperiod + '</div>'
@@ -135,6 +148,15 @@ function header_process_tile(process_entry, tile) {
 
 
 function info_process_tile(process_entry, tile) {
+//    trigger on/alive: <i class="fa fa-power-off"></i>
+//    process name: <i class="fa fa-terminal"></i>
+//    time qualifier: <i class="fa fa-calendar"></i>
+//    state machine: <i class="fa fa-puzzle-piece"></i>
+//    blocking type: <i class="fa fa-anchor"></i>
+//    Run On Active Timeperiod: <i class="fa fa-unlock-alt"></i>
+//    Trigger Frequency: <i class="fa fa-heartbeat"></i>
+
+
     tile.process_name = process_entry.process_name;
     tile.$el.append('<div class="dev-tile-content">Process Name: ' + process_entry.process_name + '</div>'
         + '<div class="dev-tile-content">Time Qualifier: ' + process_entry.time_qualifier + '</div>'
@@ -147,6 +169,11 @@ function info_process_tile(process_entry, tile) {
 
 
 function info_job_tile(job_entry, tile, is_next_timeperiod) {
+//    process name: <i class="fa fa-terminal"></i>
+//    timeperiod: <i class="fa fa-clock-o"></i>
+//    state: <i class="fa fa-flag-o"></i>
+//    #fails: <i class="fa fa-exclamation-triangle"></i>
+
     var checkbox_value = "{ process_name: '" + job_entry.process_name + "', timeperiod: '" + job_entry.timeperiod + "' }";
     var checkbox_div = '<input type="checkbox" name="batch_processing" value="' + checkbox_value + '"/>';
 
