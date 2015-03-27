@@ -91,13 +91,7 @@ var GridHeaderTemplate = [" . "];
 function grid_info_template(tiles_number) {
     var arr = [];
     for (var i = 0; i < tiles_number; i++) {
-        if (i % 3 == 0) {
-            arr.push(" C C C ");
-            arr.push(" C C C ");
-        } else if (i % 4 == 0) {
-            arr.push(" D D D ");
-            arr.push(" D D D ");
-        } else if (i % 2 == 0) {
+        if (i % 2 == 0) {
             arr.push(" A A A ");
             arr.push(" A A A ");
         } else {
@@ -286,8 +280,8 @@ function grid_post_constructor(grid, template) {
     grid.isDirty = true;
     grid.resize();
 
-    // template is selected by user, not generated so just
-    // return the number of columns in the current template
+    // return the number of columns from original template
+    // so that template does not change on the window resize
     grid.resizeColumns = function () {
         return this.template.numCols;
     };
