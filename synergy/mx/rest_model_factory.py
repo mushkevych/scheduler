@@ -1,11 +1,10 @@
 __author__ = 'Bohdan Mushkevych'
 
-
 from system.event_clock import format_time_trigger_string
 from synergy.mx.rest_model import *
 
 
-def handler_next_run(thread_handler):
+def get_next_run_in(thread_handler):
     if not thread_handler.is_alive:
         return 'NA'
 
@@ -13,7 +12,7 @@ def handler_next_run(thread_handler):
     return str(next_run).split('.')[0]
 
 
-def handler_next_timeperiod(timetable, process_name):
+def get_next_timeperiod(timetable, process_name):
     if timetable.get_tree(process_name) is None:
         return 'NA'
     else:
@@ -21,7 +20,7 @@ def handler_next_timeperiod(timetable, process_name):
         return job_record.timeperiod
 
 
-def list_dependant_trees(timetable, tree_obj):
+def get_dependant_trees(timetable, tree_obj):
     trees = timetable._find_dependant_trees(tree_obj)
     return [x.tree_name for x in trees]
 
@@ -43,9 +42,8 @@ def create_rest_managed_scheduler_entry(thread_handler, timetable):
         is_alive=thread_handler.is_alive,
         process_name=process_name,
         trigger_frequency=format_time_trigger_string(thread_handler.timer_instance),
-        next_run_in=handler_next_run(thread_handler),
-        next_timeperiod=handler_next_timeperiod(timetable, process_name),
-
+        next_run_in=get_next_run_in(thread_handler),
+        next_timeperiod=get_next_timeperiod(timetable, process_name),
         state=process_entry.state,
         time_qualifier=process_entry.time_qualifier,
         state_machine_name=process_entry.state_machine_name,
@@ -66,7 +64,7 @@ def create_rest_freerun_scheduler_entry(thread_handler):
         process_name=process_name,
         entry_name=entry_name,
         trigger_frequency=format_time_trigger_string(thread_handler.timer_instance),
-        next_run_in=handler_next_run(thread_handler),
+        next_run_in=get_next_run_in(thread_handler),
         arguments=thread_handler.process_entry.arguments
     )
     return rest_model
@@ -77,6 +75,6 @@ def create_rest_timetable_tree(timetable, tree_obj):
                                   mx_page=tree_obj.mx_page,
                                   mx_name=tree_obj.mx_name,
                                   dependent_on=[tree.tree_name for tree in tree_obj.dependent_on],
-                                  dependant_trees=list_dependant_trees(timetable, tree_obj),
+                                  dependant_trees=get_dependant_trees(timetable, tree_obj),
                                   sorted_process_names=[x for x in tree_obj.process_hierarchy])
     return rest_tree
