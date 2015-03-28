@@ -2,6 +2,8 @@ var test_mx_trees = {
     'TreeSite': {
         'tree_name': 'TreeSite',
         'sorted_process_names': ['SiteYearlyAggregator', 'SiteMonthlyAggregator', 'SiteDailyAggregator', 'SiteHourlyAggregator'],
+        'dependent_on': [],
+        'dependant_trees': [],
         'processes': {
             'SiteYearlyAggregator': {
                 'process_name': 'SiteYearlyAggregator',
@@ -106,8 +108,8 @@ function grid_info_template(tiles_number) {
 function header_tree_tile(mx_tree, tile) {
     tile.$el.append('<ul class="fa-ul">'
         + '<li title="Tree Name"><i class="fa-li fa fa-sitemap"></i>' + mx_tree.tree_name + '</li>'
-        + '<li title="Dependent On"><i class="fa-li fa fa-expand"></i>' + mx_tree.dependent_on + '</li>'
-        + '<li title="Dependant Trees"><i class="fa-li fa fa-compress"></i>' + mx_tree.dependant_trees + '</li>'
+        + '<li title="Dependent On"><i class="fa-li fa fa-expand"></i>' + formatJSON(mx_tree.dependent_on) + '</li>'
+        + '<li title="Dependant Trees"><i class="fa-li fa fa-compress"></i>' + formatJSON(mx_tree.dependant_trees) + '</li>'
         + '</ul>');
 }
 
@@ -337,7 +339,6 @@ function build_trees(mx_trees) {
             process_obj = tree_obj.processes[process_name];
             build_header_grid("grid-header-" + process_name, GridHeaderTemplate, header_process_tile, process_obj);
         }
-
 
         // *** INFO ***
         build_process_grid("grid-info-" + tree_obj.tree_name, tree_obj);

@@ -35,11 +35,7 @@ class RestManagedSchedulerEntry(ManagedProcessEntry):
     is_alive = BooleanField(FIELD_IS_ALIVE)
     next_run_in = StringField(FIELD_NEXT_RUN_IN)
     next_timeperiod = StringField(FIELD_NEXT_TIMEPERIOD)
-
-
-class RestProcess(ManagedProcessEntry):
     reprocessing_queue = ListField(FIELD_REPROCESSING_QUEUE)
-    next_timeperiod = StringField(FIELD_NEXT_TIMEPERIOD)
 
 
 class RestTimetableTree(TimetableTreeEntry):

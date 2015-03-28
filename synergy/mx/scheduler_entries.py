@@ -7,26 +7,27 @@ from synergy.system.performance_tracker import FootprintCalculator
 from synergy.mx.rest_models import RestFreerunSchedulerEntry, RestManagedSchedulerEntry
 
 
+def handler_next_run(thread_handler):
+    if not thread_handler.is_alive:
+        return 'NA'
+
+    next_run = thread_handler.next_run_in()
+    return str(next_run).split('.')[0]
+
+
+def handler_next_timeperiod(timetable, process_name):
+    if timetable.get_tree(process_name) is None:
+        return 'NA'
+    else:
+        job_record = timetable.get_next_job_record(process_name)
+        return job_record.timeperiod
+
+
 # Scheduler Entries Details tab
 class SchedulerEntries(object):
     def __init__(self, mbean):
         self.mbean = mbean
         self.logger = self.mbean.logger
-
-    def _handler_next_run(self, thread_handler):
-        if not thread_handler.is_alive:
-            return 'NA'
-
-        next_run = thread_handler.next_run_in()
-        return str(next_run).split('.')[0]
-
-    def _handler_next_timeperiod(self, process_name):
-        timetable = self.mbean.timetable
-        if timetable.get_tree(process_name) is None:
-            return 'NA'
-        else:
-            job_record = timetable.get_next_job_record(process_name)
-            return job_record.timeperiod
 
     @cached_property
     def managed_entries(self):
@@ -42,8 +43,8 @@ class SchedulerEntries(object):
                     is_alive=thread_handler.is_alive,
                     process_name=process_name,
                     trigger_frequency=format_time_trigger_string(thread_handler.timer_instance),
-                    next_run_in=self._handler_next_run(thread_handler),
-                    next_timeperiod=self._handler_next_timeperiod(process_name)
+                    next_run_in=handler_next_run(thread_handler),
+                    next_timeperiod=handler_next_timeperiod(self.mbean.timetable, process_name)
                 )
 
                 list_of_rows.append(rest_model.document)
@@ -67,7 +68,7 @@ class SchedulerEntries(object):
                     process_name=process_name,
                     entry_name=entry_name,
                     trigger_frequency=format_time_trigger_string(thread_handler.timer_instance),
-                    next_run_in=self._handler_next_run(thread_handler),
+                    next_run_in=handler_next_run(thread_handler),
                     arguments=thread_handler.process_entry.arguments
                 )
 
