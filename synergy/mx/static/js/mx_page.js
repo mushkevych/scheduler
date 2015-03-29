@@ -190,6 +190,9 @@ function info_job_tile(job_entry, tile, is_next_timeperiod) {
 
     tile.process_name = job_entry.process_name;
     tile.timeperiod = job_entry.timeperiod;
+    tile.$el.click(function (e) {
+        tile_selected(tile.process_name, tile.timeperiod, tile.id);
+    });
 
     if (is_next_timeperiod) {
         tile.$el.attr('class', job_entry.state + ' is_next_timeperiod');
@@ -250,7 +253,7 @@ function build_process_grid(grid_name, tree_obj) {
 }
 
 
-function build_job_grid(grid_name, tree_level, next_timeperiod) {
+function build_job_grid(grid_name, tree_level, selected_timeperiod) {
     var el = document.getElementById(grid_name);
     var grid = new Tiles.Grid(el);
     var timeperiods = keys_to_list(tree_level.children, true);
@@ -267,7 +270,7 @@ function build_job_grid(grid_name, tree_level, next_timeperiod) {
         // retrieve job_record
         var info_obj = tree_level.children[timeperiod];
 
-        info_job_tile(info_obj, tile, next_timeperiod==timeperiod);
+        info_job_tile(info_obj, tile, selected_timeperiod==timeperiod);
         return tile;
     };
 
@@ -316,6 +319,10 @@ function get_tree_nodes(process_name, timeperiod){
     return JSON.parse(response_text);
 }
 
+
+function tile_selected(process_name, timeperiod, tile_id) {
+    alert('process_name:' + process_name + ' timeperiod:' + timeperiod + ' tile_id:' + tile_id);
+}
 
 function build_trees(mx_trees) {
     for (var tree_name in mx_trees) {

@@ -51,7 +51,6 @@ def create_rest_managed_scheduler_entry(thread_handler, timetable):
         blocking_type=process_entry.blocking_type,
         run_on_active_timeperiod=process_entry.run_on_active_timeperiod,
         reprocessing_queue=get_reprocessing_queue(timetable, process_name),
-        trigger_frequency=process_entry.trigger_frequency
     )
     return rest_model
 
@@ -64,7 +63,9 @@ def create_rest_freerun_scheduler_entry(thread_handler):
         process_name=process_name,
         entry_name=entry_name,
         trigger_frequency=format_time_trigger_string(thread_handler.timer_instance),
+        description=thread_handler.process_entry.description,
         next_run_in=get_next_run_in(thread_handler),
+        log=thread_handler.process_entry.log,
         arguments=thread_handler.process_entry.arguments
     )
     return rest_model
