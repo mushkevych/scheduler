@@ -117,7 +117,7 @@ function header_tree_tile(mx_tree, tile) {
 function header_process_tile(process_entry, tile) {
     var trigger_button = $('<button>Trigger&nbsp;Now</button>').click(function (e) {
         var params = { 'process_name': process_entry.process_name, 'timeperiod': 'NA' };
-        $.get('/' + action + '/', params, function (response) {
+        $.get('/action_trigger_now/', params, function (response) {
 //        alert("response is " + response);
         });
     });
@@ -173,7 +173,7 @@ function info_process_tile(process_entry, tile) {
 }
 
 
-function info_job_tile(job_entry, tile, is_next_timeperiod) {
+function info_job_tile(job_entry, tile, is_selected_timeperiod) {
     var checkbox_value = "{ process_name: '" + job_entry.process_name + "', timeperiod: '" + job_entry.timeperiod + "' }";
     var checkbox_div = '<input type="checkbox" name="batch_processing" value="' + checkbox_value + '"/>';
 
@@ -191,11 +191,11 @@ function info_job_tile(job_entry, tile, is_next_timeperiod) {
     tile.process_name = job_entry.process_name;
     tile.timeperiod = job_entry.timeperiod;
     tile.$el.click(function (e) {
-        tile_selected(tile.process_name, tile.timeperiod, tile.id);
+        tile_selected(tile);
     });
 
-    if (is_next_timeperiod) {
-        tile.$el.attr('class', job_entry.state + ' is_next_timeperiod');
+    if (is_selected_timeperiod) {
+        tile.$el.attr('class', job_entry.state + ' is_selected_timeperiod');
     } else {
         tile.$el.attr('class', job_entry.state);
     }
@@ -253,15 +253,19 @@ function build_process_grid(grid_name, tree_obj) {
 }
 
 
-function build_job_grid(grid_name, tree_level, selected_timeperiod) {
+function build_job_grid(grid_name, tree_level, selected_timeperiod, tree_obj) {
     var el = document.getElementById(grid_name);
     var grid = new Tiles.Grid(el);
     var timeperiods = keys_to_list(tree_level.children, true);
+
+    // set tree and process_name for a grid
+    grid.tree_obj = tree_obj;
 
     // by default, each tile is an empty div, we'll override creation
     // to add a tile number to each div
     grid.createTile = function (tileId) {
         var tile = new Tiles.Tile(tileId);
+        tile.grid = grid;
 
         // translate sequential IDs to the Timeperiods
         var reverse_index = timeperiods.length - tileId;    // tileId starts with 1
@@ -320,9 +324,66 @@ function get_tree_nodes(process_name, timeperiod){
 }
 
 
-function tile_selected(process_name, timeperiod, tile_id) {
-    alert('process_name:' + process_name + ' timeperiod:' + timeperiod + ' tile_id:' + tile_id);
+function tile_selected(tile) {
+    // step 1: check if the tile is already selected
+    if (tile.$el.attr('class').indexOf('is_selected_timeperiod') > -1) {
+        // this tile is already selected
+        return;
+    }
+
+    // step 2: remove is_selected_timeperiod class from all tiles in the given grid
+    var i;
+    var tile_number = tile.grid.tiles.length;
+    for (i = 0; i < tile_number; i++) {
+        var i_tile = tile.grid.tiles[i];
+        var new_class = i_tile.$el.attr('class').replace(' is_selected_timeperiod', '');
+        i_tile.$el.attr('class', new_class);
+    }
+
+    // step 3: assign is_selected_timeperiod to the given title
+    tile.$el.attr('class', tile.$el.attr('class') + ' is_selected_timeperiod');
+
+    // step 4: iterate over grids and rebuild them
+    var tree_obj = tile.grid.tree_obj;
+    if (typeof tree_obj == 'undefined') {
+        // this is bottom-level process. no grid rebuilding is possible
+        return;
+    }
+
+    var process_number = tree_obj.sorted_process_names.length;
+    var higher_next_timeperiod = tile.timeperiod;
+    var higher_process_name = tile.process_name;
+    var is_beyond_cut_off = false;
+
+    for (i = 0; i < process_number; i++) {
+        var i_process_name = tree_obj.sorted_process_names[i];
+        if (is_beyond_cut_off == false) {
+            if (i_process_name == tile.process_name) {
+                is_beyond_cut_off = true;
+                continue;
+            } else {
+                continue;
+            }
+        }
+
+        // fetch child nodes for higher_process_name
+        var tree_level = get_tree_nodes(higher_process_name, higher_next_timeperiod);
+        var process_obj = tree_obj.processes[i_process_name];
+
+        higher_process_name = i_process_name;
+        higher_next_timeperiod = process_obj.next_timeperiod;
+
+        // empty the grid
+        var grid_name = 'grid-info-' + i_process_name;
+        var el = document.getElementById(grid_name);
+        var grid = new Tiles.Grid(el);
+        grid.tiles = [];
+
+        // reconstruct the grid
+        build_job_grid(grid_name, tree_level, process_obj.next_timeperiod);
+    }
 }
+
 
 function build_trees(mx_trees) {
     for (var tree_name in mx_trees) {
@@ -366,7 +427,7 @@ function build_trees(mx_trees) {
             higher_process_name = process_name;
             higher_next_timeperiod = process_obj.next_timeperiod;
 
-            build_job_grid("grid-info-" + process_name, tree_level, process_obj.next_timeperiod);
+            build_job_grid("grid-info-" + process_name, tree_level, process_obj.next_timeperiod, tree_obj);
         }
     }
 }
