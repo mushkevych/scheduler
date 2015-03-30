@@ -58,6 +58,8 @@ var test_mx_trees = {
     'TreeAlert': {
         'tree_name': 'TreeAlert',
         'sorted_process_names': ['AlertDailyWorker'],
+        'dependent_on': [],
+        'dependant_trees': [],
         'processes': {
             'AlertDailyWorker': {
                 'process_name': 'AlertDailyWorker',
@@ -392,9 +394,9 @@ function build_trees(mx_trees) {
         }
 
         var i;
-        var process_obj;
-        var process_name;
-        var tree_level;
+        var process_obj = null;
+        var process_name = null;
+        var tree_level = null;
 
         var tree_obj = mx_trees[tree_name];
         var process_number = tree_obj.sorted_process_names.length;
