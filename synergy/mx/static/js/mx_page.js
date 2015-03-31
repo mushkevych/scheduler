@@ -13,6 +13,7 @@ var test_mx_trees = {
                 'run_on_active_timeperiod': false,
                 'reprocessing_queue': [],
                 'next_timeperiod': '2015000000',
+                'next_run_in': '22:25',
                 'trigger_frequency': 'every 14000',
                 'state': 'state_on',
                 'blocking_type': 'blocking_normal'
@@ -25,6 +26,7 @@ var test_mx_trees = {
                 'run_on_active_timeperiod': false,
                 'reprocessing_queue': [],
                 'next_timeperiod': '2015030000',
+                'next_run_in': '22:25',
                 'trigger_frequency': 'every 7000',
                 'state': 'state_on',
                 'blocking_type': 'blocking_normal'
@@ -37,6 +39,7 @@ var test_mx_trees = {
                 'run_on_active_timeperiod': false,
                 'reprocessing_queue': [],
                 'next_timeperiod': '2015032000',
+                'next_run_in': '22:25',
                 'trigger_frequency': 'every 3600',
                 'state': 'state_on',
                 'blocking_type': 'blocking_normal'
@@ -49,6 +52,7 @@ var test_mx_trees = {
                 'run_on_active_timeperiod': false,
                 'reprocessing_queue': [],
                 'next_timeperiod': '2015032001',
+                'next_run_in': '22:25',
                 'trigger_frequency': 'every 900',
                 'state': 'state_on',
                 'blocking_type': 'blocking_normal'
@@ -69,6 +73,7 @@ var test_mx_trees = {
                 'run_on_active_timeperiod': false,
                 'reprocessing_queue': [],
                 'next_timeperiod': '2015032000',
+                'next_run_in': '22:25',
                 'trigger_frequency': 'every 900',
                 'state': 'state_on',
                 'blocking_type': 'blocking_normal'
@@ -202,9 +207,9 @@ function info_job_tile(job_entry, tile, is_selected_timeperiod) {
         tile.$el.attr('class', job_entry.state);
     }
 
-    tile.$el.append($('<div></div>').append(checkbox_div)
-        .append('<i class="fa fa-terminal" title="Process Name"></i> ' + job_entry.process_name)
-        .append(' / <i class="fa fa-square-o" title="Tile Id"></i> ' + tile.id));
+    tile.$el.append($('<div></div>').append(checkbox_div));
+//    tile.$el.append('<i class="fa fa-terminal" title="Process Name"></i> ' + job_entry.process_name)
+//        .append(' / <i class="fa fa-square-o" title="Tile Id"></i> ' + tile.id);
     tile.$el.append('<ul class="fa-ul">'
         + '<li title="Timeperiod"><i class="fa-li fa fa-clock-o"></i>' + job_entry.timeperiod + '</li>'
         + '<li title="State"><i class="fa-li fa fa-flag-o"></i>' + job_entry.state + '</li>'
