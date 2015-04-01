@@ -143,6 +143,8 @@ function header_process_tile(process_entry, tile) {
         is_on = '<i class="fa fa-toggle-off" title="is OFF"></i>';
     }
 
+//    <a onclick="process_trigger('action_deactivate_trigger', process_entry.process_name, null, false, false, false)"><i class="fa fa-toggle-off"></i>&nbsp;Deactivate</a>
+
     var is_alive;
     if (process_entry.is_alive) {
         is_alive = '<i class="fa fa-toggle-on" title="is ON"></i>';
