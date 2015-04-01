@@ -112,6 +112,13 @@ function grid_info_template(tiles_number) {
 }
 
 
+function switch_thread_handler(tile) {
+    var e = document.getElementById(id);
+    if (e.style.display == 'block' || e.style.display=='') e.style.display = 'none';
+    else e.style.display = 'block';
+}
+
+
 function header_tree_tile(mx_tree, tile) {
     tile.$el.append('<ul class="fa-ul">'
         + '<li title="Tree Name"><i class="fa-li fa fa-sitemap"></i>' + mx_tree.tree_name + '</li>'
@@ -184,15 +191,21 @@ function info_job_tile(job_entry, tile, is_selected_timeperiod) {
     var checkbox_value = "{ process_name: '" + job_entry.process_name + "', timeperiod: '" + job_entry.timeperiod + "' }";
     var checkbox_div = '<input type="checkbox" name="batch_processing" value="' + checkbox_value + '"/>';
 
-    var uow_button = $('<button>Get&nbsp;Uow</button>').click(function (e) {
+    var uow_button = $('<button><i class="fa fa-file-code-o"></i>&nbsp;Uow</button>').click(function (e) {
         var params = { action: 'action_get_uow', timeperiod: job_entry.timeperiod, process_name: job_entry.process_name };
         var viewer_url = '/object_viewer/?' + $.param(params);
         window.open(viewer_url, 'Object Viewer', 'width=400,height=350,screenX=400,screenY=200,scrollbars=1');
     });
-    var log_button = $('<button>View&nbsp;Log</button>').click(function (e) {
+    var log_button = $('<button><i class="fa fa-th-list"></i>&nbsp;Log</button>').click(function (e) {
         var params = { action: 'action_get_log', timeperiod: job_entry.timeperiod, process_name: job_entry.process_name };
         var viewer_url = '/object_viewer/?' + $.param(params);
         window.open(viewer_url, 'Object Viewer', 'width=720,height=480,screenX=400,screenY=200,scrollbars=1');
+    });
+    var skip_button = $('<button><i class="fa fa-step-forward"></i>&nbsp;Skip</button>').click(function (e) {
+        process_job('action_reprocess', tile.process_name, tile.timeperiod, true)
+    });
+    var reprocess_button = $('<button><i class="fa fa-repeat"></i>&nbsp;Reprocess</button>').click(function (e) {
+        process_job('action_skip', tile.process_name, tile.timeperiod, true)
     });
 
     tile.process_name = job_entry.process_name;
@@ -215,8 +228,8 @@ function info_job_tile(job_entry, tile, is_selected_timeperiod) {
         + '<li title="State"><i class="fa-li fa fa-flag-o"></i>' + job_entry.state + '</li>'
         + '<li title="# of fails"><i class="fa-li fa fa-exclamation-triangle"></i>' + job_entry.number_of_failures + '</li>'
         + '</ul>');
-    tile.$el.append($('<div></div>').append(uow_button));
-    tile.$el.append($('<div></div>').append(log_button));
+    tile.$el.append($('<div></div>').append(uow_button).append(skip_button));
+    tile.$el.append($('<div></div>').append(log_button).append(reprocess_button));
 }
 
 

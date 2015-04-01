@@ -91,7 +91,7 @@ function process_batch(action, is_freerun) {
                 json = eval("(" + selected[i].value + ")");
                 process_name = json['process_name'];
                 timeperiod = json['timeperiod'];
-                process_timeperiod(action, process_name, timeperiod, false);
+                process_job(action, process_name, timeperiod, false);
                 selected[i].checked = false;
             }
         } else if (action.indexOf('activate') > -1 || action.indexOf('deactivate') > -1) {
@@ -118,8 +118,8 @@ function process_batch(action, is_freerun) {
     }
 }
 
-// function applies given "action" to the record identified by "process_name+timeperiod"
-function process_timeperiod(action, process_name, timeperiod, show_confirmation_dialog) {
+// function applies given "action" to the job record identified by "process_name+timeperiod"
+function process_job(action, process_name, timeperiod, show_confirmation_dialog) {
     if (show_confirmation_dialog) {
         var msg = 'You are about to ' + action + ' ' + timeperiod + ' for ' + process_name;
         if (!confirm(msg)) {

@@ -50,16 +50,7 @@
     </tbody>
 </table></div>
 
-<div class="context_menu_hide" id="rmenu">
-    <ul>
-        <li>
-            <a onclick="process_batch('action_reprocess', false)">Reprocess</a>
-        </li>
-        <li>
-            <a onclick="process_batch('action_skip', false)">Skip</a>
-        </li>
-    </ul>
-</div>
+{% include 'block_context_job.html' %}
 
 <script type="text/javascript">
     $(document).ready(function () {

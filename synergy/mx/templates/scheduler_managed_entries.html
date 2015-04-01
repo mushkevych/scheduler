@@ -74,15 +74,6 @@
     </tbody>
 </table>
 
-<div class="context_menu_hide" id="rmenu">
-    <ul>
-        <li>
-            <a onclick="process_batch('action_activate_trigger', false)">Activate</a>
-        </li>
-        <li>
-            <a onclick="process_batch('action_deactivate_trigger', false)">Deactivate</a>
-        </li>
-    </ul>
-</div>
+{% include 'block_context_trigger.html' %}
 
 {% endblock %}
