@@ -102,6 +102,7 @@
     </tbody>
 </table>
 
-{% include 'block_context_trigger.html' %}
+{% import 'block_context_menu.html' as context_menu %}
+{{ context_menu.trigger_menu(true) }}
 
 {% endblock %}

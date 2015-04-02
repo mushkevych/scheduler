@@ -1,0 +1,34 @@
+{% macro trigger_menu(is_freerun) -%}
+<div class="context_menu_hide" id="rmenu">
+    <ul>
+        <li>
+            <a onclick="process_batch('action_activate_trigger', {{ is_freerun }} )">
+                <i class="fa fa-toggle-on"></i>&nbsp;Activate
+            </a>
+        </li>
+        <li>
+            <a onclick="process_batch('action_deactivate_trigger', {{ is_freerun }} )">
+                <i class="fa fa-toggle-off"></i>&nbsp;Deactivate
+            </a>
+        </li>
+    </ul>
+</div>
+{%- endmacro %}
+
+
+{% macro job_menu() -%}
+<div class="context_menu_hide" id="rmenu">
+    <ul>
+        <li>
+            <a onclick="process_batch('action_skip', false)">
+                <i class="fa fa-step-forward"></i>&nbsp;Skip
+            </a>
+        </li>
+        <li>
+            <a onclick="process_batch('action_reprocess', false)">
+                <i class="fa fa-repeat"></i>&nbsp;Reprocess
+            </a>
+        </li>
+    </ul>
+</div>
+{%- endmacro %}

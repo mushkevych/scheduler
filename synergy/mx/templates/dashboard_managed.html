@@ -50,7 +50,8 @@
     </tbody>
 </table></div>
 
-{% include 'block_context_job.html' %}
+{% import 'block_context_menu.html' as context_menu %}
+{{ context_menu.job_menu() }}
 
 <script type="text/javascript">
     $(document).ready(function () {
