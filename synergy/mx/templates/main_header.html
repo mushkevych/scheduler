@@ -35,7 +35,7 @@
     <tr>
         <td><a href="{{ url_for('dashboard_managed') }}">dashboard jobs</a></td>
         <td><a href="{{ url_for('dashboard_freeruns') }}">dashboard freeruns</a></td>
-        <td><a href="{{ url_for('mx_page_tiles') }}">tiles poc</a></td>
+{#        <td><a href="{{ url_for('mx_page_tiles') }}">tiles poc</a></td>#}
         {%- for mx_rule, mx_page_name in mx_processing_context.items() %}
             <td><a href="/{{ mx_rule }}">{{ mx_page_name }}</a></td>
         {%- endfor -%}

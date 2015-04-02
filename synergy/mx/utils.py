@@ -33,7 +33,8 @@ mx_page_context = {tree_entry.mx_page: tree_entry.mx_page.replace('_', ' ')
 # NOTE: given renders template snippet {{ url_for ('function_name') }} invalid,
 # since all mx_page are processed by the single method 'processing_details'
 for rule in mx_page_context:
-    url_map.add(Rule('/%s/' % rule, endpoint='processing_details'))
+    # url_map.add(Rule('/%s/' % rule, endpoint='processing_details'))
+    url_map.add(Rule('/%s/' % rule, endpoint='mx_page_tiles'))
 
 
 def expose(rule, **kw):

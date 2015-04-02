@@ -138,10 +138,10 @@ function header_process_tile(process_entry, tile) {
 
     var is_on;
     if (process_entry.is_on) {
-        is_on = '<a onclick="process_trigger(\'action_deactivate_trigger\', ' + process_entry.process_name + ', null, false, false, false)">' +
+        is_on = '<a onclick="process_trigger(\'action_deactivate_trigger\', \'' + process_entry.process_name + '\', \'NA\', null, false, false, false)">' +
         '<i class="fa fa-toggle-on" title="is ON"></i></a>';
     } else {
-        is_on = '<a onclick="process_trigger(\'action_activate_trigger\', ' + process_entry.process_name + ', null, false, false, false)">' +
+        is_on = '<a onclick="process_trigger(\'action_activate_trigger\', \'' + process_entry.process_name + '\', \'NA\', null, false, false, false)">' +
         '<i class="fa fa-toggle-off" title="is OFF"></i></a>';
     }
 
@@ -458,7 +458,7 @@ function build_trees(mx_trees) {
 // main method for the MX PAGE script
 $(document).ready(function () {
     $.get('/request_trees/', function (response) {
-        build_trees(test_mx_trees);
-//        build_trees(response);
+//        build_trees(test_mx_trees);
+        build_trees(response);
     }, 'json');
 });
