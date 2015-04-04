@@ -167,13 +167,13 @@ def object_viewer(request, **values):
 
 @expose('/mx_page_tiles/')
 def mx_page_tiles(request, **values):
-    return render_template('mx_page_tiles.html')
+    details = TreeDetails(request, **values)
+    return render_template('mx_page_tiles.html', details=details.mx_page_entries)
 
 
 # referenced from mx.utils.py module
 def processing_details(request, **values):
-    details = TreeDetails(request, **values)
-    return render_template('processing_details.html', details=details.mx_page_entries)
+    return render_template('processing_details.html')
 
 
 # referenced from mx.synergy_mx.py module

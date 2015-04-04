@@ -8,7 +8,6 @@ from synergy.mx.rest_model_factory import create_rest_timetable_tree, create_res
 class TreeDetails(BaseRequestHandler):
     def __init__(self, request, **values):
         super(TreeDetails, self).__init__(request, **values)
-        self.referrer = request.referrer
 
     def _get_tree_details(self, tree_name):
         tree_obj = self.scheduler.timetable.trees[tree_name]
@@ -38,7 +37,7 @@ class TreeDetails(BaseRequestHandler):
         resp = dict()
 
         for tree_name, tree in self.scheduler.timetable.trees.items():
-            if tree.mx_page in self.referrer:
+            if tree.mx_page in self.request.path:
                 rest_tree = self._get_tree_details(tree_name)
                 resp[tree.tree_name] = rest_tree.document
 

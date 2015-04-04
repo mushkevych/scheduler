@@ -77,20 +77,20 @@
     } %}
 
 
-    {%- for tree_name, tree_obj in details.items() -%}
+    {%- for tree_name, tree_obj in details.items() %}
         <div class="grid-container">
             <div id="grid-header-{{ tree_name }}" class="grid-header"></div>
-            {%- for process_name in tree_obj.sorted_process_names -%}
+            {% for process_name in tree_obj.sorted_process_names %}
             <div id="grid-header-{{ process_name }}" class="grid-header"></div>
-            {%- endfor -%}
+            {%- endfor %}
         </div>
         <div class="grid-container">
             <div id="grid-info-{{ tree_name }}" class="grid-info"></div>
-            {%- for process_name in tree_obj.sorted_process_names -%}
+            {% for process_name in tree_obj.sorted_process_names %}
             <div id="grid-info-{{ process_name }}" class="grid-info context-menu"></div>
-            {%- endfor -%}
+            {%- endfor %}
         </div>
-    {%- endfor -%}
+    {% endfor -%}
 
 {% import 'block_context_menu.html' as context_menu %}
 {{ context_menu.job_menu() }}
