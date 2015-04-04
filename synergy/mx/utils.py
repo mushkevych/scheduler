@@ -3,7 +3,6 @@ __author__ = 'Bohdan Mushkevych'
 import json
 from os import path
 from datetime import datetime
-from urlparse import urlparse
 
 from jinja2 import Environment, FileSystemLoader
 from werkzeug.local import Local, LocalManager
@@ -15,12 +14,11 @@ from synergy.conf import settings
 
 TEMPLATE_PATH = path.join(path.dirname(__file__), 'templates')
 STATIC_PATH = path.join(path.dirname(__file__), 'static')
-ALLOWED_SCHEMES = frozenset(['http', 'https', 'ftp', 'ftps'])
-URL_CHARS = 'abcdefghijkmpqrstuvwxyzABCDEFGHIJKLMNPQRST23456789'
 
 local = Local()
 local_manager = LocalManager([local])
 
+# Synergy MX map of URL routing
 url_map = Map([Rule('/static/<file>', endpoint='static', build_only=True)])
 
 # tree/group of trees will be shown on a separate page defined by tree property MX_PAGE
@@ -54,10 +52,6 @@ def render_template(template, **context):
                     mimetype='text/html')
 
 
-def validate_url(url):
-    return urlparse(url)[0] in ALLOWED_SCHEMES
-
-
 def get_current_time():
     return datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S %Z')
 
@@ -66,7 +60,7 @@ def get_version():
     return settings.settings['version']
 
 
-jinja_env = Environment(loader=FileSystemLoader(TEMPLATE_PATH))
+jinja_env = Environment(loader=FileSystemLoader(TEMPLATE_PATH), autoescape=True)
 jinja_env.globals['url_for'] = url_for
 jinja_env.globals['local'] = local
 jinja_env.globals['get_current_time'] = get_current_time

@@ -1,15 +1,11 @@
 __author__ = 'Bohdan Mushkevych'
 
-from synergy.mx.mx_decorators import valid_action_request
+from synergy.mx.base_request_handler import BaseRequestHandler, valid_action_request
 
 
-class AbstractActionHandler(object):
-    def __init__(self, mbean, request):
-        self.mbean = mbean
-        self.logger = self.mbean.logger
-        self.request = request
-        self.request_arguments = request.args if request.args else request.form
-        self.is_request_valid = False
+class AbstractActionHandler(BaseRequestHandler):
+    def __init__(self, request, **values):
+        super(AbstractActionHandler, self).__init__(request, **values)
 
     @property
     def thread_handler(self):

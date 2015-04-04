@@ -14,20 +14,18 @@ from synergy.scheduler.scheduler_constants import COLLECTION_JOB_YEARLY, \
 from synergy.system.decorator import thread_safe
 from synergy.system import time_helper
 from synergy.system.time_qualifier import QUALIFIER_DAILY, QUALIFIER_MONTHLY, QUALIFIER_YEARLY
-from synergy.mx.mx_decorators import valid_action_request
+from synergy.mx.base_request_handler import BaseRequestHandler, valid_action_request
 
 TIME_WINDOW_DAY_PREFIX = 'day_'
 
 
-class DashboardHandler(object):
-    def __init__(self, mbean, request):
-        self.mbean = mbean
-        self.logger = self.mbean.logger
-        self.request = request
-        self.time_window = self.request.args.get('time_window')
-        self.state = self.request.args.get('state') == 'on'
+class DashboardHandler(BaseRequestHandler):
+    def __init__(self, request, **values):
+        super(DashboardHandler, self).__init__(request, **values)
 
-        self.is_request_valid = self.mbean and self.time_window
+        self.time_window = self.request.args.get('time_window')
+        self.unprocessed_only = self.request.args.get('unprocessed_only') == 'on'
+        self.is_request_valid = self.time_window
 
     @cached_property
     @valid_action_request
@@ -37,10 +35,9 @@ class DashboardHandler(object):
         delta = int(self.time_window[len(TIME_WINDOW_DAY_PREFIX) + 1:])
         start_timeperiod = time_helper.increment_timeperiod(QUALIFIER_DAILY, actual_timeperiod, -delta)
 
-        selection = processor.retrieve_records(start_timeperiod, self.state)
+        selection = processor.retrieve_records(start_timeperiod, self.unprocessed_only)
         resp = OrderedDict(sorted(selection.items()))
         return resp
-
 
     @cached_property
     @valid_action_request
@@ -50,7 +47,7 @@ class DashboardHandler(object):
         delta = int(self.time_window[len(TIME_WINDOW_DAY_PREFIX) + 1:])
         start_timeperiod = time_helper.increment_timeperiod(QUALIFIER_DAILY, actual_timeperiod, -delta)
 
-        selection = processor.retrieve_records(start_timeperiod, self.state)
+        selection = processor.retrieve_records(start_timeperiod, self.unprocessed_only)
         resp = OrderedDict(sorted(selection.items()))
         return resp
 

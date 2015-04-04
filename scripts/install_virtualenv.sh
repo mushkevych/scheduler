@@ -37,9 +37,9 @@ packagelist=(
     "ftputil-3.0.tar.gz"
     "httplib2-0.8.tar.gz"
     "python_rest_client2.tar.gz"
-    "MarkupSafe-0.18.tar.gz"
-    "Jinja2-2.7.1.tar.gz"
-    "Werkzeug-0.9.4.tar.gz"
+    "MarkupSafe-0.23.tar.gz"
+    "Jinja2-2.7.3.tar.gz"
+    "Werkzeug-0.10.4.tar.gz"
     "synergy_odm-0.5.tar.gz"
 )
 

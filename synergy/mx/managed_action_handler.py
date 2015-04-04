@@ -3,26 +3,25 @@ __author__ = 'Bohdan Mushkevych'
 from synergy.db.dao.unit_of_work_dao import UnitOfWorkDao
 from synergy.system import time_helper
 from synergy.conf import context
-from synergy.mx.mx_decorators import valid_action_request
+from synergy.mx.base_request_handler import valid_action_request
 from synergy.mx.abstract_action_handler import AbstractActionHandler
 from synergy.mx.tree_node_details import TreeNodeDetails
 
 
 class ManagedActionHandler(AbstractActionHandler):
-    def __init__(self, mbean, request):
-        super(ManagedActionHandler, self).__init__(mbean, request)
+    def __init__(self, request, **values):
+        super(ManagedActionHandler, self).__init__(request, **values)
         self.process_name = self.request_arguments.get('process_name')
         self.timeperiod = self.request_arguments.get('timeperiod')
         self.uow_dao = UnitOfWorkDao(self.logger)
-        self.is_request_valid = self.mbean and self.process_name and self.timeperiod
+        self.is_request_valid = self.process_name and self.timeperiod
 
         if self.is_request_valid:
             self.process_name = self.process_name.strip()
             self.timeperiod = self.timeperiod.strip()
 
     def _get_tree_node(self):
-        timetable = self.mbean.timetable
-        tree = timetable.get_tree(self.process_name)
+        tree = self.scheduler.timetable.get_tree(self.process_name)
         if tree is None:
             raise UserWarning('No Timetable tree is registered for process %s' % self.process_name)
 
@@ -34,7 +33,7 @@ class ManagedActionHandler(AbstractActionHandler):
     @AbstractActionHandler.thread_handler.getter
     def thread_handler(self):
         handler_key = self.process_name
-        return self.mbean.managed_handlers[handler_key]
+        return self.scheduler.managed_handlers[handler_key]
 
     @AbstractActionHandler.process_entry.getter
     def process_entry(self):
@@ -45,7 +44,7 @@ class ManagedActionHandler(AbstractActionHandler):
         node = self._get_tree_node()
 
         msg = 'MX: requesting REPROCESS for %s in timeperiod %s' % (self.process_name, self.timeperiod)
-        self.mbean.timetable.add_log_entry(self.process_name, self.timeperiod, msg)
+        self.scheduler.timetable.add_log_entry(self.process_name, self.timeperiod, msg)
         self.logger.info(msg + ' {')
 
         effected_nodes = node.request_reprocess()
@@ -61,7 +60,7 @@ class ManagedActionHandler(AbstractActionHandler):
         node = self._get_tree_node()
 
         msg = 'MX: requesting SKIP for %s in timeperiod %s' % (self.process_name, self.timeperiod)
-        self.mbean.timetable.add_log_entry(self.process_name, self.timeperiod, msg)
+        self.scheduler.timetable.add_log_entry(self.process_name, self.timeperiod, msg)
         self.logger.info(msg + ' {')
 
         effected_nodes = node.request_skip()

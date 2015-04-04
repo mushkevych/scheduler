@@ -6,16 +6,15 @@ from synergy.conf import settings
 from synergy.system import time_helper
 from synergy.conf import context
 from synergy.mx.rest_model import RestTimetableTreeNode, RestJob
-from synergy.mx.mx_decorators import valid_action_request
+from synergy.mx.base_request_handler import BaseRequestHandler, valid_action_request
 
 
-class TreeNodeDetails(object):
-    def __init__(self, mbean, request):
-        self.mbean = mbean
-        self.logger = self.mbean.logger
+class TreeNodeDetails(BaseRequestHandler):
+    def __init__(self, request, **values):
+        super(TreeNodeDetails, self).__init__(request, **values)
         self.process_name = request.args.get('process_name')
         self.timeperiod = request.args.get('timeperiod')
-        self.tree = self.mbean.timetable.get_tree(self.process_name)
+        self.tree = self.scheduler.timetable.get_tree(self.process_name)
 
         if self.tree:
             self.is_request_valid = True

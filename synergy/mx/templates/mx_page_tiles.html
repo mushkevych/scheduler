@@ -1,7 +1,7 @@
 {% extends 'main_header.html' %}
 {% block body %}
 
-    {% set mx_trees = {
+    {% set test_mx_trees = {
         'TreeSite': {
             'tree_name': 'TreeSite',
             'sorted_process_names': ['SiteYearlyAggregator', 'SiteMonthlyAggregator', 'SiteDailyAggregator', 'SiteHourlyAggregator'],
@@ -77,7 +77,7 @@
     } %}
 
 
-    {%- for tree_name, tree_obj in mx_trees.items() -%}
+    {%- for tree_name, tree_obj in details.items() -%}
         <div class="grid-container">
             <div id="grid-header-{{ tree_name }}" class="grid-header"></div>
             {%- for process_name in tree_obj.sorted_process_names -%}

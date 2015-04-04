@@ -2,6 +2,9 @@ __author__ = 'Bohdan Mushkevych'
 
 import functools
 
+from werkzeug.wrappers import Request
+from synergy.mx.utils import jinja_env
+
 
 def valid_action_request(method):
     """ wraps method with verification for is_request_valid"""
@@ -21,3 +24,15 @@ def valid_action_request(method):
             return dict()
 
     return _wrapper
+
+
+class BaseRequestHandler(object):
+    def __init__(self, request, **values):
+        assert isinstance(request, Request)
+        self.scheduler = jinja_env.globals['mbean']
+        self.logger = self.scheduler.logger
+        self.request = request
+        self.values = values
+        self.request_arguments = request.args if request.args else request.form
+        self.is_request_valid = False
+

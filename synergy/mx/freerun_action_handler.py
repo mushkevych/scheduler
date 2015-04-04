@@ -6,18 +6,18 @@ from synergy.db.model import unit_of_work
 from synergy.db.model.freerun_process_entry import FreerunProcessEntry, STATE_ON, STATE_OFF
 from synergy.db.dao.unit_of_work_dao import UnitOfWorkDao
 from synergy.db.dao.freerun_process_dao import FreerunProcessDao
-from synergy.mx.mx_decorators import valid_action_request
+from synergy.mx.base_request_handler import valid_action_request
 from synergy.mx.abstract_action_handler import AbstractActionHandler
 
 
 class FreerunActionHandler(AbstractActionHandler):
-    def __init__(self, mbean, request):
-        super(FreerunActionHandler, self).__init__(mbean, request)
+    def __init__(self, request, **values):
+        super(FreerunActionHandler, self).__init__(request, **values)
         self.process_name = self.request_arguments.get('process_name')
         self.entry_name = self.request_arguments.get('entry_name')
         self.freerun_process_dao = FreerunProcessDao(self.logger)
         self.uow_dao = UnitOfWorkDao(self.logger)
-        self.is_request_valid = self.mbean and self.process_name and self.entry_name
+        self.is_request_valid = self.process_name and self.entry_name
 
         if self.is_request_valid:
             self.process_name = self.process_name.strip()
@@ -26,7 +26,7 @@ class FreerunActionHandler(AbstractActionHandler):
     @AbstractActionHandler.thread_handler.getter
     def thread_handler(self):
         handler_key = (self.process_name, self.entry_name)
-        return self.mbean.freerun_handlers[handler_key]
+        return self.scheduler.freerun_handlers[handler_key]
 
     @AbstractActionHandler.process_entry.getter
     def process_entry(self):
@@ -77,7 +77,7 @@ class FreerunActionHandler(AbstractActionHandler):
             process_entry.trigger_frequency = self.request_arguments['trigger_frequency']
             self.freerun_process_dao.update(process_entry)
 
-            self.mbean._register_process_entry(process_entry, self.mbean.fire_freerun_worker)
+            self.scheduler._register_process_entry(process_entry, self.scheduler.fire_freerun_worker)
 
         elif 'update_button' in self.request_arguments:
             is_interval_changed = self.process_entry.trigger_frequency != self.request_arguments['trigger_frequency']
@@ -106,7 +106,7 @@ class FreerunActionHandler(AbstractActionHandler):
             handler_key = (self.process_name, self.entry_name)
             self.thread_handler.deactivate()
             self.freerun_process_dao.remove(handler_key)
-            del self.mbean.freerun_handlers[handler_key]
+            del self.scheduler.freerun_handlers[handler_key]
 
         elif 'cancel_button' in self.request_arguments:
             pass

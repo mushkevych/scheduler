@@ -1,31 +1,30 @@
 __author__ = 'Bohdan Mushkevych'
 
 from werkzeug.utils import cached_property
+from synergy.mx.base_request_handler import BaseRequestHandler
 from synergy.mx.rest_model_factory import create_rest_timetable_tree, create_rest_managed_scheduler_entry
 
 
-class TreeDetails(object):
-    def __init__(self, mbean, request):
-        self.mbean = mbean
-        self.logger = self.mbean.logger
+class TreeDetails(BaseRequestHandler):
+    def __init__(self, request, **values):
+        super(TreeDetails, self).__init__(request, **values)
         self.referrer = request.referrer
 
     def _get_tree_details(self, tree_name):
-        tree_obj = self.mbean.timetable.trees[tree_name]
-        rest_tree = create_rest_timetable_tree(self.mbean.timetable, tree_obj)
+        tree_obj = self.scheduler.timetable.trees[tree_name]
+        rest_tree = create_rest_timetable_tree(self.scheduler.timetable, tree_obj)
 
         for process_name in tree_obj.process_hierarchy:
-            thread_handler = self.mbean.managed_handlers[process_name]
-            rest_process = create_rest_managed_scheduler_entry(thread_handler, self.mbean.timetable)
+            thread_handler = self.scheduler.managed_handlers[process_name]
+            rest_process = create_rest_managed_scheduler_entry(thread_handler, self.scheduler.timetable)
             rest_tree.processes[process_name] = rest_process.document
         return rest_tree
 
     @cached_property
     def timetable_entries(self):
         trees = dict()
-        timetable = self.mbean.timetable
         try:
-            for tree_name in timetable.trees:
+            for tree_name in self.scheduler.timetable.trees:
                 rest_tree = self._get_tree_details(tree_name)
                 trees[rest_tree.tree_name] = rest_tree.document
 
@@ -37,9 +36,8 @@ class TreeDetails(object):
     @cached_property
     def mx_page_entries(self):
         resp = dict()
-        timetable = self.mbean.timetable
 
-        for tree_name, tree in timetable.trees.items():
+        for tree_name, tree in self.scheduler.timetable.trees.items():
             if tree.mx_page in self.referrer:
                 rest_tree = self._get_tree_details(tree_name)
                 resp[tree.tree_name] = rest_tree.document
