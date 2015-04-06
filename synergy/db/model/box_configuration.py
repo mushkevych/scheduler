@@ -4,7 +4,7 @@ from odm.document import BaseDocument
 from odm.fields import DictField, StringField, ObjectIdField
 
 BOX_ID = 'box_id'
-PROCESS_LIST = 'process_list'
+PROCESS_NAME = 'process_name'
 PID = 'pid'
 STATE = 'state'
 STATE_ON = 'state_on'
@@ -17,12 +17,9 @@ class BoxConfiguration(BaseDocument):
     """
     db_id = ObjectIdField('_id', null=True)
     box_id = StringField(BOX_ID)
-    process_list = DictField(PROCESS_LIST)
-
-    def _get_process_entry(self, process_name):
-        if process_name not in self.process_list:
-            self.process_list[process_name] = dict()
-        return self.process_list[process_name]
+    process_name = StringField(PROCESS_NAME)
+    state = StringField(STATE, choices=[STATE_ON, STATE_OFF])
+    pid = StringField(PID)
 
     def set_process_state(self, process_name, value):
         if value not in [STATE_ON, STATE_OFF]:

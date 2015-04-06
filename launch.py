@@ -130,7 +130,6 @@ def install_virtualenv_p2(root, python_version):
 def install_virtualenv_p3(root, python_version):
     """Install virtual environment for Python 3.3+; removing the old one if it exists"""
     import venv
-
     builder = venv.EnvBuilder(system_site_packages=False, clear=True, symlinks=False, upgrade=False)
     builder.create(root)
     ret_code = subprocess.call([VE_SCRIPT, PROJECT_ROOT, root, python_version])
@@ -300,7 +299,7 @@ def run_tests(parser_args):
         from pylint.reporters.text import ParseableTextReporter
 
         output = sys.stdout
-        if 'outfile' in parser_args and parser_args.outfile:
+        if parser_args.outfile:
             output = open(parser_args.outfile, 'w')
 
         config = "--rcfile=" + path.join(PROJECT_ROOT, 'pylint.rc')
@@ -311,8 +310,8 @@ def run_tests(parser_args):
         import xmlrunner
 
         output = 'reports'
-        if 'outfile' in parser_args and parser_args.outfile:
-            output = 'reports'
+        if parser_args.outfile:
+            output = parser_args.outfile
         unittest_main(xmlrunner.XMLTestRunner(output=output))
 
     else:
