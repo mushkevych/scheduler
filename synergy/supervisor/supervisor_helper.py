@@ -4,7 +4,7 @@ from synergy.conf import settings
 
 
 def get_box_id(logger):
-    """ retrieves box id from the synergy_data configuration file """
+    """ retrieves box id from the /etc/synergy.conf configuration file """
     try:
         box_id = None
         config_file = settings.settings['config_file']

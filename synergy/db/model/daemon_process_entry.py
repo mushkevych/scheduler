@@ -1,7 +1,7 @@
 __author__ = 'Bohdan Mushkevych'
 
 from odm.document import BaseDocument
-from odm.fields import StringField, BooleanField, DictField
+from odm.fields import StringField, BooleanField, DictField, ListField
 
 from synergy.scheduler.scheduler_constants import TYPE_MANAGED, TYPE_FREERUN, TYPE_GARBAGE_COLLECTOR, EXCHANGE_UTILS, \
     TYPE_DAEMON
@@ -19,6 +19,7 @@ LOG_FILENAME = 'log_filename'
 LOG_TAG = 'log_tag'
 PID_FILENAME = 'pid_filename'
 RUN_ON_ACTIVE_TIMEPERIOD = 'run_on_active_timeperiod'
+PRESENT_ON_BOXES = 'present_on_boxes'     # list of boxes where this process is monitored by the Supervisor
 
 
 class DaemonProcessEntry(BaseDocument):
@@ -33,6 +34,7 @@ class DaemonProcessEntry(BaseDocument):
     arguments = DictField(ARGUMENTS)
     process_type = StringField(PROCESS_TYPE, choices=[TYPE_MANAGED, TYPE_FREERUN, TYPE_DAEMON, TYPE_GARBAGE_COLLECTOR])
     run_on_active_timeperiod = BooleanField(RUN_ON_ACTIVE_TIMEPERIOD)
+    present_on_boxes = ListField(PRESENT_ON_BOXES)
     pid_filename = StringField(PID_FILENAME)
     log_filename = StringField(LOG_FILENAME)
 
@@ -46,10 +48,11 @@ class DaemonProcessEntry(BaseDocument):
         self.process_name = value
 
 
-def deamon_context_entry(process_name,
+def daemon_context_entry(process_name,
                          classname,
                          token,
                          exchange=EXCHANGE_UTILS,
+                         present_on_boxes=None,
                          arguments=None,
                          queue=None,
                          routing=None,
@@ -82,6 +85,7 @@ def deamon_context_entry(process_name,
         mq_queue=queue,
         mq_routing_key=routing,
         mq_exchange=exchange,
+        present_on_boxes=present_on_boxes,
         arguments=arguments,
         process_type=process_type,
         log_filename=log_file,

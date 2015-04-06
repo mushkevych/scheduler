@@ -56,8 +56,9 @@ def init_parser():
     start_parser = subparsers.add_parser('start', help='start a process by name')
     start_parser.set_defaults(func=start_process)
     start_parser.add_argument('process_name', choices=process_names)
-    start_parser.add_argument('--console', action='store_true', help='process is run in interactive (non-daemon) mode')
-    start_parser.add_argument('--super', action='store_true', help='operation is performed via Supervisor')
+    start_group = start_parser.add_mutually_exclusive_group()
+    start_group.add_argument('--console', action='store_true', help='process is run in interactive (non-daemon) mode')
+    start_group.add_argument('--super', action='store_true', help='operation is performed via Supervisor')
 
     stop_parser = subparsers.add_parser('stop', help='kill a process by name')
     stop_parser.set_defaults(func=stop_process)

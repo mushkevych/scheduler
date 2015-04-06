@@ -5,7 +5,7 @@ from synergy.system.time_qualifier import *
 from synergy.scheduler.scheduler_constants import *
 from synergy.workers.worker_constants import *
 from synergy.db.model.queue_context_entry import queue_context_entry
-from synergy.db.model.daemon_process_entry import deamon_context_entry
+from synergy.db.model.daemon_process_entry import daemon_context_entry
 from synergy.db.model.managed_process_entry import managed_context_entry
 from synergy.db.model.timetable_tree_entry import timetable_tree_entry
 
@@ -17,7 +17,7 @@ mq_queue_context = {
 
 
 process_context = {
-    PROCESS_LAUNCH_PY: deamon_context_entry(
+    PROCESS_LAUNCH_PY: daemon_context_entry(
         process_name=PROCESS_LAUNCH_PY,
         classname='',
         token=TOKEN_LAUNCH_PY,
@@ -69,7 +69,7 @@ process_context = {
         blocking_type=BLOCKING_CHILDREN,
         trigger_frequency='every 21600'),
 
-    PROCESS_SESSION_WORKER_00: deamon_context_entry(
+    PROCESS_SESSION_WORKER_00: daemon_context_entry(
         process_name=PROCESS_SESSION_WORKER_00,
         classname='workers.single_session_worker.SingleSessionWorker.start',
         token=TOKEN_SESSION,
@@ -79,7 +79,7 @@ process_context = {
         pid_file='session_worker_00.pid',
         log_file='session_worker_00.log'),
 
-    PROCESS_STREAM_GEN: deamon_context_entry(
+    PROCESS_STREAM_GEN: daemon_context_entry(
         process_name=PROCESS_STREAM_GEN,
         classname='workers.event_stream_generator.EventStreamGenerator.start',
         token=TOKEN_STREAM,
@@ -124,7 +124,7 @@ process_context = {
         blocking_type=BLOCKING_DEPENDENCIES,
         trigger_frequency='every 21600'),
 
-    PROCESS_BASH_DRIVER: deamon_context_entry(
+    PROCESS_BASH_DRIVER: daemon_context_entry(
         process_name=PROCESS_BASH_DRIVER,
         classname='workers.bash_driver.BashDriver.start',
         token=TOKEN_BASH_DRIVER,
