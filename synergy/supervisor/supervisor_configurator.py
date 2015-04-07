@@ -84,6 +84,27 @@ class SupervisorConfigurator(object):
         except Exception as e:
             print('Unable to create BOX_ID file at: {0}, because of: {1}'.format(config_file_name, e), file=sys.stderr)
 
+    def _change_state(self, process_name, new_state):
+        import logging
+        from synergy.db.dao.box_configuration_dao import BoxConfigurationDao
+        from synergy.supervisor import supervisor_helper
+
+        box_id = supervisor_helper.get_box_id(logging)
+        message = 'INFO: Supervisor configuration: setting state {0} for process {1} \n'.format(new_state, process_name)
+        sys.stdout.write(message)
+
+        bc_dao = BoxConfigurationDao(logging)
+        box_config = bc_dao.get_one(box_id)
+        box_config.set_process_state(process_name, new_state)
+        bc_dao.update(box_config)
+
+
+    def mark_for_start(self, process_name):
+        self._change_state(process_name, box_configuration.STATE_ON)
+
+    def mark_for_stop(self, process_name):
+        self._change_state(process_name, box_configuration.STATE_OFF)
+
     def init_db(self):
         self.logger.info('Starting *synergy.box_configuration* table init')
 

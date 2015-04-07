@@ -28,10 +28,12 @@ VE_ROOT = path.join(PROJECT_ROOT, '.ve')
 
 def init_parser():
     try:
-        from synergy.conf import context
+        from synergy.conf import context, settings
         process_names = context.process_context.keys()
+        config_file = settings.settings['config_file']
     except ImportError:
         process_names = ['Virtual Environment is pending installation']
+        config_file = 'Virtual Environment is pending installation'
 
     main_parser = argparse.ArgumentParser(prog='launch.py')
     subparsers = main_parser.add_subparsers(title='sub-commands', description='list of available sub-commands')
@@ -53,24 +55,30 @@ def init_parser():
     db_group.add_argument('--flush', action='store_true',
                           help='drops the *synergy* database, resets schema, initializes db')
 
+    super_parser = subparsers.add_parser('super', help='super a process by name')
+    super_parser.set_defaults(func=supervisor_command)
+    super_group = super_parser.add_mutually_exclusive_group()
+    super_group.add_argument('--start', action='store_true', help='marks the process to be started by Supervisor')
+    super_group.add_argument('--stop', action='store_true', help='marks the process to be stopped by Supervisor')
+    super_group.add_argument('--query', action='store_true', help='queries the state of Supervisor-managed processes')
+    super_group.add_argument('--init', action='store_true', help='defines the DB schema for Supervisor table')
+    super_group.add_argument('--boxid', action='store_true',
+                             help='creates {0} and records BOX_ID in it'.format(config_file))
+    super_group.add_argument('argument', nargs='?')
+
     start_parser = subparsers.add_parser('start', help='start a process by name')
     start_parser.set_defaults(func=start_process)
     start_parser.add_argument('process_name', choices=process_names)
-    start_group = start_parser.add_mutually_exclusive_group()
-    start_group.add_argument('--console', action='store_true', help='process is run in interactive (non-daemon) mode')
-    start_group.add_argument('--super', action='store_true', help='operation is performed via Supervisor')
+    start_parser.add_argument('--console', action='store_true', help='process is run in interactive (non-daemon) mode')
 
     stop_parser = subparsers.add_parser('stop', help='kill a process by name')
     stop_parser.set_defaults(func=stop_process)
     stop_parser.add_argument('process_name', choices=process_names)
-    stop_parser.add_argument('--super', action='store_true', help='operation is performed via Supervisor')
 
     query_parser = subparsers.add_parser('query',
                                          help='query a process state [RUNNING, TERMINATED] by name')
     query_parser.set_defaults(func=query_configuration)
-    query_group = query_parser.add_mutually_exclusive_group()
-    query_group.add_argument('process_name', nargs='?', choices=process_names)
-    query_group.add_argument('--super', action='store_true', help='operation is performed via Supervisor')
+    query_parser.add_argument('process_name', nargs='?', choices=process_names)
 
     test_parser = subparsers.add_parser('test', help='run unit tests from the settings.test_cases list')
     test_parser.add_argument('-o', '--outfile', action='store', help='save report results into a file')
@@ -148,28 +156,13 @@ def install_virtualenv(parser_args):
 
 def query_configuration(parser_args):
     """ Queries process state """
-    if not parser_args.super:
-        from synergy.system import process_helper
-        from synergy.conf import context
+    from synergy.system import process_helper
+    from synergy.conf import context
 
-        process_names = [parser_args.process_name] if parser_args.process_name else context.process_context.keys()
-        for process_name in process_names:
-            process_helper.poll_process(process_name)
-        sys.stdout.write('\n')
-
-    else:
-        import logging
-        from synergy.db.dao.box_configuration_dao import BoxConfigurationDao
-        from synergy.supervisor import supervisor_helper
-
-        box_id = supervisor_helper.get_box_id(logging)
-        bc_dao = BoxConfigurationDao(logging)
-        sys.stdout.write('\nSupervisor Snapshot for BOX_ID=%r:\n' % box_id)
-        box_configuration = bc_dao.get_one(box_id)
-
-        for process_name in box_configuration.process_list:
-            sys.stdout.write('{1}:{2} \n'.format(process_name, box_configuration.process_list[process_name]))
-        sys.stdout.write('\n')
+    process_names = [parser_args.process_name] if parser_args.process_name else context.process_context.keys()
+    for process_name in process_names:
+        process_helper.poll_process(process_name)
+    sys.stdout.write('\n')
 
 
 def db_command(parser_args):
@@ -185,34 +178,37 @@ def db_command(parser_args):
         db_manager.init_db()
 
 
-def super_change_state(process_name, new_state):
-    import logging
-    from synergy.db.dao.box_configuration_dao import BoxConfigurationDao
-    from synergy.supervisor import supervisor_helper
+def supervisor_command(parser_args):
+    """ Supervisor-related commands """
+    from synergy.supervisor.supervisor_configurator import SupervisorConfigurator
+    sc = SupervisorConfigurator()
 
-    box_id = supervisor_helper.get_box_id(logging)
-    message = 'INFO: Supervisor configuration: setting state {0} for process {1} \n'.format(new_state, process_name)
-    sys.stdout.write(message)
+    if parser_args.init:
+        sc.init_db()
 
-    bc_dao = BoxConfigurationDao(logging)
-    box_config = bc_dao.get_one(box_id)
-    box_config.set_process_state(process_name, new_state)
-    bc_dao.update(box_config)
+    elif parser_args.start:
+        sc.mark_for_start(parser_args.argument)
+
+    elif parser_args.stop:
+        sc.mark_for_stop(parser_args.argument)
+
+    elif parser_args.query:
+        sc.query()
+
+    elif parser_args.init:
+        sc.init_db()
+
+    elif parser_args.boxid:
+        sc.set_box_id(parser_args.argument)
 
 
 def start_process(parser_args):
     """ Start up specific daemon """
-    if parser_args.super:
-        from synergy.db.model import box_configuration
-
-        super_change_state(parser_args.process_name, box_configuration.STATE_ON)
-        return
+    import psutil
+    import process_starter
+    from synergy.system import process_helper
 
     try:
-        import psutil
-        import process_starter
-        from synergy.system import process_helper
-
         pid = process_helper.get_process_pid(parser_args.process_name)
         if pid is not None:
             if psutil.pid_exists(pid):
@@ -232,15 +228,9 @@ def start_process(parser_args):
 
 def stop_process(parser_args):
     """ Stop/Kill specific daemon"""
-    if parser_args.super:
-        from synergy.db.model import box_configuration
-
-        super_change_state(parser_args.process_name, box_configuration.STATE_OFF)
-        return
+    from synergy.system import process_helper
 
     try:
-        from synergy.system import process_helper
-
         pid = process_helper.get_process_pid(parser_args.process_name)
         if pid is None or process_helper.poll_process(parser_args.process_name) is False:
             message = 'ERROR: Process {0} is already terminated {1}\n'.format(parser_args.process_name, pid)
