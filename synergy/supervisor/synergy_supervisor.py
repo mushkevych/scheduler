@@ -11,8 +11,8 @@ from launch import get_python, PROJECT_ROOT, PROCESS_STARTER
 from synergy.conf import settings
 from synergy.db.model import box_configuration
 from synergy.db.dao.box_configuration_dao import BoxConfigurationDao, QUERY_PROCESSES_FOR_BOX_ID
-from synergy.supervisor import supervisor_helper
 from synergy.supervisor.supervisor_constants import TRIGGER_INTERVAL
+from synergy.supervisor.supervisor_configurator import get_box_id
 from synergy.system.utils import remove_pid_file
 from synergy.system.decorator import thread_safe
 from synergy.system.repeat_timer import RepeatTimer
@@ -25,7 +25,7 @@ class Supervisor(SynergyProcess):
         self.pid = os.getpid()
         self.thread_handlers = dict()
         self.lock = Lock()
-        self.box_id = supervisor_helper.get_box_id(self.logger)
+        self.box_id = get_box_id(self.logger)
         self.bc_dao = BoxConfigurationDao(self.logger)
         self.logger.info('Started %s with configuration for BOX_ID=%r' % (self.process_name, self.box_id))
 
