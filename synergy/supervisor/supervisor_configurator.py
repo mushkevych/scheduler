@@ -1,13 +1,14 @@
 from __future__ import print_function
-import pymongo
-from synergy.db.manager import ds_manager
-from synergy.db.model.box_configuration import BOX_ID, PROCESS_NAME
 
 __author__ = 'Bohdan Mushkevych'
 
 import re
 import sys
+import pymongo
 
+from synergy.db.dao.box_configuration_dao import BoxConfigurationDao, QUERY_PROCESSES_FOR_BOX_ID
+from synergy.db.manager import ds_manager
+from synergy.db.model.box_configuration import BoxConfiguration, BOX_ID, PROCESS_NAME, STATE_ON, STATE_OFF
 from synergy.conf import context, settings
 from synergy.supervisor import supervisor_helper
 from synergy.supervisor.supervisor_constants import PROCESS_SUPERVISOR, COLLECTION_BOX_CONFIGURATION
@@ -47,14 +48,14 @@ class SupervisorEntry(object):
             except TypeError:
                 self.logger.warn('SupervisorEntry compilation error for {0}'.format(re_box))
 
-    def is_present(self, box_id):
+    def is_present_on(self, box_id):
+        box_id = box_id.lower()
         is_present = False
         for co_re_box in self.re_co_boxes:
             if isinstance(co_re_box, int):
                 is_present = co_re_box == box_id
 
             else:
-                box_id = box_id.lower()
                 if co_re_box.search(box_id):
                     is_present = True
 
@@ -68,13 +69,15 @@ class SupervisorConfigurator(object):
     def __init__(self):
         super(SupervisorConfigurator, self).__init__()
         self.logger = get_logger(PROCESS_SUPERVISOR)
-        self.process_map = dict()
-        self.box_id = supervisor_helper.get_box_id(self.logger)
-        for process_name in context.process_context:
-            self.process_map[process_name] = SupervisorEntry(process_name)
+        self.bc_dao = BoxConfigurationDao(self.logger)
 
-    def get_process_names(self):
-        pass
+        self.box_id = supervisor_helper.get_box_id(self.logger)
+        self.process_map = dict()
+        for process_name in context.process_context:
+            try:
+                self.process_map[process_name] = SupervisorEntry(process_name)
+            except ValueError:
+                continue
 
     def set_box_id(self, box_id):
         config_file_name = settings.settings['config_file']
@@ -82,28 +85,19 @@ class SupervisorConfigurator(object):
             with open(config_file_name, mode='w') as config_file:
                 config_file.write(CONFIG_FILE_TEMPLATE.format(box_id))
         except Exception as e:
-            print('Unable to create BOX_ID file at: {0}, because of: {1}'.format(config_file_name, e), file=sys.stderr)
+            print('Unable to create BOX_ID file at: {0}, due to: {1}'.format(config_file_name, e), file=sys.stderr)
 
     def _change_state(self, process_name, new_state):
-        import logging
-        from synergy.db.dao.box_configuration_dao import BoxConfigurationDao
-        from synergy.supervisor import supervisor_helper
-
-        box_id = supervisor_helper.get_box_id(logging)
-        message = 'INFO: Supervisor configuration: setting state {0} for process {1} \n'.format(new_state, process_name)
-        sys.stdout.write(message)
-
-        bc_dao = BoxConfigurationDao(logging)
-        box_config = bc_dao.get_one(box_id)
-        box_config.set_process_state(process_name, new_state)
-        bc_dao.update(box_config)
-
+        print('INFO: Supervisor configuration: setting state {0} for process {1} \n'.format(new_state, process_name))
+        box_config = self.bc_dao.get_one([self.box_id, process_name])
+        box_config.state = new_state
+        self.bc_dao.update(box_config)
 
     def mark_for_start(self, process_name):
-        self._change_state(process_name, box_configuration.STATE_ON)
+        self._change_state(process_name, STATE_ON)
 
     def mark_for_stop(self, process_name):
-        self._change_state(process_name, box_configuration.STATE_OFF)
+        self._change_state(process_name, STATE_OFF)
 
     def init_db(self):
         self.logger.info('Starting *synergy.box_configuration* table init')
@@ -115,15 +109,19 @@ class SupervisorConfigurator(object):
         connection = ds.connection(COLLECTION_BOX_CONFIGURATION)
         connection.create_index([(BOX_ID, pymongo.ASCENDING), (PROCESS_NAME, pymongo.ASCENDING)], unique=True)
 
+        for process_name, supervisor_entry in self.process_map.items():
+            if supervisor_entry.is_present_on(self.box_id):
+                box_config = BoxConfiguration(box_id=self.box_id,
+                                              process_name=process_name,
+                                              state=STATE_ON)
+                self.bc_dao.update(box_config)
+
         self.logger.info('*synergy.box_configuration* db has been recreated')
 
     def query(self):
-        from synergy.db.dao.box_configuration_dao import BoxConfigurationDao
-
-        bc_dao = BoxConfigurationDao(self.logger)
         print('\nSupervisor Snapshot for BOX_ID={0}:\n'.format(self.box_id), file=sys.stdout)
-        box_configuration = bc_dao.get_one(self.box_id)
+        box_configurations = self.bc_dao.run_query(QUERY_PROCESSES_FOR_BOX_ID(self.box_id))
 
-        for process_name in box_configuration.process_list:
-            print('{1}:{2} \n'.format(process_name, box_configuration.process_list[process_name]), file=sys.stdout)
+        for box_config in box_configurations:
+            print('{1}:{2} \n'.format(box_config.process_name, box_config.state))
         print('\n')

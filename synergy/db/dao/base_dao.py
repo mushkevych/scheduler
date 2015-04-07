@@ -42,8 +42,8 @@ class BaseDao(object):
         return self.model_klass.from_json(document)
 
     @thread_safe
-    def get_all(self):
-        query = {}
+    def run_query(self, query):
+        """ method runs query on a specified collection and return a list of filtered Model records """
         collection = self.ds.connection(self.collection_name)
 
         cursor = collection.find(query)
@@ -51,6 +51,10 @@ class BaseDao(object):
             raise LookupError('Collection %s has no %s records' %
                               (self.collection_name, self.model_klass.__name__))
         return [self.model_klass.from_json(entry) for entry in cursor]
+
+    @thread_safe
+    def get_all(self):
+        return self.run_query({})
 
     @thread_safe
     def update(self, instance):

@@ -64,7 +64,7 @@ def init_parser():
     super_group.add_argument('--init', action='store_true', help='defines the DB schema for Supervisor table')
     super_group.add_argument('--boxid', action='store_true',
                              help='creates {0} and records BOX_ID in it'.format(config_file))
-    super_group.add_argument('argument', nargs='?')
+    super_parser.add_argument('argument', nargs='?')
 
     start_parser = subparsers.add_parser('start', help='start a process by name')
     start_parser.set_defaults(func=start_process)
