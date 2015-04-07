@@ -34,7 +34,8 @@ process_context = {
         state_machine_name=STATE_MACHINE_DISCRETE,
         blocking_type=BLOCKING_CHILDREN,
         run_on_active_timeperiod=True,
-        trigger_frequency='every 900'),
+        trigger_frequency='every 900',
+        present_on_boxes=['dev.*']),
 
     PROCESS_SITE_HOURLY: managed_context_entry(
         process_name=PROCESS_SITE_HOURLY,
@@ -45,7 +46,8 @@ process_context = {
         sink=COLLECTION_SITE_HOURLY,
         state_machine_name=STATE_MACHINE_CONTINUOUS,
         blocking_type=BLOCKING_NORMAL,
-        trigger_frequency='every 60'),
+        trigger_frequency='every 60',
+        present_on_boxes=['dev.*']),
 
     PROCESS_SITE_MONTHLY: managed_context_entry(
         process_name=PROCESS_SITE_MONTHLY,
@@ -56,7 +58,8 @@ process_context = {
         sink=COLLECTION_SITE_MONTHLY,
         state_machine_name=STATE_MACHINE_DISCRETE,
         blocking_type=BLOCKING_CHILDREN,
-        trigger_frequency='every 10800'),
+        trigger_frequency='every 10800',
+        present_on_boxes=['dev.*']),
 
     PROCESS_SITE_YEARLY: managed_context_entry(
         process_name=PROCESS_SITE_YEARLY,
@@ -67,7 +70,8 @@ process_context = {
         sink=COLLECTION_SITE_YEARLY,
         state_machine_name=STATE_MACHINE_DISCRETE,
         blocking_type=BLOCKING_CHILDREN,
-        trigger_frequency='every 21600'),
+        trigger_frequency='every 21600',
+        present_on_boxes=['dev.*']),
 
     PROCESS_SESSION_WORKER_00: daemon_context_entry(
         process_name=PROCESS_SESSION_WORKER_00,
@@ -77,7 +81,8 @@ process_context = {
         routing=ROUTING_IRRELEVANT,
         exchange=EXCHANGE_RAW_DATA,
         pid_file='session_worker_00.pid',
-        log_file='session_worker_00.log'),
+        log_file='session_worker_00.log',
+        present_on_boxes=['dev.*']),
 
     PROCESS_STREAM_GEN: daemon_context_entry(
         process_name=PROCESS_STREAM_GEN,
@@ -85,7 +90,8 @@ process_context = {
         token=TOKEN_STREAM,
         queue=QUEUE_RAW_DATA,
         routing=ROUTING_IRRELEVANT,
-        exchange=EXCHANGE_RAW_DATA),
+        exchange=EXCHANGE_RAW_DATA,
+        present_on_boxes=['dev.*']),
 
     PROCESS_CLIENT_DAILY: managed_context_entry(
         process_name=PROCESS_CLIENT_DAILY,
@@ -94,7 +100,8 @@ process_context = {
         time_qualifier=QUALIFIER_DAILY,
         state_machine_name=STATE_MACHINE_SIMPLE_DISCRETE,
         blocking_type=BLOCKING_DEPENDENCIES,
-        trigger_frequency='every 10800'),
+        trigger_frequency='every 10800',
+        present_on_boxes=['dev.*']),
 
     PROCESS_CLIENT_MONTHLY: managed_context_entry(
         process_name=PROCESS_CLIENT_MONTHLY,
@@ -103,8 +110,8 @@ process_context = {
         time_qualifier=QUALIFIER_MONTHLY,
         state_machine_name=STATE_MACHINE_SIMPLE_DISCRETE,
         blocking_type=BLOCKING_CHILDREN,
-        trigger_frequency='every 21600'),
-
+        trigger_frequency='every 21600',
+        present_on_boxes=['dev.*']),
 
     PROCESS_CLIENT_YEARLY: managed_context_entry(
         process_name=PROCESS_CLIENT_YEARLY,
@@ -113,7 +120,8 @@ process_context = {
         time_qualifier=QUALIFIER_YEARLY,
         state_machine_name=STATE_MACHINE_SIMPLE_DISCRETE,
         blocking_type=BLOCKING_CHILDREN,
-        trigger_frequency='every 43200'),
+        trigger_frequency='every 43200',
+        present_on_boxes=['dev.*']),
 
     PROCESS_ALERT_DAILY: managed_context_entry(
         process_name=PROCESS_ALERT_DAILY,
@@ -122,14 +130,16 @@ process_context = {
         time_qualifier=QUALIFIER_DAILY,
         state_machine_name=STATE_MACHINE_SIMPLE_DISCRETE,
         blocking_type=BLOCKING_DEPENDENCIES,
-        trigger_frequency='every 21600'),
+        trigger_frequency='every 21600',
+        present_on_boxes=['dev.*']),
 
     PROCESS_BASH_DRIVER: daemon_context_entry(
         process_name=PROCESS_BASH_DRIVER,
         classname='workers.bash_driver.BashDriver.start',
         token=TOKEN_BASH_DRIVER,
         exchange=EXCHANGE_FREERUN_WORKER,
-        process_type=TYPE_FREERUN),
+        process_type=TYPE_FREERUN,
+        present_on_boxes=['dev.*']),
 }
 
 

@@ -55,13 +55,13 @@ def init_db():
 
 
 def flush_db():
-    """ drops the *synergy* database, resets schema """
+    """ drops the *scheduler* database, resets schema """
     logger = get_logger(PROCESS_SCHEDULER)
-    logger.info('Starting *synergy* DB flush')
+    logger.info('Starting *scheduler* DB flush')
 
     ds = ds_manager.ds_factory(logger)
     ds._db_client.drop_database(settings.settings['mongo_db_name'])
-    logger.info('*synergy* db has been dropped')
+    logger.info('*scheduler* db has been dropped')
 
     connection = ds.connection(COLLECTION_MANAGED_PROCESS)
     connection.create_index([(PROCESS_NAME, pymongo.ASCENDING)], unique=True)
@@ -79,7 +79,7 @@ def flush_db():
                             COLLECTION_JOB_MONTHLY, COLLECTION_JOB_YEARLY]:
         connection = ds.connection(collection_name)
         connection.create_index([(PROCESS_NAME, pymongo.ASCENDING), (TIMEPERIOD, pymongo.ASCENDING)], unique=True)
-    logger.info('*synergy* db has been recreated')
+    logger.info('*scheduler* db has been recreated')
 
 
 if __name__ == '__main__':

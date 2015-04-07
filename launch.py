@@ -47,13 +47,13 @@ def init_parser():
     list_parser = subparsers.add_parser('list', help='list available processes')
     list_parser.set_defaults(func=list_processes)
 
-    db_parser = subparsers.add_parser('db', help='manages Synergy DB')
+    db_parser = subparsers.add_parser('db', help='manages Synergy Scheduler DB')
     db_parser.set_defaults(func=db_command)
     db_group = db_parser.add_mutually_exclusive_group()
     db_group.add_argument('--init', action='store_true',
                           help='writes to managed_process table records from the context.process_context')
     db_group.add_argument('--flush', action='store_true',
-                          help='drops the *synergy* database, resets schema, initializes db')
+                          help='drops the *scheduler* database, resets schema, initializes db')
 
     super_parser = subparsers.add_parser('super', help='super a process by name')
     super_parser.set_defaults(func=supervisor_command)
@@ -180,9 +180,14 @@ def db_command(parser_args):
 
 def supervisor_command(parser_args):
     """ Supervisor-related commands """
-    from synergy.supervisor.supervisor_configurator import SupervisorConfigurator
-    sc = SupervisorConfigurator()
+    import logging
+    from synergy.supervisor.supervisor_configurator import SupervisorConfigurator, set_box_id
 
+    if parser_args.boxid:
+        set_box_id(logging, parser_args.argument)
+        return
+
+    sc = SupervisorConfigurator()
     if parser_args.init:
         sc.init_db()
 
@@ -197,9 +202,6 @@ def supervisor_command(parser_args):
 
     elif parser_args.init:
         sc.init_db()
-
-    elif parser_args.boxid:
-        sc.set_box_id(parser_args.argument)
 
 
 def start_process(parser_args):
