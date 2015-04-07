@@ -29,7 +29,7 @@
         <td>{{ uow_entry.timeperiod }}</td>
         <td>{{ uow_entry.state }}</td>
         <td>
-            {% set url = 'action=action_get_uow' + '&process_name=' + uow_entry.process_name + '&entry_name=' + uow_entry.entry_name + '&is_freerun=True' %}
+            {% set url = 'action=action/get_uow' + '&process_name=' + uow_entry.process_name + '&entry_name=' + uow_entry.entry_name + '&is_freerun=True' %}
             <form method="GET" onsubmit="window.open('/object_viewer/?{{ url }}','Get Uow',
                     'toolbar=no,scrollbars=yes,resizable=yes,top=250,left=250,width=400,height=350'); return false;">
                 <input type="submit" value="Get Uow"/>

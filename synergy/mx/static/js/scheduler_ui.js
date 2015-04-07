@@ -3,7 +3,7 @@ var OUTPUT_DOCUMENT = {};
 
 // main method for Scheduler MX UI client
 $(document).ready(function () {
-    $.get('/request_trees/', function (response) {
+    $.get('/details/trees/', function (response) {
         var result = OUTPUT_DOCUMENT.build_navigational_panel(response);
         $('#navigation').append(result);    // appends to the HTML document panel to the right (timeperiods)
         $('.menu').initMenu();              // appends to the HTML document navigational menu to the left (tree names)
@@ -82,7 +82,7 @@ OUTPUT_DOCUMENT.build_timerecords_panel = function (children, enable_pagination)
         var handler = function (e) {
             e.preventDefault();
             var params = { timeperiod: v.timeperiod, process_name: v.process_name };
-            $.get('/request_tree_nodes/', params, function (response) {
+            $.get('/details/tree_nodes/', params, function (response) {
                 $('#content').html(OUTPUT_DOCUMENT.build_timerecords_panel(response.children, enable_pagination));
                 OUTPUT_DOCUMENT.build_timerecord_entry(k, v, handler);
                 assign_context_menu();  // assign context menu to underlying levels of the tree (monthly, daily, hourly)
@@ -148,7 +148,7 @@ OUTPUT_DOCUMENT.build_navigational_panel = function (vertical_json) {
             e.preventDefault();
             var params = { process_name: v.sorted_process_names[0] };  // top process name for the given tree, represented by *v*
 
-            $.get('/request_tree_nodes/', params, function (response) {
+            $.get('/details/tree_nodes/', params, function (response) {
                 $('#level').empty();
                 $('#content').empty();
                 if (response.children) {

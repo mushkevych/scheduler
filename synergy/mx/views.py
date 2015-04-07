@@ -10,18 +10,18 @@ from synergy.mx.freerun_action_handler import FreerunActionHandler
 from synergy.mx.managed_action_handler import ManagedActionHandler
 from synergy.mx.scheduler_entries import SchedulerEntries
 from synergy.mx.dashboard_handler import DashboardHandler
-from synergy.mx.utils import render_template, expose, jinja_env
+from synergy.mx.utils import render_template, expose
 from synergy.mx.tree_node_details import TreeNodeDetails
 from synergy.mx.tree_details import TreeDetails
 
 
-@expose('/scheduler_managed_entries/')
+@expose('/entries/managed/')
 def scheduler_managed_entries(request, **values):
     details = SchedulerEntries(request, **values)
     return render_template('scheduler_managed_entries.html', details=details)
 
 
-@expose('/scheduler_freerun_entries/')
+@expose('/entries/freerun/')
 def scheduler_freerun_entries(request, **values):
     details = SchedulerEntries(request, **values)
     return render_template('scheduler_freerun_entries.html', details=details)
@@ -43,82 +43,82 @@ def timetable_details(request, **values):
 
 
 @expose('/')
-@expose('/dashboard_managed/')
+@expose('/dashboard/managed/')
 def dashboard_managed(request, **values):
     details = DashboardHandler(request, **values)
     return render_template('dashboard_managed.html', details=details)
 
 
-@expose('/dashboard_freeruns/')
+@expose('/dashboard/freeruns/')
 def dashboard_freeruns(request, **values):
     details = DashboardHandler(request, **values)
     return render_template('dashboard_freeruns.html', details=details)
 
 
-@expose('/request_tree_nodes/')
-def request_tree_nodes(request, **values):
+@expose('/details/tree_nodes/')
+def details_tree_nodes(request, **values):
     details = TreeNodeDetails(request, **values)
     return Response(response=json.dumps(details.details),
                     mimetype='application/json')
 
 
-@expose('/request_trees/')
-def request_trees(request, **values):
+@expose('/details/trees/')
+def details_trees(request, **values):
     details = TreeDetails(request, **values)
     return Response(response=json.dumps(details.mx_page_entries),
                     mimetype='application/json')
 
 
-@expose('/action_update_freerun_entry/')
+@expose('/action/update_freerun_entry/')
 def action_update_freerun_entry(request, **values):
     handler = FreerunActionHandler(request, **values)
     handler.action_update_entry()
     return Response(status=httplib.NO_CONTENT)
 
 
-@expose('/action_reprocess/')
+@expose('/action/reprocess/')
 def action_reprocess(request, **values):
     handler = ManagedActionHandler(request, **values)
     handler.action_reprocess()
     return Response(status=httplib.NO_CONTENT)
 
 
-@expose('/action_skip/')
+@expose('/action/skip/')
 def action_skip(request, **values):
     handler = ManagedActionHandler(request, **values)
     handler.action_skip()
     return Response(status=httplib.NO_CONTENT)
 
 
-@expose('/action_cancel_uow/')
+@expose('/action/cancel_uow/')
 def action_cancel_uow(request, **values):
     handler = FreerunActionHandler(request, **values)
     handler.action_cancel_uow()
     return Response(status=httplib.NO_CONTENT)
 
 
-@expose('/action_get_uow/')
+@expose('/action/get_uow/')
 def action_get_uow(request, **values):
     handler, _, _ = preparse_request(request, **values)
     return Response(response=json.dumps(handler.action_get_uow()),
                     mimetype='application/json')
 
 
-@expose('/action_get_log/')
+@expose('/action/get_log/')
 def action_get_log(request, **values):
     handler, _, _ = preparse_request(request, **values)
     return Response(response=json.dumps(handler.action_get_log()),
                     mimetype='application/json')
 
 
-@expose('/action_change_interval/')
+@expose('/action/change_interval/')
 def action_change_interval(request, **values):
     handler, redirect_target, _ = preparse_request(request, **values)
     handler.action_change_interval()
     return redirect(redirect_target)
 
 
-@expose('/action_trigger_now/')
+@expose('/action/trigger_now/')
 def action_trigger_now(request, **values):
     handler, redirect_target, is_batch = preparse_request(request, **values)
     handler.action_trigger_now()
@@ -128,7 +128,7 @@ def action_trigger_now(request, **values):
         return Response(status=httplib.NO_CONTENT)
 
 
-@expose('/action_deactivate_trigger/')
+@expose('/action/deactivate_trigger/')
 def action_deactivate_trigger(request, **values):
     handler, redirect_target, is_batch = preparse_request(request, **values)
     handler.action_deactivate_trigger()
@@ -138,7 +138,7 @@ def action_deactivate_trigger(request, **values):
         return Response(status=httplib.NO_CONTENT)
 
 
-@expose('/action_activate_trigger/')
+@expose('/action/activate_trigger/')
 def action_activate_trigger(request, **values):
     handler, redirect_target, is_batch = preparse_request(request, **values)
     handler.action_activate_trigger()
@@ -153,10 +153,10 @@ def preparse_request(request, **values):
 
     if 'is_freerun' in request.args and request.args['is_freerun'] in ('True', 'true', '1'):
         handler = FreerunActionHandler(request, **values)
-        redirect_target = '/scheduler_freerun_entries/'
+        redirect_target = '/entries/freerun/'
     else:
         handler = ManagedActionHandler(request, **values)
-        redirect_target = '/scheduler_managed_entries/'
+        redirect_target = '/entries/managed/'
     return handler, redirect_target, is_batch
 
 

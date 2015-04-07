@@ -2,7 +2,7 @@
 
 ENVIRONMENT="%ENVIRONMENT%"
 
-SCRIPTS_NAMES=("mongodb_supervisor_schema" "mongodb_workers_schema")
+SCRIPTS_NAMES=("mongodb_workers_schema")
 
 for SINGLE_SCRIPT in ${SCRIPTS_NAMES[@]}; do
    mongo ${SINGLE_SCRIPT}.js

@@ -29,7 +29,7 @@
         <td>{{ row.is_on }} / {{ row.is_alive }}</td>
         <td>{{ row.process_name }}</td>
         <td>
-            <form method="GET" action="/action_change_interval/">
+            <form method="GET" action="/action/change_interval/">
                 <input type="hidden" name="process_name" value="{{ row.process_name }}" />
                 <input type="hidden" name="timeperiod" value="NA" />
                 <input type="text" size="8" maxlength="32" name="interval" value="{{ row.trigger_frequency }}" />
@@ -37,7 +37,7 @@
             </form>
         </td>
         <td>
-            <form method="GET" action="/action_trigger_now/">
+            <form method="GET" action="/action/trigger_now/">
                 <input type="hidden" name="process_name" value="{{ row.process_name }}" />
                 <input type="hidden" name="timeperiod" value="NA" />
                 <input type="submit" value="Trigger" />

@@ -338,7 +338,7 @@ function get_tree_nodes(process_name, timeperiod){
         data: {'process_name': process_name, 'timeperiod': timeperiod},
         dataType: "json",
         type: "GET",
-        url: '/request_tree_nodes/',
+        url: '/details/tree_nodes/',
         cache: false,
         async: false
     }).responseText;
@@ -457,7 +457,7 @@ function build_trees(mx_trees) {
 
 // main method for the MX PAGE script
 $(document).ready(function () {
-    $.get('/request_trees/', function (response) {
+    $.get('/details/trees/', function (response) {
 //        build_trees(test_mx_trees);
         build_trees(response);
     }, 'json');

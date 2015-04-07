@@ -29,7 +29,7 @@ mx_page_context = {tree_entry.mx_page: tree_entry.mx_page.replace('_', ' ')
 # loop sets a Rule per every mx_page from mx_page_context to be processed by
 # 'processing_details' method from mx.views.py
 # NOTE: given renders template snippet {{ url_for ('function_name') }} invalid,
-# since all mx_page are processed by the single method 'processing_details'
+# since all mx_page are processed by the single function 'mx_page_tiles'
 for rule in mx_page_context:
     # url_map.add(Rule('/%s/' % rule, endpoint='processing_details'))
     url_map.add(Rule('/%s/' % rule, endpoint='mx_page_tiles'))
