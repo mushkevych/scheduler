@@ -1,88 +1,3 @@
-var test_mx_trees = {
-    'TreeSite': {
-        'tree_name': 'TreeSite',
-        'sorted_process_names': ['SiteYearlyAggregator', 'SiteMonthlyAggregator', 'SiteDailyAggregator', 'SiteHourlyAggregator'],
-        'dependent_on': [],
-        'dependant_trees': [],
-        'processes': {
-            'SiteYearlyAggregator': {
-                'process_name': 'SiteYearlyAggregator',
-                'time_qualifier': '_yearly',
-                'state_machine_name': 'discrete',
-                'process_type': 'type_managed',
-                'run_on_active_timeperiod': false,
-                'reprocessing_queue': [],
-                'next_timeperiod': '2015000000',
-                'next_run_in': '22:25',
-                'trigger_frequency': 'every 14000',
-                'state': 'state_on',
-                'blocking_type': 'blocking_normal'
-            },
-            'SiteMonthlyAggregator': {
-                'process_name': 'SiteMonthlyAggregator',
-                'time_qualifier': '_monthly',
-                'state_machine_name': 'discrete',
-                'process_type': 'type_managed',
-                'run_on_active_timeperiod': false,
-                'reprocessing_queue': [],
-                'next_timeperiod': '2015030000',
-                'next_run_in': '22:25',
-                'trigger_frequency': 'every 7000',
-                'state': 'state_on',
-                'blocking_type': 'blocking_normal'
-            },
-            'SiteDailyAggregator': {
-                'process_name': 'SiteDailyAggregator',
-                'time_qualifier': '_daily',
-                'state_machine_name': 'discrete',
-                'process_type': 'type_managed',
-                'run_on_active_timeperiod': false,
-                'reprocessing_queue': [],
-                'next_timeperiod': '2015032000',
-                'next_run_in': '22:25',
-                'trigger_frequency': 'every 3600',
-                'state': 'state_on',
-                'blocking_type': 'blocking_normal'
-            },
-            'SiteHourlyAggregator': {
-                'process_name': 'SiteHourlyAggregator',
-                'time_qualifier': '_hourly',
-                'state_machine_name': 'discrete',
-                'process_type': 'type_managed',
-                'run_on_active_timeperiod': false,
-                'reprocessing_queue': [],
-                'next_timeperiod': '2015032001',
-                'next_run_in': '22:25',
-                'trigger_frequency': 'every 900',
-                'state': 'state_on',
-                'blocking_type': 'blocking_normal'
-            }
-        }
-    },
-    'TreeAlert': {
-        'tree_name': 'TreeAlert',
-        'sorted_process_names': ['AlertDailyWorker'],
-        'dependent_on': [],
-        'dependant_trees': [],
-        'processes': {
-            'AlertDailyWorker': {
-                'process_name': 'AlertDailyWorker',
-                'time_qualifier': '_daily',
-                'state_machine_name': 'discrete',
-                'process_type': 'type_managed',
-                'run_on_active_timeperiod': false,
-                'reprocessing_queue': [],
-                'next_timeperiod': '2015032000',
-                'next_run_in': '22:25',
-                'trigger_frequency': 'every 900',
-                'state': 'state_on',
-                'blocking_type': 'blocking_normal'
-            }
-        }
-    }
-};
-
-
 // The grid manages tiles using ids, which you can define. For our
 // examples we'll just use the tile number as the unique id.
 var TILE_IDS = [
@@ -458,7 +373,6 @@ function build_trees(mx_trees) {
 // main method for the MX PAGE script
 $(document).ready(function () {
     $.get('/details/trees/', function (response) {
-//        build_trees(test_mx_trees);
         build_trees(response);
     }, 'json');
 });

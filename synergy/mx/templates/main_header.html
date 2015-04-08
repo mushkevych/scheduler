@@ -20,24 +20,21 @@
     <tr>
         <th>Synergy Scheduler</th>
         <th style="text-align: left">build. {{ get_version() }}</th>
-        <th></th>
         {%- for mx_rule, mx_name in mx_processing_context.items() -%}
         <th></th>
         {%- endfor -%}
-        <th colspan="3" style="text-align: right">page last updated: {{ get_current_time() }}</th>
+        <th colspan="2" style="text-align: right">page last updated: {{ get_current_time() }}</th>
     </tr>
     </thead>
     <tbody>
     <tr>
         <td><a href="{{ url_for('dashboard_managed') }}">dashboard jobs</a></td>
         <td><a href="{{ url_for('dashboard_freeruns') }}">dashboard freeruns</a></td>
-{#        <td><a href="{{ url_for('mx_page_tiles') }}">tiles poc</a></td>#}
         {%- for mx_rule, mx_page_name in mx_processing_context.items() %}
             <td><a href="/{{ mx_rule }}">{{ mx_page_name }}</a></td>
         {%- endfor -%}
         <td><a href="{{ url_for('scheduler_managed_entries') }}">scheduler managed entries</a></td>
         <td><a href="{{ url_for('scheduler_freerun_entries') }}">scheduler freerun entries</a></td>
-        <td><a href="{{ url_for('timetable_details') }}">timetable details</a></td>
     </tr>
     </tbody>
 </table>

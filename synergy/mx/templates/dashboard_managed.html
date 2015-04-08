@@ -53,7 +53,6 @@
 {% import 'block_context_menu.html' as context_menu %}
 {{ context_menu.job_menu() }}
 
-<script type="text/javascript" src="{{ url_for('static', file='js/scheduler_ui.js') }}"></script>
 <script type="text/javascript">
     $(document).ready(function () {
         load_dataset('#form_time_window', 'form_initial_load', [ [ 1, "asc" ], [ 2, "asc" ] ]);

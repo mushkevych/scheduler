@@ -36,12 +36,6 @@ def open_schedulable_form(request, **values):
     return render_template('schedulable_form.html', handler=handler)
 
 
-@expose('/timetable_details/')
-def timetable_details(request, **values):
-    details = TreeDetails(request, **values)
-    return render_template('timetable_details.html', details=details.timetable_entries)
-
-
 @expose('/')
 @expose('/dashboard/managed/')
 def dashboard_managed(request, **values):
