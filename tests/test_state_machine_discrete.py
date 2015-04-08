@@ -1,11 +1,9 @@
 __author__ = 'Bohdan Mushkevych'
 
+import mock
 import unittest
 from settings import enable_test_mode
 enable_test_mode()
-
-from mockito import spy, verify, mock, when
-from mockito.matchers import any
 
 from synergy.db.dao.unit_of_work_dao import UnitOfWorkDao
 from synergy.db.model.job import Job
@@ -50,14 +48,13 @@ def get_job_record(state, timeperiod, process_name):
 class DiscreteSMUnitTest(unittest.TestCase):
     def setUp(self):
         self.logger = get_logger(PROCESS_UNIT_TEST)
-        self.time_table_mocked = mock(Timetable)
-        when(self.time_table_mocked).get_tree(any(str)).thenReturn(mock())
+        self.time_table_mocked = mock.create_autospec(Timetable)
         self.sm_real = StateMachineDiscrete(self.logger, self.time_table_mocked)
 
-        self.uow_dao_mocked = mock(UnitOfWorkDao)
+        self.uow_dao_mocked = mock.create_autospec(UnitOfWorkDao)
         self.sm_real.uow_dao = self.uow_dao_mocked
 
-        self.ds_mocked = mock(BaseManager)
+        self.ds_mocked = mock.create_autospec(BaseManager)
         self.sm_real.ds = self.ds_mocked
 
     def tearDown(self):
@@ -174,21 +171,19 @@ class DiscreteSMUnitTest(unittest.TestCase):
 
     def test_state_skipped(self):
         """method tests timetable records in STATE_SKIPPED state"""
-        sm_spy = spy(self.sm_real)
         job_record = get_job_record(job.STATE_SKIPPED, TEST_PRESET_TIMEPERIOD, PROCESS_SITE_HOURLY)
+        self.sm_real.manage_job(job_record)
 
-        sm_spy.manage_job(job_record)
-        verify(self.time_table_mocked, times=0).update_job_record(any(Job), any(UnitOfWork), any(str))
-        verify(self.time_table_mocked, times=0).get_tree(any(str))
+        self.assertEqual(len(self.time_table_mocked.update_job_record.call_args_list), 0)
+        self.assertEqual(len(self.time_table_mocked.get_tree.call_args_list), 0)
 
     def test_state_processed(self):
         """method tests timetable records in STATE_PROCESSED state"""
-        sm_spy = spy(self.sm_real)
         job_record = get_job_record(job.STATE_PROCESSED, TEST_PRESET_TIMEPERIOD, PROCESS_SITE_HOURLY)
+        self.sm_real.manage_job(job_record)
 
-        sm_spy.manage_job(job_record)
-        verify(self.time_table_mocked, times=0).update_job_record(any(Job), any(UnitOfWork), any(str))
-        verify(self.time_table_mocked, times=0).get_tree(any(str))
+        self.assertEqual(len(self.time_table_mocked.update_job_record.call_args_list), 0)
+        self.assertEqual(len(self.time_table_mocked.get_tree.call_args_list), 0)
 
 
 if __name__ == '__main__':

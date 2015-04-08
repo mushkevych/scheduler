@@ -18,7 +18,6 @@ packagelist=(
     "psutil-2.2.1.tar.gz"
     "amqp-1.4.5.tar.gz"
     
-    "mockito-0.5.2.tar.gz"
     "pyrepl-0.8.4.tar.gz"
     "fancycompleter-0.4.tar.gz"
     "Pygments-1.6.tar.gz"

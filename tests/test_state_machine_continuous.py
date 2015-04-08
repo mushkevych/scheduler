@@ -1,10 +1,9 @@
 __author__ = 'Bohdan Mushkevych'
 
+import mock
 import unittest
 from settings import enable_test_mode
 enable_test_mode()
-
-import mock
 
 from synergy.db.dao.unit_of_work_dao import UnitOfWorkDao
 from synergy.db.model import job, unit_of_work
@@ -49,7 +48,6 @@ class ContinuousSMUnitTest(unittest.TestCase):
     def setUp(self):
         self.logger = get_logger(PROCESS_UNIT_TEST)
         self.time_table_mocked = mock.create_autospec(Timetable)
-        # self.time_table_mocked.get_tree = mock.MagicMock()
         self.sm_real = StateMachineContinuous(self.logger, self.time_table_mocked)
 
         self.uow_dao_mocked = mock.create_autospec(UnitOfWorkDao)
