@@ -3,11 +3,14 @@ __author__ = 'Bohdan Mushkevych'
 import json
 
 from synergy.db.model import unit_of_work
-from synergy.db.model.freerun_process_entry import FreerunProcessEntry, STATE_ON, STATE_OFF
+from synergy.db.model.freerun_process_entry import FreerunProcessEntry
 from synergy.db.dao.unit_of_work_dao import UnitOfWorkDao
 from synergy.db.dao.freerun_process_dao import FreerunProcessDao
 from synergy.mx.base_request_handler import valid_action_request
 from synergy.mx.abstract_action_handler import AbstractActionHandler
+
+STATE_ON = 'state_on'
+STATE_OFF = 'state_off'
 
 
 class FreerunActionHandler(AbstractActionHandler):

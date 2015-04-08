@@ -9,7 +9,6 @@ from synergy.db.model.freerun_process_entry import FreerunProcessEntry
 from synergy.db.model.timetable_tree_entry import TimetableTreeEntry
 
 
-FIELD_IS_ON = 'is_on'                       # whether the trigger is expected to be in On/Off state
 FIELD_IS_ALIVE = 'is_alive'                 # actual state of the trigger
 FIELD_NEXT_RUN_IN = 'next_run_in'           # duration until the next trigger event in HH:MM:SS format
 FIELD_NEXT_TIMEPERIOD = 'next_timeperiod'   # Synergy timeperiod format
@@ -25,13 +24,11 @@ FIELD_NODE = 'node'
 
 
 class RestFreerunSchedulerEntry(FreerunProcessEntry):
-    is_on = BooleanField(FIELD_IS_ON)
     is_alive = BooleanField(FIELD_IS_ALIVE)
     next_run_in = StringField(FIELD_NEXT_RUN_IN)
 
 
 class RestManagedSchedulerEntry(ManagedProcessEntry):
-    is_on = BooleanField(FIELD_IS_ON)
     is_alive = BooleanField(FIELD_IS_ALIVE)
     next_run_in = StringField(FIELD_NEXT_RUN_IN)
     next_timeperiod = StringField(FIELD_NEXT_TIMEPERIOD)

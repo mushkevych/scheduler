@@ -105,4 +105,6 @@
 {% import 'block_context_menu.html' as context_menu %}
 {{ context_menu.trigger_menu(true) }}
 
+<script type="text/javascript" src="{{ url_for('static', file='js/scheduler_ui.js') }}"></script>
+
 {% endblock %}

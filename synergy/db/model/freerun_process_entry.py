@@ -2,12 +2,12 @@ __author__ = 'Bohdan Mushkevych'
 
 from synergy.scheduler.scheduler_constants import TYPE_FREERUN, STATE_MACHINE_FREERUN
 from synergy.db.model.daemon_process_entry import DaemonProcessEntry
-from odm.fields import StringField, ListField, ObjectIdField
+from odm.fields import StringField, ListField, ObjectIdField, BooleanField
 
 PROCESS_NAME = 'process_name'           # name of the process to handle the schedulables
 ENTRY_NAME = 'entry_name'               # name of the schedulable
 DESCRIPTION = 'description'             # description of the schedulable
-STATE = 'state'                         # either :STATE_ON or :STATE_OFF
+IS_ON = 'is_on'                         # defines if the schedulable is active or off
 TRIGGER_FREQUENCY = 'trigger_frequency'  # either 'at DoW-HH:MM' or 'every XXX'
 STATE_MACHINE_NAME = 'state_machine_name'
 SOURCE = 'source'
@@ -17,9 +17,6 @@ HISTORIC_LOG = 'historic_log'           # contains list of MAX_NUMBER_OF_LOG_ENT
 MAX_NUMBER_OF_LOG_ENTRIES = 64
 RELATED_UNIT_OF_WORK = 'related_unit_of_work'
 
-STATE_ON = 'state_on'
-STATE_OFF = 'state_off'
-
 
 class FreerunProcessEntry(DaemonProcessEntry):
     """ Class presents single configuration entry for the freerun process/bash_driver . """
@@ -28,7 +25,7 @@ class FreerunProcessEntry(DaemonProcessEntry):
     source = StringField(SOURCE)
     sink = StringField(SINK)
     trigger_frequency = StringField(TRIGGER_FREQUENCY)
-    state = StringField(STATE, choices=[STATE_ON, STATE_OFF])
+    is_on = BooleanField(IS_ON, default=False)
     state_machine_name = StringField(STATE_MACHINE_NAME)
 
     entry_name = StringField(ENTRY_NAME)
@@ -46,10 +43,6 @@ class FreerunProcessEntry(DaemonProcessEntry):
         self.entry_name = value[1]
 
     @property
-    def is_on(self):
-        return self.state == STATE_ON
-
-    @property
     def schedulable_name(self):
         return '{0}::{1}'.format(self.process_name, self.entry_name)
 
@@ -60,7 +53,7 @@ def freerun_context_entry(process_name,
                           token,
                           exchange,
                           trigger_frequency,
-                          state=STATE_ON,
+                          is_on=False,
                           present_on_boxes=None,
                           description=None,
                           arguments=None,
@@ -94,7 +87,7 @@ def freerun_context_entry(process_name,
         trigger_frequency=trigger_frequency,
         time_qualifier=None,
         state_machine_name=STATE_MACHINE_FREERUN,
-        state=state,
+        is_on=is_on,
         classname=classname,
         token=token,
         present_on_boxes=present_on_boxes,

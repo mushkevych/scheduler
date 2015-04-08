@@ -1,6 +1,5 @@
 __author__ = 'Bohdan Mushkevych'
 
-from synergy.db.model import managed_process_entry
 from synergy.db.model.freerun_process_entry import FreerunProcessEntry
 from synergy.db.model.managed_process_entry import ManagedProcessEntry
 from synergy.db.dao.freerun_process_dao import FreerunProcessDao
@@ -81,7 +80,7 @@ class ThreadHandler(object):
             parsed_trigger_frequency, timer_klass = parse_time_trigger_string(self.trigger_frequency)
             self.timer_instance = timer_klass(parsed_trigger_frequency, self.call_back, args=[self.callback_args])
 
-        self.process_entry.state = managed_process_entry.STATE_ON
+        self.process_entry.is_on = True
         if update_persistent:
             self._get_dao().update(self.process_entry)
 
@@ -93,7 +92,7 @@ class ThreadHandler(object):
         self.timer_instance.cancel()
         self.is_terminated = True
 
-        self.process_entry.state = managed_process_entry.STATE_OFF
+        self.process_entry.is_on = False
         if update_persistent:
             self._get_dao().update(self.process_entry)
 

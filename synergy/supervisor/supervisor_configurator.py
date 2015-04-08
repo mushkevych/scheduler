@@ -5,7 +5,7 @@ import pymongo
 
 from synergy.db.dao.box_configuration_dao import BoxConfigurationDao, QUERY_PROCESSES_FOR_BOX_ID
 from synergy.db.manager import ds_manager
-from synergy.db.model.box_configuration import BoxConfiguration, BOX_ID, PROCESS_NAME, STATE_ON, STATE_OFF
+from synergy.db.model.box_configuration import BoxConfiguration, BOX_ID, PROCESS_NAME
 from synergy.conf import context, settings
 from synergy.supervisor.supervisor_constants import PROCESS_SUPERVISOR, COLLECTION_BOX_CONFIGURATION
 from synergy.system.data_logging import get_logger
@@ -110,14 +110,14 @@ class SupervisorConfigurator(object):
         self.logger.info('INFO: Supervisor configuration: setting state {0} for process {1} \n'
                          .format(new_state, process_name))
         box_config = self.bc_dao.get_one([self.box_id, process_name])
-        box_config.state = new_state
+        box_config.is_on = new_state
         self.bc_dao.update(box_config)
 
     def mark_for_start(self, process_name):
-        self._change_state(process_name, STATE_ON)
+        self._change_state(process_name, False)
 
     def mark_for_stop(self, process_name):
-        self._change_state(process_name, STATE_OFF)
+        self._change_state(process_name, False)
 
     def init_db(self):
         self.logger.info('Starting *synergy.box_configuration* table init')
@@ -133,7 +133,7 @@ class SupervisorConfigurator(object):
             if supervisor_entry.is_present_on(self.box_id):
                 box_config = BoxConfiguration(box_id=self.box_id,
                                               process_name=process_name,
-                                              state=STATE_ON)
+                                              is_on=True)
                 self.bc_dao.update(box_config)
 
         self.logger.info('*synergy.box_configuration* db has been recreated')

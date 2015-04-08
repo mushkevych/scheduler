@@ -1,6 +1,6 @@
 __author__ = 'Bohdan Mushkevych'
 
-from odm.fields import StringField, ObjectIdField
+from odm.fields import StringField, ObjectIdField, BooleanField
 
 from synergy.db.model.daemon_process_entry import DaemonProcessEntry
 from synergy.scheduler.scheduler_constants import BLOCKING_CHILDREN, BLOCKING_DEPENDENCIES, BLOCKING_NORMAL, \
@@ -8,16 +8,13 @@ from synergy.scheduler.scheduler_constants import BLOCKING_CHILDREN, BLOCKING_DE
 
 
 PROCESS_NAME = 'process_name'
-STATE = 'state'
+IS_ON = 'is_on'
 TRIGGER_FREQUENCY = 'trigger_frequency'
 STATE_MACHINE_NAME = 'state_machine_name'
 BLOCKING_TYPE = 'blocking_type'
 SOURCE = 'source'
 SINK = 'sink'
 TIME_QUALIFIER = 'time_qualifier'
-
-STATE_ON = 'state_on'
-STATE_OFF = 'state_off'
 
 
 class ManagedProcessEntry(DaemonProcessEntry):
@@ -27,7 +24,7 @@ class ManagedProcessEntry(DaemonProcessEntry):
     sink = StringField(SINK)
     time_qualifier = StringField(TIME_QUALIFIER)
     trigger_frequency = StringField(TRIGGER_FREQUENCY)
-    state = StringField(STATE, choices=[STATE_ON, STATE_OFF])
+    is_on = BooleanField(IS_ON, default=False)
     state_machine_name = StringField(STATE_MACHINE_NAME)
     blocking_type = StringField(BLOCKING_TYPE, choices=[BLOCKING_CHILDREN, BLOCKING_DEPENDENCIES, BLOCKING_NORMAL])
 
@@ -39,10 +36,6 @@ class ManagedProcessEntry(DaemonProcessEntry):
     def key(self, value):
         self.process_name = value
 
-    @property
-    def is_on(self):
-        return self.state == STATE_ON
-
 
 def managed_context_entry(process_name,
                           classname,
@@ -50,7 +43,7 @@ def managed_context_entry(process_name,
                           time_qualifier,
                           trigger_frequency,
                           state_machine_name,
-                          state=STATE_ON,
+                          is_on=False,
                           exchange=EXCHANGE_MANAGED_WORKER,
                           blocking_type=BLOCKING_NORMAL,
                           present_on_boxes=None,
@@ -84,7 +77,7 @@ def managed_context_entry(process_name,
         process_name=process_name,
         trigger_frequency=trigger_frequency,
         state_machine_name=state_machine_name,
-        state=state,
+        is_on=is_on,
         blocking_type=blocking_type,
         classname=classname,
         token=token,

@@ -1,14 +1,12 @@
 __author__ = 'Bohdan Mushkevych'
 
 from odm.document import BaseDocument
-from odm.fields import StringField, ObjectIdField, IntegerField
+from odm.fields import StringField, ObjectIdField, IntegerField, BooleanField
 
 BOX_ID = 'box_id'
 PROCESS_NAME = 'process_name'
 PID = 'pid'
-STATE = 'state'
-STATE_ON = 'state_on'
-STATE_OFF = 'state_off'
+IS_ON = 'is_on'
 
 
 class BoxConfiguration(BaseDocument):
@@ -18,5 +16,5 @@ class BoxConfiguration(BaseDocument):
     db_id = ObjectIdField('_id', null=True)
     box_id = StringField(BOX_ID)
     process_name = StringField(PROCESS_NAME)
-    state = StringField(STATE, choices=[STATE_ON, STATE_OFF])
+    is_on = BooleanField(IS_ON, default=False)
     pid = IntegerField(PID, null=True)
