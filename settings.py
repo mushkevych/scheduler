@@ -50,7 +50,6 @@ test_cases = [
     'tests.test_state_machine_discrete',
     'tests.test_publishers_pool',
     'tests.test_garbage_collector',
-    'tests.test_system_collections',
     'tests.test_system_utils',
     'tests.test_linear_tree',
     'tests.test_two_level_tree',

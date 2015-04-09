@@ -5,17 +5,17 @@ import unittest
 from settings import enable_test_mode
 enable_test_mode()
 
+from constants import PROCESS_SITE_HOURLY
 from synergy.db.dao.unit_of_work_dao import UnitOfWorkDao
 from synergy.db.model import job, unit_of_work
 from synergy.db.model.job import Job
 from synergy.db.manager.ds_manager import BaseManager
-from tests.base_fixtures import create_unit_of_work
 from synergy.system import time_helper
 from synergy.system.time_qualifier import *
 from synergy.system.data_logging import get_logger
-from constants import PROCESS_SITE_HOURLY
 from synergy.scheduler.timetable import Timetable
 from synergy.scheduler.state_machine_continuous import StateMachineContinuous
+from tests.base_fixtures import create_unit_of_work
 from tests.ut_context import PROCESS_UNIT_TEST
 
 TEST_PRESET_TIMEPERIOD = '2013010122'
@@ -23,7 +23,7 @@ TEST_ACTUAL_TIMEPERIOD = time_helper.actual_timeperiod(QUALIFIER_HOURLY)
 TEST_FUTURE_TIMEPERIOD = time_helper.increment_timeperiod(QUALIFIER_HOURLY, TEST_ACTUAL_TIMEPERIOD)
 
 
-def then_raise(process_name, start_timeperiod, end_timeperiod, start_id, end_id):
+def then_raise(*_):
     raise UserWarning('Simulated UserWarning Exception')
 
 
@@ -47,14 +47,18 @@ def get_job_record(state, timeperiod, process_name):
 class ContinuousSMUnitTest(unittest.TestCase):
     def setUp(self):
         self.logger = get_logger(PROCESS_UNIT_TEST)
+
         self.time_table_mocked = mock.create_autospec(Timetable)
-        self.sm_real = StateMachineContinuous(self.logger, self.time_table_mocked)
-
         self.uow_dao_mocked = mock.create_autospec(UnitOfWorkDao)
-        self.sm_real.uow_dao = self.uow_dao_mocked
-
         self.ds_mocked = mock.create_autospec(BaseManager)
+
+        self.sm_real = StateMachineContinuous(self.logger, self.time_table_mocked)
+        self.sm_real.uow_dao = self.uow_dao_mocked
         self.sm_real.ds = self.ds_mocked
+        self.sm_real._compute_and_transfer_to_final_run = mock.Mock(
+            side_effect=self.sm_real._compute_and_transfer_to_final_run)
+        self.sm_real._process_state_final_run = mock.Mock(
+            side_effect=self.sm_real._process_state_final_run)
 
     def tearDown(self):
         pass
@@ -117,8 +121,8 @@ class ContinuousSMUnitTest(unittest.TestCase):
         self.sm_real.manage_job(job_record)
 
         self.assertEqual(len(self.time_table_mocked.update_job_record.call_args_list), 1)
-        self.assertEqual(len(self.time_table_mocked._compute_and_transfer_to_final_run.call_args_list), 1)
-        self.assertEqual(len(self.time_table_mocked._process_state_final_run.call_args_list), 0)
+        self.assertEqual(len(self.sm_real._compute_and_transfer_to_final_run.call_args_list), 1)
+        self.assertEqual(len(self.sm_real._process_state_final_run.call_args_list), 0)
 
     def test_transfer_to_final_state_from_in_progress(self):
         """ method tests job records in STATE_IN_PROGRESS state"""
@@ -142,13 +146,13 @@ class ContinuousSMUnitTest(unittest.TestCase):
         self.sm_real.manage_job(job_record)
 
         self.assertEqual(len(self.time_table_mocked.update_job_record.call_args_list), 2)
-        self.assertEqual(len(self.time_table_mocked._compute_and_transfer_to_final_run.call_args_list), 1)
-        self.assertEqual(len(self.time_table_mocked._process_state_final_run.call_args_list), 1)
+        self.assertEqual(len(self.sm_real._compute_and_transfer_to_final_run.call_args_list), 1)
+        self.assertEqual(len(self.sm_real._process_state_final_run.call_args_list), 1)
 
     def test_processed_state_final_run(self):
         """method tests job records in STATE_FINAL_RUN state"""
         self.uow_dao_mocked.get_one = mock.MagicMock(
-            side_effect=create_unit_of_work(PROCESS_SITE_HOURLY, 1, 1, None, unit_of_work.STATE_PROCESSED))
+            side_effect=lambda *_: create_unit_of_work(PROCESS_SITE_HOURLY, 1, 1, None, unit_of_work.STATE_PROCESSED))
 
         job_record = get_job_record(job.STATE_FINAL_RUN, TEST_PRESET_TIMEPERIOD, PROCESS_SITE_HOURLY)
         self.sm_real.manage_job(job_record)
@@ -159,7 +163,7 @@ class ContinuousSMUnitTest(unittest.TestCase):
     def test_cancelled_state_final_run(self):
         """method tests job records in STATE_FINAL_RUN state"""
         self.uow_dao_mocked.get_one = mock.MagicMock(
-            side_effect=create_unit_of_work(PROCESS_SITE_HOURLY, 1, 1, None, unit_of_work.STATE_CANCELED))
+            side_effect=lambda *_: create_unit_of_work(PROCESS_SITE_HOURLY, 1, 1, None, unit_of_work.STATE_CANCELED))
 
         job_record = get_job_record(job.STATE_FINAL_RUN, TEST_PRESET_TIMEPERIOD, PROCESS_SITE_HOURLY)
         self.sm_real.manage_job(job_record)
