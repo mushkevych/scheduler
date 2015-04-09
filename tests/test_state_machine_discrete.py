@@ -7,7 +7,6 @@ enable_test_mode()
 
 from synergy.db.dao.unit_of_work_dao import UnitOfWorkDao
 from synergy.db.model.job import Job
-from synergy.db.model.unit_of_work import UnitOfWork
 from synergy.db.model import job, unit_of_work
 from synergy.db.manager.ds_manager import BaseManager
 from synergy.system import time_helper
@@ -63,111 +62,105 @@ class DiscreteSMUnitTest(unittest.TestCase):
     def test_state_embryo(self):
         """ method tests job records in STATE_EMBRYO state"""
         self.sm_real.insert_and_publish_uow = then_return_uow
-        sm_spy = spy(self.sm_real)
 
-        when(self.ds_mocked).highest_primary_key(any(str), any(str), any(str)).thenReturn(1)
-        when(self.ds_mocked).lowest_primary_key(any(str), any(str), any(str)).thenReturn(0)
+        self.ds_mocked.highest_primary_key = mock.MagicMock(return_value=1)
+        self.ds_mocked.lowest_primary_key = mock.MagicMock(return_value=0)
 
         job_record = get_job_record(job.STATE_EMBRYO, TEST_PRESET_TIMEPERIOD, PROCESS_SITE_HOURLY)
-        sm_spy.manage_job(job_record)
+        self.sm_real.manage_job(job_record)
 
-        verify(self.time_table_mocked).update_job_record(any(Job), any(UnitOfWork), any(str))
+        self.time_table_mocked.update_job_record.assert_called_once_with(mock.ANY, mock.ANY, mock.ANY)
 
     def test_duplicatekeyerror_state_embryo(self):
         """ method tests job records in STATE_EMBRYO state"""
         self.sm_real._insert_uow = then_raise
-        sm_spy = spy(self.sm_real)
 
         job_record = get_job_record(job.STATE_EMBRYO, TEST_PRESET_TIMEPERIOD, PROCESS_SITE_HOURLY)
         try:
-            sm_spy.manage_job(job_record)
+            self.sm_real.manage_job(job_record)
             self.assertTrue(False, 'UserWarning exception should have been thrown')
         except UserWarning:
             self.assertTrue(True)
 
     def test_future_timeperiod_state_in_progress(self):
         """ method tests timetable records in STATE_IN_PROGRESS state"""
-        when(self.time_table_mocked).is_job_record_finalizable(any(Job)).thenReturn(True)
-        when(self.uow_dao_mocked).get_one(any()).thenReturn(create_unit_of_work(PROCESS_SITE_HOURLY, 0, 1, None))
+        job_record = get_job_record(job.STATE_IN_PROGRESS, TEST_FUTURE_TIMEPERIOD, PROCESS_SITE_HOURLY)
+        manual_uow = create_unit_of_work(PROCESS_SITE_HOURLY, 0, 1, None)
+
+        self.uow_dao_mocked.get_one = mock.MagicMock(return_value=manual_uow)
+        self.time_table_mocked.is_job_record_finalizable = mock.MagicMock(return_value=True)
 
         self.sm_real.insert_and_publish_uow = then_raise
-        sm_spy = spy(self.sm_real)
 
-        job_record = get_job_record(job.STATE_IN_PROGRESS, TEST_FUTURE_TIMEPERIOD, PROCESS_SITE_HOURLY)
-
-        sm_spy.manage_job(job_record)
-        verify(self.time_table_mocked, times=0).update_job_record(any(Job), any(UnitOfWork), any(str))
+        self.sm_real.manage_job(job_record)
+        self.assertTrue(self.time_table_mocked.update_job_record.call_args_list == [])  # called 0 times
 
     def test_preset_timeperiod_state_in_progress(self):
         """ method tests timetable records in STATE_IN_PROGRESS state"""
-        when(self.time_table_mocked).is_job_record_finalizable(any(Job)).thenReturn(True)
-        when(self.uow_dao_mocked).get_one(any()).thenReturn(create_unit_of_work(PROCESS_SITE_HOURLY, 0, 1, None))
+        self.time_table_mocked.is_job_record_finalizable = mock.MagicMock(return_value=True)
+        self.uow_dao_mocked.get_one = mock.MagicMock(
+            side_effect=create_unit_of_work(PROCESS_SITE_HOURLY, 0, 1, None))
 
         self.sm_real.insert_and_publish_uow = then_return_uow
-        sm_spy = spy(self.sm_real)
 
         job_record = get_job_record(job.STATE_IN_PROGRESS, TEST_PRESET_TIMEPERIOD, PROCESS_SITE_HOURLY)
+        self.sm_real.manage_job(job_record)
 
-        sm_spy.manage_job(job_record)
-        verify(self.time_table_mocked, times=0).update_job_record(any(Job), any(UnitOfWork), any(str))
-        # verify(sm_spy, times=1)._compute_and_transfer_to_final_run(any(str), any(str), any(str), any(Job))
-        # verify(sm_spy, times=0)._process_state_final_run(any(str), any(Job))
+        self.assertEqual(len(self.time_table_mocked.update_job_record.call_args_list), 0)
+        self.assertEqual(len(self.time_table_mocked._compute_and_transfer_to_final_run.call_args_list), 1)
+        self.assertEqual(len(self.time_table_mocked._process_state_final_run.call_args_list), 0)
 
     def test_transfer_to_final_state_from_in_progress(self):
         """ method tests timetable records in STATE_IN_PROGRESS state"""
-        when(self.time_table_mocked).is_job_record_finalizable(any(Job)).thenReturn(True)
-        when(self.uow_dao_mocked).get_one(any()).\
-            thenReturn(create_unit_of_work(PROCESS_SITE_HOURLY, 1, 1, None, unit_of_work.STATE_PROCESSED))
+        self.time_table_mocked.is_job_record_finalizable = mock.MagicMock(return_value=True)
+        self.uow_dao_mocked.get_one = mock.MagicMock(
+            side_effect=create_unit_of_work(PROCESS_SITE_HOURLY, 1, 1, None, unit_of_work.STATE_PROCESSED))
 
         self.sm_real.insert_and_publish_uow = then_return_duplicate_uow
-        sm_spy = spy(self.sm_real)
 
         job_record = get_job_record(job.STATE_IN_PROGRESS, TEST_PRESET_TIMEPERIOD, PROCESS_SITE_HOURLY)
-        sm_spy.manage_job(job_record)
+        self.sm_real.manage_job(job_record)
 
-        verify(self.time_table_mocked, times=1).update_job_record(any(Job), any(UnitOfWork), any(str))
-        # verify(sm_spy, times=1)._compute_and_transfer_to_final_run(any(str), any(str), any(str), any(Job))
-        # verify(sm_spy, times=1)._process_state_final_run(any(str), any(Job))
+        self.assertEqual(len(self.time_table_mocked.update_job_record.call_args_list), 1)
+        self.assertEqual(len(self.time_table_mocked._compute_and_transfer_to_final_run.call_args_list), 1)
+        self.assertEqual(len(self.time_table_mocked._process_state_final_run.call_args_list), 1)
 
     def test_retry_state_in_progress(self):
         """ method tests timetable records in STATE_IN_PROGRESS state"""
-        when(self.time_table_mocked).is_job_record_finalizable(any(Job)).thenReturn(True)
-        when(self.uow_dao_mocked).get_one(any()).\
-            thenReturn(create_unit_of_work(PROCESS_SITE_HOURLY, 1, 1, None, unit_of_work.STATE_PROCESSED))
+        self.time_table_mocked.is_job_record_finalizable = mock.MagicMock(return_value=True)
+        self.uow_dao_mocked.get_one = mock.MagicMock(
+            side_effect=create_unit_of_work(PROCESS_SITE_HOURLY, 1, 1, None, unit_of_work.STATE_PROCESSED))
 
         self.sm_real.insert_and_publish_uow = then_return_uow
-        sm_spy = spy(self.sm_real)
 
         job_record = get_job_record(job.STATE_IN_PROGRESS, TEST_PRESET_TIMEPERIOD, PROCESS_SITE_HOURLY)
-        sm_spy.manage_job(job_record)
+        self.sm_real.manage_job(job_record)
 
-        verify(self.time_table_mocked, times=1).update_job_record(any(Job), any(UnitOfWork), any(str))
-        # verify(sm_spy, times=1)._compute_and_transfer_to_final_run(any(str), any(str), any(str), any(Job))
-        # verify(sm_spy, times=1)._process_state_final_run(any(str), any(Job))
+        self.assertEqual(len(self.time_table_mocked.update_job_record.call_args_list), 1)
+        self.assertEqual(len(self.time_table_mocked._compute_and_transfer_to_final_run.call_args_list), 1)
+        self.assertEqual(len(self.time_table_mocked._process_state_final_run.call_args_list), 1)
 
     def test_processed_state_final_run(self):
         """method tests timetable records in STATE_FINAL_RUN state"""
-        when(self.uow_dao_mocked).get_one(any()).\
-            thenReturn(create_unit_of_work(PROCESS_SITE_HOURLY, 1, 1, None, unit_of_work.STATE_PROCESSED))
+        self.uow_dao_mocked.get_one = mock.MagicMock(
+            side_effect=create_unit_of_work(PROCESS_SITE_HOURLY, 1, 1, None, unit_of_work.STATE_PROCESSED))
 
         job_record = get_job_record(job.STATE_FINAL_RUN, TEST_PRESET_TIMEPERIOD, PROCESS_SITE_HOURLY)
+        self.sm_real.manage_job(job_record)
 
-        sm_spy = spy(self.sm_real)
-        sm_spy.manage_job(job_record)
-
-        verify(self.time_table_mocked, times=1).update_job_record(any(Job), any(UnitOfWork), any(str))
-        verify(self.time_table_mocked, times=1).get_tree(any(str))
+        self.assertEqual(len(self.time_table_mocked.update_job_record.call_args_list), 1)
+        self.assertEqual(len(self.time_table_mocked.get_tree.call_args_list), 1)
 
     def test_cancelled_state_final_run(self):
         """method tests timetable records in STATE_FINAL_RUN state"""
-        when(self.uow_dao_mocked).get_one(any()).\
-            thenReturn(create_unit_of_work(PROCESS_SITE_HOURLY, 1, 1, None, unit_of_work.STATE_CANCELED))
+        self.uow_dao_mocked.get_one = mock.MagicMock(
+            side_effect=create_unit_of_work(PROCESS_SITE_HOURLY, 1, 1, None, unit_of_work.STATE_CANCELED))
 
-        sm_spy = spy(self.sm_real)
         job_record = get_job_record(job.STATE_FINAL_RUN, TEST_PRESET_TIMEPERIOD, PROCESS_SITE_HOURLY)
+        self.sm_real.manage_job(job_record)
 
-        sm_spy.manage_job(job_record)
-        verify(self.time_table_mocked, times=1).update_job_record(any(Job), any(UnitOfWork), any(str))
+        self.assertEqual(len(self.time_table_mocked.update_job_record.call_args_list), 1)
+        self.assertEqual(len(self.time_table_mocked.get_tree.call_args_list), 1)
 
     def test_state_skipped(self):
         """method tests timetable records in STATE_SKIPPED state"""

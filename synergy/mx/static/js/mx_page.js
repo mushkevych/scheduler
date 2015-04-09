@@ -27,13 +27,6 @@ function grid_info_template(tiles_number) {
 }
 
 
-function switch_thread_handler(tile) {
-    var e = document.getElementById(id);
-    if (e.style.display == 'block' || e.style.display=='') e.style.display = 'none';
-    else e.style.display = 'block';
-}
-
-
 function header_tree_tile(mx_tree, tile) {
     tile.$el.append('<ul class="fa-ul">'
         + '<li title="Tree Name"><i class="fa-li fa fa-sitemap"></i>' + mx_tree.tree_name + '</li>'
@@ -138,8 +131,6 @@ function info_job_tile(job_entry, tile, is_selected_timeperiod) {
     }
 
     tile.$el.append($('<div></div>').append(checkbox_div));
-//    tile.$el.append('<i class="fa fa-terminal" title="Process Name"></i> ' + job_entry.process_name)
-//        .append(' / <i class="fa fa-square-o" title="Tile Id"></i> ' + tile.id);
     tile.$el.append('<ul class="fa-ul">'
         + '<li title="Timeperiod"><i class="fa-li fa fa-clock-o"></i>' + job_entry.timeperiod + '</li>'
         + '<li title="State"><i class="fa-li fa fa-flag-o"></i>' + job_entry.state + '</li>'
@@ -195,7 +186,7 @@ function build_job_grid(grid_name, tree_level, selected_timeperiod, tree_obj) {
     var grid = new Tiles.Grid(el);
     var timeperiods = keys_to_list(tree_level.children, true);
 
-    // set tree and process_name for a grid
+    // set the tree for a grid
     grid.tree_obj = tree_obj;
 
     // by default, each tile is an empty div, we'll override creation
@@ -282,12 +273,12 @@ function tile_selected(tile) {
 
     // step 4: iterate over grids and rebuild them
     var tree_obj = tile.grid.tree_obj;
-    if (typeof tree_obj == 'undefined') {
+    var process_number = tree_obj.sorted_process_names.length;
+    if (tile.process_name == tree_obj.sorted_process_names[process_number - 1]) {
         // this is bottom-level process. no grid rebuilding is possible
         return;
     }
 
-    var process_number = tree_obj.sorted_process_names.length;
     var higher_next_timeperiod = tile.timeperiod;
     var higher_process_name = tile.process_name;
     var is_beyond_cut_off = false;
@@ -317,7 +308,7 @@ function tile_selected(tile) {
         grid.tiles = [];
 
         // reconstruct the grid
-        build_job_grid(grid_name, tree_level, process_obj.next_timeperiod);
+        build_job_grid(grid_name, tree_level, process_obj.next_timeperiod, tree_obj);
     }
 }
 
