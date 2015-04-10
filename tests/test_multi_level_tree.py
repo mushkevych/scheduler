@@ -3,7 +3,7 @@ __author__ = 'Bohdan Mushkevych'
 import unittest
 
 from tests import base_fixtures
-from constants import PROCESS_SITE_HOURLY, PROCESS_SITE_DAILY, TOKEN_SITE, PROCESS_SITE_YEARLY, PROCESS_SITE_MONTHLY
+from constants import PROCESS_SITE_HOURLY, PROCESS_SITE_DAILY, PROCESS_SITE_YEARLY, PROCESS_SITE_MONTHLY
 from synergy.system import time_helper
 from synergy.system.utils import increment_family_property
 from synergy.system.time_qualifier import QUALIFIER_HOURLY
@@ -23,14 +23,16 @@ class TestTwoLevelTree(unittest.TestCase):
         self.trees = []
         self.trees.append(MultiLevelTree(process_names=[PROCESS_SITE_YEARLY, PROCESS_SITE_MONTHLY,
                                                         PROCESS_SITE_DAILY, PROCESS_SITE_HOURLY],
-                                         mx_name=TOKEN_SITE, mx_page='some_mx_page'))
+                                         mx_name='4_level_tree', mx_page='some_mx_page'))
         self.trees.append(MultiLevelTree(process_names=[PROCESS_SITE_HOURLY, PROCESS_SITE_DAILY],
-                                         mx_name=TOKEN_SITE, mx_page='some_mx_page'))
+                                         mx_name='2_level_tree', mx_page='some_mx_page'))
+        self.trees.append(MultiLevelTree(process_names=[PROCESS_SITE_HOURLY, PROCESS_SITE_MONTHLY],
+                                         mx_name='2_level_mix_tree', mx_page='some_mx_page'))
         self.trees.append(MultiLevelTree(process_names=[PROCESS_SITE_YEARLY, PROCESS_SITE_MONTHLY,
                                                         PROCESS_SITE_DAILY],
-                                         mx_name=TOKEN_SITE, mx_page='some_mx_page'))
+                                         mx_name='3_level_tree', mx_page='some_mx_page'))
         self.trees.append(MultiLevelTree(process_names=[PROCESS_SITE_HOURLY],
-                                         mx_name=TOKEN_SITE, mx_page='some_mx_page'))
+                                         mx_name='1_level_tree', mx_page='some_mx_page'))
 
     def tearDown(self):
         del self.trees
@@ -38,10 +40,7 @@ class TestTwoLevelTree(unittest.TestCase):
         time_helper.actual_timeperiod = self.initial_actual_timeperiod
 
     def test_simple_build_tree(self):
-        visited_nodes = set()
-        nodes_per_process = dict()
-
-        def calculate_nodes_per_process(tree_node):
+        def calculate_nodes_per_process(tree_node, visited_nodes, nodes_per_process):
             assert isinstance(tree_node, TreeNode)
             if tree_node.timeperiod in visited_nodes:
                 # node is already calculated
@@ -50,14 +49,17 @@ class TestTwoLevelTree(unittest.TestCase):
             visited_nodes.add(tree_node.timeperiod)
             increment_family_property(tree_node.process_name, nodes_per_process)
             for child_timeperiod, child_node in tree_node.children.items():
-                calculate_nodes_per_process(child_node)
+                calculate_nodes_per_process(child_node, visited_nodes, nodes_per_process)
 
         for tree in self.trees:
+            visited_nodes = set()
+            nodes_per_process = dict()  # format {process_name: counter}
+
             assert isinstance(tree, MultiLevelTree)
             tree.build_tree()
-            calculate_nodes_per_process(tree.root)
+            calculate_nodes_per_process(tree.root, visited_nodes, nodes_per_process)
 
-            self.assertEqual(len(nodes_per_process), tree.process_hierarchy.entries)
+            self.assertEqual(len(nodes_per_process), len(tree.process_hierarchy.entries))
             for process_name, counter in nodes_per_process.items():
                 self.assertEqual(counter, 1)
 
@@ -74,44 +76,50 @@ class TestTwoLevelTree(unittest.TestCase):
             return counter
 
         number_of_leafs = calculate_leafs(tree.root)
-        self.assertEqual(number_of_leafs, delta + 1, 'Expected number of leaf nodes was %d, while actual is %d'
-                                                     % (delta + 1, number_of_leafs))
+        self.assertEqual(number_of_leafs, delta + 1, 'Expected number of leaf nodes for %s was %d, while actual is %d'
+                                                     % (tree.mx_name, delta + 1, number_of_leafs))
 
     def test_less_simple_build_tree(self):
         delta = 105
-        new_synergy_start_time = base_fixtures.wind_the_time(QUALIFIER_HOURLY,
-                                                             self.actual_timeperiod,
-                                                             -delta)
-        settings.settings['synergy_start_timeperiod'] = new_synergy_start_time
 
         for tree in self.trees:
             assert isinstance(tree, MultiLevelTree)
+            time_qualifier = tree.process_hierarchy.bottom_process.time_qualifier
+            new_synergy_start_time = base_fixtures.wind_the_time(time_qualifier,
+                                                                 self.actual_timeperiod,
+                                                                 -delta)
+            settings.settings['synergy_start_timeperiod'] = new_synergy_start_time
+
             tree.build_tree()
-            self._perform_assertions(new_synergy_start_time, delta)
+            self._perform_assertions(tree, delta)
 
     def test_catching_up_time_build_tree(self):
         delta = 5
-        new_synergy_start_time = base_fixtures.wind_the_time(QUALIFIER_HOURLY,
-                                                             self.actual_timeperiod,
-                                                             -delta)
-        settings.settings['synergy_start_timeperiod'] = new_synergy_start_time
 
         for tree in self.trees:
             assert isinstance(tree, MultiLevelTree)
+            time_qualifier = tree.process_hierarchy.bottom_process.time_qualifier
+            new_synergy_start_time = base_fixtures.wind_the_time(time_qualifier,
+                                                                 self.actual_timeperiod,
+                                                                 -delta)
+            settings.settings['synergy_start_timeperiod'] = new_synergy_start_time
+
             tree.build_tree()
-            self._perform_assertions(new_synergy_start_time, delta)
+            self._perform_assertions(tree, delta)
 
-        new_actual_timeperiod = base_fixtures.wind_the_time(QUALIFIER_HOURLY,
-                                                            self.actual_timeperiod,
-                                                            delta)
-
-        time_helper.actual_timeperiod = \
-            base_fixtures.wind_actual_timeperiod(time_helper.synergy_to_datetime(QUALIFIER_HOURLY,
-                                                                                 new_actual_timeperiod))
         for tree in self.trees:
+            time_qualifier = tree.process_hierarchy.bottom_process.time_qualifier
+            new_actual_timeperiod = base_fixtures.wind_the_time(time_qualifier,
+                                                                self.actual_timeperiod,
+                                                                delta)
+
+            time_helper.actual_timeperiod = \
+                base_fixtures.wind_actual_timeperiod(time_helper.synergy_to_datetime(time_qualifier,
+                                                                                     new_actual_timeperiod))
+
             assert isinstance(tree, MultiLevelTree)
             tree.build_tree()
-            self._perform_assertions(new_synergy_start_time, 2 * delta)
+            self._perform_assertions(tree, 2 * delta)
 
 
 if __name__ == '__main__':

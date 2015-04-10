@@ -67,6 +67,11 @@ class TestTreeNode(unittest.TestCase):
         node_b = node_a.find_counterpart_in(self.tree_two_level)
         self.assertIsNone(node_b)
 
+    def test_validate(self):
+        pass
+
+    def test_is_finalizable(self):
+        pass
 
 if __name__ == '__main__':
     unittest.main()
