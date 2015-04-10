@@ -62,7 +62,7 @@ if [[ $3 == 2* ]]; then
 
     # adding python2 specific packages
     packagelist=("virtualenv-12.0.7.tar.gz" "setuptools-14.0.tar.gz" "distribute-0.7.3.zip"
-                 "unittest2-0.8.0.tar.gz" "nose-1.3.4.tar.gz" "mock-1.0.1.tar.gz" "${packagelist[@]}")
+                 "unittest2-1.0.1.tar.gz" "nose-1.3.4.tar.gz" "mock-1.0.1.tar.gz" "${packagelist[@]}")
 elif [[ $3 == 3* ]]; then
     export PYTHONPATH="$2/lib/python$3/site-packages/"
     easy_install_bin="easy_install3 --prefix=$2"

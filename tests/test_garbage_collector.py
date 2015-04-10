@@ -1,11 +1,9 @@
 # coding=utf-8
 __author__ = 'Bohdan Mushkevych'
 
+import mock
 import unittest
 from datetime import datetime, timedelta
-
-from mockito import spy, verify, mock, when
-from mockito.matchers import any
 
 from settings import enable_test_mode
 enable_test_mode()
@@ -15,7 +13,7 @@ from synergy.db.dao.unit_of_work_dao import UnitOfWorkDao
 
 from tests.base_fixtures import create_unit_of_work, create_and_insert_unit_of_work
 from constants import *
-from synergy.mq.flopsy import PublishersPool
+from synergy.mq.flopsy import PublishersPool, Publisher
 from synergy.scheduler.scheduler_constants import PROCESS_GC
 from synergy.workers.garbage_collector_worker import GarbageCollectorWorker, LIFE_SUPPORT_HOURS
 from synergy.system.data_logging import get_logger
@@ -73,9 +71,11 @@ class GarbageCollectorUnitTest(unittest.TestCase):
 
     def setUp(self):
         self.worker = GarbageCollectorWorker(PROCESS_GC)
-        self.worker.publishers = mock(PublishersPool)
-        self.publisher = mock()
-        when(self.worker.publishers).get(any(str)).thenReturn(self.publisher)
+        self.publisher = mock.create_autospec(Publisher)
+        self.worker.publishers = mock.create_autospec(PublishersPool)
+        self.worker.publishers.get = mock.MagicMock(return_value=self.publisher)
+        self.worker._process_single_document = mock.Mock(
+            side_effect=self.worker._process_single_document)
 
     def tearDown(self):
         # killing the worker
@@ -84,28 +84,25 @@ class GarbageCollectorUnitTest(unittest.TestCase):
 
     def test_invalid_and_fresh_uow(self):
         self.worker.uow_dao.update = assume_uow_is_requested
-        spy_worker = spy(self.worker)
-        spy_worker._process_single_document(get_invalid_and_fresh_uow())
-        verify(self.publisher, times=1).publish(any(dict))
+        self.worker._process_single_document(get_invalid_and_fresh_uow())
+        self.publisher.publish.assert_called_once_with(mock.ANY)
+
 
     def test_invalid_and_stale_uow(self):
         self.worker.uow_dao.update = assume_uow_is_cancelled
-        spy_worker = spy(self.worker)
-        spy_worker._process_single_document(get_invalid_and_stale_uow())
+        self.worker._process_single_document(get_invalid_and_stale_uow())
         # transferring job to STATE_CANCELED and performing optional MQ update
-        verify(self.publisher, times=1).publish(any(dict))
+        self.publisher.publish.assert_called_once_with(mock.ANY)
 
     def test_valid_and_fresh_uow(self):
         self.worker.uow_dao.update = assume_uow_is_requested
-        spy_worker = spy(self.worker)
-        spy_worker._process_single_document(get_valid_and_fresh_uow())
-        verify(self.publisher, times=0).publish(any(dict))
+        self.worker._process_single_document(get_valid_and_fresh_uow())
+        self.assertTrue(self.publisher.publish.call_args_list == [])  # called 0 times
 
     def test_valid_and_stale_uow(self):
         self.worker.uow_dao.update = assume_uow_is_cancelled
-        spy_worker = spy(self.worker)
-        spy_worker._process_single_document(get_valid_and_stale_uow())
-        verify(self.publisher, times=1).publish(any(dict))
+        self.worker._process_single_document(get_valid_and_stale_uow())
+        self.publisher.publish.assert_called_once_with(mock.ANY)
 
     def test_select_reprocessing_candidates(self):
         logger = get_logger(PROCESS_UNIT_TEST)
