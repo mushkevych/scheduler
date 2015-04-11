@@ -2,9 +2,9 @@ __author__ = 'Bohdan Mushkevych'
 
 import mock
 import unittest
+from unittest.case import skip
 
 from settings import enable_test_mode
-
 enable_test_mode()
 
 from constants import TOKEN_SITE, TOKEN_CLIENT, PROCESS_SITE_YEARLY, PROCESS_SITE_MONTHLY, \
@@ -79,8 +79,14 @@ class TestTreeNode(unittest.TestCase):
         node_b = node_a.find_counterpart_in(tree_two_level)
         self.assertIsNone(node_b)
 
+    @skip('incomplete test case')
     def test_validate(self):
-        pass
+        # step 0: request Job record if current one is not set
+        self.the_node.job_record = None
+        self.the_node.request_embryo_job_record = mock.Mock()
+        self.the_node.validate()
+        self.the_node.request_embryo_job_record.assert_called_once_with()
+        self.the_node.job_record = None
 
     def test_is_finalizable(self):
         self.job_mock.is_active = True

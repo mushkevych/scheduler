@@ -48,6 +48,7 @@ test_cases = [
     'tests.test_abstract_state_machine',
     'tests.test_state_machine_continuous',
     'tests.test_state_machine_discrete',
+    # 'tests.test_state_machine_simple_discrete',
     'tests.test_publishers_pool',
     'tests.test_garbage_collector',
     'tests.test_system_utils',
@@ -89,6 +90,11 @@ def enable_test_mode():
         bulk_threshold=1024,
     )
     settings.update(test_settings)
+
+    # it is safe to import global settings at this point
+    # since the environment-specific settings has been loaded above
+    from synergy.conf import settings as global_settings
+    global_settings.settings.update(test_settings)
 
     from tests.ut_context import register_processes
     register_processes()
