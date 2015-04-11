@@ -4,6 +4,7 @@ import mock
 import unittest
 
 from settings import enable_test_mode
+
 enable_test_mode()
 
 from constants import TOKEN_SITE, TOKEN_CLIENT, PROCESS_SITE_YEARLY, PROCESS_SITE_MONTHLY, \
@@ -25,8 +26,12 @@ class TestTreeNode(unittest.TestCase):
         self.tree_mock = mock.create_autospec(MultiLevelTree)
         self.parent_node_mock = mock.create_autospec(TreeNode)
         self.job_mock = mock.create_autospec(Job)
+        self.the_node = TreeNode(self.tree_mock, self.parent_node_mock, PROCESS_SITE_HOURLY,
+                                 TEST_PRESET_TIMEPERIOD, self.job_mock)
 
     def tearDown(self):
+        del self.the_node
+        del self.job_mock
         del self.tree_mock
 
     def test_find_counterpart_for(self):
@@ -78,16 +83,36 @@ class TestTreeNode(unittest.TestCase):
         pass
 
     def test_is_finalizable(self):
-        self.job_mock.is_active = mock.Mock(return_value=True)
-        the_node = TreeNode(self.tree_mock, self.parent_node_mock, PROCESS_SITE_HOURLY,
-                            TEST_PRESET_TIMEPERIOD, self.job_mock)
+        self.job_mock.is_active = True
 
         composite_state = NodesCompositeState()
-        the_node.dependent_on_composite_state = mock.Mock(return_value=composite_state)
-        the_node.request_embryo_job_record = mock.Mock()
-        the_node.children = dict()
+        composite_state.all_finished = True
+        self.the_node.dependent_on_composite_state = mock.Mock(return_value=composite_state)
+        self.the_node.request_embryo_job_record = mock.Mock()
+        for _index in range(10):
+            mock_job = mock.create_autospec(Job)
+            mock_job.is_finished = True
+            child_mock = mock.create_autospec(TreeNode)
+            child_mock.job_record = mock.create_autospec(Job)
+            child_mock.job_record.is_active = True
+            self.the_node.children[_index] = child_mock
 
-        self.assertTrue(the_node.is_finalizable())
+        # happy-flow
+        self.assertTrue(self.the_node.is_finalizable())
+
+        # the job record of the node is still active
+        self.the_node.job_record.is_active = False
+        self.assertFalse(self.the_node.is_finalizable())
+
+        # at least one of dependent nodes is not finished
+        self.the_node.job_record.is_active = True
+        composite_state.all_finished = False
+        self.assertFalse(self.the_node.is_finalizable())
+
+        # at least one child is still active
+        composite_state.all_finished = True
+        self.the_node.children[0].job_record.is_finished = False
+        self.assertFalse(self.the_node.is_finalizable())
 
 
 if __name__ == '__main__':

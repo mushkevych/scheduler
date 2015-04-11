@@ -28,19 +28,19 @@ class AbstractSMUnitTest(unittest.TestCase):
 
     def test_insert_and_publish_uow(self):
         """ method tests happy-flow for insert_and_publish_uow method """
-        self.sm_real._insert_uow = then_return_uow
+        self.sm_real._insert_uow = lambda *args: then_return_uow(*args)[0]
         self.sm_real._publish_uow = mock.MagicMock(return_value=True)
 
         uow, is_duplicate = self.sm_real.insert_and_publish_uow(PROCESS_SITE_HOURLY,
                                                                 TEST_PRESET_TIMEPERIOD,
                                                                 None, 0, 1)
-        manual_uow = then_return_uow(PROCESS_SITE_HOURLY, TEST_PRESET_TIMEPERIOD, None, 0, 1)
+        manual_uow = then_return_uow(PROCESS_SITE_HOURLY, TEST_PRESET_TIMEPERIOD, None, 0, 1)[0]
         self.assertFalse(is_duplicate)
         self.assertDictEqual(uow.document, manual_uow.document)
 
     def test_unhandled_exception_iapu(self):
         """ method tests unhandled UserWarning exception at insert_and_publish_uow method """
-        self.sm_real._insert_uow = then_raise_dpk
+        self.sm_real._insert_uow = then_raise_uw
         self.sm_real._publish_uow = mock.MagicMock(return_value=True)
 
         try:
@@ -51,7 +51,7 @@ class AbstractSMUnitTest(unittest.TestCase):
 
     def test_handled_exception_iapu(self):
         """ method tests handled UserWarning exception at insert_and_publish_uow method """
-        manual_uow = then_return_uow(PROCESS_SITE_HOURLY, TEST_PRESET_TIMEPERIOD, None, 0, 1)
+        manual_uow = then_return_uow(PROCESS_SITE_HOURLY, TEST_PRESET_TIMEPERIOD, None, 0, 1)[0]
 
         self.sm_real._insert_uow = then_raise_dpk
         self.sm_real._publish_uow = mock.MagicMock(return_value=True)
