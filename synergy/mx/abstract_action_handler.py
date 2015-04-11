@@ -35,14 +35,14 @@ class AbstractActionHandler(BaseRequestHandler):
     @valid_action_request
     def action_trigger_now(self):
         self.thread_handler.trigger()
-        return {'status': 'OK'}
+        return self.reply_ok()
 
     @valid_action_request
     def action_activate_trigger(self):
         self.thread_handler.activate()
-        return {'status': 'OK'}
+        return self.reply_ok()
 
     @valid_action_request
     def action_deactivate_trigger(self):
         self.thread_handler.deactivate()
-        return {'status': 'OK'}
+        return self.reply_ok()

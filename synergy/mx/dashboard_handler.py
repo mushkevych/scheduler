@@ -36,8 +36,7 @@ class DashboardHandler(BaseRequestHandler):
         start_timeperiod = time_helper.increment_timeperiod(QUALIFIER_DAILY, actual_timeperiod, -delta)
 
         selection = processor.retrieve_records(start_timeperiod, self.unprocessed_only)
-        resp = OrderedDict(sorted(selection.items()))
-        return resp
+        return OrderedDict(sorted(selection.items()))
 
     @cached_property
     @valid_action_request
@@ -48,8 +47,7 @@ class DashboardHandler(BaseRequestHandler):
         start_timeperiod = time_helper.increment_timeperiod(QUALIFIER_DAILY, actual_timeperiod, -delta)
 
         selection = processor.retrieve_records(start_timeperiod, self.unprocessed_only)
-        resp = OrderedDict(sorted(selection.items()))
-        return resp
+        return OrderedDict(sorted(selection.items()))
 
 
 class ManagedStatements(object):
