@@ -2,7 +2,6 @@ __author__ = 'Bohdan Mushkevych'
 
 import mock
 import unittest
-from unittest.case import skip
 
 from settings import enable_test_mode
 enable_test_mode()
@@ -17,6 +16,13 @@ from synergy.system.time_qualifier import *
 from tests.state_machine_testing_utils import TEST_PRESET_TIMEPERIOD
 
 
+def request_embryo_job_record(the_node, the_mock, is_finished):
+    def the_function():
+        the_node.job_record = the_mock
+        the_node.job_record.is_finished = is_finished
+    return the_function
+
+
 class TestTreeNode(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
@@ -24,10 +30,12 @@ class TestTreeNode(unittest.TestCase):
 
     def setUp(self):
         self.tree_mock = mock.create_autospec(MultiLevelTree)
+        self.tree_mock.build_timeperiod = TEST_PRESET_TIMEPERIOD
         self.parent_node_mock = mock.create_autospec(TreeNode)
         self.job_mock = mock.create_autospec(Job)
         self.the_node = TreeNode(self.tree_mock, self.parent_node_mock, PROCESS_SITE_HOURLY,
                                  TEST_PRESET_TIMEPERIOD, self.job_mock)
+        self.parent_node_mock.children = {TEST_PRESET_TIMEPERIOD: self.the_node}
 
     def tearDown(self):
         del self.the_node
@@ -79,14 +87,65 @@ class TestTreeNode(unittest.TestCase):
         node_b = node_a.find_counterpart_in(tree_two_level)
         self.assertIsNone(node_b)
 
-    @skip('incomplete test case')
-    def test_validate(self):
+    def test_validate_1(self):
+        """
+        test coverage:
+        - request_embryo_job_record
+        - request_reprocess
+        - validate for all children
+        """
+        for _index in range(10):
+            mock_job = mock.create_autospec(Job)
+            mock_job.is_finished = True
+            child_mock = mock.create_autospec(TreeNode)
+            child_mock.job_record = mock.create_autospec(Job)
+            child_mock.job_record.is_active = True
+            self.the_node.children[_index] = child_mock
+
         # step 0: request Job record if current one is not set
         self.the_node.job_record = None
+        self.the_node.request_reprocess = mock.Mock()
+        self.the_node.request_skip = mock.Mock()
+        self.the_node.request_embryo_job_record = mock.Mock(
+            side_effect=request_embryo_job_record(self.the_node, self.job_mock, True))
+        self.the_node.validate()
+
+        # assertions:
+        self.the_node.request_embryo_job_record.assert_called_once_with()
+        self.the_node.request_reprocess.assert_called_once_with()
+        self.assertEqual(len(self.the_node.request_skip.call_args_list), 0)
+
+        for _, child in self.the_node.children.items():
+            child.validate.assert_called_once_with()
+
+    def test_validate_2(self):
+        """
+        test coverage:
+        - request_skip
+        """
+        next_timeperiod = time_helper.increment_timeperiod(self.the_node.time_qualifier, TEST_PRESET_TIMEPERIOD)
+        self.parent_node_mock.children[next_timeperiod] = mock.create_autospec(TreeNode)
+
+        for _index in range(10):
+            mock_job = mock.create_autospec(Job)
+            mock_job.is_finished = True
+            child_mock = mock.create_autospec(TreeNode)
+            child_mock.job_record = mock.create_autospec(Job)
+            child_mock.job_record.is_active = False
+            child_mock.job_record.is_skipped = True
+            self.the_node.children[_index] = child_mock
+
+        # step 4: verify if this node should be transferred to STATE_SKIPPED
+        self.the_node.job_record.is_skipped = False
+        self.the_node.request_reprocess = mock.Mock()
+        self.the_node.request_skip = mock.Mock()
         self.the_node.request_embryo_job_record = mock.Mock()
         self.the_node.validate()
-        self.the_node.request_embryo_job_record.assert_called_once_with()
-        self.the_node.job_record = None
+
+        # assertions:
+        self.assertEqual(len(self.the_node.request_embryo_job_record.call_args_list), 0)
+        self.assertEqual(len(self.the_node.request_reprocess.call_args_list), 0)
+        self.the_node.request_skip.assert_called_once_with()
 
     def test_is_finalizable(self):
         self.job_mock.is_active = True
