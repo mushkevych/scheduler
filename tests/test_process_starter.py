@@ -1,8 +1,8 @@
 __author__ = 'Bohdan Mushkevych'
 
+import mock
 import types
 import unittest
-from unittest import skip
 
 from settings import enable_test_mode
 enable_test_mode()
@@ -69,8 +69,14 @@ class TestProcessStarter(unittest.TestCase):
         if PY3:
             self.assertIsInstance(getattr(m, starter), types.FunctionType)
 
-    @skip('TODO: disable performance_ticker and Flopsy consumer. otherwise Unit Test can not finish')
-    def test_starting_method(self):
+    @mock.patch('synergy.workers.abstract_mq_worker.SimpleTracker')
+    @mock.patch('synergy.workers.abstract_mq_worker.Consumer')
+    def test_starting_method(self, mock_tracker, mock_consumer):
+        """
+        performance_ticker and Flopsy consumer must be mocked
+        otherwise they will instantiate threads
+        and cause Unit Tests to fail to finish
+        """
         from tests.ut_context import PROCESS_CLASS_EXAMPLE
         process_starter.start_by_process_name(PROCESS_CLASS_EXAMPLE, None)
 
