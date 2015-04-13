@@ -9,6 +9,7 @@ from synergy.system.time_qualifier import QUALIFIER_HOURLY
 
 TEST_PRESET_TIMEPERIOD = '2013010122'
 TEST_ACTUAL_TIMEPERIOD = time_helper.actual_timeperiod(QUALIFIER_HOURLY)
+TEST_PAST_TIMEPERIOD = time_helper.increment_timeperiod(QUALIFIER_HOURLY, TEST_ACTUAL_TIMEPERIOD, delta=-1)
 TEST_FUTURE_TIMEPERIOD = time_helper.increment_timeperiod(QUALIFIER_HOURLY, TEST_ACTUAL_TIMEPERIOD)
 
 

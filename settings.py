@@ -48,7 +48,7 @@ test_cases = [
     'tests.test_abstract_state_machine',
     'tests.test_state_machine_continuous',
     'tests.test_state_machine_discrete',
-    # 'tests.test_state_machine_simple_discrete',
+    'tests.test_state_machine_simple_discrete',
     'tests.test_publishers_pool',
     'tests.test_garbage_collector',
     'tests.test_system_utils',
