@@ -42,31 +42,34 @@ function header_tree_tile(mx_tree, tile) {
         + '<li title="Dependent On"><i class="fa-li fa fa-expand"></i>' + formatJSON(mx_tree.dependent_on) + '</li>'
         + '<li title="Dependant Trees"><i class="fa-li fa fa-compress"></i>' + formatJSON(mx_tree.dependant_trees) + '</li>'
         + '</ul>');
+    tile.$el.attr('class', 'tree_header_tile');
 }
 
 
 function header_process_tile(process_entry, tile) {
-    var trigger_button = $('<button>Trigger&nbsp;Now</button>').click(function (e) {
+    var trigger_button = $('<button class="action_button">Trigger&nbsp;Now</button>').click(function (e) {
         var params = { 'process_name': process_entry.process_name, 'timeperiod': 'NA' };
-        $.get('/action_trigger_now/', params, function (response) {
+        $.get('/action/trigger_now/', params, function (response) {
 //        alert("response is " + response);
         });
     });
 
     var is_on;
     if (process_entry.is_on) {
-        is_on = '<a onclick="process_trigger(\'action_deactivate_trigger\', \'' + process_entry.process_name + '\', \'NA\', null, false, false, false)">' +
+        is_on = '<a onclick="process_trigger(\'action/deactivate_trigger\', \'' + process_entry.process_name + '\', \'NA\', null, false, false, false)">' +
         '<i class="fa fa-toggle-on" title="is ON"></i></a>';
     } else {
-        is_on = '<a onclick="process_trigger(\'action_activate_trigger\', \'' + process_entry.process_name + '\', \'NA\', null, false, false, false)">' +
+        is_on = '<a onclick="process_trigger(\'action/activate_trigger\', \'' + process_entry.process_name + '\', \'NA\', null, false, false, false)">' +
         '<i class="fa fa-toggle-off" title="is OFF"></i></a>';
     }
 
     var is_alive;
     if (process_entry.is_alive) {
         is_alive = '<i class="fa fa-toggle-on" title="is ON"></i>';
+        tile.$el.attr('class', 'process_header_tile_on');
     } else {
         is_alive = '<i class="fa fa-toggle-off" title="is OFF"></i>';
+        tile.$el.attr('class', 'process_header_tile_off');
     }
 
     tile.$el.append('<ul class="fa-ul">'
@@ -76,7 +79,7 @@ function header_process_tile(process_entry, tile) {
         + '<li title="Next Timeperiod"><i class="fa-li fa fa-play"></i>' + process_entry.next_timeperiod + '</li>'
         + '<li title="Next Run In"><i class="fa-li fa fa-rocket"></i>' + process_entry.next_run_in + '</li>'
         + '<li title="Reprocessing Queue"><i class="fa-li fa fa-retweet"></i>'
-            + '<div class="dev-tile-content">'+ process_entry.reprocessing_queue + '</div>'
+            + '<div">'+ process_entry.reprocessing_queue + '</div>'
         + '</li>'
         + '</ul>');
 
@@ -103,28 +106,29 @@ function info_process_tile(process_entry, tile) {
             + '<input type="text" size="8" maxlength="32" name="interval" value="' + process_entry.trigger_frequency + '" />'
         + '</li>'
         + '</ul>');
+    tile.$el.attr('class', 'process_info_tile');
 }
 
 
-function info_job_tile(job_entry, tile, is_selected_timeperiod) {
+function info_job_tile(job_entry, tile, is_next_timeperiod) {
     var checkbox_value = "{ process_name: '" + job_entry.process_name + "', timeperiod: '" + job_entry.timeperiod + "' }";
     var checkbox_div = '<input type="checkbox" name="batch_processing" value="' + checkbox_value + '"/>';
 
-    var uow_button = $('<button><i class="fa fa-file-code-o"></i>&nbsp;Uow</button>').click(function (e) {
-        var params = { action: 'action_get_uow', timeperiod: job_entry.timeperiod, process_name: job_entry.process_name };
+    var uow_button = $('<button class="action_button"><i class="fa fa-file-code-o"></i>&nbsp;Uow</button>').click(function (e) {
+        var params = { action: 'action/get_uow', timeperiod: job_entry.timeperiod, process_name: job_entry.process_name };
         var viewer_url = '/object_viewer/?' + $.param(params);
         window.open(viewer_url, 'Object Viewer', 'width=400,height=350,screenX=400,screenY=200,scrollbars=1');
     });
-    var log_button = $('<button><i class="fa fa-th-list"></i>&nbsp;Log</button>').click(function (e) {
-        var params = { action: 'action_get_log', timeperiod: job_entry.timeperiod, process_name: job_entry.process_name };
+    var log_button = $('<button class="action_button"><i class="fa fa-th-list"></i>&nbsp;Log</button>').click(function (e) {
+        var params = { action: 'action/get_log', timeperiod: job_entry.timeperiod, process_name: job_entry.process_name };
         var viewer_url = '/object_viewer/?' + $.param(params);
         window.open(viewer_url, 'Object Viewer', 'width=720,height=480,screenX=400,screenY=200,scrollbars=1');
     });
-    var skip_button = $('<button><i class="fa fa-step-forward"></i>&nbsp;Skip</button>').click(function (e) {
-        process_job('action_reprocess', tile.process_name, tile.timeperiod, true)
+    var skip_button = $('<button class="action_button"><i class="fa fa-step-forward"></i>&nbsp;Skip</button>').click(function (e) {
+        process_job('action/reprocess', tile.process_name, tile.timeperiod, true)
     });
-    var reprocess_button = $('<button><i class="fa fa-repeat"></i>&nbsp;Reprocess</button>').click(function (e) {
-        process_job('action_skip', tile.process_name, tile.timeperiod, true)
+    var reprocess_button = $('<button class="action_button"><i class="fa fa-repeat"></i>&nbsp;Reprocess</button>').click(function (e) {
+        process_job('action/skip', tile.process_name, tile.timeperiod, true)
     });
 
     tile.process_name = job_entry.process_name;
@@ -133,18 +137,19 @@ function info_job_tile(job_entry, tile, is_selected_timeperiod) {
         tile_selected(tile);
     });
 
-    if (is_selected_timeperiod) {
-        tile.$el.attr('class', job_entry.state + ' is_selected_timeperiod');
+    if (is_next_timeperiod) {
+        tile.$el.attr('class', job_entry.state + ' is_next_timeperiod');
     } else {
         tile.$el.attr('class', job_entry.state);
     }
 
-    tile.$el.append($('<div></div>').append(checkbox_div));
-    tile.$el.append('<ul class="fa-ul">'
+    tile.$el.append($('<div class="tile_component"></div>').append(checkbox_div));
+    tile.$el.append($('<div class="tile_component"></div>').append('<ul class="fa-ul">'
         + '<li title="Timeperiod"><i class="fa-li fa fa-clock-o"></i>' + job_entry.timeperiod + '</li>'
         + '<li title="State"><i class="fa-li fa fa-flag-o"></i>' + job_entry.state + '</li>'
         + '<li title="# of fails"><i class="fa-li fa fa-exclamation-triangle"></i>' + job_entry.number_of_failures + '</li>'
-        + '</ul>');
+        + '</ul>'));
+    tile.$el.append('<div class="clear"></div>');
     tile.$el.append($('<div></div>').append(uow_button).append(skip_button));
     tile.$el.append($('<div></div>').append(log_button).append(reprocess_button));
 }
@@ -188,7 +193,7 @@ function build_process_grid(grid_name, tree_obj) {
 }
 
 
-function build_job_grid(grid_name, tree_level, selected_timeperiod, tree_obj) {
+function build_job_grid(grid_name, tree_level, next_timeperiod, tree_obj) {
     var grid = get_grid(grid_name);
     var timeperiods = keys_to_list(tree_level.children, true);
 
@@ -208,7 +213,7 @@ function build_job_grid(grid_name, tree_level, selected_timeperiod, tree_obj) {
         // retrieve job_record
         var info_obj = tree_level.children[timeperiod];
 
-        info_job_tile(info_obj, tile, selected_timeperiod==timeperiod);
+        info_job_tile(info_obj, tile, next_timeperiod==timeperiod);
         return tile;
     };
 

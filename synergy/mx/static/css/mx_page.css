@@ -55,25 +55,45 @@ body {
     position: absolute;
 }
 
-.dev-tile-number, .dev-tile-size {
-    font-size: 36px;
-    padding: 10px;
+.action_button {
+    display:inline-block;
+    width: 110px;
 }
 
-.dev-title-content {
-    font-size: 16px;
+.clear {
+    clear: both;
 }
 
-.dev-tiles-templates ul {
-    margin-bottom: 10px;
+div.tree_header_tile {
+    background-color: lightsalmon;
+}
+
+div.process_header_tile_off {
+    background-color: lightgray;
+}
+
+div.process_header_tile_on {
+    background-color: lightsalmon;
+}
+
+div.process_info_tile {
+    background-color: #ffbb88;
+}
+
+div.tile_component {
+    float: left;
 }
 
 div.is_selected_timeperiod {
-    border: 2px solid darkorange;
+    border: 2px dotted darkorange;
+}
+
+div.is_next_timeperiod {
+    border: 2px solid darkred;
 }
 
 div.state_embryo {
-    background-color: #eff2ff;
+    background-color: #d5f5ff;
 }
 
 div.state_embryo div {
