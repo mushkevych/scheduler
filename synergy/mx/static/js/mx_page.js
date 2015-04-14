@@ -1,17 +1,13 @@
-// The grid manages tiles using ids, which you can define. For our
-// examples we'll just use the tile number as the unique id.
-var TILE_IDS = [
-    1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14,
-    15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26,
-    27, 28, 29, 30, 31
-];
+var GRIDS = {};
 
-var GridHeaderTemplate = [" . "];
+var GRID_HEADER_TEMPLATE = [" . "];
 
 
-// function returns a Tiles.js template for job records
-// template contains tiles_number of tiles
-// each tile has proportion 3x2 (wider than taller)
+/**
+ * function returns a Tiles.js template for job records
+ * template contains tiles_number of tiles
+ * each tile has proportion 3x2 (wider than taller)
+ */
 function grid_info_template(tiles_number) {
     var arr = [];
     for (var i = 0; i < tiles_number; i++) {
@@ -26,6 +22,19 @@ function grid_info_template(tiles_number) {
     return arr;
 }
 
+
+function get_grid(grid_name) {
+    var grid;
+    var el;
+    if (grid_name in GRIDS) {
+        grid = GRIDS[grid_name];
+    } else {
+        el = document.getElementById(grid_name);
+        grid = new Tiles.Grid(el);
+        GRIDS[grid_name] = grid;
+    }
+    return grid;
+}
 
 function header_tree_tile(mx_tree, tile) {
     tile.$el.append('<ul class="fa-ul">'
@@ -142,8 +151,7 @@ function info_job_tile(job_entry, tile, is_selected_timeperiod) {
 
 
 function build_header_grid(grid_name, grid_template, builder_function, info_obj) {
-    var el = document.getElementById(grid_name);
-    var grid = new Tiles.Grid(el);
+    var grid = get_grid(grid_name);
 
     // by default, each tile is an empty div, we'll override creation
     // to add a tile number to each div
@@ -159,8 +167,7 @@ function build_header_grid(grid_name, grid_template, builder_function, info_obj)
 
 
 function build_process_grid(grid_name, tree_obj) {
-    var el = document.getElementById(grid_name);
-    var grid = new Tiles.Grid(el);
+    var grid = get_grid(grid_name);
 
     // by default, each tile is an empty div, we'll override creation
     // to add a tile number to each div
@@ -182,8 +189,7 @@ function build_process_grid(grid_name, tree_obj) {
 
 
 function build_job_grid(grid_name, tree_level, selected_timeperiod, tree_obj) {
-    var el = document.getElementById(grid_name);
-    var grid = new Tiles.Grid(el);
+    var grid = get_grid(grid_name);
     var timeperiods = keys_to_list(tree_level.children, true);
 
     // set the tree for a grid
@@ -214,8 +220,6 @@ function build_job_grid(grid_name, tree_level, selected_timeperiod, tree_obj) {
 
 function grid_post_constructor(grid, template) {
     grid.template = Tiles.Template.fromJSON(template);
-    grid.isDirty = true;
-    grid.resize();
 
     // return the number of columns from original template
     // so that template does not change on the window resize
@@ -224,8 +228,9 @@ function grid_post_constructor(grid, template) {
     };
 
     // adjust number of tiles to match selected template
-    var ids = TILE_IDS.slice(0, grid.template.rects.length);
+    var ids = range(1, grid.template.rects.length);
     grid.updateTiles(ids);
+    grid.resize();
     grid.redraw(true);
 
     // wait until users finishes resizing the browser
@@ -303,9 +308,8 @@ function tile_selected(tile) {
 
         // empty the grid
         var grid_name = 'grid-info-' + i_process_name;
-        var el = document.getElementById(grid_name);
-        var grid = new Tiles.Grid(el);
-        grid.tiles = [];
+        var grid = get_grid(grid_name);
+        grid.removeTiles(range(1, grid.tiles.length));
 
         // reconstruct the grid
         build_job_grid(grid_name, tree_level, process_obj.next_timeperiod, tree_obj);
@@ -328,12 +332,12 @@ function build_trees(mx_trees) {
         var process_number = tree_obj.sorted_process_names.length;
 
         // *** HEADER ***
-        build_header_grid("grid-header-" + tree_obj.tree_name, GridHeaderTemplate, header_tree_tile, tree_obj);
+        build_header_grid("grid-header-" + tree_obj.tree_name, GRID_HEADER_TEMPLATE, header_tree_tile, tree_obj);
 
         for (i = 0; i < process_number; i++) {
             process_name = tree_obj.sorted_process_names[i];
             process_obj = tree_obj.processes[process_name];
-            build_header_grid("grid-header-" + process_name, GridHeaderTemplate, header_process_tile, process_obj);
+            build_header_grid("grid-header-" + process_name, GRID_HEADER_TEMPLATE, header_process_tile, process_obj);
         }
 
         // *** INFO ***

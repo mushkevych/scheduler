@@ -156,3 +156,17 @@ function load_dataset(form_name, flag_name, table_sorting) {
     });
 
 }
+
+/**
+ * creates an array of integers between two numbers, inclusive
+ * @param start first value, inclusive
+ * @param end last value, invclusive
+ * @returns {Array}
+ */
+function range(start, end) {
+    var myArray = [];
+    for (var i = start; i <= end; i += 1) {
+        myArray.push(i);
+    }
+    return myArray;
+}
