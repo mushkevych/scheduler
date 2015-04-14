@@ -363,7 +363,10 @@ function build_trees(mx_trees) {
 
 // main method for the MX PAGE script
 $(document).ready(function () {
-    $.get('/details/trees/', function (response) {
-        build_trees(response);
-    }, 'json');
+    // variable mx_trees is set in mx_page_tiles.html by the templating engine
+    build_trees(mx_trees);
+
+//    $.get('/details/trees/', function (response) {
+//        build_trees(response);
+//    }, 'json');
 });

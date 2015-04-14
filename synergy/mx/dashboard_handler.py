@@ -25,7 +25,10 @@ class DashboardHandler(BaseRequestHandler):
 
         self.time_window = self.request.args.get('time_window')
         self.unprocessed_only = self.request.args.get('unprocessed_only') == 'on'
-        self.is_request_valid = self.time_window
+        if self.time_window:
+            self.is_request_valid = True
+        else:
+            self.is_request_valid = False
 
     @cached_property
     @valid_action_request

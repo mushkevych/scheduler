@@ -36,12 +36,11 @@ class BaseRequestHandler(object):
         self.is_request_valid = False
 
     def reply_ok(self):
-        self.logger.error('Bad request: {0}'.format(self.request))
         return {'status': 'OK'}
 
     def reply_bad_request(self):
         self.logger.error('Bad request: {0}'.format(self.request))
-        return {'status': 'Bad Request'}
+        return {}
 
     def reply_server_error(self, e):
         self.logger.error('MX Processing Exception: {0}'.format(e), exc_info=True)

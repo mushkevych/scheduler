@@ -24,7 +24,7 @@ class TreeDetails(BaseRequestHandler):
         resp = dict()
 
         for tree_name, tree in self.scheduler.timetable.trees.items():
-            if tree.mx_page in self.request.path or tree.mx_page in self.request.referrer:
+            if tree.mx_page in self.request.path:
                 rest_tree = self._get_tree_details(tree_name)
                 resp[tree.tree_name] = rest_tree.document
 
