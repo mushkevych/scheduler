@@ -93,66 +93,51 @@ def action_cancel_uow(request, **values):
 
 @expose('/action/get_uow/')
 def action_get_uow(request, **values):
-    handler, _, _ = preparse_request(request, **values)
+    handler = get_action_handler(request, **values)
     return Response(response=json.dumps(handler.action_get_uow()),
                     mimetype='application/json')
 
 
 @expose('/action/get_log/')
 def action_get_log(request, **values):
-    handler, _, _ = preparse_request(request, **values)
+    handler = get_action_handler(request, **values)
     return Response(response=json.dumps(handler.action_get_log()),
                     mimetype='application/json')
 
 
 @expose('/action/change_interval/')
 def action_change_interval(request, **values):
-    handler, redirect_target, _ = preparse_request(request, **values)
+    handler = get_action_handler(request, **values)
     handler.action_change_interval()
-    return redirect(redirect_target)
-
+    return Response(status=httplib.NO_CONTENT)
 
 @expose('/action/trigger_now/')
 def action_trigger_now(request, **values):
-    handler, redirect_target, is_batch = preparse_request(request, **values)
+    handler = get_action_handler(request, **values)
     handler.action_trigger_now()
-    if not is_batch:
-        return redirect(redirect_target)
-    else:
-        return Response(status=httplib.NO_CONTENT)
+    return Response(status=httplib.NO_CONTENT)
 
 
 @expose('/action/deactivate_trigger/')
 def action_deactivate_trigger(request, **values):
-    handler, redirect_target, is_batch = preparse_request(request, **values)
+    handler = get_action_handler(request, **values)
     handler.action_deactivate_trigger()
-    if not is_batch:
-        return redirect(redirect_target)
-    else:
-        return Response(status=httplib.NO_CONTENT)
+    return Response(status=httplib.NO_CONTENT)
 
 
 @expose('/action/activate_trigger/')
 def action_activate_trigger(request, **values):
-    handler, redirect_target, is_batch = preparse_request(request, **values)
+    handler = get_action_handler(request, **values)
     handler.action_activate_trigger()
-    if not is_batch:
-        return redirect(redirect_target)
-    else:
-        return Response(status=httplib.NO_CONTENT)
+    return Response(status=httplib.NO_CONTENT)
 
 
-def preparse_request(request, **values):
-    is_batch = 'is_batch' in request.args and request.args['is_batch'] in ('True', 'true', '1')
-
+def get_action_handler(request, **values):
     if 'is_freerun' in request.args and request.args['is_freerun'] in ('True', 'true', '1'):
         handler = FreerunActionHandler(request, **values)
-        redirect_target = '/entries/freerun/'
     else:
         handler = ManagedActionHandler(request, **values)
-        redirect_target = '/entries/managed/'
-    return handler, redirect_target, is_batch
-
+    return handler
 
 @expose('/object_viewer/')
 def object_viewer(request, **values):

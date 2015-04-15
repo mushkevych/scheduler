@@ -54,6 +54,7 @@
 <table style="width: 90%" class="one-column-emphasis">
     <thead>
     <tr class="oce-first">
+        <th scope="col">Build Version</th>
         <th scope="col">Resident Memory</th>
         <th scope="col">Virtual Memory</th>
         <th scope="col">% CPU Core Load</th>
@@ -64,6 +65,7 @@
     <tbody>
 
     <tr>
+        <td>{{ get_version() }}</td>
         <td>{{ details.footprint.memory_rss }}</td>
         <td>{{ details.footprint.memory_vms }}</td>
         <td>{{ details.footprint.cpu_utilization }}</td>
@@ -76,7 +78,5 @@
 
 {% import 'block_context_menu.html' as context_menu %}
 {{ context_menu.trigger_menu(false) }}
-
-<script type="text/javascript" src="{{ url_for('static', file='js/scheduler_ui.js') }}"></script>
 
 {% endblock %}

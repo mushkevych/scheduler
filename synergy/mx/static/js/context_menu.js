@@ -134,7 +134,7 @@ function process_job(action, process_name, timeperiod, show_confirmation_dialog)
 }
 
 // function applies given "action" to the SchedulerThreadHandler entry
-function process_trigger(action, process_name, timeperiod, entry_name, is_freerun, is_batch, show_confirmation_dialog) {
+function process_trigger(action, process_name, timeperiod, entry_name, is_freerun, reload_afterwards, show_confirmation_dialog) {
     if (show_confirmation_dialog) {
         var msg = 'You are about to ' + action + ' ' + timeperiod + ' for ' + process_name;
         if (!confirm(msg)) {
@@ -144,12 +144,16 @@ function process_trigger(action, process_name, timeperiod, entry_name, is_freeru
 
     var params;
     if (is_freerun) {
-        params = { 'process_name': process_name, 'entry_name': entry_name, 'is_freerun': is_freerun, 'is_batch': is_batch };
+        params = { 'process_name': process_name, 'entry_name': entry_name, 'is_freerun': is_freerun};
     } else {
-        params = { 'process_name': process_name, 'timeperiod': timeperiod, 'is_freerun': is_freerun, 'is_batch': is_batch };
+        params = { 'process_name': process_name, 'timeperiod': timeperiod, 'is_freerun': is_freerun};
     }
 
     $.get('/' + action + '/', params, function (response) {
 //        alert("response is " + response);
     });
+
+    if (reload_afterwards) {
+        location.reload(true);
+    }
 }
