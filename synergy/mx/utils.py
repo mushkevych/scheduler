@@ -60,11 +60,17 @@ def get_version():
     return settings.settings['version']
 
 
+def get_uptime():
+    time_diff = datetime.utcnow() - settings.settings['process_start_time']
+    return str(time_diff)
+
+
 jinja_env = Environment(loader=FileSystemLoader(TEMPLATE_PATH), autoescape=True)
 jinja_env.globals['url_for'] = url_for
 jinja_env.globals['local'] = local
 jinja_env.globals['get_current_time'] = get_current_time
 jinja_env.globals['get_version'] = get_version
+jinja_env.globals['get_uptime'] = get_uptime()
 jinja_env.globals['mx_processing_context'] = mx_page_context
 jinja_env.globals['synergy_process_context'] = context.process_context
 jinja_env.filters['jsonify'] = json.dumps

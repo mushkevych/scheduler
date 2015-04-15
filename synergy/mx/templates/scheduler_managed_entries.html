@@ -55,6 +55,7 @@
     <thead>
     <tr class="oce-first">
         <th scope="col">Build Version</th>
+        <th scope="col">Uptime</th>
         <th scope="col">Resident Memory</th>
         <th scope="col">Virtual Memory</th>
         <th scope="col">% CPU Core Load</th>
@@ -66,6 +67,7 @@
 
     <tr>
         <td>{{ get_version() }}</td>
+        <td>{{ get_uptime() }}</td>
         <td>{{ details.footprint.memory_rss }}</td>
         <td>{{ details.footprint.memory_vms }}</td>
         <td>{{ details.footprint.cpu_utilization }}</td>
