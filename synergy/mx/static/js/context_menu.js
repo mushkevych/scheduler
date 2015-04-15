@@ -150,10 +150,9 @@ function process_trigger(action, process_name, timeperiod, entry_name, is_freeru
     }
 
     $.get('/' + action + '/', params, function (response) {
-//        alert("response is " + response);
+        // once the response arrives - reload the page
+        if (reload_afterwards) {
+            location.reload(true);
+        }
     });
-
-    if (reload_afterwards) {
-        location.reload(true);
-    }
 }

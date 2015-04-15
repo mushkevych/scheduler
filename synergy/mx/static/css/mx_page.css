@@ -11,7 +11,7 @@ body {
 
 .grid-header {
     width: 15%;
-    height: 170px;
+    height: 200px;
     position: relative;
     overflow-x: hidden;
     overflow-y: hidden;
@@ -56,12 +56,20 @@ body {
 }
 
 .action_button {
-    display:inline-block;
+    display: inline-block;
     width: 110px;
 }
 
+.action_button_li {
+    display: inline-block;
+    width: 110px;
+    position: absolute;
+    left: 0.56em;
+}
+
 .action_toogle:hover {
-    color: deepskyblue;
+    font-weight: bold;
+    color: blueviolet;
 }
 
 .clear {
@@ -78,6 +86,10 @@ div.process_header_tile_off {
 
 div.process_header_tile_on {
     background-color: lightsalmon;
+}
+
+div.process_header_tile_off .fa-ul, div.process_header_tile_on .fa-ul {
+    margin-bottom: 2px;
 }
 
 div.process_info_tile {

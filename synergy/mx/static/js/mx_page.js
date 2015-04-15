@@ -47,7 +47,7 @@ function header_tree_tile(mx_tree, tile) {
 
 
 function header_process_tile(process_entry, tile) {
-    var trigger_button = $('<button class="action_button">Trigger&nbsp;Now</button>').click(function (e) {
+    var trigger_button = $('<button class="action_button"><i class="fa fa-paper-plane-o"></i>&nbsp;Trigger</button>').click(function (e) {
         var params = { 'process_name': process_entry.process_name, 'timeperiod': 'NA' };
         $.get('/action/trigger_now/', params, function (response) {
 //        alert("response is " + response);
@@ -79,11 +79,13 @@ function header_process_tile(process_entry, tile) {
         + '<li title="Next Timeperiod"><i class="fa-li fa fa-play"></i>' + process_entry.next_timeperiod + '</li>'
         + '<li title="Next Run In"><i class="fa-li fa fa-rocket"></i>' + process_entry.next_run_in + '</li>'
         + '<li title="Reprocessing Queue"><i class="fa-li fa fa-retweet"></i>'
-            + '<div">'+ process_entry.reprocessing_queue + '</div>'
+            + '<textarea class="reprocessing_queues" rows="2" cols="26" readonly>'
+            + process_entry.reprocessing_queue
+            + '</textarea>'
         + '</li>'
         + '</ul>');
 
-    tile.$el.append($('<div></div>').append(trigger_button));
+    tile.$el.append($('<div class="action_button_li"></div>').append(trigger_button));
 }
 
 
@@ -110,7 +112,7 @@ function info_process_tile(process_entry, tile) {
 }
 
 
-function info_job_tile(job_entry, tile, is_next_timeperiod) {
+function info_job_tile(job_entry, tile, is_next_timeperiod, is_selected_timeperiod) {
     var checkbox_value = "{ process_name: '" + job_entry.process_name + "', timeperiod: '" + job_entry.timeperiod + "' }";
     var checkbox_div = '<input type="checkbox" name="batch_processing" value="' + checkbox_value + '"/>';
 
@@ -141,6 +143,10 @@ function info_job_tile(job_entry, tile, is_next_timeperiod) {
         tile.$el.attr('class', job_entry.state + ' is_next_timeperiod');
     } else {
         tile.$el.attr('class', job_entry.state);
+    }
+
+    if (is_selected_timeperiod) {
+        tile.$el.attr('class', job_entry.state + ' is_selected_timeperiod');
     }
 
     tile.$el.append($('<div class="tile_component"></div>').append(checkbox_div));
@@ -193,7 +199,7 @@ function build_process_grid(grid_name, tree_obj) {
 }
 
 
-function build_job_grid(grid_name, tree_level, next_timeperiod, tree_obj) {
+function build_job_grid(grid_name, tree_level, next_timeperiod, selected_timeperiod, tree_obj) {
     var grid = get_grid(grid_name);
     var timeperiods = keys_to_list(tree_level.children, true);
 
@@ -213,7 +219,7 @@ function build_job_grid(grid_name, tree_level, next_timeperiod, tree_obj) {
         // retrieve job_record
         var info_obj = tree_level.children[timeperiod];
 
-        info_job_tile(info_obj, tile, next_timeperiod==timeperiod);
+        info_job_tile(info_obj, tile, next_timeperiod==timeperiod, selected_timeperiod==timeperiod);
         return tile;
     };
 
@@ -292,6 +298,7 @@ function tile_selected(tile) {
     var higher_next_timeperiod = tile.timeperiod;
     var higher_process_name = tile.process_name;
     var is_beyond_cut_off = false;
+    var selected_timeperiod = undefined;
 
     for (i = 0; i < process_number; i++) {
         var i_process_name = tree_obj.sorted_process_names[i];
@@ -309,7 +316,12 @@ function tile_selected(tile) {
         var process_obj = tree_obj.processes[i_process_name];
 
         higher_process_name = i_process_name;
-        higher_next_timeperiod = process_obj.next_timeperiod;
+        if (process_obj.next_timeperiod in tree_level.children) {
+            higher_next_timeperiod = process_obj.next_timeperiod;
+        } else {
+            selected_timeperiod = Math.max.apply(Math, keys_to_list(tree_level.children, true));
+            higher_next_timeperiod = selected_timeperiod;
+        }
 
         // empty the grid
         var grid_name = 'grid-info-' + i_process_name;
@@ -317,7 +329,7 @@ function tile_selected(tile) {
         grid.removeTiles(range(1, grid.tiles.length));
 
         // reconstruct the grid
-        build_job_grid(grid_name, tree_level, process_obj.next_timeperiod, tree_obj);
+        build_job_grid(grid_name, tree_level, process_obj.next_timeperiod, selected_timeperiod, tree_obj);
     }
 }
 
@@ -364,7 +376,7 @@ function build_trees(mx_trees) {
             higher_process_name = process_name;
             higher_next_timeperiod = process_obj.next_timeperiod;
 
-            build_job_grid("grid-info-" + process_name, tree_level, process_obj.next_timeperiod, tree_obj);
+            build_job_grid("grid-info-" + process_name, tree_level, process_obj.next_timeperiod, undefined, tree_obj);
         }
     }
 }
