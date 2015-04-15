@@ -57,10 +57,10 @@ function header_process_tile(process_entry, tile) {
     var is_on;
     if (process_entry.is_on) {
         is_on = '<a onclick="process_trigger(\'action/deactivate_trigger\', \'' + process_entry.process_name + '\', \'NA\', null, false, true, false)">' +
-        '<i class="fa fa-toggle-on" title="is ON"></i></a>';
+        '<i class="fa fa-toggle-on action_toogle" title="is ON"></i></a>';
     } else {
         is_on = '<a onclick="process_trigger(\'action/activate_trigger\', \'' + process_entry.process_name + '\', \'NA\', null, false, true, false)">' +
-        '<i class="fa fa-toggle-off" title="is OFF"></i></a>';
+        '<i class="fa fa-toggle-off action_toogle" title="is OFF"></i></a>';
     }
 
     var is_alive;

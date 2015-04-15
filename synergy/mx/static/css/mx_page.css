@@ -60,6 +60,10 @@ body {
     width: 110px;
 }
 
+.action_toogle:hover {
+    color: deepskyblue;
+}
+
 .clear {
     clear: both;
 }
