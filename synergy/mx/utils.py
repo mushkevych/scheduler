@@ -52,25 +52,20 @@ def render_template(template, **context):
                     mimetype='text/html')
 
 
-def get_current_time():
-    return datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S %Z')
-
-
-def get_version():
-    return settings.settings['version']
-
-
-def get_uptime():
+def scheduler_uptime():
     time_diff = datetime.utcnow() - settings.settings['process_start_time']
-    return str(time_diff)
+    d = {"days": time_diff.days}
+    d["hours"], rem = divmod(time_diff.seconds, 3600)
+    d["minutes"], d["seconds"] = divmod(rem, 60)
+    return '{days:02d} days {hours:02d}:{minutes:02d}'.format(**d)
 
 
 jinja_env = Environment(loader=FileSystemLoader(TEMPLATE_PATH), autoescape=True)
 jinja_env.globals['url_for'] = url_for
 jinja_env.globals['local'] = local
-jinja_env.globals['get_current_time'] = get_current_time
-jinja_env.globals['get_version'] = get_version
-jinja_env.globals['get_uptime'] = get_uptime()
+jinja_env.globals['get_current_time'] = lambda: datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S %Z')
+jinja_env.globals['scheduler_version'] = lambda: settings.settings['version']
+jinja_env.globals['scheduler_uptime'] = scheduler_uptime
 jinja_env.globals['mx_processing_context'] = mx_page_context
 jinja_env.globals['synergy_process_context'] = context.process_context
 jinja_env.filters['jsonify'] = json.dumps
