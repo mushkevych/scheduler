@@ -15,7 +15,7 @@ PROCESS_CLIENT_MONTHLY = 'ClientMonthlyAggregator'
 PROCESS_CLIENT_YEARLY = 'ClientYearlyAggregator'
 PROCESS_ALERT_DAILY = 'AlertDailyWorker'
 
-# List of MX_PAGE_XXX, which are rendered by :mx.views.processing_details function
+# List of MX_PAGE_XXX, which are rendered by :mx.views.mx_page_tiles function
 MX_PAGE_TRAFFIC = 'traffic_details'
 MX_PAGE_ALERT = 'alert_details'
 

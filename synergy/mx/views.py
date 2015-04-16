@@ -150,11 +150,6 @@ def mx_page_tiles(request, **values):
     return render_template('mx_page_tiles.html', details=details.mx_page_entries)
 
 
-# referenced from mx.utils.py module
-def processing_details(request, **values):
-    return render_template('processing_details.html')
-
-
 # referenced from mx.synergy_mx.py module
 def not_found(request, **values):
     return render_template('not_found.html')

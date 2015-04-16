@@ -1,0 +1,53 @@
+/*
+ * Right-mouse menu for Job records in the data tables
+ */
+.context_menu_show {
+    z-index: 1000;
+    position: absolute;
+    background-color: #333333;
+    border: 1px solid #ababaa;
+    border-radius: 3px;
+    padding: 1px;
+    display: block;
+    margin: 0;
+    list-style: none;
+    color: #ffffff;
+    font-weight: 100;
+}
+
+.context_menu_show ul {
+    margin: 0;
+    padding: 0 0 0 5px;
+}
+
+.context_menu_hide {
+    display: none;
+}
+
+.context_menu_show li {
+    list-style: none;
+    margin: 5px 0;
+}
+
+.context_menu_show li a {
+    font-weight: 400;
+    font-size: 12px;
+    text-shadow: 2px 2px #3b3b3b;
+    cursor: pointer;
+}
+
+.context_menu_show li a:hover {
+    color: #aaaaaa;
+}
+
+.context_menu_show a {
+    border: 0 !important;
+    text-decoration: none;
+    padding: 0 2em 0 0;
+    font-size: 0.85em;
+    font-weight: bold;
+}
+
+.context_menu_show a:hover {
+    text-decoration: underline !important;
+}
