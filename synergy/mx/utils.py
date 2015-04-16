@@ -54,9 +54,9 @@ def render_template(template, **context):
 
 def scheduler_uptime():
     time_diff = datetime.utcnow() - settings.settings['process_start_time']
-    d = {"days": time_diff.days}
-    d["hours"], rem = divmod(time_diff.seconds, 3600)
-    d["minutes"], d["seconds"] = divmod(rem, 60)
+    d = {'days': time_diff.days}
+    d['hours'], rem = divmod(time_diff.seconds, 3600)
+    d['minutes'], d['seconds'] = divmod(rem, 60)
     return '{days:02d} days {hours:02d}:{minutes:02d}'.format(**d)
 
 
