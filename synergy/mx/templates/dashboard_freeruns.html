@@ -1,14 +1,8 @@
 {% extends 'main_header.html' %}
 {% block body %}
 
-<form data-form_initial_load="{{ 'true' if details.is_request_valid else 'false' }}" style="text-align: center" method="get" id="form_time_window">
-    <label><input type="radio" name="time_window" id="days_1" value="days_1" checked/>Today</label>
-    <label><input type="radio" name="time_window" id="days_7" value="days_7"/>Last 7 Days</label>
-    <label><input type="radio" name="time_window" id="days_30" value="days_30"/>Last 30 Days</label>
-    <br/>
-    <label><input type="checkbox" name="unprocessed_only" id="unprocessed_only" checked="true"/>Unprocessed only</label>
-    <input type="submit" value="List"/> <br/>
-</form>
+{% import 'block_time_window_selector.html' as block_time_window %}
+{{ block_time_window.time_window_selector(details, 3) }}
 
 <div><table style="width: 90%" class="one-column-emphasis synergy_datatable" id="dashboard_table">
     <thead>
@@ -32,7 +26,7 @@
             {% set url = 'action=action/get_uow' + '&process_name=' + uow_entry.process_name + '&entry_name=' + uow_entry.entry_name + '&is_freerun=True' %}
             <form method="GET" onsubmit="window.open('/object_viewer/?{{ url }}','Get Uow',
                     'toolbar=no,scrollbars=yes,resizable=yes,top=250,left=250,width=400,height=350'); return false;">
-                <input type="submit" value="Get Uow"/>
+                <input class="action_button" type="submit" value="Get Uow"/>
             </form>
         </td>
     </tr>
@@ -40,11 +34,5 @@
 
     </tbody>
 </table></div>
-
-<script type="text/javascript">
-    $(document).ready(function () {
-        load_dataset('#form_time_window', 'form_initial_load', [ [ 1, "asc" ], [ 2, "asc" ], [ 3, "asc" ] ]);
-    });
-</script>
 
 {% endblock %}

@@ -60,6 +60,7 @@ def scheduler_uptime():
 
 
 jinja_env = Environment(loader=FileSystemLoader(TEMPLATE_PATH), autoescape=True)
+jinja_env.add_extension('jinja2.ext.do')
 jinja_env.globals['url_for'] = url_for
 jinja_env.globals['local'] = local
 jinja_env.globals['get_current_time'] = lambda: datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S %Z')

@@ -3,7 +3,6 @@ __author__ = 'Bohdan Mushkevych'
 import json
 import httplib
 
-from werkzeug.utils import redirect
 from werkzeug.wrappers import Response
 
 from synergy.mx.freerun_action_handler import FreerunActionHandler

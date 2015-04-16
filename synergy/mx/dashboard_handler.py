@@ -24,7 +24,7 @@ class DashboardHandler(BaseRequestHandler):
         super(DashboardHandler, self).__init__(request, **values)
 
         self.time_window = self.request.args.get('time_window')
-        self.unprocessed_only = self.request.args.get('unprocessed_only') == 'on'
+        self.is_unprocessed_only = self.request.args.get('unprocessed_only') == 'on'
         if self.time_window:
             self.is_request_valid = True
         else:
@@ -38,7 +38,7 @@ class DashboardHandler(BaseRequestHandler):
         delta = int(self.time_window[len(TIME_WINDOW_DAY_PREFIX) + 1:])
         start_timeperiod = time_helper.increment_timeperiod(QUALIFIER_DAILY, actual_timeperiod, -delta)
 
-        selection = processor.retrieve_records(start_timeperiod, self.unprocessed_only)
+        selection = processor.retrieve_records(start_timeperiod, self.is_unprocessed_only)
         return OrderedDict(sorted(selection.items()))
 
     @cached_property
@@ -49,7 +49,7 @@ class DashboardHandler(BaseRequestHandler):
         delta = int(self.time_window[len(TIME_WINDOW_DAY_PREFIX) + 1:])
         start_timeperiod = time_helper.increment_timeperiod(QUALIFIER_DAILY, actual_timeperiod, -delta)
 
-        selection = processor.retrieve_records(start_timeperiod, self.unprocessed_only)
+        selection = processor.retrieve_records(start_timeperiod, self.is_unprocessed_only)
         return OrderedDict(sorted(selection.items()))
 
 
@@ -60,17 +60,17 @@ class ManagedStatements(object):
         self.job_dao = JobDao(self.logger)
 
     @thread_safe
-    def retrieve_records(self, timeperiod, unprocessed_only):
+    def retrieve_records(self, timeperiod, is_unprocessed_only):
         """ method looks for suitable job records in all Job collections and returns them as a dict"""
         resp = dict()
-        resp.update(self._search_by_level(COLLECTION_JOB_HOURLY, timeperiod, unprocessed_only))
-        resp.update(self._search_by_level(COLLECTION_JOB_DAILY, timeperiod, unprocessed_only))
+        resp.update(self._search_by_level(COLLECTION_JOB_HOURLY, timeperiod, is_unprocessed_only))
+        resp.update(self._search_by_level(COLLECTION_JOB_DAILY, timeperiod, is_unprocessed_only))
 
         timeperiod = time_helper.cast_to_time_qualifier(QUALIFIER_MONTHLY, timeperiod)
-        resp.update(self._search_by_level(COLLECTION_JOB_MONTHLY, timeperiod, unprocessed_only))
+        resp.update(self._search_by_level(COLLECTION_JOB_MONTHLY, timeperiod, is_unprocessed_only))
 
         timeperiod = time_helper.cast_to_time_qualifier(QUALIFIER_YEARLY, timeperiod)
-        resp.update(self._search_by_level(COLLECTION_JOB_YEARLY, timeperiod, unprocessed_only))
+        resp.update(self._search_by_level(COLLECTION_JOB_YEARLY, timeperiod, is_unprocessed_only))
         return resp
 
     @thread_safe
