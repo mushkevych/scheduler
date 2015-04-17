@@ -25,7 +25,7 @@ def get_process_pid(process_name):
 def kill_process(process_name):
     """ method is called to kill a running process """
     try:
-        sys.stdout.write('killing: {0} { \n'.format(process_name))
+        sys.stdout.write('killing: {0} {{ \n'.format(process_name))
         pid = get_process_pid(process_name)
         if pid is not None and psutil.pid_exists(int(pid)):
             p = psutil.Process(pid)
@@ -40,7 +40,7 @@ def kill_process(process_name):
 
 def start_process(process_name, *args):
     try:
-        sys.stdout.write('starting: {0} { \n'.format(process_name))
+        sys.stdout.write('starting: {0} {{ \n'.format(process_name))
         cmd = [get_python(), PROJECT_ROOT + '/' + PROCESS_STARTER, process_name]
         if not args:
             # this blocks triggers when args is either None or an empty list

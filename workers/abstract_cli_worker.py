@@ -2,7 +2,7 @@ __author__ = 'Bohdan Mushkevych'
 
 import time
 
-from psutil.error import TimeoutExpired
+from psutil import TimeoutExpired
 from synergy.db.model import unit_of_work
 from synergy.workers.abstract_uow_aware_worker import AbstractUowAwareWorker
 
