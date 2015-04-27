@@ -61,8 +61,7 @@ def freerun_context_entry(process_name,
                           routing=None,
                           process_type=TYPE_FREERUN,
                           pid_file=None,
-                          log_file=None,
-                          run_on_active_timeperiod=False):
+                          log_file=None):
     """ forms process context entry """
     _ROUTING_PREFIX = 'routing_'
     _QUEUE_PREFIX = 'queue_'
@@ -98,6 +97,5 @@ def freerun_context_entry(process_name,
         arguments=arguments,
         process_type=process_type,
         log_filename=log_file,
-        pid_filename=pid_file,
-        run_on_active_timeperiod=run_on_active_timeperiod)
+        pid_filename=pid_file)
     return process_entry

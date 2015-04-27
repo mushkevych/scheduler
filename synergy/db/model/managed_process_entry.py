@@ -9,6 +9,7 @@ from synergy.scheduler.scheduler_constants import BLOCKING_CHILDREN, BLOCKING_DE
 
 PROCESS_NAME = 'process_name'
 IS_ON = 'is_on'
+RUN_ON_ACTIVE_TIMEPERIOD = 'run_on_active_timeperiod'
 TRIGGER_FREQUENCY = 'trigger_frequency'
 STATE_MACHINE_NAME = 'state_machine_name'
 BLOCKING_TYPE = 'blocking_type'
@@ -25,6 +26,7 @@ class ManagedProcessEntry(DaemonProcessEntry):
     time_qualifier = StringField(TIME_QUALIFIER)
     trigger_frequency = StringField(TRIGGER_FREQUENCY)
     is_on = BooleanField(IS_ON, default=False)
+    run_on_active_timeperiod = BooleanField(RUN_ON_ACTIVE_TIMEPERIOD)
     state_machine_name = StringField(STATE_MACHINE_NAME)
     blocking_type = StringField(BLOCKING_TYPE, choices=[BLOCKING_CHILDREN, BLOCKING_DEPENDENCIES, BLOCKING_NORMAL])
 

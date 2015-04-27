@@ -182,7 +182,7 @@ class Scheduler(SynergyProcess):
             self.logger.info('%r {' % (thread_handler_arguments.key, ))
 
             job_record = _fire_worker(thread_handler_arguments.process_entry)
-            while job_record is not None and not job_record.is_finished:
+            while job_record and job_record.is_finished:
                 job_record = _fire_worker(thread_handler_arguments.process_entry)
 
         except (AMQPError, IOError) as e:

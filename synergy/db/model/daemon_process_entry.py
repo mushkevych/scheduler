@@ -1,7 +1,7 @@
 __author__ = 'Bohdan Mushkevych'
 
 from odm.document import BaseDocument
-from odm.fields import StringField, BooleanField, DictField, ListField
+from odm.fields import StringField, DictField, ListField
 
 from synergy.scheduler.scheduler_constants import TYPE_MANAGED, TYPE_FREERUN, TYPE_GARBAGE_COLLECTOR, EXCHANGE_UTILS, \
     TYPE_DAEMON
@@ -18,7 +18,6 @@ PROCESS_TYPE = 'process_type'
 LOG_FILENAME = 'log_filename'
 LOG_TAG = 'log_tag'
 PID_FILENAME = 'pid_filename'
-RUN_ON_ACTIVE_TIMEPERIOD = 'run_on_active_timeperiod'
 PRESENT_ON_BOXES = 'present_on_boxes'     # list of boxes where this process is monitored by the Supervisor
 
 
@@ -33,7 +32,6 @@ class DaemonProcessEntry(BaseDocument):
     mq_routing_key = StringField(MQ_ROUTING_KEY)
     arguments = DictField(ARGUMENTS)
     process_type = StringField(PROCESS_TYPE, choices=[TYPE_MANAGED, TYPE_FREERUN, TYPE_DAEMON, TYPE_GARBAGE_COLLECTOR])
-    run_on_active_timeperiod = BooleanField(RUN_ON_ACTIVE_TIMEPERIOD)
     present_on_boxes = ListField(PRESENT_ON_BOXES)
     pid_filename = StringField(PID_FILENAME)
     log_filename = StringField(LOG_FILENAME)
@@ -58,8 +56,7 @@ def daemon_context_entry(process_name,
                          routing=None,
                          process_type=TYPE_DAEMON,
                          pid_file=None,
-                         log_file=None,
-                         run_on_active_timeperiod=False):
+                         log_file=None):
     """ forms process context entry """
     _ROUTING_PREFIX = 'routing_'
     _QUEUE_PREFIX = 'queue_'
@@ -89,6 +86,5 @@ def daemon_context_entry(process_name,
         arguments=arguments,
         process_type=process_type,
         log_filename=log_file,
-        pid_filename=pid_file,
-        run_on_active_timeperiod=run_on_active_timeperiod)
+        pid_filename=pid_file)
     return process_entry

@@ -1,6 +1,7 @@
 __author__ = 'Bohdan Mushkevych'
 
 from constants import *
+from settings import ENVIRONMENT
 from synergy.system.time_qualifier import *
 from synergy.scheduler.scheduler_constants import *
 from synergy.workers.worker_constants import *
@@ -165,3 +166,10 @@ timetable_context = {
         mx_name=TOKEN_ALERT,
         mx_page=MX_PAGE_ALERT)
 }
+
+# Update current dict with the environment-specific settings
+try:
+    overrides = __import__('context_' + ENVIRONMENT)
+    process_context.update(overrides.process_context)
+except:
+    pass
