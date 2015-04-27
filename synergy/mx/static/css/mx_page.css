@@ -40,7 +40,7 @@ body {
     overflow-x: hidden;
     overflow-y: scroll;
     background-color: #ddd;
-    margin: 10px 0px;
+    margin: 10px 0;
     border: 10px solid #ddd;
     clear: both;
 }
