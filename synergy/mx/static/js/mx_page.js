@@ -97,6 +97,13 @@ function info_process_tile(process_entry, tile) {
         run_on_active_timeperiod = '<i class="fa fa-toggle-off" title="is OFF"></i>';
     }
 
+    var change_interval_form = '<form method="GET" action="/action/change_interval" onsubmit="xmlhttp.send(); return false;">'
+        + '<input type="hidden" name="process_name" value="' + process_entry.process_name + '" />'
+        + '<input type="hidden" name="timeperiod" value="NA" />'
+        + '<input type="text" size="8" maxlength="32" name="interval" value="' + process_entry.trigger_frequency + '" />'
+        + '<input type="submit" title="Apply" class="fa-input" value="&#xf00c;"/>'
+        + '</form>';
+
     tile.process_name = process_entry.process_name;
     tile.$el.append('<ul class="fa-ul">'
         + '<li title="Process Name"><i class="fa-li fa fa-terminal"></i>' + process_entry.process_name + '</li>'
@@ -104,9 +111,7 @@ function info_process_tile(process_entry, tile) {
         + '<li title="State Machine"><i class="fa-li fa fa-puzzle-piece"></i>' + process_entry.state_machine_name + '</li>'
         + '<li title="Blocking type"><i class="fa-li fa fa-anchor"></i>' + process_entry.blocking_type + '</li>'
         + '<li title="Run On Active Timeperiod"><i class="fa-li fa fa-unlock-alt"></i>' + run_on_active_timeperiod + '</li>'
-        + '<li title="Trigger Frequency"><i class="fa-li fa fa-heartbeat"></i>'
-            + '<input type="text" size="8" maxlength="32" name="interval" value="' + process_entry.trigger_frequency + '" />'
-        + '</li>'
+        + '<li title="Trigger Frequency"><i class="fa-li fa fa-heartbeat"></i>' + change_interval_form + '</li>'
         + '</ul>');
     tile.$el.attr('class', 'process_info_tile');
 }
@@ -272,7 +277,8 @@ function tile_selected(tile) {
     // step 1: check if the tile is already selected
     if (tile.$el.attr('class').indexOf('is_selected_timeperiod') > -1) {
         // this tile is already selected
-        return;
+        // yet, we let it proceed as this is analogue to the "refresh"
+        // return;
     }
 
     // step 2: remove is_selected_timeperiod class from all tiles in the given grid

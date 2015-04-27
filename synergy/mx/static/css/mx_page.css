@@ -3,6 +3,10 @@ body {
     font-family: "Lucida Sans Unicode", "Lucida Grande", sans-serif;
 }
 
+.fa-input {
+    font-family: FontAwesome, "Lucida Sans Unicode", "Lucida Grande", sans-serif;
+}
+
 .grid-container {
     width: 95%;
     float: left;
