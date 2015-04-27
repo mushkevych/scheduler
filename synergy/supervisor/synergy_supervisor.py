@@ -9,7 +9,6 @@ from psutil import TimeoutExpired
 
 from launch import get_python, PROJECT_ROOT, PROCESS_STARTER
 from synergy.conf import settings
-from synergy.db.model import box_configuration
 from synergy.db.dao.box_configuration_dao import BoxConfigurationDao, QUERY_PROCESSES_FOR_BOX_ID
 from synergy.supervisor.supervisor_constants import TRIGGER_INTERVAL
 from synergy.supervisor.supervisor_configurator import get_box_id
@@ -119,7 +118,7 @@ class Supervisor(SynergyProcess):
         process_name = args[0]
         try:
             box_config = self.bc_dao.get_one([self.box_id, process_name])
-            if box_config.state == box_configuration.STATE_OFF:
+            if not box_config.is_on:
                 if box_config.pid is not None:
                     self._kill_process(box_config)
                 return
