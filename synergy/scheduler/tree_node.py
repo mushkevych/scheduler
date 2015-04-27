@@ -27,9 +27,9 @@ class NodesCompositeState(object):
         assert isinstance(tree_node, TreeNode)
         if not tree_node.job_record.is_finished:
             self.all_finished = False
-        if tree_node.job_record.is_processed:
+        if not tree_node.job_record.is_processed:
             self.all_processed = False
-        if tree_node.job_record.is_active or tree_node.job_record.is_processed:
+        if not tree_node.job_record.is_active or not tree_node.job_record.is_processed:
             self.all_healthy = False
         if tree_node.job_record.is_skipped:
             self.skipped_present = True
