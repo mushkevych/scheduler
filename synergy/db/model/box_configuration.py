@@ -10,9 +10,7 @@ IS_ON = 'is_on'
 
 
 class BoxConfiguration(BaseDocument):
-    """
-    Class presents list of processes that are supposed to run on particular box.
-    """
+    """ Persistent model: identifies the machine name and the process where it should be executing """
     db_id = ObjectIdField('_id', null=True)
     box_id = StringField(BOX_ID)
     process_name = StringField(PROCESS_NAME)

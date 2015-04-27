@@ -1,6 +1,5 @@
 __author__ = 'Bohdan Mushkevych'
 
-import os
 from threading import Lock
 from subprocess import PIPE
 
@@ -21,7 +20,6 @@ from synergy.system.synergy_process import SynergyProcess
 class Supervisor(SynergyProcess):
     def __init__(self, process_name):
         super(Supervisor, self).__init__(process_name)
-        self.pid = os.getpid()
         self.thread_handlers = dict()
         self.lock = Lock()
         self.box_id = get_box_id(self.logger)
@@ -29,6 +27,7 @@ class Supervisor(SynergyProcess):
         self.logger.info('Started {0} with configuration for BOX_ID={1}'.format(self.process_name, self.box_id))
 
     def __del__(self):
+        self.logger.info('Shutting down Supervisor...')
         for handler in self.thread_handlers:
             handler.cancel()
         self.thread_handlers.clear()
@@ -107,7 +106,7 @@ class Supervisor(SynergyProcess):
                 handler = RepeatTimer(TRIGGER_INTERVAL, self.manage_process, args=[box_config.process_name])
                 self.thread_handlers[box_config.process_name] = handler
                 handler.start()
-                self.logger.info('Started Supervisor for {0}, triggering every {1} seconds'
+                self.logger.info('Started Supervisor Thread for {0}, triggering every {1} seconds'
                                  .format(box_config.process_name, TRIGGER_INTERVAL))
         except LookupError as e:
             self.logger.error('Supervisor failed to start because of: {0}'.format(e))
@@ -125,7 +124,7 @@ class Supervisor(SynergyProcess):
 
             if not box_config.pid or not psutil.pid_exists(box_config.pid):
                 self._start_process(box_config)
-            elif not box_config.pid and psutil.pid_exists(box_config.pid):
+            elif box_config.pid and psutil.pid_exists(box_config.pid):
                 self._poll_process(box_config)
         except Exception as e:
             self.logger.error('Exception: {0}'.format(e), exc_info=True)
