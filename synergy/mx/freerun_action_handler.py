@@ -9,9 +9,6 @@ from synergy.db.dao.freerun_process_dao import FreerunProcessDao
 from synergy.mx.base_request_handler import valid_action_request
 from synergy.mx.abstract_action_handler import AbstractActionHandler
 
-STATE_ON = 'state_on'
-STATE_OFF = 'state_off'
-
 
 class FreerunActionHandler(AbstractActionHandler):
     def __init__(self, request, **values):
@@ -20,11 +17,12 @@ class FreerunActionHandler(AbstractActionHandler):
         self.entry_name = self.request_arguments.get('entry_name')
         self.freerun_process_dao = FreerunProcessDao(self.logger)
         self.uow_dao = UnitOfWorkDao(self.logger)
-        self.is_request_valid = self.process_name and self.entry_name
+        self.is_request_valid = True if self.process_name and self.entry_name else False
 
         if self.is_request_valid:
             self.process_name = self.process_name.strip()
             self.entry_name = self.entry_name.strip()
+            self.is_requested_state_on = 'is_on' in self.request_arguments and self.request_arguments['is_on']
 
     @AbstractActionHandler.thread_handler.getter
     def thread_handler(self):
@@ -76,7 +74,7 @@ class FreerunActionHandler(AbstractActionHandler):
                 process_entry.arguments = {}
 
             process_entry.description = self.request_arguments['description']
-            process_entry.state = self.request_arguments['state']
+            process_entry.is_on = self.is_requested_state_on
             process_entry.trigger_frequency = self.request_arguments['trigger_frequency']
             self.freerun_process_dao.update(process_entry)
 
@@ -84,7 +82,6 @@ class FreerunActionHandler(AbstractActionHandler):
 
         elif 'update_button' in self.request_arguments:
             is_interval_changed = self.process_entry.trigger_frequency != self.request_arguments['trigger_frequency']
-            is_state_changed = self.process_entry.state != self.request_arguments['state']
 
             if self.request_arguments['arguments']:
                 arguments = self.request_arguments['arguments'].decode('unicode-escape')
@@ -93,17 +90,18 @@ class FreerunActionHandler(AbstractActionHandler):
                 self.process_entry.arguments = {}
 
             self.process_entry.description = self.request_arguments['description']
-            self.process_entry.state = self.request_arguments['state']
+            self.process_entry.is_on = self.is_requested_state_on
             self.process_entry.trigger_frequency = self.request_arguments['trigger_frequency']
             self.freerun_process_dao.update(self.process_entry)
 
             if is_interval_changed:
                 self.action_change_interval()
 
-            if is_state_changed and self.request_arguments['state'] == STATE_ON:
-                self.action_activate_trigger()
-            elif is_state_changed and self.request_arguments['state'] == STATE_OFF:
-                self.action_deactivate_trigger()
+            if self.process_entry.is_on != self.is_requested_state_on:
+                if self.is_requested_state_on:
+                    self.action_activate_trigger()
+                else:
+                    self.action_deactivate_trigger()
 
         elif 'delete_button' in self.request_arguments:
             handler_key = (self.process_name, self.entry_name)

@@ -14,7 +14,7 @@ class ManagedActionHandler(AbstractActionHandler):
         self.process_name = self.request_arguments.get('process_name')
         self.timeperiod = self.request_arguments.get('timeperiod')
         self.uow_dao = UnitOfWorkDao(self.logger)
-        self.is_request_valid = self.process_name and self.timeperiod
+        self.is_request_valid = True if self.process_name and self.timeperiod else False
 
         if self.is_request_valid:
             self.process_name = self.process_name.strip()

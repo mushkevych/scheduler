@@ -59,33 +59,28 @@
             <td>Description:</td>
             <td><input type="text" name="description" style="text-align: left"
                        value="{% if handler %}{{ handler.process_entry.description }}{% endif %}"></td>
-            <td>Human-targeted description of the schedulable item</td>
+            <td>Human-readable description of the schedulable item</td>
         </tr>
 
         <tr>
-            <td>State:</td>
-            <td><select name="state" style="width: 236px">
-                <option value="state_on"
-                        {% if handler and handler.process_entry.state == 'state_on' %} selected {% endif %}>
-                    STATE_ON
-                </option>
-                <option value="state_off"
-                        {% if handler and handler.process_entry.state == 'state_off'%} selected {% endif %}>
-                    STATE_OFF
-                </option>
-            </select></td>
-            <td>STATE_ON - active and running, STATE_OFF - deactivated and idle</td>
+            <td>Is Active:</td>
+            <td>
+                <label><input type="checkbox" name="is_on" id="is_on"
+                        {% if handler and handler.process_entry.is_on %} checked {% endif %} /></label>
+            </td>
+            <td>Defines whether the schedulable is active and running OR deactivated and idle</td>
         </tr>
 
         <tr>
             <td>Trigger time:</td>
             <td><input type="text" maxlength="32" name="trigger_frequency" style="text-align: left"
                        value="{%- if handler %}{{ handler.process_entry.trigger_frequency }}{%- endif %}"/></td>
-            <td>Either of:
-                <ul>"every XXX" where XXX stands for seconds; For instance: "every 60"</ul>
-                <ul>"at DoW-HH:MM, ..., DoW-HH:MM" where DoW is numerical Day Of Week (Mon-0, Sun-6, *-every day);
-                For instance: "at 2-15:00" - specifies Wed, 15:00 UTC
-                "at *-12:00, 3-09:09" specifies everyday at 12:00 UTC and Thu at 15:00 UTC</ul>
+            <td>
+                - <strong>every XXX</strong><br/> where XXX stands for seconds;<br/>For instance: "every 60"
+                <br/><br/>
+                - <strong>at DoW-HH:MM, ..., DoW-HH:MM</strong><br/> where DoW is numerical Day Of Week (Mon-0, Sun-6, *-every day);
+                <br/>For instance:<br/>"at 2-15:00" - specifies Wed, 15:00 UTC
+                <br/>"at *-12:00, 3-09:09" specifies everyday at 12:00 UTC and Thu at 15:00 UTC
             </td>
         </tr>
         <tr>

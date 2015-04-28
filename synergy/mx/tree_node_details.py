@@ -15,11 +15,7 @@ class TreeNodeDetails(BaseRequestHandler):
         self.process_name = request.args.get('process_name')
         self.timeperiod = request.args.get('timeperiod')
         self.tree = self.scheduler.timetable.get_tree(self.process_name)
-
-        if self.tree:
-            self.is_request_valid = True
-        else:
-            self.is_request_valid = False
+        self.is_request_valid = True if self.tree else False
 
     @classmethod
     def get_details(cls, node, as_model=False):
