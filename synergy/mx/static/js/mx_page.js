@@ -132,10 +132,10 @@ function info_job_tile(job_entry, tile, is_next_timeperiod, is_selected_timeperi
         window.open(viewer_url, 'Object Viewer', 'width=720,height=480,screenX=400,screenY=200,scrollbars=1');
     });
     var skip_button = $('<button class="action_button"><i class="fa fa-step-forward"></i>&nbsp;Skip</button>').click(function (e) {
-        process_job('action/reprocess', tile.process_name, tile.timeperiod, true)
+        process_job('action/skip', tile.process_name, tile.timeperiod, true)
     });
     var reprocess_button = $('<button class="action_button"><i class="fa fa-repeat"></i>&nbsp;Reprocess</button>').click(function (e) {
-        process_job('action/skip', tile.process_name, tile.timeperiod, true)
+        process_job('action/reprocess', tile.process_name, tile.timeperiod, true)
     });
 
     tile.process_name = job_entry.process_name;
