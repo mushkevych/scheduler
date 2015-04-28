@@ -33,14 +33,14 @@
                 <input type="hidden" name="process_name" value="{{ row.process_name }}" />
                 <input type="hidden" name="timeperiod" value="NA" />
                 <input type="text" size="8" maxlength="32" name="interval" value="{{ row.trigger_frequency }}" />
-                <input type="submit" value="Apply" />
+                <input type="submit" title="Apply" class="fa-input" value="&#xf00c;"/>
             </form>
         </td>
         <td>
             <form method="GET" action="/action/trigger_now/">
                 <input type="hidden" name="process_name" value="{{ row.process_name }}" />
                 <input type="hidden" name="timeperiod" value="NA" />
-                <input type="submit" value="Trigger" />
+                <input type="submit" class="action_button fa-input" title="Trigger" value="&#xf1d9;&nbsp;Trigger"/>
             </form>
         </td>
         <td>{{ row.next_run_in }}</td>

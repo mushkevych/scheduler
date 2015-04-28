@@ -11,7 +11,7 @@
         <th scope="col">Entry Name</th>
         <th scope="col">Time period</th>
         <th scope="col">State</th>
-        <th scope="col">Get Uow</th>
+        <th scope="col">View Uow</th>
     </tr>
     </thead>
     <tbody>
@@ -26,7 +26,7 @@
             {% set url = 'action=action/get_uow' + '&process_name=' + uow_entry.process_name + '&entry_name=' + uow_entry.entry_name + '&is_freerun=True' %}
             <form method="GET" onsubmit="window.open('/object_viewer/?{{ url }}','Get Uow',
                     'toolbar=no,scrollbars=yes,resizable=yes,top=250,left=250,width=400,height=350'); return false;">
-                <input class="action_button" type="submit" value="Get Uow"/>
+                <input type="submit" class="action_button fa-input" title="View Uow" value="&#xf1c9;&nbsp;Uow"/>
             </form>
         </td>
     </tr>

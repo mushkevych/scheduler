@@ -40,7 +40,7 @@
                 <input type="hidden" name="entry_name" value="{{ row.entry_name }}" />
                 <input type="hidden" name="is_freerun" value="True" />
                 <input type="text" size="8" maxlength="32" name="interval" value="{{ row.trigger_frequency }}" />
-                <input type="submit" value="Apply" />
+                <input type="submit" class="fa-input" title="Apply" value="&#xf00c;"/>
             </form>
         </td>
         <td>
@@ -48,7 +48,7 @@
                 <input type="hidden" name="process_name" value="{{ row.process_name }}" />
                 <input type="hidden" name="entry_name" value="{{ row.entry_name }}" />
                 <input type="hidden" name="is_freerun" value="True" />
-                <input type="submit" value="Trigger" />
+                <input type="submit" class="action_button fa-input" title="Trigger" value="&#xf1d9;&nbsp;Trigger"/>
             </form>
         </td>
 
@@ -58,14 +58,14 @@
             {% set url = 'action=action/get_log' + '&process_name=' + row.process_name + '&entry_name=' + row.entry_name + '&is_freerun=True' %}
             <form method="GET" onsubmit="window.open('/object_viewer/?{{ url }}','View Log',
                  'toolbar=no,scrollbars=yes,resizable=yes,top=250,left=250,width=720,height=480'); return false;">
-                <input type="submit" value="View Log"/>
+                <input type="submit" class="action_button fa-input" title="View Log" value="&#xf00b;&nbsp;Log"/>
             </form>
         </td>
         <td>
             {% set url = 'action=action/get_uow' + '&process_name=' + row.process_name + '&entry_name=' + row.entry_name + '&is_freerun=True' %}
             <form method="GET" onsubmit="window.open('/object_viewer/?{{ url }}','Get Uow',
                  'toolbar=no,scrollbars=yes,resizable=yes,top=250,left=250,width=400,height=350'); return false;">
-                <input type="submit" value="Get Uow"/>
+                <input type="submit" class="action_button fa-input" title="View Uow" value="&#xf1c9;&nbsp;Uow"/>
             </form>
         </td>
         <td>
@@ -73,7 +73,7 @@
                 <input type="hidden" name="process_name" value="{{ row.process_name }}" />
                 <input type="hidden" name="entry_name" value="{{ row.entry_name }}" />
                 <input type="hidden" name="is_freerun" value="True" />
-                <input type="submit" value="Cancel Uow" />
+                <input type="submit" class="action_button fa-input" title="Cancel Uow" value="&#xf00d;&nbsp;Cancel"/>
             </form>
         </td>
         <td>
@@ -82,7 +82,7 @@
             <form method="GET"
                  onsubmit="window.open('{{ url }}','Edit Freerun Trigger',
                  'toolbar=no,scrollbars=yes,resizable=yes,top=250,left=250,width=750,height=550'); return false;">
-                <input type="submit" value="Edit"/>
+                <input type="submit" class="action_button fa-input" title="Edit" value="&#xf044;&nbsp;Edit"/>
             </form>
         </td>
     </tr>
@@ -94,7 +94,7 @@
             {% set url = form_url + '?is_new_entry=True'%}
             <a href="#" onClick="MyWindow=window.open('{{ url }}','New Freerun Trigger',
                 'toolbar=no,scrollbars=yes,resizable=yes,top=250,left=250,width=750,height=550'); return false;">
-                Add New Freerun Trigger
+                <i class="fa fa-plus"></i>&nbsp;Add New Freerun Trigger
             </a>
         </td>
     </tr>
