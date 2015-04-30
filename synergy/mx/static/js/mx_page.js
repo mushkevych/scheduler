@@ -1,3 +1,5 @@
+/* @author "Bohdan Mushkevych" */
+
 var GRIDS = {};
 
 var GRID_HEADER_TEMPLATE = [" . "];

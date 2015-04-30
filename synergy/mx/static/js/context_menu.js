@@ -1,3 +1,5 @@
+/* @author "Bohdan Mushkevych" */
+
 // function iterates over all checkboxes with name "batch_processing"
 // and marks/unmarks them accordingly to the state of the "source" checkbox
 function toggle_all_checkboxes(source) {
