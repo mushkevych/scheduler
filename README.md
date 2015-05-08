@@ -3,18 +3,18 @@ Synergy Scheduler
 
 Synergy Scheduler tracks its history to 2011. It is a production-grade Job Scheduling System, used for triggering simple jobs and orchestrate execution of complex interdependent data processing clusters.
 
-Synergy Scheduler utilizes Rabbit MQ to communicate with its subsidiaries, so it is a good choice for deployments where part of the system  is remote or machine/location dependent.
+Synergy Scheduler utilizes Rabbit MQ to communicate with its subsidiaries, so it is a good choice for deployments where part of the system is remote or machine/location dependent.
 
-Synergy Scheduler is supervising triggering and life-cycle of two types of jobs:
+Synergy Scheduler is supervising triggering and life-cycle for two types of jobs:
 
 - cron-like jobs govern by timer. They are known to the system as *free-run*
 - *managed* jobs that are govern by state machine. Such jobs could have multiple dependencies on other jobs
 
-Here, "job" corresponds to an execution of any system process (for example: Python process, Hadoop map-reduce job, etc) with a set of particular arguments, started and monitored by the Scheduler means.
+Here, term *job* corresponds to an execution of any system process (for example: Python process, Hadoop map-reduce job, etc) with a set of particular arguments, started and monitored by the Synergy Scheduler means.
 
 Each process registered within the Synergy Scheduler could chose state machine to govern its execution.
 
-To start using Synergy Scheduler user would have to write an actual job, register it in the context and define its triggering frequency.
+To start using Synergy Scheduler user would have to write an actual job and register it within the context.
 
 
 License:
@@ -37,12 +37,12 @@ Metafile:
     /context.py           configuration management - registrar of all known processes
     /settings.py          configuration management - environment-specific settings
     /setup.py             Distutils setup script
-    /scripts/             folder contains helper shell scripts
+    /scripts/             folder contains shell helper scripts
     /synergy/             folder contains Synergy Scheduler egg
     /tests/               folder contains unit test
     /vendors/             folder contains Python libraries required by the project and installed in Python Virtual Environment
-    /worker/              folder with actual project's processes (job runners)
-    /db/                  root folder for database components - data source manager, data access objects, schema, etc
+    /worker/              folder contains illustration suite workers (job runners)  
+    /db/                  root folder for illustration suite database components - models, dao, schema
 
 
 Wiki Links
@@ -54,4 +54,4 @@ Os-Level Dependencies
 ---------
 1. linux/unix  
 1. python 2.7+  
-1. db, rabbit mq, etc 
+1. mongo db, rabbit mq 
