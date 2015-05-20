@@ -195,5 +195,34 @@ def session_to_epoch(timestamp):
     return calendar.timegm(utc_timetuple)
 
 
+def tokenize_timeperiod(time_qualifier, timeperiod):
+    """
+    method breaks given timeperiod into 3 parts: (prefix, stem, suffix) base on the time_qualifier
+    for instance: daily   2015031400 -> ('201303', '14', '00')
+                  hourly  2015031413 -> ('20130314', '13', '')
+                  monthly 2015030000 -> ('2013', '03', '0000')
+                  yearly  2015000000 -> ('', '2015', '000000')
+    :return: tuple of three values
+    """
+    if time_qualifier == QUALIFIER_HOURLY:
+        stem_index = 8
+        stem_lenght = 2
+    elif time_qualifier == QUALIFIER_DAILY:
+        stem_index = 6
+        stem_lenght = 2
+    elif time_qualifier == QUALIFIER_MONTHLY:
+        stem_index = 4
+        stem_lenght = 2
+    elif time_qualifier == QUALIFIER_YEARLY:
+        stem_index = 0
+        stem_lenght = 4
+    else:
+        raise ValueError('undefined rules to tokenize the timeperiod for time qualifier: {0}'.format(time_qualifier))
+
+    return timeperiod[: stem_index], \
+           timeperiod[stem_index: stem_index + stem_lenght], \
+           timeperiod[stem_index + stem_lenght:]
+
+
 if __name__ == '__main__':
     pass
