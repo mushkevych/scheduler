@@ -58,6 +58,7 @@ test_cases = [
     'tests.test_site_statistics',
     'tests.test_single_session',
     'tests.test_time_helper',
+    'tests.test_timeperiod_dict',
     'tests.test_repeat_timer',
     'tests.test_process_starter',
     'tests.test_site_hourly_aggregator',

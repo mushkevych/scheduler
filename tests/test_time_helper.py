@@ -178,13 +178,13 @@ class TestTimeHelper(unittest.TestCase):
         self.assertEqual(duration, timestamp_2 - timestamp_1)
 
     def test_tokenize_timeperiod(self):
-        fixture = {QUALIFIER_HOURLY: ['2010123123', ('20101231', '23', '')],
-                   QUALIFIER_DAILY: ['2010123100', ('201012', '31', '00')],
-                   QUALIFIER_MONTHLY: ['2010120000', ('2010', '12', '0000')],
-                   QUALIFIER_YEARLY: ['2010000000', ('', '2010', '000000')]}
+        fixture = {QUALIFIER_HOURLY: ['2010123123', ('2010', '12', '31', '23')],
+                   QUALIFIER_DAILY: ['2010123100', ('2010', '12', '31', '00')],
+                   QUALIFIER_MONTHLY: ['2010120000', ('2010', '12', '00', '00')],
+                   QUALIFIER_YEARLY: ['2010000000', ('2010', '00', '00', '00')]}
 
         for key, value in fixture.items():
-            self.assertEqual(time_helper.tokenize_timeperiod(key, value[0]), value[1])
+            self.assertEqual(time_helper.tokenize_timeperiod(value[0]), value[1])
 
 
 if __name__ == '__main__':
