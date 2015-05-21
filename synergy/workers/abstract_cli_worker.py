@@ -6,7 +6,8 @@ from psutil import TimeoutExpired
 from synergy.db.model import unit_of_work
 from synergy.workers.abstract_uow_aware_worker import AbstractUowAwareWorker
 
-RETURN_CODE_CANCEL_UOW = 987654321
+RETURN_CODE_CANCEL_UOW = 99998888
+RETURN_CODE_NOOP_UOW = 77776666
 
 
 class AbstractCliWorker(AbstractUowAwareWorker):
@@ -60,5 +61,7 @@ class AbstractCliWorker(AbstractUowAwareWorker):
             return 0, unit_of_work.STATE_PROCESSED
         elif code == RETURN_CODE_CANCEL_UOW:
             return 0, unit_of_work.STATE_CANCELED
+        elif code == RETURN_CODE_NOOP_UOW:
+            return 0, unit_of_work.STATE_NOOP
         else:
             raise UserWarning('Command Line Command return code is not 0 but %r' % code)
