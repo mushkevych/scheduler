@@ -12,73 +12,69 @@ class TimeperiodDict(collections.MutableMapping):
         assert time_qualifier in [QUALIFIER_HOURLY, QUALIFIER_DAILY, QUALIFIER_MONTHLY, QUALIFIER_YEARLY]
         super(TimeperiodDict, self).__init__()
 
-        # validation section
-        if time_qualifier == QUALIFIER_HOURLY:
-            self.upper_boundary = 23
-        elif time_qualifier == QUALIFIER_DAILY:
-            self.upper_boundary = 28
-        elif time_qualifier == QUALIFIER_MONTHLY:
-            self.upper_boundary = 12
-        elif time_qualifier == QUALIFIER_YEARLY:
-            self.upper_boundary = 1
-        else:
-            raise ValueError('unknown time qualifier: {0}'.format(time_qualifier))
-        assert 1 <= grouping <= self.upper_boundary
-
         self.grouping = grouping
         self.time_qualifier = time_qualifier
+
+        # validation section
+        upper_boundary = self._get_upper_boundary()
+        assert 1 <= grouping <= upper_boundary
 
         self.data = dict()
         self.update(dict(*args, **kwargs))
 
+    def _get_upper_boundary(self, timeperiod=None):
+        if self.time_qualifier == QUALIFIER_HOURLY:
+            upper_boundary = 23
+        elif self.time_qualifier == QUALIFIER_DAILY:
+            if timeperiod:
+                # DAILY upper boundary is month-dependent
+                # i.e. it is 28 for Feb 2015; and 31 for Mar 2015
+                year, month, day, hour = time_helper.tokenize_timeperiod(timeperiod)
+                monthrange_tuple = calendar.monthrange(int(year), int(month))
+                upper_boundary = monthrange_tuple[1]
+            else:
+                upper_boundary = 28
+        elif self.time_qualifier == QUALIFIER_MONTHLY:
+            upper_boundary = 12
+        elif self.time_qualifier == QUALIFIER_YEARLY:
+            upper_boundary = 1
+        else:
+            raise ValueError('unknown time qualifier: {0}'.format(self.time_qualifier))
+        return upper_boundary
+
     def _do_stem_grouping(self, timeperiod, stem):
-        revisited_upper_boundary = self.upper_boundary
-        if self.time_qualifier == QUALIFIER_DAILY:
-            # DAILY upper boundary is month-dependent
-            # i.e. it is 28 for Feb 2015; and 31 for Mar 2015
-            year, month, day, hour = time_helper.tokenize_timeperiod(timeperiod)
-            monthrange_tuple = calendar.monthrange(int(year), int(month))
-            revisited_upper_boundary = monthrange_tuple[1]
-
         # exclude 00 from lower boundary, unless the grouping == 1
-        revisited_lower_boundary = 0 if self.grouping == 1 else 1
+        lower_boundary = 0 if self.grouping == 1 else 1
+        upper_boundary = self._get_upper_boundary(timeperiod)
 
-        for i in range(revisited_lower_boundary, revisited_upper_boundary):
+        for i in range(lower_boundary, upper_boundary):
             candidate = i * self.grouping
-            if stem <= candidate <= revisited_upper_boundary:
+            if stem <= candidate <= upper_boundary:
                 return candidate
-        return revisited_upper_boundary
+        return upper_boundary
 
     def _translate_timeperiod(self, timeperiod):
         """ method translates given timeperiod to the grouped timeperiod """
-        if self.time_qualifier == QUALIFIER_YEARLY:
-            # YEARLY timeperiods are allowed to have only identity grouping
+        if self.grouping == 1:
+            # no translation is performed for identity grouping
             return timeperiod
 
         # step 1: tokenize timeperiod into: (year, month, day, hour)
         # for instance: daily 2015031400 -> ('2015', '03', '14', '00')
         year, month, day, hour = time_helper.tokenize_timeperiod(timeperiod)
-        if self.time_qualifier == QUALIFIER_HOURLY:
-            stem = hour
-        elif self.time_qualifier == QUALIFIER_DAILY:
-            stem = day
-        else:  # self.time_qualifier == QUALIFIER_MONTHLY:
-            stem = month
 
         # step 2: perform grouping on the stem
         # ex1: stem of 14 with grouping 20 -> 20
         # ex2: stem of 21 with grouping 20 -> 23
-        stem = int(stem)
-        grouped = self._do_stem_grouping(timeperiod, stem)
-
-        # step 3: concatenate timeperiod components
-        # for instance: ('2015', 03', '20', '00') -> 2015032000
         if self.time_qualifier == QUALIFIER_HOURLY:
-            result = '{0}{1}{2}{3:02d}'.format(year, month, day, grouped)
+            stem = self._do_stem_grouping(timeperiod, int(hour))
+            result = '{0}{1}{2}{3:02d}'.format(year, month, day, stem)
         elif self.time_qualifier == QUALIFIER_DAILY:
-            result = '{0}{1}{2:02d}{3}'.format(year, month, grouped, hour)
+            stem = self._do_stem_grouping(timeperiod, int(day))
+            result = '{0}{1}{2:02d}{3}'.format(year, month, stem, hour)
         else:  # self.time_qualifier == QUALIFIER_MONTHLY:
-            result = '{0}{1:02d}{2}{3}'.format(year, grouped, day, hour)
+            stem = self._do_stem_grouping(timeperiod, int(month))
+            result = '{0}{1:02d}{2}{3}'.format(year, stem, day, hour)
         return result
 
     def __len__(self):
