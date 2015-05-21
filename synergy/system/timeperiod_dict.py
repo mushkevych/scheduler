@@ -53,8 +53,8 @@ class TimeperiodDict(collections.MutableMapping):
         grouped = self._do_stem_grouping(stem)
 
         # step 3: concatenate timeperiod stem + grouped timeperiod + trailing zeros
-        # for instance: [201503, 20, 00] -> 2015032000
-        return prefix + str(grouped) + suffix
+        # for instance: ('201503', '20', '00') -> 2015032000
+        return '{0}{1:02d}{2}'.format(prefix, grouped, suffix)
 
     def __len__(self):
         return len(self.data)
@@ -68,8 +68,7 @@ class TimeperiodDict(collections.MutableMapping):
         self.data[grouped_timeperiod] = value
 
     def __delitem__(self, key):
-        grouped_timeperiod = self._translate_timeperiod(key)
-        del self.data[grouped_timeperiod]
+        self.data.__delitem__(key)
 
     def __iter__(self):
         return iter(self.data)

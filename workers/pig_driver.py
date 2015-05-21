@@ -6,7 +6,7 @@ import psutil
 
 from synergy.conf import settings
 from synergy.conf import context
-from workers.abstract_cli_worker import AbstractCliWorker
+from synergy.workers.abstract_cli_worker import AbstractCliWorker
 
 
 class PigDriver(AbstractCliWorker):

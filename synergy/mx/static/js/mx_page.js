@@ -109,7 +109,7 @@ function info_process_tile(process_entry, tile) {
     tile.process_name = process_entry.process_name;
     tile.$el.append('<ul class="fa-ul">'
         + '<li title="Process Name"><i class="fa-li fa fa-terminal"></i>' + process_entry.process_name + '</li>'
-        + '<li title="Time Qualifier"><i class="fa-li fa fa-calendar"></i>' + process_entry.next_timeperiod + '</li>'
+        + '<li title="Time Qualifier"><i class="fa-li fa fa-calendar"></i>' + process_entry.time_qualifier + '</li>'
         + '<li title="State Machine"><i class="fa-li fa fa-puzzle-piece"></i>' + process_entry.state_machine_name + '</li>'
         + '<li title="Blocking type"><i class="fa-li fa fa-anchor"></i>' + process_entry.blocking_type + '</li>'
         + '<li title="Run On Active Timeperiod"><i class="fa-li fa fa-unlock-alt"></i>' + run_on_active_timeperiod + '</li>'
