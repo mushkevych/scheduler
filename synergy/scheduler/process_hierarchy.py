@@ -74,6 +74,25 @@ class ProcessHierarchy(object):
         """
         return self.qualifiers.get(qualifier, None)
 
+    def get_child_by_qualifier(self, parent_qualifier):
+        """
+        :param parent_qualifier: time_qualifier of the parent process
+        :return: <HierarchyEntry> child entry to the HierarchyEntry associated with the parent_qualifier
+                or None if the given parent_qualifier is not registered in this hierarchy
+                or None if the given parent_qualifier is the bottom process
+        """
+        if parent_qualifier not in self.qualifiers:
+            return None
+
+        parent_process_name = self.qualifiers[parent_qualifier].process_entry.process_name
+        process_names = self.entries.keys()
+        if process_names[-1] == parent_process_name:
+            return None
+
+        parent_index = process_names.index(parent_process_name)
+        child_index = parent_index + 1
+        return self.entries[process_names[child_index]]
+
     @property
     def top_process(self):
         """ :return: <ManagedProcessEntry> of the hierarchy's top entry """

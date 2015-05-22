@@ -2,6 +2,8 @@ __author__ = 'Bohdan Mushkevych'
 
 from synergy.db.model import job
 from synergy.system import time_helper
+from synergy.system.immutable_dict import ImmutableDict
+from synergy.system.timeperiod_dict import TimeperiodDict
 from synergy.conf import context
 
 
@@ -38,7 +40,6 @@ class NodesCompositeState(object):
 class TreeNode(object):
     def __init__(self, tree, parent, process_name, timeperiod, job_record):
         # initializes the data members
-        self.children = dict()
         self.tree = tree
         self.parent = parent
         self.process_name = process_name
@@ -47,8 +48,16 @@ class TreeNode(object):
         if parent is None and process_name is None and timeperiod is None and job_record is None:
             # special case - node is TREE ROOT
             self.time_qualifier = None
+            child_time_qualifier = tree.process_hierarchy.top_process.time_qualifier
         else:
             self.time_qualifier = context.process_context[self.process_name].time_qualifier
+            child_hierarchy_entry = tree.process_hierarchy.get_child_by_qualifier(self.time_qualifier)
+            child_time_qualifier = child_hierarchy_entry.process_entry.time_qualifier
+
+        if child_time_qualifier:
+            self.children = TimeperiodDict(child_time_qualifier)
+        else:
+            self.children = ImmutableDict({})
 
     def request_reprocess(self):
         """ method marks this and all parents node as such that requires reprocessing
