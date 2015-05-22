@@ -7,12 +7,18 @@
             {% for process_name in tree_obj.sorted_process_names %}
             <div id="grid-header-{{ process_name }}" class="grid-header"></div>
             {%- endfor %}
+            <div class="side-tool-bar">
+
+            </div>
         </div>
         <div class="grid-container">
             <div id="grid-info-{{ tree_name }}" class="grid-info"></div>
             {% for process_name in tree_obj.sorted_process_names %}
             <div id="grid-info-{{ process_name }}" class="grid-info context-menu"></div>
             {%- endfor %}
+            <div class="side-tool-bar">
+
+            </div>
         </div>
     {% endfor -%}
 
