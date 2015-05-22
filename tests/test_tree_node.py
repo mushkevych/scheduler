@@ -12,6 +12,7 @@ from synergy.db.model.job import Job
 from synergy.system import time_helper
 from synergy.scheduler.tree import MultiLevelTree
 from synergy.scheduler.tree_node import TreeNode, NodesCompositeState
+from synergy.scheduler.process_hierarchy import ProcessHierarchy
 from synergy.system.time_qualifier import *
 from tests.state_machine_testing_utils import TEST_PRESET_TIMEPERIOD
 
@@ -31,6 +32,10 @@ class TestTreeNode(unittest.TestCase):
     def setUp(self):
         self.tree_mock = mock.create_autospec(MultiLevelTree)
         self.tree_mock.build_timeperiod = TEST_PRESET_TIMEPERIOD
+
+        self.tree_mock.process_hierarchy = mock.create_autospec(ProcessHierarchy)
+        self.tree_mock.process_hierarchy.get_child_by_qualifier = mock.MagicMock(return_value=PROCESS_SITE_HOURLY)
+
         self.parent_node_mock = mock.create_autospec(TreeNode)
         self.job_mock = mock.create_autospec(Job)
         self.the_node = TreeNode(self.tree_mock, self.parent_node_mock, PROCESS_SITE_HOURLY,
