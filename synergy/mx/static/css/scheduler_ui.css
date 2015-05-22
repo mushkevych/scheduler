@@ -76,6 +76,7 @@ div#footer a {
     border-collapse: collapse;
     color: #FFFFFF;
     background: #333333;
+    min-width: 1400px;
 }
 .header-table th
 {
