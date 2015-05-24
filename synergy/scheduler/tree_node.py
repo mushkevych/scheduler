@@ -37,7 +37,7 @@ class NodesCompositeState(object):
             self.skipped_present = True
 
 
-class TreeNode(object):
+class AbstractTreeNode(object):
     def __init__(self, tree, parent, process_name, timeperiod, job_record):
         # initializes the data members
         self.tree = tree
@@ -198,3 +198,13 @@ class TreeNode(object):
             composite_state.enlist(node_b)
 
         return composite_state
+
+
+class TreeNode(AbstractTreeNode):
+    def __init__(self, tree, parent, process_name, timeperiod, job_record):
+        super(TreeNode, self).__init__(tree, parent, process_name, timeperiod, job_record)
+
+
+class RootNode(AbstractTreeNode):
+    def __init__(self, tree):
+        super(RootNode, self).__init__(tree, None, None, None, None)

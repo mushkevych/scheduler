@@ -45,6 +45,7 @@ def create_rest_managed_scheduler_entry(thread_handler, timetable):
         next_run_in=get_next_run_in(thread_handler),
         next_timeperiod=get_next_timeperiod(timetable, process_name),
         time_qualifier=process_entry.time_qualifier,
+        time_grouping=process_entry.time_grouping,
         state_machine_name=process_entry.state_machine_name,
         process_type=process_entry.process_type,
         blocking_type=process_entry.blocking_type,
