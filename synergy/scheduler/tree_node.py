@@ -49,15 +49,18 @@ class TreeNode(object):
             # special case - node is TREE ROOT
             self.time_qualifier = None
             child_time_qualifier = tree.process_hierarchy.top_process.time_qualifier
+            time_grouping = tree.process_hierarchy.top_process.time_grouping
+            self.children = TimeperiodDict(child_time_qualifier, time_grouping)
         else:
             self.time_qualifier = context.process_context[self.process_name].time_qualifier
             child_hierarchy_entry = tree.process_hierarchy.get_child_by_qualifier(self.time_qualifier)
-            child_time_qualifier = child_hierarchy_entry.process_entry.time_qualifier
-
-        if child_time_qualifier:
-            self.children = TimeperiodDict(child_time_qualifier)
-        else:
-            self.children = ImmutableDict({})
+            if child_hierarchy_entry:
+                child_time_qualifier = child_hierarchy_entry.process_entry.time_qualifier
+                time_grouping = child_hierarchy_entry.process_entry.time_grouping
+                self.children = TimeperiodDict(child_time_qualifier, time_grouping)
+            else:
+                # this is the bottom process of the process hierarchy with no children
+                self.children = ImmutableDict({})
 
     def request_reprocess(self):
         """ method marks this and all parents node as such that requires reprocessing
