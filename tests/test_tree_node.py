@@ -33,8 +33,13 @@ class TestTreeNode(unittest.TestCase):
         self.tree_mock = mock.create_autospec(MultiLevelTree)
         self.tree_mock.build_timeperiod = TEST_PRESET_TIMEPERIOD
 
+        self.process_entry_mock = mock.Mock(time_grouping=1, time_qualifier=QUALIFIER_HOURLY)
+        self.hierarchy_entry_mock = mock.Mock(process_entry=self.process_entry_mock)
+
         self.tree_mock.process_hierarchy = mock.create_autospec(ProcessHierarchy)
-        self.tree_mock.process_hierarchy.get_child_by_qualifier = mock.MagicMock(return_value=PROCESS_SITE_HOURLY)
+        self.tree_mock.process_hierarchy.top_process = mock.PropertyMock(return_value=self.process_entry_mock)
+        self.tree_mock.process_hierarchy.get_child_by_qualifier = \
+            mock.MagicMock(return_value=self.hierarchy_entry_mock)
 
         self.parent_node_mock = mock.create_autospec(TreeNode)
         self.job_mock = mock.create_autospec(Job)

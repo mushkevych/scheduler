@@ -8,16 +8,17 @@ from synergy.system.time_qualifier import *
 
 
 class TimeperiodDict(collections.MutableMapping):
-    def __init__(self, time_qualifier, grouping=1, *args, **kwargs):
-        assert time_qualifier in [QUALIFIER_HOURLY, QUALIFIER_DAILY, QUALIFIER_MONTHLY, QUALIFIER_YEARLY]
+    def __init__(self, time_qualifier, time_grouping, *args, **kwargs):
+        assert time_qualifier in [QUALIFIER_HOURLY, QUALIFIER_DAILY, QUALIFIER_MONTHLY, QUALIFIER_YEARLY], \
+            'time qualifier {0} is not supported by TimeperiodDict'.format(time_qualifier)
         super(TimeperiodDict, self).__init__()
 
-        self.grouping = grouping
+        self.time_grouping = time_grouping
         self.time_qualifier = time_qualifier
 
         # validation section
         upper_boundary = self._get_upper_boundary()
-        assert 1 <= grouping <= upper_boundary
+        assert 1 <= time_grouping <= upper_boundary
 
         self.data = dict()
         self.update(dict(*args, **kwargs))
@@ -44,18 +45,18 @@ class TimeperiodDict(collections.MutableMapping):
 
     def _do_stem_grouping(self, timeperiod, stem):
         # exclude 00 from lower boundary, unless the grouping == 1
-        lower_boundary = 0 if self.grouping == 1 else 1
+        lower_boundary = 0 if self.time_grouping == 1 else 1
         upper_boundary = self._get_upper_boundary(timeperiod)
 
         for i in range(lower_boundary, upper_boundary):
-            candidate = i * self.grouping
+            candidate = i * self.time_grouping
             if stem <= candidate <= upper_boundary:
                 return candidate
         return upper_boundary
 
     def _translate_timeperiod(self, timeperiod):
         """ method translates given timeperiod to the grouped timeperiod """
-        if self.grouping == 1:
+        if self.time_grouping == 1:
             # no translation is performed for identity grouping
             return timeperiod
 

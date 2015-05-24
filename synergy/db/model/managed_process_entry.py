@@ -1,6 +1,6 @@
 __author__ = 'Bohdan Mushkevych'
 
-from odm.fields import StringField, ObjectIdField, BooleanField
+from odm.fields import StringField, ObjectIdField, BooleanField, IntegerField
 
 from synergy.db.model.daemon_process_entry import DaemonProcessEntry
 from synergy.scheduler.scheduler_constants import BLOCKING_CHILDREN, BLOCKING_DEPENDENCIES, BLOCKING_NORMAL, \
@@ -16,6 +16,7 @@ BLOCKING_TYPE = 'blocking_type'
 SOURCE = 'source'
 SINK = 'sink'
 TIME_QUALIFIER = 'time_qualifier'
+TIME_GROUPING = 'time_grouping'
 
 
 class ManagedProcessEntry(DaemonProcessEntry):
@@ -24,6 +25,7 @@ class ManagedProcessEntry(DaemonProcessEntry):
     source = StringField(SOURCE)
     sink = StringField(SINK)
     time_qualifier = StringField(TIME_QUALIFIER)
+    time_grouping = IntegerField(TIME_GROUPING)
     trigger_frequency = StringField(TRIGGER_FREQUENCY)
     is_on = BooleanField(IS_ON, default=False)
     run_on_active_timeperiod = BooleanField(RUN_ON_ACTIVE_TIMEPERIOD)
@@ -49,6 +51,7 @@ def managed_context_entry(process_name,
                           exchange=EXCHANGE_MANAGED_WORKER,
                           blocking_type=BLOCKING_NORMAL,
                           present_on_boxes=None,
+                          time_grouping=1,
                           arguments=None,
                           queue=None,
                           routing=None,
@@ -91,6 +94,7 @@ def managed_context_entry(process_name,
         present_on_boxes=present_on_boxes,
         arguments=arguments,
         time_qualifier=time_qualifier,
+        time_grouping=time_grouping,
         process_type=process_type,
         log_filename=log_file,
         pid_filename=pid_file,
