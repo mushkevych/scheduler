@@ -126,6 +126,8 @@ class StateMachineContinuous(AbstractStateMachine):
 
         if uow.is_processed:
             self.timetable.update_job_record(job_record, uow, job.STATE_PROCESSED)
+        elif uow.is_noop:
+            self.timetable.update_job_record(job_record, uow, job.STATE_NOOP)
         elif uow.is_canceled:
             self.timetable.update_job_record(job_record, uow, job.STATE_SKIPPED)
         else:

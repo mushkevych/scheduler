@@ -71,6 +71,8 @@ class StateMachineSimpleDiscrete(StateMachineDiscrete):
             self._log_message(INFO, job_record.process_name, job_record.timeperiod, msg)
         elif uow.is_processed:
             self.timetable.update_job_record(job_record, uow, job.STATE_PROCESSED)
+        elif uow.is_noop:
+            self.timetable.update_job_record(job_record, uow, job.STATE_NOOP)
         elif uow.is_canceled:
             self.timetable.update_job_record(job_record, uow, job.STATE_SKIPPED)
         else:
