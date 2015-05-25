@@ -39,20 +39,15 @@ class NodesCompositeState(object):
 
 class AbstractTreeNode(object):
     def __init__(self, tree, parent, process_name, timeperiod, job_record):
-        # initializes the data members
         self.tree = tree
         self.parent = parent
         self.process_name = process_name
         self.timeperiod = timeperiod
         self.job_record = job_record
-        self.time_qualifier = self._init_time_qualifier(self.process_name)
-        self.children = self._init_children(tree, self.time_qualifier)
 
-    def _init_time_qualifier(self, process_name):
-        raise NotImplementedError('method _init_time_qualifier must be overridden by children')
-
-    def _init_children(self, tree, time_qualifier):
-        raise NotImplementedError('method _init_children must be overridden by children')
+        # fields self.time_qualifier and self.children are properly set in the child class
+        self.time_qualifier = None
+        self.children = ImmutableDict({})
 
     def request_reprocess(self):
         """ method marks this and all parents node as such that requires reprocessing
@@ -195,12 +190,9 @@ class AbstractTreeNode(object):
 class TreeNode(AbstractTreeNode):
     def __init__(self, tree, parent, process_name, timeperiod, job_record):
         super(TreeNode, self).__init__(tree, parent, process_name, timeperiod, job_record)
+        self.time_qualifier = context.process_context[process_name].time_qualifier
 
-    def _init_time_qualifier(self, process_name):
-        return context.process_context[process_name].time_qualifier
-
-    def _init_children(self, tree, time_qualifier):
-        child_hierarchy_entry = tree.process_hierarchy.get_child_by_qualifier(time_qualifier)
+        child_hierarchy_entry = tree.process_hierarchy.get_child_by_qualifier(self.time_qualifier)
         if child_hierarchy_entry:
             child_time_qualifier = child_hierarchy_entry.process_entry.time_qualifier
             time_grouping = child_hierarchy_entry.process_entry.time_grouping
@@ -208,16 +200,14 @@ class TreeNode(AbstractTreeNode):
         else:
             # this is the bottom process of the process hierarchy with no children
             children = ImmutableDict({})
-        return children
+        self.children = children
+
 
 class RootNode(AbstractTreeNode):
     def __init__(self, tree):
         super(RootNode, self).__init__(tree, None, None, None, None)
+        self.time_qualifier = None
 
-    def _init_time_qualifier(self, _):
-        return None
-
-    def _init_children(self, tree, _):
         child_time_qualifier = tree.process_hierarchy.top_process.time_qualifier
         time_grouping = tree.process_hierarchy.top_process.time_grouping
-        return TimeperiodDict(child_time_qualifier, time_grouping)
+        self.children = TimeperiodDict(child_time_qualifier, time_grouping)

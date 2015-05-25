@@ -90,14 +90,3 @@ class StateMachineDiscrete(AbstractStateMachine):
 
         timetable_tree = self.timetable.get_tree(job_record.process_name)
         timetable_tree.build_tree()
-
-    def _process_state_skipped(self, job_record):
-        """method takes care of processing job records in STATE_SKIPPED state"""
-        msg = 'Skipping job record %s in timeperiod %s. Apparently its most current timeperiod as of %s UTC' \
-              % (job_record.db_id, job_record.timeperiod, str(datetime.utcnow()))
-        self._log_message(WARNING, job_record.process_name, job_record.timeperiod, msg)
-
-    def _process_state_processed(self, job_record):
-        """method takes care of processing job records in STATE_PROCESSED state"""
-        msg = 'Unexpected state %s of job record %s' % (job_record.state, job_record.db_id)
-        self._log_message(ERROR, job_record.process_name, job_record.timeperiod, msg)
