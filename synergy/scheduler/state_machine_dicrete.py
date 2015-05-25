@@ -1,7 +1,6 @@
 __author__ = 'Bohdan Mushkevych'
 
-from datetime import datetime
-from logging import ERROR, WARNING, INFO
+from logging import ERROR, INFO
 
 from synergy.db.model import job
 from synergy.scheduler.scheduler_constants import STATE_MACHINE_DISCRETE
@@ -81,6 +80,8 @@ class StateMachineDiscrete(AbstractStateMachine):
         uow = self.uow_dao.get_one(job_record.related_unit_of_work)
         if uow.is_processed:
             self.timetable.update_job_record(job_record, uow, job.STATE_PROCESSED)
+        elif uow.is_noop:
+            self.timetable.update_job_record(job_record, uow, job.STATE_NOOP)
         elif uow.is_canceled:
             self.timetable.update_job_record(job_record, uow, job.STATE_SKIPPED)
         else:
