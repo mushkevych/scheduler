@@ -1,7 +1,6 @@
 __author__ = 'Bohdan Mushkevych'
 
-from datetime import datetime
-from logging import ERROR, WARNING, INFO
+from logging import ERROR, INFO
 
 from synergy.db.model import job
 from synergy.db.model.job import Job
