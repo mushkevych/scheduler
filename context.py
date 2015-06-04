@@ -25,6 +25,26 @@ process_context = {
         routing=ROUTING_IRRELEVANT,
         exchange=EXCHANGE_UTILS),
 
+    PROCESS_GC: managed_context_entry(
+        process_name=PROCESS_GC,
+        classname='synergy.workers.garbage_collector_worker.GarbageCollectorWorker.start',
+        token=TOKEN_GC,
+        exchange=EXCHANGE_UTILS,
+        process_type=TYPE_GARBAGE_COLLECTOR,
+        time_qualifier=QUALIFIER_BY_SCHEDULE,
+        state_machine_name=None,
+        trigger_frequency='every 900',
+        present_on_boxes=['dev.*']),
+
+    PROCESS_SCHEDULER: daemon_context_entry(
+        process_name=PROCESS_SCHEDULER,
+        classname='synergy.scheduler.synergy_scheduler.Scheduler.start',
+        token=TOKEN_SCHEDULER,
+        queue='',
+        routing='',
+        exchange='',
+        present_on_boxes=['dev.*']),
+
     PROCESS_SITE_DAILY: managed_context_entry(
         process_name=PROCESS_SITE_DAILY,
         classname='workers.site_daily_aggregator.SiteDailyAggregator.start',
@@ -47,7 +67,8 @@ process_context = {
         sink=COLLECTION_SITE_HOURLY,
         state_machine_name=STATE_MACHINE_CONTINUOUS,
         blocking_type=BLOCKING_NORMAL,
-        trigger_frequency='every 60',
+        run_on_active_timeperiod=True,
+        trigger_frequency='every 300',
         present_on_boxes=['dev.*']),
 
     PROCESS_SITE_MONTHLY: managed_context_entry(

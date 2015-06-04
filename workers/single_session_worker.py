@@ -1,4 +1,3 @@
-""" Module is responsible for reading MQ queue and updating/inserting data records to the MongoDB """
 __author__ = 'Bohdan Mushkevych'
 
 import time
@@ -8,7 +7,7 @@ from db.model.raw_data import *
 from db.dao.single_session_dao import SingleSessionDao
 from synergy.system import time_helper
 from synergy.system.performance_tracker import SessionPerformanceTracker
-from synergy.system.time_qualifier import QUALIFIER_REAL_TIME
+from synergy.system.time_qualifier import QUALIFIER_REAL_TIME, QUALIFIER_HOURLY
 from synergy.workers.abstract_mq_worker import AbstractMqWorker
 
 
@@ -38,7 +37,7 @@ class SingleSessionWorker(AbstractMqWorker):
         try:
             raw_data = RawData.from_json(message.body)
             try:
-                session = self.ss_dao.get_one(raw_data.domain_name, raw_data.session_id)
+                session = self.ss_dao.get_one((raw_data.domain_name, raw_data.session_id))
 
                 # update the click_xxx info
                 session = self.update_session_body(raw_data, session)
@@ -54,7 +53,7 @@ class SingleSessionWorker(AbstractMqWorker):
 
                 # input data constraints - both session_id and user_id must be present in MQ message
                 session.key = (raw_data.domain_name,
-                               time_helper.datetime_to_synergy(QUALIFIER_REAL_TIME, raw_data.timestamp),
+                               time_helper.datetime_to_synergy(QUALIFIER_HOURLY, raw_data.timestamp),
                                raw_data.session_id)
                 session.ip = raw_data.ip
                 session.total_duration = 0
