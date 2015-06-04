@@ -14,7 +14,7 @@ from synergy.system.performance_tracker import SimpleTracker
 from synergy.system.synergy_process import SynergyProcess
 
 
-SLEEP_TIME = 0.03
+SLEEP_TIME = 0.05
 TICK_INTERVAL = 10
 
 
@@ -46,7 +46,11 @@ class EventStreamGenerator(SynergyProcess):
     def _generate_key(self):
         _id = random.randint(0, 100000)
         domain_name = 'domain%d.com' % _id
-        return domain_name, time.time()
+
+        session_no = self.number_of_groups + random.randint(0, 99)
+        session_id = 'session_%d' % session_no
+
+        return domain_name, time.time(), session_id
 
     def _run_stream_generation(self):
         self.logger.info('Stream Generator: ON. Expected rate: %d/s, %d/m, %d/h, %d/d' %
@@ -56,15 +60,11 @@ class EventStreamGenerator(SynergyProcess):
         document = RawData()
         while self.thread_is_running:
             if time.time() - self.previous_tick > TICK_INTERVAL:
-                #increment group number every TICK_INTERVAL seconds
+                # increment group number every TICK_INTERVAL seconds
                 self.number_of_groups += 100
                 self.previous_tick = time.time()
             try:
-                key = self._generate_key()
-                document.key = (key[0], key[1])
-                session_no = self.number_of_groups + random.randint(0, 99)
-
-                document.session_id = 'session_%d' % session_no
+                document.key = self._generate_key()
                 document.ip = '%d.%d.%d.%d' % (random.randint(0, 255),
                                                random.randint(0, 255),
                                                random.randint(0, 255),
