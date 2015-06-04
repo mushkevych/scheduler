@@ -1,12 +1,7 @@
 {% extends 'main_header.html' %}
 {% block body %}
   <div class="side-tool-bar">
-
-    
-    <!-- <label for="">Test Test Testing</label>
-    <button type="button" name="button">Test1</button>
-    <button type="button" name="button">Test2</button>
-    <button type="button" name="button">Test3</button> -->
+    <!-- this tool-bar is expected to host GC trigger button and the "page render time"  -->
   </div>
 
     {%- for tree_name, tree_obj in details.items() %}
@@ -23,7 +18,6 @@
             {%- endfor %}
         </div>
     {% endfor -%}
-
 
 {% import 'block_context_menu.html' as context_menu %}
 {{ context_menu.job_menu() }}
