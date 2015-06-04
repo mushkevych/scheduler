@@ -7,7 +7,7 @@
 .classpath
 .project
 .settings
+.DS_Store
 *.iml
 *.pyc
 *.*~
-

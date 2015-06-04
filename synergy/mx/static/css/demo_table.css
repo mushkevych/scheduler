@@ -27,6 +27,7 @@
     float: right;
     text-align: right;
     width: 50%;
+    margin-bottom: 6px;
 }
 .dataTables_info {
     float: left;
