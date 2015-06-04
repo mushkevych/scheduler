@@ -79,82 +79,91 @@ function get_checked_boxes(checkbox_name) {
 
 // function applies given "action" to all records with selected checkboxes
 function process_batch(action, is_freerun) {
-    var selected = get_checked_boxes('batch_processing');
-    var msg = 'You are about to ' + action + ' all selected';
-    var i;
-    var process_name;
-    var timeperiod;
-    var entry_name;
-    var json;
+  var selected = get_checked_boxes('batch_processing');
+  var msg = 'You are about to ' + action + ' all selected';
+  var i;
+  var process_name;
+  var timeperiod;
+  var entry_name;
+  var json;
 
-    if (confirm(msg)) {
-        if (action.indexOf('skip') > -1 || action.indexOf('reprocess') > -1) {
-            for (i = 0; i < selected.length; i++) {
-                json = eval("(" + selected[i].value + ")");
-                process_name = json['process_name'];
-                timeperiod = json['timeperiod'];
-                process_job(action, process_name, timeperiod, false);
-                selected[i].checked = false;
-            }
-        } else if (action.indexOf('activate') > -1 || action.indexOf('deactivate') > -1) {
-            if (is_freerun) {
-                for (i = 0; i < selected.length; i++) {
-                    json = eval("(" + selected[i].value + ")");
-                    process_name = json['process_name'];
-                    entry_name = json['entry_name'];
-                    process_trigger(action, process_name, null, entry_name, is_freerun, i < selected.length -1, false);
-                    selected[i].checked = false;
-                }
-            } else {
-                for (i = 0; i < selected.length; i++) {
-                    json = eval("(" + selected[i].value + ")");
-                    process_name = json['process_name'];
-                    timeperiod = json['timeperiod'];
-                    process_trigger(action, process_name, timeperiod, null, is_freerun, i < selected.length -1, false);
-                    selected[i].checked = false;
-                }
-            }
-        } else {
-            alert('Action ' + action + ' is not yet supported by Synergy Scheduler MX JavaScript library.')
-        }
+  Alertify.confirm(msg, function(e){
+    if(!e){
+      return
+    } else {
+      if (action.indexOf('skip') > -1 || action.indexOf('reprocess') > -1) {
+          for (i = 0; i < selected.length; i++) {
+              json = eval("(" + selected[i].value + ")");
+              process_name = json['process_name'];
+              timeperiod = json['timeperiod'];
+              process_job(action, process_name, timeperiod, false);
+              selected[i].checked = false;
+          }
+      } else if (action.indexOf('activate') > -1 || action.indexOf('deactivate') > -1) {
+          if (is_freerun) {
+              for (i = 0; i < selected.length; i++) {
+                  json = eval("(" + selected[i].value + ")");
+                  process_name = json['process_name'];
+                  entry_name = json['entry_name'];
+                  process_trigger(action, process_name, null, entry_name, is_freerun, i < selected.length -1, false);
+                  selected[i].checked = false;
+              }
+          } else {
+              for (i = 0; i < selected.length; i++) {
+                  json = eval("(" + selected[i].value + ")");
+                  process_name = json['process_name'];
+                  timeperiod = json['timeperiod'];
+                  process_trigger(action, process_name, timeperiod, null, is_freerun, i < selected.length -1, false);
+                  selected[i].checked = false;
+              }
+          }
+      } else {
+          alert('Action ' + action + ' is not yet supported by Synergy Scheduler MX JavaScript library.')
+      }
     }
+  })
+
 }
 
 // function applies given "action" to the job record identified by "process_name+timeperiod"
 function process_job(action, process_name, timeperiod, show_confirmation_dialog) {
-    if (show_confirmation_dialog) {
-        var msg = 'You are about to ' + action + ' ' + timeperiod + ' for ' + process_name;
-        if (!confirm(msg)) {
-            return;
-        }
-    }
-
-    var params = { 'process_name': process_name, 'timeperiod': timeperiod };
-    $.get('/' + action + '/', params, function (response) {
-//        alert("response is " + response);
+  if (show_confirmation_dialog) {
+    var msg = 'You are about to ' + action + ' ' + timeperiod + ' for ' + process_name;
+    Alertify.confirm(msg, function(e){
+      if(!e){
+        return
+      } else {
+        var params = { 'process_name': process_name, 'timeperiod': timeperiod };
+        $.get('/' + action + '/', params, function (response) {
+    //        alert("response is " + response);
+        });
+      }
     });
+  }
 }
 
 // function applies given "action" to the SchedulerThreadHandler entry
 function process_trigger(action, process_name, timeperiod, entry_name, is_freerun, reload_afterwards, show_confirmation_dialog) {
     if (show_confirmation_dialog) {
-        var msg = 'You are about to ' + action + ' ' + timeperiod + ' for ' + process_name;
-        if (!confirm(msg)) {
-            return;
-        }
-    }
+      var msg = 'You are about to ' + action + ' ' + timeperiod + ' for ' + process_name;
+      Alertify.confirm(msg, function(e){
+        if(!e){
+          return
+        } else {
+          var params;
+          if (is_freerun) {
+              params = { 'process_name': process_name, 'entry_name': entry_name, 'is_freerun': is_freerun};
+          } else {
+              params = { 'process_name': process_name, 'timeperiod': timeperiod, 'is_freerun': is_freerun};
+          }
 
-    var params;
-    if (is_freerun) {
-        params = { 'process_name': process_name, 'entry_name': entry_name, 'is_freerun': is_freerun};
-    } else {
-        params = { 'process_name': process_name, 'timeperiod': timeperiod, 'is_freerun': is_freerun};
-    }
-
-    $.get('/' + action + '/', params, function (response) {
-        // once the response arrives - reload the page
-        if (reload_afterwards) {
-            location.reload(true);
+          $.get('/' + action + '/', params, function (response) {
+              // once the response arrives - reload the page
+              if (reload_afterwards) {
+                  location.reload(true);
+              }
+          });
         }
-    });
+      });
+    }
 }

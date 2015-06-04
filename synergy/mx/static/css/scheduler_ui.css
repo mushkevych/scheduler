@@ -34,8 +34,9 @@ div#footer a {
  */
 .one-column-emphasis
 {
+    width: 100% !important;
     font-size: 12px;
-    margin: 45px;
+    /*margin: 45px;*/
     width: 560px;
     text-align: left;
     border-collapse: collapse;

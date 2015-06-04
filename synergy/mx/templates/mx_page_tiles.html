@@ -8,16 +8,22 @@
             <div id="grid-header-{{ process_name }}" class="grid-header"></div>
             {%- endfor %}
             <div class="side-tool-bar">
-
+              <label for="">Test Test Testing</label><br>
+              <button type="button" name="button">Test1</button><br>
+              <button type="button" name="button">Test2</button><br>
+              <button type="button" name="button">Test3</button><br>
             </div>
         </div>
-        <div class="grid-container">
+        <div class="grid-container spacer">
             <div id="grid-info-{{ tree_name }}" class="grid-info"></div>
             {% for process_name in tree_obj.sorted_process_names %}
             <div id="grid-info-{{ process_name }}" class="grid-info context-menu"></div>
             {%- endfor %}
             <div class="side-tool-bar">
-
+              <label for="">Test Test Testing</label><br>
+              <button type="button" name="button">Test1</button><br>
+              <button type="button" name="button">Test2</button><br>
+              <button type="button" name="button">Test3</button><br>
             </div>
         </div>
     {% endfor -%}
