@@ -103,57 +103,57 @@ div#footer a {
 
 /* highlighting rows in dataTables accordingly to Job state */
 tr.state_embryo {
-    background-color: #eff2ff;
+    background-color: #eff2ff !important;
 }
 
 tr.state_embryo td {
-    color: #669;
+    color: #669 !important;
 }
 
 tr.state_in_progress {
-    background-color: #C3FDB8;
+    background-color: #C3FDB8 !important;
 }
 
 tr.state_in_progress td {
-    color: #000000;
+    color: #000000 !important;
 }
 
 tr.state_processed {
-    background-color: #15C200;
+    background-color: #15C200 !important;
 }
 
 tr.state_processed td {
-    color: #FFFFFF;
+    color: #FFFFFF !important;
 }
 
 tr.state_final_run {
-    background-color: #ADFF2F;
+    background-color: #ADFF2F !important;
 }
 
 tr.state_final_run td {
-    color: #000000;
+    color: #000000 !important;
 }
 
 tr.state_skipped {
-    background-color: #FF4500;
+    background-color: #FF4500 !important;
 }
 
 tr.state_skipped td {
-    color: #000000;
+    color: #000000 !important;
 }
 
 tr.state_noop {
-    background-color: #FFCCAA;
+    background-color: #FFCCAA !important;
 }
 
 tr.state_noop td {
-    color: #000000;
+    color: #000000 !important;
 }
 
 tr.state_inconsistent {
-    background-color: #d28aff;
+    background-color: #d28aff !important;
 }
 
 tr.state_inactive {
-    background-color: lightgray;
+    background-color: lightgray !important;
 }
