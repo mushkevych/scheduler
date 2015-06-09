@@ -1,5 +1,6 @@
 __author__ = 'Bohdan Mushkevych'
 
+from db.model.raw_data import DOMAIN_NAME, TIMEPERIOD
 from db.model.site_statistics import SiteStatistics
 from synergy.system.utils import copy_and_sum_families
 from synergy.system import time_helper
@@ -14,6 +15,9 @@ class SiteDailyAggregator(AbstractVerticalWorker):
 
     def _init_sink_key(self, *args):
         return args[0], time_helper.hour_to_day(args[1])
+
+    def _mongo_sink_key(self, *args):
+        return {DOMAIN_NAME: args[0], TIMEPERIOD: args[1]}
 
     def _init_source_object(self, document):
         return SiteStatistics.from_json(document)
