@@ -100,6 +100,7 @@ function process_batch(action, is_freerun) {
                 process_job(action, process_name, timeperiod, false);
                 selected[i].checked = false;
             }
+            Alertify.log("refresh the tree view", null, 1500, null);
         } else if (action.indexOf('activate') > -1 || action.indexOf('deactivate') > -1) {
             if (is_freerun) {
                 for (i = 0; i < selected.length; i++) {
@@ -119,7 +120,7 @@ function process_batch(action, is_freerun) {
                 }
             }
         } else {
-            alert('Action ' + action + ' is not yet supported by Synergy Scheduler MX JavaScript library.')
+            Alertify.error('Action ' + action + ' is not supported by Synergy Scheduler MX JavaScript library.');
         }
     })
 
@@ -127,43 +128,64 @@ function process_batch(action, is_freerun) {
 
 // function applies given "action" to the job record identified by "process_name+timeperiod"
 function process_job(action, process_name, timeperiod, show_confirmation_dialog) {
+    /**
+     * function do_the_call performs communication with the server and parses response
+     */
+    function do_the_call() {
+        var params = {'process_name': process_name, 'timeperiod': timeperiod};
+        $.get('/' + action + '/', params, function (response) {
+            if (response !== undefined && response !== null) {
+                Alertify.log("response: " + response.responseText, null, 1500, null);
+            }
+            if (show_confirmation_dialog) {
+                Alertify.log("refresh the tree view", null, 1500, null);
+            }
+        });
+    }
+
     if (show_confirmation_dialog) {
         var msg = 'You are about to ' + action + ' ' + timeperiod + ' for ' + process_name;
         Alertify.confirm(msg, function (e) {
             if (!e) {
                 return;
             }
-
-            var params = {'process_name': process_name, 'timeperiod': timeperiod};
-            $.get('/' + action + '/', params, function (response) {
-                //        alert("response is " + response);
-            });
+            do_the_call();
         });
+    } else {
+        do_the_call();
     }
 }
 
 // function applies given "action" to the SchedulerThreadHandler entry
 function process_trigger(action, process_name, timeperiod, entry_name, is_freerun, reload_afterwards, show_confirmation_dialog) {
+    /**
+     * function do_the_call performs communication with the server and reloads browser page afterwards
+     */
+    function do_the_call() {
+        var params;
+        if (is_freerun) {
+            params = {'process_name': process_name, 'entry_name': entry_name, 'is_freerun': is_freerun};
+        } else {
+            params = {'process_name': process_name, 'timeperiod': timeperiod, 'is_freerun': is_freerun};
+        }
+
+        $.get('/' + action + '/', params, function (response) {
+            // once the response arrives - reload the page
+            if (reload_afterwards) {
+                location.reload(true);
+            }
+        });
+    }
+
     if (show_confirmation_dialog) {
         var msg = 'You are about to ' + action + ' ' + timeperiod + ' for ' + process_name;
         Alertify.confirm(msg, function (e) {
             if (!e) {
                 return;
             }
-
-            var params;
-            if (is_freerun) {
-                params = {'process_name': process_name, 'entry_name': entry_name, 'is_freerun': is_freerun};
-            } else {
-                params = {'process_name': process_name, 'timeperiod': timeperiod, 'is_freerun': is_freerun};
-            }
-
-            $.get('/' + action + '/', params, function (response) {
-                // once the response arrives - reload the page
-                if (reload_afterwards) {
-                    location.reload(true);
-                }
-            });
+            do_the_call();
         });
+    } else {
+        do_the_call();
     }
 }
