@@ -55,7 +55,7 @@ class BaseManager(object):
     def filter(self, table_name, query):
         raise NotImplementedError('method filter must be implemented by {0}'.format(self.__class__.__name__))
 
-    def update(self, table_name, instance):
+    def update(self, table_name, primary_key, instance):
         raise NotImplementedError('method update must be implemented by {0}'.format(self.__class__.__name__))
 
     def delete(self, table_name, primary_key):
@@ -121,9 +121,9 @@ class MongoDbManager(BaseManager):
         conn = self._db[table_name]
         return conn.insert(instance, safe=True)
 
-    def update(self, table_name, instance):
+    def update(self, table_name, primary_key, instance):
         conn = self._db[table_name]
-        conn.save(instance, safe=True)
+        conn.update(primary_key, instance, upsert=True, safe=True)
 
     def highest_primary_key(self, table_name, timeperiod_low, timeperiod_high):
         query = {TIMEPERIOD: {'$gte': timeperiod_low, '$lt': timeperiod_high}}

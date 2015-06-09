@@ -2,7 +2,6 @@ __author__ = 'Bohdan Mushkevych'
 
 from db.model.site_statistics import SiteStatistics
 from synergy.system.utils import copy_and_sum_families
-from synergy.conf import settings
 from synergy.system import time_helper
 from workers.abstract_vertical_worker import AbstractVerticalWorker
 
@@ -12,9 +11,6 @@ class SiteDailyAggregator(AbstractVerticalWorker):
 
     def __init__(self, process_name):
         super(SiteDailyAggregator, self).__init__(process_name)
-
-    def _get_tunnel_port(self):
-        return settings.settings['tunnel_site_port']
 
     def _init_sink_key(self, *args):
         return args[0], time_helper.hour_to_day(args[1])
