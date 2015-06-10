@@ -29,7 +29,7 @@ body {
     overflow-x: hidden;
     overflow-y: hidden;
     background-color: whitesmoke;
-    margin-right: 1%;
+    margin-right: 0.5%;
     margin-bottom: 15px;
     float: left;
     min-width: 244px;
@@ -54,7 +54,7 @@ body {
     overflow-y: scroll;
     background-color: whitesmoke;
     float: left;
-    margin-right: 1%;
+    margin-right: 0.5%;
     margin-bottom: 5px;
     min-width: 244px;
 }
