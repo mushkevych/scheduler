@@ -52,7 +52,9 @@ function header_process_tile(process_entry, tile) {
     var trigger_button = $('<button class="action_button"><i class="fa fa-paper-plane-o"></i>&nbsp;Trigger</button>').click(function (e) {
         var params = { 'process_name': process_entry.process_name, 'timeperiod': 'NA' };
         $.get('/action/trigger_now/', params, function (response) {
-//        alert("response is " + response);
+            if (response !== undefined && response !== null) {
+                Alertify.log("response: " + response.responseText, null, 1500, null);
+            }
         });
     });
 

@@ -28,38 +28,35 @@ div#footer a {
     color: #C6D5FD;
 }
 
-
 /*
  * Table that host data rows on all pages
  */
-.one-column-emphasis
-{
+.one-column-emphasis {
+    width: 100% !important;
     font-size: 12px;
-    margin: 45px;
-    width: 560px;
     text-align: left;
     border-collapse: collapse;
 }
-.one-column-emphasis th
-{
+
+.one-column-emphasis th {
     font-size: 14px;
     font-weight: normal;
     padding: 12px 15px;
     color: #039;
 }
-.one-column-emphasis td
-{
+
+.one-column-emphasis td {
     padding: 10px 15px;
     color: #669;
     border-top: 1px solid #e8edff;
 }
-.one-column-emphasis tr:hover td
-{
+
+.one-column-emphasis tr:hover td {
     color: #339;
     background: #eff2ff;
 }
-.one-column-emphasis-first
-{
+
+.one-column-emphasis-first {
     background: #d0dafd;
     border-right: 10px solid transparent;
     border-left: 10px solid transparent;
@@ -68,8 +65,7 @@ div#footer a {
 /*
  * Table that holds list of pages on top of the page
  */
-.header-table
-{
+.header-table {
     font-size: 12px;
     width: 100%;
     text-align: left;
@@ -78,87 +74,86 @@ div#footer a {
     background: #333333;
     min-width: 1400px;
 }
-.header-table th
-{
+
+.header-table th {
     font-size: 20px;
     font-weight: bold;
     padding: 12px 15px;
 }
-.header-table td
-{
+
+.header-table td {
     padding: 10px 15px;
     border-top: 1px solid #FFFFFF;
 }
-.header-table tr td a
-{
+
+.header-table tr td a {
     text-decoration: none;
     color: #FFFFFF;
 }
-.header-table tr:hover td:hover, .header-table td.active
-{
-    background: #CC0000;
-}
-.header-table tr:hover td:hover a, .header-table tr:hover td:hover a:hover
-{
-    text-decoration: none;
-    color: #FFFFFF;
+
+.header-table tr:hover td:hover, .header-table td.active {
     background: #CC0000;
 }
 
+.header-table tr:hover td:hover a, .header-table tr:hover td:hover a:hover {
+    text-decoration: none;
+    color: #FFFFFF;
+    background: #CC0000;
+}
 
 /* highlighting rows in dataTables accordingly to Job state */
 tr.state_embryo {
-    background-color: #eff2ff;
+    background-color: #eff2ff !important;
 }
 
 tr.state_embryo td {
-    color: #669;
+    color: #669 !important;
 }
 
 tr.state_in_progress {
-    background-color: #C3FDB8;
+    background-color: #C3FDB8 !important;
 }
 
 tr.state_in_progress td {
-    color: #000000;
+    color: #000000 !important;
 }
 
 tr.state_processed {
-    background-color: #15C200;
+    background-color: #15C200 !important;
 }
 
 tr.state_processed td {
-    color: #FFFFFF;
+    color: #FFFFFF !important;
 }
 
 tr.state_final_run {
-    background-color: #ADFF2F;
+    background-color: #ADFF2F !important;
 }
 
 tr.state_final_run td {
-    color: #000000;
+    color: #000000 !important;
 }
 
 tr.state_skipped {
-    background-color: #FF4500;
+    background-color: #FF4500 !important;
 }
 
 tr.state_skipped td {
-    color: #000000;
+    color: #000000 !important;
 }
 
 tr.state_noop {
-    background-color: #FFCCAA;
+    background-color: #FFCCAA !important;
 }
 
 tr.state_noop td {
-    color: #000000;
+    color: #000000 !important;
 }
 
 tr.state_inconsistent {
-    background-color: #d28aff;
+    background-color: #d28aff !important;
 }
 
 tr.state_inactive {
-    background-color: lightgray;
+    background-color: lightgray !important;
 }

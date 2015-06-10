@@ -1,4 +1,3 @@
-""" Module contains common logic for aggregators and workers that work with unit_of_work """
 __author__ = 'Bohdan Mushkevych'
 
 import gc
@@ -18,14 +17,14 @@ from synergy.system.performance_tracker import UowAwareTracker
 
 
 class AbstractMongoWorker(AbstractMqWorker):
-    """ Abstract class is inherited by all workers/aggregators
-    that are aware of unit_of_work and capable of processing it"""
+    """ Abstract class is inherited by all workers of the illustration suite
+    Module holds logic on handling unit_of_work and declaration of abstract methods """
 
     def __init__(self, process_name):
         super(AbstractMongoWorker, self).__init__(process_name)
         self.aggregated_objects = dict()
-        self.queue_source = context.process_context[self.process_name].source
-        self.queue_sink = context.process_context[self.process_name].sink
+        self.source = context.process_context[self.process_name].source
+        self.sink = context.process_context[self.process_name].sink
         self.uow_dao = UnitOfWorkDao(self.logger)
         self.ds = ds_manager.ds_factory(self.logger)
 
@@ -38,41 +37,22 @@ class AbstractMongoWorker(AbstractMqWorker):
         self.performance_ticker = UowAwareTracker(logger)
         self.performance_ticker.start()
 
-    def _get_tunnel_port(self):
-        """ abstract method to retrieve Python-HBase tunnel port"""
-        pass
-
     def _flush_aggregated_objects(self):
-        """ method inserts aggregated objects to HBaseTunnel
+        """ method inserts aggregated objects into MongoDB
             @return number_of_aggregated_objects """
         if len(self.aggregated_objects) == 0:
             # nothing to do
             return 0
 
-        total_transferred_bytes = 0
         number_of_aggregated_objects = len(self.aggregated_objects)
         self.logger.info('Aggregated %d documents. Performing flush.' % number_of_aggregated_objects)
-        tunnel_address = (settings.settings['tunnel_host'], self._get_tunnel_port())
 
         for key in self.aggregated_objects:
-            client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-            client_socket.connect(tunnel_address)
             document = self.aggregated_objects[key]
-            tunnel_obj = json.dumps(document.data, cls=DecimalEncoder)
-            transferred_bytes = client_socket.send(tunnel_obj)
-            if transferred_bytes == 0:
-                raise RuntimeError("Transferred 0 bytes. Socket connection broken")
-            total_transferred_bytes += transferred_bytes
-            client_socket.shutdown(socket.SHUT_WR)
-            client_socket.close()
+            mongo_pk = self._mongo_sink_key(*key)
+            self.ds.update(self.sink, mongo_pk, document.document)
 
-        client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        client_socket.connect(tunnel_address)
-        transferred_bytes = client_socket.send('FLUSH')
-        if transferred_bytes == 0:
-            raise RuntimeError("Transferred 0 bytes. Socket connection broken")
-        client_socket.close()
-        self.logger.info('Flush successful. Transmitted %r bytes' % total_transferred_bytes)
+        self.logger.info('Flush successful.')
 
         del self.aggregated_objects
         self.aggregated_objects = dict()
@@ -88,6 +68,10 @@ class AbstractMongoWorker(AbstractMqWorker):
 
     def _init_sink_key(self, *args):
         """ abstract method to create composite key from source compounds like domain_name and timeperiod"""
+        pass
+
+    def _mongo_sink_key(self, *args):
+        """ abstract method to create MongoDB primary key from source compounds like domain_name and timeperiod"""
         pass
 
     def _init_sink_object(self, composite_key):

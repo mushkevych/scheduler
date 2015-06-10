@@ -13,8 +13,11 @@ body {
     clear: left;
     min-width: 1400px;
 }
+.grid-container.spacer{
+  margin-bottom: 40px;
+}
 .side-tool-bar {
-  
+
 }
 .grid-header {
     width: 16%;
@@ -25,7 +28,6 @@ body {
     background-color: whitesmoke;
     margin-right: 1%;
     margin-bottom: 15px;
-    /*border: 5px solid white;*/
     float: left;
     min-width: 244px;
 }
