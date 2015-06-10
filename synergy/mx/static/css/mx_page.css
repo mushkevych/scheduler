@@ -24,7 +24,7 @@ body {
 
 .grid-header {
     width: 16%;
-    height: 200px;
+    height: 210px;
     position: relative;
     overflow-x: hidden;
     overflow-y: hidden;
@@ -74,10 +74,6 @@ body {
     margin: 10px 0;
     border: 10px solid #ddd;
     clear: both;
-}
-
-.side-tool-bar {
-
 }
 
 .grid > div {
@@ -144,7 +140,6 @@ div.is_next_timeperiod {
 }
 
 div.state_embryo {
-    width: 96% !important;
     background-color: #d5f5ff;
 }
 
