@@ -4,7 +4,6 @@ from db.model.raw_data import DOMAIN_NAME, TIMEPERIOD
 from db.model.single_session import SingleSession
 from db.model.site_statistics import SiteStatistics
 from synergy.system.utils import increment_family_property
-from synergy.system import time_helper
 from workers.abstract_vertical_worker import AbstractVerticalWorker
 
 
@@ -19,7 +18,7 @@ class SiteHourlyAggregator(AbstractVerticalWorker):
         super(SiteHourlyAggregator, self).__init__(process_name)
 
     def _init_sink_key(self, *args):
-        return args[0], time_helper.session_to_hour(args[1])
+        return args[0], args[1]
 
     def _mongo_sink_key(self, *args):
         return {DOMAIN_NAME: args[0], TIMEPERIOD: args[1]}

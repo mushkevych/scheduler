@@ -1,8 +1,6 @@
 __author__ = 'Bohdan Mushkevych'
 
 import gc
-import json
-import socket
 from datetime import datetime
 
 from synergy.conf import context
@@ -11,7 +9,6 @@ from synergy.db.model.synergy_mq_transmission import SynergyMqTransmission
 from synergy.db.manager import ds_manager
 from synergy.db.dao.unit_of_work_dao import UnitOfWorkDao
 from synergy.conf import settings
-from synergy.system.decimal_encoder import DecimalEncoder
 from synergy.workers.abstract_mq_worker import AbstractMqWorker
 from synergy.system.performance_tracker import UowAwareTracker
 
