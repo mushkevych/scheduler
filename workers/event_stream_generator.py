@@ -45,7 +45,7 @@ class EventStreamGenerator(SynergyProcess):
 
     def _generate_key(self):
         _id = random.randint(0, 100000)
-        domain_name = 'domain%d.com' % _id
+        domain_name = 'domain%d__com' % _id
 
         session_no = self.number_of_groups + random.randint(0, 99)
         session_id = 'session_%d' % session_no
@@ -74,22 +74,22 @@ class EventStreamGenerator(SynergyProcess):
 
                 if self.performance_ticker.tracker.success.per_tick % 7 == 0:
                     document.os = 'OSX'
-                    document.browser = 'Safari-1.0'
+                    document.browser = 'Safari-10'
                     document.language = 'en_us'
                     document.country = 'usa'
                 elif self.performance_ticker.tracker.success.per_tick % 5 == 0:
                     document.os = 'Linux'
-                    document.browser = 'FireFox-4.0'
+                    document.browser = 'FireFox-40'
                     document.language = 'en_ca'
                     document.country = 'canada'
                 elif self.performance_ticker.tracker.success.per_tick % 3 == 0:
                     document.os = 'Windows'
-                    document.browser = 'IE-6.0'
+                    document.browser = 'IE-60'
                     document.language = 'ge_de'
                     document.country = 'germany'
                 else:
                     document.os = 'Android'
-                    document.browser = 'FireMini-2.0'
+                    document.browser = 'FireMini-20'
                     document.language = 'es'
                     document.country = 'eu'
 
