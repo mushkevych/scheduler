@@ -38,6 +38,7 @@ class BaseManager(object):
     BaseManager holds definition of the Data Source and an interface to read, write, delete and update (CRUD)
     models withing the DataSource
     """
+
     def __init__(self, logger):
         super(BaseManager, self).__init__()
         self.logger = logger
@@ -62,20 +63,29 @@ class BaseManager(object):
         raise NotImplementedError('method delete must be implemented by {0}'.format(self.__class__.__name__))
 
     def highest_primary_key(self, table_name, timeperiod_low, timeperiod_high):
-        raise NotImplementedError('method highest_primary_key must be implemented by {0}'.format(self.__class__.__name__))
+        raise NotImplementedError(
+            'method highest_primary_key must be implemented by {0}'.format(self.__class__.__name__))
 
     def lowest_primary_key(self, table_name, timeperiod_low, timeperiod_high):
-        raise NotImplementedError('method lowest_primary_key must be implemented by {0}'.format(self.__class__.__name__))
+        raise NotImplementedError(
+            'method lowest_primary_key must be implemented by {0}'.format(self.__class__.__name__))
 
-    def cursor_for(self,
-                   table_name,
-                   start_id_obj,
-                   end_id_obj,
-                   iteration,
-                   start_timeperiod,
-                   end_timeperiod,
-                   bulk_threshold):
-        raise NotImplementedError('method cursor_for must be implemented by {0}'.format(self.__class__.__name__))
+    def cursor_fine(self,
+                    table_name,
+                    start_id_obj,
+                    end_id_obj,
+                    iteration,
+                    start_timeperiod,
+                    end_timeperiod):
+        """ method returns DB cursor based on precise boundaries """
+        raise NotImplementedError('method cursor_fine must be implemented by {0}'.format(self.__class__.__name__))
+
+    def cursor_batch(self,
+                     table_name,
+                     start_timeperiod,
+                     end_timeperiod):
+        """ method returns batched DB cursor """
+        raise NotImplementedError('method cursor_batch must be implemented by {0}'.format(self.__class__.__name__))
 
 
 class MongoDbManager(BaseManager):
@@ -141,14 +151,13 @@ class MongoDbManager(BaseManager):
         last_object_id = dec_search[0]['_id']
         return last_object_id
 
-    def cursor_for(self,
-                   table_name,
-                   start_id_obj,
-                   end_id_obj,
-                   iteration,
-                   start_timeperiod,
-                   end_timeperiod,
-                   bulk_threshold):
+    def cursor_fine(self,
+                    table_name,
+                    start_id_obj,
+                    end_id_obj,
+                    iteration,
+                    start_timeperiod,
+                    end_timeperiod):
         if not isinstance(start_id_obj, ObjectId):
             start_id_obj = ObjectId(start_id_obj)
         if not isinstance(end_id_obj, ObjectId):
@@ -164,7 +173,17 @@ class MongoDbManager(BaseManager):
             queue[TIMEPERIOD] = {'$gte': start_timeperiod, '$lt': end_timeperiod}
 
         conn = self._db[table_name]
-        return conn.find(queue).sort('_id', ASCENDING).limit(bulk_threshold)
+        batch_size = settings.settings['batch_size']
+        return conn.find(queue).sort('_id', ASCENDING).limit(batch_size)
+
+    def cursor_batch(self, table_name, start_timeperiod, end_timeperiod):
+        assert start_timeperiod is not None and end_timeperiod is not None
+
+        conn = self._db[table_name]
+        batch_size = settings.settings['batch_size']
+
+        queue = {TIMEPERIOD: {'$gte': start_timeperiod, '$lt': end_timeperiod}}
+        return conn.find(queue).batch_size(batch_size)
 
 
 class HBaseManager(BaseManager):

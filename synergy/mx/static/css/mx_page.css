@@ -13,12 +13,15 @@ body {
     clear: left;
     min-width: 1400px;
 }
-.grid-container.spacer{
-  margin-bottom: 40px;
+
+.grid-container.spacer {
+    margin-bottom: 40px;
 }
+
 .side-tool-bar {
 
 }
+
 .grid-header {
     width: 16%;
     height: 200px;
@@ -31,15 +34,18 @@ body {
     float: left;
     min-width: 244px;
 }
+
 .grid-header > div {
-  padding-top: 5px;
-  padding-left: 5px;
+    padding-top: 5px;
+    padding-left: 5px;
 }
+
 .grid-header > div textarea {
-  width: 80%;
-  margin-bottom: 5px;
-  min-width: 160px;
+    width: 80%;
+    margin-bottom: 5px;
+    min-width: 160px;
 }
+
 .grid-info {
     width: 16%;
     height: 400px;
@@ -52,10 +58,12 @@ body {
     margin-bottom: 5px;
     min-width: 244px;
 }
+
 .grid-info > div {
-  padding-top: 5px;
-  padding-left: 5px;
+    padding-top: 5px;
+    padding-left: 5px;
 }
+
 .grid {
     width: 95%;
     height: 600px;
@@ -67,9 +75,11 @@ body {
     border: 10px solid #ddd;
     clear: both;
 }
+
 .side-tool-bar {
 
 }
+
 .grid > div {
     background-color: #fff;
     position: absolute;
@@ -82,7 +92,7 @@ body {
 
 .action_button {
     display: inline-block;
-    width: 100px;
+    width: 110px;
 }
 
 .action_button_li {
@@ -118,7 +128,7 @@ div.process_header_tile_off .fa-ul, div.process_header_tile_on .fa-ul {
 }
 
 div.process_info_tile {
-  background-color: #ffbb88;
+    background-color: #ffbb88;
 }
 
 div.tile_component {
@@ -134,8 +144,8 @@ div.is_next_timeperiod {
 }
 
 div.state_embryo {
-  width: 96% !important;
-  background-color: #d5f5ff;
+    width: 96% !important;
+    background-color: #d5f5ff;
 }
 
 div.state_embryo div {

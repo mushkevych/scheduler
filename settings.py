@@ -24,7 +24,7 @@ settings = dict(
     hadoop_command='/usr/bin/hadoop',
     pig_command='/usr/bin/pig',
     bash_command='/bin/bash',
-    bulk_threshold=1024,       # illustration suite setting: number of DB documents to read in batch
+    batch_size=1024,       # illustration suite setting: number of DB documents to read in batch
 
     debug=False,                                    # if True - logger is given additional "console" adapter
     under_test=False

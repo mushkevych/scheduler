@@ -8,7 +8,6 @@ from synergy.db.model import unit_of_work
 from synergy.db.model.synergy_mq_transmission import SynergyMqTransmission
 from synergy.db.manager import ds_manager
 from synergy.db.dao.unit_of_work_dao import UnitOfWorkDao
-from synergy.conf import settings
 from synergy.workers.abstract_mq_worker import AbstractMqWorker
 from synergy.system.performance_tracker import UowAwareTracker
 
@@ -116,23 +115,21 @@ class AbstractMongoWorker(AbstractMqWorker):
             end_id_obj = uow.end_id
             start_timeperiod = uow.start_timeperiod
             end_timeperiod = uow.end_timeperiod
+            collection_name = context.process_context[self.process_name].source
 
             uow.state = unit_of_work.STATE_IN_PROGRESS
             uow.started_at = datetime.utcnow()
             self.uow_dao.update(uow)
             self.performance_ticker.start_uow(uow)
 
-            bulk_threshold = settings.settings['bulk_threshold']
             iteration = 0
             while True:
-                collection_name = context.process_context[self.process_name].source
-                cursor = self.ds.cursor_for(collection_name,
-                                            start_id_obj,
-                                            end_id_obj,
-                                            iteration,
-                                            start_timeperiod,
-                                            end_timeperiod,
-                                            bulk_threshold)
+                cursor = self.ds.cursor_fine(collection_name,
+                                             start_id_obj,
+                                             end_id_obj,
+                                             iteration,
+                                             start_timeperiod,
+                                             end_timeperiod)
                 count = cursor.count(with_limit_and_skip=True)
                 if count == 0 and iteration == 0:
                     msg = 'No entries in %s at range [%s : %s]' % (collection_name, uow.start_id, uow.end_id)
