@@ -5,12 +5,12 @@ from db.model.raw_data import DOMAIN_NAME, TIMEPERIOD
 from db.model.site_statistics import SiteStatistics
 from db.model.alert import Alert
 from db.dao.site_dao import SiteDao
-from workers.abstract_vertical_worker import AbstractVerticalWorker
+from workers.abstract_mongo_worker import AbstractMongoWorker
 from synergy.system import time_helper
 from synergy.system.time_qualifier import *
 
 
-class AlertDailyWorker(AbstractVerticalWorker):
+class AlertDailyWorker(AbstractMongoWorker):
     """ class compares site daily statistics with 1-week old one and
     reports an alert should any of the given threshold be crossed """
 

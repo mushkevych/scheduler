@@ -1,20 +1,24 @@
+import gc
+
 __author__ = 'Bohdan Mushkevych'
 
+from synergy.conf import settings
 from db.model.raw_data import DOMAIN_NAME, TIMEPERIOD
 from db.model.site_statistics import SiteStatistics
 from db.model.client_statistics import ClientStatistics, CLIENT_ID
 from synergy.system.utils import copy_and_sum_families
 from synergy.system import time_helper
 from synergy.system.restful_client import RestClient
-from workers.abstract_horizontal_worker import AbstractHorizontalWorker
+from workers.abstract_mongo_worker import AbstractMongoWorker
 
 
-class ClientDailyAggregator(AbstractHorizontalWorker):
+class ClientDailyAggregator(AbstractMongoWorker):
     """ class works as an aggregator from the site_hourly into the site_daily """
 
     def __init__(self, process_name):
         super(ClientDailyAggregator, self).__init__(process_name)
         self.rest_client = RestClient(self.logger)
+        self.batch = []
 
     def _init_sink_key(self, *args):
         return args[0], time_helper.hour_to_day(args[1])
@@ -29,6 +33,21 @@ class ClientDailyAggregator(AbstractHorizontalWorker):
         obj = ClientStatistics()
         obj.key = (composite_key[0], composite_key[1])
         return obj
+
+    def _process_single_document(self, document):
+        self.batch.append(document)
+        if len(self.batch) > settings.settings['batch_size']:
+            self._process_bulk_array(self.batch, self.batch[0][TIMEPERIOD])
+            del self.batch
+            self.batch = []
+            gc.collect()
+
+    def _cursor_exploited(self):
+        if len(self.batch) > 0:
+            self._process_bulk_array(self.batch, self.batch[0][TIMEPERIOD])
+            del self.batch
+            self.batch = []
+            gc.collect()
 
     def _process_bulk_array(self, array_of_documents, timeperiod):
         domain_list = [x[DOMAIN_NAME] for x in array_of_documents]

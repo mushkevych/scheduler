@@ -4,10 +4,10 @@ from db.model.raw_data import DOMAIN_NAME, TIMEPERIOD
 from db.model.site_statistics import SiteStatistics
 from synergy.system.utils import copy_and_sum_families
 from synergy.system import time_helper
-from workers.abstract_vertical_worker import AbstractVerticalWorker
+from workers.abstract_mongo_worker import AbstractMongoWorker
 
 
-class SiteDailyAggregator(AbstractVerticalWorker):
+class SiteDailyAggregator(AbstractMongoWorker):
     """ class works as an aggregator from the site_hourly into the site_daily """
 
     def __init__(self, process_name):

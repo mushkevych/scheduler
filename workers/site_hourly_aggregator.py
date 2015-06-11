@@ -4,10 +4,10 @@ from db.model.raw_data import DOMAIN_NAME, TIMEPERIOD
 from db.model.single_session import SingleSession
 from db.model.site_statistics import SiteStatistics
 from synergy.system.utils import increment_family_property
-from workers.abstract_vertical_worker import AbstractVerticalWorker
+from workers.abstract_mongo_worker import AbstractMongoWorker
 
 
-class SiteHourlyAggregator(AbstractVerticalWorker):
+class SiteHourlyAggregator(AbstractMongoWorker):
     """
     class works as an aggregator from the single_session collection and produces/updates records in the site_hourly
     principle of work is following: we extract all of the sessions for the hour
