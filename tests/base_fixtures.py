@@ -24,22 +24,6 @@ from tests.ut_context import PROCESS_UNIT_TEST
 TOTAL_ENTRIES = 101
 
 
-class TestConsumer(object):
-    """ empty class that should substitute MQ Flopsy Consumer. Used for testing only """
-
-    def acknowledge(self, delivery_tag):
-        pass
-
-    def close(self):
-        pass
-
-    def reject(self, delivery_tag):
-        pass
-
-    def cancel(self, delivery_tag):
-        pass
-
-
 class TestMessage(object):
     """ empty class that should substitute MQ Message. Used for testing only """
 

@@ -1,10 +1,11 @@
 __author__ = 'Bohdan Mushkevych'
 
 import unittest
+import mock
+
 from synergy.db.dao.unit_of_work_dao import UnitOfWorkDao
 from tests import base_fixtures
 from tests.base_fixtures import TestMessage
-from tests.base_fixtures import TestConsumer
 
 
 # pylint: disable=E1002
@@ -12,16 +13,17 @@ def get_test_aggregator(baseclass, process_name):
     class TestAggregator(baseclass):
         def __init__(self, process_name):
             super(TestAggregator, self).__init__(process_name)
-            self.consumer = TestConsumer()
+            self.publishers = mock.Mock()
+            self.publishers.get = mock.MagicMock(return_value=mock.Mock())
 
         def _init_performance_ticker(self, logger):
             super(TestAggregator, self)._init_performance_ticker(logger)
             self.performance_ticker.cancel()
 
-        def _flush_aggregated_objects(self):
-            pass
+        def _init_mq_consumer(self):
+            self.consumer = mock.Mock()
 
-        def _flush_unallocated_objects(self, array):
+        def _flush_aggregated_objects(self):
             pass
 
     return TestAggregator(process_name)
