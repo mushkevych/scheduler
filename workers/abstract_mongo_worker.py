@@ -100,6 +100,7 @@ class AbstractMongoWorker(AbstractUowAwareWorker):
                 self.logger.warn(msg)
                 break
 
+            start_id_obj = None
             for document in cursor:
                 start_id_obj = document['_id']
                 self.performance_ticker.increment()

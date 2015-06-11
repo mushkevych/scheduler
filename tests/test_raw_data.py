@@ -19,7 +19,7 @@ class TestRawData(unittest.TestCase):
         session_id = 'session_xxx_yyy'
         self.obj.key = (domain_name, timestamp, session_id)
         assert self.obj.key[0] == domain_name
-        assert self.obj.key[1] == datetime.datetime.fromtimestamp(timestamp)
+        assert self.obj.key[1] == datetime.datetime.utcfromtimestamp(timestamp)
         assert self.obj.key[2] == session_id
 
     def test_session_id(self):
