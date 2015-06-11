@@ -104,4 +104,3 @@ class ProcessHierarchy(object):
         """ :return: <ManagedProcessEntry> of the hierarchy's bottom entry """
         key = next(reversed(self.entries))
         return self.entries[key].process_entry
-

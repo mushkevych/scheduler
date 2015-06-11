@@ -11,7 +11,6 @@ class TestEventClock(unittest.TestCase):
     def test_utc_now(self):
         utc_now = datetime.utcnow()
         self.obj = EventTime.utc_now()
-        print(str(self.obj))
         assert self.obj.day_of_week == str(utc_now.weekday()) \
                and self.obj.time_of_day.hour == utc_now.hour \
                and self.obj.time_of_day.minute == utc_now.minute \
@@ -20,6 +19,12 @@ class TestEventClock(unittest.TestCase):
 
         other_obj = EventTime.utc_now()
         self.assertEqual(other_obj, self.obj)
+
+    def test_to_string(self):
+        self.obj = EventTime.utc_now()
+        print(str(self.obj))
+        print(repr(self.obj))
+        self.assertTrue(True, 'No exceptions were thrown during str() or repr() functions')
 
     def test_eq(self):
         params = [EventTime(x) for x in ['17:00', '4-15:45', '*-09:00', '8:01']]
