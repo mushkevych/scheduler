@@ -70,11 +70,6 @@ class AbstractMongoWorker(AbstractUowAwareWorker):
         pass
 
     # ********************** thread-related methods ****************************
-    def _clean_up(self):
-        del self.aggregated_objects
-        self.aggregated_objects = dict()
-        gc.collect()
-
     def _process_single_document(self, document):
         """ abstract method that actually processes the document from source collection"""
         pass
@@ -103,8 +98,8 @@ class AbstractMongoWorker(AbstractUowAwareWorker):
             start_id_obj = None
             for document in cursor:
                 start_id_obj = document['_id']
-                self.performance_ticker.increment()
                 self._process_single_document(document)
+                self.performance_ticker.increment()
             if start_id_obj is None:
                 break
             iteration += 1
@@ -116,13 +111,12 @@ class AbstractMongoWorker(AbstractUowAwareWorker):
     def _run_data_engine(self, start_timeperiod, end_timeperiod):
         """ regular data engine """
         collection_name = context.process_context[self.process_name].source
-        while True:
-            cursor = self.ds.cursor_batch(collection_name,
-                                          start_timeperiod,
-                                          end_timeperiod)
-            for document in cursor:
-                self.performance_ticker.increment()
-                self._process_single_document(document)
+        cursor = self.ds.cursor_batch(collection_name,
+                                      start_timeperiod,
+                                      end_timeperiod)
+        for document in cursor:
+            self._process_single_document(document)
+            self.performance_ticker.increment()
 
         self._cursor_exploited()
         msg = 'Cursor exploited after fetching %s documents' % str(self.performance_ticker.per_job)
@@ -133,4 +127,5 @@ class AbstractMongoWorker(AbstractUowAwareWorker):
             self._run_data_engine(uow.start_timeperiod, uow.end_timeperiod)
         else:
             self._run_custom_data_engine(uow.start_id, uow.end_id, uow.start_timeperiod, uow.end_timeperiod)
+        self._flush_aggregated_objects()
         return self.performance_ticker.per_job, unit_of_work.STATE_PROCESSED

@@ -1,8 +1,8 @@
-from tests import base_fixtures
-from constants import COLLECTION_SITE_DAILY
-from synergy.system.time_qualifier import QUALIFIER_DAILY
-
 __author__ = 'Bohdan Mushkevych'
+
+from constants import COLLECTION_SITE_DAILY
+from tests import base_fixtures
+from synergy.system.time_qualifier import QUALIFIER_DAILY
 
 # pylint: disable=C0301
 EXPECTED_SITE_DAILY_00 = {

@@ -61,8 +61,8 @@ class AbstractStateMachine(object):
         uow.arguments = context.process_context[process_name].arguments
         uow.db_id = self.uow_dao.insert(uow)
 
-        msg = 'Created: UOW %s for %s in timeperiod [%s:%s).' \
-              % (uow.db_id, process_name, start_timeperiod, end_timeperiod)
+        msg = 'Created: UOW %s for %s in timeperiod %s.' \
+              % (uow.db_id, process_name, start_timeperiod)
         self._log_message(INFO, process_name, start_timeperiod, msg)
         return uow
 

@@ -25,40 +25,11 @@ TOTAL_ENTRIES = 101
 
 
 class TestMessage(object):
-    """ empty class that should substitute MQ Message. Used for testing only """
-
+    """ mock class substituting MQ Message. Used for Unit Tests only """
     def __init__(self, process_name=None, uow_id=None):
         mq_request = SynergyMqTransmission(process_name=process_name, unit_of_work_id=uow_id)
-
         self.body = mq_request.to_json()
         self.delivery_tag = None
-
-
-class TestSiteMembershipDictionary(dict):
-    """ this dictionary is used for testing period only to stub Synergy Construction replies"""
-
-    def __init__(self, array_of_sites):
-        super(TestSiteMembershipDictionary, self).__init__()
-        random.seed('RANDOM_SEED_OBJECT')
-        for site in array_of_sites:
-            super(TestSiteMembershipDictionary, self).__setitem__(site, ['portfolio_%d' % random.randint(0, 20)])
-
-
-class TestRestClient():
-    def __init__(self, logger):
-        self.logger = logger
-
-    def get_group_mapping(self, timeperiod, list_of_sites):
-        return TestSiteMembershipDictionary(list_of_sites)
-
-    def get_client_mapping(self, timeperiod, list_of_sites):
-        return TestSiteMembershipDictionary(list_of_sites)
-
-    def get_portfolio_mapping(self, timeperiod, list_of_sites):
-        return TestSiteMembershipDictionary(list_of_sites)
-
-    def get_list_of_sci(self, timeperiod):
-        return ['client_id_0', 'client_id_1', 'client_id_2', 'client_id_3']
 
 
 def get_field_starting_with(prefix, module):
