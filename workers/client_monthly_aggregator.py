@@ -18,11 +18,6 @@ class ClientMonthlyAggregator(ClientDailyAggregator):
     def _init_source_object(self, document):
         return ClientStatistics.from_json(document)
 
-    def _init_sink_object(self, composite_key):
-        obj = ClientStatistics()
-        obj.key = (composite_key[0], composite_key[1])
-        return obj
-
     def _process_single_document(self, document):
         source_obj = self._init_source_object(document)
         composite_key = self._init_sink_key(source_obj.key[0], source_obj.key[1])

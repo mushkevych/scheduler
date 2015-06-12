@@ -4,8 +4,8 @@ from datetime import datetime
 
 # folder locations, connection properties etc
 settings = dict(
-    process_prefix='Synergy',  # global prefix that is added to every process name started for synergy-scheduler
-    process_cwd='/mnt/tmp',    # daemonized process working directory, where it can create .cache and other folders
+    process_prefix='Synergy',   # global prefix that is added to every process name started for synergy-scheduler
+    process_cwd='/mnt/tmp',     # daemonized process working directory, where it can create .cache and other folders
     process_start_time=datetime.utcnow(),
     config_file='/etc/synergy.conf',
     version='%BUILD_NUMBER%',
@@ -16,18 +16,17 @@ settings = dict(
     remote_source_host_list=['user@f.q.h.n'],
     remote_source_password={'user@f.q.h.n': '***SSH_PASSWORD***'},
     remote_source_folder='/mnt/remote_folder/',
-    compute_gzip_md5=True,     # True, if AbstractFileCollector should compute MD5 for every file it processes
+    compute_gzip_md5=True,      # True, if AbstractFileCollector should compute MD5 for every file it processes
     bash_runnable_count=5,
 
     ds_type='mongo_db',
     mongo_db_name='scheduler',
-    hadoop_command='/usr/bin/hadoop',
-    pig_command='/usr/bin/pig',
-    bash_command='/bin/bash',
-    batch_size=1024,       # illustration suite setting: number of DB documents to read in batch
+    batch_size=1024,            # illustration suite setting: number of DB documents to read in batch
 
-    debug=False,                                    # if True - logger is given additional "console" adapter
-    under_test=False
+    debug=False,                # if True, logger.setLevel is set to DEBUG. Otherwise to INFO
+
+    under_test=False            # if True, STDOUT and STDERR logger tries to append "console" adapter.
+                                # Otherwise STDOUT and STDERR are redirected to .log files
 )
 
 # Update current dict with the environment-specific settings
@@ -82,12 +81,6 @@ def enable_test_mode():
         debug=True,
         under_test=True,
         synergy_start_timeperiod=datetime.utcnow().strftime('%Y%m%d%H'),
-
-        # illustration suite settings
-        hadoop_jar='/home/bmushkevych/git/synergy-hadoop/dist/synergy-hadoop-02.jar',
-        construction_hosts=['https://***REST_INTERFACE_URL***'],            # production access
-        construction_login='***REST_INTERFACE_LOGIN***',                    # production access ONLY
-        construction_password='***REST_INTERFACE_PWD***',                   # production access ONLY
     )
     settings.update(test_settings)
 

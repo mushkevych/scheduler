@@ -7,7 +7,9 @@ import psutil
 from synergy.conf import settings
 from synergy.workers.abstract_cli_worker import AbstractCliWorker
 
-
+# to use following driver, make sure settings.py declares following properties:
+# hadoop_jar='/some/path/synergy-hadoop-02.jar'
+# hadoop_command='/usr/bin/hadoop'
 class HadoopAggregatorDriver(AbstractCliWorker):
     """Python process that starts Hadoop map/reduce job, supervises its execution and updates unit_of_work"""
 

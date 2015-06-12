@@ -9,6 +9,8 @@ from synergy.conf import context
 from synergy.workers.abstract_cli_worker import AbstractCliWorker
 
 
+# to use following driver, make sure settings.py declares following properties:
+# pig_command='/usr/bin/pig'
 class PigDriver(AbstractCliWorker):
     """Python process that starts Pig processing job, supervises its execution and updates unit_of_work"""
 
