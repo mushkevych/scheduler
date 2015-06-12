@@ -3,7 +3,7 @@ __author__ = 'Bohdan Mushkevych'
 from datetime import datetime, timedelta
 
 from synergy.scheduler.process_hierarchy import ProcessHierarchy
-from synergy.scheduler.tree_node import TreeNode
+from synergy.scheduler.tree_node import TreeNode, RootNode
 from synergy.conf import settings
 from synergy.system import time_helper
 from synergy.system.time_helper import cast_to_time_qualifier
@@ -78,7 +78,7 @@ class MultiLevelTree(AbstractTree):
         self.tree_name = tree_name
         self.mx_name = mx_name
         self.mx_page = mx_page
-        self.root = TreeNode(self, None, None, None, None)
+        self.root = RootNode(self)
 
     def __contains__(self, value):
         """

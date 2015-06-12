@@ -87,7 +87,6 @@ class GarbageCollectorUnitTest(unittest.TestCase):
         self.worker._process_single_document(get_invalid_and_fresh_uow())
         self.publisher.publish.assert_called_once_with(mock.ANY)
 
-
     def test_invalid_and_stale_uow(self):
         self.worker.uow_dao.update = assume_uow_is_cancelled
         self.worker._process_single_document(get_invalid_and_stale_uow())

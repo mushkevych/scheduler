@@ -1,7 +1,6 @@
 __author__ = 'Bohdan Mushkevych'
 
-from datetime import datetime
-from logging import ERROR, WARNING, INFO
+from logging import ERROR, INFO
 
 from synergy.db.model import job
 from synergy.scheduler.scheduler_constants import STATE_MACHINE_DISCRETE
@@ -81,6 +80,8 @@ class StateMachineDiscrete(AbstractStateMachine):
         uow = self.uow_dao.get_one(job_record.related_unit_of_work)
         if uow.is_processed:
             self.timetable.update_job_record(job_record, uow, job.STATE_PROCESSED)
+        elif uow.is_noop:
+            self.timetable.update_job_record(job_record, uow, job.STATE_NOOP)
         elif uow.is_canceled:
             self.timetable.update_job_record(job_record, uow, job.STATE_SKIPPED)
         else:
@@ -90,14 +91,3 @@ class StateMachineDiscrete(AbstractStateMachine):
 
         timetable_tree = self.timetable.get_tree(job_record.process_name)
         timetable_tree.build_tree()
-
-    def _process_state_skipped(self, job_record):
-        """method takes care of processing job records in STATE_SKIPPED state"""
-        msg = 'Skipping job record %s in timeperiod %s. Apparently its most current timeperiod as of %s UTC' \
-              % (job_record.db_id, job_record.timeperiod, str(datetime.utcnow()))
-        self._log_message(WARNING, job_record.process_name, job_record.timeperiod, msg)
-
-    def _process_state_processed(self, job_record):
-        """method takes care of processing job records in STATE_PROCESSED state"""
-        msg = 'Unexpected state %s of job record %s' % (job_record.state, job_record.db_id)
-        self._log_message(ERROR, job_record.process_name, job_record.timeperiod, msg)

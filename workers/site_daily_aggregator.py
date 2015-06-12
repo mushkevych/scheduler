@@ -1,23 +1,23 @@
 __author__ = 'Bohdan Mushkevych'
 
+from db.model.raw_data import DOMAIN_NAME, TIMEPERIOD
 from db.model.site_statistics import SiteStatistics
 from synergy.system.utils import copy_and_sum_families
-from synergy.conf import settings
 from synergy.system import time_helper
-from workers.abstract_vertical_worker import AbstractVerticalWorker
+from workers.abstract_mongo_worker import AbstractMongoWorker
 
 
-class SiteDailyAggregator(AbstractVerticalWorker):
+class SiteDailyAggregator(AbstractMongoWorker):
     """ class works as an aggregator from the site_hourly into the site_daily """
 
     def __init__(self, process_name):
         super(SiteDailyAggregator, self).__init__(process_name)
 
-    def _get_tunnel_port(self):
-        return settings.settings['tunnel_site_port']
-
     def _init_sink_key(self, *args):
         return args[0], time_helper.hour_to_day(args[1])
+
+    def _mongo_sink_key(self, *args):
+        return {DOMAIN_NAME: args[0], TIMEPERIOD: args[1]}
 
     def _init_source_object(self, document):
         return SiteStatistics.from_json(document)

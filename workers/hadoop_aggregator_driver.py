@@ -3,8 +3,9 @@ __author__ = 'Bohdan Mushkevych'
 from subprocess import PIPE
 
 import psutil
+
 from synergy.conf import settings
-from workers.abstract_cli_worker import AbstractCliWorker
+from synergy.workers.abstract_cli_worker import AbstractCliWorker
 
 
 class HadoopAggregatorDriver(AbstractCliWorker):

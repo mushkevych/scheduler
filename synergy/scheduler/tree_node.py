@@ -2,6 +2,8 @@ __author__ = 'Bohdan Mushkevych'
 
 from synergy.db.model import job
 from synergy.system import time_helper
+from synergy.system.immutable_dict import ImmutableDict
+from synergy.system.timeperiod_dict import TimeperiodDict
 from synergy.conf import context
 
 
@@ -35,20 +37,17 @@ class NodesCompositeState(object):
             self.skipped_present = True
 
 
-class TreeNode(object):
+class AbstractTreeNode(object):
     def __init__(self, tree, parent, process_name, timeperiod, job_record):
-        # initializes the data members
-        self.children = dict()
         self.tree = tree
         self.parent = parent
         self.process_name = process_name
         self.timeperiod = timeperiod
         self.job_record = job_record
-        if parent is None and process_name is None and timeperiod is None and job_record is None:
-            # special case - node is TREE ROOT
-            self.time_qualifier = None
-        else:
-            self.time_qualifier = context.process_context[self.process_name].time_qualifier
+
+        # fields self.time_qualifier and self.children are properly set in the child class
+        self.time_qualifier = None
+        self.children = ImmutableDict({})
 
     def request_reprocess(self):
         """ method marks this and all parents node as such that requires reprocessing
@@ -186,3 +185,29 @@ class TreeNode(object):
             composite_state.enlist(node_b)
 
         return composite_state
+
+
+class TreeNode(AbstractTreeNode):
+    def __init__(self, tree, parent, process_name, timeperiod, job_record):
+        super(TreeNode, self).__init__(tree, parent, process_name, timeperiod, job_record)
+        self.time_qualifier = context.process_context[process_name].time_qualifier
+
+        child_hierarchy_entry = tree.process_hierarchy.get_child_by_qualifier(self.time_qualifier)
+        if child_hierarchy_entry:
+            child_time_qualifier = child_hierarchy_entry.process_entry.time_qualifier
+            time_grouping = child_hierarchy_entry.process_entry.time_grouping
+            children = TimeperiodDict(child_time_qualifier, time_grouping)
+        else:
+            # this is the bottom process of the process hierarchy with no children
+            children = ImmutableDict({})
+        self.children = children
+
+
+class RootNode(AbstractTreeNode):
+    def __init__(self, tree):
+        super(RootNode, self).__init__(tree, None, None, None, None)
+        self.time_qualifier = None
+
+        child_time_qualifier = tree.process_hierarchy.top_process.time_qualifier
+        time_grouping = tree.process_hierarchy.top_process.time_grouping
+        self.children = TimeperiodDict(child_time_qualifier, time_grouping)

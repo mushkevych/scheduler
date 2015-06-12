@@ -7,7 +7,7 @@ from constants import PROCESS_SITE_HOURLY, PROCESS_SITE_DAILY, PROCESS_SITE_YEAR
 from synergy.system import time_helper
 from synergy.system.utils import increment_family_property
 from synergy.system.time_qualifier import QUALIFIER_HOURLY
-from synergy.scheduler.tree_node import TreeNode
+from synergy.scheduler.tree_node import AbstractTreeNode
 from synergy.scheduler.tree import MultiLevelTree
 from synergy.conf import settings
 
@@ -41,7 +41,7 @@ class TestTwoLevelTree(unittest.TestCase):
 
     def test_simple_build_tree(self):
         def calculate_nodes_per_process(tree_node, visited_nodes, nodes_per_process):
-            assert isinstance(tree_node, TreeNode)
+            assert isinstance(tree_node, AbstractTreeNode)
             if tree_node.timeperiod in visited_nodes:
                 # node is already calculated
                 return
@@ -65,7 +65,7 @@ class TestTwoLevelTree(unittest.TestCase):
 
     def _perform_assertions(self, tree, delta):
         def calculate_leafs(tree_node):
-            assert isinstance(tree_node, TreeNode)
+            assert isinstance(tree_node, AbstractTreeNode)
             if not tree_node.children:
                 # node is the leaf
                 return 1

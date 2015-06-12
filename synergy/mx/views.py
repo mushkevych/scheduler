@@ -110,6 +110,7 @@ def action_change_interval(request, **values):
     handler.action_change_interval()
     return Response(status=httplib.NO_CONTENT)
 
+
 @expose('/action/trigger_now/')
 def action_trigger_now(request, **values):
     handler = get_action_handler(request, **values)
@@ -137,6 +138,7 @@ def get_action_handler(request, **values):
     else:
         handler = ManagedActionHandler(request, **values)
     return handler
+
 
 @expose('/object_viewer/')
 def object_viewer(request, **values):

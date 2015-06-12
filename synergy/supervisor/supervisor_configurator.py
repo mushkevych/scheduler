@@ -114,7 +114,7 @@ class SupervisorConfigurator(object):
         self.bc_dao.update(box_config)
 
     def mark_for_start(self, process_name):
-        self._change_state(process_name, False)
+        self._change_state(process_name, True)
 
     def mark_for_stop(self, process_name):
         self._change_state(process_name, False)

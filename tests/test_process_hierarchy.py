@@ -26,6 +26,16 @@ class TestProcessHierarchy(unittest.TestCase):
         for qualifier in time_qualifier_desc:
             self.assertTrue(hierarchy.has_qualifier(qualifier))
 
+        for idx in range(len(time_qualifier_desc)):
+            parent_qualifier = time_qualifier_desc[idx]
+            child_process_name = None if idx + 1 >= len(process_name_desc) else process_name_desc[idx + 1]
+
+            child_process_entry = hierarchy.get_child_by_qualifier(parent_qualifier)
+            if child_process_name:
+                self.assertEqual(child_process_name, child_process_entry.process_entry.process_name)
+            else:
+                self.assertIsNone(child_process_entry)
+
     def test_four_level(self):
         hierarchy = ProcessHierarchy(PROCESS_SITE_HOURLY, PROCESS_SITE_YEARLY, PROCESS_SITE_MONTHLY, PROCESS_SITE_DAILY)
 

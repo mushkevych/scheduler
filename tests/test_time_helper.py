@@ -38,60 +38,51 @@ class TestTimeHelper(unittest.TestCase):
         self.assertEqual(time_helper.month_to_year(timeperiod), expected_output)
 
     def test_cast_to_time_qualifier(self):
-        qualifiers = [QUALIFIER_HOURLY, QUALIFIER_HOURLY,
-                      QUALIFIER_DAILY, QUALIFIER_DAILY, QUALIFIER_DAILY,
-                      QUALIFIER_MONTHLY, QUALIFIER_MONTHLY, QUALIFIER_MONTHLY,
-                      QUALIFIER_YEARLY, QUALIFIER_YEARLY, QUALIFIER_YEARLY]
-        params = ['2010123123', '20101231231232',
-                  '2010123123', '2010123100', '20101231231232',
-                  '2010123100', '2010120000', '20101231231232',
-                  '2010120000', '2010000000', '20101231231232']
-        expected = ['2010123123', '2010123123',
-                    '2010123100', '2010123100', '2010123100',
-                    '2010120000', '2010120000', '2010120000',
-                    '2010000000', '2010000000', '2010000000']
-        for idx, par in enumerate(params):
-            self.assertEqual(time_helper.cast_to_time_qualifier(qualifiers[idx], par), expected[idx])
+        fixture = {
+            QUALIFIER_HOURLY: [('2010123123', '20101231231232'),
+                               ('2010123123', '2010123123')],
+            QUALIFIER_DAILY: [('2010123123', '2010123100', '20101231231232'),
+                              ('2010123100', '2010123100', '2010123100')],
+            QUALIFIER_MONTHLY: [('2010123100', '2010120000', '20101231231232'),
+                                ('2010120000', '2010120000', '2010120000')],
+            QUALIFIER_YEARLY: [('2010120000', '2010000000', '20101231231232'),
+                               ('2010000000', '2010000000', '2010000000')]
+        }
+
+        for key, test_set in fixture.items():
+            for idx, value in enumerate(test_set[0]):
+                test_value = test_set[0][idx]
+                expected_value = test_set[1][idx]
+                self.assertEqual(time_helper.cast_to_time_qualifier(key, test_value), expected_value)
 
     def test_datetime_to_synergy(self):
         dt = datetime(year=2010, month=12, day=31, hour=23, minute=50, second=15)
 
-        qualifiers = [QUALIFIER_REAL_TIME,
-                      QUALIFIER_HOURLY,
-                      QUALIFIER_DAILY,
-                      QUALIFIER_MONTHLY,
-                      QUALIFIER_YEARLY]
+        fixture = {QUALIFIER_REAL_TIME: '20101231235015',
+                   QUALIFIER_HOURLY: '2010123123',
+                   QUALIFIER_DAILY: '2010123100',
+                   QUALIFIER_MONTHLY: '2010120000',
+                   QUALIFIER_YEARLY: '2010000000'}
 
-        expected = ['20101231235015',
-                    '2010123123',
-                    '2010123100',
-                    '2010120000',
-                    '2010000000']
-
-        for idx, qua in enumerate(qualifiers):
-            self.assertEqual(time_helper.datetime_to_synergy(qua, dt), expected[idx])
+        for key, value in fixture.items():
+            self.assertEqual(time_helper.datetime_to_synergy(key, dt), value)
 
     def test_synergy_to_datetime(self):
-        qualifiers = [QUALIFIER_REAL_TIME,
-                      QUALIFIER_HOURLY,
-                      QUALIFIER_DAILY,
-                      QUALIFIER_MONTHLY,
-                      QUALIFIER_YEARLY]
+        fixture = {
+            QUALIFIER_REAL_TIME: ['20101231231234',
+                                  datetime(year=2010, month=12, day=31, hour=23, minute=12, second=34)],
+            QUALIFIER_HOURLY: ['2010123123',
+                               datetime(year=2010, month=12, day=31, hour=23, minute=0, second=0)],
+            QUALIFIER_DAILY: ['2010123100',
+                              datetime(year=2010, month=12, day=31, hour=0, minute=0, second=0)],
+            QUALIFIER_MONTHLY: ['2010120000',
+                                datetime(year=2010, month=12, day=1, hour=0, minute=0, second=0)],
+            QUALIFIER_YEARLY: ['2010000000',
+                               datetime(year=2010, month=1, day=1, hour=0, minute=0, second=0)]
+        }
 
-        expected = [datetime(year=2010, month=12, day=31, hour=23, minute=12, second=34),
-                    datetime(year=2010, month=12, day=31, hour=23, minute=0,  second=0),
-                    datetime(year=2010, month=12, day=31, hour=0,  minute=0,  second=0),
-                    datetime(year=2010, month=12, day=1,  hour=0,  minute=0,  second=0),
-                    datetime(year=2010, month=1,  day=1,  hour=0,  minute=0,  second=0)]
-
-        params = ['20101231231234',
-                  '2010123123',
-                  '2010123100',
-                  '2010120000',
-                  '2010000000']
-
-        for idx, par in enumerate(params):
-            self.assertEqual(time_helper.synergy_to_datetime(qualifiers[idx], par), expected[idx])
+        for key, value in fixture.items():
+            self.assertEqual(time_helper.synergy_to_datetime(key, value[0]), value[1])
 
     def test_increment_time(self):
         stamps = ['2011010100', '2011010112', '2011010123']
@@ -185,6 +176,15 @@ class TestTimeHelper(unittest.TestCase):
 
         duration = timestamp_2 - time_helper.session_to_epoch(expected_output_1)
         self.assertEqual(duration, timestamp_2 - timestamp_1)
+
+    def test_tokenize_timeperiod(self):
+        fixture = {QUALIFIER_HOURLY: ['2010123123', ('2010', '12', '31', '23')],
+                   QUALIFIER_DAILY: ['2010123100', ('2010', '12', '31', '00')],
+                   QUALIFIER_MONTHLY: ['2010120000', ('2010', '12', '00', '00')],
+                   QUALIFIER_YEARLY: ['2010000000', ('2010', '00', '00', '00')]}
+
+        for key, value in fixture.items():
+            self.assertEqual(time_helper.tokenize_timeperiod(value[0]), value[1])
 
 
 if __name__ == '__main__':

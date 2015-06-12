@@ -243,8 +243,10 @@ EXPECTED_SITE_HOURLY_33 = {
 
 
 def generate_session_composite_key(index, total):
-    h1 = '20010303101010'
-    h2 = '20010303111111'
+    # h1 = '20010303101010'
+    # h2 = '20010303111111'
+    h1 = '2001030310'
+    h2 = '2001030311'
 
     if index <= total / 2:
         return 'domain_name_%s' % str(index // 3), h1

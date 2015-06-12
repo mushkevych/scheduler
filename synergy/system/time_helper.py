@@ -195,5 +195,18 @@ def session_to_epoch(timestamp):
     return calendar.timegm(utc_timetuple)
 
 
+def tokenize_timeperiod(timeperiod):
+    """
+    method breaks given timeperiod into 4 parts: (year, month, day, hour)
+    for instance: daily   2015031400 -> ('2013', '03', '14', '00')
+                  hourly  2015031413 -> ('2013', '03', '14', '13')
+                  monthly 2015030000 -> ('2013', '03', '00', '00')
+                  yearly  2015000000 -> ('2015', '00', '00', '00')
+    :return: tuple of four values
+    """
+    assert len(timeperiod) == 10, 'timeperiod {0} does not match accepted format YYYYMMDDHH'.format(timeperiod)
+    return timeperiod[:4], timeperiod[4: 6], timeperiod[6: 8], timeperiod[8:],
+
+
 if __name__ == '__main__':
     pass

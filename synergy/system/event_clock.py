@@ -68,10 +68,10 @@ class EventTime(object):
 
     def __str__(self):
         return 'EventTime: day_of_week=%s time_of_day=%s' % \
-               (self.day_of_week, datetime.strftime(self.time_of_day, TIME_OF_DAY_FORMAT))
+               (self.day_of_week, self.time_of_day.strftime(TIME_OF_DAY_FORMAT))
 
     def __repr__(self):
-        return '%s-%s' % (self.day_of_week, datetime.strftime(self.time_of_day, TIME_OF_DAY_FORMAT))
+        return '%s-%s' % (self.day_of_week, self.time_of_day.strftime(TIME_OF_DAY_FORMAT))
 
     def __eq__(self, other):
         if not isinstance(other, EventTime):

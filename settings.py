@@ -24,6 +24,7 @@ settings = dict(
     hadoop_command='/usr/bin/hadoop',
     pig_command='/usr/bin/pig',
     bash_command='/bin/bash',
+    batch_size=1024,       # illustration suite setting: number of DB documents to read in batch
 
     debug=False,                                    # if True - logger is given additional "console" adapter
     under_test=False
@@ -58,6 +59,7 @@ test_cases = [
     'tests.test_site_statistics',
     'tests.test_single_session',
     'tests.test_time_helper',
+    'tests.test_timeperiod_dict',
     'tests.test_repeat_timer',
     'tests.test_process_starter',
     'tests.test_site_hourly_aggregator',
@@ -81,14 +83,11 @@ def enable_test_mode():
         under_test=True,
         synergy_start_timeperiod=datetime.utcnow().strftime('%Y%m%d%H'),
 
-        # test suite settings
+        # illustration suite settings
         hadoop_jar='/home/bmushkevych/git/synergy-hadoop/dist/synergy-hadoop-02.jar',
         construction_hosts=['https://***REST_INTERFACE_URL***'],            # production access
         construction_login='***REST_INTERFACE_LOGIN***',                    # production access ONLY
         construction_password='***REST_INTERFACE_PWD***',                   # production access ONLY
-        tunnel_host='***SURUS_HOST***',
-        tunnel_site_port=9988,  # SURUS PORTS
-        bulk_threshold=1024,
     )
     settings.update(test_settings)
 

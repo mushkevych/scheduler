@@ -61,8 +61,8 @@ class AbstractStateMachine(object):
         uow.arguments = context.process_context[process_name].arguments
         uow.db_id = self.uow_dao.insert(uow)
 
-        msg = 'Created: UOW %s for %s in timeperiod [%s:%s).' \
-              % (uow.db_id, process_name, start_timeperiod, end_timeperiod)
+        msg = 'Created: UOW %s for %s in timeperiod %s.' \
+              % (uow.db_id, process_name, start_timeperiod)
         self._log_message(INFO, process_name, start_timeperiod, msg)
         return uow
 
@@ -104,7 +104,7 @@ class AbstractStateMachine(object):
     def shallow_state_update(self, uow):
         """ method does not trigger any new actions
         if applicable, it will update job_record state and Timetable tree node state
-        :assumptions: uow is either in STATE_CANCELED or STATE_PROCESSED """
+        :assumptions: uow is in [STATE_NOOP, STATE_CANCELED, STATE_PROCESSED] """
         pass
 
     def _process_state_embryo(self, job_record):
@@ -119,13 +119,12 @@ class AbstractStateMachine(object):
         """method takes care of processing job records in STATE_FINAL_RUN state"""
         pass
 
-    def _process_state_skipped(self, job_record):
-        """method takes care of processing job records in STATE_FINAL_SKIPPED state"""
-        pass
-
-    def _process_state_processed(self, job_record):
-        """method takes care of processing job records in STATE_FINAL_SKIPPED state"""
-        pass
+    def _process_terminal_state(self, job_record):
+        """ method logs a warning message notifying that the job is no longer govern by this state machine """
+        msg = 'Job record %s for %s at %s is in the terminal state %s, ' \
+              'and is no further govern by the State Machine %s' \
+              % (job_record.db_id, job_record.process_name, job_record.timeperiod, job_record.state, self.name)
+        self._log_message(WARNING, job_record.process_name, job_record.timeperiod, msg)
 
     def manage_job_with_blocking_children(self, job_record, run_on_active_timeperiod):
         """ method will trigger job processing only if all children are in STATE_PROCESSED or STATE_SKIPPED
@@ -185,10 +184,13 @@ class AbstractStateMachine(object):
                 self._process_state_final_run(job_record)
 
             elif job_record.is_skipped:
-                self._process_state_skipped(job_record)
+                self._process_terminal_state(job_record)
 
             elif job_record.is_processed:
-                self._process_state_processed(job_record)
+                self._process_terminal_state(job_record)
+
+            elif job_record.is_noop:
+                self._process_terminal_state(job_record)
 
             else:
                 msg = 'Unknown state %s of the job %s' % (job_record.state, job_record.db_id)
