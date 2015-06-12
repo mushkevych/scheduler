@@ -39,7 +39,7 @@ packagelist=(
     "MarkupSafe-0.23.tar.gz"
     "Jinja2-2.7.3.tar.gz"
     "Werkzeug-0.10.4.tar.gz"
-    "synergy_odm-0.6.tar.gz"
+    "synergy_odm-0.7.tar.gz"
 )
 
 if [ -z "$1" ]; then
