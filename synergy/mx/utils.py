@@ -56,7 +56,7 @@ def scheduler_uptime():
     d = {'days': time_diff.days}
     d['hours'], rem = divmod(time_diff.seconds, 3600)
     d['minutes'], d['seconds'] = divmod(rem, 60)
-    return '{days:02d} days {hours:02d}:{minutes:02d}'.format(**d)
+    return '{days:02d}:{hours:02d}:{minutes:02d}:{seconds:02d}'.format(**d)
 
 
 jinja_env = Environment(loader=FileSystemLoader(TEMPLATE_PATH), autoescape=True)

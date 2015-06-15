@@ -84,14 +84,12 @@ class ProcessHierarchy(object):
         if parent_qualifier not in self.qualifiers:
             return None
 
-        parent_process_name = self.qualifiers[parent_qualifier].process_entry.process_name
-        process_names = self.entries.keys()
-        if process_names[-1] == parent_process_name:
+        process_qualifiers = self.qualifiers.keys()
+        if parent_qualifier == process_qualifiers[-1]:
             return None
 
-        parent_index = process_names.index(parent_process_name)
-        child_index = parent_index + 1
-        return self.entries[process_names[child_index]]
+        parent_index = process_qualifiers.index(parent_qualifier)
+        return self.qualifiers[process_qualifiers[parent_index + 1]]
 
     @property
     def top_process(self):

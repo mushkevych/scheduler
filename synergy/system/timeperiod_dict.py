@@ -8,6 +8,9 @@ from synergy.system.time_qualifier import *
 
 
 class TimeperiodDict(collections.MutableMapping):
+    """ module represents a _smart_ dictionary, where key is a timeperiod
+    TimeperiodDict allows timeperiod grouping, such as *every 3 hours* or *quarterly* or *weekly* """
+
     def __init__(self, time_qualifier, time_grouping, *args, **kwargs):
         assert time_qualifier in [QUALIFIER_HOURLY, QUALIFIER_DAILY, QUALIFIER_MONTHLY, QUALIFIER_YEARLY], \
             'time qualifier {0} is not supported by TimeperiodDict'.format(time_qualifier)
@@ -17,13 +20,18 @@ class TimeperiodDict(collections.MutableMapping):
         self.time_qualifier = time_qualifier
 
         # validation section
-        upper_boundary = self._get_upper_boundary()
+        upper_boundary = self._get_stem_upper_boundary()
         assert 1 <= time_grouping <= upper_boundary
 
         self.data = dict()
         self.update(dict(*args, **kwargs))
 
-    def _get_upper_boundary(self, timeperiod=None):
+    def _get_stem_upper_boundary(self, timeperiod=None):
+        """
+        :param timeperiod: optional parameter, applicable for QUALIFIER_DAILY qualifier only
+        :return: upper boundary for dictionary's time_qualifier
+        """
+
         if self.time_qualifier == QUALIFIER_HOURLY:
             upper_boundary = 23
         elif self.time_qualifier == QUALIFIER_DAILY:
@@ -44,9 +52,22 @@ class TimeperiodDict(collections.MutableMapping):
         return upper_boundary
 
     def _do_stem_grouping(self, timeperiod, stem):
+        """
+        method performs *timeperiod's stem grouping*.
+        :param timeperiod: timeperiod to augment
+        :param stem: inclusive lower boundary for the timeperiod's corresponding token. For instance:
+                - for 2015010520 and QUALIFIER_MONTHLY, stem would be 01
+                - for 2015010520 and QUALIFIER_DAILY, stem would be 05
+                - for 2015010520 and QUALIFIER_HOURLY, stem would be 20
+        :return: grouped stem. For instance:
+                - for 2015010520 and QUALIFIER_MONTHLY and time_grouping=3, stem would be 03
+                - for 2015010520 and QUALIFIER_DAILY and time_grouping=2, stem would be 06
+                - for 2015010520 and QUALIFIER_HOURLY and time_grouping=8, stem would be 23
+        """
+
         # exclude 00 from lower boundary, unless the grouping == 1
         lower_boundary = 0 if self.time_grouping == 1 else 1
-        upper_boundary = self._get_upper_boundary(timeperiod)
+        upper_boundary = self._get_stem_upper_boundary(timeperiod)
 
         for i in range(lower_boundary, upper_boundary):
             candidate = i * self.time_grouping
