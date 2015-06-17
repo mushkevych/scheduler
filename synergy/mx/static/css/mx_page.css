@@ -140,11 +140,11 @@ div.is_next_timeperiod {
 }
 
 div.state_embryo {
-    background-color: #d5f5ff;
+    background-color: #D5F5FF;
 }
 
 div.state_embryo div {
-    color: #669;
+    color: #000000;
 }
 
 div.state_in_progress {

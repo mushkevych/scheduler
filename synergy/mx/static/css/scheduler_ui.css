@@ -103,11 +103,11 @@ div#footer a {
 
 /* highlighting rows in dataTables accordingly to Job state */
 tr.state_embryo {
-    background-color: #eff2ff !important;
+    background-color: #D5F5FF !important;
 }
 
 tr.state_embryo td {
-    color: #669 !important;
+    color: #000000 !important;
 }
 
 tr.state_in_progress {
