@@ -160,7 +160,7 @@ div.state_processed {
 }
 
 div.state_processed div {
-    color: #FFFFFF;
+    color: #000000;
 }
 
 div.state_final_run {
@@ -180,7 +180,7 @@ div.state_skipped div {
 }
 
 div.state_noop {
-    background-color: #FFEEAA;
+    background-color: #FFFFAA;
 }
 
 div.state_noop div {
