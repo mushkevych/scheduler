@@ -64,7 +64,9 @@ class AbstractUowAwareWorker(AbstractMqWorker):
             self.performance_ticker.start_uow(uow)
 
             result = self._process_uow(uow)
-            if result is None or isinstance(result, str):
+            if result is None:
+                self.logger.warn('method {0}._process_uow returned None. Assuming happy flow.'
+                                 .format(self.__class__.__name__))
                 number_of_aggregated_objects, target_state = 0, unit_of_work.STATE_PROCESSED
             else:
                 number_of_aggregated_objects, target_state = result
@@ -74,7 +76,12 @@ class AbstractUowAwareWorker(AbstractMqWorker):
             uow.finished_at = datetime.utcnow()
             uow.state = target_state
             self.uow_dao.update(uow)
-            self.performance_ticker.finish_uow()
+
+            if uow.is_finished:
+                self.performance_ticker.finish_uow()
+            else:
+                self.performance_ticker.cancel_uow()
+
         except Exception as e:
             fresh_uow = self.uow_dao.get_one(mq_request.unit_of_work_id)
             self.performance_ticker.cancel_uow()

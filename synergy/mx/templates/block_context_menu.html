@@ -2,12 +2,12 @@
 <div class="context_menu_hide" id="rmenu">
     <ul>
         <li>
-            <a onclick="process_batch('action/activate_trigger', {{ is_freerun }} )">
+            <a onclick="process_batch('action/activate_trigger', {{ is_freerun|string|lower }} )">
                 <i class="fa fa-toggle-on"></i>&nbsp;Activate
             </a>
         </li>
         <li>
-            <a onclick="process_batch('action/deactivate_trigger', {{ is_freerun }} )">
+            <a onclick="process_batch('action/deactivate_trigger', {{ is_freerun|string|lower }} )">
                 <i class="fa fa-toggle-off"></i>&nbsp;Deactivate
             </a>
         </li>
