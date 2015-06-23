@@ -20,9 +20,9 @@ MX_PAGE_TRAFFIC = 'traffic_details'
 MX_PAGE_ALERT = 'alert_details'
 
 # List of Timetable trees
-TREE_SITE_VERTICAL = 'tree_site_vertical'
-TREE_CLIENT_HORIZONTAL = 'tree_client_horizontal'
-TREE_LINEAR_DAILY = 'tree_linear_daily'
+TREE_SITE = 'tree_site'
+TREE_CLIENT = 'tree_client'
+TREE_ALERT = 'tree_alert'
 
 # Process tokens. There should be one token per one Timetable tree or stand-alone process
 TOKEN_LAUNCH_PY = 'launch_py'

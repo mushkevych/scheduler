@@ -63,6 +63,7 @@ process_context = {
         classname='workers.site_hourly_aggregator.SiteHourlyAggregator.start',
         token=TOKEN_SITE,
         time_qualifier=QUALIFIER_HOURLY,
+        # time_grouping=2,
         source=COLLECTION_SINGLE_SESSION,
         sink=COLLECTION_SITE_HOURLY,
         state_machine_name=STATE_MACHINE_CONTINUOUS,
@@ -177,22 +178,22 @@ process_context = {
 
 
 timetable_context = {
-    TREE_SITE_VERTICAL: timetable_tree_entry(
-        tree_name=TREE_SITE_VERTICAL,
+    TREE_SITE: timetable_tree_entry(
+        tree_name=TREE_SITE,
         enclosed_processes=[PROCESS_SITE_YEARLY, PROCESS_SITE_MONTHLY, PROCESS_SITE_DAILY, PROCESS_SITE_HOURLY],
         dependent_on=[],
         mx_name=TOKEN_SITE,
         mx_page=MX_PAGE_TRAFFIC),
 
-    TREE_CLIENT_HORIZONTAL: timetable_tree_entry(
-        tree_name=TREE_CLIENT_HORIZONTAL,
+    TREE_CLIENT: timetable_tree_entry(
+        tree_name=TREE_CLIENT,
         enclosed_processes=[PROCESS_CLIENT_YEARLY, PROCESS_CLIENT_MONTHLY, PROCESS_CLIENT_DAILY],
-        dependent_on=[TREE_SITE_VERTICAL],
+        dependent_on=[TREE_SITE],
         mx_name=TOKEN_CLIENT,
         mx_page=MX_PAGE_TRAFFIC),
 
-    TREE_LINEAR_DAILY: timetable_tree_entry(
-        tree_name=TREE_LINEAR_DAILY,
+    TREE_ALERT: timetable_tree_entry(
+        tree_name=TREE_ALERT,
         enclosed_processes=[PROCESS_ALERT_DAILY],
         dependent_on=[],
         mx_name=TOKEN_ALERT,
