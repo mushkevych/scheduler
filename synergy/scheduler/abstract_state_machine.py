@@ -14,6 +14,7 @@ from synergy.db.model.synergy_mq_transmission import SynergyMqTransmission
 from synergy.mq.flopsy import PublishersPool
 from synergy.conf import context
 from synergy.system.decorator import with_reconnect
+from synergy.system.timeperiod_dict import TimeperiodDict
 from synergy.scheduler.tree_node import NodesCompositeState
 from synergy.scheduler.scheduler_constants import TYPE_MANAGED
 
@@ -107,6 +108,32 @@ class AbstractStateMachine(object):
         :assumptions: uow is in [STATE_NOOP, STATE_CANCELED, STATE_PROCESSED] """
         pass
 
+    def _is_noop_timeperiod(self, process_name, timeperiod):
+        """ method verifies if the given timeperiod for given process is valid or falls in-between grouping checkpoints
+        :param process_name: name of the process
+        :param timeperiod: timeperiod to verify
+        :return: False, if given process has no time_grouping set or it is equal to 1. False if time_grouping is custom
+        but the given timeperiod matches the grouped timeperiod. True if the timeperiod falls in-between grouping cracks
+        """
+        time_grouping = context.process_context[process_name].time_grouping
+        time_qualifier = context.process_context[process_name].time_qualifier
+        td = TimeperiodDict(time_qualifier, time_grouping)
+        return td._translate_timeperiod(timeperiod) == timeperiod
+
+    def _process_noop_timeperiod(self, job_record):
+        """ method is valid for processes having time_grouping != 1.
+            should a job record fall in-between grouped time milestones,
+            its state should be set to STATE_NOOP without any processing """
+        job_record.state = job.STATE_NOOP
+        self.job_dao.update(job_record)
+        tree = self.timetable.get_tree(job_record.process_name)
+        tree.update_node(job_record)
+
+        time_grouping = context.process_context[job_record.process_name].time_grouping
+        msg = '%s job for timeperiod %r with time_grouping %r was transferred the job to STATE_NOOP' \
+              % (job_record.process_name, job_record.timeperiod, time_grouping)
+        self._log_message(INFO, job_record.process_name, job_record.timeperiod, msg)
+
     def _process_state_embryo(self, job_record):
         """ method that takes care of processing job records in STATE_EMBRYO state"""
         pass
@@ -173,6 +200,11 @@ class AbstractStateMachine(object):
         In case the Scheduler sees that the unit_of_work is pending it could either update boundaries of the processing
         or wait another tick """
         assert isinstance(job_record, Job)
+
+        if self._is_noop_timeperiod(job_record.process_name, job_record.timeperiod):
+            self._process_noop_timeperiod(job_record)
+            return
+
         try:
             if job_record.is_embryo:
                 self._process_state_embryo(job_record)

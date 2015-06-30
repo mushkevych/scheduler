@@ -146,10 +146,13 @@ class Scheduler(SynergyProcess):
     def fire_managed_worker(self, thread_handler_arguments):
         """requests next valid job for given process and manages its state"""
 
-        def _fire_worker(process_entry):
+        def _fire_worker(process_entry, prev_job_record):
             assert isinstance(process_entry, ManagedProcessEntry)
             job_record = self.timetable.get_next_job_record(process_entry.process_name)
             state_machine = self.state_machines[process_entry.state_machine_name]
+            if job_record == prev_job_record:
+                # avoid the loop
+                return None
 
             run_on_active_timeperiod = process_entry.run_on_active_timeperiod
             if not run_on_active_timeperiod:
@@ -181,9 +184,9 @@ class Scheduler(SynergyProcess):
             assert isinstance(thread_handler_arguments, ThreadHandlerArguments)
             self.logger.info('%r {' % (thread_handler_arguments.key, ))
 
-            job_record = _fire_worker(thread_handler_arguments.process_entry)
+            job_record = _fire_worker(thread_handler_arguments.process_entry, None)
             while job_record and job_record.is_finished:
-                job_record = _fire_worker(thread_handler_arguments.process_entry)
+                job_record = _fire_worker(thread_handler_arguments.process_entry, job_record)
 
         except (AMQPError, IOError) as e:
             self.logger.error('AMQPError: %s' % str(e), exc_info=True)

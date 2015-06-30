@@ -3,7 +3,6 @@ __author__ = 'Bohdan Mushkevych'
 from synergy.db.model import job
 from synergy.system import time_helper
 from synergy.system.immutable_dict import ImmutableDict
-from synergy.system.timeperiod_dict import TimeperiodDict
 from synergy.conf import context
 
 
@@ -194,9 +193,7 @@ class TreeNode(AbstractTreeNode):
 
         child_hierarchy_entry = tree.process_hierarchy.get_child_by_qualifier(self.time_qualifier)
         if child_hierarchy_entry:
-            child_time_qualifier = child_hierarchy_entry.process_entry.time_qualifier
-            time_grouping = child_hierarchy_entry.process_entry.time_grouping
-            children = TimeperiodDict(child_time_qualifier, time_grouping)
+            children = dict()
         else:
             # this is the bottom process of the process hierarchy with no children
             children = ImmutableDict({})
@@ -207,7 +204,4 @@ class RootNode(AbstractTreeNode):
     def __init__(self, tree):
         super(RootNode, self).__init__(tree, None, None, None, None)
         self.time_qualifier = None
-
-        child_time_qualifier = tree.process_hierarchy.top_process.time_qualifier
-        time_grouping = tree.process_hierarchy.top_process.time_grouping
-        self.children = TimeperiodDict(child_time_qualifier, time_grouping)
+        self.children = dict()

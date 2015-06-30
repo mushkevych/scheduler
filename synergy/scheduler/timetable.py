@@ -144,7 +144,7 @@ class Timetable(object):
 
     @thread_safe
     def _callback_skip(self, tree_node):
-        """ is called from tree to answer skip request"""
+        """ is called from a tree to answer a skip request"""
         tree_node.job_record.state = job.STATE_SKIPPED
         uow_id = tree_node.job_record.related_unit_of_work
         if uow_id is not None:
@@ -284,7 +284,7 @@ class Timetable(object):
 
     @thread_safe
     def get_next_job_record(self, process_name):
-        """returns next job record to work on for given process"""
+        """ :returns: the next job record to work on for the given process"""
         if process_name in self.reprocess and len(self.reprocess[process_name]) > 0:
             timeperiod = sorted(self.reprocess[process_name].keys())[0]
             node = self.reprocess[process_name][timeperiod]
@@ -299,7 +299,7 @@ class Timetable(object):
 
     @thread_safe
     def is_job_record_finalizable(self, job_record):
-        """ :return True, if the node and all its children are either in STATE_PROCESSED or STATE_SKIPPED"""
+        """ :return: True, if the node and all its children are either in STATE_PROCESSED or STATE_SKIPPED"""
         assert isinstance(job_record, Job)
         tree = self.get_tree(job_record.process_name)
         node = tree.get_node(job_record.process_name, job_record.timeperiod)
