@@ -6,13 +6,16 @@ from synergy.conf import context
 from synergy.db.model.managed_process_entry import ManagedProcessEntry
 from synergy.system.time_qualifier import *
 from synergy.system.time_helper import cast_to_time_qualifier
+from synergy.system.timeperiod_dict import TimeperiodDict
 
 
 class HierarchyEntry(object):
     def __init__(self, hierarchy, parent, process_entry):
+        assert isinstance(process_entry, ManagedProcessEntry)
         self.hierarchy = hierarchy
         self.parent = parent
         self.process_entry = process_entry
+        self.timeperiod_dict = TimeperiodDict(process_entry.time_qualifier, process_entry.time_grouping)
 
     def cast_timeperiod(self, timeperiod):
         return cast_to_time_qualifier(self.process_entry.time_qualifier, timeperiod)
@@ -37,14 +40,15 @@ class ProcessHierarchy(object):
     def __contains__(self, value):
         """
         :param value: process name
-        :return: True if a process_entry with the given name is registered in this hierarchy; False otherwise
+        :return: True if a hierarchy entry for the process_entry with the given name is registered in this hierarchy;
+                 False otherwise
         """
         return value in self.entries
 
     def __getitem__(self, key):
         """
         :param key: process name
-        :return: associated process_entry of ManagedProcessEntry type
+        :return: associated hierarchy entry of HierarchyEntry type
         """
         return self.entries[key]
 

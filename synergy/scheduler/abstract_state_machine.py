@@ -116,9 +116,12 @@ class AbstractStateMachine(object):
         but the given timeperiod matches the grouped timeperiod. True if the timeperiod falls in-between grouping cracks
         """
         time_grouping = context.process_context[process_name].time_grouping
-        time_qualifier = context.process_context[process_name].time_qualifier
-        td = TimeperiodDict(time_qualifier, time_grouping)
-        return td._translate_timeperiod(timeperiod) == timeperiod
+        if time_grouping == 1:
+            return False
+
+        process_hierarchy = self.timetable.get_tree(process_name).process_hierarchy
+        timeperiod_dict = process_hierarchy[process_name].process_entry.timeperiod_dict
+        return timeperiod_dict._translate_timeperiod(timeperiod) != timeperiod
 
     def _process_noop_timeperiod(self, job_record):
         """ method is valid for processes having time_grouping != 1.
