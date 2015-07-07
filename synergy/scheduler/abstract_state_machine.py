@@ -119,7 +119,7 @@ class AbstractStateMachine(object):
             return False
 
         process_hierarchy = self.timetable.get_tree(process_name).process_hierarchy
-        timeperiod_dict = process_hierarchy[process_name].process_entry.timeperiod_dict
+        timeperiod_dict = process_hierarchy[process_name].timeperiod_dict
         return timeperiod_dict._translate_timeperiod(timeperiod) != timeperiod
 
     def _process_noop_timeperiod(self, job_record):

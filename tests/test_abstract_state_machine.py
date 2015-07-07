@@ -78,16 +78,15 @@ class AbstractSMUnitTest(unittest.TestCase):
         self.sm_real._process_state_embryo = mock.Mock(
             side_effect=self.sm_real._process_state_embryo)
 
-        process_entry = mock.PropertyMock()
         process_hierarchy = mock.MagicMock()
-        process_hierarchy[PROCESS_SITE_HOURLY].process_entry = process_entry
         tree = mock.PropertyMock()
         type(tree).process_hierarchy = process_hierarchy
         self.time_table_mocked.get_tree = mock.MagicMock(side_effect=lambda _: tree)
 
         # case 1: job falls in-between time grouping
         context.process_context[PROCESS_SITE_HOURLY].time_grouping = 3
-        type(process_entry).timeperiod_dict = mock.PropertyMock(return_value=TimeperiodDict(QUALIFIER_HOURLY, 3))
+        type(process_hierarchy[PROCESS_SITE_HOURLY]).timeperiod_dict = \
+            mock.PropertyMock(return_value=TimeperiodDict(QUALIFIER_HOURLY, 3))
         job_record = get_job_record(job.STATE_EMBRYO, TEST_PRESET_TIMEPERIOD, PROCESS_SITE_HOURLY)
 
         self.sm_real.manage_job(job_record)
@@ -101,7 +100,8 @@ class AbstractSMUnitTest(unittest.TestCase):
 
         # case 2: there is no time grouping
         context.process_context[PROCESS_SITE_HOURLY].time_grouping = 1
-        type(process_entry).timeperiod_dict = mock.PropertyMock(return_value=TimeperiodDict(QUALIFIER_HOURLY, 1))
+        type(process_hierarchy[PROCESS_SITE_HOURLY]).timeperiod_dict = \
+            mock.PropertyMock(return_value=TimeperiodDict(QUALIFIER_HOURLY, 1))
         job_record = get_job_record(job.STATE_EMBRYO, TEST_PRESET_TIMEPERIOD, PROCESS_SITE_HOURLY)
 
         self.sm_real.manage_job(job_record)
@@ -114,7 +114,8 @@ class AbstractSMUnitTest(unittest.TestCase):
 
         # case 3: process has time_grouping and job falls on a grouped timeperiod
         context.process_context[PROCESS_SITE_HOURLY].time_grouping = 2
-        type(process_entry).timeperiod_dict = mock.PropertyMock(return_value=TimeperiodDict(QUALIFIER_HOURLY, 2))
+        type(process_hierarchy[PROCESS_SITE_HOURLY]).timeperiod_dict = \
+            mock.PropertyMock(return_value=TimeperiodDict(QUALIFIER_HOURLY, 2))
         job_record = get_job_record(job.STATE_EMBRYO, TEST_PRESET_TIMEPERIOD, PROCESS_SITE_HOURLY)
 
         self.sm_real.manage_job(job_record)
