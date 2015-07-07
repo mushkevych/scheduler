@@ -75,7 +75,7 @@ class ManagedActionHandler(AbstractActionHandler):
     def action_get_uow(self):
         node = self._get_tree_node()
 
-        uow_id = node.job_record.related_unit_of_work
+        uow_id = None if not node.job_record else node.job_record.related_unit_of_work
         if uow_id is None:
             resp = {'response': 'no related unit_of_work'}
         else:
@@ -88,4 +88,4 @@ class ManagedActionHandler(AbstractActionHandler):
     @valid_action_request
     def action_get_log(self):
         node = self._get_tree_node()
-        return {'log': node.job_record.log}
+        return {'log': [] if not node.job_record else node.job_record.log}

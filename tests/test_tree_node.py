@@ -37,7 +37,7 @@ class TestTreeNode(unittest.TestCase):
         self.hierarchy_entry_mock = mock.Mock(process_entry=self.process_entry_mock)
 
         self.tree_mock.process_hierarchy = mock.create_autospec(ProcessHierarchy)
-        self.tree_mock.process_hierarchy.top_process = mock.PropertyMock(return_value=self.process_entry_mock)
+        type(self.tree_mock.process_hierarchy).top_process = mock.PropertyMock(return_value=self.process_entry_mock)
         self.tree_mock.process_hierarchy.get_child_by_qualifier = \
             mock.MagicMock(return_value=self.hierarchy_entry_mock)
 

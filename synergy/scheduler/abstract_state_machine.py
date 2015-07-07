@@ -14,7 +14,6 @@ from synergy.db.model.synergy_mq_transmission import SynergyMqTransmission
 from synergy.mq.flopsy import PublishersPool
 from synergy.conf import context
 from synergy.system.decorator import with_reconnect
-from synergy.system.timeperiod_dict import TimeperiodDict
 from synergy.scheduler.tree_node import NodesCompositeState
 from synergy.scheduler.scheduler_constants import TYPE_MANAGED
 
