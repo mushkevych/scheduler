@@ -203,6 +203,14 @@ timetable_context = {
 # Update current dict with the environment-specific settings
 try:
     overrides = __import__('context_' + ENVIRONMENT)
-    process_context.update(overrides.process_context)
+
+    if hasattr(overrides, 'process_context'):
+        process_context.update(overrides.process_context)
+
+    if hasattr(overrides, 'mq_queue_context'):
+        mq_queue_context.update(overrides.mq_queue_context)
+
+    if hasattr(overrides, 'timetable_context'):
+        timetable_context.update(overrides.timetable_context)
 except:
     pass
