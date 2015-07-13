@@ -5,6 +5,7 @@ from threading import RLock
 
 from werkzeug.utils import cached_property
 
+from synergy.conf import context
 from synergy.db.dao import job_dao
 from synergy.db.dao.job_dao import JobDao
 from synergy.db.dao import unit_of_work_dao
@@ -83,9 +84,11 @@ class ManagedStatements(object):
                 self.logger.warn('No Job Records found in {0} since {1}.'.format(collection_name, timeperiod))
 
             for job_record in records_list:
+                if job_record.process_name not in context.process_context:
+                    continue
                 resp[job_record.key] = job_record.document
         except Exception as e:
-            self.logger.error('DashboardHandler error: {0}'.format(e))
+            self.logger.error('Dashboard ManagedStatements error: {0}'.format(e))
         return resp
 
 
@@ -106,9 +109,11 @@ class FreerunStatements(object):
                 self.logger.warn('No Freerun UOW records found since {0}.'.format(timeperiod))
 
             for uow_record in records_list:
+                if uow_record.process_name not in context.process_context:
+                    continue
                 resp[uow_record.key] = uow_record.document
         except Exception as e:
-            self.logger.error('DashboardHandler error: {0}'.format(e))
+            self.logger.error('Dashboard FreerunStatements error: {0}'.format(e))
         return resp
 
 

@@ -40,7 +40,7 @@ def synch_db():
         logger.info('Context updated with process entry %s.' % process_entry.key)
 
 
-def init_db():
+def update_db():
     """ writes to managed_process table records from the context.process_context """
     logger = get_logger(PROCESS_SCHEDULER)
     managed_process_dao = ManagedProcessDao(logger)
@@ -54,10 +54,10 @@ def init_db():
         logger.info('Updated DB with process entry %s from the context.' % process_entry.key)
 
 
-def flush_db():
+def reset_db():
     """ drops the *scheduler* database, resets schema """
     logger = get_logger(PROCESS_SCHEDULER)
-    logger.info('Starting *scheduler* DB flush')
+    logger.info('Starting *scheduler* DB reset')
 
     ds = ds_manager.ds_factory(logger)
     ds._db_client.drop_database(settings.settings['mongo_db_name'])

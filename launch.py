@@ -50,10 +50,10 @@ def init_parser():
     db_parser = subparsers.add_parser('db', help='manages Synergy Scheduler DB')
     db_parser.set_defaults(func=db_command)
     db_group = db_parser.add_mutually_exclusive_group()
-    db_group.add_argument('--init', action='store_true',
-                          help='writes to managed_process table records from the context.process_context')
-    db_group.add_argument('--flush', action='store_true',
-                          help='drops the *scheduler* database, resets schema, initializes db')
+    db_group.add_argument('--update', action='store_true',
+                          help='updates managed_process table with context.process_context records')
+    db_group.add_argument('--reset', action='store_true',
+                          help='drops the *scheduler* database, resets schema, updates managed_process table')
 
     super_parser = subparsers.add_parser('super', help='super a process by name')
     super_parser.set_defaults(func=supervisor_command)
@@ -61,7 +61,8 @@ def init_parser():
     super_group.add_argument('--start', action='store_true', help='marks the process to be started by Supervisor')
     super_group.add_argument('--stop', action='store_true', help='marks the process to be stopped by Supervisor')
     super_group.add_argument('--query', action='store_true', help='queries the state of Supervisor-managed processes')
-    super_group.add_argument('--init', action='store_true', help='defines the DB schema for Supervisor table')
+    super_group.add_argument('--init', action='store_true',
+                             help='defines Supervisor DB schema. updates synergy.box_configuration table')
     super_group.add_argument('--boxid', action='store_true',
                              help='creates {0} and records BOX_ID in it'.format(config_file))
     super_parser.add_argument('argument', nargs='?')
@@ -169,13 +170,13 @@ def db_command(parser_args):
     """ Manages Synergy DB state """
     from synergy.db.manager import db_manager
 
-    if parser_args.flush:
-        db_manager.flush_db()
+    if parser_args.reset:
+        db_manager.reset_db()
         # initialize DB with the context.process_context entries
-        parser_args.init = True
+        parser_args.update = True
 
-    if parser_args.init:
-        db_manager.init_db()
+    if parser_args.update:
+        db_manager.update_db()
 
 
 def supervisor_command(parser_args):
