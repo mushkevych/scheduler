@@ -4,7 +4,6 @@ from logging import ERROR, INFO
 
 from synergy.db.model import job
 from synergy.db.model.job import Job
-from synergy.db.model.unit_of_work import UnitOfWork
 from synergy.db.manager import ds_manager
 from synergy.conf import context
 from synergy.system.decorator import with_reconnect
@@ -117,22 +116,3 @@ class StateMachineContinuous(AbstractStateMachine):
             msg = 'job record %s has timeperiod from future %s vs current time %s' \
                   % (job_record.db_id, job_record.timeperiod, actual_timeperiod)
             self._log_message(ERROR, job_record.process_name, job_record.timeperiod, msg)
-
-    def _process_state_final_run(self, job_record):
-        """method takes care of processing job records in STATE_FINAL_RUN state"""
-        uow = self.uow_dao.get_one(job_record.related_unit_of_work)
-        assert isinstance(uow, UnitOfWork)
-
-        if uow.is_processed:
-            self.timetable.update_job_record(job_record, uow, job.STATE_PROCESSED)
-        elif uow.is_noop:
-            self.timetable.update_job_record(job_record, uow, job.STATE_NOOP)
-        elif uow.is_canceled:
-            self.timetable.update_job_record(job_record, uow, job.STATE_SKIPPED)
-        else:
-            msg = 'Suppressed creating uow for %s in timeperiod %s; job record is in %s; uow is in %s' \
-                  % (job_record.process_name, job_record.timeperiod, job_record.state, uow.state)
-            self._log_message(INFO, job_record.process_name, job_record.timeperiod, msg)
-
-        timetable_tree = self.timetable.get_tree(job_record.process_name)
-        timetable_tree.build_tree()

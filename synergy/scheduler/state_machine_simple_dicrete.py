@@ -2,7 +2,7 @@ __author__ = 'Bohdan Mushkevych'
 
 from logging import ERROR, INFO
 
-from synergy.db.model import job
+from synergy.db.model import job, unit_of_work
 from synergy.scheduler.scheduler_constants import STATE_MACHINE_SIMPLE_DISCRETE
 from synergy.scheduler.state_machine_dicrete import StateMachineDiscrete
 from synergy.system import time_helper
@@ -75,6 +75,12 @@ class StateMachineSimpleDiscrete(StateMachineDiscrete):
             self.timetable.update_job_record(job_record, uow, job.STATE_NOOP)
         elif uow.is_canceled:
             self.timetable.update_job_record(job_record, uow, job.STATE_SKIPPED)
+        elif uow.is_invalid:
+            msg = 'Job record %s: UOW for %s in timeperiod %s is in %s; ' \
+                  'relying on the Garbage Collector to transfer UOW into the %s' \
+                  % (job_record.db_id, job_record.process_name, job_record.timeperiod,
+                     uow.state, unit_of_work.STATE_CANCELED)
+            self._log_message(INFO, job_record.process_name, job_record.timeperiod, msg)
         else:
             msg = 'Unknown state %s for job record %s in timeperiod %s for %s' \
                   % (uow.state, job_record.db_id, job_record.timeperiod, job_record.process_name)

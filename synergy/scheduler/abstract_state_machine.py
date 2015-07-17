@@ -146,7 +146,26 @@ class AbstractStateMachine(object):
 
     def _process_state_final_run(self, job_record):
         """method takes care of processing job records in STATE_FINAL_RUN state"""
-        pass
+        uow = self.uow_dao.get_one(job_record.related_unit_of_work)
+        if uow.is_processed:
+            self.timetable.update_job_record(job_record, uow, job.STATE_PROCESSED)
+        elif uow.is_noop:
+            self.timetable.update_job_record(job_record, uow, job.STATE_NOOP)
+        elif uow.is_canceled:
+            self.timetable.update_job_record(job_record, uow, job.STATE_SKIPPED)
+        elif uow.is_invalid:
+            msg = 'Job record %s: UOW for %s in timeperiod %s is in %s; ' \
+                  'relying on the Garbage Collector to transfer UOW into the %s' \
+                  % (job_record.db_id, job_record.process_name, job_record.timeperiod,
+                     uow.state, unit_of_work.STATE_CANCELED)
+            self._log_message(INFO, job_record.process_name, job_record.timeperiod, msg)
+        else:
+            msg = 'Suppressed creating uow for %s in timeperiod %s; job record is in %s; uow is in %s' \
+                  % (job_record.process_name, job_record.timeperiod, job_record.state, uow.state)
+            self._log_message(INFO, job_record.process_name, job_record.timeperiod, msg)
+
+        timetable_tree = self.timetable.get_tree(job_record.process_name)
+        timetable_tree.build_tree()
 
     def _process_terminal_state(self, job_record):
         """ method logs a warning message notifying that the job is no longer govern by this state machine """
