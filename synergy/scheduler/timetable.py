@@ -108,10 +108,7 @@ class Timetable(object):
                      tree_node.job_record.state,
                      uow.state)
 
-            if tree_node.process_name not in self.reprocess:
-                self.reprocess[tree_node.process_name] = dict()
-            self.reprocess[tree_node.process_name][tree_node.timeperiod] = tree_node
-
+            self.enlist_reprocessing_job(tree_node.job_record)
         else:
             tree_node.job_record.state = job.STATE_EMBRYO
             msg = 'Transferred job record %s for %s in timeperiod %s to %s;' \
@@ -162,12 +159,9 @@ class Timetable(object):
                      tree_node.job_record.state)
 
         self.job_dao.update(tree_node.job_record)
+        self.delist_reprocessing_job(tree_node.job_record)
         self.logger.warn(msg)
         tree_node.add_log_entry([datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S'), msg])
-
-        if tree_node.process_name in self.reprocess \
-                and tree_node.timeperiod in self.reprocess[tree_node.process_name]:
-            del self.reprocess[tree_node.process_name][tree_node.timeperiod]
 
     @thread_safe
     def _callback_create_job_record(self, tree_node):
@@ -282,13 +276,8 @@ class Timetable(object):
     @thread_safe
     def get_next_job_record(self, process_name):
         """ :returns: the next job record to work on for the given process"""
-        if process_name in self.reprocess and len(self.reprocess[process_name]) > 0:
-            timeperiod = sorted(self.reprocess[process_name].keys())[0]
-            node = self.reprocess[process_name][timeperiod]
-            del self.reprocess[process_name][timeperiod]
-        else:
-            tree = self.get_tree(process_name)
-            node = tree.get_next_node(process_name)
+        tree = self.get_tree(process_name)
+        node = tree.get_next_node(process_name)
 
         if node.job_record is None:
             node.request_embryo_job_record()
@@ -308,3 +297,17 @@ class Timetable(object):
         tree = self.get_tree(process_name)
         node = tree.get_node(process_name, timeperiod)
         node.add_log_entry([datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S'), msg])
+
+    @thread_safe
+    def enlist_reprocessing_job(self, job_record):
+        assert isinstance(job_record, Job)
+        if job_record.process_name not in self.reprocess:
+            self.reprocess[job_record.process_name] = dict()
+        self.reprocess[job_record.process_name][job_record.timeperiod] = job_record
+
+    @thread_safe
+    def delist_reprocessing_job(self, job_record):
+        assert isinstance(job_record, Job)
+        if job_record.process_name in self.reprocess \
+                and job_record.timeperiod in self.reprocess[job_record.process_name]:
+            del self.reprocess[job_record.process_name][job_record.timeperiod]

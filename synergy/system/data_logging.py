@@ -18,7 +18,6 @@ class Logger(object):
 
     def __init__(self, file_name, log_tag, append_to_console):
         """
-        Constructor: dictionary of loggers available for this Python process
         :param file_name: path+name of the output file
         :param log_tag: tag that is printed ahead of every logged message
         :param append_to_console: True if messages should be printed to the terminal console

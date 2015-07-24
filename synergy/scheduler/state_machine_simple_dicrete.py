@@ -24,6 +24,8 @@ class StateMachineSimpleDiscrete(StateMachineDiscrete):
         node = tree.get_node(uow.process_name, uow.timeperiod)
 
         job_record = node.job_record
+        self.timetable.delist_reprocessing_job(job_record)
+
         if not job_record.is_in_progress:
             self.logger.info('Can not perform shallow status update for %s in timeperiod %s '
                              'since the job state is not STATE_IN_PROGRESS' % (uow.process_name, uow.timeperiod))

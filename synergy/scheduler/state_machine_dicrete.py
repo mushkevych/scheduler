@@ -23,6 +23,7 @@ class StateMachineDiscrete(AbstractStateMachine):
         tree = self.timetable.get_tree(uow.process_name)
         node = tree.get_node(uow.process_name, uow.timeperiod)
         job_record = node.job_record
+        self.timetable.delist_reprocessing_job(job_record)
 
         if not job_record.is_final_run:
             self.logger.info('Can not perform shallow status update for %s in timeperiod %s '
