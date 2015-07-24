@@ -25,7 +25,7 @@ def get_invalid_and_fresh_uow():
                                0,
                                1,
                                state=unit_of_work.STATE_INVALID,
-                               creation_at=datetime.utcnow(),
+                               created_at=datetime.utcnow(),
                                uow_id=0)
 
 
@@ -34,7 +34,7 @@ def get_invalid_and_stale_uow():
                                0,
                                1,
                                state=unit_of_work.STATE_INVALID,
-                               creation_at=datetime.utcnow() - timedelta(hours=LIFE_SUPPORT_HOURS),
+                               created_at=datetime.utcnow() - timedelta(hours=LIFE_SUPPORT_HOURS),
                                uow_id=0)
 
 
@@ -43,7 +43,7 @@ def get_valid_and_fresh_uow():
                                0,
                                1,
                                state=unit_of_work.STATE_IN_PROGRESS,
-                               creation_at=datetime.utcnow(),
+                               created_at=datetime.utcnow(),
                                uow_id=0)
 
 
@@ -52,7 +52,7 @@ def get_valid_and_stale_uow():
                                0,
                                1,
                                state=unit_of_work.STATE_REQUESTED,
-                               creation_at=datetime.utcnow() - timedelta(hours=LIFE_SUPPORT_HOURS),
+                               created_at=datetime.utcnow() - timedelta(hours=LIFE_SUPPORT_HOURS),
                                uow_id=0)
 
 

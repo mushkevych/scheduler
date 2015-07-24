@@ -11,6 +11,7 @@ START_OBJ_ID = 'start_obj_id'          # lower boundary (as DB _id) of the perio
 END_OBJ_ID = 'end_obj_id'              # upper boundary (as DB _id) of the period that needs to be processed
 STATE = 'state'
 CREATED_AT = 'created_at'
+SUBMITTED_AT = 'submitted_at'
 STARTED_AT = 'started_at'
 FINISHED_AT = 'finished_at'
 NUMBER_OF_AGGREGATED_DOCUMENTS = 'number_of_aggregated_documents'
@@ -68,6 +69,7 @@ class UnitOfWork(BaseDocument):
     state = StringField(STATE, choices=[STATE_INVALID, STATE_REQUESTED, STATE_IN_PROGRESS,
                                         STATE_PROCESSED, STATE_CANCELED, STATE_NOOP])
     created_at = DateTimeField(CREATED_AT)
+    submitted_at = DateTimeField(SUBMITTED_AT)
     started_at = DateTimeField(STARTED_AT)
     finished_at = DateTimeField(FINISHED_AT)
 

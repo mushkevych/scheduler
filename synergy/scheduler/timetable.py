@@ -99,7 +99,7 @@ class Timetable(object):
             tree_node.job_record.state = job.STATE_IN_PROGRESS
             uow = self.uow_dao.get_one(uow_id)
             uow.state = unit_of_work.STATE_INVALID
-            uow.created_at = datetime.utcnow()
+            uow.submitted_at = datetime.utcnow()
             self.uow_dao.update(uow)
             msg = 'Transferred job record %s for %s in timeperiod %s to %s; Transferred unit_of_work to %s' \
                   % (tree_node.job_record.db_id,
@@ -255,8 +255,6 @@ class Timetable(object):
         """ method updates job record with a new unit_of_work and new state"""
         job_record.state = new_state
         job_record.related_unit_of_work = uow.db_id
-        job_record.start_id = uow.start_id
-        job_record.end_id = uow.end_id
         self.job_dao.update(job_record)
 
         tree = self.get_tree(job_record.process_name)

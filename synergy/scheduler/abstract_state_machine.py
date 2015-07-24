@@ -53,6 +53,7 @@ class AbstractStateMachine(object):
         uow.start_timeperiod = start_timeperiod
         uow.end_timeperiod = end_timeperiod
         uow.created_at = datetime.utcnow()
+        uow.submitted_at = datetime.utcnow()
         uow.source = context.process_context[process_name].source
         uow.sink = context.process_context[process_name].sink
         uow.state = unit_of_work.STATE_REQUESTED

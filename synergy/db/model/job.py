@@ -6,8 +6,6 @@ from odm.fields import StringField, ObjectIdField, ListField, IntegerField
 MAX_NUMBER_OF_LOG_ENTRIES = 32
 TIMEPERIOD = 'timeperiod'
 PROCESS_NAME = 'process_name'
-START_OBJ_ID = 'start_obj_id'
-END_OBJ_ID = 'end_obj_id'
 STATE = 'state'
 RELATED_UNIT_OF_WORK = 'related_unit_of_work'
 NUMBER_OF_FAILURES = 'number_of_failures'
@@ -48,8 +46,6 @@ class Job(BaseDocument):
     db_id = ObjectIdField('_id', null=True)
     process_name = StringField(PROCESS_NAME)
     timeperiod = StringField(TIMEPERIOD)
-    start_id = ObjectIdField(START_OBJ_ID)
-    end_id = ObjectIdField(END_OBJ_ID)
     state = StringField(STATE, choices=[STATE_IN_PROGRESS, STATE_PROCESSED, STATE_FINAL_RUN,
                                         STATE_EMBRYO, STATE_SKIPPED, STATE_NOOP])
     related_unit_of_work = ObjectIdField(RELATED_UNIT_OF_WORK)

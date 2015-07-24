@@ -66,7 +66,8 @@ def create_unit_of_work(process_name,
                         end_id,
                         timeperiod='INVALID_TIMEPERIOD',
                         state=unit_of_work.STATE_REQUESTED,
-                        creation_at=datetime.utcnow(),
+                        created_at=datetime.utcnow(),
+                        submitted_at=datetime.utcnow(),
                         uow_id=None):
     """ method creates and returns unit_of_work """
     try:
@@ -83,7 +84,8 @@ def create_unit_of_work(process_name,
     uow.end_id = end_id
     uow.start_timeperiod = timeperiod
     uow.end_timeperiod = timeperiod
-    uow.created_at = creation_at
+    uow.created_at = created_at
+    uow.submitted_at = submitted_at
     uow.source = source_collection
     uow.sink = sink_collection
     uow.state = state

@@ -96,20 +96,17 @@ class GarbageCollectorWorker(AbstractMqWorker):
             repost = True
 
         elif uow.is_in_progress or uow.is_requested:
-            last_activity = uow.started_at
-            if last_activity is None:
-                last_activity = uow.created_at
-
-            if datetime.utcnow() - last_activity > timedelta(hours=REPOST_AFTER_HOURS):
+            if datetime.utcnow() - uow.submitted_at > timedelta(hours=REPOST_AFTER_HOURS):
                 repost = True
 
         if repost:
             mq_request = SynergyMqTransmission(process_name=uow.process_name,
                                                unit_of_work_id=uow.db_id)
 
-            if datetime.utcnow() - uow.created_at < timedelta(hours=LIFE_SUPPORT_HOURS):
+            if datetime.utcnow() - uow.submitted_at < timedelta(hours=LIFE_SUPPORT_HOURS):
                 uow.state = unit_of_work.STATE_REQUESTED
                 uow.number_of_retries += 1
+                uow.submitted_at = datetime.utcnow()
                 self.uow_dao.update(uow)
 
                 publisher = self.publishers.get(uow.process_name)
