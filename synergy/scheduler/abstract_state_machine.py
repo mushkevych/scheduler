@@ -255,3 +255,34 @@ class AbstractStateMachine(object):
             msg = 'Increasing fail counter for %s in timeperiod %s, because of: %r' \
                   % (job_record.process_name, job_record.timeperiod, e)
             self._log_message(WARNING, job_record.process_name, job_record.timeperiod, msg)
+
+    def reprocess_job(self, job_record):
+        """ method marks given job for reprocessing:
+            handles its UOW appropriatelly and transfers the job into active state """
+        uow_id = job_record.related_unit_of_work
+        if uow_id is not None:
+            job_record.state = job.STATE_IN_PROGRESS
+            uow = self.uow_dao.get_one(uow_id)
+            uow.state = unit_of_work.STATE_INVALID
+            uow.submitted_at = datetime.utcnow()
+            self.uow_dao.update(uow)
+            msg = 'Transferred job record %s for %s in timeperiod %s to %s; Transferred unit_of_work to %s' \
+                  % (job_record.db_id,
+                     job_record.process_name,
+                     job_record.timeperiod,
+                     job_record.state,
+                     uow.state)
+
+            self.timetable.enlist_reprocessing_job(job_record)
+        else:
+            job_record.state = job.STATE_EMBRYO
+            msg = 'Transferred job record %s for %s in timeperiod %s to %s;' \
+                  % (job_record.db_id,
+                     job_record.process_name,
+                     job_record.timeperiod,
+                     job_record.state)
+
+        job_record.number_of_failures = 0
+        self.job_dao.update(job_record)
+        self.logger.warn(msg)
+        self.timetable.add_log_entry(job_record.process_name, job_record.timeperiod, msg)

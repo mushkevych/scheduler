@@ -37,6 +37,7 @@ class Scheduler(SynergyProcess):
         self.freerun_handlers = dict()
         self.timetable = Timetable(self.logger)
         self.state_machines = self._construct_state_machines()
+        self.timetable.state_machines = self.state_machines
 
         self.freerun_process_dao = FreerunProcessDao(self.logger)
         self.mx = None

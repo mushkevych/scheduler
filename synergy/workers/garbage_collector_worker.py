@@ -31,7 +31,6 @@ class GarbageCollectorWorker(AbstractMqWorker):
         self.uow_dao = UnitOfWorkDao(self.logger)
         self.managed_dao = ManagedProcessDao(self.logger)
         self.managed_entries = dict()
-        self.reprocessing_queues = dict()
 
     def __del__(self):
         try:
@@ -41,19 +40,6 @@ class GarbageCollectorWorker(AbstractMqWorker):
             self.logger.error('Exception caught while closing Flopsy Publishers Pool: %s' % str(e))
 
         super(GarbageCollectorWorker, self).__del__()
-
-    def reprocess_job(self, job_record):
-        """ source: synergy.scheduler.timetable._reprocess_single_tree_node """
-        pass
-
-    def is_queued_for_reprocessing(self, process_name, timeperiod):
-        """
-        :param process_name:
-        :param timeperiod:
-        :return: True if the self.reprocessing_queues contains an entry
-                self.reprocessing_queues[process_name][timeperiod]
-        """
-        pass
 
     @thread_safe
     def _mq_callback(self, message):

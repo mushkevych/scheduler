@@ -37,6 +37,9 @@ class Timetable(object):
         self.build_trees()
         self.validate()
 
+        # state machines dictionary is initialized from the synergy_scheduler.Scheduler.__init__
+        self.state_machines = None
+
     def _construct_trees_from_context(self):
         trees = dict()
         for tree_name, context_entry in context.timetable_context.items():
@@ -91,37 +94,6 @@ class Timetable(object):
             dependant_nodes.add(node_b)
         return dependant_nodes
 
-    def _reprocess_single_tree_node(self, tree_node):
-        """ is called from tree to answer reprocessing request.
-        It is possible that timetable record will be transferred to STATE_IN_PROGRESS with no related unit_of_work"""
-        uow_id = tree_node.job_record.related_unit_of_work
-        if uow_id is not None:
-            tree_node.job_record.state = job.STATE_IN_PROGRESS
-            uow = self.uow_dao.get_one(uow_id)
-            uow.state = unit_of_work.STATE_INVALID
-            uow.submitted_at = datetime.utcnow()
-            self.uow_dao.update(uow)
-            msg = 'Transferred job record %s for %s in timeperiod %s to %s; Transferred unit_of_work to %s' \
-                  % (tree_node.job_record.db_id,
-                     tree_node.process_name,
-                     tree_node.job_record.timeperiod,
-                     tree_node.job_record.state,
-                     uow.state)
-
-            self.enlist_reprocessing_job(tree_node.job_record)
-        else:
-            tree_node.job_record.state = job.STATE_EMBRYO
-            msg = 'Transferred job record %s for %s in timeperiod %s to %s;' \
-                  % (tree_node.job_record.db_id,
-                     tree_node.process_name,
-                     tree_node.job_record.timeperiod,
-                     tree_node.job_record.state)
-
-        tree_node.job_record.number_of_failures = 0
-        self.job_dao.update(tree_node.job_record)
-        self.logger.warn(msg)
-        tree_node.add_log_entry([datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S'), msg])
-
     @thread_safe
     def _callback_reprocess(self, tree_node):
         """ is called from tree to answer reprocessing request.
@@ -132,7 +104,8 @@ class Timetable(object):
             # the node has already been marked for re-processing or does not require one
             pass
         else:
-            self._reprocess_single_tree_node(tree_node)
+            state_machine = self.state_machines[tree_node.process_name]
+            state_machine.reprocess_job(tree_node.job_record)
 
         reprocessing_nodes = self._find_dependant_tree_nodes(tree_node)
         for node in reprocessing_nodes:
