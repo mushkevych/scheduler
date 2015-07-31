@@ -3,10 +3,8 @@ __author__ = 'Bohdan Mushkevych'
 from datetime import datetime
 from threading import RLock
 
-from synergy.db.dao.unit_of_work_dao import UnitOfWorkDao
 from synergy.db.dao.job_dao import JobDao
 from synergy.db.model.job import Job
-from synergy.db.model import job, unit_of_work
 from synergy.conf import context
 from synergy.conf import settings
 from synergy.system import time_helper
@@ -23,7 +21,6 @@ class Timetable(object):
     def __init__(self, logger):
         self.lock = RLock()
         self.logger = logger
-        self.uow_dao = UnitOfWorkDao(self.logger)
         self.job_dao = JobDao(self.logger)
         self.reprocess = dict()
 
@@ -98,10 +95,10 @@ class Timetable(object):
     def _callback_reprocess(self, tree_node):
         """ is called from tree to answer reprocessing request.
         It is possible that job record will be transferred to STATE_IN_PROGRESS with no related unit_of_work"""
-        if (tree_node.job_record.is_embryo and tree_node.job_record.number_of_failures == 0) \
+        if tree_node.job_record.is_embryo \
             or (tree_node.process_name in self.reprocess
                 and tree_node.timeperiod in self.reprocess[tree_node.process_name]):
-            # the node has already been marked for re-processing or does not require one
+            # the node does not require re-processing or has already been marked for it
             pass
         else:
             state_machine = self.state_machines[tree_node.process_name]
@@ -114,43 +111,18 @@ class Timetable(object):
     @thread_safe
     def _callback_skip(self, tree_node):
         """ is called from a tree to answer a skip request"""
-        tree_node.job_record.state = job.STATE_SKIPPED
-        uow_id = tree_node.job_record.related_unit_of_work
-        if uow_id is not None:
-            uow = self.uow_dao.get_one(uow_id)
-            uow.state = unit_of_work.STATE_CANCELED
-            self.uow_dao.update(uow)
-            msg = 'Transferred job record %s in timeperiod %s to %s; Transferred unit_of_work to %s' \
-                  % (tree_node.job_record.db_id,
-                     tree_node.job_record.timeperiod,
-                     tree_node.job_record.state,
-                     uow.state)
-        else:
-            msg = 'Transferred job record %s in timeperiod %s to %s;' \
-                  % (tree_node.job_record.db_id,
-                     tree_node.job_record.timeperiod,
-                     tree_node.job_record.state)
-
-        self.job_dao.update(tree_node.job_record)
+        state_machine = self.state_machines[tree_node.process_name]
+        state_machine.skip_job(tree_node.job_record)
         self.delist_reprocessing_job(tree_node.job_record)
-        self.logger.warn(msg)
-        tree_node.add_log_entry([datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S'), msg])
 
     @thread_safe
     def _callback_create_job_record(self, tree_node):
         """ is called from a tree to create job record in STATE_EMBRYO and bind it to the given tree node"""
-
         try:
             job_record = self.job_dao.get_one(tree_node.process_name, tree_node.timeperiod)
         except LookupError:
-            job_record = Job()
-            job_record.state = job.STATE_EMBRYO
-            job_record.timeperiod = tree_node.timeperiod
-            job_record.process_name = tree_node.process_name
-
-            tr_id = self.job_dao.update(job_record)
-            self.logger.info('Created job record %s, with timeperiod %s for process %s'
-                             % (str(tr_id), tree_node.timeperiod, tree_node.process_name))
+            state_machine = self.state_machines[tree_node.process_name]
+            job_record = state_machine.create_job(tree_node.process_name, tree_node.timeperiod)
         tree_node.job_record = job_record
 
     # *** Tree-manipulation methods ***
@@ -218,33 +190,13 @@ class Timetable(object):
 
     # *** Job manipulation methods ***
     @thread_safe
-    def update_job_record(self, job_record, uow, new_state):
-        """ method updates job record with a new unit_of_work and new state"""
-        job_record.state = new_state
-        job_record.related_unit_of_work = uow.db_id
-        self.job_dao.update(job_record)
-
-        tree = self.get_tree(job_record.process_name)
-        tree.update_node(job_record)
-
-        msg = 'Transferred job %s for %s in timeperiod %s to new state %s' \
-              % (job_record.db_id, job_record.timeperiod, job_record.process_name, new_state)
-        self.logger.info(msg)
-        self.add_log_entry(job_record.process_name, job_record.timeperiod, msg)
-
-    @thread_safe
     def failed_on_processing_job_record(self, process_name, timeperiod):
         """method increases node's inner counter of failed processing
-        if _skip_node logic returns True - node is set to STATE_SKIP"""
+        if _skip_node logic returns True - node is requested to STATE_SKIP"""
         tree = self.get_tree(process_name)
         node = tree.get_node(process_name, timeperiod)
-        node.job_record.number_of_failures += 1
         if tree._skip_the_node(node):
             node.request_skip()
-        else:
-            # job record is automatically updated in request_skip()
-            # so if the node was not skipped - job record has to be updated explicitly
-            self.job_dao.update(node.job_record)
 
     @thread_safe
     def get_next_job_record(self, process_name):

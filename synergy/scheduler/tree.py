@@ -183,8 +183,8 @@ class MultiLevelTree(AbstractTree):
         if node.process_name == self.process_hierarchy.bottom_process.process_name:
             if len(node.children) == 0:
                 # no children - this is a leaf
-                creation_time = time_helper.synergy_to_datetime(node.time_qualifier, node.timeperiod)
-                if datetime.utcnow() - creation_time < timedelta(hours=LIFE_SUPPORT_HOURS):
+                timeperiod_dt = time_helper.synergy_to_datetime(node.time_qualifier, node.timeperiod)
+                if datetime.utcnow() - timeperiod_dt < timedelta(hours=LIFE_SUPPORT_HOURS):
                     return False
                 else:
                     return node.job_record.number_of_failures > MAX_NUMBER_OF_RETRIES

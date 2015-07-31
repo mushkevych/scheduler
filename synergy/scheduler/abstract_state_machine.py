@@ -82,8 +82,8 @@ class AbstractStateMachine(object):
         :return: tuple (uow, is_duplicate)
         :raise UserWarning: if the recovery from DuplicateKeyError was unsuccessful
         """
-        is_duplicate = False
         try:
+            is_duplicate = False
             uow = self._insert_uow(process_name, start_timeperiod, end_timeperiod, start_id, end_id)
         except DuplicateKeyError as e:
             is_duplicate = True
@@ -92,11 +92,16 @@ class AbstractStateMachine(object):
             self._log_message(WARNING, process_name, start_timeperiod, msg)
             uow = self.uow_dao.recover_from_duplicatekeyerror(e)
 
-        if uow is None:
+        if not uow:
             msg = 'MANUAL INTERVENTION REQUIRED! Unable to locate unit_of_work for %s in %s' \
                   % (process_name, start_timeperiod)
             self._log_message(WARNING, process_name, start_timeperiod, msg)
             raise UserWarning(msg)
+
+        if uow.is_canceled:
+            # this UOW was marked for re-processing. recycle it
+            uow.submitted_at = datetime.utcnow()
+            uow.state = unit_of_work.STATE_REQUESTED
 
         # publish the created/caught up unit_of_work
         self._publish_uow(uow)
@@ -149,11 +154,11 @@ class AbstractStateMachine(object):
         """method takes care of processing job records in STATE_FINAL_RUN state"""
         uow = self.uow_dao.get_one(job_record.related_unit_of_work)
         if uow.is_processed:
-            self.timetable.update_job_record(job_record, uow, job.STATE_PROCESSED)
+            self.update_job(job_record, uow, job.STATE_PROCESSED)
         elif uow.is_noop:
-            self.timetable.update_job_record(job_record, uow, job.STATE_NOOP)
+            self.update_job(job_record, uow, job.STATE_NOOP)
         elif uow.is_canceled:
-            self.timetable.update_job_record(job_record, uow, job.STATE_SKIPPED)
+            self.update_job(job_record, uow, job.STATE_SKIPPED)
         elif uow.is_invalid:
             msg = 'Job record %s: UOW for %s in timeperiod %s is in %s; ' \
                   'relying on the Garbage Collector to transfer UOW into the %s' \
@@ -251,6 +256,8 @@ class AbstractStateMachine(object):
                 self._log_message(ERROR, job_record.process_name, job_record.timeperiod, msg)
 
         except LookupError as e:
+            job_record.number_of_failures += 1
+            self.job_dao.update(job_record)
             self.timetable.failed_on_processing_job_record(job_record.process_name, job_record.timeperiod)
             msg = 'Increasing fail counter for %s in timeperiod %s, because of: %r' \
                   % (job_record.process_name, job_record.timeperiod, e)
@@ -258,31 +265,77 @@ class AbstractStateMachine(object):
 
     def reprocess_job(self, job_record):
         """ method marks given job for reprocessing:
-            handles its UOW appropriatelly and transfers the job into active state """
-        uow_id = job_record.related_unit_of_work
-        if uow_id is not None:
-            job_record.state = job.STATE_IN_PROGRESS
-            uow = self.uow_dao.get_one(uow_id)
-            uow.state = unit_of_work.STATE_INVALID
-            uow.submitted_at = datetime.utcnow()
-            self.uow_dao.update(uow)
-            msg = 'Transferred job record %s for %s in timeperiod %s to %s; Transferred unit_of_work to %s' \
-                  % (job_record.db_id,
-                     job_record.process_name,
-                     job_record.timeperiod,
-                     job_record.state,
-                     uow.state)
-
-            self.timetable.enlist_reprocessing_job(job_record)
-        else:
-            job_record.state = job.STATE_EMBRYO
-            msg = 'Transferred job record %s for %s in timeperiod %s to %s;' \
-                  % (job_record.db_id,
-                     job_record.process_name,
-                     job_record.timeperiod,
-                     job_record.state)
-
+            - if no UOW was bind with the job record - it is transferred to state EMBRYO only
+            - if related UOW was not finished - we mark the UOW as CANCELED
+                and pass the job record thru the _process_in_progress routine
+            - otherwise job record is passed thru the _process_in_progress routine """
+        original_job_state = job_record.state
         job_record.number_of_failures = 0
-        self.job_dao.update(job_record)
+
+        if not job_record.related_unit_of_work:
+            job_record.state = job.STATE_EMBRYO
+        else:
+            uow = self.uow_dao.get_one(job_record.related_unit_of_work)
+            if not uow.is_finished:
+                uow.state = unit_of_work.STATE_CANCELED
+                uow.submitted_at = datetime.utcnow()
+                self.uow_dao.update(uow)
+            self._process_state_in_progress(job_record)
+
+        msg = 'Reprocessing job record %s for %s in %s: state transferred from %s to %s;' \
+              % (job_record.db_id,
+                 job_record.process_name,
+                 job_record.timeperiod,
+                 original_job_state,
+                 job_record.state)
         self.logger.warn(msg)
+        self.timetable.add_log_entry(job_record.process_name, job_record.timeperiod, msg)
+
+    def skip_job(self, job_record):
+        """ method marks given job as SKIPPED:
+            - UOW if not in finished state, is marked as CANCELED
+            - job record, if not in finished state, is marked as SKIPPED """
+        original_job_state = job_record.state
+
+        if not job_record.is_finished:
+            job_record.state = job.STATE_SKIPPED
+            self.job_dao.update(job_record)
+
+        if job_record.related_unit_of_work:
+            uow = self.uow_dao.get_one(job_record.related_unit_of_work)
+            if not uow.is_finished:
+                uow.state = unit_of_work.STATE_CANCELED
+                uow.submitted_at = datetime.utcnow()
+                self.uow_dao.update(uow)
+
+        msg = 'Skipping job record %s for %s in %s: state transferred from %s to %s; ' \
+              % (job_record.db_id,
+                 job_record.process_name,
+                 job_record.timeperiod,
+                 original_job_state,
+                 job_record.state)
+        self.logger.warn(msg)
+        self.timetable.add_log_entry(job_record.process_name, job_record.timeperiod, msg)
+
+    def create_job(self, process_name, timeperiod):
+        """ method creates a job record in STATE_EMBRYO for given process_name and timeperiod
+            :returns: created job record of type <Job>"""
+        job_record = Job()
+        job_record.state = job.STATE_EMBRYO
+        job_record.timeperiod = timeperiod
+        job_record.process_name = process_name
+
+        self.job_dao.update(job_record)
+        self.logger.info('Created job record %s for %s in %s'
+                         % (job_record.db_id, job_record.process_name, job_record.timeperiod))
+
+    def update_job(self, job_record, uow, new_state):
+        """ method updates job record with a new unit_of_work and new state"""
+        job_record.state = new_state
+        job_record.related_unit_of_work = uow.db_id
+        self.job_dao.update(job_record)
+
+        msg = 'Transferred job %s for %s in timeperiod %s to new state %s' \
+              % (job_record.db_id, job_record.timeperiod, job_record.process_name, new_state)
+        self.logger.info(msg)
         self.timetable.add_log_entry(job_record.process_name, job_record.timeperiod, msg)

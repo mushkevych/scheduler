@@ -3,7 +3,6 @@ __author__ = 'Bohdan Mushkevych'
 from logging import ERROR, INFO
 
 from synergy.db.model import job
-from synergy.db.model.job import Job
 from synergy.db.manager import ds_manager
 from synergy.conf import context
 from synergy.system.decorator import with_reconnect
@@ -64,7 +63,7 @@ class StateMachineContinuous(AbstractStateMachine):
                                                         end_timeperiod,
                                                         start_id,
                                                         end_id)
-        self.timetable.update_job_record(job_record, uow, job.STATE_IN_PROGRESS)
+        self.update_job(job_record, uow, job.STATE_IN_PROGRESS)
 
     def _compute_and_transfer_to_final_run(self, process_name, start_timeperiod, end_timeperiod, job_record):
         """ method computes new unit_of_work and transfers the job to STATE_FINAL_RUN
@@ -77,7 +76,7 @@ class StateMachineContinuous(AbstractStateMachine):
                                                              end_timeperiod,
                                                              start_id,
                                                              end_id)
-        self.timetable.update_job_record(job_record, uow, job.STATE_FINAL_RUN)
+        self.update_job(job_record, uow, job.STATE_FINAL_RUN)
 
         if transfer_to_final:
             self._process_state_final_run(job_record)

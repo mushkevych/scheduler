@@ -40,7 +40,7 @@ class StateMachineDiscrete(AbstractStateMachine):
                                                         end_timeperiod,
                                                         0,
                                                         0)
-        self.timetable.update_job_record(job_record, uow, job.STATE_IN_PROGRESS)
+        self.update_job(job_record, uow, job.STATE_IN_PROGRESS)
 
     def _process_state_in_progress(self, job_record):
         """ method that takes care of processing job records in STATE_IN_PROGRESS state"""
@@ -55,15 +55,14 @@ class StateMachineDiscrete(AbstractStateMachine):
                                                                     job_record.timeperiod,
                                                                     end_timeperiod,
                                                                     0,
-                                                                    iteration + 1)
-                self.timetable.update_job_record(job_record, new_uow, target_state)
+                                                                    int(uow.end_id) + 1)
+                self.update_job(job_record, new_uow, target_state)
 
         time_qualifier = context.process_context[job_record.process_name].time_qualifier
         end_timeperiod = time_helper.increment_timeperiod(time_qualifier, job_record.timeperiod)
         actual_timeperiod = time_helper.actual_timeperiod(time_qualifier)
         is_job_finalizable = self.timetable.is_job_record_finalizable(job_record)
         uow = self.uow_dao.get_one(job_record.related_unit_of_work)
-        iteration = int(uow.end_id)
 
         if job_record.timeperiod == actual_timeperiod or is_job_finalizable is False:
             _process_state(job.STATE_IN_PROGRESS, uow)

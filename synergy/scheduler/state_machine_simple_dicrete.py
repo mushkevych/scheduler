@@ -60,7 +60,7 @@ class StateMachineSimpleDiscrete(StateMachineDiscrete):
                                                             end_timeperiod,
                                                             0,
                                                             int(uow.end_id) + 1)
-            self.timetable.update_job_record(job_record, uow, job.STATE_IN_PROGRESS)
+            self.update_job(job_record, uow, job.STATE_IN_PROGRESS)
 
     def __process_finalizable_job(self, job_record, uow):
         """ method handles given job_record based on the unit_of_work status
@@ -72,11 +72,11 @@ class StateMachineSimpleDiscrete(StateMachineDiscrete):
                   % (job_record.process_name, job_record.timeperiod, job_record.state, uow.state)
             self._log_message(INFO, job_record.process_name, job_record.timeperiod, msg)
         elif uow.is_processed:
-            self.timetable.update_job_record(job_record, uow, job.STATE_PROCESSED)
+            self.update_job(job_record, uow, job.STATE_PROCESSED)
         elif uow.is_noop:
-            self.timetable.update_job_record(job_record, uow, job.STATE_NOOP)
+            self.update_job(job_record, uow, job.STATE_NOOP)
         elif uow.is_canceled:
-            self.timetable.update_job_record(job_record, uow, job.STATE_SKIPPED)
+            self.update_job(job_record, uow, job.STATE_SKIPPED)
         elif uow.is_invalid:
             msg = 'Job record %s: UOW for %s in timeperiod %s is in %s; ' \
                   'relying on the Garbage Collector to transfer UOW into the %s' \
