@@ -1,5 +1,6 @@
 __author__ = 'Bohdan Mushkevych'
 
+import collections
 from datetime import datetime
 from threading import RLock
 
@@ -22,10 +23,10 @@ class Timetable(object):
         self.lock = RLock()
         self.logger = logger
         self.job_dao = JobDao(self.logger)
-        self.reprocess = dict()
+        self.reprocess_jobs = collections.defaultdict(dict)
 
         # self.trees contain all of the trees and manages much of their life cycle
-        # remember to enlist there all trees the system is working with
+        # remember to enlist here all trees the system is working with
         self.trees = self._construct_trees_from_context()
 
         self._register_callbacks()
@@ -34,7 +35,7 @@ class Timetable(object):
         self.build_trees()
         self.validate()
 
-        # state machines dictionary is initialized from the synergy_scheduler.Scheduler.__init__
+        # state_machines is of type <dictionary> and is initialized from the synergy_scheduler.Scheduler.__init__
         self.state_machines = None
 
     def _construct_trees_from_context(self):
@@ -96,8 +97,8 @@ class Timetable(object):
         """ is called from tree to answer reprocessing request.
         It is possible that job record will be transferred to STATE_IN_PROGRESS with no related unit_of_work"""
         if tree_node.job_record.is_embryo \
-            or (tree_node.process_name in self.reprocess
-                and tree_node.timeperiod in self.reprocess[tree_node.process_name]):
+            or (tree_node.process_name in self.reprocess_jobs
+                and tree_node.timeperiod in self.reprocess_jobs[tree_node.process_name]):
             # the node does not require re-processing or has already been marked for it
             pass
         else:
@@ -226,13 +227,9 @@ class Timetable(object):
     @thread_safe
     def enlist_reprocessing_job(self, job_record):
         assert isinstance(job_record, Job)
-        if job_record.process_name not in self.reprocess:
-            self.reprocess[job_record.process_name] = dict()
-        self.reprocess[job_record.process_name][job_record.timeperiod] = job_record
+        self.reprocess_jobs[job_record.process_name][job_record.timeperiod] = job_record
 
     @thread_safe
     def delist_reprocessing_job(self, job_record):
         assert isinstance(job_record, Job)
-        if job_record.process_name in self.reprocess \
-                and job_record.timeperiod in self.reprocess[job_record.process_name]:
-            del self.reprocess[job_record.process_name][job_record.timeperiod]
+        del self.reprocess_jobs[job_record.process_name][job_record.timeperiod]

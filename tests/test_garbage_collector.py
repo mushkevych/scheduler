@@ -1,11 +1,12 @@
 # coding=utf-8
 __author__ = 'Bohdan Mushkevych'
 
-import mock
 import unittest
 from datetime import datetime, timedelta
 
+import mock
 from settings import enable_test_mode
+
 enable_test_mode()
 
 from synergy.db.model import unit_of_work
@@ -15,7 +16,7 @@ from tests.base_fixtures import create_unit_of_work, create_and_insert_unit_of_w
 from constants import *
 from synergy.mq.flopsy import PublishersPool, Publisher
 from synergy.scheduler.scheduler_constants import PROCESS_GC
-from synergy.workers.garbage_collector_worker import GarbageCollectorWorker, LIFE_SUPPORT_HOURS
+from scheduler.garbage_collector import GarbageCollector, LIFE_SUPPORT_HOURS
 from synergy.system.data_logging import get_logger
 from tests.ut_context import *
 
@@ -70,7 +71,7 @@ class GarbageCollectorUnitTest(unittest.TestCase):
         super(GarbageCollectorUnitTest, cls).setUpClass()
 
     def setUp(self):
-        self.worker = GarbageCollectorWorker(PROCESS_GC)
+        self.worker = GarbageCollector(PROCESS_GC)
         self.publisher = mock.create_autospec(Publisher)
         self.worker.publishers = mock.create_autospec(PublishersPool)
         self.worker.publishers.get = mock.MagicMock(return_value=self.publisher)

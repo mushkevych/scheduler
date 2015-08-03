@@ -19,6 +19,11 @@ settings = dict(
     compute_gzip_md5=True,      # True, if AbstractFileCollector should compute MD5 for every file it processes
     bash_runnable_count=5,
 
+    gc_life_support_hours=48,    # number of hours from UOW creation time to keep UOW re-posting to MQ
+    gc_repost_after_hours=1,     # number of hours, GC waits for the worker to pick up the UOW from MQ before re-posting
+    gc_release_lag_minutes=15,   # number of minutes, GC keeps the UOW in the queue before posting it into MQ
+
+
     ds_type='mongo_db',
     mongo_db_name='scheduler',
     batch_size=1024,            # illustration suite setting: number of DB documents to read in batch
