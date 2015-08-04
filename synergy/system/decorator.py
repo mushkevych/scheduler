@@ -12,6 +12,10 @@ def thread_safe(method):
 
     @functools.wraps(method)
     def _locker(self, *args, **kwargs):
+        assert hasattr(self, 'lock'), \
+            'thread_safe decorator applied to method {0}.{1}: missing required field {0}.lock'.\
+            format(self.__class__.__name__, method.__name__)
+
         try:
             self.lock.acquire()
             return method(self, *args, **kwargs)

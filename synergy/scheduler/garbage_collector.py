@@ -1,3 +1,5 @@
+from Queue import PriorityQueue
+from db.model.unit_of_work import UnitOfWork
 
 __author__ = 'Bohdan Mushkevych'
 
@@ -14,7 +16,6 @@ from synergy.db.model import unit_of_work
 from synergy.db.model.synergy_mq_transmission import SynergyMqTransmission
 from synergy.db.dao.unit_of_work_dao import UnitOfWorkDao
 from synergy.db.model.managed_process_entry import ManagedProcessEntry
-from synergy.db.dao.managed_process_dao import ManagedProcessDao
 
 
 class CollectorEntry(object):
@@ -38,9 +39,7 @@ class CollectorEntry(object):
         return int(release_time_str)
 
     def __eq__(self, other):
-        return self.uow.db_id == other.uow.db_id \
-            and self.release_time == other.release_time \
-            and self.creation_counter == other.creation_counter
+        return self.uow.db_id == other.uow.db_id
 
     def __ne__(self, other):
         return not self.__eq__(other)
@@ -90,13 +89,13 @@ class GarbageCollector(object):
 
         self.lock = Lock()
         self.uow_dao = UnitOfWorkDao(self.logger)
-        self.reprocess_uows = collections.defaultdict(dict)
+        self.reprocess_uows = collections.defaultdict(PriorityQueue)
 
     @thread_safe
-    def run(self):
+    def enlist_or_cancel(self):
         """ method performs two actions:
-            - updates list of stale or invalid units of work
-            - re-publishes unit_of_work that are in the reprocess_uows queue whose  needed"""
+            - enlist stale or invalid units of work into reprocessing queue
+            - cancel UOWs that are older than 2 days and have been submitted more than 1 hour ago """
         try:
             since = settings.settings['synergy_start_timeperiod']
             uow_list = self.uow_dao.get_reprocessing_candidates(since)
@@ -112,54 +111,67 @@ class GarbageCollector(object):
                     self.logger.debug('Process %r is inactive. Skipping its unit_of_work.' % uow.process_name)
                     continue
 
-                self._process_single_document(uow)
+                if uow in self.reprocess_uows[uow.process_name]:
+                    # given UOW is already registered in the reprocessing queue
+                    continue
+
+                if datetime.utcnow() - uow.created_at > timedelta(hours=settings.settings['gc_life_support_hours']) \
+                        and datetime.utcnow() - uow.submitted_at > timedelta(
+                                                                  hours=settings.settings['gc_repost_after_hours']):
+                    self._cancel_uow(uow)
+                    continue
+
+                # enlist the UOW into the reprocessing queue
+                entry = CollectorEntry(uow)
+                self.reprocess_uows[uow.process_name].put_nowait(entry)
 
         except LookupError as e:
             self.logger.info('Expected case: re-processing UOW candidates not found. %r' % e)
         except Exception as e:
             self.logger.error('GC Exception: %s' % str(e), exc_info=True)
 
-    def _process_single_document(self, uow):
-        """  inspects UOW retrieved from the database"""
-        enlist = False
-        repost = False
+    @thread_safe
+    def repost(self):
+        """ method iterates ove the reprocessing queue and re-submits UOW whose waiting time has expired """
+        current_timestamp = time_helper.actual_timeperiod(QUALIFIER_REAL_TIME)
+        for process_name, q in self.reprocess_uows.items():
+            assert isinstance(q, PriorityQueue)
+            for _ in range(q.qsize()):
+                entry = q.get_nowait()
+                assert isinstance(entry, CollectorEntry)
+
+                if entry.release_time < current_timestamp:
+                    self._resubmit_uow(entry.uow)
+                else:
+                    q.put_nowait(entry)
+                    break   # leave the loop for given process_name
+
+    def _resubmit_uow(self, uow):
+        mq_request = SynergyMqTransmission(process_name=uow.process_name, unit_of_work_id=uow.db_id)
+
         if uow.is_invalid:
-            enlist = True
+            uow.number_of_retries += 1
 
-        if uow.is_in_progress or uow.is_requested:
-            if datetime.utcnow() - uow.submitted_at > timedelta(hours=settings.settings['gc_repost_after_hours']):
-                repost = True
+        uow.state = unit_of_work.STATE_REQUESTED
+        uow.submitted_at = datetime.utcnow()
+        self.uow_dao.update(uow)
 
-        if repost:
-            mq_request = SynergyMqTransmission(process_name=uow.process_name,
-                                               unit_of_work_id=uow.db_id)
+        publisher = self.publishers.get(uow.process_name)
+        publisher.publish(mq_request.document)
+        publisher.release()
 
-            if datetime.utcnow() - uow.submitted_at < timedelta(hours=settings.settings['gc_life_support_hours']):
-                uow.state = unit_of_work.STATE_REQUESTED
-                uow.number_of_retries += 1
-                uow.submitted_at = datetime.utcnow()
-                self.uow_dao.update(uow)
+        self.logger.info('re-submitted UOW {0} for {1} in {2}; attempt {3}'
+                         .format(uow.db_id, uow.process_name, uow.timeperiod, uow.number_of_retries))
 
-                publisher = self.publishers.get(uow.process_name)
-                publisher.publish(mq_request.document)
-                publisher.release()
+    def _cancel_uow(self, uow):
+        mq_request = SynergyMqTransmission(process_name=uow.process_name, unit_of_work_id=uow.db_id)
 
-                self.logger.info('UOW marked for re-processing: process %s; timeperiod %s; id %s; attempt %d'
-                                 % (uow.process_name, uow.timeperiod, uow.db_id, uow.number_of_retries))
-            else:
-                uow.state = unit_of_work.STATE_CANCELED
-                self.uow_dao.update(uow)
+        uow.state = unit_of_work.STATE_CANCELED
+        self.uow_dao.update(uow)
 
-                publisher = self.publishers.get(QUEUE_UOW_REPORT)
-                publisher.publish(mq_request.document)
-                publisher.release()
+        publisher = self.publishers.get(QUEUE_UOW_REPORT)
+        publisher.publish(mq_request.document)
+        publisher.release()
 
-                self.logger.info('UOW transferred to STATE_CANCELED: process %s; timeperiod %s; id %s; attempt %d'
-                                 % (uow.process_name, uow.timeperiod, uow.db_id, uow.number_of_retries))
-
-
-if __name__ == '__main__':
-    from synergy.scheduler.scheduler_constants import PROCESS_GC, TYPE_MANAGED
-
-    source = GarbageCollector(PROCESS_GC)
-    source.start()
+        self.logger.info('canceled UOW {0} for {1} in {2}; attempt {3}; created at {4}'
+                         .format(uow.db_id, uow.process_name, uow.timeperiod, uow.number_of_retries, uow.created_at))

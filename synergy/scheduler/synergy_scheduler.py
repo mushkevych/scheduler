@@ -9,12 +9,12 @@ from synergy.conf import context
 from synergy.mq.flopsy import PublishersPool
 from synergy.mx.synergy_mx import MX
 from synergy.db.manager import db_manager
-from synergy.db.model.synergy_mq_transmission import SynergyMqTransmission
 from synergy.db.model.managed_process_entry import ManagedProcessEntry
 from synergy.db.dao.freerun_process_dao import FreerunProcessDao
 from synergy.system import time_helper
 from synergy.system.decorator import with_reconnect, thread_safe
 from synergy.system.synergy_process import SynergyProcess
+from synergy.scheduler.garbage_collector import GarbageCollector
 from synergy.scheduler.status_bus_listener import StatusBusListener
 from synergy.scheduler.scheduler_constants import *
 from synergy.scheduler.state_machine_continuous import StateMachineContinuous
@@ -139,6 +139,10 @@ class Scheduler(SynergyProcess):
         self.bus_listener = StatusBusListener(self)
         self.bus_listener.start()
 
+        # GarbageCollector can be safely started
+        self.gc = GarbageCollector(self.logger, self.managed_handlers, self.publishers)
+        self.gc.start()
+
         # All Scheduler components are initialized and running. Management Extension (MX) can be safely started
         self.mx = MX(self)
         self.mx.start_mx_thread()
@@ -218,12 +222,9 @@ class Scheduler(SynergyProcess):
         try:
             assert isinstance(thread_handler_arguments, ThreadHandlerArguments)
             self.logger.info('%r {' % (thread_handler_arguments.key, ))
-            mq_request = SynergyMqTransmission(process_name=thread_handler_arguments.key)
 
-            publisher = self.publishers.get(thread_handler_arguments.key)
-            publisher.publish(mq_request.document)
-            publisher.release()
-            self.logger.info('Published trigger for %s' % thread_handler_arguments.key)
+            self.gc.enlist_or_cancel()
+            self.gc.repost()
 
             self.logger.info('Starting timetable housekeeping...')
             self.timetable.build_trees()
