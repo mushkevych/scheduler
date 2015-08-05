@@ -1,11 +1,9 @@
-from Queue import PriorityQueue
-from db.model.unit_of_work import UnitOfWork
-
 __author__ = 'Bohdan Mushkevych'
 
 import collections
 from threading import Lock
 from datetime import datetime, timedelta
+from Queue import PriorityQueue
 
 from synergy.conf import settings
 from synergy.system import time_helper
@@ -24,10 +22,7 @@ class CollectorEntry(object):
     creation_counter = 0
 
     def __init__(self, uow):
-        """
-        :param uow: the unit_of_work to reprocess
-        :return:
-        """
+        """ :param uow: the unit_of_work to reprocess """
         self.uow = uow
         self.release_time = self._compute_release_time()  # time in the future in the SYNERGY_SESSION_PATTERN
         self.creation_counter = CollectorEntry.creation_counter + 1
@@ -82,10 +77,11 @@ class GarbageCollector(object):
         GC is vital for the health of the system.
         Deployment with no GC is considered invalid """
 
-    def __init__(self, logger, managed_handlers, publishers):
-        self.logger = logger
-        self.managed_handlers = managed_handlers
-        self.publishers = publishers
+    def __init__(self, scheduler):
+        self.logger = scheduler.logger
+        self.managed_handlers = scheduler.managed_handlers
+        self.publishers = scheduler.publishers
+        self.timetable = scheduler.timetable
 
         self.lock = Lock()
         self.uow_dao = UnitOfWorkDao(self.logger)
@@ -101,14 +97,14 @@ class GarbageCollector(object):
             uow_list = self.uow_dao.get_reprocessing_candidates(since)
             for uow in uow_list:
                 if uow.process_name not in self.managed_handlers:
-                    self.logger.debug('Process %r is not known to the Synergy Scheduler. Skipping its unit_of_work.'
+                    self.logger.debug('GC: process %r is not known to the Synergy Scheduler. Skipping its unit_of_work.'
                                       % uow.process_name)
                     continue
 
                 process_entry = self.managed_handlers[uow.process_name]
                 assert isinstance(process_entry, ManagedProcessEntry)
                 if not process_entry.is_on:
-                    self.logger.debug('Process %r is inactive. Skipping its unit_of_work.' % uow.process_name)
+                    self.logger.debug('GC: process %r is inactive. Skipping its unit_of_work.' % uow.process_name)
                     continue
 
                 if uow in self.reprocess_uows[uow.process_name]:
@@ -126,9 +122,9 @@ class GarbageCollector(object):
                 self.reprocess_uows[uow.process_name].put_nowait(entry)
 
         except LookupError as e:
-            self.logger.info('Expected case: re-processing UOW candidates not found. %r' % e)
+            self.logger.info('GC flow: re-processing UOW candidates not found. %r' % e)
         except Exception as e:
-            self.logger.error('GC Exception: %s' % str(e), exc_info=True)
+            self.logger.error('GC flow exception: %s' % str(e), exc_info=True)
 
     @thread_safe
     def repost(self):
@@ -160,7 +156,7 @@ class GarbageCollector(object):
         publisher.publish(mq_request.document)
         publisher.release()
 
-        self.logger.info('re-submitted UOW {0} for {1} in {2}; attempt {3}'
+        self.logger.info('GC: re-submitted UOW {0} for {1} in {2}; attempt {3}'
                          .format(uow.db_id, uow.process_name, uow.timeperiod, uow.number_of_retries))
 
     def _cancel_uow(self, uow):
@@ -173,5 +169,5 @@ class GarbageCollector(object):
         publisher.publish(mq_request.document)
         publisher.release()
 
-        self.logger.info('canceled UOW {0} for {1} in {2}; attempt {3}; created at {4}'
+        self.logger.info('GC: canceled UOW {0} for {1} in {2}; attempt {3}; created at {4}'
                          .format(uow.db_id, uow.process_name, uow.timeperiod, uow.number_of_retries, uow.created_at))

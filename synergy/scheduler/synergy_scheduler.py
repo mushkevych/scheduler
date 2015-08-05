@@ -38,6 +38,7 @@ class Scheduler(SynergyProcess):
         self.timetable = Timetable(self.logger)
         self.state_machines = self._construct_state_machines()
         self.timetable.state_machines = self.state_machines
+        self.gc = GarbageCollector(self)
 
         self.freerun_process_dao = FreerunProcessDao(self.logger)
         self.mx = None
@@ -139,10 +140,6 @@ class Scheduler(SynergyProcess):
         self.bus_listener = StatusBusListener(self)
         self.bus_listener.start()
 
-        # GarbageCollector can be safely started
-        self.gc = GarbageCollector(self.logger, self.managed_handlers, self.publishers)
-        self.gc.start()
-
         # All Scheduler components are initialized and running. Management Extension (MX) can be safely started
         self.mx = MX(self)
         self.mx.start_mx_thread()
@@ -223,18 +220,20 @@ class Scheduler(SynergyProcess):
             assert isinstance(thread_handler_arguments, ThreadHandlerArguments)
             self.logger.info('%r {' % (thread_handler_arguments.key, ))
 
+            self.logger.info('GC: step 1 - enlist or cancel')
             self.gc.enlist_or_cancel()
+
+            self.logger.info('GC: step 2 - repost after timeout')
             self.gc.repost()
 
-            self.logger.info('Starting timetable housekeeping...')
+            self.logger.info('GC: step 3 - timetable housekeeping')
             self.timetable.build_trees()
+
+            self.logger.info('GC: step 4 - timetable validation')
             self.timetable.validate()
-            self.logger.info('Timetable housekeeping complete.')
-        except (AMQPError, IOError) as e:
-            self.logger.error('AMQPError: %s' % str(e), exc_info=True)
-            self.publishers.reset_all(suppress_logging=True)
+            self.logger.info('GC: run complete.')
         except Exception as e:
-            self.logger.error('fire_garbage_collector: %s' % str(e))
+            self.logger.error('GC run exception: %s' % str(e))
         finally:
             self.logger.info('}')
 

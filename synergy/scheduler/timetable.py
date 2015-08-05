@@ -114,7 +114,7 @@ class Timetable(object):
         """ is called from a tree to answer a skip request"""
         state_machine = self.state_machines[tree_node.process_name]
         state_machine.skip_job(tree_node.job_record)
-        self.delist_reprocessing_job(tree_node.job_record)
+        self.enlist_reprocessing_job(tree_node.job_record)
 
     @thread_safe
     def _callback_create_job_record(self, tree_node):
