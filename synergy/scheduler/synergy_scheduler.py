@@ -26,7 +26,10 @@ from synergy.scheduler.thread_handler import construct_thread_handler, ThreadHan
 
 
 class Scheduler(SynergyProcess):
-    """ Scheduler hosts multiple state machines, and logic for triggering jobs """
+    """ Scheduler hosts:
+        - state machines to govern running processes and their jobs
+        - logic to trigger job execution
+        - garbage collector to recycle failed/stalled unit of works """
 
     def __init__(self, process_name):
         super(Scheduler, self).__init__(process_name)
@@ -220,16 +223,16 @@ class Scheduler(SynergyProcess):
             assert isinstance(thread_handler_arguments, ThreadHandlerArguments)
             self.logger.info('%r {' % (thread_handler_arguments.key, ))
 
-            self.logger.info('GC: step 1 - enlist or cancel')
+            self.logger.debug('GC: step 1 - enlist or cancel')
             self.gc.enlist_or_cancel()
 
-            self.logger.info('GC: step 2 - repost after timeout')
+            self.logger.debug('GC: step 2 - repost after timeout')
             self.gc.repost()
 
-            self.logger.info('GC: step 3 - timetable housekeeping')
+            self.logger.debug('GC: step 3 - timetable housekeeping')
             self.timetable.build_trees()
 
-            self.logger.info('GC: step 4 - timetable validation')
+            self.logger.debug('GC: step 4 - timetable validation')
             self.timetable.validate()
             self.logger.info('GC: run complete.')
         except Exception as e:

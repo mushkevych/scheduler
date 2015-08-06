@@ -119,8 +119,9 @@ class AbstractTreeNode(object):
 
     def find_counterpart_in(self, tree_b):
         """ Finds a TreeNode counterpart for this node in tree_b
-        :param tree_b: target tree that hosts counterpart to this node
-        :return: TreeNode from tree_b that has the same timeperiod as this node, or None if no counterpart ware found
+            :param tree_b: target tree that hosts counterpart to this node
+            :return: TreeNode from tree_b that has the same timeperiod as self.timeperiod,
+                or None if no counterpart ware found
         """
 
         tree_b_hierarchy_entry = tree_b.process_hierarchy.get_by_qualifier(self.time_qualifier)

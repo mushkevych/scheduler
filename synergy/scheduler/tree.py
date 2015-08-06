@@ -60,8 +60,8 @@ class MultiLevelTree(AbstractTree):
 
     def _get_next_parent_node(self, parent):
         """ Used by _get_next_child_node, this method is called to find next possible parent.
-        For example if timeperiod 2011010200 has all children processed, but is not yet processed itself
-        then it makes sense to look in 2011010300 for hourly nodes"""
+            For example if timeperiod 2011010200 has all children processed, but is not yet processed itself
+            then it makes sense to look in 2011010300 for hourly nodes """
         parent_of_parent = parent.parent
         if parent_of_parent is None:
             # here, we work at yearly/linear level
@@ -86,7 +86,7 @@ class MultiLevelTree(AbstractTree):
             if node.job_record is None:
                 self.timetable.assign_job_record(node)
                 return node
-            elif self._skip_the_node(node):
+            elif self.should_skip_tree_node(node):
                 continue
             elif node.job_record.is_active:
                 return node
@@ -127,13 +127,11 @@ class MultiLevelTree(AbstractTree):
         return node
 
     def _get_next_node(self, time_qualifier):
-        """
-        Method goes to the top of the tree and traverses from
-        there in search of the next suitable node for processing
-        to the level defined by the given time_qualifier
-        :param time_qualifier: defines target level of the tree
-        :return: located node; type <TreeNode>
-        """
+        """ Method goes to the top of the tree and traverses from
+            there in search of the next suitable node for processing
+            to the level defined by the given time_qualifier
+            :param time_qualifier: defines target level of the tree
+            :return: located node; type <TreeNode> """
         hierarchy_entry = self.process_hierarchy.get_by_qualifier(time_qualifier)
         if hierarchy_entry.parent:
             parent_time_qualifier = hierarchy_entry.parent.process_entry.time_qualifier
@@ -143,14 +141,13 @@ class MultiLevelTree(AbstractTree):
 
         return self._get_next_child_node(parent)
 
-    def _skip_the_node(self, node):
-        """Method is used during _get_next_node calculations.
-        :return True: in case the node shall be _skipped_"""
+    def should_skip_tree_node(self, node):
+        """ :return True: in case the node should be _skipped_ and not included into processing """
         # case 1: node processing is complete
         if node.job_record.is_finished:
             return True
 
-        # case 2: this is a bottom-level leaf node. retry this time_period for INFINITE_RETRY_HOURS
+        # case 2: this is a bottom-level leaf node. retry this time_period for LIFE_SUPPORT_HOURS
         if node.process_name == self.process_hierarchy.bottom_process.process_name:
             if len(node.children) == 0:
                 # no children - this is a leaf
@@ -175,8 +172,8 @@ class MultiLevelTree(AbstractTree):
         return all_children_spoiled
 
     def build_tree(self, rebuild=False):
-        """method builds tree by iterating from the synergy_start_timeperiod to current time
-        and inserting corresponding nodes"""
+        """ method builds tree by iterating from the synergy_start_timeperiod to the current time
+            and inserting corresponding nodes """
 
         time_qualifier = self.process_hierarchy.bottom_process.time_qualifier
         process_name = self.process_hierarchy.bottom_process.process_name
@@ -195,9 +192,7 @@ class MultiLevelTree(AbstractTree):
         self.build_timeperiod = actual_timeperiod
 
     def get_next_node(self, process_name):
-        """
-        Find a next node to process by a process with process_name
-        """
+        """ :return: <AbstractTreeNode> next node to process by a process with process_name """
         if process_name not in self.process_hierarchy:
             raise ValueError('unable to compute the next_node due to unknown process: %s' % process_name)
 
@@ -205,9 +200,7 @@ class MultiLevelTree(AbstractTree):
         return self._get_next_node(time_qualifier)
 
     def update_node(self, job_record):
-        """
-        Updates job record property for a tree node associated with the given Job
-        """
+        """ Updates job record property for a tree node associated with the given Job """
         if job_record.process_name not in self.process_hierarchy:
             raise ValueError('unable to update the node due to unknown process: %s' % job_record.process_name)
 

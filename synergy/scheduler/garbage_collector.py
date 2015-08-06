@@ -140,7 +140,7 @@ class GarbageCollector(object):
                     self._resubmit_uow(entry.uow)
                 else:
                     q.put_nowait(entry)
-                    break   # leave the loop for given process_name
+                    break   # leave the nested loop for given process_name
 
     def _resubmit_uow(self, uow):
         mq_request = SynergyMqTransmission(process_name=uow.process_name, unit_of_work_id=uow.db_id)

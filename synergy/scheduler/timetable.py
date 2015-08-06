@@ -77,6 +77,7 @@ class Timetable(object):
 
     @thread_safe
     def reprocess_tree_node(self, tree_node, tx_context=None):
+        """ method reprocesses the node and all its dependants and parent nodes """
         if not tx_context:
             # create transaction context if one was not provided
             tx_context = collections.defaultdict(dict)
@@ -88,13 +89,12 @@ class Timetable(object):
             # the node has already been marked for re-processing
             return tx_context
 
-        job_record = tree_node.job_record
-        if job_record.is_embryo:
+        if tree_node.job_record.is_embryo:
             # the node does not require re-processing
             pass
         else:
-            state_machine = self.state_machines[job_record.process_name]
-            state_machine.reprocess_job(job_record)
+            state_machine = self.state_machines[tree_node.job_record.process_name]
+            state_machine.reprocess_job(tree_node.job_record)
 
         tx_context[tree_node.process_name][tree_node.timeperiod] = tree_node
         self.reprocess_tree_node(tree_node.parent, tx_context)
@@ -106,14 +106,15 @@ class Timetable(object):
         return tx_context
 
     @thread_safe
-    def skip_tree_node(self, job_record):
-        """ is called from a tree to answer a skip request"""
-        state_machine = self.state_machines[job_record.process_name]
-        state_machine.skip_job(job_record)
+    def skip_tree_node(self, tree_node):
+        """ method skips given node job-record """
+        state_machine = self.state_machines[tree_node.process_name]
+        state_machine.skip_job(tree_node.job_record)
 
     @thread_safe
     def assign_job_record(self, tree_node):
-        """ is called from a tree to create job record in STATE_EMBRYO and bind it to the given tree node"""
+        """ - looks for an existing job record in the DB, and if not found
+            - creates a job record in STATE_EMBRYO and bind it to the given tree node """
         try:
             job_record = self.job_dao.get_one(tree_node.process_name, tree_node.timeperiod)
         except LookupError:
@@ -187,11 +188,11 @@ class Timetable(object):
     # *** Job manipulation methods ***
     @thread_safe
     def failed_on_processing_job_record(self, process_name, timeperiod):
-        """method increases node's inner counter of failed processing
-        if _skip_node logic returns True - node is requested to STATE_SKIP"""
+        """ method is called from abstract_state_machine.manage_job to notify about job's failed processing
+            if should_skip_node returns True - the node's job_record is transferred to STATE_SKIPPED """
         tree = self.get_tree(process_name)
         node = tree.get_node(process_name, timeperiod)
-        if tree._skip_the_node(node):
+        if tree.should_skip_tree_node(node):
             self.skip_tree_node(node)
 
     @thread_safe
@@ -214,7 +215,7 @@ class Timetable(object):
 
     @thread_safe
     def add_log_entry(self, process_name, timeperiod, msg):
-        """ adds a log entry to the tree node. log entries has no persistence """
+        """ adds a non-persistent log entry to the tree node """
         tree = self.get_tree(process_name)
         node = tree.get_node(process_name, timeperiod)
         node.add_log_entry([datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S'), msg])
