@@ -7,7 +7,7 @@ import traceback
 
 
 def thread_safe(method):
-    """ wraps function with lock acquire/release cycle
+    """ wraps method with lock acquire/release cycle
      decorator requires class instance to have field self.lock of type threading.Lock or threading.RLock """
 
     @functools.wraps(method)

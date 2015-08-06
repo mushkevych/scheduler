@@ -1,5 +1,7 @@
 __author__ = 'Bohdan Mushkevych'
 
+import collections
+
 from synergy.db.dao.unit_of_work_dao import UnitOfWorkDao
 from synergy.system import time_helper
 from synergy.conf import context
@@ -47,11 +49,12 @@ class ManagedActionHandler(AbstractActionHandler):
         self.scheduler.timetable.add_log_entry(self.process_name, self.timeperiod, msg)
         self.logger.info(msg + ' {')
 
-        effected_nodes = node.request_reprocess()
+        tx_context = self.scheduler.timetable.reprocess_tree_node(node)
 
-        resp = dict()
-        for node in effected_nodes:
-            resp[node.timeperiod] = TreeNodeDetails.get_details(node)
+        resp = collections.defaultdict(dict)
+        for process_name, q in tx_context.items():
+            for node in q:
+                resp[process_name][node.timeperiod] = TreeNodeDetails.get_details(node)
         self.logger.info('MX }')
         return resp
 
@@ -63,11 +66,8 @@ class ManagedActionHandler(AbstractActionHandler):
         self.scheduler.timetable.add_log_entry(self.process_name, self.timeperiod, msg)
         self.logger.info(msg + ' {')
 
-        effected_nodes = node.request_skip()
-
-        resp = dict()
-        for node in effected_nodes:
-            resp[node.timeperiod] = TreeNodeDetails.get_details(node)
+        self.scheduler.timetable.skip_tree_node(node)
+        resp = {node.timeperiod: TreeNodeDetails.get_details(node)}
         self.logger.info('MX }')
         return resp
 

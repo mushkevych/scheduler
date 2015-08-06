@@ -18,9 +18,6 @@ class AbstractTree(object):
 
     def __init__(self):
         self.dependent_on = []
-        self.reprocess_callbacks = []
-        self.skip_callbacks = []
-        self.create_job_record_callbacks = []
 
     def register_dependent_on(self, tree):
         """registering tree that we are dependent on.
@@ -32,39 +29,12 @@ class AbstractTree(object):
         if tree in self.dependent_on:
             self.dependent_on.remove(tree)
 
-    def register_reprocess_callback(self, function):
-        """method that allows outside functionality to listen for _reprocess_requests_"""
-        self.reprocess_callbacks.append(function)
-
-    def unregister_reprocess_callback(self, function):
-        """method that allows outside functionality to abandon _reprocess_requests_ listening"""
-        if function in self.reprocess_callbacks:
-            self.reprocess_callbacks.remove(function)
-
-    def register_skip_callback(self, function):
-        """method that allows outside functionality to listen for _skip_requests_"""
-        self.skip_callbacks.append(function)
-
-    def unregister_skip_callback(self, function):
-        """method that allows outside functionality to abandon _skip_requests_ listening"""
-        if function in self.skip_callbacks:
-            self.skip_callbacks.remove(function)
-
-    def register_create_callbacks(self, function):
-        """method subscribes to _create_embryo_job_record_ requests"""
-        self.create_job_record_callbacks.append(function)
-
-    def unregister_create_callback(self, function):
-        """method un-subscribes from _create_embryo_job_record_ requests"""
-        if function in self.create_job_record_callbacks:
-            self.create_job_record_callbacks.remove(function)
-
 
 class MultiLevelTree(AbstractTree):
     """ Multi-level Tree, suited to host both single Process Entry
         or multiple hierarchy-organized Process Entries """
 
-    def __init__(self, process_names, tree_name=None, mx_name=None, mx_page=None):
+    def __init__(self, process_names, timetable, tree_name=None, mx_name=None, mx_page=None):
         """
         :param tree_name <optional>: full name of the tree. used as an identifier
         :param mx_name <optional>: is used by MX only as visual vertical name
@@ -75,6 +45,7 @@ class MultiLevelTree(AbstractTree):
 
         self.build_timeperiod = None
         self.validation_timestamp = None
+        self.timetable = timetable
         self.tree_name = tree_name
         self.mx_name = mx_name
         self.mx_page = mx_page
@@ -113,7 +84,7 @@ class MultiLevelTree(AbstractTree):
         for key in sorted_keys:
             node = parent.children[key]
             if node.job_record is None:
-                node.request_embryo_job_record()
+                self.timetable.assign_job_record(node)
                 return node
             elif self._skip_the_node(node):
                 continue

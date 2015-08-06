@@ -7,9 +7,10 @@ from Queue import PriorityQueue
 
 from synergy.conf import settings
 from synergy.system import time_helper
+from synergy.system.data_logging import get_logger
 from synergy.system.time_qualifier import QUALIFIER_REAL_TIME
 from synergy.system.decorator import thread_safe
-from synergy.scheduler.scheduler_constants import QUEUE_UOW_REPORT
+from synergy.scheduler.scheduler_constants import QUEUE_UOW_REPORT, PROCESS_GC
 from synergy.db.model import unit_of_work
 from synergy.db.model.synergy_mq_transmission import SynergyMqTransmission
 from synergy.db.dao.unit_of_work_dao import UnitOfWorkDao
@@ -78,10 +79,9 @@ class GarbageCollector(object):
         Deployment with no GC is considered invalid """
 
     def __init__(self, scheduler):
-        self.logger = scheduler.logger
+        self.logger = get_logger(PROCESS_GC)
         self.managed_handlers = scheduler.managed_handlers
         self.publishers = scheduler.publishers
-        self.timetable = scheduler.timetable
 
         self.lock = Lock()
         self.uow_dao = UnitOfWorkDao(self.logger)
@@ -97,14 +97,14 @@ class GarbageCollector(object):
             uow_list = self.uow_dao.get_reprocessing_candidates(since)
             for uow in uow_list:
                 if uow.process_name not in self.managed_handlers:
-                    self.logger.debug('GC: process %r is not known to the Synergy Scheduler. Skipping its unit_of_work.'
+                    self.logger.debug('process %r is not known to the Synergy Scheduler. Skipping its unit_of_work.'
                                       % uow.process_name)
                     continue
 
                 process_entry = self.managed_handlers[uow.process_name]
                 assert isinstance(process_entry, ManagedProcessEntry)
                 if not process_entry.is_on:
-                    self.logger.debug('GC: process %r is inactive. Skipping its unit_of_work.' % uow.process_name)
+                    self.logger.debug('process %r is inactive. Skipping its unit_of_work.' % uow.process_name)
                     continue
 
                 if uow in self.reprocess_uows[uow.process_name]:
@@ -122,9 +122,9 @@ class GarbageCollector(object):
                 self.reprocess_uows[uow.process_name].put_nowait(entry)
 
         except LookupError as e:
-            self.logger.info('GC flow: re-processing UOW candidates not found. %r' % e)
+            self.logger.info('flow: re-processing UOW candidates not found. %r' % e)
         except Exception as e:
-            self.logger.error('GC flow exception: %s' % str(e), exc_info=True)
+            self.logger.error('flow exception: %s' % str(e), exc_info=True)
 
     @thread_safe
     def repost(self):

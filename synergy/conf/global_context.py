@@ -6,17 +6,18 @@ from synergy.db.model.daemon_process_entry import daemon_context_entry
 from synergy.db.model.managed_process_entry import managed_context_entry
 from synergy.system.time_qualifier import QUALIFIER_BY_SCHEDULE
 
-
 process_context = {
     PROCESS_GC: managed_context_entry(
         process_name=PROCESS_GC,
-        classname='synergy.workers.garbage_collector_worker.GarbageCollectorWorker.start',
         token=TOKEN_GC,
-        exchange=EXCHANGE_UTILS,
         process_type=TYPE_GARBAGE_COLLECTOR,
         time_qualifier=QUALIFIER_BY_SCHEDULE,
+        trigger_frequency='every 60',
         state_machine_name=None,
-        trigger_frequency='every 900'),
+        classname='',
+        queue='',
+        routing='',
+        exchange=''),
 
     PROCESS_SCHEDULER: daemon_context_entry(
         process_name=PROCESS_SCHEDULER,
@@ -35,11 +36,9 @@ process_context = {
         exchange=''),
 }
 
-
 mq_queue_context = {
     QUEUE_UOW_REPORT: queue_context_entry(exchange=EXCHANGE_UTILS, queue_name=QUEUE_UOW_REPORT),
 }
-
 
 timetable_context = {
 }

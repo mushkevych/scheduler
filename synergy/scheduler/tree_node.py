@@ -48,34 +48,6 @@ class AbstractTreeNode(object):
         self.time_qualifier = None
         self.children = ImmutableDict({})
 
-    def request_reprocess(self):
-        """ method marks this and all parents node as such that requires reprocessing
-        :return list of nodes that have been effected """
-        effected_nodes = []
-        if self.parent is None:
-            # do not process 'root' - the only node that has None as 'parent'
-            return effected_nodes
-
-        for function in self.tree.reprocess_callbacks:
-            # function signature: tree_node
-            function(self)
-        effected_nodes.extend(self.parent.request_reprocess())
-        effected_nodes.append(self)
-        return effected_nodes
-
-    def request_skip(self):
-        """ method marks this node as one to skip"""
-        for function in self.tree.skip_callbacks:
-            # function signature: tree_node
-            function(self)
-        return [self]
-
-    def request_embryo_job_record(self):
-        """ method is requesting outside functionality to create a job record in STATE_EMBRYO for given tree_node """
-        for function in self.tree.create_job_record_callbacks:
-            # function signature: tree_node
-            function(self)
-
     def is_finalizable(self):
         """method checks whether:
          - all counterpart of this node in dependent_on trees are finished
@@ -87,7 +59,7 @@ class AbstractTreeNode(object):
             return False
 
         if self.job_record is None:
-            self.request_embryo_job_record()
+            self.tree.timetable.assign_job_record(self)
 
         children_processed = all([child.job_record.is_finished for child in self.children.values()])
 
@@ -101,7 +73,7 @@ class AbstractTreeNode(object):
 
         # step 0: request Job record if current one is not set
         if self.job_record is None:
-            self.request_embryo_job_record()
+            self.tree.timetable.assign_job_record(self)
 
         # step 1: define if current node has a younger sibling
         next_timeperiod = time_helper.increment_timeperiod(self.time_qualifier, self.timeperiod)
@@ -122,7 +94,7 @@ class AbstractTreeNode(object):
         # step 3: request this node's reprocessing if it is enroute to STATE_PROCESSED
         # while some of its children are still performing processing
         if all_children_finished is False and self.job_record.is_finished:
-            self.request_reprocess()
+            self.tree.timetable.reprocess_tree_node(self)
 
         # step 4: verify if this node should be transferred to STATE_SKIPPED
         # algorithm is following:
@@ -135,7 +107,7 @@ class AbstractTreeNode(object):
                 and self.tree.build_timeperiod is not None \
                 and has_younger_sibling is True \
                 and not self.job_record.is_skipped:
-            self.request_skip()
+            self.tree.timetable.skip_tree_node(self)
 
     def add_log_entry(self, entry):
         """ :db.model.job record holds MAX_NUMBER_OF_LOG_ENTRIES of log entries, that can be accessed by MX

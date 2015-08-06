@@ -23,13 +23,11 @@ class Timetable(object):
         self.lock = RLock()
         self.logger = logger
         self.job_dao = JobDao(self.logger)
-        self.reprocess_jobs = collections.defaultdict(dict)
 
         # self.trees contain all of the trees and manages much of their life cycle
         # remember to enlist here all trees the system is working with
         self.trees = self._construct_trees_from_context()
 
-        self._register_callbacks()
         self._register_dependencies()
         self.load_tree()
         self.build_trees()
@@ -42,6 +40,7 @@ class Timetable(object):
         trees = dict()
         for tree_name, context_entry in context.timetable_context.items():
             tree = MultiLevelTree(process_names=context_entry.enclosed_processes,
+                                  timetable=self,
                                   tree_name=tree_name,
                                   mx_name=context_entry.mx_name,
                                   mx_page=context_entry.mx_page)
@@ -57,22 +56,6 @@ class Timetable(object):
                 dependent_on_tree = self.trees[dependent_on]
                 assert isinstance(dependent_on_tree, MultiLevelTree)
                 tree.register_dependent_on(dependent_on_tree)
-
-    def _register_callbacks(self):
-        """ register logic that reacts on reprocessing request
-        and create embryo timetable record request"""
-
-        # reprocessing request
-        for tree_name, tree in self.trees.items():
-            tree.register_reprocess_callback(self._callback_reprocess)
-
-        # skip request
-        for tree_name, tree in self.trees.items():
-            tree.register_skip_callback(self._callback_skip)
-
-        # callbacks register
-        for tree_name, tree in self.trees.items():
-            tree.register_create_callbacks(self._callback_create_job_record)
 
     # *** Call-back methods ***
     def _find_dependant_trees(self, tree_obj):
@@ -93,31 +76,43 @@ class Timetable(object):
         return dependant_nodes
 
     @thread_safe
-    def _callback_reprocess(self, tree_node):
-        """ is called from tree to answer reprocessing request.
-        It is possible that job record will be transferred to STATE_IN_PROGRESS with no related unit_of_work"""
-        if tree_node.job_record.is_embryo \
-            or (tree_node.process_name in self.reprocess_jobs
-                and tree_node.timeperiod in self.reprocess_jobs[tree_node.process_name]):
-            # the node does not require re-processing or has already been marked for it
+    def reprocess_tree_node(self, tree_node, tx_context=None):
+        if not tx_context:
+            # create transaction context if one was not provided
+            tx_context = collections.defaultdict(dict)
+
+        if tree_node.parent is None:
+            # do not process 'root' - the only node that has None as 'parent'
+            return tx_context
+        if tree_node.timeperiod in tx_context[tree_node.process_name]:
+            # the node has already been marked for re-processing
+            return tx_context
+
+        job_record = tree_node.job_record
+        if job_record.is_embryo:
+            # the node does not require re-processing
             pass
         else:
-            state_machine = self.state_machines[tree_node.process_name]
-            state_machine.reprocess_job(tree_node.job_record)
+            state_machine = self.state_machines[job_record.process_name]
+            state_machine.reprocess_job(job_record)
 
-        reprocessing_nodes = self._find_dependant_tree_nodes(tree_node)
-        for node in reprocessing_nodes:
-            node.request_reprocess()
+        tx_context[tree_node.process_name][tree_node.timeperiod] = tree_node
+        self.reprocess_tree_node(tree_node.parent, tx_context)
+
+        dependant_nodes = self._find_dependant_tree_nodes(tree_node)
+        for node in dependant_nodes:
+            self.reprocess_tree_node(node, tx_context)
+
+        return tx_context
 
     @thread_safe
-    def _callback_skip(self, tree_node):
+    def skip_tree_node(self, job_record):
         """ is called from a tree to answer a skip request"""
-        state_machine = self.state_machines[tree_node.process_name]
-        state_machine.skip_job(tree_node.job_record)
-        self.enlist_reprocessing_job(tree_node.job_record)
+        state_machine = self.state_machines[job_record.process_name]
+        state_machine.skip_job(job_record)
 
     @thread_safe
-    def _callback_create_job_record(self, tree_node):
+    def assign_job_record(self, tree_node):
         """ is called from a tree to create job record in STATE_EMBRYO and bind it to the given tree node"""
         try:
             job_record = self.job_dao.get_one(tree_node.process_name, tree_node.timeperiod)
@@ -197,7 +192,7 @@ class Timetable(object):
         tree = self.get_tree(process_name)
         node = tree.get_node(process_name, timeperiod)
         if tree._skip_the_node(node):
-            node.request_skip()
+            self.skip_tree_node(node)
 
     @thread_safe
     def get_next_job_record(self, process_name):
@@ -206,7 +201,7 @@ class Timetable(object):
         node = tree.get_next_node(process_name)
 
         if node.job_record is None:
-            node.request_embryo_job_record()
+            self.assign_job_record(node)
         return node.job_record
 
     @thread_safe
@@ -223,13 +218,3 @@ class Timetable(object):
         tree = self.get_tree(process_name)
         node = tree.get_node(process_name, timeperiod)
         node.add_log_entry([datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S'), msg])
-
-    @thread_safe
-    def enlist_reprocessing_job(self, job_record):
-        assert isinstance(job_record, Job)
-        self.reprocess_jobs[job_record.process_name][job_record.timeperiod] = job_record
-
-    @thread_safe
-    def delist_reprocessing_job(self, job_record):
-        assert isinstance(job_record, Job)
-        del self.reprocess_jobs[job_record.process_name][job_record.timeperiod]
