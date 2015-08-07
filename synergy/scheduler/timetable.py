@@ -57,7 +57,7 @@ class Timetable(object):
                 assert isinstance(dependent_on_tree, MultiLevelTree)
                 tree.register_dependent_on(dependent_on_tree)
 
-    # *** Call-back methods ***
+    # *** node manipulation methods ***
     def _find_dependant_trees(self, tree_obj):
         """ returns list of trees that are dependent_on given tree_obj """
         dependant_trees = []
@@ -187,11 +187,11 @@ class Timetable(object):
 
     # *** Job manipulation methods ***
     @thread_safe
-    def failed_on_processing_job_record(self, process_name, timeperiod):
+    def failed_on_processing_job_record(self, job_record):
         """ method is called from abstract_state_machine.manage_job to notify about job's failed processing
             if should_skip_node returns True - the node's job_record is transferred to STATE_SKIPPED """
-        tree = self.get_tree(process_name)
-        node = tree.get_node(process_name, timeperiod)
+        tree = self.get_tree(job_record.process_name)
+        node = tree.get_node(job_record.process_name, job_record.timeperiod)
         if tree.should_skip_tree_node(node):
             self.skip_tree_node(node)
 

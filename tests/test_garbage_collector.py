@@ -15,8 +15,9 @@ from synergy.db.dao.unit_of_work_dao import UnitOfWorkDao
 from tests.base_fixtures import create_unit_of_work, create_and_insert_unit_of_work
 from constants import *
 from synergy.mq.flopsy import PublishersPool, Publisher
+from synergy.scheduler.tree import LIFE_SUPPORT_HOURS
 from synergy.scheduler.scheduler_constants import PROCESS_GC
-from scheduler.garbage_collector import GarbageCollector, LIFE_SUPPORT_HOURS
+from synergy.scheduler.garbage_collector import GarbageCollector
 from synergy.system.data_logging import get_logger
 from tests.ut_context import *
 
@@ -80,7 +81,6 @@ class GarbageCollectorUnitTest(unittest.TestCase):
 
     def tearDown(self):
         # killing the worker
-        self.worker.performance_ticker.cancel()
         del self.worker
 
     def test_invalid_and_fresh_uow(self):

@@ -12,13 +12,14 @@ from synergy.db.model.job import Job
 from synergy.system import time_helper
 from synergy.scheduler.tree import MultiLevelTree
 from synergy.scheduler.tree_node import TreeNode, NodesCompositeState
+from synergy.scheduler.timetable import Timetable
 from synergy.scheduler.process_hierarchy import ProcessHierarchy
 from synergy.system.time_qualifier import *
 from tests.state_machine_testing_utils import TEST_PRESET_TIMEPERIOD
 
 
-def request_embryo_job_record(the_node, the_mock, is_finished):
-    def the_function():
+def assign_job_record(the_mock, is_finished):
+    def the_function(the_node):
         the_node.job_record = the_mock
         the_node.job_record.is_finished = is_finished
     return the_function
@@ -30,8 +31,10 @@ class TestTreeNode(unittest.TestCase):
         super(TestTreeNode, cls).setUpClass()
 
     def setUp(self):
+        self.time_table_mocked = mock.create_autospec(Timetable)
         self.tree_mock = mock.create_autospec(MultiLevelTree)
         self.tree_mock.build_timeperiod = TEST_PRESET_TIMEPERIOD
+        self.tree_mock.timetable = self.time_table_mocked
 
         self.process_entry_mock = mock.Mock(time_grouping=1, time_qualifier=QUALIFIER_HOURLY)
         self.hierarchy_entry_mock = mock.Mock(process_entry=self.process_entry_mock)
@@ -57,10 +60,10 @@ class TestTreeNode(unittest.TestCase):
                                                         PROCESS_SITE_MONTHLY,
                                                         PROCESS_SITE_DAILY,
                                                         PROCESS_SITE_HOURLY],
-                                         tree_name=TOKEN_SITE)
+                                         tree_name=TOKEN_SITE, timetable=self.time_table_mocked)
 
         tree_two_level = MultiLevelTree(process_names=[PROCESS_CLIENT_MONTHLY],
-                                        tree_name=TOKEN_CLIENT)
+                                        tree_name=TOKEN_CLIENT, timetable=self.time_table_mocked)
 
         tree_four_level.build_tree()
         tree_two_level.build_tree()
@@ -114,16 +117,16 @@ class TestTreeNode(unittest.TestCase):
 
         # step 0: request Job record if current one is not set
         self.the_node.job_record = None
-        self.the_node.request_reprocess = mock.Mock()
-        self.the_node.request_skip = mock.Mock()
-        self.the_node.request_embryo_job_record = mock.Mock(
-            side_effect=request_embryo_job_record(self.the_node, self.job_mock, True))
+        self.time_table_mocked.reprocess_tree_node = mock.Mock()
+        self.time_table_mocked.skip_tree_node = mock.Mock()
+        self.time_table_mocked.assign_job_record = mock.Mock(
+            side_effect=assign_job_record(self.job_mock, True))
         self.the_node.validate()
 
         # assertions:
-        self.the_node.request_embryo_job_record.assert_called_once_with()
-        self.the_node.request_reprocess.assert_called_once_with()
-        self.assertEqual(len(self.the_node.request_skip.call_args_list), 0)
+        self.time_table_mocked.assign_job_record.assert_called_once_with(self.the_node)
+        self.time_table_mocked.reprocess_tree_node.assert_called_once_with(self.the_node)
+        self.assertEqual(len(self.time_table_mocked.skip_tree_node.call_args_list), 0)
 
         for _, child in self.the_node.children.items():
             child.validate.assert_called_once_with()
@@ -147,15 +150,15 @@ class TestTreeNode(unittest.TestCase):
 
         # step 4: verify if this node should be transferred to STATE_SKIPPED
         self.the_node.job_record.is_skipped = False
-        self.the_node.request_reprocess = mock.Mock()
-        self.the_node.request_skip = mock.Mock()
-        self.the_node.request_embryo_job_record = mock.Mock()
+        self.time_table_mocked.reprocess_tree_node = mock.Mock()
+        self.time_table_mocked.skip_tree_node = mock.Mock()
+        self.time_table_mocked.assign_job_record = mock.Mock()
         self.the_node.validate()
 
         # assertions:
-        self.assertEqual(len(self.the_node.request_embryo_job_record.call_args_list), 0)
-        self.assertEqual(len(self.the_node.request_reprocess.call_args_list), 0)
-        self.the_node.request_skip.assert_called_once_with()
+        self.assertEqual(len(self.time_table_mocked.assign_job_record.call_args_list), 0)
+        self.assertEqual(len(self.time_table_mocked.reprocess_tree_node.call_args_list), 0)
+        self.time_table_mocked.skip_tree_node.assert_called_once_with(self.the_node)
 
     def test_is_finalizable(self):
         self.job_mock.is_active = True

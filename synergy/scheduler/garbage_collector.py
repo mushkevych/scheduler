@@ -156,7 +156,7 @@ class GarbageCollector(object):
         publisher.publish(mq_request.document)
         publisher.release()
 
-        self.logger.info('GC: re-submitted UOW {0} for {1} in {2}; attempt {3}'
+        self.logger.info('re-submitted UOW {0} for {1} in {2}; attempt {3}'
                          .format(uow.db_id, uow.process_name, uow.timeperiod, uow.number_of_retries))
 
     def _cancel_uow(self, uow):
@@ -169,5 +169,5 @@ class GarbageCollector(object):
         publisher.publish(mq_request.document)
         publisher.release()
 
-        self.logger.info('GC: canceled UOW {0} for {1} in {2}; attempt {3}; created at {4}'
+        self.logger.info('canceled UOW {0} for {1} in {2}; attempt {3}; created at {4}'
                          .format(uow.db_id, uow.process_name, uow.timeperiod, uow.number_of_retries, uow.created_at))

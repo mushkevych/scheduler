@@ -258,7 +258,7 @@ class AbstractStateMachine(object):
         except LookupError as e:
             job_record.number_of_failures += 1
             self.job_dao.update(job_record)
-            self.timetable.failed_on_processing_job_record(job_record.process_name, job_record.timeperiod)
+            self.timetable.failed_on_processing_job_record(job_record)
             msg = 'Increasing fail counter for %s in timeperiod %s, because of: %r' \
                   % (job_record.process_name, job_record.timeperiod, e)
             self._log_message(WARNING, job_record.process_name, job_record.timeperiod, msg)
@@ -288,8 +288,7 @@ class AbstractStateMachine(object):
                  job_record.timeperiod,
                  original_job_state,
                  job_record.state)
-        self.logger.warn(msg)
-        self.timetable.add_log_entry(job_record.process_name, job_record.timeperiod, msg)
+        self._log_message(WARNING, job_record.process_name, job_record.timeperiod, msg)
 
     def skip_job(self, job_record):
         """ method marks given job as SKIPPED:
@@ -314,8 +313,7 @@ class AbstractStateMachine(object):
                  job_record.timeperiod,
                  original_job_state,
                  job_record.state)
-        self.logger.warn(msg)
-        self.timetable.add_log_entry(job_record.process_name, job_record.timeperiod, msg)
+        self._log_message(WARNING, job_record.process_name, job_record.timeperiod, msg)
 
     def create_job(self, process_name, timeperiod):
         """ method creates a job record in STATE_EMBRYO for given process_name and timeperiod
@@ -324,10 +322,10 @@ class AbstractStateMachine(object):
         job_record.state = job.STATE_EMBRYO
         job_record.timeperiod = timeperiod
         job_record.process_name = process_name
-
         self.job_dao.update(job_record)
-        self.logger.info('Created job record %s for %s in %s'
-                         % (job_record.db_id, job_record.process_name, job_record.timeperiod))
+
+        msg = 'Created job record %s for %s in %s' % (job_record.db_id, job_record.process_name, job_record.timeperiod)
+        self._log_message(INFO, job_record.process_name, job_record.timeperiod, msg)
 
     def update_job(self, job_record, uow, new_state):
         """ method updates job record with a new unit_of_work and new state"""
@@ -337,5 +335,4 @@ class AbstractStateMachine(object):
 
         msg = 'Transferred job %s for %s in timeperiod %s to new state %s' \
               % (job_record.db_id, job_record.timeperiod, job_record.process_name, new_state)
-        self.logger.info(msg)
-        self.timetable.add_log_entry(job_record.process_name, job_record.timeperiod, msg)
+        self._log_message(INFO, job_record.process_name, job_record.timeperiod, msg)

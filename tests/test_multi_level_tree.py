@@ -1,5 +1,6 @@
 __author__ = 'Bohdan Mushkevych'
 
+import mock
 import unittest
 
 from tests import base_fixtures
@@ -9,11 +10,13 @@ from synergy.system.utils import increment_family_property
 from synergy.system.time_qualifier import QUALIFIER_HOURLY
 from synergy.scheduler.tree_node import AbstractTreeNode
 from synergy.scheduler.tree import MultiLevelTree
+from synergy.scheduler.timetable import Timetable
 from synergy.conf import settings
 
 
 class TestTwoLevelTree(unittest.TestCase):
     def setUp(self):
+        self.time_table_mocked = mock.create_autospec(Timetable)
         self.initial_actual_timeperiod = time_helper.actual_timeperiod
         self.initial_synergy_start_time = settings.settings['synergy_start_timeperiod']
 
@@ -23,15 +26,20 @@ class TestTwoLevelTree(unittest.TestCase):
         self.trees = []
         self.trees.append(MultiLevelTree(process_names=[PROCESS_SITE_YEARLY, PROCESS_SITE_MONTHLY,
                                                         PROCESS_SITE_DAILY, PROCESS_SITE_HOURLY],
+                                         timetable=self.time_table_mocked,
                                          mx_name='4_level_tree', mx_page='some_mx_page'))
         self.trees.append(MultiLevelTree(process_names=[PROCESS_SITE_HOURLY, PROCESS_SITE_DAILY],
+                                         timetable=self.time_table_mocked,
                                          mx_name='2_level_tree', mx_page='some_mx_page'))
         self.trees.append(MultiLevelTree(process_names=[PROCESS_SITE_HOURLY, PROCESS_SITE_MONTHLY],
+                                         timetable=self.time_table_mocked,
                                          mx_name='2_level_mix_tree', mx_page='some_mx_page'))
         self.trees.append(MultiLevelTree(process_names=[PROCESS_SITE_YEARLY, PROCESS_SITE_MONTHLY,
                                                         PROCESS_SITE_DAILY],
+                                         timetable=self.time_table_mocked,
                                          mx_name='3_level_tree', mx_page='some_mx_page'))
         self.trees.append(MultiLevelTree(process_names=[PROCESS_SITE_HOURLY],
+                                         timetable=self.time_table_mocked,
                                          mx_name='1_level_tree', mx_page='some_mx_page'))
 
     def tearDown(self):
