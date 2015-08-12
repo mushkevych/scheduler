@@ -27,10 +27,10 @@ packagelist=(
     "pysmell-0.7.3.zip"
 
     # Fabric section
-    "ecdsa-0.10.tar.gz"
+    "ecdsa-0.13.tar.gz"
     "pycrypto-2.6.1.tar.gz"
-    "paramiko-1.12.1.tar.gz"
-    "Fabric-1.8.1.tar.gz"
+    "paramiko-1.15.2.tar.gz"
+    "Fabric-1.10.2.tar.gz"
 
     "pymongo-2.6.3.tar.gz"
     "ftputil-3.0.tar.gz"

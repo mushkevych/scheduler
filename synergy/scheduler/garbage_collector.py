@@ -17,7 +17,9 @@ from synergy.db.dao.unit_of_work_dao import UnitOfWorkDao
 from synergy.db.model.managed_process_entry import ManagedProcessEntry
 
 
-class CollectorEntry(object):
+class GarbageCollectorEntry(object):
+    """ class represents a wrapper for UOW used in a PriorityQueue """
+
     # Creation counter keeps track of CollectorEntry declaration order
     # Each time a CollectorEntry instance is created the counter should be increased
     creation_counter = 0
@@ -26,8 +28,8 @@ class CollectorEntry(object):
         """ :param uow: the unit_of_work to reprocess """
         self.uow = uow
         self.release_time = self._compute_release_time()  # time in the future in the SYNERGY_SESSION_PATTERN
-        self.creation_counter = CollectorEntry.creation_counter + 1
-        CollectorEntry.creation_counter += 1
+        self.creation_counter = GarbageCollectorEntry.creation_counter + 1
+        GarbageCollectorEntry.creation_counter += 1
 
     def _compute_release_time(self):
         future_dt = datetime.utcnow() + timedelta(minutes=settings.settings['gc_release_lag_minutes'])
@@ -35,7 +37,7 @@ class CollectorEntry(object):
         return int(release_time_str)
 
     def __eq__(self, other):
-        return self.uow.db_id == other.uow.db_id
+        return self.uow == other.uow
 
     def __ne__(self, other):
         return not self.__eq__(other)
@@ -118,7 +120,7 @@ class GarbageCollector(object):
                     continue
 
                 # enlist the UOW into the reprocessing queue
-                entry = CollectorEntry(uow)
+                entry = GarbageCollectorEntry(uow)
                 self.reprocess_uows[uow.process_name].put_nowait(entry)
 
         except LookupError as e:
@@ -126,21 +128,37 @@ class GarbageCollector(object):
         except Exception as e:
             self.logger.error('flow exception: %s' % str(e), exc_info=True)
 
-    @thread_safe
-    def repost(self):
-        """ method iterates ove the reprocessing queue and re-submits UOW whose waiting time has expired """
-        current_timestamp = time_helper.actual_timeperiod(QUALIFIER_REAL_TIME)
-        for process_name, q in self.reprocess_uows.items():
-            assert isinstance(q, PriorityQueue)
-            for _ in range(q.qsize()):
-                entry = q.get_nowait()
-                assert isinstance(entry, CollectorEntry)
+    def _flush_queue(self, q, ignore_priority=False):
+        """
+        :param q: PriorityQueue instance holding GarbageCollector entries
+        :param ignore_priority: If True - all GarbageCollector entries should be resubmitted
+                If False - only those entries whose waiting time has expired will be resubmitted
+        """
+        assert isinstance(q, PriorityQueue)
 
-                if entry.release_time < current_timestamp:
-                    self._resubmit_uow(entry.uow)
-                else:
-                    q.put_nowait(entry)
-                    break   # leave the nested loop for given process_name
+        current_timestamp = time_helper.actual_timeperiod(QUALIFIER_REAL_TIME)
+        for _ in range(q.qsize()):
+            entry = q.get_nowait()
+            assert isinstance(entry, GarbageCollectorEntry)
+
+            if ignore_priority or entry.release_time < current_timestamp:
+                self._resubmit_uow(entry.uow)
+            else:
+                q.put_nowait(entry)
+                break
+
+    @thread_safe
+    def flush(self, ignore_priority=False):
+        """ method iterates over each reprocessing queues and re-submits UOW whose waiting time has expired """
+        for process_name, q in self.reprocess_uows.items():
+            self._flush_queue(q, ignore_priority)
+
+    @thread_safe
+    def flush_one(self, process_name, ignore_priority=False):
+        """ method iterates over the reprocessing queue for the given process
+            and re-submits UOW whose waiting time has expired """
+        q = self.reprocess_uows[process_name]
+        self._flush_queue(q, ignore_priority)
 
     def _resubmit_uow(self, uow):
         mq_request = SynergyMqTransmission(process_name=uow.process_name, unit_of_work_id=uow.db_id)

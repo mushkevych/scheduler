@@ -227,7 +227,7 @@ class Scheduler(SynergyProcess):
             self.gc.enlist_or_cancel()
 
             self.logger.debug('GC: step 2 - repost after timeout')
-            self.gc.repost()
+            self.gc.flush()
 
             self.logger.debug('GC: step 3 - timetable housekeeping')
             self.timetable.build_trees()

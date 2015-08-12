@@ -10,14 +10,16 @@ from settings import enable_test_mode
 enable_test_mode()
 
 from synergy.db.model import unit_of_work
+from synergy.db.model.unit_of_work import UnitOfWork
 from synergy.db.dao.unit_of_work_dao import UnitOfWorkDao
 
 from tests.base_fixtures import create_unit_of_work, create_and_insert_unit_of_work
 from constants import *
 from synergy.mq.flopsy import PublishersPool, Publisher
 from synergy.scheduler.tree import LIFE_SUPPORT_HOURS
-from synergy.scheduler.scheduler_constants import PROCESS_GC
-from synergy.scheduler.garbage_collector import GarbageCollector
+from synergy.scheduler.synergy_scheduler import Scheduler
+from synergy.scheduler.thread_handler import ThreadHandler
+from synergy.scheduler.garbage_collector import GarbageCollector, GarbageCollectorEntry
 from synergy.system.data_logging import get_logger
 from tests.ut_context import *
 
@@ -72,16 +74,42 @@ class GarbageCollectorUnitTest(unittest.TestCase):
         super(GarbageCollectorUnitTest, cls).setUpClass()
 
     def setUp(self):
-        self.worker = GarbageCollector(PROCESS_GC)
+        self.scheduler_mocked = mock.create_autospec(Scheduler)
+
+        self.managed_handlers_mocked = dict()
+        self.managed_handlers_mocked[PROCESS_SITE_HOURLY] = mock.create_autospec(ThreadHandler)
+        self.scheduler_mocked.managed_handlers = self.managed_handlers_mocked
+
         self.publisher = mock.create_autospec(Publisher)
-        self.worker.publishers = mock.create_autospec(PublishersPool)
-        self.worker.publishers.get = mock.MagicMock(return_value=self.publisher)
-        self.worker._process_single_document = mock.Mock(
-            side_effect=self.worker._process_single_document)
+        self.scheduler_mocked.publishers = mock.create_autospec(PublishersPool)
+        self.scheduler_mocked.publishers.get = mock.MagicMock(return_value=self.publisher)
+
+        self.worker = GarbageCollector(self.scheduler_mocked)
+        self.worker._resubmit_uow = mock.Mock(side_effect=self.worker._resubmit_uow)
 
     def tearDown(self):
         # killing the worker
         del self.worker
+
+    def test_priority_queue_eq(self):
+        uow = get_valid_and_fresh_uow()
+        gce = GarbageCollectorEntry(uow)
+
+        uow_2 = get_valid_and_fresh_uow()
+        gce_2 = GarbageCollectorEntry(uow_2)
+
+        uow_3 = get_valid_and_fresh_uow()
+        uow_3.start_id += 'ttt'
+        gce_3 = GarbageCollectorEntry(uow_3)
+
+        q = self.worker.reprocess_uows[PROCESS_SITE_HOURLY]
+        q.put_nowait(gce)
+
+        self.assertEqual(gce, gce_2)
+        self.assertNotEqual(gce, gce_3)
+        self.assertIn(gce, self.worker.reprocess_uows)
+        self.assertIn(gce_2, self.worker.reprocess_uows)
+        self.assertNotIn(gce_3, self.worker.reprocess_uows)
 
     def test_invalid_and_fresh_uow(self):
         self.worker.uow_dao.update = assume_uow_is_requested

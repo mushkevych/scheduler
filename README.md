@@ -1,9 +1,11 @@
 Synergy Scheduler
 =========
 
-Synergy Scheduler tracks its history to 2011. It is a production-grade Job Scheduling System, used for triggering simple jobs and orchestrate execution of complex interdependent data processing clusters.
+Synergy Scheduler tracks its history to 2011. It is a production-grade Job Scheduling System, used for running simple and complex interdependent jobs.
+The scheduler will wait with processing of your *daily* job until all *hourly* are successfully finished.
+It will mark *daily* and other dependant jobs for reprocessing, should you manually request an *hourly* reprocessing.
 
-Synergy Scheduler utilizes Rabbit MQ to communicate with its subsidiaries, so it is a good choice for deployments where part of the system is remote or machine/location dependent.
+Synergy Scheduler use of Rabbit MQ for communication with subsidiaries makes it a good choice for deployments where part of the system is remote or machine/location dependent.
 
 Synergy Scheduler is supervising triggering and life-cycle for two types of jobs:
 
