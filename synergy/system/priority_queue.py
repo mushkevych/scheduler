@@ -85,5 +85,5 @@ class PriorityQueue(object):
         return heapq.heappop(self.queue)
 
     def peek(self):
-        """ :return: minimal element is returned to the caller without being removed from the queue """
-        return heapq.nsmallest(1, self.queue)
+        """ :return: minimal element without being removed from the queue """
+        return min(self.queue)

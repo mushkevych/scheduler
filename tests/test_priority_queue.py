@@ -68,6 +68,27 @@ class PriorityQueueUnitTest(unittest.TestCase):
         self.assertEqual(gce_1, self.priority_queue.pop())
         self.assertEqual(gce_3, self.priority_queue.pop())
 
+    def test_peek(self):
+        uow_1 = create_test_uow()
+        uow_1.start_id = '111'
+        gce_1 = EventEntry(uow_1, lag_in_minutes=5)
+
+        uow_2 = create_test_uow()
+        uow_2.start_id = '222'
+        gce_2 = EventEntry(uow_2, lag_in_minutes=1)
+
+        uow_3 = create_test_uow()
+        uow_3.start_id = '333'
+        gce_3 = EventEntry(uow_3, lag_in_minutes=10)
+
+        self.priority_queue.put(gce_1)
+        self.priority_queue.put(gce_2)
+        self.priority_queue.put(gce_3)
+
+        # verify that the peek is not removing the min entry
+        self.assertEqual(gce_2, self.priority_queue.peek())
+        self.assertEqual(gce_2, self.priority_queue.peek())
+
 
 if __name__ == '__main__':
     unittest.main()
