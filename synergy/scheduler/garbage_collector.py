@@ -3,75 +3,18 @@ __author__ = 'Bohdan Mushkevych'
 import collections
 from threading import Lock
 from datetime import datetime, timedelta
-from Queue import PriorityQueue
 
 from synergy.conf import settings
 from synergy.system import time_helper
 from synergy.system.data_logging import get_logger
 from synergy.system.time_qualifier import QUALIFIER_REAL_TIME
 from synergy.system.decorator import thread_safe
+from synergy.system.priority_queue import EventEntry, PriorityQueue
 from synergy.scheduler.scheduler_constants import QUEUE_UOW_REPORT, PROCESS_GC
 from synergy.db.model import unit_of_work
 from synergy.db.model.synergy_mq_transmission import SynergyMqTransmission
 from synergy.db.dao.unit_of_work_dao import UnitOfWorkDao
 from synergy.db.model.managed_process_entry import ManagedProcessEntry
-
-
-class GarbageCollectorEntry(object):
-    """ class represents a wrapper for UOW used in a PriorityQueue """
-
-    # Creation counter keeps track of CollectorEntry declaration order
-    # Each time a CollectorEntry instance is created the counter should be increased
-    creation_counter = 0
-
-    def __init__(self, uow):
-        """ :param uow: the unit_of_work to reprocess """
-        self.uow = uow
-        self.release_time = self._compute_release_time()  # time in the future in the SYNERGY_SESSION_PATTERN
-        self.creation_counter = GarbageCollectorEntry.creation_counter + 1
-        GarbageCollectorEntry.creation_counter += 1
-
-    def _compute_release_time(self):
-        future_dt = datetime.utcnow() + timedelta(minutes=settings.settings['gc_release_lag_minutes'])
-        release_time_str = time_helper.datetime_to_synergy(QUALIFIER_REAL_TIME, future_dt)
-        return int(release_time_str)
-
-    def __eq__(self, other):
-        return self.uow == other.uow
-
-    def __ne__(self, other):
-        return not self.__eq__(other)
-
-    def __lt__(self, other):
-        """Defines behavior for the less-than operator, <."""
-        if self.release_time == other.release_time:
-            return self.creation_counter < other.creation_counter
-        else:
-            return self.release_time < other.release_time
-
-    def __gt__(self, other):
-        """Defines behavior for the greater-than operator, >."""
-        if self.release_time == other.release_time:
-            return self.creation_counter > other.creation_counter
-        else:
-            return self.release_time > other.release_time
-
-    def __le__(self, other):
-        """Defines behavior for the less-than-or-equal-to operator, <=."""
-        if self.release_time == other.release_time:
-            return self.creation_counter <= other.creation_counter
-        else:
-            return self.release_time <= other.release_time
-
-    def __ge__(self, other):
-        """Defines behavior for the greater-than-or-equal-to operator, >=."""
-        if self.release_time == other.release_time:
-            return self.creation_counter >= other.creation_counter
-        else:
-            return self.release_time >= other.release_time
-
-    def __hash__(self):
-        return hash((self.release_time, self.creation_counter))
 
 
 class GarbageCollector(object):
@@ -120,8 +63,8 @@ class GarbageCollector(object):
                     continue
 
                 # enlist the UOW into the reprocessing queue
-                entry = GarbageCollectorEntry(uow)
-                self.reprocess_uows[uow.process_name].put_nowait(entry)
+                entry = EventEntry(uow)
+                self.reprocess_uows[uow.process_name].put(entry)
 
         except LookupError as e:
             self.logger.info('flow: re-processing UOW candidates not found. %r' % e)
@@ -137,14 +80,14 @@ class GarbageCollector(object):
         assert isinstance(q, PriorityQueue)
 
         current_timestamp = time_helper.actual_timeperiod(QUALIFIER_REAL_TIME)
-        for _ in range(q.qsize()):
-            entry = q.get_nowait()
-            assert isinstance(entry, GarbageCollectorEntry)
+        for _ in range(len(q)):
+            entry = q.pop()
+            assert isinstance(entry, EventEntry)
 
             if ignore_priority or entry.release_time < current_timestamp:
-                self._resubmit_uow(entry.uow)
+                self._resubmit_uow(entry.entry)
             else:
-                q.put_nowait(entry)
+                q.put(entry)
                 break
 
     @thread_safe
