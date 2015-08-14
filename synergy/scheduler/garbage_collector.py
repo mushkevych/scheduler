@@ -9,8 +9,9 @@ from synergy.system import time_helper
 from synergy.system.data_logging import get_logger
 from synergy.system.time_qualifier import QUALIFIER_REAL_TIME
 from synergy.system.decorator import thread_safe
-from synergy.system.priority_queue import EventEntry, PriorityQueue
+from synergy.system.priority_queue import PriorityEntry, PriorityQueue
 from synergy.scheduler.scheduler_constants import QUEUE_UOW_REPORT, PROCESS_GC
+from synergy.scheduler.thread_handler import ThreadHandler
 from synergy.db.model import unit_of_work
 from synergy.db.model.synergy_mq_transmission import SynergyMqTransmission
 from synergy.db.dao.unit_of_work_dao import UnitOfWorkDao
@@ -46,9 +47,11 @@ class GarbageCollector(object):
                                       % uow.process_name)
                     continue
 
-                process_entry = self.managed_handlers[uow.process_name]
-                assert isinstance(process_entry, ManagedProcessEntry)
-                if not process_entry.is_on:
+                thread_handler = self.managed_handlers[uow.process_name]
+                assert isinstance(thread_handler, ThreadHandler)
+                assert isinstance(thread_handler.process_entry, ManagedProcessEntry)
+
+                if not thread_handler.process_entry.is_on:
                     self.logger.debug('process %r is inactive. Skipping its unit_of_work.' % uow.process_name)
                     continue
 
@@ -58,12 +61,12 @@ class GarbageCollector(object):
 
                 if datetime.utcnow() - uow.created_at > timedelta(hours=settings.settings['gc_life_support_hours']) \
                         and datetime.utcnow() - uow.submitted_at > timedelta(
-                                                                  hours=settings.settings['gc_repost_after_hours']):
+                            hours=settings.settings['gc_repost_after_hours']):
                     self._cancel_uow(uow)
                     continue
 
                 # enlist the UOW into the reprocessing queue
-                entry = EventEntry(uow)
+                entry = PriorityEntry(uow)
                 self.reprocess_uows[uow.process_name].put(entry)
 
         except LookupError as e:
@@ -82,7 +85,7 @@ class GarbageCollector(object):
         current_timestamp = time_helper.actual_timeperiod(QUALIFIER_REAL_TIME)
         for _ in range(len(q)):
             entry = q.pop()
-            assert isinstance(entry, EventEntry)
+            assert isinstance(entry, PriorityEntry)
 
             if ignore_priority or entry.release_time < current_timestamp:
                 self._resubmit_uow(entry.entry)

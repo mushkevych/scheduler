@@ -1,18 +1,21 @@
 Synergy Scheduler
 =========
 
-Synergy Scheduler tracks its history to 2011. It is a production-grade Job Scheduling System, used for running simple and complex interdependent jobs.
-The scheduler will wait with processing of your *daily* job until all *hourly* are successfully finished.
-It will mark *daily* and other dependant jobs for reprocessing, should you manually request an *hourly* reprocessing.
+Synergy Scheduler tracks its history to 2011. It is a production-grade Job Scheduling System, used to run simple as well as complex interdependent jobs. 
+Common use-cases:
+
+- run a job every 30 minutes *or* two times per day on Tue, Thu and Fri
+- wait with processing of **daily** jobs until all **hourly** are successfully finished
+- mark **daily** and other dependant jobs for reprocessing, should an **hourly** be manually triggered for reprocessing
 
 Synergy Scheduler use of Rabbit MQ for communication with subsidiaries makes it a good choice for deployments where part of the system is remote or machine/location dependent.
 
 Synergy Scheduler is supervising triggering and life-cycle for two types of jobs:
 
-- cron-like jobs govern by timer. They are known to the system as *free-run*
-- *managed* jobs that are govern by state machine. Such jobs could have multiple dependencies on other jobs
+- cron-like jobs govern by timer. They are known to the system as **free-run**
+- **managed** jobs that are govern by state machine. Such jobs could have multiple dependencies on other jobs
 
-Here, term *job* corresponds to an execution of any system process (for example: Python process, Hadoop map-reduce job, etc) with a set of particular arguments, started and monitored by the Synergy Scheduler means.
+Here, term **job** corresponds to an execution of any system process (for example: Python process, Hadoop map-reduce job, etc) with a set of particular arguments, started and monitored by the Synergy Scheduler means.
 
 Each process registered within the Synergy Scheduler could chose state machine to govern its execution.
 

@@ -8,19 +8,19 @@ from synergy.system import time_helper
 from synergy.system.time_qualifier import QUALIFIER_REAL_TIME
 
 
-class EventEntry(object):
+class PriorityEntry(object):
     """ an entry for Priority Queue, where priority is *entry creation time* + *waiting time* """
 
-    # Creation counter keeps track of CollectorEntry declaration order
-    # Each time a CollectorEntry instance is created the counter should be increased
+    # Creation counter keeps track of PriorityEntry declaration order
+    # Each time an instance is created the counter should be increased
     creation_counter = 0
 
     def __init__(self, entry, lag_in_minutes=settings.settings['gc_release_lag_minutes']):
         """ :param entry: the unit_of_work to reprocess """
         self.entry = entry
         self.release_time = self._compute_release_time(lag_in_minutes)  # SYNERGY_SESSION_PATTERN: time in the future
-        self.creation_counter = EventEntry.creation_counter + 1
-        EventEntry.creation_counter += 1
+        self.creation_counter = PriorityEntry.creation_counter + 1
+        PriorityEntry.creation_counter += 1
 
     def _compute_release_time(self, lag_in_minutes):
         future_dt = datetime.utcnow() + timedelta(minutes=lag_in_minutes)
