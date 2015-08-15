@@ -55,19 +55,23 @@ class GarbageCollector(object):
                     self.logger.debug('process %r is inactive. Skipping its unit_of_work.' % uow.process_name)
                     continue
 
-                if uow in self.reprocess_uows[uow.process_name]:
+                entry = PriorityEntry(uow)
+                if entry in self.reprocess_uows[uow.process_name]:
                     # given UOW is already registered in the reprocessing queue
                     continue
 
+                # if the UOW is older than 2+ days and its submitted_at is older than 1 hour - cancel it
+                # scheduler gives 1 hour for reprocessing for 2+ days jobs
                 if datetime.utcnow() - uow.created_at > timedelta(hours=settings.settings['gc_life_support_hours']) \
-                        and datetime.utcnow() - uow.submitted_at > timedelta(
-                            hours=settings.settings['gc_repost_after_hours']):
+                        and datetime.utcnow() - uow.submitted_at > \
+                                timedelta(hours=settings.settings['gc_repost_after_hours']):
                     self._cancel_uow(uow)
                     continue
 
-                # enlist the UOW into the reprocessing queue
-                entry = PriorityEntry(uow)
-                self.reprocess_uows[uow.process_name].put(entry)
+                # if the UOW has been idle for more than 1 hour - resubmit it
+                if datetime.utcnow() - uow.submitted_at > timedelta(hours=settings.settings['gc_repost_after_hours']):
+                    # enlist the UOW into the reprocessing queue
+                    self.reprocess_uows[uow.process_name].put(entry)
 
         except LookupError as e:
             self.logger.info('flow: re-processing UOW candidates not found. %r' % e)

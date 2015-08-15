@@ -150,6 +150,9 @@ class MultiLevelTree(AbstractTree):
         # case 2: this is a bottom-level leaf node. retry this time_period for LIFE_SUPPORT_HOURS
         if node.process_name == self.process_hierarchy.bottom_process.process_name:
             if len(node.children) == 0:
+                # TODO: change timeperiod_dt to the node.job_record.created_at
+                # TODO: thus giving each job_record 2 days to be processed since its creation
+
                 # no children - this is a leaf
                 timeperiod_dt = time_helper.synergy_to_datetime(node.time_qualifier, node.timeperiod)
                 if datetime.utcnow() - timeperiod_dt < timedelta(hours=LIFE_SUPPORT_HOURS):

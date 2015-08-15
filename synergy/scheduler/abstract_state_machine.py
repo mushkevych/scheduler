@@ -258,7 +258,7 @@ class AbstractStateMachine(object):
         except LookupError as e:
             job_record.number_of_failures += 1
             self.job_dao.update(job_record)
-            self.timetable.failed_on_processing_job_record(job_record)
+            self.timetable.skip_if_needed(job_record)
             msg = 'Increasing fail counter for %s in timeperiod %s, because of: %r' \
                   % (job_record.process_name, job_record.timeperiod, e)
             self._log_message(WARNING, job_record.process_name, job_record.timeperiod, msg)

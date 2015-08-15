@@ -133,13 +133,29 @@ class GarbageCollectorUnitTest(unittest.TestCase):
         self.publisher.publish.assert_called_once_with(mock.ANY)
 
     def test_valid_and_fresh_uow(self):
+        uow = get_valid_and_fresh_uow()
         self.worker.uow_dao.update = assume_uow_is_requested
-        self.worker._process_single_document(get_valid_and_fresh_uow())
-        self.assertTrue(self.publisher.publish.call_args_list == [])  # called 0 times
+
+        self.worker.uow_dao.get_reprocessing_candidates = mock.MagicMock(return_value=[uow])
+        self.assertEqual(len(self.worker.reprocess_uows[uow.process_name]), 0)
+
+        # use-case - uow is healthy and since it is not filtered out by the DAO, it gets queued for re-processing
+        self.worker.enlist_or_cancel()
+        self.assertEqual(len(self.worker.reprocess_uows[uow.process_name]), 1)
+        self.assertTrue(self.worker._cancel_uow.call_args_list == [])  # called 0 times
+        self.assertTrue(self.publisher.publish.call_args_list == [])   # called 0 times
 
     def test_valid_and_stale_uow(self):
+        uow = get_valid_and_stale_uow()
         self.worker.uow_dao.update = assume_uow_is_cancelled
-        self.worker._process_single_document(get_valid_and_stale_uow())
+
+        self.worker.uow_dao.get_reprocessing_candidates = mock.MagicMock(return_value=[uow])
+        self.assertEqual(len(self.worker.reprocess_uows[uow.process_name]), 0)
+
+        # use-case - transferring job to STATE_CANCELED bypassing the reprocessing_queue
+        self.worker.enlist_or_cancel()
+        self.assertEqual(len(self.worker.reprocess_uows[uow.process_name]), 0)
+        self.worker._cancel_uow.assert_called_once_with(mock.ANY)
         self.publisher.publish.assert_called_once_with(mock.ANY)
 
     def test_select_reprocessing_candidates(self):

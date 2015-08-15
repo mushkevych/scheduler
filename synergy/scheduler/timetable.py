@@ -187,7 +187,7 @@ class Timetable(object):
 
     # *** Job manipulation methods ***
     @thread_safe
-    def failed_on_processing_job_record(self, job_record):
+    def skip_if_needed(self, job_record):
         """ method is called from abstract_state_machine.manage_job to notify about job's failed processing
             if should_skip_node returns True - the node's job_record is transferred to STATE_SKIPPED """
         tree = self.get_tree(job_record.process_name)
