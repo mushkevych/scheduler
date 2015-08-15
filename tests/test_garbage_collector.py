@@ -32,6 +32,7 @@ def get_invalid_and_fresh_uow():
         1,
         state=unit_of_work.STATE_INVALID,
         created_at=datetime.utcnow(),
+        submitted_at=datetime.utcnow(),
         uow_id=0)
 
 
@@ -42,7 +43,7 @@ def get_invalid_and_stale_uow():
         1,
         state=unit_of_work.STATE_INVALID,
         created_at=datetime.utcnow() - timedelta(hours=LIFE_SUPPORT_HOURS),
-        submitted_at=datetime.utcnow() - timedelta(hours=settings.settings['gc_repost_after_hours']),
+        submitted_at=datetime.utcnow() - timedelta(hours=settings.settings['gc_resubmit_after_hours']),
         uow_id=0)
 
 
@@ -64,7 +65,7 @@ def get_valid_and_stale_uow():
         1,
         state=unit_of_work.STATE_REQUESTED,
         created_at=datetime.utcnow() - timedelta(hours=LIFE_SUPPORT_HOURS),
-        submitted_at=datetime.utcnow() - timedelta(hours=settings.settings['gc_repost_after_hours']),
+        submitted_at=datetime.utcnow() - timedelta(hours=settings.settings['gc_resubmit_after_hours']),
         uow_id=0)
 
 
@@ -111,11 +112,16 @@ class GarbageCollectorUnitTest(unittest.TestCase):
         self.worker.uow_dao.get_reprocessing_candidates = mock.MagicMock(return_value=[uow])
         self.assertEqual(len(self.worker.reprocess_uows[uow.process_name]), 0)
 
-        # use-case 1 - enlist new UOW into reprocessing_queue
+        # use-case 1 - UOW has not crossed 1 hour after submission to be enlisted into reprocessing_queue
+        self.worker.enlist_or_cancel()
+        self.assertEqual(len(self.worker.reprocess_uows[uow.process_name]), 0)
+
+        # use-case 2 - age the UOW by 2 hours so it could be enlisted into the reprocessing_queue
+        uow.submitted_at = datetime.utcnow() - timedelta(hours=2)
         self.worker.enlist_or_cancel()
         self.assertEqual(len(self.worker.reprocess_uows[uow.process_name]), 1)
 
-        # use-case 2 - ignore the UOW, as it is already in the reprocessing_queue
+        # use-case 3 - ignore the UOW, as it is already in the reprocessing_queue
         self.worker.enlist_or_cancel()
         self.assertEqual(len(self.worker.reprocess_uows[uow.process_name]), 1)
 
@@ -139,11 +145,12 @@ class GarbageCollectorUnitTest(unittest.TestCase):
         self.worker.uow_dao.get_reprocessing_candidates = mock.MagicMock(return_value=[uow])
         self.assertEqual(len(self.worker.reprocess_uows[uow.process_name]), 0)
 
-        # use-case - uow is healthy and since it is not filtered out by the DAO, it gets queued for re-processing
+        # use-case - uow is healthy and should be filtered out by the DAO
+        # it does not get queued for re-processing, because has not yet crossed 1 hour after submission
         self.worker.enlist_or_cancel()
-        self.assertEqual(len(self.worker.reprocess_uows[uow.process_name]), 1)
+        self.assertEqual(len(self.worker.reprocess_uows[uow.process_name]), 0)
         self.assertTrue(self.worker._cancel_uow.call_args_list == [])  # called 0 times
-        self.assertTrue(self.publisher.publish.call_args_list == [])   # called 0 times
+        self.assertTrue(self.publisher.publish.call_args_list == [])  # called 0 times
 
     def test_valid_and_stale_uow(self):
         uow = get_valid_and_stale_uow()
