@@ -60,16 +60,14 @@ class GarbageCollector(object):
                     # given UOW is already registered in the reprocessing queue
                     continue
 
-                # if the UOW is older than 2+ days and its submitted_at is older than 1 hour - cancel it
-                # scheduler gives 1 hour for reprocessing for 2+ days jobs
-                if datetime.utcnow() - uow.created_at > timedelta(hours=settings.settings['gc_life_support_hours']) \
-                        and datetime.utcnow() - uow.submitted_at > \
-                                timedelta(hours=settings.settings['gc_repost_after_hours']):
+                # ASSUMPTION: UOW is re-created by a state machine during reprocessing
+                # thus - any UOW older 2 days could be marked as STATE_CANCELED
+                if datetime.utcnow() - uow.created_at > timedelta(hours=settings.settings['gc_life_support_hours']):
                     self._cancel_uow(uow)
                     continue
 
                 # if the UOW has been idle for more than 1 hour - resubmit it
-                if datetime.utcnow() - uow.submitted_at > timedelta(hours=settings.settings['gc_repost_after_hours']):
+                if datetime.utcnow() - uow.submitted_at > timedelta(hours=settings.settings['gc_resubmit_after_hours']):
                     # enlist the UOW into the reprocessing queue
                     self.reprocess_uows[uow.process_name].put(entry)
 

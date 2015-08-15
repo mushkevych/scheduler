@@ -20,7 +20,7 @@ settings = dict(
     bash_runnable_count=5,
 
     gc_life_support_hours=48,    # number of hours from UOW creation time to keep UOW re-posting to MQ
-    gc_repost_after_hours=1,     # number of hours, GC waits for the worker to pick up the UOW from MQ before re-posting
+    gc_resubmit_after_hours=1,   # number of hours, GC waits for the worker to pick up the UOW from MQ before re-posting
     gc_release_lag_minutes=15,   # number of minutes, GC keeps the UOW in the queue before posting it into MQ
 
 
