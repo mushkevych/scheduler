@@ -325,8 +325,9 @@ class AbstractStateMachine(object):
         job_record.process_name = process_name
         self.job_dao.update(job_record)
 
-        msg = 'Created job record %s for %s in %s' % (job_record.db_id, job_record.process_name, job_record.timeperiod)
-        self._log_message(INFO, job_record.process_name, job_record.timeperiod, msg)
+        self.logger.info('Created job record %s for %s in %s'
+                         % (job_record.db_id, job_record.process_name, job_record.timeperiod))
+        return job_record
 
     def update_job(self, job_record, uow, new_state):
         """ method updates job record with a new unit_of_work and new state"""

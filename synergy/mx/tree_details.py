@@ -15,7 +15,9 @@ class TreeDetails(BaseRequestHandler):
 
         for process_name in tree_obj.process_hierarchy:
             thread_handler = self.scheduler.managed_handlers[process_name]
-            rest_process = create_rest_managed_scheduler_entry(thread_handler, self.scheduler.timetable)
+            rest_process = create_rest_managed_scheduler_entry(thread_handler,
+                                                               self.scheduler.timetable,
+                                                               self.scheduler.gc)
             rest_tree.processes[process_name] = rest_process.document
         return rest_tree
 

@@ -25,15 +25,12 @@ def get_dependant_trees(timetable, tree_obj):
     return [x.tree_name for x in trees]
 
 
-def get_reprocessing_queue(timetable, process_name):
-    resp = []
-    per_process = timetable.reprocess.get(process_name)
-    if per_process is not None:
-        resp = sorted(per_process.keys())
-    return resp
+def get_reprocessing_queue(gc, process_name):
+    per_process = gc.reprocess_uows[process_name]
+    return sorted(per_process.queue)
 
 
-def create_rest_managed_scheduler_entry(thread_handler, timetable):
+def create_rest_managed_scheduler_entry(thread_handler, timetable, gc):
     process_entry = thread_handler.process_entry
     process_name = process_entry.process_name
 
@@ -50,7 +47,7 @@ def create_rest_managed_scheduler_entry(thread_handler, timetable):
         process_type=process_entry.process_type,
         blocking_type=process_entry.blocking_type,
         run_on_active_timeperiod=process_entry.run_on_active_timeperiod,
-        reprocessing_queue=get_reprocessing_queue(timetable, process_name),
+        reprocessing_queue=get_reprocessing_queue(gc, process_name),
     )
     return rest_model
 

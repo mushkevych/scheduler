@@ -25,7 +25,7 @@ class GarbageCollector(object):
         Deployment with no GC is considered invalid """
 
     def __init__(self, scheduler):
-        self.logger = get_logger(PROCESS_GC)
+        self.logger = get_logger(PROCESS_GC, append_to_console=True)
         self.managed_handlers = scheduler.managed_handlers
         self.publishers = scheduler.publishers
 

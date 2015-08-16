@@ -19,7 +19,9 @@ class SchedulerEntries(BaseRequestHandler):
             sorter_keys = sorted(self.scheduler.managed_handlers.keys())
             for key in sorter_keys:
                 thread_handler = self.scheduler.managed_handlers[key]
-                rest_model = create_rest_managed_scheduler_entry(thread_handler, self.scheduler.timetable)
+                rest_model = create_rest_managed_scheduler_entry(thread_handler,
+                                                                 self.scheduler.timetable,
+                                                                 self.scheduler.gc)
                 list_of_rows.append(rest_model.document)
         except Exception as e:
             self.logger.error('MX Exception %s' % str(e), exc_info=True)
@@ -48,3 +50,7 @@ class SchedulerEntries(BaseRequestHandler):
         except Exception as e:
             self.logger.error('MX Exception %s' % str(e), exc_info=True)
             return []
+
+    @cached_property
+    def reprocess_uows(self):
+        return self.scheduler.gc.reprocess_uows

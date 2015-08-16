@@ -14,6 +14,10 @@ from synergy.system.decorator import thread_safe
 from synergy.scheduler.scheduler_constants import COLLECTION_JOB_HOURLY, COLLECTION_JOB_DAILY, \
     COLLECTION_JOB_MONTHLY, COLLECTION_JOB_YEARLY
 from synergy.scheduler.tree import MultiLevelTree
+from synergy.scheduler.state_machine_continuous import StateMachineContinuous
+from synergy.scheduler.state_machine_dicrete import StateMachineDiscrete
+from synergy.scheduler.state_machine_simple_dicrete import StateMachineSimpleDiscrete
+from synergy.scheduler.state_machine_freerun import StateMachineFreerun
 
 
 class Timetable(object):
@@ -24,6 +28,9 @@ class Timetable(object):
         self.logger = logger
         self.job_dao = JobDao(self.logger)
 
+        # state_machines must be constructed before the trees
+        self.state_machines = self._construct_state_machines()
+
         # self.trees contain all of the trees and manages much of their life cycle
         # remember to enlist here all trees the system is working with
         self.trees = self._construct_trees_from_context()
@@ -33,8 +40,15 @@ class Timetable(object):
         self.build_trees()
         self.validate()
 
-        # state_machines is of type <dictionary> and is initialized from the synergy_scheduler.Scheduler.__init__
-        self.state_machines = None
+    def _construct_state_machines(self):
+        """ :return: dict in format <state_machine_common_name: instance_of_the_state_machine> """
+        state_machines = dict()
+        for state_machine in [StateMachineContinuous(self.logger, self),
+                              StateMachineDiscrete(self.logger, self),
+                              StateMachineSimpleDiscrete(self.logger, self),
+                              StateMachineFreerun(self.logger)]:
+            state_machines[state_machine.name] = state_machine
+        return state_machines
 
     def _construct_trees_from_context(self):
         trees = dict()
@@ -118,7 +132,8 @@ class Timetable(object):
         try:
             job_record = self.job_dao.get_one(tree_node.process_name, tree_node.timeperiod)
         except LookupError:
-            state_machine = self.state_machines[tree_node.process_name]
+            state_machine_name = context.process_context[tree_node.process_name].state_machine_name
+            state_machine = self.state_machines[state_machine_name]
             job_record = state_machine.create_job(tree_node.process_name, tree_node.timeperiod)
         tree_node.job_record = job_record
 

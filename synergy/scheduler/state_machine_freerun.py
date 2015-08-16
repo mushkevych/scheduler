@@ -52,6 +52,7 @@ class StateMachineFreerun(object):
         """ creates unit_of_work and inserts it into the DB
             :raise DuplicateKeyError: if unit_of_work with given parameters already exists """
         current_timeperiod = time_helper.actual_timeperiod(QUALIFIER_REAL_TIME)
+        process_entry = context.process_context[freerun_entry.process_name]
 
         uow = UnitOfWork()
         uow.process_name = freerun_entry.schedulable_name
@@ -62,8 +63,8 @@ class StateMachineFreerun(object):
         uow.end_timeperiod = current_timeperiod
         uow.created_at = datetime.utcnow()
         uow.submitted_at = datetime.utcnow()
-        uow.source = context.process_context[freerun_entry.process_name].source
-        uow.sink = context.process_context[freerun_entry.process_name].sink
+        uow.source = process_entry.source if hasattr(process_entry, 'source') else None
+        uow.sink = process_entry.sink if hasattr(process_entry, 'sink') else None
         uow.state = unit_of_work.STATE_REQUESTED
         uow.unit_of_work_type = TYPE_FREERUN
         uow.number_of_retries = 0

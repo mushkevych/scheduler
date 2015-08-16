@@ -1,6 +1,6 @@
 {% extends 'main_header.html' %}
 {% block body %}
-<table style="width: 90%" class="one-column-emphasis context-menu">
+<table class="one-column-emphasis context-menu">
     <thead>
     <tr class="one-column-emphasis-first">
         <th scope="col"><input type="checkbox" name="select_all" onclick="toggle_all_checkboxes(this)"/> </th>
@@ -51,7 +51,33 @@
     </tbody>
 </table>
 
-<table style="width: 90%" class="one-column-emphasis">
+<table class="one-column-emphasis">
+    <thead>
+    <tr class="one-column-emphasis-first">
+        <th scope="col"><input type="button" name="flush_all" onclick="gc_flush_all(this)"/> </th>
+        <th scope="col">Process Name</th>
+        <th scope="col">Units Of Work</th>
+    </tr>
+    </thead>
+    <tbody>
+
+    {%- for process_name, q in details.reprocess_uows.items() -%}
+    {%- if q.queue|length != 0 -%}
+    <tr>
+        <td>
+            {% set value = "{ process_name: '" + row.process_name + "', timeperiod: 'NA' }" %}
+            <input type="button" name={{ "flush_" + process_name }} value="{{ value }}"/>
+        </td>
+        <td>{{ q.queue|join(", ") }}</td>
+    </tr>
+    {%- endif -%}
+    {%- endfor -%}
+
+    </tbody>
+</table>
+
+
+<table class="one-column-emphasis">
     <thead>
     <tr class="one-column-emphasis-first">
         <th scope="col">Build Version</th>

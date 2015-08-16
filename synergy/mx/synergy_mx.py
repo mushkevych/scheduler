@@ -82,7 +82,6 @@ if __name__ == '__main__':
     from synergy.scheduler.scheduler_constants import PROCESS_SCHEDULER
     from synergy.scheduler.synergy_scheduler import Scheduler
 
-    source = Scheduler(PROCESS_SCHEDULER)
-
-    app = MX(source)
+    scheduler = Scheduler(PROCESS_SCHEDULER)
+    app = MX(scheduler)
     app.start_mx_thread()

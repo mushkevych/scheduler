@@ -37,13 +37,15 @@ class FreerunActionHandler(AbstractActionHandler):
     def action_cancel_uow(self):
         uow_id = self.process_entry.related_unit_of_work
         if uow_id is None:
-            resp = {'response': 'no related unit_of_work'}
+            msg = 'no related unit_of_work for {0}'.format(self.process_entry.schedulable_name)
         else:
             uow = self.uow_dao.get_one(uow_id)
             uow.state = unit_of_work.STATE_CANCELED
             self.uow_dao.update(uow)
-            resp = {'response': 'updated unit_of_work %r' % uow_id}
-        return resp
+            msg = 'canceled unit_of_work {0}#{1}'.format(self.process_entry.schedulable_name, uow_id)
+
+        self.logger.info('Freerun Action Handler: ' + msg)
+        return {'response': msg}
 
     @valid_action_request
     def action_get_uow(self):

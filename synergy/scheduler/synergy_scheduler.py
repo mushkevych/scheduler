@@ -17,10 +17,6 @@ from synergy.system.synergy_process import SynergyProcess
 from synergy.scheduler.garbage_collector import GarbageCollector
 from synergy.scheduler.status_bus_listener import StatusBusListener
 from synergy.scheduler.scheduler_constants import *
-from synergy.scheduler.state_machine_continuous import StateMachineContinuous
-from synergy.scheduler.state_machine_dicrete import StateMachineDiscrete
-from synergy.scheduler.state_machine_simple_dicrete import StateMachineSimpleDiscrete
-from synergy.scheduler.state_machine_freerun import StateMachineFreerun
 from synergy.scheduler.timetable import Timetable
 from synergy.scheduler.thread_handler import construct_thread_handler, ThreadHandlerArguments
 
@@ -39,8 +35,6 @@ class Scheduler(SynergyProcess):
         self.managed_handlers = dict()
         self.freerun_handlers = dict()
         self.timetable = Timetable(self.logger)
-        self.state_machines = self._construct_state_machines()
-        self.timetable.state_machines = self.state_machines
         self.gc = GarbageCollector(self)
 
         self.freerun_process_dao = FreerunProcessDao(self.logger)
@@ -60,16 +54,6 @@ class Scheduler(SynergyProcess):
         self.publishers.close()
 
         super(Scheduler, self).__del__()
-
-    def _construct_state_machines(self):
-        """ :return: dict in format <state_machine_common_name: instance_of_the_state_machine> """
-        state_machines = dict()
-        for state_machine in [StateMachineContinuous(self.logger, self.timetable),
-                              StateMachineDiscrete(self.logger, self.timetable),
-                              StateMachineSimpleDiscrete(self.logger, self.timetable),
-                              StateMachineFreerun(self.logger)]:
-            state_machines[state_machine.name] = state_machine
-        return state_machines
 
     def _register_process_entry(self, process_entry, call_back):
         """ method parses process_entry and creates a timer_handler out of it
@@ -154,7 +138,7 @@ class Scheduler(SynergyProcess):
         def _fire_worker(process_entry, prev_job_record):
             assert isinstance(process_entry, ManagedProcessEntry)
             job_record = self.timetable.get_next_job_record(process_entry.process_name)
-            state_machine = self.state_machines[process_entry.state_machine_name]
+            state_machine = self.timetable.state_machines[process_entry.state_machine_name]
             if job_record == prev_job_record:
                 # avoid the loop
                 return None
@@ -208,7 +192,7 @@ class Scheduler(SynergyProcess):
             assert isinstance(thread_handler_arguments, ThreadHandlerArguments)
             self.logger.info('%r {' % (thread_handler_arguments.key, ))
 
-            state_machine = self.state_machines[STATE_MACHINE_FREERUN]
+            state_machine = self.timetable.state_machines[STATE_MACHINE_FREERUN]
             state_machine.manage_schedulable(thread_handler_arguments.process_entry)
 
         except Exception as e:
