@@ -17,7 +17,7 @@ settings = dict(
     remote_source_password={'user@f.q.h.n': '***SSH_PASSWORD***'},
     remote_source_folder='/mnt/remote_folder/',
     compute_gzip_md5=True,      # True, if AbstractFileCollector should compute MD5 for every file it processes
-    bash_runnable_count=5,
+    bash_runnable_count=5,      # number of concurrently running shell scripts supported by BashDriver
 
     gc_life_support_hours=48,    # number of hours from UOW creation time to keep UOW re-posting to MQ
     gc_resubmit_after_hours=1,   # number of hours, GC waits for the worker to pick up the UOW from MQ before re-posting
