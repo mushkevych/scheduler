@@ -61,17 +61,28 @@
     </thead>
     <tbody>
 
+    {% set is_empty = True %}
     {%- for process_name, q in details.reprocess_uows.items() -%}
     {%- if q.queue|length != 0 -%}
+    {% set is_empty = False %}
     <tr>
         <td>
             {% set value = "{ process_name: '" + row.process_name + "', timeperiod: 'NA' }" %}
-            <input type="button" name={{ "flush_" + process_name }} value="{{ value }}"/>
+            <input type="button" name="{{ 'flush_' + process_name }}" value="{{ value }}"/>
         </td>
         <td>{{ q.queue|join(", ") }}</td>
     </tr>
     {%- endif -%}
     {%- endfor -%}
+
+    {%- if is_empty -%}
+    <tr>
+        <td>
+            <input type="button" disabled/>
+        </td>
+        <td>Empty</td>
+    </tr>
+    {%- endif -%}
 
     </tbody>
 </table>
