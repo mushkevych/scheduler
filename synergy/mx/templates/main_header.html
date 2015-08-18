@@ -19,10 +19,14 @@
     <title>Synergy Scheduler</title>
 </head>
 
-<!--{{ 'FIELD = ' + local.request.path }}-->
+{% macro render_td(endpoint, title) %}
+    <td {% if endpoint in local.request.path %} class="active" {% endif %} >
+        <a href="{{ endpoint }}"> {{ title }}</a>
+    </td>
+{% endmacro %}
 
 <body>
-<table style="width: 100%" class="header-table">
+<table class="header-table">
     <thead>
     <tr>
         <th>Synergy Scheduler</th>
@@ -35,13 +39,13 @@
     </thead>
     <tbody>
     <tr>
-        <td {% if 'dashboard_managed' in local.request.path %} class="active" {% endif %} ><a href="{{ url_for('dashboard_managed') }}">dashboard jobs</a></td>
-        <td {% if 'dashboard_freeruns' in local.request.path %} class="active" {% endif %} ><a href="{{ url_for('dashboard_freeruns') }}">dashboard freeruns</a></td>
+        {{  render_td(url_for('dashboard_managed'), 'dashboard jobs') }}
+        {{  render_td(url_for('dashboard_freeruns'), 'dashboard freeruns') }}
         {%- for mx_rule, mx_page_name in mx_processing_context.items() %}
-            <td {% if mx_page_name in local.request.path %} class="active" {% endif %} ><a href="/{{ mx_rule }}">{{ mx_page_name }}</a></td>
+            {{  render_td("/" + mx_rule, mx_page_name) }}
         {%- endfor -%}
-        <td {% if 'scheduler_managed_entries' in local.request.path %} class="active" {% endif %} ><a href="{{ url_for('scheduler_managed_entries') }}">scheduler managed entries</a></td>
-        <td {% if 'scheduler_freerun_entries' in local.request.path %} class="active" {% endif %} ><a href="{{ url_for('scheduler_freerun_entries') }}">scheduler freerun entries</a></td>
+        {{  render_td(url_for('scheduler_managed_entries'), 'scheduler managed entries') }}
+        {{  render_td(url_for('scheduler_freerun_entries'), 'scheduler freerun entries') }}
     </tr>
     </tbody>
 </table>
@@ -51,7 +55,7 @@
 <div class="body">{% block body %}{% endblock %}</div>
 <br/>
 
-<div id="footer" style="text-align: right">
+<div class="footer">
     <a href="mailto:mushkevych@users.noreply.github.com?subject=Comments to Scheduler MX page">Feedback</a>
 </div>
 </body>

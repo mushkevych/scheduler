@@ -10,22 +10,23 @@ body {
     padding: 10px;
 }
 
-div#footer {
+.footer {
     clear: both;
     background: #333;
     color: #FFF;
     width: 100%;
 }
 
-div#footer p {
+.footer p {
     margin: 0;
     padding: 5px 10px;
 }
 
-div#footer a {
+.footer a {
     display: inline;
     padding: 0;
     color: #C6D5FD;
+    text-align: right;
 }
 
 /*
@@ -72,7 +73,7 @@ div#footer a {
     border-collapse: collapse;
     color: #FFFFFF;
     background: #333333;
-    min-width: 1400px;
+    min-width: 1200px;
 }
 
 .header-table th {
@@ -91,8 +92,12 @@ div#footer a {
     color: #FFFFFF;
 }
 
-.header-table tr:hover td:hover, .header-table td.active {
+.header-table tr:hover td:hover {
     background: #CC0000;
+}
+
+.header-table td.active {
+    background: #d66f00;
 }
 
 .header-table tr:hover td:hover a, .header-table tr:hover td:hover a:hover {
