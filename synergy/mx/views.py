@@ -5,6 +5,7 @@ import httplib
 
 from werkzeug.wrappers import Response
 
+from synergy.mx.gc_action_handler import GcActionHandler
 from synergy.mx.freerun_action_handler import FreerunActionHandler
 from synergy.mx.managed_action_handler import ManagedActionHandler
 from synergy.mx.scheduler_entries import SchedulerEntries
@@ -129,6 +130,27 @@ def action_deactivate_trigger(request, **values):
 def action_activate_trigger(request, **values):
     handler = get_action_handler(request, **values)
     handler.action_activate_trigger()
+    return Response(status=httplib.NO_CONTENT)
+
+
+@expose('/gc/flush_all/')
+def gc_flush_all(request, **values):
+    handler = GcActionHandler(request, **values)
+    handler.action_flush_all()
+    return Response(status=httplib.NO_CONTENT)
+
+
+@expose('/gc/flush_one/')
+def gc_flush_one(request, **values):
+    handler = GcActionHandler(request, **values)
+    handler.action_flush_one()
+    return Response(status=httplib.NO_CONTENT)
+
+
+@expose('/gc/refresh/')
+def gc_refresh(request, **values):
+    handler = GcActionHandler(request, **values)
+    handler.action_refresh()
     return Response(status=httplib.NO_CONTENT)
 
 

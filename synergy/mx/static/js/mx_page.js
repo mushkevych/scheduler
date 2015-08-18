@@ -57,6 +57,7 @@ function header_process_tile(process_entry, tile) {
 
     var next_run_block = '<div class="table_layout">'
         + '<div class="table_layout_element">' + process_entry.next_run_in + '</div>'
+        + '<div class="table_layout_element">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</div>'
         + '<div class="table_layout_element">' + trigger_form + '</div>'
         + '</div>';
 
@@ -85,7 +86,7 @@ function header_process_tile(process_entry, tile) {
         + '<li title="Next Timeperiod"><i class="fa-li fa fa-play"></i>' + process_entry.next_timeperiod + '</li>'
         + '<li title="Next Run In"><i class="fa-li fa fa-rocket"></i>' + next_run_block + '</li>'
         + '<li title="Reprocessing Queue"><i class="fa-li fa fa-retweet"></i>'
-            + '<textarea class="reprocessing_queues" rows="2" cols="26" readonly>'
+            + '<textarea class="reprocessing_queues" rows="1" cols="26" readonly>'
             + process_entry.reprocessing_queue
             + '</textarea>'
         + '</li>'

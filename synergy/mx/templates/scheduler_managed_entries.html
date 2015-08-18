@@ -54,12 +54,21 @@
 <table class="one-column-emphasis">
     <thead>
     <tr class="one-column-emphasis-first">
-        <th scope="col">
-            <form method="GET" action="/action/gc_flush_all/">
-                <input type="submit" title="Flush All" class="action_button fa-input" value="Flush All"/>
-            </form>
+        <th scope="col" width="15%">
+            <div class="table_layout">
+                <div class="table_layout_element">
+                    <form method="GET" action="/gc/flush_all/">
+                        <input type="submit" title="Flush All" class="action_button fa-input" value="&#xf1b8;&nbsp;Flush&nbsp;All"/>
+                    </form>
+                </div>
+                <div class="table_layout_element">
+                    <form method="GET" action="/gc/refresh/">
+                        <input type="submit" title="Refresh" class="action_button fa-input" value="&#xf021;&nbsp;Refresh"/>
+                    </form>
+                </div>
+            </div>
         </th>
-        <th scope="col">Process Name</th>
+        <th scope="col" width="15%">Process Name</th>
         <th scope="col">Units Of Work</th>
     </tr>
     </thead>
@@ -71,9 +80,9 @@
     {% set is_empty = False %}
     <tr>
         <td>
-            <form method="GET" action="/action/gc_flush_one/">
+            <form method="GET" action="/gc/flush_one/">
                 <input type="hidden" name="process_name" value="{{ process_name }}" />
-                <input type="submit" title="Flush" class="action_button fa-input" value="Flush"/>
+                <input type="submit" title="Flush" class="action_button fa-input" value="&#xf1b8;&nbsp;Flush"/>
             </form>
         </td>
         <td>{{ process_name }}</td>
@@ -84,7 +93,7 @@
 
     {%- if is_empty -%}
     <tr>
-        <td><input type="submit" name="Flush" value="Flush" disabled/></td>
+        <td><input type="submit" name="Flush" class="action_button fa-input" value="&#xf1b8;&nbsp;Flush" disabled/></td>
         <td>Empty</td>
         <td>Empty</td>
     </tr>
