@@ -26,6 +26,7 @@ class MX(object):
         local.application = self
         request = Request(environ)
         local.url_adapter = adapter = url_map.bind_to_environ(environ)
+        local.request = request
 
         try:
             endpoint, values = adapter.match()

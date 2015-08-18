@@ -54,7 +54,11 @@
 <table class="one-column-emphasis">
     <thead>
     <tr class="one-column-emphasis-first">
-        <th scope="col"><input type="button" name="flush_all" onclick="gc_flush_all(this)"/> </th>
+        <th scope="col">
+            <form method="GET" action="/action/gc_flush_all/">
+                <input type="submit" title="Flush All" class="action_button fa-input" value="Flush All"/>
+            </form>
+        </th>
         <th scope="col">Process Name</th>
         <th scope="col">Units Of Work</th>
     </tr>
@@ -67,9 +71,12 @@
     {% set is_empty = False %}
     <tr>
         <td>
-            {% set value = "{ process_name: '" + row.process_name + "', timeperiod: 'NA' }" %}
-            <input type="button" name="{{ 'flush_' + process_name }}" value="{{ value }}"/>
+            <form method="GET" action="/action/gc_flush_one/">
+                <input type="hidden" name="process_name" value="{{ process_name }}" />
+                <input type="submit" title="Flush" class="action_button fa-input" value="Flush"/>
+            </form>
         </td>
+        <td>{{ process_name }}</td>
         <td>{{ q.queue|join(", ") }}</td>
     </tr>
     {%- endif -%}
@@ -77,9 +84,8 @@
 
     {%- if is_empty -%}
     <tr>
-        <td>
-            <input type="button" disabled/>
-        </td>
+        <td><input type="submit" name="Flush" value="Flush" disabled/></td>
+        <td>Empty</td>
         <td>Empty</td>
     </tr>
     {%- endif -%}

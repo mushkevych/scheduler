@@ -31,7 +31,7 @@ mx_page_context = {tree_entry.mx_page: tree_entry.mx_page.replace('_', ' ')
 # NOTE: given renders template snippet {{ url_for ('function_name') }} invalid,
 # since all mx_page are processed by the single function 'mx_page_tiles'
 for rule in mx_page_context:
-    url_map.add(Rule('/%s/' % rule, endpoint='mx_page_tiles'))
+    url_map.add(Rule('/{0}/'.format(rule), endpoint='mx_page_tiles'))
 
 
 def expose(rule, **kw):
@@ -69,3 +69,4 @@ jinja_env.globals['scheduler_uptime'] = scheduler_uptime
 jinja_env.globals['mx_processing_context'] = mx_page_context
 jinja_env.globals['synergy_process_context'] = context.process_context
 jinja_env.filters['jsonify'] = json.dumps
+jinja_env.filters['request'] = json.dumps

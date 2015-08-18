@@ -19,6 +19,8 @@
     <title>Synergy Scheduler</title>
 </head>
 
+<!--{{ 'FIELD = ' + local.request.path }}-->
+
 <body>
 <table style="width: 100%" class="header-table">
     <thead>
@@ -33,13 +35,13 @@
     </thead>
     <tbody>
     <tr>
-        <td><a href="{{ url_for('dashboard_managed') }}">dashboard jobs</a></td>
-        <td><a href="{{ url_for('dashboard_freeruns') }}">dashboard freeruns</a></td>
+        <td {% if 'dashboard_managed' in local.request.path %} class="active" {% endif %} ><a href="{{ url_for('dashboard_managed') }}">dashboard jobs</a></td>
+        <td {% if 'dashboard_freeruns' in local.request.path %} class="active" {% endif %} ><a href="{{ url_for('dashboard_freeruns') }}">dashboard freeruns</a></td>
         {%- for mx_rule, mx_page_name in mx_processing_context.items() %}
-            <td><a href="/{{ mx_rule }}">{{ mx_page_name }}</a></td>
+            <td {% if mx_page_name in local.request.path %} class="active" {% endif %} ><a href="/{{ mx_rule }}">{{ mx_page_name }}</a></td>
         {%- endfor -%}
-        <td><a href="{{ url_for('scheduler_managed_entries') }}">scheduler managed entries</a></td>
-        <td><a href="{{ url_for('scheduler_freerun_entries') }}">scheduler freerun entries</a></td>
+        <td {% if 'scheduler_managed_entries' in local.request.path %} class="active" {% endif %} ><a href="{{ url_for('scheduler_managed_entries') }}">scheduler managed entries</a></td>
+        <td {% if 'scheduler_freerun_entries' in local.request.path %} class="active" {% endif %} ><a href="{{ url_for('scheduler_freerun_entries') }}">scheduler freerun entries</a></td>
     </tr>
     </tbody>
 </table>

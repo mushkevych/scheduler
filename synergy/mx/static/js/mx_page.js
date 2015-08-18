@@ -49,14 +49,16 @@ function header_tree_tile(mx_tree, tile) {
 
 
 function header_process_tile(process_entry, tile) {
-    var trigger_button = $('<button class="action_button"><i class="fa fa-paper-plane-o"></i>&nbsp;Trigger</button>').click(function (e) {
-        var params = { 'process_name': process_entry.process_name, 'timeperiod': 'NA' };
-        $.get('/action/trigger_now/', params, function (response) {
-            if (response !== undefined && response !== null) {
-                Alertify.log("response: " + response.responseText, null, 1500, null);
-            }
-        });
-    });
+    var trigger_form = '<form method="GET" action="/action/trigger_now/" onsubmit="xmlhttp.send(); return false;">'
+        + '<input type="hidden" name="process_name" value="' + process_entry.process_name + '" />'
+        + '<input type="hidden" name="timeperiod" value="NA" />'
+        + '<input type="submit" title="trigger' + process_entry.process_name + '" class="action_button fa-input" value="&#xf1d9;&nbsp;Trigger"/>'
+        + '</form>';
+
+    var next_run_block = '<div class="table_layout">'
+        + '<div class="table_layout_element">' + process_entry.next_run_in + '</div>'
+        + '<div class="table_layout_element">' + trigger_form + '</div>'
+        + '</div>';
 
     var is_on;
     if (process_entry.is_on) {
@@ -81,15 +83,13 @@ function header_process_tile(process_entry, tile) {
         + '<li title="Trigger Alive"><i class="fa-li fa fa-bolt"></i>' + is_alive + '</li>'
         + '<li title="Process Name"><i class="fa-li fa fa-terminal"></i>' + process_entry.process_name + '</li>'
         + '<li title="Next Timeperiod"><i class="fa-li fa fa-play"></i>' + process_entry.next_timeperiod + '</li>'
-        + '<li title="Next Run In"><i class="fa-li fa fa-rocket"></i>' + process_entry.next_run_in + '</li>'
+        + '<li title="Next Run In"><i class="fa-li fa fa-rocket"></i>' + next_run_block + '</li>'
         + '<li title="Reprocessing Queue"><i class="fa-li fa fa-retweet"></i>'
             + '<textarea class="reprocessing_queues" rows="2" cols="26" readonly>'
             + process_entry.reprocessing_queue
             + '</textarea>'
         + '</li>'
         + '</ul>');
-
-    tile.$el.append($('<div class="action_button_li"></div>').append(trigger_button));
 }
 
 
@@ -101,7 +101,7 @@ function info_process_tile(process_entry, tile) {
         run_on_active_timeperiod = '<i class="fa fa-toggle-off" title="is OFF"></i>';
     }
 
-    var change_interval_form = '<form method="GET" action="/action/change_interval" onsubmit="xmlhttp.send(); return false;">'
+    var change_interval_form = '<form method="GET" action="/action/change_interval/" onsubmit="xmlhttp.send(); return false;">'
         + '<input type="hidden" name="process_name" value="' + process_entry.process_name + '" />'
         + '<input type="hidden" name="timeperiod" value="NA" />'
         + '<input type="text" size="8" maxlength="32" name="interval" value="' + process_entry.trigger_frequency + '" />'

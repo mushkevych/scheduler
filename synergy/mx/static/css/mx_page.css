@@ -127,6 +127,15 @@ div.process_info_tile {
     background-color: #ffbb88;
 }
 
+div.table_layout {
+    display: table;
+}
+
+div.table_layout_element {
+    margin-right: 0.5%;
+    display: table-cell;
+}
+
 div.tile_component {
     float: left;
 }
