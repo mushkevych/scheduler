@@ -49,15 +49,28 @@ function header_tree_tile(mx_tree, tile) {
 
 
 function header_process_tile(process_entry, tile) {
+    var flush_one_form = '<form method="GET" action="/gc/flush_one/" onsubmit="xmlhttp.send(); return false;">'
+        + '<input type="hidden" name="process_name" value="' + process_entry.process_name + '" />'
+        + '<input type="submit" title="flush_' + process_entry.process_name + '" class="fa-input" value="&#xf1b8"/>'
+        + '</form>';
+
+    var reprocessing_block = '<div class="table_layout">'
+        + '<div class="table_layout_element"><textarea class="reprocessing_queues" rows="1" cols="20" readonly>'
+        + process_entry.reprocessing_queue
+        + '</textarea></div>'
+        + '<div class="table_layout_element">&nbsp;</div>'
+        + '<div class="table_layout_element">' + flush_one_form + '</div>'
+        + '</div>';
+
     var trigger_form = '<form method="GET" action="/action/trigger_now/" onsubmit="xmlhttp.send(); return false;">'
         + '<input type="hidden" name="process_name" value="' + process_entry.process_name + '" />'
         + '<input type="hidden" name="timeperiod" value="NA" />'
-        + '<input type="submit" title="trigger' + process_entry.process_name + '" class="action_button fa-input" value="&#xf1d9;&nbsp;Trigger"/>'
+        + '<input type="submit" title="trigger_' + process_entry.process_name + '" class="fa-input" value="&#xf1d9"/>'
         + '</form>';
 
     var next_run_block = '<div class="table_layout">'
         + '<div class="table_layout_element">' + process_entry.next_run_in + '</div>'
-        + '<div class="table_layout_element">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</div>'
+        + '<div class="table_layout_element">&nbsp;</div>'
         + '<div class="table_layout_element">' + trigger_form + '</div>'
         + '</div>';
 
@@ -85,11 +98,7 @@ function header_process_tile(process_entry, tile) {
         + '<li title="Process Name"><i class="fa-li fa fa-terminal"></i>' + process_entry.process_name + '</li>'
         + '<li title="Next Timeperiod"><i class="fa-li fa fa-play"></i>' + process_entry.next_timeperiod + '</li>'
         + '<li title="Next Run In"><i class="fa-li fa fa-rocket"></i>' + next_run_block + '</li>'
-        + '<li title="Reprocessing Queue"><i class="fa-li fa fa-retweet"></i>'
-            + '<textarea class="reprocessing_queues" rows="1" cols="26" readonly>'
-            + process_entry.reprocessing_queue
-            + '</textarea>'
-        + '</li>'
+        + '<li title="Reprocessing Queue"><i class="fa-li fa fa-retweet"></i>' + reprocessing_block + '</li>'
         + '</ul>');
 }
 

@@ -12,7 +12,6 @@ class GcActionHandler(BaseRequestHandler):
         if self.is_request_valid:
             self.process_name = self.process_name.strip()
 
-    @valid_action_request
     def action_refresh(self):
         self.scheduler.gc.enlist_or_cancel()
         return self.reply_ok()

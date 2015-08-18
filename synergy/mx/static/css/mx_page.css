@@ -133,6 +133,7 @@ div.table_layout {
 
 div.table_layout_element {
     display: table-cell;
+    vertical-align: text-top;
 }
 
 div.tile_component {
