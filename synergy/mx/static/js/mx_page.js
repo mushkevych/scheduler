@@ -55,7 +55,7 @@ function header_process_tile(process_entry, tile) {
         + '</form>';
 
     var reprocessing_block = '<div class="table_layout">'
-        + '<div class="table_layout_element"><textarea class="reprocessing_queues" rows="1" cols="20" readonly>'
+        + '<div class="table_layout_element"><textarea rows="1" cols="20" readonly>'
         + process_entry.reprocessing_queue
         + '</textarea></div>'
         + '<div class="table_layout_element">&nbsp;</div>'

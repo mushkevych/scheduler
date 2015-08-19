@@ -6,6 +6,7 @@ from settings import enable_test_mode
 enable_test_mode()
 
 from constants import PROCESS_SITE_HOURLY
+from synergy.db.dao.job_dao import JobDao
 from synergy.db.dao.unit_of_work_dao import UnitOfWorkDao
 from synergy.db.model import job
 from synergy.db.manager.ds_manager import BaseManager
@@ -22,16 +23,17 @@ class SimpleDiscreteSMUnitTest(unittest.TestCase):
         self.logger = get_logger(PROCESS_UNIT_TEST)
 
         self.time_table_mocked = mock.create_autospec(Timetable)
+        self.job_dao_mocked = mock.create_autospec(JobDao)
         self.uow_dao_mocked = mock.create_autospec(UnitOfWorkDao)
         self.ds_mocked = mock.create_autospec(BaseManager)
 
         self.sm_real = StateMachineSimpleDiscrete(self.logger, self.time_table_mocked)
         self.sm_real.uow_dao = self.uow_dao_mocked
+        self.sm_real.job_dao = self.job_dao_mocked
         self.sm_real.ds = self.ds_mocked
         self.sm_real._StateMachineSimpleDiscrete__process_non_finalizable_job = mock.Mock()
         self.sm_real._StateMachineSimpleDiscrete__process_finalizable_job = mock.Mock()
-        self.sm_real._process_state_in_progress = mock.Mock(
-            side_effect=self.sm_real._process_state_in_progress)
+        self.sm_real._process_state_in_progress = mock.Mock(side_effect=self.sm_real._process_state_in_progress)
 
     def tearDown(self):
         pass

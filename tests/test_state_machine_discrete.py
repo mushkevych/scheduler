@@ -6,6 +6,7 @@ from settings import enable_test_mode
 enable_test_mode()
 
 from constants import PROCESS_SITE_HOURLY
+from synergy.db.dao.job_dao import JobDao
 from synergy.db.dao.unit_of_work_dao import UnitOfWorkDao
 from synergy.db.model import job, unit_of_work
 from synergy.db.manager.ds_manager import BaseManager
@@ -22,16 +23,17 @@ class DiscreteSMUnitTest(unittest.TestCase):
         self.logger = get_logger(PROCESS_UNIT_TEST)
 
         self.time_table_mocked = mock.create_autospec(Timetable)
+        self.job_dao_mocked = mock.create_autospec(JobDao)
         self.uow_dao_mocked = mock.create_autospec(UnitOfWorkDao)
         self.ds_mocked = mock.create_autospec(BaseManager)
 
         self.sm_real = StateMachineDiscrete(self.logger, self.time_table_mocked)
         self.sm_real.uow_dao = self.uow_dao_mocked
+        self.sm_real.job_dao = self.job_dao_mocked
         self.sm_real.ds = self.ds_mocked
-        self.sm_real._process_state_final_run = mock.Mock(
-            side_effect=self.sm_real._process_state_final_run)
-        self.sm_real._process_state_in_progress = mock.Mock(
-            side_effect=self.sm_real._process_state_in_progress)
+        self.sm_real.update_job = mock.Mock(side_effect=self.sm_real.update_job)
+        self.sm_real._process_state_final_run = mock.Mock(side_effect=self.sm_real._process_state_final_run)
+        self.sm_real._process_state_in_progress = mock.Mock(side_effect=self.sm_real._process_state_in_progress)
 
     def tearDown(self):
         pass
@@ -46,7 +48,7 @@ class DiscreteSMUnitTest(unittest.TestCase):
         job_record = get_job_record(job.STATE_EMBRYO, TEST_PRESET_TIMEPERIOD, PROCESS_SITE_HOURLY)
         self.sm_real.manage_job(job_record)
 
-        self.time_table_mocked.update_job_record.assert_called_once_with(mock.ANY, mock.ANY, mock.ANY)
+        self.sm_real.update_job.assert_called_once_with(mock.ANY, mock.ANY, mock.ANY)
 
     def test_duplicatekeyerror_state_embryo(self):
         """ method tests job records in STATE_EMBRYO state"""
@@ -70,7 +72,7 @@ class DiscreteSMUnitTest(unittest.TestCase):
         self.sm_real.insert_and_publish_uow = then_raise_uw
 
         self.sm_real.manage_job(job_record)
-        self.assertTrue(self.time_table_mocked.update_job_record.call_args_list == [])  # called 0 times
+        self.assertEqual(len(self.sm_real.update_job.call_args_list), 0)
 
     def test_preset_timeperiod_state_in_progress(self):
         """ method tests timetable records in STATE_IN_PROGRESS state"""
@@ -83,7 +85,7 @@ class DiscreteSMUnitTest(unittest.TestCase):
         job_record = get_job_record(job.STATE_IN_PROGRESS, TEST_PRESET_TIMEPERIOD, PROCESS_SITE_HOURLY)
         self.sm_real.manage_job(job_record)
 
-        self.assertEqual(len(self.time_table_mocked.update_job_record.call_args_list), 0)
+        self.assertEqual(len(self.sm_real.update_job.call_args_list), 0)
         self.assertEqual(len(self.sm_real._process_state_final_run.call_args_list), 0)
 
     def test_transfer_to_final_state_from_in_progress(self):
@@ -97,7 +99,7 @@ class DiscreteSMUnitTest(unittest.TestCase):
         job_record = get_job_record(job.STATE_IN_PROGRESS, TEST_PRESET_TIMEPERIOD, PROCESS_SITE_HOURLY)
         self.sm_real.manage_job(job_record)
 
-        self.assertEqual(len(self.time_table_mocked.update_job_record.call_args_list), 1)
+        self.assertEqual(len(self.sm_real.update_job.call_args_list), 1)
         self.assertEqual(len(self.sm_real._process_state_in_progress.call_args_list), 1)
         self.assertEqual(len(self.sm_real._process_state_final_run.call_args_list), 0)
 
@@ -112,7 +114,7 @@ class DiscreteSMUnitTest(unittest.TestCase):
         job_record = get_job_record(job.STATE_IN_PROGRESS, TEST_PRESET_TIMEPERIOD, PROCESS_SITE_HOURLY)
         self.sm_real.manage_job(job_record)
 
-        self.assertEqual(len(self.time_table_mocked.update_job_record.call_args_list), 1)
+        self.assertEqual(len(self.sm_real.update_job.call_args_list), 1)
         self.assertEqual(len(self.sm_real._process_state_in_progress.call_args_list), 1)
         self.assertEqual(len(self.sm_real._process_state_final_run.call_args_list), 0)
 
@@ -124,7 +126,7 @@ class DiscreteSMUnitTest(unittest.TestCase):
         job_record = get_job_record(job.STATE_FINAL_RUN, TEST_PRESET_TIMEPERIOD, PROCESS_SITE_HOURLY)
         self.sm_real.manage_job(job_record)
 
-        self.assertEqual(len(self.time_table_mocked.update_job_record.call_args_list), 1)
+        self.assertEqual(len(self.sm_real.update_job.call_args_list), 1)
         self.assertEqual(len(self.time_table_mocked.get_tree.call_args_list), 1)
 
     def test_cancelled_state_final_run(self):
@@ -135,7 +137,7 @@ class DiscreteSMUnitTest(unittest.TestCase):
         job_record = get_job_record(job.STATE_FINAL_RUN, TEST_PRESET_TIMEPERIOD, PROCESS_SITE_HOURLY)
         self.sm_real.manage_job(job_record)
 
-        self.assertEqual(len(self.time_table_mocked.update_job_record.call_args_list), 1)
+        self.assertEqual(len(self.sm_real.update_job.call_args_list), 1)
         self.assertEqual(len(self.time_table_mocked.get_tree.call_args_list), 1)
 
     def test_state_skipped(self):
@@ -143,7 +145,7 @@ class DiscreteSMUnitTest(unittest.TestCase):
         job_record = get_job_record(job.STATE_SKIPPED, TEST_PRESET_TIMEPERIOD, PROCESS_SITE_HOURLY)
         self.sm_real.manage_job(job_record)
 
-        self.assertEqual(len(self.time_table_mocked.update_job_record.call_args_list), 0)
+        self.assertEqual(len(self.sm_real.update_job.call_args_list), 0)
         self.assertEqual(len(self.time_table_mocked.get_tree.call_args_list), 0)
 
     def test_state_processed(self):
@@ -151,7 +153,7 @@ class DiscreteSMUnitTest(unittest.TestCase):
         job_record = get_job_record(job.STATE_PROCESSED, TEST_PRESET_TIMEPERIOD, PROCESS_SITE_HOURLY)
         self.sm_real.manage_job(job_record)
 
-        self.assertEqual(len(self.time_table_mocked.update_job_record.call_args_list), 0)
+        self.assertEqual(len(self.sm_real.update_job.call_args_list), 0)
         self.assertEqual(len(self.time_table_mocked.get_tree.call_args_list), 0)
 
 
