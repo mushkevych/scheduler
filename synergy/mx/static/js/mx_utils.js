@@ -170,3 +170,17 @@ function range(start, end) {
     }
     return myArray;
 }
+
+
+/**
+ * function is called by the *enable_auto_refresh* checkbox
+ * if the checkbox is selected, the page will be re-loaded every timeoutMillis milliseconds
+ * @param timeoutMillis number of milliseconds to wait in between page reloads
+ */
+function pageTimedRefresh(timeoutMillis) {
+    var interval = setInterval(function() {
+        if ($("input[name=enable_auto_refresh]").is(":checked")) {
+            location.reload(true);
+        }
+    }, timeoutMillis);
+}

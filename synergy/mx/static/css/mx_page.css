@@ -19,7 +19,8 @@ body {
 }
 
 .side-tool-bar {
-
+    float: right;
+    padding: 5px;
 }
 
 .grid-header {
