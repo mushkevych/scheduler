@@ -344,13 +344,21 @@ function tile_selected(tile) {
             higher_next_timeperiod = selected_timeperiod;
         }
 
-        // empty the grid
+        // empty the grid-info
         var grid_name = 'grid-info-' + i_process_name;
         var grid = get_grid(grid_name);
         grid.removeTiles(range(1, grid.tiles.length));
 
-        // reconstruct the grid
+        // reconstruct the grid-info
         build_job_grid(grid_name, tree_level, process_obj.next_timeperiod, selected_timeperiod, tree_obj);
+
+        // empty the grid-header
+        //grid_name = 'grid-header-' + i_process_name;
+        //grid = get_grid(grid_name);
+        //grid.removeTiles(range(1, grid.tiles.length));
+        //
+        //// reconstruct the grid-info
+        //build_header_grid(grid_name, GRID_HEADER_TEMPLATE, header_tree_tile, tree_obj);
     }
 }
 

@@ -1,12 +1,31 @@
 {% macro enable_auto_refresh() -%}
 <div class="side-tool-bar">
     <!-- this tool-bar is expected to host *enable_auto_refresh* button  -->
-    <label><input type="checkbox" name="enable_auto_refresh"/>Auto Refresh</label>
+    <label><input type="checkbox" name="enable_auto_refresh" onclick="toggleAutoReload(this);"/>auto refresh</label>
 </div>
 
 <script type="text/javascript">
+    var pageReloadTimeout;
+
+    function checkAutoReload() {
+        if (window.location.hash=="#autoreload") {
+            pageReloadTimeout=setTimeout("window.location.reload();", 30000);
+            document.getElementsByName("enable_auto_refresh").checked=true;
+        }
+    }
+
+    function toggleAutoReload(cb) {
+        if (cb.checked) {
+            window.location.replace("#autoreload");
+            pageReloadTimeout=setTimeout("window.location.reload();", 30000);
+        } else {
+            window.location.replace("#");
+            clearTimeout(pageReloadTimeout);
+        }
+    }
+
     $(document).ready(function () {
-        pageTimedRefresh(30000);
+        checkAutoReload();
     });
 </script>
 {%- endmacro %}

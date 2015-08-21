@@ -101,6 +101,12 @@ div#footer a {
     background: lightsalmon;
 }
 
+.side-tool-bar {
+    float: right;
+    padding: 5px;
+    font-size: 12px;
+}
+
 /* highlighting rows in dataTables accordingly to Job state */
 tr.state_embryo {
     background-color: #D5F5FF !important;

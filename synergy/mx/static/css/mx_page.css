@@ -18,11 +18,6 @@ body {
     margin-bottom: 40px;
 }
 
-.side-tool-bar {
-    float: right;
-    padding: 5px;
-}
-
 .grid-header {
     width: 16%;
     height: 210px;
