@@ -22,12 +22,18 @@ class TreeDetails(BaseRequestHandler):
         return rest_tree
 
     @cached_property
+    def tree_details(self):
+        tree_name = self.request.args.get('tree_name')
+        if tree_name:
+            return self._get_tree_details(tree_name).document
+        else:
+            return dict()
+
+    @cached_property
     def mx_page_entries(self):
         resp = dict()
-
         for tree_name, tree in self.scheduler.timetable.trees.items():
             if tree.mx_page in self.request.path:
                 rest_tree = self._get_tree_details(tree_name)
                 resp[tree.tree_name] = rest_tree.document
-
         return resp

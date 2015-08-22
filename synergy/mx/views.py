@@ -56,6 +56,13 @@ def details_tree_nodes(request, **values):
                     mimetype='application/json')
 
 
+@expose('/details/tree/')
+def details_tree(request, **values):
+    details = TreeDetails(request, **values)
+    return Response(response=json.dumps(details.tree_details),
+                    mimetype='application/json')
+
+
 @expose('/details/trees/')
 def details_trees(request, **values):
     details = TreeDetails(request, **values)
