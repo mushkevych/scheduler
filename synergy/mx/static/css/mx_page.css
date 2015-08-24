@@ -11,7 +11,7 @@ body {
     width: 100%;
     float: left;
     clear: left;
-    min-width: 1400px;
+    min-width: 1200px;
 }
 
 .grid-container.spacer {
@@ -20,7 +20,7 @@ body {
 
 .grid-header {
     width: 16%;
-    height: 210px;
+    height: 195px;
     position: relative;
     overflow-x: hidden;
     overflow-y: hidden;

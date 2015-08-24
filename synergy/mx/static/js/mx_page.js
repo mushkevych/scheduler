@@ -2,7 +2,7 @@
 
 var GRIDS = {};
 
-var GRID_HEADER_TEMPLATE = [" . "];
+var GRID_HEADER_TEMPLATE = grid_info_template(1);
 
 
 /**
