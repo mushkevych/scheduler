@@ -39,11 +39,18 @@ function get_grid(grid_name) {
 }
 
 function header_tree_tile(mx_tree, tile) {
+    var refresh_button = $('<button class="action_button"><i class="fa fa-refresh"></i>&nbsp;Refresh</button>').click(function (e) {
+        clear_tree(mx_tree.tree_name);
+        mx_trees[mx_tree.tree_name] = get_tree(mx_tree.tree_name);
+        build_tree(mx_tree.tree_name);
+    });
+
     tile.$el.append('<ul class="fa-ul">'
         + '<li title="Tree Name"><i class="fa-li fa fa-sitemap"></i>' + mx_tree.tree_name + '</li>'
         + '<li title="Dependent On"><i class="fa-li fa fa-expand"></i>' + formatJSON(mx_tree.dependent_on) + '</li>'
         + '<li title="Dependant Trees"><i class="fa-li fa fa-compress"></i>' + formatJSON(mx_tree.dependant_trees) + '</li>'
         + '</ul>');
+    tile.$el.append($('<div></div>').append(refresh_button));
     tile.$el.attr('class', 'tree_header_tile');
 }
 
@@ -359,16 +366,14 @@ function tile_selected(tile) {
 
         // refresh job tiles: empty the grid-info
         var grid_name = 'grid-info-' + i_process_name;
-        var grid = get_grid(grid_name);
-        grid.removeTiles(range(1, grid.tiles.length));
+        clear_grid(grid_name);
 
         // refresh job tiles: reconstruct the grid-info
         build_job_grid(grid_name, tree_level, process_obj.next_timeperiod, selected_timeperiod, tree_obj);
 
         // refresh process tiles: empty the grid-header
         grid_name = 'grid-header-' + i_process_name;
-        grid = get_grid(grid_name);
-        grid.removeTiles(range(1, grid.tiles.length));
+        clear_grid(grid_name);
 
         // refresh process tiles: reconstruct the grid-header
         process_obj = get_tree(tree_obj.tree_name).processes[i_process_name];
@@ -377,60 +382,79 @@ function tile_selected(tile) {
 }
 
 
-function build_trees(mx_trees) {
+function clear_grid(grid_name) {
+    var grid = get_grid(grid_name);
+    grid.removeTiles(range(1, grid.tiles.length));
+}
+
+
+function clear_tree(tree_name) {
+    var tree_obj = mx_trees[tree_name];
+    var process_number = tree_obj.sorted_process_names.length;
+    var process_name = null;
+
+    for (var i = 0; i < process_number; i++) {
+        process_name = tree_obj.sorted_process_names[i];
+        clear_grid("grid-header-" + process_name);
+        clear_grid("grid-info-" + process_name);
+    }
+}
+
+
+function build_tree(tree_name) {
+    var i;
+    var process_obj = null;
+    var process_name = null;
+    var tree_level = null;
+
+    var tree_obj = mx_trees[tree_name];
+    var process_number = tree_obj.sorted_process_names.length;
+
+    // *** HEADER ***
+    build_header_grid("grid-header-" + tree_obj.tree_name, GRID_HEADER_TEMPLATE, header_tree_tile, tree_obj);
+
+    for (i = 0; i < process_number; i++) {
+        process_name = tree_obj.sorted_process_names[i];
+        process_obj = tree_obj.processes[process_name];
+        build_header_grid("grid-header-" + process_name, GRID_HEADER_TEMPLATE, header_process_tile, process_obj);
+    }
+
+    // *** INFO ***
+    build_process_grid("grid-info-" + tree_obj.tree_name, tree_obj);
+
+    var higher_next_timeperiod = null;
+    var higher_process_name = null;
+    for (i = 0; i < process_number; i++) {
+        process_name = tree_obj.sorted_process_names[i];
+
+        if (i == 0) {
+            // fetching top level of the tree
+            tree_level = get_tree_nodes(process_name, higher_next_timeperiod);
+        } else {
+            tree_level = get_tree_nodes(higher_process_name, higher_next_timeperiod);
+        }
+
+        process_obj = tree_obj.processes[process_name];
+        higher_process_name = process_name;
+        higher_next_timeperiod = process_obj.next_timeperiod;
+
+        build_job_grid("grid-info-" + process_name, tree_level, process_obj.next_timeperiod, undefined, tree_obj);
+    }
+}
+
+
+/**
+ * main method for the MX PAGE script
+ * iterates over the @mx_trees map and commands building of the MX trees
+ * NOTICE: variable @mx_trees is in the format {tree_name: tree_obj}
+ *         and is set in mx_page_tiles.html by the templating engine
+ */
+$(document).ready(function () {
     for (var tree_name in mx_trees) {
         if (!mx_trees.hasOwnProperty(tree_name)) {
             continue;
         }
 
-        var i;
-        var process_obj = null;
-        var process_name = null;
-        var tree_level = null;
-
-        var tree_obj = mx_trees[tree_name];
-        var process_number = tree_obj.sorted_process_names.length;
-
-        // *** HEADER ***
-        build_header_grid("grid-header-" + tree_obj.tree_name, GRID_HEADER_TEMPLATE, header_tree_tile, tree_obj);
-
-        for (i = 0; i < process_number; i++) {
-            process_name = tree_obj.sorted_process_names[i];
-            process_obj = tree_obj.processes[process_name];
-            build_header_grid("grid-header-" + process_name, GRID_HEADER_TEMPLATE, header_process_tile, process_obj);
-        }
-
-        // *** INFO ***
-        build_process_grid("grid-info-" + tree_obj.tree_name, tree_obj);
-
-        var higher_next_timeperiod = null;
-        var higher_process_name = null;
-        for (i = 0; i < process_number; i++) {
-            process_name = tree_obj.sorted_process_names[i];
-
-            if (i == 0) {
-                // fetching top level of the tree
-                tree_level = get_tree_nodes(process_name, higher_next_timeperiod);
-            } else {
-                tree_level = get_tree_nodes(higher_process_name, higher_next_timeperiod);
-            }
-
-            process_obj = tree_obj.processes[process_name];
-            higher_process_name = process_name;
-            higher_next_timeperiod = process_obj.next_timeperiod;
-
-            build_job_grid("grid-info-" + process_name, tree_level, process_obj.next_timeperiod, undefined, tree_obj);
-        }
+        build_tree(tree_name);
     }
-}
-
-
-// main method for the MX PAGE script
-$(document).ready(function () {
-    // variable mx_trees is set in mx_page_tiles.html by the templating engine
-    build_trees(mx_trees);
-
-//    $.get('/details/trees/', function (response) {
-//        build_trees(response);
-//    }, 'json');
 });

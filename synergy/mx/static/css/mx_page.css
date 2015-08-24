@@ -87,13 +87,6 @@ body {
     width: 110px;
 }
 
-.action_button_li {
-    display: inline-block;
-    width: 110px;
-    position: absolute;
-    left: 0.56em;
-}
-
 .action_toogle:hover {
     font-weight: bold;
     color: blueviolet;
@@ -129,7 +122,7 @@ div.table_layout {
 
 div.table_layout_element {
     display: table-cell;
-    vertical-align: text-top;
+    vertical-align: top;
 }
 
 div.tile_component {
