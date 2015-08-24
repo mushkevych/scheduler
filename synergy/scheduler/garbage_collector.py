@@ -41,7 +41,12 @@ class GarbageCollector(object):
         try:
             since = settings.settings['synergy_start_timeperiod']
             uow_list = self.uow_dao.get_reprocessing_candidates(since)
-            for uow in uow_list:
+        except LookupError as e:
+            self.logger.info('flow: re-processing UOW candidates not found. %r' % e)
+            return
+
+        for uow in uow_list:
+            try:
                 if uow.process_name not in self.managed_handlers:
                     self.logger.debug('process %r is not known to the Synergy Scheduler. Skipping its unit_of_work.'
                                       % uow.process_name)
@@ -71,10 +76,8 @@ class GarbageCollector(object):
                     # enlist the UOW into the reprocessing queue
                     self.reprocess_uows[uow.process_name].put(entry)
 
-        except LookupError as e:
-            self.logger.info('flow: re-processing UOW candidates not found. %r' % e)
-        except Exception as e:
-            self.logger.error('flow exception: %s' % str(e), exc_info=True)
+            except Exception as e:
+                self.logger.error('flow exception: %s' % str(e), exc_info=True)
 
     def _flush_queue(self, q, ignore_priority=False):
         """
