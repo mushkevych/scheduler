@@ -107,7 +107,8 @@ class Timetable(object):
             # the node does not require re-processing
             pass
         else:
-            state_machine = self.state_machines[tree_node.job_record.process_name]
+            state_machine_name = context.process_context[tree_node.process_name].state_machine_name
+            state_machine = self.state_machines[state_machine_name]
             state_machine.reprocess_job(tree_node.job_record)
 
         tx_context[tree_node.process_name][tree_node.timeperiod] = tree_node
@@ -122,7 +123,8 @@ class Timetable(object):
     @thread_safe
     def skip_tree_node(self, tree_node):
         """ method skips given node job-record """
-        state_machine = self.state_machines[tree_node.process_name]
+        state_machine_name = context.process_context[tree_node.process_name].state_machine_name
+        state_machine = self.state_machines[state_machine_name]
         state_machine.skip_job(tree_node.job_record)
 
     @thread_safe
