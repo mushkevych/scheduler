@@ -53,8 +53,8 @@ class ManagedActionHandler(AbstractActionHandler):
 
         resp = collections.defaultdict(dict)
         for process_name, q in tx_context.items():
-            for node in q:
-                resp[process_name][node.timeperiod] = TreeNodeDetails.get_details(node)
+            for timeperiod, node in q.items():
+                resp[process_name][timeperiod] = TreeNodeDetails.get_details(node)
         self.logger.info('MX }')
         return resp
 

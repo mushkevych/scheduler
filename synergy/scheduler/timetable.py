@@ -94,6 +94,7 @@ class Timetable(object):
         """ method reprocesses the node and all its dependants and parent nodes """
         if not tx_context:
             # create transaction context if one was not provided
+            # format: {process_name: {timeperiod: AbstractTreeNode} }
             tx_context = collections.defaultdict(dict)
 
         if tree_node.parent is None:
