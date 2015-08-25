@@ -52,8 +52,8 @@ class ManagedActionHandler(AbstractActionHandler):
         tx_context = self.scheduler.timetable.reprocess_tree_node(node)
 
         resp = collections.defaultdict(dict)
-        for process_name, q in tx_context.items():
-            for timeperiod, node in q.items():
+        for process_name, nodes_context in tx_context.items():
+            for timeperiod, node in nodes_context.items():
                 resp[process_name][timeperiod] = TreeNodeDetails.get_details(node)
         self.logger.info('MX }')
         return resp

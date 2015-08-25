@@ -57,12 +57,12 @@
         <th scope="col" width="15%">
             <div class="table_layout">
                 <div class="table_layout_element">
-                    <form method="GET" action="/gc/flush_all/">
+                    <form method="GET" action="/gc/flush_all/" onsubmit="refreshWithDelay()">
                         <input type="submit" title="Flush All" class="action_button fa-input" value="&#xf1b8;&nbsp;Flush&nbsp;All"/>
                     </form>
                 </div>
                 <div class="table_layout_element">
-                    <form method="GET" action="/gc/refresh/">
+                    <form method="GET" action="/gc/refresh/" onsubmit="refreshWithDelay()">
                         <input type="submit" title="Refresh" class="action_button fa-input" value="&#xf021;&nbsp;Refresh"/>
                     </form>
                 </div>
@@ -74,24 +74,32 @@
     </thead>
     <tbody>
 
-    {% set is_empty = True %}
+    <!-- nonEmptyQ flow is a hack for Jinja2 to overcome variable visibility scope problem -->
+    {% set nonEmptyQ = [] %}
     {%- for process_name, q in details.reprocess_uows.items() -%}
     {%- if q.queue|length != 0 -%}
-    {% set is_empty = False %}
+    {%- if nonEmptyQ.append('A') -%}{%- endif -%}
     <tr>
         <td>
-            <form method="GET" action="/gc/flush_one/">
+            <form method="GET" action="/gc/flush_one/" onsubmit="refreshWithDelay()">
                 <input type="hidden" name="process_name" value="{{ process_name }}" />
                 <input type="submit" title="Flush" class="action_button fa-input" value="&#xf1b8;&nbsp;Flush"/>
             </form>
         </td>
         <td>{{ process_name }}</td>
-        <td>{{ q.queue|join(", ") }}</td>
+        <td>
+            {%- for priority_entry in q.queue -%}
+                {{ priority_entry.entry.timeperiod }}
+                {%- if not loop.last -%}
+                    {{ ", " }}
+                {%- endif -%}
+            {%- endfor -%}
+        </td>
     </tr>
     {%- endif -%}
     {%- endfor -%}
 
-    {%- if is_empty -%}
+    {%- if nonEmptyQ|length == 0 -%}
     <tr>
         <td><input type="submit" name="Flush" class="action_button fa-input" value="&#xf1b8;&nbsp;Flush" disabled/></td>
         <td>Empty</td>

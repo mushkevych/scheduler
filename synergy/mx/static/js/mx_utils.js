@@ -170,3 +170,7 @@ function range(start, end) {
     }
     return myArray;
 }
+
+function refreshWithDelay() {
+    setTimeout(function() { window.location.reload(); }, 250);
+}

@@ -27,7 +27,10 @@ def get_dependant_trees(timetable, tree_obj):
 
 def get_reprocessing_queue(gc, process_name):
     per_process = gc.reprocess_uows[process_name]
-    return sorted(per_process.queue)
+    q = []
+    for priority_entry in sorted(per_process.queue):
+        q.append(priority_entry.entry.timeperiod)
+    return q
 
 
 def create_rest_managed_scheduler_entry(thread_handler, timetable, gc):

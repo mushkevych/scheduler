@@ -59,16 +59,17 @@ div#footer a {
 }
 
 /*
- * Table that holds list of pages on top of the page
+ * Table that holds list of tabs on top of the page
  */
 .header-table {
     font-size: 12px;
     width: 100%;
+    min-width: 1200px;
+    table-layout: fixed;
     text-align: left;
     border-collapse: collapse;
     color: #FFFFFF;
     background: #333333;
-    min-width: 1200px;
 }
 
 .header-table th {

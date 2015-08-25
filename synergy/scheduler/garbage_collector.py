@@ -5,11 +5,9 @@ from threading import Lock
 from datetime import datetime, timedelta
 
 from synergy.conf import settings
-from synergy.system import time_helper
 from synergy.system.data_logging import get_logger
-from synergy.system.time_qualifier import QUALIFIER_REAL_TIME
 from synergy.system.decorator import thread_safe
-from synergy.system.priority_queue import PriorityEntry, PriorityQueue
+from synergy.system.priority_queue import PriorityEntry, PriorityQueue, compute_release_time
 from synergy.scheduler.scheduler_constants import QUEUE_UOW_REPORT, PROCESS_GC
 from synergy.scheduler.thread_handler import ThreadHandler
 from synergy.db.model import unit_of_work
@@ -88,7 +86,7 @@ class GarbageCollector(object):
         """
         assert isinstance(q, PriorityQueue)
 
-        current_timestamp = time_helper.actual_timeperiod(QUALIFIER_REAL_TIME)
+        current_timestamp = compute_release_time(lag_in_minutes=0)
         for _ in range(len(q)):
             entry = q.pop()
             assert isinstance(entry, PriorityEntry)

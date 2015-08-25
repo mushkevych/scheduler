@@ -8,6 +8,12 @@ from synergy.system import time_helper
 from synergy.system.time_qualifier import QUALIFIER_REAL_TIME
 
 
+def compute_release_time(lag_in_minutes):
+    future_dt = datetime.utcnow() + timedelta(minutes=lag_in_minutes)
+    release_time_str = time_helper.datetime_to_synergy(QUALIFIER_REAL_TIME, future_dt)
+    return long(release_time_str)
+
+
 class PriorityEntry(object):
     """ an entry for Priority Queue, where priority is *entry creation time* + *waiting time* """
 
@@ -18,14 +24,9 @@ class PriorityEntry(object):
     def __init__(self, entry, lag_in_minutes=settings.settings['gc_release_lag_minutes']):
         """ :param entry: the unit_of_work to reprocess """
         self.entry = entry
-        self.release_time = self._compute_release_time(lag_in_minutes)  # SYNERGY_SESSION_PATTERN: time in the future
+        self.release_time = compute_release_time(lag_in_minutes)  # SYNERGY_SESSION_PATTERN: time in the future
         self.creation_counter = PriorityEntry.creation_counter + 1
         PriorityEntry.creation_counter += 1
-
-    def _compute_release_time(self, lag_in_minutes):
-        future_dt = datetime.utcnow() + timedelta(minutes=lag_in_minutes)
-        release_time_str = time_helper.datetime_to_synergy(QUALIFIER_REAL_TIME, future_dt)
-        return int(release_time_str)
 
     def __eq__(self, other):
         return self.entry == other.entry
