@@ -72,7 +72,8 @@ class GarbageCollector(object):
                     continue
 
                 # if the UOW has been idle for more than 1 hour - resubmit it
-                if datetime.utcnow() - uow.submitted_at > timedelta(hours=settings.settings['gc_resubmit_after_hours']):
+                if datetime.utcnow() - uow.submitted_at > timedelta(hours=settings.settings['gc_resubmit_after_hours'])\
+                        or uow.is_invalid:
                     # enlist the UOW into the reprocessing queue
                     self.reprocess_uows[uow.process_name].put(entry)
 
