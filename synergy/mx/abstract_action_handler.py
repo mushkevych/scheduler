@@ -9,17 +9,17 @@ class AbstractActionHandler(BaseRequestHandler):
 
     @property
     def thread_handler(self):
-        raise NotImplementedError('not implemented yet')
+        raise NotImplementedError('property thread_handler must be implemented by {0}'.format(self.__class__.__name__))
 
     @property
     def process_entry(self):
-        raise NotImplementedError('not implemented yet')
+        raise NotImplementedError('property process_entry must be implemented by {0}'.format(self.__class__.__name__))
 
     def action_get_uow(self):
-        raise NotImplementedError('not implemented yet')
+        raise NotImplementedError('method action_get_uow must be implemented by {0}'.format(self.__class__.__name__))
 
     def action_get_log(self):
-        raise NotImplementedError('not implemented yet')
+        raise NotImplementedError('method action_get_log must be implemented by {0}'.format(self.__class__.__name__))
 
     @valid_action_request
     def action_change_interval(self):

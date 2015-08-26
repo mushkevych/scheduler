@@ -36,7 +36,7 @@ class AbstractUowAwareWorker(AbstractMqWorker):
         if None is returned then it is assumed that the return tuple is (0, unit_of_work.STATE_PROCESSED)
         :raise an Exception if the UOW shall be marked as STATE_INVALID
         """
-        raise NotImplementedError('_process_uow must be overridden in the child class %s' % self.__class__.__name__)
+        raise NotImplementedError('method _process_uow must be implemented by {0}'.format(self.__class__.__name__))
 
     def _clean_up(self):
         """ method is called from the *finally* clause and is suppose to clean up after the uow processing """

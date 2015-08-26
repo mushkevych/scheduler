@@ -8,26 +8,9 @@ from synergy.system.event_clock import parse_time_trigger_string
 from synergy.scheduler.scheduler_constants import *
 
 
-def construct_thread_handler(logger, process_entry, call_back):
-    """ method parses process_entry and creates a timer_handler out of it """
-    trigger_frequency = process_entry.trigger_frequency
-    if isinstance(process_entry, ManagedProcessEntry):
-        handler_key = process_entry.process_name
-        handler_type = TYPE_MANAGED
-    elif isinstance(process_entry, FreerunProcessEntry):
-        handler_key = (process_entry.process_name, process_entry.entry_name)
-        handler_type = TYPE_FREERUN
-    else:
-        raise ValueError('Scheduler Entry type %s is not known to the system. Skipping it.'
-                         % process_entry.__class__.__name__)
-
-    handler = ThreadHandler(logger, handler_key, trigger_frequency, call_back, process_entry, handler_type)
-    return handler
-
-
-class ThreadHandlerArguments(object):
-    """ ThreadHandlerArgument is a data structure around Thread Handler arguments.
-    It is passed to the Timer instance and later on - to the Scheduler's running function as an argument """
+class ThreadHandlerHeader(object):
+    """ ThreadHandlerHeader is a data structure representing key Thread Handler features.
+        It is passed to the Timer instance and later on - to the Scheduler's running function as an argument """
 
     def __init__(self, key, trigger_frequency, process_entry, handler_type):
         self.key = key
@@ -36,7 +19,7 @@ class ThreadHandlerArguments(object):
         self.handler_type = handler_type
 
 
-class ThreadHandler(object):
+class AbstractThreadHandler(object):
     """ ThreadHandler is a thread running within the Synergy Scheduler and triggering Scheduler's fire_XXX logic"""
 
     def __init__(self, logger, key, trigger_frequency, call_back, process_entry, handler_type):
@@ -48,29 +31,22 @@ class ThreadHandler(object):
         self.handler_type = handler_type
 
         parsed_trigger_frequency, timer_klass = parse_time_trigger_string(trigger_frequency)
-        self.timer_instance = timer_klass(parsed_trigger_frequency, call_back, args=[self.callback_args])
+        self.timer_instance = timer_klass(parsed_trigger_frequency, call_back, args=[self.header])
         self.is_started = False
         self.is_terminated = False
 
-        self.se_freerun_dao = FreerunProcessDao(self.logger)
-        self.se_managed_dao = ManagedProcessDao(self.logger)
-        self.logger.info('Created Synergy Scheduler Thread Handler %r~%r' % (key, trigger_frequency))
+        self.logger.info('Created Synergy Scheduler Thread Handler {0}~{1}'.format(key, trigger_frequency))
 
     def __del__(self):
         self.timer_instance.cancel()
 
     @property
-    def callback_args(self):
-        return ThreadHandlerArguments(self.key, self.trigger_frequency, self.process_entry, self.handler_type)
+    def header(self):
+        return ThreadHandlerHeader(self.key, self.trigger_frequency, self.process_entry, self.handler_type)
 
-    def _get_dao(self):
-        if self.is_managed:
-            return self.se_managed_dao
-        elif self.is_freerun:
-            return self.se_freerun_dao
-        else:
-            raise ValueError('Scheduler Entry type %s is not known to the system. Skipping it.'
-                             % self.process_entry.__class__.__name__)
+    @property
+    def dao(self):
+        raise NotImplementedError('property dao must be implemented by {0}'.format(self.__class__.__name__))
 
     def activate(self, update_persistent=True):
         if self.timer_instance.is_alive():
@@ -78,11 +54,11 @@ class ThreadHandler(object):
 
         if self.is_terminated:
             parsed_trigger_frequency, timer_klass = parse_time_trigger_string(self.trigger_frequency)
-            self.timer_instance = timer_klass(parsed_trigger_frequency, self.call_back, args=[self.callback_args])
+            self.timer_instance = timer_klass(parsed_trigger_frequency, self.call_back, args=[self.header])
 
         self.process_entry.is_on = True
         if update_persistent:
-            self._get_dao().update(self.process_entry)
+            self.dao.update(self.process_entry)
 
         self.timer_instance.start()
         self.is_terminated = False
@@ -94,7 +70,7 @@ class ThreadHandler(object):
 
         self.process_entry.is_on = False
         if update_persistent:
-            self._get_dao().update(self.process_entry)
+            self.dao.update(self.process_entry)
 
     def trigger(self):
         self.timer_instance.trigger()
@@ -112,7 +88,7 @@ class ThreadHandler(object):
 
             # 2. create a new timer instance
             parsed_trigger_frequency, timer_klass = parse_time_trigger_string(self.trigger_frequency)
-            self.timer_instance = timer_klass(parsed_trigger_frequency, self.call_back, args=[self.callback_args])
+            self.timer_instance = timer_klass(parsed_trigger_frequency, self.call_back, args=[self.header])
             self.trigger_frequency = value
 
             # 3. start if necessary
@@ -123,7 +99,7 @@ class ThreadHandler(object):
 
         self.process_entry.trigger_frequency = value
         if update_persistent:
-            self._get_dao().update(self.process_entry)
+            self.dao.update(self.process_entry)
 
     def next_run_in(self, utc_now=None):
         return self.timer_instance.next_run_in(utc_now)
@@ -139,3 +115,25 @@ class ThreadHandler(object):
     @property
     def is_freerun(self):
         return isinstance(self.process_entry, FreerunProcessEntry)
+
+
+class FreerunThreadHandler(AbstractThreadHandler):
+    def __init__(self, logger, key, trigger_frequency, call_back, process_entry):
+        super(FreerunThreadHandler, self).__init__(logger, key, trigger_frequency,
+                                                   call_back, process_entry, TYPE_FREERUN)
+        self.freerun_dao = FreerunProcessDao(self.logger)
+
+    @property
+    def dao(self):
+        return self.freerun_dao
+
+
+class ManagedThreadHandler(AbstractThreadHandler):
+    def __init__(self, logger, key, trigger_frequency, call_back, process_entry):
+        super(ManagedThreadHandler, self).__init__(logger, key, trigger_frequency,
+                                                   call_back, process_entry, TYPE_MANAGED)
+        self.managed_dao = ManagedProcessDao(self.logger)
+
+    @property
+    def dao(self):
+        return self.managed_dao

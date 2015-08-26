@@ -22,7 +22,7 @@ class AbstractCliWorker(AbstractUowAwareWorker):
         super(AbstractCliWorker, self).__del__()
 
     def _start_process(self, start_timeperiod, end_timeperiod, arguments):
-        raise NotImplementedError('method _start_process must be implemented by %s' % self.__class__.__name__)
+        raise NotImplementedError('method _start_process must be implemented by {0}'.format(self.__class__.__name__))
 
     def _poll_process(self):
         """ between death of a process and its actual termination lies poorly documented requirement -

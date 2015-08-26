@@ -19,7 +19,7 @@ from constants import *
 from synergy.mq.flopsy import PublishersPool, Publisher
 from synergy.scheduler.tree import LIFE_SUPPORT_HOURS
 from synergy.scheduler.synergy_scheduler import Scheduler
-from synergy.scheduler.thread_handler import ThreadHandler
+from synergy.scheduler.thread_handler import ManagedThreadHandler
 from synergy.scheduler.garbage_collector import GarbageCollector
 from synergy.system.data_logging import get_logger
 from tests.ut_context import *
@@ -88,7 +88,7 @@ class GarbageCollectorUnitTest(unittest.TestCase):
         self.process_entry = mock.create_autospec(ManagedProcessEntry)
         self.process_entry.is_on = True
 
-        self.thread_handler = mock.create_autospec(ThreadHandler)
+        self.thread_handler = mock.create_autospec(ManagedThreadHandler)
         self.thread_handler.process_entry = self.process_entry
 
         self.managed_handlers_mocked = dict()

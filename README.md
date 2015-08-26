@@ -1,7 +1,7 @@
 Synergy Scheduler
 =========
 
-Synergy Scheduler tracks its history to 2011. It is a production-grade Job Scheduling System, used to run simple as well as complex interdependent jobs. 
+Synergy Scheduler tracks its history to 2011. It is a production-grade Job Scheduling System, used to run simple and complex interdependent jobs.
 Common use-cases:
 
 - run a job every 30 minutes *or* two times per day on Tue, Thu and Fri

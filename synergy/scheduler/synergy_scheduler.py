@@ -1,3 +1,5 @@
+from db.model.freerun_process_entry import FreerunProcessEntry
+
 __author__ = 'Bohdan Mushkevych'
 
 from datetime import datetime, timedelta
@@ -18,7 +20,7 @@ from synergy.scheduler.garbage_collector import GarbageCollector
 from synergy.scheduler.status_bus_listener import StatusBusListener
 from synergy.scheduler.scheduler_constants import *
 from synergy.scheduler.timetable import Timetable
-from synergy.scheduler.thread_handler import construct_thread_handler, ThreadHandlerArguments
+from synergy.scheduler.thread_handler import ThreadHandlerHeader, ManagedThreadHandler, FreerunThreadHandler
 
 
 class Scheduler(SynergyProcess):
@@ -59,16 +61,18 @@ class Scheduler(SynergyProcess):
         """ method parses process_entry and creates a timer_handler out of it
          timer_handler is enlisted to either :self.freerun_handlers or :self.managed_handlers
          timer_handler is started, unless it is marked as STATE_OFF """
-        handler = construct_thread_handler(self.logger, process_entry, call_back)
-
-        if handler.is_managed:
+        trigger_frequency = process_entry.trigger_frequency
+        if isinstance(process_entry, ManagedProcessEntry):
+            handler_key = process_entry.process_name
+            handler = ManagedThreadHandler(self.logger, handler_key, trigger_frequency, call_back, process_entry)
             self.managed_handlers[handler.key] = handler
-        elif handler.is_freerun:
+        elif isinstance(process_entry, FreerunProcessEntry):
+            handler_key = (process_entry.process_name, process_entry.entry_name)
+            handler = FreerunThreadHandler(self.logger, handler_key, trigger_frequency, call_back, process_entry)
             self.freerun_handlers[handler.key] = handler
         else:
-            self.logger.error('Process/Handler type %s is not known to the system. Skipping it.'
-                              % handler.handler_type)
-            return
+            raise ValueError('ProcessEntry type {0} is not known to the system. Skipping it.'
+                             .format(process_entry.__class__.__name__))
 
         if process_entry.is_on:
             handler.activate()
@@ -132,7 +136,7 @@ class Scheduler(SynergyProcess):
         self.mx.start_mx_thread()
 
     @thread_safe
-    def fire_managed_worker(self, thread_handler_arguments):
+    def fire_managed_worker(self, thread_handler_header):
         """requests next valid job for given process and manages its state"""
 
         def _fire_worker(process_entry, prev_job_record):
@@ -170,12 +174,12 @@ class Scheduler(SynergyProcess):
             return job_record
 
         try:
-            assert isinstance(thread_handler_arguments, ThreadHandlerArguments)
-            self.logger.info('%r {' % (thread_handler_arguments.key, ))
+            assert isinstance(thread_handler_header, ThreadHandlerHeader)
+            self.logger.info('%r {' % (thread_handler_header.key, ))
 
-            job_record = _fire_worker(thread_handler_arguments.process_entry, None)
+            job_record = _fire_worker(thread_handler_header.process_entry, None)
             while job_record and job_record.is_finished:
-                job_record = _fire_worker(thread_handler_arguments.process_entry, job_record)
+                job_record = _fire_worker(thread_handler_header.process_entry, job_record)
 
         except (AMQPError, IOError) as e:
             self.logger.error('AMQPError: %s' % str(e), exc_info=True)
@@ -186,14 +190,14 @@ class Scheduler(SynergyProcess):
             self.logger.info('}')
 
     @thread_safe
-    def fire_freerun_worker(self, thread_handler_arguments):
+    def fire_freerun_worker(self, thread_handler_header):
         """fires free-run worker with no dependencies to track"""
         try:
-            assert isinstance(thread_handler_arguments, ThreadHandlerArguments)
-            self.logger.info('%r {' % (thread_handler_arguments.key, ))
+            assert isinstance(thread_handler_header, ThreadHandlerHeader)
+            self.logger.info('%r {' % (thread_handler_header.key, ))
 
             state_machine = self.timetable.state_machines[STATE_MACHINE_FREERUN]
-            state_machine.manage_schedulable(thread_handler_arguments.process_entry)
+            state_machine.manage_schedulable(thread_handler_header.process_entry)
 
         except Exception as e:
             self.logger.error('fire_freerun_worker: %s' % str(e))
@@ -201,11 +205,11 @@ class Scheduler(SynergyProcess):
             self.logger.info('}')
 
     @thread_safe
-    def fire_garbage_collector(self, thread_handler_arguments):
+    def fire_garbage_collector(self, thread_handler_header):
         """fires garbage collector to re-trigger invalid unit_of_work"""
         try:
-            assert isinstance(thread_handler_arguments, ThreadHandlerArguments)
-            self.logger.info('%r {' % (thread_handler_arguments.key, ))
+            assert isinstance(thread_handler_header, ThreadHandlerHeader)
+            self.logger.info('%r {' % (thread_handler_header.key, ))
 
             self.logger.debug('GC: step 1 - enlist or cancel')
             self.gc.enlist_or_cancel()

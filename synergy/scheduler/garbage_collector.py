@@ -9,11 +9,10 @@ from synergy.system.data_logging import get_logger
 from synergy.system.decorator import thread_safe
 from synergy.system.priority_queue import PriorityEntry, PriorityQueue, compute_release_time
 from synergy.scheduler.scheduler_constants import QUEUE_UOW_REPORT, PROCESS_GC
-from synergy.scheduler.thread_handler import ThreadHandler
+from synergy.scheduler.thread_handler import ManagedThreadHandler
 from synergy.db.model import unit_of_work
 from synergy.db.model.synergy_mq_transmission import SynergyMqTransmission
 from synergy.db.dao.unit_of_work_dao import UnitOfWorkDao
-from synergy.db.model.managed_process_entry import ManagedProcessEntry
 
 
 class GarbageCollector(object):
@@ -51,8 +50,7 @@ class GarbageCollector(object):
                     continue
 
                 thread_handler = self.managed_handlers[uow.process_name]
-                assert isinstance(thread_handler, ThreadHandler)
-                assert isinstance(thread_handler.process_entry, ManagedProcessEntry)
+                assert isinstance(thread_handler, ManagedThreadHandler)
 
                 if not thread_handler.process_entry.is_on:
                     self.logger.debug('process %r is inactive. Skipping its unit_of_work.' % uow.process_name)
