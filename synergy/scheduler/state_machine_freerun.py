@@ -33,7 +33,7 @@ class StateMachineFreerun(object):
             self.logger.info('Closing Flopsy Publishers Pool...')
             self.publishers.close()
         except Exception as e:
-            self.logger.error('Exception caught while closing Flopsy Publishers Pool: %s' % str(e))
+            self.logger.error('Exception caught while closing Flopsy Publishers Pool: {0}'.format(e))
 
     @with_reconnect
     def _log_message(self, level, freerun_entry, msg):
@@ -71,8 +71,8 @@ class StateMachineFreerun(object):
         uow.arguments = freerun_entry.arguments
         uow.db_id = self.uow_dao.insert(uow)
 
-        msg = 'Created: UOW %s for %s in timeperiod %s.' \
-              % (uow.db_id, freerun_entry.schedulable_name, current_timeperiod)
+        msg = 'Created: UOW {0} for {1} in timeperiod {2}.'\
+              .format(uow.db_id, freerun_entry.schedulable_name, current_timeperiod)
         self._log_message(INFO, freerun_entry, msg)
         return uow
 
@@ -85,14 +85,14 @@ class StateMachineFreerun(object):
         publisher.publish(mq_request.document)
         publisher.release()
 
-        msg = 'Published: UOW %s for %s.' % (uow.db_id, freerun_entry.schedulable_name)
+        msg = 'Published: UOW {0} for {1}.'.format(uow.db_id, freerun_entry.schedulable_name)
         self._log_message(INFO, freerun_entry, msg)
 
     def insert_and_publish_uow(self, freerun_entry):
         try:
             uow = self._insert_uow(freerun_entry)
         except DuplicateKeyError as e:
-            msg = 'Duplication of unit_of_work found for %s. Error msg: %r' % (freerun_entry.schedulable_name, e)
+            msg = 'Duplication of unit_of_work found for {0}. Error msg: {1}'.format(freerun_entry.schedulable_name, e)
             self._log_message(WARNING, freerun_entry, msg)
             uow = self.uow_dao.recover_from_duplicatekeyerror(e)
 
@@ -102,9 +102,24 @@ class StateMachineFreerun(object):
             freerun_entry.related_unit_of_work = uow.db_id
             self.sfe_dao.update(freerun_entry)
         else:
-            msg = 'SYSTEM IS LIKELY IN UNSTABLE STATE! Unable to locate unit_of_work for %s' \
-                  % freerun_entry.schedulable_name
+            msg = 'SYSTEM IS LIKELY IN UNSTABLE STATE! Unable to locate unit_of_work for {0}'\
+                  .format(freerun_entry.schedulable_name)
             self._log_message(WARNING, freerun_entry, msg)
+
+    def _process_state_embryo(self, freerun_entry):
+        """ method creates unit_of_work and associates it with the FreerunProcessEntry """
+        self.insert_and_publish_uow(freerun_entry)
+
+    def _process_state_in_progress(self, freerun_entry, uow):
+        """ method that takes care of processing unit_of_work records in STATE_REQUESTED or STATE_IN_PROGRESS states"""
+        self._publish_uow(freerun_entry, uow)
+
+    def _process_terminal_state(self, freerun_entry, uow):
+        """ method that takes care of processing unit_of_work records in
+            STATE_PROCESSED, STATE_NOOP, STATE_INVALID, STATE_CANCELED states"""
+        msg = 'unit_of_work for {0} found in {1} state.'.format(freerun_entry.schedulable_name, uow.state)
+        self._log_message(INFO, freerun_entry, msg)
+        self.insert_and_publish_uow(freerun_entry)
 
     def manage_schedulable(self, freerun_entry):
         """ method main duty - is to _avoid_ publishing another unit_of_work, if previous was not yet processed
@@ -127,25 +142,21 @@ class StateMachineFreerun(object):
                 self._process_terminal_state(freerun_entry, uow)
 
             else:
-                msg = 'Unknown state %s of the unit_of_work %s' % (uow.state, uow.db_id)
+                msg = 'Unknown state {0} of the unit_of_work {1}'.format(uow.state, uow.db_id)
                 self._log_message(ERROR, freerun_entry, msg)
 
         except LookupError as e:
-            msg = 'Lookup issue for schedulable: %r in timeperiod %s, because of: %r' \
-                  % (freerun_entry.db_id, uow.timeperiod, e)
+            msg = 'Lookup issue for schedulable: {0} in timeperiod {1}, because of: {2}'\
+                  .format(freerun_entry.db_id, uow.timeperiod, e)
             self._log_message(WARNING, freerun_entry, msg)
 
-    def _process_state_embryo(self, freerun_entry):
-        """ method creates unit_of_work and associates it with the FreerunProcessEntry """
-        self.insert_and_publish_uow(freerun_entry)
-
-    def _process_state_in_progress(self, freerun_entry, uow):
-        """ method that takes care of processing unit_of_work records in STATE_REQUESTED or STATE_IN_PROGRESS states"""
-        self._publish_uow(freerun_entry, uow)
-
-    def _process_terminal_state(self, freerun_entry, uow):
-        """ method that takes care of processing unit_of_work records in
-        STATE_PROCESSED, STATE_INVALID, STATE_CANCELED states"""
-        msg = 'unit_of_work for %s found in %s state.' % (freerun_entry.schedulable_name, uow.state)
+    def cancel_uow(self, freerun_entry):
+        uow_id = freerun_entry.related_unit_of_work
+        if uow_id is None:
+            msg = 'cancel_uow: no related unit_of_work for {0}'.format(freerun_entry.schedulable_name)
+        else:
+            uow = self.uow_dao.get_one(uow_id)
+            uow.state = unit_of_work.STATE_CANCELED
+            self.uow_dao.update(uow)
+            msg = 'cancel_uow: canceled unit_of_work {0}#{1}'.format(freerun_entry.schedulable_name, uow_id)
         self._log_message(INFO, freerun_entry, msg)
-        self.insert_and_publish_uow(freerun_entry)

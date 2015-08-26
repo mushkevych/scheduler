@@ -2,12 +2,12 @@ __author__ = 'Bohdan Mushkevych'
 
 import json
 
-from synergy.db.model import unit_of_work
 from synergy.db.model.freerun_process_entry import FreerunProcessEntry
 from synergy.db.dao.unit_of_work_dao import UnitOfWorkDao
 from synergy.db.dao.freerun_process_dao import FreerunProcessDao
 from synergy.mx.base_request_handler import valid_action_request
 from synergy.mx.abstract_action_handler import AbstractActionHandler
+from synergy.scheduler.scheduler_constants import STATE_MACHINE_FREERUN
 
 
 class FreerunActionHandler(AbstractActionHandler):
@@ -35,17 +35,9 @@ class FreerunActionHandler(AbstractActionHandler):
 
     @valid_action_request
     def action_cancel_uow(self):
-        uow_id = self.process_entry.related_unit_of_work
-        if uow_id is None:
-            msg = 'no related unit_of_work for {0}'.format(self.process_entry.schedulable_name)
-        else:
-            uow = self.uow_dao.get_one(uow_id)
-            uow.state = unit_of_work.STATE_CANCELED
-            self.uow_dao.update(uow)
-            msg = 'canceled unit_of_work {0}#{1}'.format(self.process_entry.schedulable_name, uow_id)
-
-        self.logger.info('Freerun Action Handler: ' + msg)
-        return {'response': msg}
+        freerun_state_machine = self.scheduler.timetable.state_machines[STATE_MACHINE_FREERUN]
+        freerun_state_machine.cancel_uow(self.process_entry)
+        return self.reply_ok()
 
     @valid_action_request
     def action_get_uow(self):

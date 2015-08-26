@@ -121,19 +121,19 @@ class FreerunThreadHandler(AbstractThreadHandler):
     def __init__(self, logger, key, trigger_frequency, call_back, process_entry):
         super(FreerunThreadHandler, self).__init__(logger, key, trigger_frequency,
                                                    call_back, process_entry, TYPE_FREERUN)
-        self.freerun_dao = FreerunProcessDao(self.logger)
+        self.freerun_process_dao = FreerunProcessDao(self.logger)
 
     @property
     def dao(self):
-        return self.freerun_dao
+        return self.freerun_process_dao
 
 
 class ManagedThreadHandler(AbstractThreadHandler):
     def __init__(self, logger, key, trigger_frequency, call_back, process_entry):
         super(ManagedThreadHandler, self).__init__(logger, key, trigger_frequency,
                                                    call_back, process_entry, TYPE_MANAGED)
-        self.managed_dao = ManagedProcessDao(self.logger)
+        self.managed_process_dao = ManagedProcessDao(self.logger)
 
     @property
     def dao(self):
-        return self.managed_dao
+        return self.managed_process_dao
