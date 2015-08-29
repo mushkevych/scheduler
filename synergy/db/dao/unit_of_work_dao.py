@@ -16,10 +16,10 @@ from synergy.db.model import unit_of_work
 from synergy.db.model.unit_of_work import UnitOfWork
 from synergy.db.manager import ds_manager
 
-QUERY_GET_FREERUN_SINCE = lambda timeperiod, unprocessed_only, exclude_noop: {
+QUERY_GET_FREERUN_SINCE = lambda timeperiod, exclude_processed, exclude_noop: {
     unit_of_work.TIMEPERIOD: {'$gte': timeperiod},
     unit_of_work.UNIT_OF_WORK_TYPE: unit_of_work.TYPE_FREERUN,
-    unit_of_work.STATE: {'$nin': [unit_of_work.STATE_PROCESSED if unprocessed_only else None,
+    unit_of_work.STATE: {'$nin': [unit_of_work.STATE_PROCESSED if exclude_processed else None,
                                   unit_of_work.STATE_NOOP if exclude_noop else None]}
 }
 
