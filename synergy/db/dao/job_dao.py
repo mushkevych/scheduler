@@ -13,9 +13,10 @@ from synergy.scheduler.scheduler_constants import COLLECTION_JOB_HOURLY, COLLECT
 from synergy.conf import context
 
 
-QUERY_GET_LIKE_TIMEPERIOD = lambda timeperiod, unprocessed_only: {
+QUERY_GET_LIKE_TIMEPERIOD = lambda timeperiod, unprocessed_only, exclude_noop: {
     job.TIMEPERIOD: {'$gte': timeperiod},
-    job.STATE: {'$ne': job.STATE_PROCESSED if unprocessed_only else None}
+    job.STATE: {'$nin': [job.STATE_PROCESSED if unprocessed_only else None,
+                         job.STATE_NOOP if exclude_noop else None]}
 }
 
 

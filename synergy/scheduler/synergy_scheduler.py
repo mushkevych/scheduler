@@ -1,5 +1,3 @@
-from db.model.freerun_process_entry import FreerunProcessEntry
-
 __author__ = 'Bohdan Mushkevych'
 
 from datetime import datetime, timedelta
@@ -12,6 +10,7 @@ from synergy.mq.flopsy import PublishersPool
 from synergy.mx.synergy_mx import MX
 from synergy.db.manager import db_manager
 from synergy.db.model.managed_process_entry import ManagedProcessEntry
+from synergy.db.model.freerun_process_entry import FreerunProcessEntry
 from synergy.db.dao.freerun_process_dao import FreerunProcessDao
 from synergy.system import time_helper
 from synergy.system.decorator import with_reconnect, thread_safe

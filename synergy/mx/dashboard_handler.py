@@ -5,7 +5,6 @@ from threading import RLock
 
 from werkzeug.utils import cached_property
 
-from synergy.conf import context
 from synergy.db.dao import job_dao
 from synergy.db.dao.job_dao import JobDao
 from synergy.db.dao import unit_of_work_dao
@@ -17,8 +16,6 @@ from synergy.system import time_helper
 from synergy.system.time_qualifier import QUALIFIER_DAILY, QUALIFIER_MONTHLY, QUALIFIER_YEARLY
 from synergy.mx.base_request_handler import BaseRequestHandler, valid_action_request
 
-TIME_WINDOW_DAY_PREFIX = 'day_'
-
 
 class DashboardHandler(BaseRequestHandler):
     def __init__(self, request, **values):
@@ -26,38 +23,37 @@ class DashboardHandler(BaseRequestHandler):
 
         self.time_window = self.request.args.get('time_window')
         self.is_unprocessed_only = self.request.args.get('unprocessed_only') == 'on'
-        if self.time_window:
-            self.is_request_valid = True
-        else:
-            self.is_request_valid = False
+        self.is_include_noop = self.request.args.get('include_noop') == 'on'
+        self.is_include_inactive = self.request.args.get('include_inactive') == 'on'
+        self.is_request_valid = bool(self.time_window)
+
+        if self.is_request_valid:
+            actual_timeperiod = time_helper.actual_timeperiod(QUALIFIER_DAILY)
+            delta = int(self.time_window)
+            self.query_start_timeperiod = time_helper.increment_timeperiod(QUALIFIER_DAILY, actual_timeperiod, -delta)
 
     @cached_property
     @valid_action_request
     def managed(self):
-        processor = ManagedStatements(self.logger)
-        actual_timeperiod = time_helper.actual_timeperiod(QUALIFIER_DAILY)
-        delta = int(self.time_window[len(TIME_WINDOW_DAY_PREFIX) + 1:])
-        start_timeperiod = time_helper.increment_timeperiod(QUALIFIER_DAILY, actual_timeperiod, -delta)
-
-        selection = processor.retrieve_records(start_timeperiod, self.is_unprocessed_only)
+        processor = ManagedStatements(self.logger, self.scheduler.managed_handlers)
+        selection = processor.retrieve_records(self.query_start_timeperiod, self.is_unprocessed_only,
+                                               self.is_include_noop, self.is_include_inactive)
         return OrderedDict(sorted(selection.items()))
 
     @cached_property
     @valid_action_request
     def freeruns(self):
-        processor = FreerunStatements(self.logger)
-        actual_timeperiod = time_helper.actual_timeperiod(QUALIFIER_DAILY)
-        delta = int(self.time_window[len(TIME_WINDOW_DAY_PREFIX) + 1:])
-        start_timeperiod = time_helper.increment_timeperiod(QUALIFIER_DAILY, actual_timeperiod, -delta)
-
-        selection = processor.retrieve_records(start_timeperiod, self.is_unprocessed_only)
+        processor = FreerunStatements(self.logger, self.scheduler.freerun_handlers)
+        selection = processor.retrieve_records(self.query_start_timeperiod, self.is_unprocessed_only,
+                                               self.is_include_noop, self.is_include_inactive)
         return OrderedDict(sorted(selection.items()))
 
 
 class ManagedStatements(object):
-    def __init__(self, logger):
+    def __init__(self, logger, managed_handlers):
         self.lock = RLock()
         self.logger = logger
+        self.managed_handlers = managed_handlers
         self.job_dao = JobDao(self.logger)
 
     @thread_safe
@@ -75,17 +71,22 @@ class ManagedStatements(object):
         return resp
 
     @thread_safe
-    def _search_by_level(self, collection_name, timeperiod, unprocessed_only):
+    def _search_by_level(self, collection_name, timeperiod, unprocessed_only, include_noop, include_inactive):
         resp = dict()
         try:
-            query = job_dao.QUERY_GET_LIKE_TIMEPERIOD(timeperiod, unprocessed_only)
+            query = job_dao.QUERY_GET_LIKE_TIMEPERIOD(timeperiod, unprocessed_only, not include_noop)
             records_list = self.job_dao.run_query(collection_name, query)
             if len(records_list) == 0:
                 self.logger.warn('No Job Records found in {0} since {1}.'.format(collection_name, timeperiod))
 
             for job_record in records_list:
-                if job_record.process_name not in context.process_context:
+                if job_record.process_name not in self.managed_handlers:
                     continue
+
+                thread_handler = self.managed_handlers[job_record.process_name]
+                if not include_inactive and not thread_handler.process_entry.is_on:
+                    continue
+
                 resp[job_record.key] = job_record.document
         except Exception as e:
             self.logger.error('Dashboard ManagedStatements error: {0}'.format(e))
@@ -93,33 +94,31 @@ class ManagedStatements(object):
 
 
 class FreerunStatements(object):
-    def __init__(self, logger):
+    def __init__(self, logger, freerun_handlers):
         self.lock = RLock()
         self.logger = logger
+        self.freerun_handlers = freerun_handlers
         self.uow_dao = UnitOfWorkDao(self.logger)
 
     @thread_safe
-    def retrieve_records(self, timeperiod, unprocessed_only):
+    def retrieve_records(self, timeperiod, unprocessed_only, include_noop, include_inactive):
         """ method looks for suitable UOW records and returns them as a dict"""
         resp = dict()
         try:
-            query = unit_of_work_dao.QUERY_GET_FREERUN_SINCE(timeperiod, unprocessed_only)
+            query = unit_of_work_dao.QUERY_GET_FREERUN_SINCE(timeperiod, unprocessed_only, not include_noop)
             records_list = self.uow_dao.run_query(query)
             if len(records_list) == 0:
                 self.logger.warn('No Freerun UOW records found since {0}.'.format(timeperiod))
 
             for uow_record in records_list:
-                if uow_record.process_name not in context.process_context:
+                if uow_record.process_name not in self.freerun_handlers:
                     continue
+
+                thread_handler = self.freerun_handlers[uow_record.process_name]
+                if not include_inactive and not thread_handler.process_entry.is_on:
+                    continue
+
                 resp[uow_record.key] = uow_record.document
         except Exception as e:
             self.logger.error('Dashboard FreerunStatements error: {0}'.format(e))
         return resp
-
-
-if __name__ == '__main__':
-    import logging
-
-    for pd in [ManagedStatements(logging), FreerunStatements(logging)]:
-        resp = pd.retrieve_records('2015030100', False)
-        print('{0}'.format(resp))
