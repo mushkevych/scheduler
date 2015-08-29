@@ -108,9 +108,9 @@ class AbstractStateMachine(object):
         self._publish_uow(uow)
         return uow, is_duplicate
 
-    def shallow_state_update(self, uow):
-        """ method does not trigger any new actions
-        if applicable, it will update job_record state and Timetable tree node state
+    def notify(self, uow):
+        """ method is used by StateMachine's users to provide notifications about change in UOW
+        if applicable, method will update job_record state and Timetable tree node state
         :assumptions: uow is in [STATE_NOOP, STATE_CANCELED, STATE_PROCESSED] """
         pass
 

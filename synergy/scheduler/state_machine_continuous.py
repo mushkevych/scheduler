@@ -22,7 +22,7 @@ class StateMachineContinuous(AbstractStateMachine):
     def __del__(self):
         super(StateMachineContinuous, self).__del__()
 
-    def shallow_state_update(self, uow):
+    def notify(self, uow):
         tree = self.timetable.get_tree(uow.process_name)
         node = tree.get_node(uow.process_name, uow.timeperiod)
         job_record = node.job_record

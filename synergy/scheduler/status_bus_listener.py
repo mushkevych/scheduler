@@ -63,7 +63,7 @@ class StatusBusListener(object):
 
             self.logger.info('Commencing shallow state update for unit_of_work from %s at %s in %s.'
                              % (uow.process_name, uow.timeperiod, uow.state))
-            state_machine.shallow_state_update(uow)
+            state_machine.notify(uow)
 
         except KeyError:
             self.logger.error('Access error for %s' % str(message.body), exc_info=True)
