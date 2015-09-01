@@ -22,9 +22,11 @@ class DashboardHandler(BaseRequestHandler):
         super(DashboardHandler, self).__init__(request, **values)
 
         self.time_window = self.request.args.get('time_window')
-        self.is_exclude_processed = self.request.args.get('exclude_processed') == 'on'
-        self.is_exclude_noop = self.request.args.get('exclude_noop') == 'on'
-        self.is_exclude_inactive = self.request.args.get('exclude_inactive') == 'on'
+        self.is_include_running = self.request.args.get('include_running') == 'on'
+        self.is_include_processed = self.request.args.get('include_processed') == 'on'
+        self.is_include_noop = self.request.args.get('include_noop') == 'on'
+        self.is_include_failed = self.request.args.get('include_failed') == 'on'
+        self.is_include_disabled = self.request.args.get('include_disabled') == 'on'
         self.is_request_valid = bool(self.time_window)
 
         if self.is_request_valid:
@@ -36,16 +38,18 @@ class DashboardHandler(BaseRequestHandler):
     @valid_action_request
     def managed(self):
         processor = ManagedStatements(self.logger, self.scheduler.managed_handlers)
-        selection = processor.retrieve_records(self.query_start_timeperiod, self.is_exclude_processed,
-                                               self.is_exclude_noop, self.is_exclude_inactive)
+        selection = processor.retrieve_records(self.query_start_timeperiod, self.is_include_running,
+                                               self.is_include_processed, self.is_include_noop, self.is_include_failed,
+                                               self.is_include_disabled)
         return OrderedDict(sorted(selection.items()))
 
     @cached_property
     @valid_action_request
     def freeruns(self):
         processor = FreerunStatements(self.logger, self.scheduler.freerun_handlers)
-        selection = processor.retrieve_records(self.query_start_timeperiod, self.is_exclude_processed,
-                                               self.is_exclude_noop, self.is_exclude_inactive)
+        selection = processor.retrieve_records(self.query_start_timeperiod, self.is_include_running,
+                                               self.is_include_processed, self.is_include_noop, self.is_include_failed,
+                                               self.is_include_disabled)
         return OrderedDict(sorted(selection.items()))
 
 
@@ -57,28 +61,31 @@ class ManagedStatements(object):
         self.job_dao = JobDao(self.logger)
 
     @thread_safe
-    def retrieve_records(self, timeperiod, exclude_processed, exclude_noop, exclude_inactive):
+    def retrieve_records(self, timeperiod, include_running,
+                         include_processed, include_noop, include_failed, include_disabled):
         """ method looks for suitable job records in all Job collections and returns them as a dict"""
         resp = dict()
-        resp.update(self._search_by_level(COLLECTION_JOB_HOURLY, timeperiod,
-                                          exclude_processed, exclude_noop, exclude_inactive))
-        resp.update(self._search_by_level(COLLECTION_JOB_DAILY, timeperiod,
-                                          exclude_processed, exclude_noop, exclude_inactive))
+        resp.update(self._search_by_level(COLLECTION_JOB_HOURLY, timeperiod, include_running,
+                                          include_processed, include_noop, include_failed, include_disabled))
+        resp.update(self._search_by_level(COLLECTION_JOB_DAILY, timeperiod, include_running,
+                                          include_processed, include_noop, include_failed, include_disabled))
 
         timeperiod = time_helper.cast_to_time_qualifier(QUALIFIER_MONTHLY, timeperiod)
-        resp.update(self._search_by_level(COLLECTION_JOB_MONTHLY, timeperiod,
-                                          exclude_processed, exclude_noop, exclude_inactive))
+        resp.update(self._search_by_level(COLLECTION_JOB_MONTHLY, timeperiod, include_running,
+                                          include_processed, include_noop, include_failed, include_disabled))
 
         timeperiod = time_helper.cast_to_time_qualifier(QUALIFIER_YEARLY, timeperiod)
-        resp.update(self._search_by_level(COLLECTION_JOB_YEARLY, timeperiod,
-                                          exclude_processed, exclude_noop, exclude_inactive))
+        resp.update(self._search_by_level(COLLECTION_JOB_YEARLY, timeperiod, include_running,
+                                          include_processed, include_noop, include_failed, include_disabled))
         return resp
 
     @thread_safe
-    def _search_by_level(self, collection_name, timeperiod, exclude_processed, exclude_noop, exclude_inactive):
+    def _search_by_level(self, collection_name, timeperiod, include_running,
+                         include_processed, include_noop, include_failed, include_disabled):
         resp = dict()
         try:
-            query = job_dao.QUERY_GET_LIKE_TIMEPERIOD(timeperiod, exclude_processed, exclude_noop)
+            query = job_dao.QUERY_GET_LIKE_TIMEPERIOD(timeperiod, include_running,
+                                                      include_processed, include_noop, include_failed)
             records_list = self.job_dao.run_query(collection_name, query)
             if len(records_list) == 0:
                 self.logger.warn('No Job Records found in {0} since {1}.'.format(collection_name, timeperiod))
@@ -88,7 +95,7 @@ class ManagedStatements(object):
                     continue
 
                 thread_handler = self.managed_handlers[job_record.process_name]
-                if exclude_inactive and not thread_handler.process_entry.is_on:
+                if not include_disabled and not thread_handler.process_entry.is_on:
                     continue
 
                 resp[job_record.key] = job_record.document
@@ -105,11 +112,13 @@ class FreerunStatements(object):
         self.uow_dao = UnitOfWorkDao(self.logger)
 
     @thread_safe
-    def retrieve_records(self, timeperiod, exclude_processed, exclude_noop, exclude_inactive):
+    def retrieve_records(self, timeperiod, include_running,
+                         include_processed, include_noop, include_failed, include_disabled):
         """ method looks for suitable UOW records and returns them as a dict"""
         resp = dict()
         try:
-            query = unit_of_work_dao.QUERY_GET_FREERUN_SINCE(timeperiod, exclude_processed, exclude_noop)
+            query = unit_of_work_dao.QUERY_GET_FREERUN_SINCE(timeperiod, include_running,
+                                                             include_processed, include_noop, include_failed)
             records_list = self.uow_dao.run_query(query)
             if len(records_list) == 0:
                 self.logger.warn('No Freerun UOW records found since {0}.'.format(timeperiod))
@@ -119,7 +128,7 @@ class FreerunStatements(object):
                     continue
 
                 thread_handler = self.freerun_handlers[uow_record.process_name]
-                if exclude_inactive and not thread_handler.process_entry.is_on:
+                if not include_disabled and not thread_handler.process_entry.is_on:
                     continue
 
                 resp[uow_record.key] = uow_record.document

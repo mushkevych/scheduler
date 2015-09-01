@@ -2,19 +2,22 @@
 {% set days_1_checked = 'checked' if not details.is_request_valid or details.time_window == '1' else '' %}
 {% set days_7_checked = 'checked' if details.time_window == '7' else '' %}
 {% set days_30_checked = 'checked' if details.time_window == '30' else '' %}
-{% set exclude_processed_checked = 'checked' if not details.is_request_valid or details.is_exclude_processed == True else '' %}
-{% set exclude_noop_checked = 'checked' if not details.is_request_valid or details.is_exclude_noop == True else '' %}
-{% set exclude_inactive_checked = 'checked' if not details.is_request_valid or details.is_exclude_inactive == True else '' %}
+{% set running_checked = 'checked' if not details.is_request_valid or details.is_include_running == True else '' %}
+{% set processed_checked = 'checked' if details.is_include_processed == True else '' %}
+{% set noop_checked = 'checked' if details.is_include_noop == True else '' %}
+{% set failed_checked = 'checked' if not details.is_request_valid or details.is_include_failed == True else '' %}
+{% set disabled_checked = 'checked' if details.is_include_disabled == True else '' %}
 
 <form data-form_initial_load="{{ 'true' if details.is_request_valid else 'false' }}" style="text-align: center" method="get" id="form_time_window">
     <label><input type="radio" name="time_window" id="days_1" value="1" {{ days_1_checked }} />today</label>
     <label><input type="radio" name="time_window" id="days_7" value="7" {{ days_7_checked }} />last 7 days</label>
     <label><input type="radio" name="time_window" id="days_30" value="30" {{ days_30_checked }} />last 30 days</label>
     <br/>
-    <!-- TODO: running, processed, skipped, noop -->
-    <label><input type="checkbox" name="exclude_processed" id="exclude_processed" {{ exclude_processed_checked }} />exclude&nbsp;processed</label>
-    <label><input type="checkbox" name="exclude_noop" id="exclude_noop" {{ exclude_noop_checked }} />exclude&nbsp;NOOP</label>
-    <label><input type="checkbox" name="exclude_inactive" id="exclude_inactive" {{ exclude_inactive_checked }} />exclude&nbsp;inactive</label>
+    <label><input type="checkbox" name="include_running" id="include_running" {{ running_checked }} />running</label>
+    <label><input type="checkbox" name="include_processed" id="include_processed" {{ processed_checked }} />processed</label>
+    <label><input type="checkbox" name="include_noop" id="include_noop" {{ noop_checked }} />noop</label>
+    <label><input type="checkbox" name="include_failed" id="include_failed" {{ failed_checked }} />failed</label>
+    <label><input type="checkbox" name="include_disabled" id="include_disabled" {{ disabled_checked }} />disabled</label>
     <input type="submit" class="action_button fa-input" title="Refresh" value="&#xf021;&nbsp;Refresh"/>
 </form>
 
