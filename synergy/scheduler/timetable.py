@@ -122,11 +122,34 @@ class Timetable(object):
         return tx_context
 
     @thread_safe
-    def skip_tree_node(self, tree_node):
-        """ method skips given node job-record """
-        state_machine_name = context.process_context[tree_node.process_name].state_machine_name
-        state_machine = self.state_machines[state_machine_name]
-        state_machine.skip_job(tree_node.job_record)
+    def skip_tree_node(self, tree_node, tx_context=None):
+        """ method skips the node and all its dependants and child nodes """
+        if not tx_context:
+            # create transaction context if one was not provided
+            # format: {process_name: {timeperiod: AbstractTreeNode} }
+            tx_context = collections.defaultdict(dict)
+
+        if tree_node.timeperiod in tx_context[tree_node.process_name]:
+            # the node has already been marked for skipping
+            return tx_context
+
+        if tree_node.job_record.is_finished:
+            # the node is finished and does not require skipping
+            pass
+        else:
+            state_machine_name = context.process_context[tree_node.process_name].state_machine_name
+            state_machine = self.state_machines[state_machine_name]
+            state_machine.skip_job(tree_node.job_record)
+
+        tx_context[tree_node.process_name][tree_node.timeperiod] = tree_node
+        for timeperiod, node in tree_node.children:
+            self.skip_tree_node(node, tx_context)
+
+        dependant_nodes = self._find_dependant_tree_nodes(tree_node)
+        for node in dependant_nodes:
+            self.skip_tree_node(node, tx_context)
+
+        return tx_context
 
     @thread_safe
     def assign_job_record(self, tree_node):
