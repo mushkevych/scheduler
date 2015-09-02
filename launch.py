@@ -61,8 +61,8 @@ def init_parser():
     super_group.add_argument('--start', action='store_true', help='marks the process to be started by Supervisor')
     super_group.add_argument('--stop', action='store_true', help='marks the process to be stopped by Supervisor')
     super_group.add_argument('--query', action='store_true', help='queries the state of Supervisor-managed processes')
-    super_group.add_argument('--init', action='store_true',
-                             help='defines Supervisor DB schema. updates synergy.box_configuration table')
+    super_group.add_argument('--reset', action='store_true',
+                             help='defines Supervisor DB schema. recreates synergy.box_configuration table')
     super_group.add_argument('--boxid', action='store_true',
                              help='creates {0} and records BOX_ID in it'.format(config_file))
     super_parser.add_argument('argument', nargs='?')
@@ -189,8 +189,8 @@ def supervisor_command(parser_args):
         return
 
     sc = SupervisorConfigurator()
-    if parser_args.init:
-        sc.init_db()
+    if parser_args.reset:
+        sc.reset_db()
 
     elif parser_args.start:
         sc.mark_for_start(parser_args.argument)
@@ -200,9 +200,6 @@ def supervisor_command(parser_args):
 
     elif parser_args.query:
         sc.query()
-
-    elif parser_args.init:
-        sc.init_db()
 
 
 def start_process(parser_args):

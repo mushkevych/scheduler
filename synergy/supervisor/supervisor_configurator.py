@@ -119,8 +119,8 @@ class SupervisorConfigurator(object):
     def mark_for_stop(self, process_name):
         self._change_state(process_name, False)
 
-    def init_db(self):
-        self.logger.info('Starting *synergy.box_configuration* table init')
+    def reset_db(self):
+        self.logger.info('Starting *synergy.box_configuration* table reset')
 
         ds = ds_manager.ds_factory(self.logger)
         ds._db.drop_collection(COLLECTION_BOX_CONFIGURATION)
