@@ -99,7 +99,7 @@ class AbstractMongoWorker(AbstractUowAwareWorker):
             for document in cursor:
                 start_id_obj = document['_id']
                 self._process_single_document(document)
-                self.performance_ticker.increment()
+                self.performance_ticker.increment_success()
             if start_id_obj is None:
                 break
             iteration += 1
@@ -116,7 +116,7 @@ class AbstractMongoWorker(AbstractUowAwareWorker):
                                       end_timeperiod)
         for document in cursor:
             self._process_single_document(document)
-            self.performance_ticker.increment()
+            self.performance_ticker.increment_success()
 
         self._cursor_exploited()
         msg = 'Cursor exploited after fetching %s documents' % str(self.performance_ticker.per_job)

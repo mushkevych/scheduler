@@ -127,7 +127,7 @@ class AbstractFileCollectorWorker(AbstractUowAwareWorker):
             metadata = self._parse_metadata(file_name)
             number_of_processed_docs = self.process_report_archive(os.path.join(fqsf, file_name), metadata)
             number_of_aggregated_objects += number_of_processed_docs
-            self.performance_ticker.increment()
+            self.performance_ticker.increment_success()
 
             tiny_log = dict()
             if settings.settings['compute_gzip_md5']:

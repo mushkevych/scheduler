@@ -72,7 +72,7 @@ class AbstractUowAwareWorker(AbstractMqWorker):
                 number_of_aggregated_objects, target_state = result
 
             uow.number_of_aggregated_documents = number_of_aggregated_objects
-            uow.number_of_processed_documents = self.performance_ticker.per_job
+            uow.number_of_processed_documents = self.performance_ticker.success_per_job
             uow.finished_at = datetime.utcnow()
             uow.state = target_state
             self.uow_dao.update(uow)

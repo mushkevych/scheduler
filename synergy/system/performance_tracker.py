@@ -172,7 +172,8 @@ class UowAwareTracker(SimpleTracker):
     def __init__(self, logger):
         super(UowAwareTracker, self).__init__(logger)
         self.state = self.STATE_IDLE
-        self.per_job = 0
+        self.success_per_job = 0
+        self.failure_per_job = 0
         self.uow = None
         self.state_triggered_at = time.time()
 
@@ -180,15 +181,19 @@ class UowAwareTracker(SimpleTracker):
         super(UowAwareTracker, self)._run_tick_thread()
 
         if self.state == self.STATE_PROCESSING:
-            msg = 'State: {0} for {1:.2f} sec; {2} in this uow;'.\
-                format(self.state, time.time() - self.state_triggered_at, self.per_job)
+            msg = 'State: {0} for {1:.2f} sec; Success/Failure {2}/{3} in this uow;'\
+                  .format(self.state, time.time() - self.state_triggered_at, self.success_per_job, self.failure_per_job)
         else:
             msg = 'State: {0} for {1:.2f} sec;'.format(self.state, time.time() - self.state_triggered_at)
         self.logger.info(msg)
 
-    def increment(self):
+    def increment_success(self):
         self.tracker.increment_success()
-        self.per_job += 1
+        self.success_per_job += 1
+
+    def increment_failure(self):
+        self.tracker.increment_failure()
+        self.failure_per_job += 1
 
     def start_uow(self, uow):
         self.state = self.STATE_PROCESSING
@@ -196,13 +201,13 @@ class UowAwareTracker(SimpleTracker):
         self.state_triggered_at = time.time()
 
     def finish_uow(self):
-        self.logger.info('Success: unit_of_work {0} in timeperiod {1}; processed {2} entries in {3:.2f} seconds'.
+        self.logger.info('uow {0} at {1}: Success/Failure {2}/{3} entries in {4:.2f} seconds'.
                          format(self.uow.db_id, self.uow.timeperiod,
-                                self.per_job, time.time() - self.state_triggered_at))
+                                self.success_per_job, self.failure_per_job, time.time() - self.state_triggered_at))
         self.cancel_uow()
 
     def cancel_uow(self):
         self.state = self.STATE_IDLE
         self.uow = None
         self.state_triggered_at = time.time()
-        self.per_job = 0
+        self.success_per_job = 0
