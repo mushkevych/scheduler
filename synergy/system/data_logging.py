@@ -16,11 +16,12 @@ class Logger(object):
     Logger presents standard API to log messages and store them for future analysis
     """
 
-    def __init__(self, file_name, log_tag, append_to_console):
+    def __init__(self, file_name, log_tag, append_to_console, redirect_stdstream):
         """
         :param file_name: path+name of the output file
         :param log_tag: tag that is printed ahead of every logged message
         :param append_to_console: True if messages should be printed to the terminal console
+        :param redirect_stdstream: True if stdout and stderr are redirected to this Logger instance
         """
         self.logger = logging.getLogger(log_tag)
 
@@ -31,7 +32,8 @@ class Logger(object):
             stream_formatter = logging.Formatter('%(name)-12s: %(levelname)-8s %(message)s')
             stream_handler.setFormatter(stream_formatter)
             self.logger.addHandler(stream_handler)
-        else:
+
+        if redirect_stdstream:
             # While under_test, tools as xml_unittest_runner are doing complex sys.stdXXX reassignments
             sys.stdout = self
             sys.stderr = self
@@ -74,12 +76,16 @@ class Logger(object):
 logger_pool = dict()
 
 
-def get_logger(process_name, append_to_console=settings.settings['under_test']):
+def get_logger(process_name,
+               append_to_console=settings.settings['under_test'],
+               redirect_stdstream=not settings.settings['under_test']):
     """ method returns initiated logger"""
     if process_name not in logger_pool:
         file_name = get_log_filename(process_name)
         log_tag = get_log_tag(process_name)
-        logger_pool[process_name] = Logger(file_name, log_tag, append_to_console=append_to_console)
+        logger_pool[process_name] = Logger(file_name, log_tag,
+                                           append_to_console=append_to_console,
+                                           redirect_stdstream=redirect_stdstream)
     return logger_pool[process_name].get_logger()
 
 

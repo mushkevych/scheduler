@@ -23,7 +23,7 @@ class GarbageCollector(object):
         Deployment with no GC is considered invalid """
 
     def __init__(self, scheduler):
-        self.logger = get_logger(PROCESS_GC, append_to_console=True)
+        self.logger = get_logger(PROCESS_GC, append_to_console=False, redirect_stdstream=False)
         self.managed_handlers = scheduler.managed_handlers
         self.publishers = scheduler.publishers
         self.timetable = scheduler.timetable
@@ -156,7 +156,6 @@ class GarbageCollector(object):
 
             self.logger.debug('GC: step 4 - timetable validation')
             self.timetable.validate()
-            self.logger.info('GC: run complete.')
         except Exception as e:
             self.logger.error('GC run exception: %s' % str(e))
         finally:
