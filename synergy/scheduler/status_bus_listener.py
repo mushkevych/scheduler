@@ -90,3 +90,7 @@ class StatusBusListener(object):
         self.main_thread = Thread(target=self._run_mq_listener)
         self.main_thread.daemon = True
         self.main_thread.start()
+
+    def stop(self):
+        """ method stops currently MQ Consumer listener, if any """
+        self.__del__()

@@ -31,7 +31,7 @@ def synch_db():
             continue
 
         process_type = context.process_context[process_name].process_type
-        if process_type not in [TYPE_MANAGED, TYPE_GARBAGE_COLLECTOR]:
+        if process_type != TYPE_MANAGED:
             logger.error('Process type %s of %s should not be reflected in the managed_process table. Skipping it.'
                          % (process_type, process_name))
             continue

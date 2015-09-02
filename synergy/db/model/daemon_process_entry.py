@@ -3,8 +3,7 @@ __author__ = 'Bohdan Mushkevych'
 from odm.document import BaseDocument
 from odm.fields import StringField, DictField, ListField
 
-from synergy.scheduler.scheduler_constants import TYPE_MANAGED, TYPE_FREERUN, TYPE_GARBAGE_COLLECTOR, EXCHANGE_UTILS, \
-    TYPE_DAEMON
+from synergy.scheduler.scheduler_constants import TYPE_MANAGED, TYPE_FREERUN, EXCHANGE_UTILS, TYPE_DAEMON
 
 
 PROCESS_NAME = 'process_name'
@@ -31,7 +30,7 @@ class DaemonProcessEntry(BaseDocument):
     mq_exchange = StringField(MQ_EXCHANGE)
     mq_routing_key = StringField(MQ_ROUTING_KEY)
     arguments = DictField(ARGUMENTS)
-    process_type = StringField(PROCESS_TYPE, choices=[TYPE_MANAGED, TYPE_FREERUN, TYPE_DAEMON, TYPE_GARBAGE_COLLECTOR])
+    process_type = StringField(PROCESS_TYPE, choices=[TYPE_MANAGED, TYPE_FREERUN, TYPE_DAEMON])
     present_on_boxes = ListField(PRESENT_ON_BOXES)
     pid_filename = StringField(PID_FILENAME)
     log_filename = StringField(LOG_FILENAME)

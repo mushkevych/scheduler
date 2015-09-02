@@ -113,16 +113,16 @@ class GarbageCollectorUnitTest(unittest.TestCase):
         self.assertEqual(len(self.worker.reprocess_uows[uow.process_name]), 0)
 
         # use-case 1 - UOW has not crossed 1 hour after submission to be enlisted into reprocessing_queue
-        self.worker.enlist_or_cancel()
+        self.worker.scan_uow_candidates()
         self.assertEqual(len(self.worker.reprocess_uows[uow.process_name]), 0)
 
         # use-case 2 - age the UOW by 2 hours so it could be enlisted into the reprocessing_queue
         uow.submitted_at = datetime.utcnow() - timedelta(hours=2)
-        self.worker.enlist_or_cancel()
+        self.worker.scan_uow_candidates()
         self.assertEqual(len(self.worker.reprocess_uows[uow.process_name]), 1)
 
         # use-case 3 - ignore the UOW, as it is already in the reprocessing_queue
-        self.worker.enlist_or_cancel()
+        self.worker.scan_uow_candidates()
         self.assertEqual(len(self.worker.reprocess_uows[uow.process_name]), 1)
 
     def test_invalid_and_stale_uow(self):
@@ -133,7 +133,7 @@ class GarbageCollectorUnitTest(unittest.TestCase):
         self.assertEqual(len(self.worker.reprocess_uows[uow.process_name]), 0)
 
         # use-case - transferring job to STATE_CANCELED bypassing the reprocessing_queue
-        self.worker.enlist_or_cancel()
+        self.worker.scan_uow_candidates()
         self.assertEqual(len(self.worker.reprocess_uows[uow.process_name]), 0)
         self.worker._cancel_uow.assert_called_once_with(uow)
         self.publisher.publish.assert_called_once_with(mock.ANY)
@@ -147,7 +147,7 @@ class GarbageCollectorUnitTest(unittest.TestCase):
 
         # use-case - uow is healthy and should be filtered out by the DAO
         # it does not get queued for re-processing, because has not yet crossed 1 hour after submission
-        self.worker.enlist_or_cancel()
+        self.worker.scan_uow_candidates()
         self.assertEqual(len(self.worker.reprocess_uows[uow.process_name]), 0)
         self.assertTrue(self.worker._cancel_uow.call_args_list == [])  # called 0 times
         self.assertTrue(self.publisher.publish.call_args_list == [])  # called 0 times
@@ -160,7 +160,7 @@ class GarbageCollectorUnitTest(unittest.TestCase):
         self.assertEqual(len(self.worker.reprocess_uows[uow.process_name]), 0)
 
         # use-case - transferring job to STATE_CANCELED bypassing the reprocessing_queue
-        self.worker.enlist_or_cancel()
+        self.worker.scan_uow_candidates()
         self.assertEqual(len(self.worker.reprocess_uows[uow.process_name]), 0)
         self.worker._cancel_uow.assert_called_once_with(mock.ANY)
         self.publisher.publish.assert_called_once_with(mock.ANY)

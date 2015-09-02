@@ -8,6 +8,7 @@ from synergy.conf import settings
 from synergy.system.data_logging import get_logger
 from synergy.system.decorator import thread_safe
 from synergy.system.priority_queue import PriorityEntry, PriorityQueue, compute_release_time
+from synergy.system.repeat_timer import RepeatTimer
 from synergy.scheduler.scheduler_constants import QUEUE_UOW_REPORT, PROCESS_GC
 from synergy.scheduler.thread_handler import ManagedThreadHandler
 from synergy.db.model import unit_of_work
@@ -25,13 +26,15 @@ class GarbageCollector(object):
         self.logger = get_logger(PROCESS_GC, append_to_console=True)
         self.managed_handlers = scheduler.managed_handlers
         self.publishers = scheduler.publishers
+        self.timetable = scheduler.timetable
 
         self.lock = Lock()
         self.uow_dao = UnitOfWorkDao(self.logger)
         self.reprocess_uows = collections.defaultdict(PriorityQueue)
+        self.timer = RepeatTimer(settings.settings['gc_run_interval'], self._run)
 
     @thread_safe
-    def enlist_or_cancel(self):
+    def scan_uow_candidates(self):
         """ method performs two actions:
             - enlist stale or invalid units of work into reprocessing queue
             - cancel UOWs that are older than 2 days and have been submitted more than 1 hour ago """
@@ -137,3 +140,30 @@ class GarbageCollector(object):
 
         self.logger.info('canceled UOW {0} for {1} in {2}; attempt {3}; created at {4}'
                          .format(uow.db_id, uow.process_name, uow.timeperiod, uow.number_of_retries, uow.created_at))
+
+    def _run(self):
+        try:
+            self.logger.info('run {')
+
+            self.logger.debug('GC: step 1 - enlist or cancel')
+            self.scan_uow_candidates()
+
+            self.logger.debug('GC: step 2 - repost after timeout')
+            self.flush()
+
+            self.logger.debug('GC: step 3 - timetable housekeeping')
+            self.timetable.build_trees()
+
+            self.logger.debug('GC: step 4 - timetable validation')
+            self.timetable.validate()
+            self.logger.info('GC: run complete.')
+        except Exception as e:
+            self.logger.error('GC run exception: %s' % str(e))
+        finally:
+            self.logger.info('}')
+
+    def start(self):
+        self.timer.start()
+
+    def stop(self):
+        self.timer.cancel()

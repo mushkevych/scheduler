@@ -24,9 +24,11 @@ from synergy.scheduler.thread_handler import ThreadHandlerHeader, ManagedThreadH
 
 class Scheduler(SynergyProcess):
     """ Scheduler hosts:
-        - state machines to govern running processes and their jobs
-        - logic to trigger job execution
-        - garbage collector to recycle failed/stalled unit of works """
+        - timetable: container for job tress and state machines
+        - GarbageCollector: recycles failed/stalled unit of works
+        - freerun and managed thread handlers: logic to trigger job execution
+        - StatusBarListener: MQ Listener of workers feedback
+        - MX: HTTP server with management UI """
 
     def __init__(self, process_name):
         super(Scheduler, self).__init__(process_name)
@@ -36,14 +38,18 @@ class Scheduler(SynergyProcess):
         self.managed_handlers = dict()
         self.freerun_handlers = dict()
         self.timetable = Timetable(self.logger)
-        self.gc = GarbageCollector(self)
-
         self.freerun_process_dao = FreerunProcessDao(self.logger)
-        self.mx = None
-        self.bus_listener = None
+
+        self.gc = GarbageCollector(self)
+        self.bus_listener = StatusBusListener(self)
+        self.mx = MX(self)
         self.logger.info('Started %s' % self.process_name)
 
     def __del__(self):
+        self.mx.stop()
+        self.bus_listener.stop()
+        self.gc.stop()
+
         for key, handler in self.managed_handlers.items():
             handler.deactivate(update_persistent=False)
         self.managed_handlers.clear()
@@ -87,8 +93,6 @@ class Scheduler(SynergyProcess):
         for process_name, process_entry in context.process_context.items():
             if process_entry.process_type == TYPE_MANAGED:
                 function = self.fire_managed_worker
-            elif process_entry.process_type == TYPE_GARBAGE_COLLECTOR:
-                function = self.fire_garbage_collector
             elif process_entry.process_type in [TYPE_FREERUN, TYPE_DAEMON]:
                 self.logger.info('%s of type %s is found in context, but not managed by Synergy Scheduler. '
                                  'Skipping the process.'
@@ -117,7 +121,7 @@ class Scheduler(SynergyProcess):
 
     @with_reconnect
     def start(self, *_):
-        """ reads managed process entries and starts timer instances; starts MX thread """
+        """ reads managed process entries and starts timer instances; starts dependant threads """
         db_manager.synch_db()
         self._load_managed_entries()
 
@@ -126,13 +130,14 @@ class Scheduler(SynergyProcess):
         except LookupError as e:
             self.logger.warn('DB Lookup: %s' % str(e))
 
+        # Scheduler is initialized and running. GarbageCollector can be safely started
+        self.gc.start()
+
         # Scheduler is initialized and running. Status Bus Listener can be safely started
-        self.bus_listener = StatusBusListener(self)
         self.bus_listener.start()
 
-        # All Scheduler components are initialized and running. Management Extension (MX) can be safely started
-        self.mx = MX(self)
-        self.mx.start_mx_thread()
+        # Scheduler is initialized and running. Management Extension (MX) can be safely started
+        self.mx.start()
 
     @thread_safe
     def fire_managed_worker(self, thread_handler_header):
@@ -200,30 +205,6 @@ class Scheduler(SynergyProcess):
 
         except Exception as e:
             self.logger.error('fire_freerun_worker: %s' % str(e))
-        finally:
-            self.logger.info('}')
-
-    @thread_safe
-    def fire_garbage_collector(self, thread_handler_header):
-        """fires garbage collector to re-trigger invalid unit_of_work"""
-        try:
-            assert isinstance(thread_handler_header, ThreadHandlerHeader)
-            self.logger.info('%r {' % (thread_handler_header.key, ))
-
-            self.logger.debug('GC: step 1 - enlist or cancel')
-            self.gc.enlist_or_cancel()
-
-            self.logger.debug('GC: step 2 - repost after timeout')
-            self.gc.flush()
-
-            self.logger.debug('GC: step 3 - timetable housekeeping')
-            self.timetable.build_trees()
-
-            self.logger.debug('GC: step 4 - timetable validation')
-            self.timetable.validate()
-            self.logger.info('GC: run complete.')
-        except Exception as e:
-            self.logger.error('GC run exception: %s' % str(e))
         finally:
             self.logger.info('}')
 

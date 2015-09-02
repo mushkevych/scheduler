@@ -13,7 +13,7 @@ class GcActionHandler(BaseRequestHandler):
             self.process_name = self.process_name.strip()
 
     def action_refresh(self):
-        self.scheduler.gc.enlist_or_cancel()
+        self.scheduler.gc.scan_uow_candidates()
         return self.reply_ok()
 
     def action_flush_all(self):

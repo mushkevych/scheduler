@@ -6,6 +6,7 @@ settings = dict(
     mq_delivery_mode=2,
     mq_no_ack=False,
 
+    gc_run_interval=60,          # number of seconds between GarbageCollector runs
     gc_life_support_hours=48,    # number of hours from UOW creation time to keep UOW re-posting to MQ
     gc_resubmit_after_hours=1,   # number of hours, GC waits for the worker to pick up the UOW from MQ before re-posting
     gc_release_lag_minutes=15,   # number of minutes, GC keeps the UOW in the queue before posting it into MQ

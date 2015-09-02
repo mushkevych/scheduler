@@ -1,19 +1,13 @@
 from synergy.db.model.queue_context_entry import queue_context_entry
-from synergy.scheduler.scheduler_constants import PROCESS_GC, TOKEN_GC, EXCHANGE_UTILS, TYPE_GARBAGE_COLLECTOR, \
-    PROCESS_SCHEDULER, TOKEN_SCHEDULER, QUEUE_UOW_REPORT
+from synergy.scheduler.scheduler_constants import PROCESS_GC, TOKEN_GC, EXCHANGE_UTILS, PROCESS_SCHEDULER, \
+    TOKEN_SCHEDULER, QUEUE_UOW_REPORT
 from synergy.supervisor.supervisor_constants import PROCESS_SUPERVISOR, TOKEN_SUPERVISOR
 from synergy.db.model.daemon_process_entry import daemon_context_entry
-from synergy.db.model.managed_process_entry import managed_context_entry
-from synergy.system.time_qualifier import QUALIFIER_BY_SCHEDULE
 
 process_context = {
-    PROCESS_GC: managed_context_entry(
+    PROCESS_GC: daemon_context_entry(
         process_name=PROCESS_GC,
         token=TOKEN_GC,
-        process_type=TYPE_GARBAGE_COLLECTOR,
-        time_qualifier=QUALIFIER_BY_SCHEDULE,
-        trigger_frequency='every 60',
-        state_machine_name=None,
         classname='',
         queue='',
         routing='',

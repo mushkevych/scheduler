@@ -43,7 +43,7 @@ class MX(object):
     def __call__(self, environ, start_response):
         return self.dispatch(environ, start_response)
 
-    def start_mx_thread(self, hostname=None, port=None):
+    def start(self, hostname=None, port=None):
         """ Spawns a new HTTP server, residing on defined hostname and port
         :param hostname: the default hostname the server should listen on.
         :param port: the default port of the server.
@@ -78,6 +78,10 @@ class MX(object):
         self.mx_thread.daemon = True
         self.mx_thread.start()
 
+    def stop(self):
+        """ method stops currently running HTTP server, if any
+        TODO: write proper implementation. Currently it relies on the thread being a daemon """
+        pass
 
 if __name__ == '__main__':
     from synergy.scheduler.scheduler_constants import PROCESS_SCHEDULER
@@ -85,4 +89,4 @@ if __name__ == '__main__':
 
     scheduler = Scheduler(PROCESS_SCHEDULER)
     app = MX(scheduler)
-    app.start_mx_thread()
+    app.start()
