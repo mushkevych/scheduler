@@ -42,21 +42,21 @@ class GarbageCollector(object):
             since = settings.settings['synergy_start_timeperiod']
             uow_list = self.uow_dao.get_reprocessing_candidates(since)
         except LookupError as e:
-            self.logger.info('flow: re-processing UOW candidates not found. %r' % e)
+            self.logger.info('flow: no UOW candidates found for reprocessing: {0}'.format(e))
             return
 
         for uow in uow_list:
             try:
                 if uow.process_name not in self.managed_handlers:
-                    self.logger.debug('process %r is not known to the Synergy Scheduler. Skipping its unit_of_work.'
-                                      % uow.process_name)
+                    self.logger.debug('process {0} is not known to the Synergy Scheduler. Skipping its UOW.'
+                                      .format(uow.process_name))
                     continue
 
                 thread_handler = self.managed_handlers[uow.process_name]
                 assert isinstance(thread_handler, ManagedThreadHandler)
 
                 if not thread_handler.process_entry.is_on:
-                    self.logger.debug('process %r is inactive. Skipping its unit_of_work.' % uow.process_name)
+                    self.logger.debug('process {0} is inactive. Skipping its UOW.'.format(uow.process_name))
                     continue
 
                 entry = PriorityEntry(uow)
@@ -77,7 +77,7 @@ class GarbageCollector(object):
                     self.reprocess_uows[uow.process_name].put(entry)
 
             except Exception as e:
-                self.logger.error('flow exception: %s' % str(e), exc_info=True)
+                self.logger.error('flow exception: {0}'.format(e), exc_info=True)
 
     def _flush_queue(self, q, ignore_priority=False):
         """
@@ -145,7 +145,7 @@ class GarbageCollector(object):
         try:
             self.logger.info('run {')
 
-            self.logger.debug('GC: step 1 - enlist or cancel')
+            self.logger.debug('GC: step 1 - scan reprocessing candidates')
             self.scan_uow_candidates()
 
             self.logger.debug('GC: step 2 - repost after timeout')
@@ -157,7 +157,7 @@ class GarbageCollector(object):
             self.logger.debug('GC: step 4 - timetable validation')
             self.timetable.validate()
         except Exception as e:
-            self.logger.error('GC run exception: %s' % str(e))
+            self.logger.error('GC run exception: {0}'.format(e))
         finally:
             self.logger.info('}')
 
