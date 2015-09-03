@@ -2,10 +2,12 @@
 LAG_5_MINUTES = 5  # lag in minutes between finish of the timeperiod and beginning of its processing
 
 PROCESS_SCHEDULER = 'Scheduler'
-PROCESS_GC = 'GarbageCollectorWorker'
+PROCESS_GC = 'GarbageCollector'
+PROCESS_MX = 'MX'
 
 TOKEN_SCHEDULER = 'scheduler'
 TOKEN_GC = 'gc'
+TOKEN_WERKZEUG = 'werkzeug'
 
 # State Machine names
 STATE_MACHINE_CONTINUOUS = 'continuous'

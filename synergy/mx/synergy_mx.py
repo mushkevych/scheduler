@@ -6,12 +6,15 @@ from werkzeug.wsgi import ClosingIterator, SharedDataMiddleware
 from werkzeug.exceptions import HTTPException, NotFound
 from werkzeug.serving import run_simple
 from synergy.conf import settings
+from synergy.system.data_logging import get_logger
+from synergy.scheduler.scheduler_constants import PROCESS_MX
 
 from synergy.mx.utils import STATIC_PATH, local, local_manager, url_map, jinja_env
 from synergy.mx import views
 
 
 class MX(object):
+    """ MX stands for Management Extension and represents HTTP server serving UI front-end for Synergy Scheduler """
     def __init__(self, mbean):
         local.application = self
         self.mx_thread = None
@@ -21,6 +24,10 @@ class MX(object):
         self.dispatch = SharedDataMiddleware(self.dispatch, {
             '/static': STATIC_PATH
         })
+
+        # during the get_logger call a 'werkzeug' logger will be created
+        # later, werkzeug._internal.py -> _log() will assign the logger to global _logger variable
+        self.logger = get_logger(PROCESS_MX)
 
     def dispatch(self, environ, start_response):
         local.application = self
@@ -55,10 +62,10 @@ class MX(object):
 
         reloader = False        # use_reloader: the default setting for the reloader.
         debugger = False        #
-        evalex = True           # use_evalex: the default setting for the evalex flag of the debugger.
-        threaded = False        # threaded: the default threading setting.
-        processes = 1           # processes: the default number of processes to start.
-        reloader_interval = 1
+        evalex = True           # should the exception evaluation feature be enabled?
+        threaded = False        # True if each request in handled in a separate thread
+        processes = 1           # if greater than 1 then handle each request in a new process
+        reloader_interval = 1   # the interval for the reloader in seconds.
         static_files = None     # static_files: optional dict of static files.
         extra_files = None      # extra_files: optional list of extra files to track for reloading.
         ssl_context = None      # ssl_context: optional SSL context for running server in HTTPS mode.
@@ -80,8 +87,11 @@ class MX(object):
 
     def stop(self):
         """ method stops currently running HTTP server, if any
-        TODO: write proper implementation. Currently it relies on the thread being a daemon """
-        pass
+            http://flask.pocoo.org/snippets/67/ """
+        func = jinja_env.get('werkzeug.server.shutdown')
+        if func is None:
+            raise RuntimeError('Not running with the Werkzeug Server')
+        func()
 
 if __name__ == '__main__':
     from synergy.scheduler.scheduler_constants import PROCESS_SCHEDULER
