@@ -142,7 +142,7 @@ class Timetable(object):
             state_machine.skip_job(tree_node.job_record)
 
         tx_context[tree_node.process_name][tree_node.timeperiod] = tree_node
-        for timeperiod, node in tree_node.children:
+        for timeperiod, node in tree_node.children.items():
             self.skip_tree_node(node, tx_context)
 
         dependant_nodes = self._find_dependant_tree_nodes(tree_node)

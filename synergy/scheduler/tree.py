@@ -165,8 +165,7 @@ class MultiLevelTree(AbstractTree):
         # if any is still in processing (i.e. has produced some data) - then we can not skip parent of the child node
         # case 3': consider parent as worth processing (i.e. do not skip) if child's job_record is None
         all_children_spoiled = True
-        for key in node.children.keys():
-            child = node.children[key]
+        for key, child in node.children.items():
             if child.job_record is None or \
                     (child.job_record.number_of_failures <= MAX_NUMBER_OF_RETRIES
                      and not child.job_record.is_skipped):
@@ -224,7 +223,6 @@ class MultiLevelTree(AbstractTree):
     def validate(self):
         """method starts validation of the tree.
         @see TreeNode.validate"""
-        for timeperiod in self.root.children:
-            child = self.root.children[timeperiod]
+        for timeperiod, child in self.root.children.items():
             child.validate()
         self.validation_timestamp = datetime.utcnow()

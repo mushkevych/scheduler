@@ -82,8 +82,7 @@ class AbstractTreeNode(object):
         # step 2: define if all children are done and if perhaps they all are in STATE_SKIPPED
         all_children_skipped = True
         all_children_finished = True
-        for timeperiod in self.children:
-            child = self.children[timeperiod]
+        for timeperiod, child in self.children.items():
             child.validate()
 
             if child.job_record.is_active:

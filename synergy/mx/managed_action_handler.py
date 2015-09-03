@@ -66,8 +66,12 @@ class ManagedActionHandler(AbstractActionHandler):
         self.scheduler.timetable.add_log_entry(self.process_name, self.timeperiod, msg)
         self.logger.info(msg + ' {')
 
-        self.scheduler.timetable.skip_tree_node(node)
-        resp = {node.timeperiod: TreeNodeDetails.get_details(node)}
+        tx_context = self.scheduler.timetable.skip_tree_node(node)
+
+        resp = collections.defaultdict(dict)
+        for process_name, nodes_context in tx_context.items():
+            for timeperiod, node in nodes_context.items():
+                resp[process_name][timeperiod] = TreeNodeDetails.get_details(node)
         self.logger.info('MX }')
         return resp
 

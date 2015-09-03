@@ -53,8 +53,7 @@ class TreeNodeDetails(BaseRequestHandler):
             self.timeperiod = time_helper.cast_to_time_qualifier(time_qualifier, self.timeperiod)
             node = self.tree.get_node(self.process_name, self.timeperiod)
             rest_node.node = TreeNodeDetails.get_details(node, as_model=True)
-            for key in node.children:
-                child = node.children[key]
+            for key, child in node.children.items():
                 rest_node.children[key] = TreeNodeDetails.get_details(child)
 
         return rest_node.document

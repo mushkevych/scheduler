@@ -128,8 +128,8 @@ class TestTreeNode(unittest.TestCase):
         self.time_table_mocked.reprocess_tree_node.assert_called_once_with(self.the_node)
         self.assertEqual(len(self.time_table_mocked.skip_tree_node.call_args_list), 0)
 
-        for _, child in self.the_node.children.items():
-            child.validate.assert_called_once_with()
+        for _, child_node in self.the_node.children.items():
+            child_node.validate.assert_called_once_with()
 
     def test_validate_2(self):
         """
