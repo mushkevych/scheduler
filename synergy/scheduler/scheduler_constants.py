@@ -19,8 +19,15 @@ STATE_MACHINE_FREERUN = 'freerun'
 TYPE_MANAGED = 'type_managed'
 TYPE_FREERUN = 'type_freerun'
 TYPE_DAEMON = 'type_daemon'
+
+# dependency allows processing of the dependent timeperiod,
+# however finalization of the dependent timeperiod is not allowed until all blocking timeperiods are processed
 BLOCKING_NORMAL = 'blocking_normal'
+
+# any processing of dependent timeperiods is blocked until blocking timeperiods are processed.
 BLOCKING_DEPENDENCIES = 'blocking_dependencies'
+
+# any processing of higher time granularity is blocked until all children timeperiods are processed
 BLOCKING_CHILDREN = 'blocking_children'
 
 # MQ exchanges that are required by Synergy Scheduler
