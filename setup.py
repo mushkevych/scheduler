@@ -30,5 +30,5 @@ setup(name='synergy_scheduler',
           'Topic :: Utilities',
       ],
       requires=['werkzeug', 'jinja2', 'amqp', 'pymongo', 'psutil', 'fabric', 'setproctitle', 'synergy_odm', 'mock',
-                'xmlrunner', 'pylint', 'six', 'bson', 'IPython', 'virtualenv']
+                'xmlrunner', 'pylint', 'six']
       )
