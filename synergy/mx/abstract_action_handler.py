@@ -26,23 +26,27 @@ class AbstractActionHandler(BaseRequestHandler):
         resp = dict()
         new_interval = self.request_arguments['interval']
         if new_interval is not None:
-            thread_handler = self.thread_handler
-            thread_handler.change_interval(new_interval)
-            resp['status'] = 'changed interval for %r to %r' % (thread_handler.key, new_interval)
+            self.thread_handler.change_interval(new_interval)
+            msg = 'changed interval for {0} to {1}'.format(self.thread_handler.key, new_interval)
+            self.logger.info('MX: {0}'.format(msg))
+            resp['status'] = msg
 
         return resp
 
     @valid_action_request
     def action_trigger_now(self):
         self.thread_handler.trigger()
+        self.logger.info('MX: triggered thread handler {0}'.format(self.thread_handler.key))
         return self.reply_ok()
 
     @valid_action_request
     def action_activate_trigger(self):
         self.thread_handler.activate()
+        self.logger.info('MX: activated thread handler {0}'.format(self.thread_handler.key))
         return self.reply_ok()
 
     @valid_action_request
     def action_deactivate_trigger(self):
         self.thread_handler.deactivate()
+        self.logger.info('MX: deactivated thread handler {0}'.format(self.thread_handler.key))
         return self.reply_ok()

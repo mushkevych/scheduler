@@ -90,7 +90,7 @@ class MX(object):
             http://flask.pocoo.org/snippets/67/ """
         func = jinja_env.get('werkzeug.server.shutdown')
         if func is None:
-            raise RuntimeError('Not running with the Werkzeug Server')
+            raise RuntimeError('MX Error: no Shutdown Function registered for the Werkzeug Server')
         func()
 
 if __name__ == '__main__':

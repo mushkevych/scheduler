@@ -45,7 +45,7 @@ class ManagedActionHandler(AbstractActionHandler):
     def action_reprocess(self):
         node = self._get_tree_node()
 
-        msg = 'MX: requesting REPROCESS for %s in timeperiod %s' % (self.process_name, self.timeperiod)
+        msg = 'MX: requesting REPROCESS for {0} in timeperiod {1}'.format(self.process_name, self.timeperiod)
         self.scheduler.timetable.add_log_entry(self.process_name, self.timeperiod, msg)
         self.logger.info(msg + ' {')
 
@@ -62,7 +62,7 @@ class ManagedActionHandler(AbstractActionHandler):
     def action_skip(self):
         node = self._get_tree_node()
 
-        msg = 'MX: requesting SKIP for %s in timeperiod %s' % (self.process_name, self.timeperiod)
+        msg = 'MX: requesting SKIP for {0} in timeperiod {1}'.format(self.process_name, self.timeperiod)
         self.scheduler.timetable.add_log_entry(self.process_name, self.timeperiod, msg)
         self.logger.info(msg + ' {')
 

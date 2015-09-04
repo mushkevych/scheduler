@@ -52,22 +52,19 @@ def dashboard_freeruns(request, **values):
 @expose('/details/tree_nodes/')
 def details_tree_nodes(request, **values):
     details = TreeNodeDetails(request, **values)
-    return Response(response=json.dumps(details.details),
-                    mimetype='application/json')
+    return Response(response=json.dumps(details.details), mimetype='application/json')
 
 
 @expose('/details/tree/')
 def details_tree(request, **values):
     details = TreeDetails(request, **values)
-    return Response(response=json.dumps(details.tree_details),
-                    mimetype='application/json')
+    return Response(response=json.dumps(details.tree_details), mimetype='application/json')
 
 
 @expose('/details/trees/')
 def details_trees(request, **values):
     details = TreeDetails(request, **values)
-    return Response(response=json.dumps(details.mx_page_entries),
-                    mimetype='application/json')
+    return Response(response=json.dumps(details.mx_page_entries), mimetype='application/json')
 
 
 @expose('/action/update_freerun_entry/')
@@ -101,15 +98,13 @@ def action_cancel_uow(request, **values):
 @expose('/action/get_uow/')
 def action_get_uow(request, **values):
     handler = get_action_handler(request, **values)
-    return Response(response=json.dumps(handler.action_get_uow()),
-                    mimetype='application/json')
+    return Response(response=json.dumps(handler.action_get_uow()), mimetype='application/json')
 
 
 @expose('/action/get_log/')
 def action_get_log(request, **values):
     handler = get_action_handler(request, **values)
-    return Response(response=json.dumps(handler.action_get_log()),
-                    mimetype='application/json')
+    return Response(response=json.dumps(handler.action_get_log()), mimetype='application/json')
 
 
 @expose('/action/change_interval/')

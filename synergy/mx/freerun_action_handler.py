@@ -107,6 +107,6 @@ class FreerunActionHandler(AbstractActionHandler):
             pass
 
         else:
-            self.logger.error('Unknown action requested by schedulable_form.html')
+            self.logger.error('MX Error: unknown action requested by schedulable_form.html')
 
         return self.reply_ok()

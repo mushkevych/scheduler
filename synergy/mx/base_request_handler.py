@@ -39,7 +39,7 @@ class BaseRequestHandler(object):
         return {'status': 'OK'}
 
     def reply_bad_request(self):
-        self.logger.error('Bad request: {0}'.format(self.request))
+        self.logger.error('MX Bad Request: {0}'.format(self.request))
         return {}
 
     def reply_server_error(self, e):
