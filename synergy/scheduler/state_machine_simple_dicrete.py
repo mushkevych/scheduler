@@ -38,7 +38,8 @@ class StateMachineSimpleDiscrete(StateMachineDiscrete):
 
         elif uow.timeperiod >= actual_timeperiod:
             self.logger.info('Suppressing job state change for {0} in {1} '
-                             'since the working timeperiod has not finished yet'.format(uow.process_name, uow.timeperiod))
+                             'since the working timeperiod has not finished yet'
+                             .format(uow.process_name, uow.timeperiod))
 
         elif not is_job_finalizable:
             self.logger.info('Suppressing job state change for {0} in {1} '

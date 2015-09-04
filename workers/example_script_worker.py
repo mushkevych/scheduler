@@ -10,5 +10,5 @@ def main(*args):
     print('Example Script: falling asleep for {0} seconds'.format(secs))
     time.sleep(secs)
 
-#if __name__ == '__main__':
-#    main()
+# if __name__ == '__main__':
+#     main()

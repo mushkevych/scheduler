@@ -7,6 +7,7 @@ import psutil
 from synergy.conf import settings
 from synergy.workers.abstract_cli_worker import AbstractCliWorker
 
+
 # to use following driver, make sure settings.py declares following properties:
 # hadoop_jar='/some/path/synergy-hadoop-02.jar'
 # hadoop_command='/usr/bin/hadoop'
