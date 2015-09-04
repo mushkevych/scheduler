@@ -15,10 +15,10 @@ class NodesCompositeState(object):
         # True if all dependent_on Jobs are finished
         self.all_finished = True
 
-        # True if all dependent_on Jobs are successfully processed
+        # True if all dependent_on Jobs are in [STATE_PROCESSED, STATE_NOOP]
         self.all_processed = True
 
-        # True if all dependent_on Jobs are either active or successfully processed
+        # True if all dependent_on Jobs are either active or in [STATE_PROCESSED, STATE_NOOP]
         self.all_healthy = True
 
         # True if among dependent_on periods are some in STATE_SKIPPED
@@ -28,9 +28,9 @@ class NodesCompositeState(object):
         assert isinstance(tree_node, TreeNode)
         if not tree_node.job_record.is_finished:
             self.all_finished = False
-        if not tree_node.job_record.is_processed:
+        if not (tree_node.job_record.is_processed or tree_node.job_record.is_noop):
             self.all_processed = False
-        if not tree_node.job_record.is_active or not tree_node.job_record.is_processed:
+        if not (tree_node.job_record.is_active or tree_node.job_record.is_processed or tree_node.job_record.is_noop):
             self.all_healthy = False
         if tree_node.job_record.is_skipped:
             self.skipped_present = True

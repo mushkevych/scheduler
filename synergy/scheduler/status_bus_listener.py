@@ -28,7 +28,7 @@ class StatusBusListener(object):
             self.logger.info('StatusBusListener: Closing Flopsy Consumer...')
             self.consumer.close()
         except Exception as e:
-            self.logger.error('StatusBusListener: Exception caught while closing Flopsy Consumer: %s' % str(e))
+            self.logger.error('StatusBusListener: Exception caught while closing Flopsy Consumer: {0}'.format(e))
 
     # ********************** thread-related methods ****************************
     def _mq_callback(self, message):
@@ -53,24 +53,24 @@ class StatusBusListener(object):
 
             if not uow.is_finished:
                 # rely on Garbage Collector to re-trigger the failing unit_of_work
-                self.logger.info('Received unit_of_work status report from %s at %s in non-final state %s. Ignoring it.'
-                                 % (uow.process_name, uow.timeperiod, uow.state))
+                self.logger.info('Received status report from {0} at {1} in non-final state {2}. Ignoring it.'
+                                 .format(uow.process_name, uow.timeperiod, uow.state))
                 return
 
             process_entry = self.scheduler.managed_handlers[uow.process_name].process_entry
             state_machine = self.scheduler.timetable.state_machines[process_entry.state_machine_name]
             assert isinstance(state_machine, AbstractStateMachine)
 
-            self.logger.info('Commencing shallow state update for unit_of_work from %s at %s in %s.'
-                             % (uow.process_name, uow.timeperiod, uow.state))
+            self.logger.info('Commencing State Machine notification with unit_of_work from {0} at {1} in {2}.'
+                             .format(uow.process_name, uow.timeperiod, uow.state))
             state_machine.notify(uow)
 
         except KeyError:
-            self.logger.error('Access error for %s' % str(message.body), exc_info=True)
+            self.logger.error('Access error for {0}'.format(message.body), exc_info=True)
         except LookupError:
-            self.logger.error('Can not perform shallow state update for %s' % str(message.body), exc_info=True)
+            self.logger.error('Can not perform shallow state update for {0}'.format(message.body), exc_info=True)
         except Exception:
-            self.logger.error('Unexpected error during shallow state update for %s' % str(message.body), exc_info=True)
+            self.logger.error('Error during StateMachine.notify call {0}'.format(message.body), exc_info=True)
         finally:
             self.consumer.acknowledge(message.delivery_tag)
             self.logger.info('StatusBusListener }')
@@ -81,7 +81,7 @@ class StatusBusListener(object):
             self.logger.info('StatusBusListener: instantiated and activated.')
             self.consumer.wait()
         except (AMQPError, IOError) as e:
-            self.logger.error('StatusBusListener: AMQPError %s' % str(e))
+            self.logger.error('StatusBusListener: AMQPError {0}'.format(e))
         finally:
             self.__del__()
             self.logger.info('StatusBusListener: Shutting down... All auxiliary threads stopped.')

@@ -2,7 +2,7 @@ __author__ = 'Bohdan Mushkevych'
 
 from logging import ERROR, INFO
 
-from synergy.db.model import job, unit_of_work
+from synergy.db.model import job
 from synergy.scheduler.scheduler_constants import STATE_MACHINE_SIMPLE_DISCRETE
 from synergy.scheduler.state_machine_dicrete import StateMachineDiscrete
 from synergy.system import time_helper
@@ -25,8 +25,8 @@ class StateMachineSimpleDiscrete(StateMachineDiscrete):
         job_record = node.job_record
 
         if not job_record.is_in_progress:
-            self.logger.info('Can not perform shallow status update for %s in timeperiod %s '
-                             'since the job state is not STATE_IN_PROGRESS' % (uow.process_name, uow.timeperiod))
+            self.logger.info('Suppressing job state change since the job for {0} in {1} is not in STATE_IN_PROGRESS'
+                             .format(uow.process_name, uow.timeperiod))
             return
 
         time_qualifier = context.process_context[uow.process_name].time_qualifier
@@ -37,12 +37,12 @@ class StateMachineSimpleDiscrete(StateMachineDiscrete):
             self.__process_finalizable_job(job_record, uow)
 
         elif uow.timeperiod >= actual_timeperiod:
-            self.logger.info('Can not complete shallow status update for %s in timeperiod %s '
-                             'since the working timeperiod has not finished yet' % (uow.process_name, uow.timeperiod))
+            self.logger.info('Suppressing job state change for {0} in {1} '
+                             'since the working timeperiod has not finished yet'.format(uow.process_name, uow.timeperiod))
 
         elif not is_job_finalizable:
-            self.logger.info('Can not complete shallow status update for %s in timeperiod %s '
-                             'since the job could not be finalized' % (uow.process_name, uow.timeperiod))
+            self.logger.info('Suppressing job state change for {0} in {1} '
+                             'since the job is not finalizable'.format(uow.process_name, uow.timeperiod))
 
     def __process_non_finalizable_job(self, job_record, uow, start_timeperiod, end_timeperiod):
         """ method handles given job_record based on the unit_of_work status
@@ -66,8 +66,8 @@ class StateMachineSimpleDiscrete(StateMachineDiscrete):
         if uow.is_active:
             # Job processing has not started yet
             # Let the processing complete - do no updates to Scheduler records
-            msg = 'Suppressed creating uow for %s in timeperiod %s; job record is in %s; uow is in %s' \
-                  % (job_record.process_name, job_record.timeperiod, job_record.state, uow.state)
+            msg = 'Suppressed creating uow for {0} in timeperiod {1}; job record is in {2}; uow is in {3}' \
+                  .format(job_record.process_name, job_record.timeperiod, job_record.state, uow.state)
             self._log_message(INFO, job_record.process_name, job_record.timeperiod, msg)
         elif uow.is_processed:
             self.update_job(job_record, uow, job.STATE_PROCESSED)
@@ -76,14 +76,13 @@ class StateMachineSimpleDiscrete(StateMachineDiscrete):
         elif uow.is_canceled:
             self.update_job(job_record, uow, job.STATE_SKIPPED)
         elif uow.is_invalid:
-            msg = 'Job record %s: UOW for %s in timeperiod %s is in %s; ' \
-                  'relying on the Garbage Collector to transfer UOW into the %s' \
-                  % (job_record.db_id, job_record.process_name, job_record.timeperiod,
-                     uow.state, unit_of_work.STATE_CANCELED)
+            msg = 'Job record {0}: UOW for {1} in timeperiod {2} is in {3}; ' \
+                  'relying on the Garbage Collector to transfer UOW into the STATE_CANCELED' \
+                  .format(job_record.db_id, job_record.process_name, job_record.timeperiod, uow.state)
             self._log_message(INFO, job_record.process_name, job_record.timeperiod, msg)
         else:
-            msg = 'Unknown state %s for job record %s in timeperiod %s for %s' \
-                  % (uow.state, job_record.db_id, job_record.timeperiod, job_record.process_name)
+            msg = 'Unknown state {0} for job record {1} in timeperiod {2} for {3}' \
+                  .format(uow.state, job_record.db_id, job_record.timeperiod, job_record.process_name)
             self._log_message(INFO, job_record.process_name, job_record.timeperiod, msg)
 
         timetable_tree = self.timetable.get_tree(job_record.process_name)
@@ -104,10 +103,11 @@ class StateMachineSimpleDiscrete(StateMachineDiscrete):
             self.__process_finalizable_job(job_record, uow)
 
         else:
-            msg = 'Job record %s has timeperiod from future %s vs current time %s' \
-                  % (job_record.db_id, job_record.timeperiod, actual_timeperiod)
+            msg = 'Job record {0} has timeperiod from future {1} vs current time {2}' \
+                  .format(job_record.db_id, job_record.timeperiod, actual_timeperiod)
             self._log_message(ERROR, job_record.process_name, job_record.timeperiod, msg)
 
     def _process_state_final_run(self, job_record):
         """method takes care of processing job records in STATE_FINAL_RUN state"""
-        raise NotImplementedError('Method _process_state_final_run is not supported by %s' % self.__class__.__name__)
+        raise NotImplementedError('Method _process_state_final_run is not supported by {0}'
+                                  .format(self.__class__.__name__))

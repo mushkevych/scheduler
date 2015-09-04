@@ -102,8 +102,8 @@ def get_python():
 
 
 def go_to_ve():
-    """Rerun this script within the virtualenv with same args
-    Note: parent process will wait for created subprocess to complete"""
+    """ Rerun this script within the virtualenv with same args
+        NOTICE: parent process will wait for created subprocess to complete """
     # two options are possible
     if not path.abspath(sys.prefix) == VE_ROOT:
         # Option A: we are in the parental process that was called from command line like
@@ -119,7 +119,7 @@ def go_to_ve():
 
 
 def install_virtualenv_p2(root, python_version):
-    """Install virtual environment for Python 2.7+; removing the old one if it exists"""
+    """ Install virtual environment for Python 2.7+; removing the old one if it exists """
     try:
         import virtualenv
     except ImportError:
@@ -137,7 +137,7 @@ def install_virtualenv_p2(root, python_version):
 
 
 def install_virtualenv_p3(root, python_version):
-    """Install virtual environment for Python 3.3+; removing the old one if it exists"""
+    """ Install virtual environment for Python 3.3+; removing the old one if it exists """
     import venv
     builder = venv.EnvBuilder(system_site_packages=False, clear=True, symlinks=False, upgrade=False)
     builder.create(root)
@@ -244,9 +244,8 @@ def stop_process(parser_args):
 
 
 def run_shell(parser_args):
-    """Run IPython in the virtualenv
-    http://ipython.org/ipython-doc/stable/interactive/reference.html
-    """
+    """ Run IPython in the virtualenv
+        http://ipython.org/ipython-doc/stable/interactive/reference.html """
     from IPython import embed
 
     embed()

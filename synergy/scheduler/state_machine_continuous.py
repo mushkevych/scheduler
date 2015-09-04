@@ -28,8 +28,8 @@ class StateMachineContinuous(AbstractStateMachine):
         job_record = node.job_record
 
         if not job_record.is_final_run:
-            self.logger.info('Can not perform shallow status update for %s in timeperiod %s '
-                             'since the job state is not STATE_FINAL_RUN' % (uow.process_name, uow.timeperiod))
+            self.logger.info('Suppressing job state change since the job for {0} in {1} is not in STATE_FINAL_RUN'
+                             .format(uow.process_name, uow.timeperiod))
             return
         self._process_state_final_run(job_record)
 
@@ -41,9 +41,8 @@ class StateMachineContinuous(AbstractStateMachine):
         uow.end_id = str(last_object_id)
         self.uow_dao.update(uow)
 
-        msg = 'Updated range to process for %s in timeperiod %s for collection %s: [%s : %s]' \
-              % (process_name, start_timeperiod, source_collection_name,
-                 uow.start_id, str(last_object_id))
+        msg = 'Updated range to process for {0} in timeperiod {1} for collection {2}: [{3} : {4}]' \
+              .format(process_name, start_timeperiod, source_collection_name, uow.start_id, uow.end_id)
         self._log_message(INFO, process_name, start_timeperiod, msg)
 
     def _compute_and_transfer_to_progress(self, process_name, start_timeperiod, end_timeperiod, job_record):
@@ -111,6 +110,6 @@ class StateMachineContinuous(AbstractStateMachine):
                                                     end_timeperiod, job_record)
 
         else:
-            msg = 'job record %s has timeperiod from future %s vs current time %s' \
-                  % (job_record.db_id, job_record.timeperiod, actual_timeperiod)
+            msg = 'Job record {0} has timeperiod from future {1} vs current time {2}' \
+                  .format(job_record.db_id, job_record.timeperiod, actual_timeperiod)
             self._log_message(ERROR, job_record.process_name, job_record.timeperiod, msg)
