@@ -34,12 +34,24 @@ class StateMachineDiscrete(AbstractStateMachine):
         """ method that takes care of processing job records in STATE_EMBRYO state"""
         time_qualifier = context.process_context[job_record.process_name].time_qualifier
         end_timeperiod = time_helper.increment_timeperiod(time_qualifier, job_record.timeperiod)
+        actual_timeperiod = time_helper.actual_timeperiod(time_qualifier)
+        is_job_finalizable = self.timetable.is_job_record_finalizable(job_record)
         uow, is_duplicate = self.insert_and_publish_uow(job_record.process_name,
                                                         job_record.timeperiod,
                                                         end_timeperiod,
                                                         0,
                                                         0)
-        self.update_job(job_record, uow, job.STATE_IN_PROGRESS)
+
+        if job_record.timeperiod == actual_timeperiod or is_job_finalizable is False:
+            self.update_job(job_record, uow, job.STATE_IN_PROGRESS)
+
+        elif job_record.timeperiod < actual_timeperiod and is_job_finalizable is True:
+            self.update_job(job_record, uow, self.update_job(job_record, uow, job.STATE_FINAL_RUN))
+
+        else:
+            msg = 'Job record {0} has timeperiod from future {1} vs current time {2}' \
+                  .format(job_record.db_id, job_record.timeperiod, actual_timeperiod)
+            self._log_message(ERROR, job_record.process_name, job_record.timeperiod, msg)
 
     def _process_state_in_progress(self, job_record):
         """ method that takes care of processing job records in STATE_IN_PROGRESS state"""
@@ -49,7 +61,7 @@ class StateMachineDiscrete(AbstractStateMachine):
                 # Let the Job processing complete - do no updates to Scheduler records
                 pass
             elif uow.is_finished:
-                # create new uow to cover new inserts
+                # create new UOW to cover new inserts
                 new_uow, is_duplicate = self.insert_and_publish_uow(job_record.process_name,
                                                                     job_record.timeperiod,
                                                                     end_timeperiod,
