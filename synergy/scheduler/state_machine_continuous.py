@@ -13,7 +13,7 @@ from synergy.scheduler.state_machine_dicrete import StateMachineDiscrete
 
 class StateMachineContinuous(StateMachineDiscrete):
     """ Continuous State Machine re-run process for timeperiod T until T+1,
-        then transfers the timeperiod A to STATE_FINAL_RUN """
+        then transfers the timeperiod T to STATE_FINAL_RUN """
 
     def __init__(self, logger, timetable):
         super(StateMachineContinuous, self).__init__(logger, timetable, name=STATE_MACHINE_CONTINUOUS)
