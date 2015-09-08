@@ -161,7 +161,7 @@ class AbstractStateMachine(object):
             self.update_job(job_record, uow, job.STATE_SKIPPED)
         elif uow.is_invalid:
             msg = 'Job record {0}: UOW for {1} in timeperiod {2} is in {3}; ' \
-                  'relying on the Garbage Collector to transfer UOW into the STATE_CANCELED' \
+                  'relying on the Garbage Collector to either recycle or cancel the UOW.' \
                   .format(job_record.db_id, job_record.process_name, job_record.timeperiod, uow.state)
             self._log_message(INFO, job_record.process_name, job_record.timeperiod, msg)
         else:

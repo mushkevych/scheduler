@@ -1,7 +1,7 @@
 from distutils.core import setup
 
 setup(name='synergy_scheduler',
-      version='1.12',
+      version='1.13',
       description='Synergy Scheduler',
       author='Bohdan Mushkevych',
       author_email='mushkevych@gmail.com',
@@ -11,8 +11,8 @@ setup(name='synergy_scheduler',
                 'synergy.system', 'synergy.workers'],
       package_data={'synergy.mx': ['static/images/*', 'static/fonts/*', 'static/js/*', 'static/css/*', 'templates/*'],
                     'synergy.mq': ['AUTHORS', 'LICENSE']},
-      long_description='''Synergy Scheduler works both as a simple cron-style scheduler and a more elaborate solution
-      with multiple state machines governing processes and their jobs, as well as interdependencies between them.''',
+      long_description='Synergy Scheduler shines in governing interdependent processes and their jobs. '
+                       'Alternatively, it can work as a cron-like job trigger.',
       license='Modified BSD License',
       classifiers=[
           'Development Status :: 5 - Production/Stable',

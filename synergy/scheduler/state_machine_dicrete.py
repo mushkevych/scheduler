@@ -30,28 +30,39 @@ class StateMachineDiscrete(AbstractStateMachine):
             return
         self._process_state_final_run(job_record)
 
+    def _compute_next_job_state(self, job_record):
+        time_qualifier = context.process_context[job_record.process_name].time_qualifier
+        actual_timeperiod = time_helper.actual_timeperiod(time_qualifier)
+        is_job_finalizable = self.timetable.is_job_record_finalizable(job_record)
+
+        if job_record.timeperiod == actual_timeperiod or is_job_finalizable is False:
+            return job.STATE_IN_PROGRESS
+
+        elif job_record.timeperiod < actual_timeperiod and is_job_finalizable is True:
+            return job.STATE_FINAL_RUN
+
+        else:
+            msg = 'Job record {0} has timeperiod from future {1} vs current time {2}' \
+                .format(job_record.db_id, job_record.timeperiod, actual_timeperiod)
+            self._log_message(ERROR, job_record.process_name, job_record.timeperiod, msg)
+            raise ValueError(msg)
+
     def _process_state_embryo(self, job_record):
         """ method that takes care of processing job records in STATE_EMBRYO state"""
         time_qualifier = context.process_context[job_record.process_name].time_qualifier
         end_timeperiod = time_helper.increment_timeperiod(time_qualifier, job_record.timeperiod)
-        actual_timeperiod = time_helper.actual_timeperiod(time_qualifier)
-        is_job_finalizable = self.timetable.is_job_record_finalizable(job_record)
         uow, is_duplicate = self.insert_and_publish_uow(job_record.process_name,
                                                         job_record.timeperiod,
                                                         end_timeperiod,
                                                         0,
                                                         0)
 
-        if job_record.timeperiod == actual_timeperiod or is_job_finalizable is False:
-            self.update_job(job_record, uow, job.STATE_IN_PROGRESS)
-
-        elif job_record.timeperiod < actual_timeperiod and is_job_finalizable is True:
-            self.update_job(job_record, uow, self.update_job(job_record, uow, job.STATE_FINAL_RUN))
-
-        else:
-            msg = 'Job record {0} has timeperiod from future {1} vs current time {2}' \
-                  .format(job_record.db_id, job_record.timeperiod, actual_timeperiod)
-            self._log_message(ERROR, job_record.process_name, job_record.timeperiod, msg)
+        try:
+            target_state = self._compute_next_job_state(job_record)
+            self.update_job(job_record, uow, target_state)
+        except ValueError:
+            # do no processing for the future timeperiods
+            pass
 
     def _process_state_in_progress(self, job_record):
         """ method that takes care of processing job records in STATE_IN_PROGRESS state"""
@@ -71,17 +82,11 @@ class StateMachineDiscrete(AbstractStateMachine):
 
         time_qualifier = context.process_context[job_record.process_name].time_qualifier
         end_timeperiod = time_helper.increment_timeperiod(time_qualifier, job_record.timeperiod)
-        actual_timeperiod = time_helper.actual_timeperiod(time_qualifier)
-        is_job_finalizable = self.timetable.is_job_record_finalizable(job_record)
         uow = self.uow_dao.get_one(job_record.related_unit_of_work)
 
-        if job_record.timeperiod == actual_timeperiod or is_job_finalizable is False:
-            _process_state(job.STATE_IN_PROGRESS, uow)
-
-        elif job_record.timeperiod < actual_timeperiod and is_job_finalizable is True:
-            _process_state(job.STATE_FINAL_RUN, uow)
-
-        else:
-            msg = 'Job record {0} has timeperiod from future {1} vs current time {2}' \
-                  .format(job_record.db_id, job_record.timeperiod, actual_timeperiod)
-            self._log_message(ERROR, job_record.process_name, job_record.timeperiod, msg)
+        try:
+            target_state = self._compute_next_job_state(job_record)
+            _process_state(target_state, uow)
+        except ValueError:
+            # do no processing for the future timeperiods
+            pass

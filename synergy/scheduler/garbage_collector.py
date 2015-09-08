@@ -145,16 +145,16 @@ class GarbageCollector(object):
         try:
             self.logger.info('run {')
 
-            self.logger.debug('GC: step 1 - scan reprocessing candidates')
+            self.logger.debug('step 1: scan reprocessing candidates')
             self.scan_uow_candidates()
 
-            self.logger.debug('GC: step 2 - repost after timeout')
+            self.logger.debug('step 2: repost after timeout')
             self.flush()
 
-            self.logger.debug('GC: step 3 - timetable housekeeping')
+            self.logger.debug('step 3: timetable housekeeping')
             self.timetable.build_trees()
 
-            self.logger.debug('GC: step 4 - timetable validation')
+            self.logger.debug('step 4: timetable validation')
             self.timetable.validate()
         except Exception as e:
             self.logger.error('GC run exception: {0}'.format(e))
