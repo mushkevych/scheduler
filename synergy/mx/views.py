@@ -4,6 +4,7 @@ import json
 import httplib
 
 from werkzeug.wrappers import Response
+from werkzeug.utils import redirect
 
 from synergy.mx.gc_action_handler import GcActionHandler
 from synergy.mx.freerun_action_handler import FreerunActionHandler
@@ -35,8 +36,11 @@ def open_schedulable_form(request, **values):
         handler = FreerunActionHandler(request, **values)
     return render_template('schedulable_form.html', handler=handler)
 
-
 @expose('/')
+def landing_page(request, **values):
+    return redirect('/dashboard/managed/')
+
+
 @expose('/dashboard/managed/')
 def dashboard_managed(request, **values):
     details = DashboardHandler(request, **values)

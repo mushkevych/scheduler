@@ -51,7 +51,6 @@ process_context = {
         classname='workers.site_hourly_aggregator.SiteHourlyAggregator.start',
         token=TOKEN_SITE,
         time_qualifier=QUALIFIER_HOURLY,
-        # time_grouping=2,
         source=COLLECTION_SINGLE_SESSION,
         sink=COLLECTION_SITE_HOURLY,
         state_machine_name=STATE_MACHINE_CONTINUOUS,

@@ -20,7 +20,16 @@
 </head>
 
 {% macro render_td(endpoint, title) %}
-    <td {% if endpoint in local.request.path %} class="active" {% endif %} >
+    {% set td_class = '' %}
+    {%- if endpoint in local.request.path -%}
+        <script type="text/javascript">
+            var mx_page = "{{ endpoint|safe }}";
+        </script>
+        {% set mx_page = endpoint %}
+        {% set td_class = 'class="active"' %}
+    {%- endif -%}
+
+    <td {{ td_class|safe }}>
         <a href="{{ endpoint }}"> {{ title }}</a>
     </td>
 {% endmacro %}

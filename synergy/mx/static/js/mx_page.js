@@ -111,13 +111,6 @@ function header_process_tile(process_entry, tile) {
 
 
 function info_process_tile(process_entry, tile) {
-    var run_on_active_timeperiod;
-    if (process_entry.run_on_active_timeperiod) {
-        run_on_active_timeperiod = '<i class="fa fa-toggle-on" title="is ON"></i>';
-    } else {
-        run_on_active_timeperiod = '<i class="fa fa-toggle-off" title="is OFF"></i>';
-    }
-
     var change_interval_form = '<form method="GET" action="/action/change_interval/" onsubmit="xmlhttp.send(); return false;">'
         + '<input type="hidden" name="process_name" value="' + process_entry.process_name + '" />'
         + '<input type="hidden" name="timeperiod" value="NA" />'
@@ -132,7 +125,6 @@ function info_process_tile(process_entry, tile) {
         + '<li title="Time Grouping"><i class="fa-li fa fa-cubes"></i>' + process_entry.time_grouping + '</li>'
         + '<li title="State Machine"><i class="fa-li fa fa-puzzle-piece"></i>' + process_entry.state_machine_name + '</li>'
         + '<li title="Blocking Type"><i class="fa-li fa fa-anchor"></i>' + process_entry.blocking_type + '</li>'
-        + '<li title="Run On Active Timeperiod"><i class="fa-li fa fa-unlock-alt"></i>' + run_on_active_timeperiod + '</li>'
         + '<li title="Trigger Frequency"><i class="fa-li fa fa-heartbeat"></i>' + change_interval_form + '</li>'
         + '</ul>');
     tile.$el.attr('class', 'process_info_tile');

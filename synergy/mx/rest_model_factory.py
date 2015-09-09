@@ -49,7 +49,6 @@ def create_rest_managed_scheduler_entry(thread_handler, timetable, gc):
         state_machine_name=process_entry.state_machine_name,
         process_type=process_entry.process_type,
         blocking_type=process_entry.blocking_type,
-        run_on_active_timeperiod=process_entry.run_on_active_timeperiod,
         reprocessing_queue=get_reprocessing_queue(gc, process_name),
     )
     return rest_model
