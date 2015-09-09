@@ -151,8 +151,7 @@ class Scheduler(SynergyProcess):
                 # avoid the loop
                 return None
 
-            run_on_active_timeperiod = process_entry.run_on_active_timeperiod
-            if not run_on_active_timeperiod:
+            if not state_machine.run_on_active_timeperiod:
                 time_qualifier = process_entry.time_qualifier
                 incremented_timeperiod = time_helper.increment_timeperiod(time_qualifier, job_record.timeperiod)
                 dt_record_timestamp = time_helper.synergy_to_datetime(time_qualifier, incremented_timeperiod)
@@ -167,9 +166,9 @@ class Scheduler(SynergyProcess):
 
             blocking_type = process_entry.blocking_type
             if blocking_type == BLOCKING_DEPENDENCIES:
-                state_machine.manage_job_with_blocking_dependencies(job_record, run_on_active_timeperiod)
+                state_machine.manage_job_with_blocking_dependencies(job_record)
             elif blocking_type == BLOCKING_CHILDREN:
-                state_machine.manage_job_with_blocking_children(job_record, run_on_active_timeperiod)
+                state_machine.manage_job_with_blocking_children(job_record)
             elif blocking_type == BLOCKING_NORMAL:
                 state_machine.manage_job(job_record)
             else:

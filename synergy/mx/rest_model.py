@@ -15,6 +15,7 @@ FIELD_NEXT_TIMEPERIOD = 'next_timeperiod'   # Synergy timeperiod format
 FIELD_DEPENDANT_TREES = 'dependant_trees'
 FIELD_SORTED_PROCESS_NAMES = 'sorted_process_names'     # process names sorted by their time_qualifier
 FIELD_REPROCESSING_QUEUE = 'reprocessing_queue'
+RUN_ON_ACTIVE_TIMEPERIOD = 'run_on_active_timeperiod'
 
 FIELD_NUMBER_OF_CHILDREN = 'number_of_children'
 FIELD_PROCESSES = 'processes'
@@ -33,6 +34,7 @@ class RestManagedSchedulerEntry(ManagedProcessEntry):
     next_run_in = StringField(FIELD_NEXT_RUN_IN)
     next_timeperiod = StringField(FIELD_NEXT_TIMEPERIOD)
     reprocessing_queue = ListField(FIELD_REPROCESSING_QUEUE)
+    run_on_active_timeperiod = BooleanField(RUN_ON_ACTIVE_TIMEPERIOD)
 
 
 class RestTimetableTree(TimetableTreeEntry):

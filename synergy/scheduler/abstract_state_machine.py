@@ -36,6 +36,14 @@ class AbstractStateMachine(object):
         except Exception as e:
             self.logger.error('Exception caught while closing Flopsy Publishers Pool: {0}'.format(e))
 
+    @property
+    def run_on_active_timeperiod(self):
+        """
+        :return: True if given State Machine allows execution on *live* timeperiod, as opposed to the finished one
+        """
+        raise NotImplementedError('property run_on_active_timeperiod must be implemented by {0}'
+                                  .format(self.__class__.__name__))
+
     def _log_message(self, level, process_name, timeperiod, msg):
         """ method performs logging into log file and Timetable's tree node"""
         self.timetable.add_log_entry(process_name, timeperiod, msg)
@@ -179,23 +187,19 @@ class AbstractStateMachine(object):
               .format(job_record.db_id, job_record.process_name, job_record.timeperiod, job_record.state, self.name)
         self._log_message(WARNING, job_record.process_name, job_record.timeperiod, msg)
 
-    def manage_job_with_blocking_children(self, job_record, run_on_active_timeperiod):
+    def manage_job_with_blocking_children(self, job_record):
         """ method will trigger job processing only if:
             - all children are finished (STATE_PROCESSED, STATE_SKIPPED, STATE_NOOP)
             - all external dependencies are finalized (STATE_PROCESSED, STATE_SKIPPED, STATE_NOOP) """
         is_job_finalizable = self.timetable.is_job_record_finalizable(job_record)
-        composite_state = self.timetable.dependent_on_composite_state(job_record)
-
         if is_job_finalizable:
-            self.manage_job(job_record)
-        elif composite_state.all_healthy and run_on_active_timeperiod:
             self.manage_job(job_record)
         else:
             msg = '{0} for timeperiod {1} is blocked by unprocessed children/dependencies. Waiting another tick' \
                   .format(job_record.process_name, job_record.timeperiod)
             self._log_message(INFO, job_record.process_name, job_record.timeperiod, msg)
 
-    def manage_job_with_blocking_dependencies(self, job_record, run_on_active_timeperiod):
+    def manage_job_with_blocking_dependencies(self, job_record):
         """ method will trigger job processing only if:
             - all dependencies are in [STATE_PROCESSED, STATE_NOOP]
             NOTICE: method will transfer current job into STATE_SKIPPED if any dependency is in STATE_SKIPPED """
@@ -203,8 +207,6 @@ class AbstractStateMachine(object):
         assert isinstance(composite_state, NodesCompositeState)
 
         if composite_state.all_processed:
-            self.manage_job(job_record)
-        elif composite_state.all_healthy and run_on_active_timeperiod:
             self.manage_job(job_record)
         elif composite_state.skipped_present:
             # As soon as among <dependent on> periods are in STATE_SKIPPED

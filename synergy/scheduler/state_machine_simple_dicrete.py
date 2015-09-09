@@ -19,6 +19,11 @@ class StateMachineSimpleDiscrete(StateMachineDiscrete):
     def __del__(self):
         super(StateMachineSimpleDiscrete, self).__del__()
 
+    @property
+    def run_on_active_timeperiod(self):
+        """ :return: False, since there should be only 1 run for given timeperiod """
+        return False
+
     def notify(self, uow):
         tree = self.timetable.get_tree(uow.process_name)
         node = tree.get_node(uow.process_name, uow.timeperiod)

@@ -43,7 +43,6 @@ process_context = {
         sink=COLLECTION_SITE_DAILY,
         state_machine_name=STATE_MACHINE_CONTINUOUS,
         blocking_type=BLOCKING_CHILDREN,
-        run_on_active_timeperiod=True,
         trigger_frequency='every 900',
         present_on_boxes=['dev.*']),
 
@@ -57,7 +56,6 @@ process_context = {
         sink=COLLECTION_SITE_HOURLY,
         state_machine_name=STATE_MACHINE_CONTINUOUS,
         blocking_type=BLOCKING_NORMAL,
-        run_on_active_timeperiod=True,
         trigger_frequency='every 300',
         present_on_boxes=['dev.*']),
 
@@ -70,7 +68,6 @@ process_context = {
         sink=COLLECTION_SITE_MONTHLY,
         state_machine_name=STATE_MACHINE_DISCRETE,
         blocking_type=BLOCKING_NORMAL,
-        run_on_active_timeperiod=True,
         trigger_frequency='every 10800',
         present_on_boxes=['dev.*']),
 
@@ -115,7 +112,6 @@ process_context = {
         sink=COLLECTION_CLIENT_DAILY,
         state_machine_name=STATE_MACHINE_SIMPLE_DISCRETE,
         blocking_type=BLOCKING_DEPENDENCIES,
-        run_on_active_timeperiod=True,
         trigger_frequency='every 10800',
         present_on_boxes=['dev.*']),
 
@@ -128,7 +124,6 @@ process_context = {
         sink=COLLECTION_CLIENT_MONTHLY,
         state_machine_name=STATE_MACHINE_DISCRETE,
         blocking_type=BLOCKING_NORMAL,
-        run_on_active_timeperiod=True,
         trigger_frequency='every 21600',
         present_on_boxes=['dev.*']),
 

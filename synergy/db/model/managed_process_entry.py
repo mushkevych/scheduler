@@ -9,7 +9,6 @@ from synergy.scheduler.scheduler_constants import BLOCKING_CHILDREN, BLOCKING_DE
 
 PROCESS_NAME = 'process_name'
 IS_ON = 'is_on'
-RUN_ON_ACTIVE_TIMEPERIOD = 'run_on_active_timeperiod'
 TRIGGER_FREQUENCY = 'trigger_frequency'
 STATE_MACHINE_NAME = 'state_machine_name'
 BLOCKING_TYPE = 'blocking_type'
@@ -28,7 +27,6 @@ class ManagedProcessEntry(DaemonProcessEntry):
     time_grouping = IntegerField(TIME_GROUPING)
     trigger_frequency = StringField(TRIGGER_FREQUENCY)
     is_on = BooleanField(IS_ON, default=False)
-    run_on_active_timeperiod = BooleanField(RUN_ON_ACTIVE_TIMEPERIOD)
     state_machine_name = StringField(STATE_MACHINE_NAME)
     blocking_type = StringField(BLOCKING_TYPE, choices=[BLOCKING_CHILDREN, BLOCKING_DEPENDENCIES, BLOCKING_NORMAL])
 
@@ -59,8 +57,7 @@ def managed_context_entry(process_name,
                           source=None,
                           sink=None,
                           pid_file=None,
-                          log_file=None,
-                          run_on_active_timeperiod=False):
+                          log_file=None):
     """ forms process context entry """
     _ROUTING_PREFIX = 'routing_'
     _QUEUE_PREFIX = 'queue_'
@@ -97,6 +94,5 @@ def managed_context_entry(process_name,
         time_grouping=time_grouping,
         process_type=process_type,
         log_filename=log_file,
-        pid_filename=pid_file,
-        run_on_active_timeperiod=run_on_active_timeperiod)
+        pid_filename=pid_file)
     return process_entry
