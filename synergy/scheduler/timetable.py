@@ -14,9 +14,9 @@ from synergy.system.decorator import thread_safe
 from synergy.scheduler.scheduler_constants import COLLECTION_JOB_HOURLY, COLLECTION_JOB_DAILY, \
     COLLECTION_JOB_MONTHLY, COLLECTION_JOB_YEARLY
 from synergy.scheduler.tree import MultiLevelTree
+from synergy.scheduler.state_machine_recomputing import StateMachineRecomputing
 from synergy.scheduler.state_machine_continuous import StateMachineContinuous
-from synergy.scheduler.state_machine_dicrete import StateMachineDiscrete
-from synergy.scheduler.state_machine_simple_dicrete import StateMachineSimpleDiscrete
+from synergy.scheduler.state_machine_discrete import StateMachineDiscrete
 from synergy.scheduler.state_machine_freerun import StateMachineFreerun
 
 
@@ -43,9 +43,9 @@ class Timetable(object):
     def _construct_state_machines(self):
         """ :return: dict in format <state_machine_common_name: instance_of_the_state_machine> """
         state_machines = dict()
-        for state_machine in [StateMachineContinuous(self.logger, self),
+        for state_machine in [StateMachineRecomputing(self.logger, self),
+                              StateMachineContinuous(self.logger, self),
                               StateMachineDiscrete(self.logger, self),
-                              StateMachineSimpleDiscrete(self.logger, self),
                               StateMachineFreerun(self.logger)]:
             state_machines[state_machine.name] = state_machine
         return state_machines

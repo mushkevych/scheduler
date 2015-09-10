@@ -10,9 +10,9 @@ TOKEN_GC = 'gc'
 TOKEN_WERKZEUG = 'werkzeug'
 
 # State Machine names
+STATE_MACHINE_RECOMPUTING = 'recomputing'
 STATE_MACHINE_CONTINUOUS = 'continuous'
 STATE_MACHINE_DISCRETE = 'discrete'
-STATE_MACHINE_SIMPLE_DISCRETE = 'simple_discrete'
 STATE_MACHINE_FREERUN = 'freerun'
 
 # Supported worker types

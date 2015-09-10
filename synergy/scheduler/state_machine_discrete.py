@@ -3,21 +3,21 @@ __author__ = 'Bohdan Mushkevych'
 from logging import ERROR, INFO
 
 from synergy.db.model import job
-from synergy.scheduler.scheduler_constants import STATE_MACHINE_SIMPLE_DISCRETE
-from synergy.scheduler.state_machine_dicrete import StateMachineDiscrete
+from synergy.scheduler.scheduler_constants import STATE_MACHINE_DISCRETE
+from synergy.scheduler.abstract_state_machine import AbstractStateMachine
 from synergy.system import time_helper
 from synergy.conf import context
 
 
-class StateMachineSimpleDiscrete(StateMachineDiscrete):
-    """ State Machine to handle discrete timeperiod boundaries for jobs
-    in comparison to StateMachineDiscrete this one does not transfer to STATE_FINAL_RUN"""
+class StateMachineDiscrete(AbstractStateMachine):
+    """ State Machine of 5 states to handle discrete timeperiod boundaries for jobs
+        in comparison to StateMachineContinuous this one does not transfer to STATE_FINAL_RUN"""
 
     def __init__(self, logger, timetable):
-        super(StateMachineSimpleDiscrete, self).__init__(logger, timetable, name=STATE_MACHINE_SIMPLE_DISCRETE)
+        super(StateMachineDiscrete, self).__init__(logger, timetable, name=STATE_MACHINE_DISCRETE)
 
     def __del__(self):
-        super(StateMachineSimpleDiscrete, self).__del__()
+        super(StateMachineDiscrete, self).__del__()
 
     @property
     def run_on_active_timeperiod(self):
@@ -93,6 +93,17 @@ class StateMachineSimpleDiscrete(StateMachineDiscrete):
 
         timetable_tree = self.timetable.get_tree(job_record.process_name)
         timetable_tree.build_tree()
+
+    def _process_state_embryo(self, job_record):
+        """ method that takes care of processing job records in STATE_EMBRYO state"""
+        time_qualifier = context.process_context[job_record.process_name].time_qualifier
+        end_timeperiod = time_helper.increment_timeperiod(time_qualifier, job_record.timeperiod)
+        uow, is_duplicate = self.insert_and_publish_uow(job_record.process_name,
+                                                        job_record.timeperiod,
+                                                        end_timeperiod,
+                                                        0,
+                                                        0)
+        self.update_job(job_record, uow, job.STATE_IN_PROGRESS)
 
     def _process_state_in_progress(self, job_record):
         """ method that takes care of processing job records in STATE_IN_PROGRESS state """

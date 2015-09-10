@@ -18,6 +18,7 @@ from tests.base_fixtures import create_unit_of_work, create_and_insert_unit_of_w
 from constants import *
 from synergy.mq.flopsy import PublishersPool, Publisher
 from synergy.scheduler.tree import LIFE_SUPPORT_HOURS
+from synergy.scheduler.timetable import Timetable
 from synergy.scheduler.synergy_scheduler import Scheduler
 from synergy.scheduler.thread_handler import ManagedThreadHandler
 from synergy.scheduler.garbage_collector import GarbageCollector
@@ -84,6 +85,8 @@ class GarbageCollectorUnitTest(unittest.TestCase):
 
     def setUp(self):
         self.scheduler_mocked = mock.create_autospec(Scheduler)
+        self.time_table_mocked = mock.create_autospec(Timetable)
+        self.scheduler_mocked.timetable = self.time_table_mocked
 
         self.process_entry = mock.create_autospec(ManagedProcessEntry)
         self.process_entry.is_on = True
@@ -112,11 +115,11 @@ class GarbageCollectorUnitTest(unittest.TestCase):
         self.worker.uow_dao.get_reprocessing_candidates = mock.MagicMock(return_value=[uow])
         self.assertEqual(len(self.worker.reprocess_uows[uow.process_name]), 0)
 
-        # use-case 1 - UOW has not crossed 1 hour after submission to be enlisted into reprocessing_queue
+        # use-case 1 - UOW is invalid, and added to the reprocessing_queue
         self.worker.scan_uow_candidates()
-        self.assertEqual(len(self.worker.reprocess_uows[uow.process_name]), 0)
+        self.assertEqual(len(self.worker.reprocess_uows[uow.process_name]), 1)
 
-        # use-case 2 - age the UOW by 2 hours so it could be enlisted into the reprocessing_queue
+        # use-case 2 - age the UOW by 2 hours. However, only 1 copy should be listed in the reprocessing_queue
         uow.submitted_at = datetime.utcnow() - timedelta(hours=2)
         self.worker.scan_uow_candidates()
         self.assertEqual(len(self.worker.reprocess_uows[uow.process_name]), 1)
