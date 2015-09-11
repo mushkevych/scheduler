@@ -10,8 +10,9 @@ from synergy.conf import context
 
 
 class StateMachineContinuous(AbstractStateMachine):
-    """ State Machine to handle discrete timeperiod boundaries for batch jobs
-        in comparison to StateMachineContinuous this one does not re-compute processing boundaries"""
+    """ State Machine of 6 states is expected to spawn multiple UOWs per job/timeperiod.
+        Job timeperiods boundaries are meant to be discrete/fixed
+        in comparison to StateMachineRecomputing this one does not re-compute processing boundaries """
 
     def __init__(self, logger, timetable, name=STATE_MACHINE_CONTINUOUS):
         super(StateMachineContinuous, self).__init__(logger, timetable, name)

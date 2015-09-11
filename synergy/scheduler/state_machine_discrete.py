@@ -10,7 +10,8 @@ from synergy.conf import context
 
 
 class StateMachineDiscrete(AbstractStateMachine):
-    """ State Machine of 5 states to handle discrete timeperiod boundaries for jobs
+    """ State Machine of 5 states is expected to spawn one UOW per job/timeperiod
+        Job timeperiods boundaries are meant to be discrete/fixed
         in comparison to StateMachineContinuous this one does not transfer to STATE_FINAL_RUN"""
 
     def __init__(self, logger, timetable):

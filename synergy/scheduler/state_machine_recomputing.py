@@ -12,8 +12,8 @@ from synergy.scheduler.abstract_state_machine import AbstractStateMachine
 
 
 class StateMachineRecomputing(AbstractStateMachine):
-    """ Continuous State Machine re-run process for timeperiod A until A+1,
-        then transfers the timeperiod A to STATE_FINAL_RUN """
+    """ State Machine of 6 states is expected to spawn multiple UOWs per job/timeperiod.
+        Job timeperiods boundaries are dynamic - i.e. underlying data volume grows with time """
 
     def __init__(self, logger, timetable):
         super(StateMachineRecomputing, self).__init__(logger, timetable, name=STATE_MACHINE_RECOMPUTING)

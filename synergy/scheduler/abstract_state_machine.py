@@ -19,7 +19,7 @@ from synergy.scheduler.scheduler_constants import TYPE_MANAGED
 
 
 class AbstractStateMachine(object):
-    """ Abstract state machine used to govern all processes and their states """
+    """ Abstract state machine used to host common logic for the rest of registered State Machines """
 
     def __init__(self, logger, timetable, name):
         self.name = name
