@@ -31,8 +31,8 @@ class DiscreteSMUnitTest(unittest.TestCase):
         self.sm_real.uow_dao = self.uow_dao_mocked
         self.sm_real.job_dao = self.job_dao_mocked
         self.sm_real.ds = self.ds_mocked
-        self.sm_real._StateMachineSimpleDiscrete__process_non_finalizable_job = mock.Mock()
-        self.sm_real._StateMachineSimpleDiscrete__process_finalizable_job = mock.Mock()
+        self.sm_real._StateMachineDiscrete__process_non_finalizable_job = mock.Mock()
+        self.sm_real._StateMachineDiscrete__process_finalizable_job = mock.Mock()
         self.sm_real._process_state_in_progress = mock.Mock(side_effect=self.sm_real._process_state_in_progress)
 
     def tearDown(self):
@@ -50,7 +50,7 @@ class DiscreteSMUnitTest(unittest.TestCase):
         self.sm_real._process_state_in_progress.assert_called_once_with(mock.ANY)
 
         # verify that processing functions were not called
-        self.assertTrue(self.sm_real._StateMachineDiscrete__process_non_finalizable_job.call_args_list == [])
+        self.assertTrue(self.sm_real._StateMachineDiscrete__process_finalizable_job.call_args_list == [])
         self.assertTrue(self.sm_real._StateMachineDiscrete__process_non_finalizable_job.call_args_list == [])
 
     def test_non_finalizable_job(self):
@@ -84,7 +84,7 @@ class DiscreteSMUnitTest(unittest.TestCase):
         self.sm_real._process_state_in_progress.assert_called_once_with(mock.ANY)
         self.assertTrue(self.sm_real._StateMachineDiscrete__process_non_finalizable_job.call_args_list == [])
 
-        self.sm_real._StateMachineeDiscrete__process_finalizable_job.assert_called_once_with(mock.ANY, mock.ANY)
+        self.sm_real._StateMachineDiscrete__process_finalizable_job.assert_called_once_with(mock.ANY, mock.ANY)
 
 
 if __name__ == '__main__':
