@@ -1,7 +1,5 @@
 __author__ = 'Bohdan Mushkevych'
 
-from synergy.db.model.freerun_process_entry import FreerunProcessEntry
-from synergy.db.model.managed_process_entry import ManagedProcessEntry
 from synergy.db.dao.freerun_process_dao import FreerunProcessDao
 from synergy.db.dao.managed_process_dao import ManagedProcessDao
 from synergy.system.event_clock import parse_time_trigger_string
@@ -107,14 +105,6 @@ class AbstractThreadHandler(object):
     @property
     def is_alive(self):
         return self.timer_instance.is_alive()
-
-    @property
-    def is_managed(self):
-        return isinstance(self.process_entry, ManagedProcessEntry)
-
-    @property
-    def is_freerun(self):
-        return isinstance(self.process_entry, FreerunProcessEntry)
 
 
 class FreerunThreadHandler(AbstractThreadHandler):
