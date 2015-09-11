@@ -119,7 +119,7 @@ class AbstractMongoWorker(AbstractUowAwareWorker):
             self.performance_ticker.increment_success()
 
         self._cursor_exploited()
-        msg = 'Cursor exploited after fetching %s documents' % str(self.performance_ticker.per_job)
+        msg = 'Cursor exploited after fetching %s documents' % str(self.performance_ticker.success_per_job)
         self.logger.info(msg)
 
     def _process_uow(self, uow):
@@ -128,4 +128,4 @@ class AbstractMongoWorker(AbstractUowAwareWorker):
         else:
             self._run_custom_data_engine(uow.start_id, uow.end_id, uow.start_timeperiod, uow.end_timeperiod)
         self._flush_aggregated_objects()
-        return self.performance_ticker.per_job, unit_of_work.STATE_PROCESSED
+        return self.performance_ticker.success_per_job, unit_of_work.STATE_PROCESSED

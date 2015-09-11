@@ -38,12 +38,43 @@ class ContinuousSMUnitTest(unittest.TestCase):
     def tearDown(self):
         pass
 
+    def test_compute_next_job_state(self):
+        """ method validated logic behind selection of the next Job state """
+        self.sm_real.insert_and_publish_uow = then_return_uow
+
+        # case 1: make sure it is STATE_IN_PROGRESS for current timeperiod and non-finalizable job
+        job_record = get_job_record(job.STATE_EMBRYO, TEST_ACTUAL_TIMEPERIOD, PROCESS_SITE_HOURLY)
+        self.time_table_mocked.is_job_record_finalizable = mock.MagicMock(return_value=False)
+        self.assertEqual(self.sm_real._compute_next_job_state(job_record), job.STATE_IN_PROGRESS)
+
+        # case 2: make sure it is STATE_IN_PROGRESS for past timeperiod and non-finalizable job
+        job_record = get_job_record(job.STATE_EMBRYO, TEST_PAST_TIMEPERIOD, PROCESS_SITE_HOURLY)
+        self.time_table_mocked.is_job_record_finalizable = mock.MagicMock(return_value=False)
+        self.assertEqual(self.sm_real._compute_next_job_state(job_record), job.STATE_IN_PROGRESS)
+
+        # case 3: make sure it is STATE_IN_PROGRESS for current timeperiod and finalizable job
+        job_record = get_job_record(job.STATE_EMBRYO, TEST_ACTUAL_TIMEPERIOD, PROCESS_SITE_HOURLY)
+        self.time_table_mocked.is_job_record_finalizable = mock.MagicMock(return_value=True)
+        self.assertEqual(self.sm_real._compute_next_job_state(job_record), job.STATE_IN_PROGRESS)
+
+        # case 4: make sure it is STATE_FINAL_RUN for past timeperiod and finalizable job
+        job_record = get_job_record(job.STATE_EMBRYO, TEST_PAST_TIMEPERIOD, PROCESS_SITE_HOURLY)
+        self.time_table_mocked.is_job_record_finalizable = mock.MagicMock(return_value=True)
+        self.assertEqual(self.sm_real._compute_next_job_state(job_record), job.STATE_FINAL_RUN)
+
+        # case 5: make sure the exception is thrown for future timeperiods
+        job_record = get_job_record(job.STATE_EMBRYO, TEST_FUTURE_TIMEPERIOD, PROCESS_SITE_HOURLY)
+        self.time_table_mocked.is_job_record_finalizable = mock.MagicMock(return_value=True)
+        try:
+            self.sm_real._compute_next_job_state(job_record)
+            self.assertTrue(False, 'an exception is expected to be thrown')
+        except ValueError:
+            self.assertTrue(True, 'an exception is expected')
+
     def test_state_embryo(self):
         """ method tests job records in STATE_EMBRYO state"""
         self.sm_real.insert_and_publish_uow = then_return_uow
-
-        self.ds_mocked.highest_primary_key = mock.MagicMock(return_value=1)
-        self.ds_mocked.lowest_primary_key = mock.MagicMock(return_value=0)
+        self.sm_real._compute_next_job_state = mock.MagicMock(return_value=job.STATE_IN_PROGRESS)
 
         job_record = get_job_record(job.STATE_EMBRYO, TEST_PRESET_TIMEPERIOD, PROCESS_SITE_HOURLY)
         self.sm_real.manage_job(job_record)
