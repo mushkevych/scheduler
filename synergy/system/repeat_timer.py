@@ -40,16 +40,21 @@ class RepeatTimer(threading.Thread):
             self.__timer.join()
 
     def cancel(self):
+        """ stops the timer. call_back function is not called """
         self.event.clear()
         if self.__timer is not None:
             self.__timer.cancel()
 
     def trigger(self):
+        """ calls the call_back function. interrupts the timer to start a new countdown """
         self.call_back(*self.args, **self.kwargs)
         if self.__timer is not None:
             self.__timer.cancel()
 
     def change_interval(self, value):
+        """ :param value: <tick> interval in seconds
+            current countdown is not interrupted
+            new interval will be applied after the trigger execution """
         self.interval_new = value
 
     def next_run_in(self, utc_now=None):
