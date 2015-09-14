@@ -5,9 +5,9 @@ from threading import Thread
 from amqp import AMQPError
 
 from synergy.db.model.synergy_mq_transmission import SynergyMqTransmission
+from synergy.db.model import unit_of_work
 from synergy.db.dao.unit_of_work_dao import UnitOfWorkDao
 from synergy.scheduler.abstract_state_machine import AbstractStateMachine
-from synergy.scheduler.scheduler_constants import TYPE_MANAGED
 from synergy.scheduler.scheduler_constants import QUEUE_UOW_REPORT
 from synergy.mq.flopsy import Consumer
 
@@ -40,8 +40,9 @@ class StatusBusListener(object):
 
             mq_request = SynergyMqTransmission.from_json(message.body)
             uow = self.uow_dao.get_one(mq_request.unit_of_work_id)
-            if uow.unit_of_work_type != TYPE_MANAGED:
-                self.logger.info('Received transmission from TYPE_FREERUN execution. Ignoring it.')
+            if uow.unit_of_work_type != unit_of_work.TYPE_MANAGED:
+                self.logger.info('Received transmission from non-managed UOW execution: {0}. Ignoring it.'
+                                 .format(uow.unit_of_work_type))
                 return
 
             tree = self.timetable.get_tree(uow.process_name)

@@ -47,7 +47,6 @@ def create_rest_managed_scheduler_entry(thread_handler, timetable, gc):
         time_qualifier=process_entry.time_qualifier,
         time_grouping=process_entry.time_grouping,
         state_machine_name=process_entry.state_machine_name,
-        process_type=process_entry.process_type,
         blocking_type=process_entry.blocking_type,
         reprocessing_queue=get_reprocessing_queue(gc, process_name),
     )

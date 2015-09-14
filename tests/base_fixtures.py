@@ -15,7 +15,6 @@ from synergy.db.model.synergy_mq_transmission import SynergyMqTransmission
 from synergy.db.manager import ds_manager
 from synergy.system import time_helper
 from synergy.system.time_qualifier import *
-from synergy.scheduler.scheduler_constants import TYPE_MANAGED
 from synergy.conf import context
 from synergy.system.data_logging import get_logger
 from tests.ut_context import PROCESS_UNIT_TEST
@@ -89,7 +88,7 @@ def create_unit_of_work(process_name,
     uow.source = source_collection
     uow.sink = sink_collection
     uow.state = state
-    uow.unit_of_work_type = TYPE_MANAGED
+    uow.unit_of_work_type = unit_of_work.TYPE_MANAGED
     uow.number_of_retries = 0
     uow.arguments = context.process_context[process_name].arguments
 

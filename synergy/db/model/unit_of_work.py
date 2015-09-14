@@ -2,7 +2,6 @@ __author__ = 'Bohdan Mushkevych'
 
 from odm.document import BaseDocument
 from odm.fields import StringField, ObjectIdField, IntegerField, DictField, DateTimeField
-from synergy.scheduler.scheduler_constants import TYPE_FREERUN, TYPE_MANAGED
 
 TIMEPERIOD = 'timeperiod'
 START_TIMEPERIOD = 'start_timeperiod'  # lower boundary (as Synergy date) of the period that needs to be processed
@@ -25,7 +24,10 @@ PROCESSED_LOG = 'processed_log'        # log contains list of processed files or
 FILE_NAME = 'file_name'                # Name of processed file
 MD5 = 'md5'                            # MD5 tag for the hash of the file
 ARGUMENTS = 'arguments'                # task-level arguments that could supplement or override process-level ones
-UNIT_OF_WORK_TYPE = 'unit_of_work_type'  # whether the unit_of_work is TYPE_MANAGED or TYPE_FREERUN
+
+UNIT_OF_WORK_TYPE = 'unit_of_work_type'     # whether the unit_of_work is TYPE_MANAGED or TYPE_FREERUN
+TYPE_MANAGED = 'type_managed'               # identifies UOW created by Abstract State Machine child for Managed Process
+TYPE_FREERUN = 'type_freerun'               # identifies UOW created by FreerunStateMachine for ad-hock processing
 
 # UOW was successfully processed by the worker
 STATE_PROCESSED = 'state_processed'

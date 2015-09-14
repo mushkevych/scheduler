@@ -3,30 +3,27 @@ __author__ = 'Bohdan Mushkevych'
 from synergy.db.dao.freerun_process_dao import FreerunProcessDao
 from synergy.db.dao.managed_process_dao import ManagedProcessDao
 from synergy.system.event_clock import parse_time_trigger_string
-from synergy.scheduler.scheduler_constants import *
 
 
 class ThreadHandlerHeader(object):
     """ ThreadHandlerHeader is a data structure representing key Thread Handler features.
         It is passed to the Timer instance and later on - to the Scheduler's running function as an argument """
 
-    def __init__(self, key, trigger_frequency, process_entry, handler_type):
+    def __init__(self, key, trigger_frequency, process_entry):
         self.key = key
         self.trigger_frequency = trigger_frequency
         self.process_entry = process_entry
-        self.handler_type = handler_type
 
 
 class AbstractThreadHandler(object):
     """ ThreadHandler is a thread running within the Synergy Scheduler and triggering Scheduler's fire_XXX logic"""
 
-    def __init__(self, logger, key, trigger_frequency, call_back, process_entry, handler_type):
+    def __init__(self, logger, key, trigger_frequency, call_back, process_entry):
         self.logger = logger
         self.key = key
         self.trigger_frequency = trigger_frequency
         self.call_back = call_back
         self.process_entry = process_entry
-        self.handler_type = handler_type
 
         parsed_trigger_frequency, timer_klass = parse_time_trigger_string(trigger_frequency)
         self.timer_instance = timer_klass(parsed_trigger_frequency, call_back, args=[self.header])
@@ -40,7 +37,7 @@ class AbstractThreadHandler(object):
 
     @property
     def header(self):
-        return ThreadHandlerHeader(self.key, self.trigger_frequency, self.process_entry, self.handler_type)
+        return ThreadHandlerHeader(self.key, self.trigger_frequency, self.process_entry)
 
     @property
     def dao(self):
@@ -109,8 +106,7 @@ class AbstractThreadHandler(object):
 
 class FreerunThreadHandler(AbstractThreadHandler):
     def __init__(self, logger, key, trigger_frequency, call_back, process_entry):
-        super(FreerunThreadHandler, self).__init__(logger, key, trigger_frequency,
-                                                   call_back, process_entry, TYPE_FREERUN)
+        super(FreerunThreadHandler, self).__init__(logger, key, trigger_frequency, call_back, process_entry)
         self.freerun_process_dao = FreerunProcessDao(self.logger)
 
     @property
@@ -120,8 +116,7 @@ class FreerunThreadHandler(AbstractThreadHandler):
 
 class ManagedThreadHandler(AbstractThreadHandler):
     def __init__(self, logger, key, trigger_frequency, call_back, process_entry):
-        super(ManagedThreadHandler, self).__init__(logger, key, trigger_frequency,
-                                                   call_back, process_entry, TYPE_MANAGED)
+        super(ManagedThreadHandler, self).__init__(logger, key, trigger_frequency, call_back, process_entry)
         self.managed_process_dao = ManagedProcessDao(self.logger)
 
     @property

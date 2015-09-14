@@ -15,7 +15,6 @@ from synergy.mq.flopsy import PublishersPool
 from synergy.conf import context
 from synergy.system.decorator import with_reconnect
 from synergy.scheduler.tree_node import NodesCompositeState
-from synergy.scheduler.scheduler_constants import TYPE_MANAGED
 
 
 class AbstractStateMachine(object):
@@ -65,7 +64,7 @@ class AbstractStateMachine(object):
         uow.source = context.process_context[process_name].source
         uow.sink = context.process_context[process_name].sink
         uow.state = unit_of_work.STATE_REQUESTED
-        uow.unit_of_work_type = TYPE_MANAGED
+        uow.unit_of_work_type = unit_of_work.TYPE_MANAGED
         uow.number_of_retries = 0
         uow.arguments = context.process_context[process_name].arguments
         uow.db_id = self.uow_dao.insert(uow)

@@ -3,7 +3,7 @@ __author__ = 'Bohdan Mushkevych'
 import pymongo
 from synergy.db.manager import ds_manager
 from synergy.db.model.freerun_process_entry import ENTRY_NAME
-from synergy.db.model.managed_process_entry import PROCESS_NAME
+from synergy.db.model.managed_process_entry import PROCESS_NAME, ManagedProcessEntry
 from synergy.db.model.unit_of_work import TIMEPERIOD, START_OBJ_ID, END_OBJ_ID
 
 from synergy.db.dao.managed_process_dao import ManagedProcessDao
@@ -30,10 +30,9 @@ def synch_db():
             logger.error('Process %r has no reflection in the context. Skipping it.' % process_name)
             continue
 
-        process_type = context.process_context[process_name].process_type
-        if process_type != TYPE_MANAGED:
-            logger.error('Process type %s of %s should not be reflected in the managed_process table. Skipping it.'
-                         % (process_type, process_name))
+        if not isinstance(context.process_context[process_name], ManagedProcessEntry):
+            logger.error('Process entry %s of non-managed type %s found in managed_process table. Skipping it.'
+                         % (process_name, context.process_context[process_name].__class__.__name__))
             continue
 
         context.process_context[process_name] = process_entry
@@ -47,7 +46,7 @@ def update_db():
     managed_process_dao.clear()
 
     for process_name, process_entry in context.process_context.items():
-        if process_entry.process_type != TYPE_MANAGED:
+        if not isinstance(process_entry, ManagedProcessEntry):
             continue
 
         managed_process_dao.update(process_entry)

@@ -3,7 +3,7 @@ __author__ = 'Bohdan Mushkevych'
 from odm.document import BaseDocument
 from odm.fields import StringField, DictField, ListField
 
-from synergy.scheduler.scheduler_constants import TYPE_MANAGED, TYPE_FREERUN, EXCHANGE_UTILS, TYPE_DAEMON
+from synergy.scheduler.scheduler_constants import EXCHANGE_UTILS
 
 
 PROCESS_NAME = 'process_name'
@@ -13,7 +13,6 @@ MQ_EXCHANGE = 'mq_exchange'
 MQ_ROUTING_KEY = 'mq_routing_key'
 ARGUMENTS = 'arguments'
 TOKEN = 'token'
-PROCESS_TYPE = 'process_type'
 LOG_FILENAME = 'log_filename'
 LOG_TAG = 'log_tag'
 PID_FILENAME = 'pid_filename'
@@ -30,7 +29,6 @@ class DaemonProcessEntry(BaseDocument):
     mq_exchange = StringField(MQ_EXCHANGE)
     mq_routing_key = StringField(MQ_ROUTING_KEY)
     arguments = DictField(ARGUMENTS)
-    process_type = StringField(PROCESS_TYPE, choices=[TYPE_MANAGED, TYPE_FREERUN, TYPE_DAEMON])
     present_on_boxes = ListField(PRESENT_ON_BOXES)
     pid_filename = StringField(PID_FILENAME)
     log_filename = StringField(LOG_FILENAME)
@@ -53,7 +51,6 @@ def daemon_context_entry(process_name,
                          arguments=None,
                          queue=None,
                          routing=None,
-                         process_type=TYPE_DAEMON,
                          pid_file=None,
                          log_file=None):
     """ forms process context entry """
@@ -83,7 +80,6 @@ def daemon_context_entry(process_name,
         mq_exchange=exchange,
         present_on_boxes=present_on_boxes,
         arguments=arguments,
-        process_type=process_type,
         log_filename=log_file,
         pid_filename=pid_file)
     return process_entry

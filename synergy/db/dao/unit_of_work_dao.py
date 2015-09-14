@@ -9,7 +9,7 @@ from pymongo.errors import DuplicateKeyError as MongoDuplicateKeyError
 from synergy.system import time_helper
 from synergy.system.time_qualifier import *
 from synergy.system.decorator import thread_safe
-from synergy.scheduler.scheduler_constants import COLLECTION_UNIT_OF_WORK, TYPE_MANAGED
+from synergy.scheduler.scheduler_constants import COLLECTION_UNIT_OF_WORK
 from synergy.conf import context
 from synergy.db.error import DuplicateKeyError
 from synergy.db.model import unit_of_work
@@ -63,7 +63,7 @@ class UnitOfWorkDao(object):
         query = {unit_of_work.STATE: {'$in': [unit_of_work.STATE_IN_PROGRESS,
                                               unit_of_work.STATE_INVALID,
                                               unit_of_work.STATE_REQUESTED]},
-                 unit_of_work.UNIT_OF_WORK_TYPE: TYPE_MANAGED}
+                 unit_of_work.UNIT_OF_WORK_TYPE: unit_of_work.TYPE_MANAGED}
 
         if since is None:
             cursor = collection.find(query).sort('_id', ASCENDING)

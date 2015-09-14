@@ -81,26 +81,21 @@ class Scheduler(SynergyProcess):
 
         if process_entry.is_on:
             handler.activate()
-            self.logger.info('Started scheduler thread for %s:%r.'
-                             % (handler.handler_type, handler.key))
+            self.logger.info('Started Scheduler Handler for %s:%r.'
+                             % (handler.__class__.__name__, handler.key))
         else:
-            self.logger.info('Handler for %s:%r registered in Scheduler. Idle until activated.'
-                             % (handler.handler_type, handler.key))
+            self.logger.info('Registered Scheduler Handler for %s:%r. Idle until activated.'
+                             % (handler.__class__.__name__, handler.key))
 
     # **************** Scheduler Methods ************************
     def _load_managed_entries(self):
         """ loads scheduler managed entries. no start-up procedures are performed """
         for process_name, process_entry in context.process_context.items():
-            if process_entry.process_type == TYPE_MANAGED:
+            if isinstance(process_entry, ManagedProcessEntry):
                 function = self.fire_managed_worker
-            elif process_entry.process_type in [TYPE_FREERUN, TYPE_DAEMON]:
-                self.logger.info('%s of type %s is found in context, but not managed by Synergy Scheduler. '
-                                 'Skipping the process.'
-                                 % (process_name, process_entry.process_type.upper()))
-                continue
             else:
-                self.logger.error('Type %s of process %s is not known to the system. Skipping it.' %
-                                  (process_entry.process_type, process_name))
+                self.logger.error('Skipping non-managed context entry %s of type %s.' %
+                                  (process_name, process_entry.__class__.__name__))
                 continue
 
             try:

@@ -155,7 +155,6 @@ process_context = {
         classname='workers.bash_driver.BashDriver.start',
         token=TOKEN_BASH_DRIVER,
         exchange=EXCHANGE_FREERUN_WORKER,
-        process_type=TYPE_FREERUN,
         present_on_boxes=['dev.*']),
 }
 

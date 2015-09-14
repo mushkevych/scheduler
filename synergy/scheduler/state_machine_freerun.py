@@ -14,7 +14,7 @@ from synergy.db.dao.freerun_process_dao import FreerunProcessDao
 from synergy.system import time_helper
 from synergy.system.time_qualifier import QUALIFIER_REAL_TIME
 from synergy.system.decorator import with_reconnect
-from synergy.scheduler.scheduler_constants import STATE_MACHINE_FREERUN, TYPE_FREERUN
+from synergy.scheduler.scheduler_constants import STATE_MACHINE_FREERUN
 from synergy.mq.flopsy import PublishersPool
 
 
@@ -66,7 +66,7 @@ class StateMachineFreerun(object):
         uow.source = process_entry.source if hasattr(process_entry, 'source') else None
         uow.sink = process_entry.sink if hasattr(process_entry, 'sink') else None
         uow.state = unit_of_work.STATE_REQUESTED
-        uow.unit_of_work_type = TYPE_FREERUN
+        uow.unit_of_work_type = unit_of_work.TYPE_FREERUN
         uow.number_of_retries = 0
         uow.arguments = freerun_entry.arguments
         uow.db_id = self.uow_dao.insert(uow)

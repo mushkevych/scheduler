@@ -1,6 +1,6 @@
 __author__ = 'Bohdan Mushkevych'
 
-from synergy.scheduler.scheduler_constants import TYPE_FREERUN, STATE_MACHINE_FREERUN
+from synergy.scheduler.scheduler_constants import STATE_MACHINE_FREERUN
 from synergy.db.model.daemon_process_entry import DaemonProcessEntry
 from odm.fields import StringField, ListField, ObjectIdField, BooleanField
 
@@ -59,7 +59,6 @@ def freerun_context_entry(process_name,
                           arguments=None,
                           queue=None,
                           routing=None,
-                          process_type=TYPE_FREERUN,
                           pid_file=None,
                           log_file=None):
     """ forms process context entry """
@@ -95,7 +94,6 @@ def freerun_context_entry(process_name,
         mq_routing_key=routing,
         mq_exchange=exchange,
         arguments=arguments,
-        process_type=process_type,
         log_filename=log_file,
         pid_filename=pid_file)
     return process_entry

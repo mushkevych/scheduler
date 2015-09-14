@@ -15,11 +15,6 @@ STATE_MACHINE_CONTINUOUS = 'continuous'
 STATE_MACHINE_DISCRETE = 'discrete'
 STATE_MACHINE_FREERUN = 'freerun'
 
-# Supported worker types
-TYPE_MANAGED = 'type_managed'
-TYPE_FREERUN = 'type_freerun'
-TYPE_DAEMON = 'type_daemon'
-
 # dependency allows processing of the dependent timeperiod,
 # however finalization of the dependent timeperiod is not allowed until all blocking timeperiods are processed
 BLOCKING_NORMAL = 'blocking_normal'
