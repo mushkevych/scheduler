@@ -50,7 +50,7 @@ def update_db():
             continue
 
         managed_process_dao.update(process_entry)
-        logger.info('Updated DB with process entry %s from the context.' % process_entry.key)
+        logger.info('Updated DB with process entry {0} from the context.'.format(process_entry.key))
 
 
 def reset_db():

@@ -50,8 +50,8 @@ class AlertDailyWorker(AbstractMongoWorker):
                 target_obj.number_of_visits = source_obj.number_of_visits - week_old_obj.number_of_visits
                 target_obj.number_of_pageviews = source_obj.number_of_pageviews - week_old_obj.number_of_pageviews
         except LookupError:
-            self.logger.debug('site statistics (%s:%s) was not found. skipping comparison'
-                              % (source_obj.key[0], week_old_timeperiod))
+            self.logger.debug('site statistics ({0}:{1}) was not found. skipping comparison'
+                              .format(source_obj.key[0], week_old_timeperiod))
 
 
 if __name__ == '__main__':

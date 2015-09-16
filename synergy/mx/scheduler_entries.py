@@ -24,7 +24,7 @@ class SchedulerEntries(BaseRequestHandler):
                                                                  self.scheduler.gc)
                 list_of_rows.append(rest_model.document)
         except Exception as e:
-            self.logger.error('MX Exception %s' % str(e), exc_info=True)
+            self.logger.error('MX Exception {0}'.format(e), exc_info=True)
 
         return list_of_rows
 
@@ -38,7 +38,7 @@ class SchedulerEntries(BaseRequestHandler):
                 rest_model = create_rest_freerun_scheduler_entry(thread_handler)
                 list_of_rows.append(rest_model.document)
         except Exception as e:
-            self.logger.error('MX Exception %s' % str(e), exc_info=True)
+            self.logger.error('MX Exception {0}'.format(e), exc_info=True)
 
         return list_of_rows
 
@@ -48,7 +48,7 @@ class SchedulerEntries(BaseRequestHandler):
             calculator = FootprintCalculator()
             return calculator.document
         except Exception as e:
-            self.logger.error('MX Exception %s' % str(e), exc_info=True)
+            self.logger.error('MX Exception {0}'.format(e), exc_info=True)
             return []
 
     @cached_property

@@ -31,4 +31,4 @@ class SynergyMqTransmission(BaseDocument):
             self.entry_name = None
 
     def __str__(self):
-        return '%s::%s#%s' % (self.process_name, self.entry_name, self.unit_of_work_id)
+        return '{0}::{1}#{2}'.format(self.process_name, self.entry_name, self.unit_of_work_id)

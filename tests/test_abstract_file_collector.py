@@ -23,7 +23,7 @@ def string_generator(size=6, chars=string.ascii_uppercase + string.digits):
 class DummyFileCollector(AbstractFileCollectorWorker):
 
     def _get_file_pattern(self, timeperiod):
-        return '%s-*.gz' % timeperiod
+        return '{0}-*.gz'.format(timeperiod)
 
     def _get_source_folder(self):
         return settings.settings['remote_source_folder']

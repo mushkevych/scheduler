@@ -118,7 +118,7 @@ def create_session_stats(composite_key_function, seed='RANDOM_SEED_OBJECT'):
     for i in range(TOTAL_ENTRIES):
         key = composite_key_function(i, TOTAL_ENTRIES)
         session = SingleSession()
-        session.key = (key[0], key[1], 'session_id_%s' % str(i))
+        session.key = (key[0], key[1], 'session_id_{0}'.format(i))
         session.ip = '192.168.0.2'
         if i % 3 == 0:
             session.user_profile.screen_res = (240, 360)
@@ -129,12 +129,12 @@ def create_session_stats(composite_key_function, seed='RANDOM_SEED_OBJECT'):
 
         if i % 2 == 0:
             session.user_profile.os = 'Linux'
-            session.user_profile.browser = 'FF %s' % str(i % 4)
+            session.user_profile.browser = 'FF {0}'.format(i % 4)
             session.user_profile.language = 'en_ca'
             session.user_profile.country = 'ca'
         else:
             session.user_profile.os = 'Windows'
-            session.user_profile.browser = 'IE %s' % str(i % 9)
+            session.user_profile.browser = 'IE {0}'.format(i % 9)
             session.user_profile.language = 'ua_uk'
             session.user_profile.country = 'eu'
 
@@ -168,7 +168,7 @@ def generate_site_composite_key(index, time_qualifier):
                                                                 iteration_timeperiod,
                                                                 delta=iteration_index)
 
-    return 'domain_name_%s' % str(index - iteration_index * 33), iteration_timeperiod
+    return 'domain_name_{0}'.format(index - iteration_index * 33), iteration_timeperiod
 
 
 def create_site_stats(collection_name, time_qualifier, seed='RANDOM_SEED_OBJECT'):

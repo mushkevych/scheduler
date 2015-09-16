@@ -29,7 +29,7 @@ class SqoopDriver(AbstractCliWorker):
 
             sink_path = context.process_context[self.process_name].sink
 
-            self.logger.info('start: %s {' % self.process_name)
+            self.logger.info('start: {0} {{'.format(self.process_name))
             p = psutil.Popen([settings.settings['bash_shell'],
                               settings.settings['sqoop_command'],
                               str(sqoop_slice_starttime),
@@ -41,8 +41,8 @@ class SqoopDriver(AbstractCliWorker):
                              stdout=PIPE,
                              stderr=PIPE)
             self.cli_process = p
-            self.logger.info('Started %s with pid = %r' % (self.process_name, p.pid))
+            self.logger.info('Started {0} with pid = {1}'.format(self.process_name, p.pid))
         except Exception:
-            self.logger.error('Exception on starting: %s' % self.process_name, exc_info=True)
+            self.logger.error('Exception on starting: {0}'.format(self.process_name), exc_info=True)
         finally:
             self.logger.info('}')

@@ -16,7 +16,7 @@ class TestSystemUtils(unittest.TestCase):
 
         for k, v in fixture.items():
             actual = unicode_truncate(k, 20)
-            self.assertTrue(actual == v, 'actual vs expected: %s vs %s' % (actual, v))
+            self.assertTrue(actual == v, 'actual vs expected: {0} vs {1}'.format(actual, v))
 
 
 if __name__ == '__main__':

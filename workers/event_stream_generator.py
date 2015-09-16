@@ -35,7 +35,7 @@ class EventStreamGenerator(SynergyProcess):
             utc_date.minute * math.pow(10, 4) + \
             utc_date.second * math.pow(10, 2)
 
-        self.logger.info('Started %s' % self.process_name)
+        self.logger.info('Started {0}'.format(self.process_name))
 
     def __del__(self):
         self.publisher.close()
@@ -45,16 +45,16 @@ class EventStreamGenerator(SynergyProcess):
 
     def _generate_key(self):
         _id = random.randint(0, 100000)
-        domain_name = 'domain%d__com' % _id
+        domain_name = 'domain{0}__com'.format(_id)
 
         session_no = self.number_of_groups + random.randint(0, 99)
-        session_id = 'session_%d' % session_no
+        session_id = 'session_{0}'.format(session_no)
 
         return domain_name, time.time(), session_id
 
     def _run_stream_generation(self):
-        self.logger.info('Stream Generator: ON. Expected rate: %d/s, %d/m, %d/h, %d/d' %
-                         (1 / SLEEP_TIME, 1 / SLEEP_TIME * 60, 1 / SLEEP_TIME * 3600, 1 / SLEEP_TIME * 86400))
+        self.logger.info('Stream Generator: ON. Expected rate: {0}/s, {1}/m, {2}/h, {3}/d'
+                         .format(1 / SLEEP_TIME, 1 / SLEEP_TIME * 60, 1 / SLEEP_TIME * 3600, 1 / SLEEP_TIME * 86400))
         self.performance_ticker.start()
         random.seed('RANDOM_SEED_OBJECT')
         document = RawData()
@@ -65,10 +65,10 @@ class EventStreamGenerator(SynergyProcess):
                 self.previous_tick = time.time()
             try:
                 document.key = self._generate_key()
-                document.ip = '%d.%d.%d.%d' % (random.randint(0, 255),
-                                               random.randint(0, 255),
-                                               random.randint(0, 255),
-                                               random.randint(0, 255))
+                document.ip = '{0}.{1}.{2}.{3}'.format(random.randint(0, 255),
+                                                       random.randint(0, 255),
+                                                       random.randint(0, 255),
+                                                       random.randint(0, 255))
 
                 document.screen_res = (random.randrange(340, 1080, 100), random.randrange(240, 980, 100))
 
@@ -100,10 +100,10 @@ class EventStreamGenerator(SynergyProcess):
             except (AMQPError, IOError) as e:
                 self.thread_is_running = False
                 self.performance_ticker.cancel()
-                self.logger.error('AMQPError: %s' % str(e))
+                self.logger.error('AMQPError: {0}'.format(e))
             except Exception as e:
                 self.performance_ticker.tracker.increment_failure()
-                self.logger.info('safety fuse: %s' % str(e))
+                self.logger.info('safety fuse: {0}'.format(e))
 
     def start(self, *_):
         self.main_thread = Thread(target=self._run_stream_generation)

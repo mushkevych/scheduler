@@ -19,7 +19,7 @@ class HadoopAggregatorDriver(AbstractCliWorker):
 
     def _start_process(self, start_timeperiod, end_timeperiod, arguments):
         try:
-            self.logger.info('start: %s {' % self.process_name)
+            self.logger.info('start: {0} {{'.format(self.process_name))
             p = psutil.Popen([settings.settings['hadoop_command'],
                               'jar', settings.settings['hadoop_jar'],
                               '-D', 'process.name=' + self.process_name,
@@ -31,8 +31,8 @@ class HadoopAggregatorDriver(AbstractCliWorker):
                              stdout=PIPE,
                              stderr=PIPE)
             self.cli_process = p
-            self.logger.info('Started %s with pid = %r' % (self.process_name, p.pid))
+            self.logger.info('Started {0} with pid = {1}'.format(self.process_name, p.pid))
         except Exception:
-            self.logger.error('Exception on starting: %s' % self.process_name, exc_info=True)
+            self.logger.error('Exception on starting: {0}'.format(self.process_name), exc_info=True)
         finally:
             self.logger.info('}')

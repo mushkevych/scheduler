@@ -51,17 +51,17 @@ class AbstractFileCollectorWorker(AbstractUowAwareWorker):
 
         fqsf = os.path.join(self._get_source_folder(), self.HEADER_FOLDER)
         for host_name in settings.settings['remote_source_host_list']:
-            self.logger.info('Initiating header files copy procedure from source location %s:%s'
-                             % (host_name, self._get_source_folder()))
+            self.logger.info('Initiating header files copy procedure from source location {0}:{1}'
+                             .format(host_name, self._get_source_folder()))
             fabric.operations.env.host_string = host_name
             file_list = fabric.operations.get(os.path.join(fqsf, self._get_header_file_pattern(timeperiod)),
                                               self.tempdir_copying)
 
             if len(file_list) > 0:
-                self.logger.info('Copied %d header files from remote location: %s' % (len(file_list), host_name))
+                self.logger.info('Copied {0} header files from remote location: {1}'.format(len(file_list), host_name))
                 return file_list
             else:
-                raise LookupError('No header files found at %s' % host_name + '/' + fqsf)
+                raise LookupError('No header files found at {0}'.format(host_name + '/' + fqsf))
 
     def copy_archives_from_source(self, timeperiod):
         """ method accesses remote location and copies files, specified by _get_source_folder and _get_file_pattern
@@ -75,16 +75,16 @@ class AbstractFileCollectorWorker(AbstractUowAwareWorker):
         summary_file_list = []
         fqsf = os.path.join(self._get_source_folder(), timeperiod[:-2])
         for host_name in settings.settings['remote_source_host_list']:
-            self.logger.info('Initiating copy procedure from source location %s:%s' % (host_name, fqsf))
+            self.logger.info('Initiating copy procedure from source location {0}:{1}'.format(host_name, fqsf))
             fabric.operations.env.host_string = host_name
             file_list = fabric.operations.get(os.path.join(fqsf, self._get_file_pattern(timeperiod)),
                                               self.tempdir_copying)
 
             if len(file_list) > 0:
-                self.logger.info('Copied %d files from remote location: %s' % (len(file_list), host_name))
+                self.logger.info('Copied {0} files from remote location: {1}'.format(len(file_list), host_name))
                 summary_file_list.extend(file_list)
             else:
-                self.logger.info('No data files found for %s at %s' % (timeperiod, host_name + fqsf))
+                self.logger.info('No data files found for {0} at {1}'.format(timeperiod, host_name + fqsf))
 
         return summary_file_list
 

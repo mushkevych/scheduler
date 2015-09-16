@@ -25,7 +25,7 @@ class ManagedActionHandler(AbstractActionHandler):
     def _get_tree_node(self):
         tree = self.scheduler.timetable.get_tree(self.process_name)
         if tree is None:
-            raise UserWarning('No Timetable tree is registered for process %s' % self.process_name)
+            raise UserWarning('No Timetable tree is registered for process {0}'.format(self.process_name))
 
         time_qualifier = context.process_context[self.process_name].time_qualifier
         self.timeperiod = time_helper.cast_to_time_qualifier(time_qualifier, self.timeperiod)

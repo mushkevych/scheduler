@@ -249,9 +249,9 @@ def generate_session_composite_key(index, total):
     h2 = '2001030311'
 
     if index <= total / 2:
-        return 'domain_name_%s' % str(index // 3), h1
+        return 'domain_name_{0}'.format(index // 3), h1
     else:
-        return 'domain_name_%s' % str(index // 3), h2
+        return 'domain_name_{0}'.format(index // 3), h2
 
 
 def clean_session_entries():
@@ -263,7 +263,7 @@ def clean_session_entries():
         connection.remove({
             raw_data.DOMAIN_NAME: key[0],
             raw_data.TIMEPERIOD: key[1],
-            raw_data.FAMILY_USER_PROFILE + '.' + raw_data.SESSION_ID: 'session_id_%s' % str(i)})
+            raw_data.FAMILY_USER_PROFILE + '.' + raw_data.SESSION_ID: 'session_id_{0}'.format(i)})
 
 
 def generated_session_entries():

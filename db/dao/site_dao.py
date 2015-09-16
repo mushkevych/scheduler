@@ -25,8 +25,8 @@ class SiteDao(object):
                  TIMEPERIOD: timeperiod}
         document = collection.find_one(query)
         if document is None:
-            raise LookupError('MongoDB has no site record in %s for (%s, %s)'
-                              % (collection_name, domain_name, timeperiod))
+            raise LookupError('MongoDB has no site record in {0} for ({1}, {2})'
+                              .format(collection_name, domain_name, timeperiod))
         return SiteStatistics.from_json(document)
 
     @thread_safe

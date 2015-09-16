@@ -48,7 +48,7 @@ class JobDao(object):
         elif qualifier == QUALIFIER_YEARLY:
             collection = self.ds.connection(COLLECTION_JOB_YEARLY)
         else:
-            raise ValueError('Unknown time qualifier: %s for %s' % (qualifier, process_name))
+            raise ValueError('Unknown time qualifier: {0} for {1}'.format(qualifier, process_name))
         return collection
 
     @thread_safe

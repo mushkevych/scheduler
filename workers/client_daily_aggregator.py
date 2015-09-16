@@ -49,7 +49,7 @@ class ClientDailyAggregator(AbstractMongoWorker):
             copy_and_sum_families(source_obj.languages, target_obj.languages)
             copy_and_sum_families(source_obj.countries, target_obj.countries)
         except KeyError:
-            self.logger.error('domain name %s has no valid owner client_id' % source_obj.key[0])
+            self.logger.error('domain name {0} has no valid owner client_id'.format(source_obj.key[0]))
 
 
 if __name__ == '__main__':

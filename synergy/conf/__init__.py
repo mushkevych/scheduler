@@ -137,12 +137,12 @@ class LazySettings(LazyObject):
         """
         settings_module = os.environ.get(ENVIRONMENT_SETTINGS_VARIABLE, 'settings')
         if not settings_module:
-            desc = ('setting %s' % name) if name else 'settings'
+            desc = 'setting {0}'.format(name) if name else 'settings'
             raise ImproperlyConfigured(
-                'Requested %s, but settings are not configured. '
-                'You must either define the environment variable %s '
+                'Requested {0}, but settings are not configured. '
+                'You must either define the environment variable {1} '
                 'or call settings.configure() before accessing settings.'
-                % (desc, ENVIRONMENT_SETTINGS_VARIABLE))
+                .format(desc, ENVIRONMENT_SETTINGS_VARIABLE))
 
         self._wrapped = Settings(settings_module, default_settings=global_settings)
 
@@ -162,12 +162,12 @@ class LazyContext(LazyObject):
         """
         settings_module = os.environ.get(ENVIRONMENT_CONTEXT_VARIABLE, 'context')
         if not settings_module:
-            desc = ('setting %s' % name) if name else 'settings'
+            desc = 'setting {0}'.format(name) if name else 'settings'
             raise ImproperlyConfigured(
-                'Requested %s, but context is not configured. '
-                'You must either define the environment variable %s '
+                'Requested {0}, but context is not configured. '
+                'You must either define the environment variable {1} '
                 'or call context.configure() before accessing the context.'
-                % (desc, ENVIRONMENT_CONTEXT_VARIABLE))
+                .format(desc, ENVIRONMENT_CONTEXT_VARIABLE))
 
         self._wrapped = Settings(settings_module, default_settings=global_context)
 
