@@ -33,7 +33,7 @@ def kill_process(process_name):
             p.wait()
             remove_pid_file(process_name)
     except Exception as e:
-        sys.stderr.write('Exception on killing {0} : {1} \n'.format(process_name, str(e)))
+        sys.stderr.write('Exception on killing {0} : {1} \n'.format(process_name, e))
     finally:
         sys.stdout.write('}')
 
@@ -56,7 +56,7 @@ def start_process(process_name, *args):
                          stderr=PIPE)
         sys.stdout.write('Started {0} with pid = {1} \n'.format(process_name, p.pid))
     except Exception as e:
-        sys.stderr.write('Exception on starting {0} : {1} \n'.format(process_name, str(e)))
+        sys.stderr.write('Exception on starting {0} : {1} \n'.format(process_name, e))
     finally:
         sys.stdout.write('}')
 

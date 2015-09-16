@@ -222,7 +222,7 @@ def start_process(parser_args):
         else:
             process_starter.start_by_process_name(parser_args.process_name, parser_args.extra_parameters)
     except Exception as e:
-        sys.stderr.write('Exception on starting {0} : {1}\n'.format(parser_args.process_name, str(e)))
+        sys.stderr.write('Exception on starting {0} : {1}\n'.format(parser_args.process_name, e))
         traceback.print_exc(file=sys.stderr)
 
 
@@ -239,7 +239,7 @@ def stop_process(parser_args):
 
         process_helper.kill_process(parser_args.process_name)
     except Exception as e:
-        sys.stderr.write('Exception on killing {0} : {1}\n'.format(parser_args.process_name, str(e)))
+        sys.stderr.write('Exception on killing {0} : {1}\n'.format(parser_args.process_name, e))
         traceback.print_exc(file=sys.stderr)
 
 

@@ -103,6 +103,6 @@ class AbstractUowAwareWorker(AbstractMqWorker):
             publisher = self.publishers.get(QUEUE_UOW_REPORT)
             publisher.publish(mq_request.document)
             publisher.release()
-            self.logger.info('Published unit_of_work status report into {0} queue'.format(QUEUE_UOW_REPORT))
+            self.logger.info('Published UOW status report into queue {0}'.format(QUEUE_UOW_REPORT))
         except Exception:
-            self.logger.error('Error on unit_of_work status report publishing', exc_info=True)
+            self.logger.error('Error on UOW status report publishing', exc_info=True)

@@ -62,7 +62,7 @@ class StatusBusListener(object):
             state_machine = self.scheduler.timetable.state_machines[process_entry.state_machine_name]
             assert isinstance(state_machine, AbstractStateMachine)
 
-            self.logger.info('Commencing State Machine notification with unit_of_work from {0}@{1} in {2}.'
+            self.logger.info('Commencing State Machine notification with UOW from {0}@{1} in {2}.'
                              .format(uow.process_name, uow.timeperiod, uow.state))
             state_machine.notify(uow)
 
