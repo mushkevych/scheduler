@@ -69,7 +69,7 @@ class AbstractStateMachine(object):
         uow.arguments = context.process_context[process_name].arguments
         uow.db_id = self.uow_dao.insert(uow)
 
-        msg = 'Created: UOW {0} for {1} in timeperiod {2}.'.format(uow.db_id, process_name, start_timeperiod)
+        msg = 'Created: UOW {0} for {1}@{2}.'.format(uow.db_id, process_name, start_timeperiod)
         self._log_message(INFO, process_name, start_timeperiod, msg)
         return uow
 
@@ -80,7 +80,7 @@ class AbstractStateMachine(object):
         publisher.publish(mq_request.document)
         publisher.release()
 
-        msg = 'Published: UOW {0} for {1} in timeperiod {2}.'.format(uow.db_id, uow.process_name, uow.start_timeperiod)
+        msg = 'Published: UOW {0} for {1}@{2}.'.format(uow.db_id, uow.process_name, uow.start_timeperiod)
         self._log_message(INFO, uow.process_name, uow.start_timeperiod, msg)
 
     def insert_and_publish_uow(self, process_name, start_timeperiod, end_timeperiod, start_id, end_id):
@@ -93,13 +93,13 @@ class AbstractStateMachine(object):
             uow = self._insert_uow(process_name, start_timeperiod, end_timeperiod, start_id, end_id)
         except DuplicateKeyError as e:
             is_duplicate = True
-            msg = 'Catching up with latest unit_of_work {0} in timeperiod {1}, because of: {2}' \
+            msg = 'Catching up with latest UOW {0}@{1}, because of: {2}' \
                   .format(process_name, start_timeperiod, e)
             self._log_message(WARNING, process_name, start_timeperiod, msg)
             uow = self.uow_dao.recover_from_duplicatekeyerror(e)
 
         if not uow:
-            msg = 'MANUAL INTERVENTION REQUIRED! Unable to locate unit_of_work for {0} in {1}' \
+            msg = 'PERSISTENT TIER ERROR! Unable to locate UOW for {0}@{1}' \
                   .format(process_name, start_timeperiod)
             self._log_message(WARNING, process_name, start_timeperiod, msg)
             raise UserWarning(msg)
@@ -145,7 +145,7 @@ class AbstractStateMachine(object):
         tree.update_node(job_record)
 
         time_grouping = context.process_context[job_record.process_name].time_grouping
-        msg = '{0} job for timeperiod {1} with time_grouping {2} was transferred the job to STATE_NOOP' \
+        msg = 'Job {0}@{1} with time_grouping {2} was transferred to STATE_NOOP' \
               .format(job_record.process_name, job_record.timeperiod, time_grouping)
         self._log_message(INFO, job_record.process_name, job_record.timeperiod, msg)
 
@@ -167,12 +167,12 @@ class AbstractStateMachine(object):
         elif uow.is_canceled:
             self.update_job(job_record, uow, job.STATE_SKIPPED)
         elif uow.is_invalid:
-            msg = 'Job record {0}: UOW for {1} in timeperiod {2} is in {3}; ' \
+            msg = 'Job {0}: UOW for {1}@{2} is in {3}; ' \
                   'relying on the Garbage Collector to either recycle or cancel the UOW.' \
                   .format(job_record.db_id, job_record.process_name, job_record.timeperiod, uow.state)
             self._log_message(INFO, job_record.process_name, job_record.timeperiod, msg)
         else:
-            msg = 'Suppressed creating uow for {0} in timeperiod {1}; job record is in {2}; uow is in {3}' \
+            msg = 'Suppressed creating UOW for {0}@{1}; Job is in {2}; uow is in {3}' \
                   .format(job_record.process_name, job_record.timeperiod, job_record.state, uow.state)
             self._log_message(INFO, job_record.process_name, job_record.timeperiod, msg)
 
@@ -181,7 +181,7 @@ class AbstractStateMachine(object):
 
     def _process_terminal_state(self, job_record):
         """ method logs a warning message notifying that the job is no longer govern by this state machine """
-        msg = 'Job record {0} for {1} at {2} is in the terminal state {3}, ' \
+        msg = 'Job {0} for {1}@{2} is in the terminal state {3}, ' \
               'and is no further govern by the State Machine {4}' \
               .format(job_record.db_id, job_record.process_name, job_record.timeperiod, job_record.state, self.name)
         self._log_message(WARNING, job_record.process_name, job_record.timeperiod, msg)
@@ -194,7 +194,7 @@ class AbstractStateMachine(object):
         if is_job_finalizable:
             self.manage_job(job_record)
         else:
-            msg = '{0} for timeperiod {1} is blocked by unprocessed children/dependencies. Waiting another tick' \
+            msg = 'Job {0}@{1} is blocked by unprocessed children/dependencies. Waiting another tick' \
                   .format(job_record.process_name, job_record.timeperiod)
             self._log_message(INFO, job_record.process_name, job_record.timeperiod, msg)
 
@@ -216,11 +216,11 @@ class AbstractStateMachine(object):
             tree = self.timetable.get_tree(job_record.process_name)
             tree.update_node(job_record)
 
-            msg = '{0} for timeperiod {1} is blocked by STATE_SKIPPED dependencies. ' \
+            msg = 'Job {0}@{1} is blocked by STATE_SKIPPED dependencies. ' \
                   'Transferred the job to STATE_SKIPPED'.format(job_record.process_name, job_record.timeperiod)
             self._log_message(WARNING, job_record.process_name, job_record.timeperiod, msg)
         else:
-            msg = '{0} for timeperiod {1} is blocked by unprocessed dependencies. Waiting another tick' \
+            msg = 'Job {0}@{1} is blocked by unprocessed dependencies. Waiting another tick' \
                   .format(job_record.process_name, job_record.timeperiod)
             self._log_message(INFO, job_record.process_name, job_record.timeperiod, msg)
 
@@ -262,7 +262,7 @@ class AbstractStateMachine(object):
             job_record.number_of_failures += 1
             self.job_dao.update(job_record)
             self.timetable.skip_if_needed(job_record)
-            msg = 'Increasing fail counter for {0} in timeperiod {1}, because of: {2}' \
+            msg = 'Increasing fail counter for Job {0}@{1}, because of: {2}' \
                   .format(job_record.process_name, job_record.timeperiod, e)
             self._log_message(WARNING, job_record.process_name, job_record.timeperiod, msg)
 
@@ -285,7 +285,7 @@ class AbstractStateMachine(object):
                 self.uow_dao.update(uow)
             self._process_state_in_progress(job_record)
 
-        msg = 'Reprocessing job record {0} for {1} in {2}: state transferred from {3} to {4};' \
+        msg = 'Reprocessing Job {0} for {1}@{2}: state transferred from {3} to {4};' \
               .format(job_record.db_id, job_record.process_name, job_record.timeperiod,
                       original_job_state, job_record.state)
         self._log_message(WARNING, job_record.process_name, job_record.timeperiod, msg)
@@ -307,7 +307,7 @@ class AbstractStateMachine(object):
                 uow.submitted_at = datetime.utcnow()
                 self.uow_dao.update(uow)
 
-        msg = 'Skipping job record {0} for {1} in {2}: state transferred from {3} to {4}; ' \
+        msg = 'Skipping Job {0} for {1}@{2}: state transferred from {3} to {4}; ' \
               .format(job_record.db_id, job_record.process_name, job_record.timeperiod, original_job_state,
                       job_record.state)
         self._log_message(WARNING, job_record.process_name, job_record.timeperiod, msg)
@@ -321,7 +321,7 @@ class AbstractStateMachine(object):
         job_record.process_name = process_name
         self.job_dao.update(job_record)
 
-        self.logger.info('Created job record {0} for {1} in {2}'
+        self.logger.info('Created Job {0} for {1}@{2}'
                          .format(job_record.db_id, job_record.process_name, job_record.timeperiod))
         return job_record
 
@@ -331,6 +331,6 @@ class AbstractStateMachine(object):
         job_record.related_unit_of_work = uow.db_id
         self.job_dao.update(job_record)
 
-        msg = 'Transferred job {0} for {1} in timeperiod {2} to new state {3}' \
+        msg = 'Transferred Job {0} for {1}@{2} to state {3}' \
               .format(job_record.db_id, job_record.timeperiod, job_record.process_name, new_state)
         self._log_message(INFO, job_record.process_name, job_record.timeperiod, msg)

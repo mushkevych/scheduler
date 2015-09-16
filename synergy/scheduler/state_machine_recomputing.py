@@ -33,7 +33,7 @@ class StateMachineRecomputing(AbstractStateMachine):
         job_record = node.job_record
 
         if not job_record.is_final_run:
-            self.logger.info('Suppressing job state change since the job for {0} in {1} is not in STATE_FINAL_RUN'
+            self.logger.info('Suppressing state change for Job {0}@{1}, since it is not in STATE_FINAL_RUN'
                              .format(uow.process_name, uow.timeperiod))
             return
         self._process_state_final_run(job_record)
@@ -46,7 +46,7 @@ class StateMachineRecomputing(AbstractStateMachine):
         uow.end_id = str(last_object_id)
         self.uow_dao.update(uow)
 
-        msg = 'Updated range to process for {0} in timeperiod {1} for collection {2}: [{3} : {4}]' \
+        msg = 'Updated processing range for {0}@{1} for collection {2}: [{3} : {4}]' \
               .format(process_name, start_timeperiod, source_collection_name, uow.start_id, uow.end_id)
         self._log_message(INFO, process_name, start_timeperiod, msg)
 
@@ -115,6 +115,6 @@ class StateMachineRecomputing(AbstractStateMachine):
                                                     end_timeperiod, job_record)
 
         else:
-            msg = 'Job record {0} has timeperiod from future {1} vs current time {2}' \
+            msg = 'Job {0} has timeperiod from future {1} vs current time {2}' \
                   .format(job_record.db_id, job_record.timeperiod, actual_timeperiod)
             self._log_message(ERROR, job_record.process_name, job_record.timeperiod, msg)

@@ -31,7 +31,7 @@ class StateMachineDiscrete(AbstractStateMachine):
         job_record = node.job_record
 
         if not job_record.is_in_progress:
-            self.logger.info('Suppressing job state change since the job for {0} in {1} is not in STATE_IN_PROGRESS'
+            self.logger.info('Suppressing state change for Job {0}@{1}, since it is not in STATE_IN_PROGRESS'
                              .format(uow.process_name, uow.timeperiod))
             return
 
@@ -43,12 +43,12 @@ class StateMachineDiscrete(AbstractStateMachine):
             self.__process_finalizable_job(job_record, uow)
 
         elif uow.timeperiod >= actual_timeperiod:
-            self.logger.info('Suppressing job state change for {0} in {1} '
+            self.logger.info('Suppressing state change for Job {0}@{1}, '
                              'since the working timeperiod has not finished yet'
                              .format(uow.process_name, uow.timeperiod))
 
         elif not is_job_finalizable:
-            self.logger.info('Suppressing job state change for {0} in {1} '
+            self.logger.info('Suppressing state change for Job {0}@{1}, '
                              'since the job is not finalizable'.format(uow.process_name, uow.timeperiod))
 
     def __process_non_finalizable_job(self, job_record, uow, start_timeperiod, end_timeperiod):
@@ -73,7 +73,7 @@ class StateMachineDiscrete(AbstractStateMachine):
         if uow.is_active:
             # Job processing has not started yet
             # Let the processing complete - do no updates to Scheduler records
-            msg = 'Suppressed creating uow for {0} in timeperiod {1}; job record is in {2}; uow is in {3}' \
+            msg = 'Suppressed new UOW creation for Job {0}@{1}; Job is in {2}; UOW is in {3}' \
                   .format(job_record.process_name, job_record.timeperiod, job_record.state, uow.state)
             self._log_message(INFO, job_record.process_name, job_record.timeperiod, msg)
         elif uow.is_processed:
@@ -83,13 +83,13 @@ class StateMachineDiscrete(AbstractStateMachine):
         elif uow.is_canceled:
             self.update_job(job_record, uow, job.STATE_SKIPPED)
         elif uow.is_invalid:
-            msg = 'Job record {0}: UOW for {1} in timeperiod {2} is in {3}; ' \
+            msg = 'Job {0}: UOW for {1}@{2} is in {3}; ' \
                   'relying on the Garbage Collector to transfer UOW into the STATE_CANCELED' \
                   .format(job_record.db_id, job_record.process_name, job_record.timeperiod, uow.state)
             self._log_message(INFO, job_record.process_name, job_record.timeperiod, msg)
         else:
-            msg = 'Unknown state {0} for job record {1} in timeperiod {2} for {3}' \
-                  .format(uow.state, job_record.db_id, job_record.timeperiod, job_record.process_name)
+            msg = 'Unknown state {0} of Job {1} for {2}@{3}' \
+                  .format(uow.state, job_record.db_id, job_record.process_name, job_record.timeperiod)
             self._log_message(INFO, job_record.process_name, job_record.timeperiod, msg)
 
         timetable_tree = self.timetable.get_tree(job_record.process_name)
@@ -121,7 +121,7 @@ class StateMachineDiscrete(AbstractStateMachine):
             self.__process_finalizable_job(job_record, uow)
 
         else:
-            msg = 'Job record {0} has timeperiod from future {1} vs current time {2}' \
+            msg = 'Job {0} has timeperiod from future {1} vs current time {2}' \
                   .format(job_record.db_id, job_record.timeperiod, actual_timeperiod)
             self._log_message(ERROR, job_record.process_name, job_record.timeperiod, msg)
 

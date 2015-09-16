@@ -38,7 +38,7 @@ class BaseDao(object):
 
         document = collection.find_one(query)
         if document is None:
-            raise LookupError('%s with key %r was not found' % (self.model_klass.__name__, query))
+            raise LookupError('{0} with key {1} was not found'.format(self.model_klass.__name__, query))
         return self.model_klass.from_json(document)
 
     @thread_safe
@@ -48,8 +48,8 @@ class BaseDao(object):
 
         cursor = collection.find(query)
         if cursor.count() == 0:
-            raise LookupError('Collection %s has no %s records' %
-                              (self.collection_name, self.model_klass.__name__))
+            raise LookupError('Collection {0} has no {1} records'
+                              .format(self.collection_name, self.model_klass.__name__))
         return [self.model_klass.from_json(entry) for entry in cursor]
 
     @thread_safe

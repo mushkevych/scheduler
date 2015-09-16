@@ -24,7 +24,7 @@ if 'ds_factory' not in globals():
                 elif ds_type == "hbase":
                     instances[ds_type] = HBaseManager(logger)
                 else:
-                    raise ValueError('Unsupported Data Source type: %s' % ds_type)
+                    raise ValueError('Unsupported Data Source type: {0}'.format(ds_type))
             return instances[ds_type]
 
         return get_instance
@@ -101,7 +101,7 @@ class MongoDbManager(BaseManager):
             pass
 
     def __str__(self):
-        return 'MongoDbManager: %s@%s' % (settings.settings['mongodb_host_list'], settings.settings['mongo_db_name'])
+        return 'MongoDbManager: {0}@{1}' % (settings.settings['mongodb_host_list'], settings.settings['mongo_db_name'])
 
     def is_alive(self):
         return self._db_client.alive()
@@ -122,7 +122,7 @@ class MongoDbManager(BaseManager):
         conn = self._db[table_name]
         db_entry = conn.find_one(query)
         if db_entry is None:
-            msg = 'Instance with ID=%s was not found' % str(primary_key)
+            msg = 'Instance with ID={0} was not found'.format(primary_key)
             self.logger.warn(msg)
             raise LookupError(msg)
         return db_entry
@@ -140,16 +140,18 @@ class MongoDbManager(BaseManager):
         conn = self._db[table_name]
         asc_search = conn.find(spec=query, fields='_id').sort('_id', ASCENDING).limit(1)
         if asc_search.count() == 0:
-            raise LookupError('No messages in timeperiod: %s:%s in collection %s'
-                              % (timeperiod_low, timeperiod_high, table_name))
+            raise LookupError('No records in timeperiod: [{0} : {1}) in collection {2}'
+                              .format(timeperiod_low, timeperiod_high, table_name))
         return asc_search[0]['_id']
 
     def lowest_primary_key(self, table_name, timeperiod_low, timeperiod_high):
         query = {TIMEPERIOD: {'$gte': timeperiod_low, '$lt': timeperiod_high}}
         conn = self._db[table_name]
         dec_search = conn.find(spec=query, fields='_id').sort('_id', DESCENDING).limit(1)
-        last_object_id = dec_search[0]['_id']
-        return last_object_id
+        if dec_search.count() == 0:
+            raise LookupError('No records in timeperiod: [{0} : {1}) in collection {2}'
+                              .format(timeperiod_low, timeperiod_high, table_name))
+        return dec_search[0]['_id']
 
     def cursor_fine(self,
                     table_name,

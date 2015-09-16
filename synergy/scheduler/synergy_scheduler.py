@@ -33,7 +33,7 @@ class Scheduler(SynergyProcess):
     def __init__(self, process_name):
         super(Scheduler, self).__init__(process_name)
         self.lock = Lock()
-        self.logger.info('Starting %s' % self.process_name)
+        self.logger.info('Starting {0}'.format(self.process_name))
         self.publishers = PublishersPool(self.logger)
         self.managed_handlers = dict()
         self.freerun_handlers = dict()
@@ -43,7 +43,7 @@ class Scheduler(SynergyProcess):
         self.gc = GarbageCollector(self)
         self.bus_listener = StatusBusListener(self)
         self.mx = MX(self)
-        self.logger.info('Started %s' % self.process_name)
+        self.logger.info('Started {0}'.format(self.process_name))
 
     def __del__(self):
         self.mx.stop()
@@ -81,11 +81,11 @@ class Scheduler(SynergyProcess):
 
         if process_entry.is_on:
             handler.activate()
-            self.logger.info('Started Scheduler Handler for %s:%r.'
-                             % (handler.__class__.__name__, handler.key))
+            self.logger.info('Started Scheduler Thread Handler for {0}:{1}.'
+                             .format(handler.__class__.__name__, handler.key))
         else:
-            self.logger.info('Registered Scheduler Handler for %s:%r. Idle until activated.'
-                             % (handler.__class__.__name__, handler.key))
+            self.logger.info('Registered Scheduler Thread Handler for {0}:{1}. Idle until activated.'
+                             .format(handler.__class__.__name__, handler.key))
 
     # **************** Scheduler Methods ************************
     def _load_managed_entries(self):
@@ -94,14 +94,14 @@ class Scheduler(SynergyProcess):
             if isinstance(process_entry, ManagedProcessEntry):
                 function = self.fire_managed_worker
             else:
-                self.logger.error('Skipping non-managed context entry %s of type %s.' %
-                                  (process_name, process_entry.__class__.__name__))
+                self.logger.error('Skipping non-managed context entry {0} of type {1}.'
+                                  .format(process_name, process_entry.__class__.__name__))
                 continue
 
             try:
                 self._register_process_entry(process_entry, function)
             except Exception:
-                self.logger.error('Scheduler Handler %r failed to start. Skipping it.' % (process_entry.key,),
+                self.logger.error('Scheduler Thread Handler {0} failed to start. Skipping it.'.format(process_entry.key),
                                   exc_info=True)
 
     def _load_freerun_entries(self):
@@ -111,7 +111,7 @@ class Scheduler(SynergyProcess):
             try:
                 self._register_process_entry(freerun_entry, self.fire_freerun_worker)
             except Exception:
-                self.logger.error('Scheduler Handler %r failed to start. Skipping it.' % (freerun_entry.key,),
+                self.logger.error('Scheduler Thread Handler {0} failed to start. Skipping it.'.format(freerun_entry.key),
                                   exc_info=True)
 
     @with_reconnect
@@ -123,7 +123,7 @@ class Scheduler(SynergyProcess):
         try:
             self._load_freerun_entries()
         except LookupError as e:
-            self.logger.warn('DB Lookup: %s' % str(e))
+            self.logger.warn('DB Lookup: {0}'.format(e))
 
         # Scheduler is initialized and running. GarbageCollector can be safely started
         self.gc.start()
@@ -153,10 +153,11 @@ class Scheduler(SynergyProcess):
                 dt_record_timestamp += timedelta(minutes=LAG_5_MINUTES)
 
                 if datetime.utcnow() <= dt_record_timestamp:
-                    self.logger.info('Job record %s for timeperiod %s will not be triggered until %s.'
-                                     % (job_record.db_id,
-                                        job_record.timeperiod,
-                                        dt_record_timestamp.strftime('%Y-%m-%d %H:%M:%S')))
+                    self.logger.info('Job {0} for {1}@{2} will not be triggered until {3}.'
+                                     .format(job_record.db_id,
+                                             job_record.process_name,
+                                             job_record.timeperiod,
+                                             dt_record_timestamp.strftime('%Y-%m-%d %H:%M:%S')))
                     return None
 
             blocking_type = process_entry.blocking_type
@@ -167,23 +168,23 @@ class Scheduler(SynergyProcess):
             elif blocking_type == BLOCKING_NORMAL:
                 state_machine.manage_job(job_record)
             else:
-                raise ValueError('Unknown managed process type %s' % blocking_type)
+                raise ValueError('Unknown managed process type {0}'.format(blocking_type))
 
             return job_record
 
         try:
             assert isinstance(thread_handler_header, ThreadHandlerHeader)
-            self.logger.info('%r {' % (thread_handler_header.key, ))
+            self.logger.info('{0} {{'.format(thread_handler_header.key))
 
             job_record = _fire_worker(thread_handler_header.process_entry, None)
             while job_record and job_record.is_finished:
                 job_record = _fire_worker(thread_handler_header.process_entry, job_record)
 
         except (AMQPError, IOError) as e:
-            self.logger.error('AMQPError: %s' % str(e), exc_info=True)
+            self.logger.error('AMQPError: {0}'.format(e), exc_info=True)
             self.publishers.reset_all(suppress_logging=True)
         except Exception as e:
-            self.logger.error('Exception: %s' % str(e), exc_info=True)
+            self.logger.error('Exception: {0}'.format(e), exc_info=True)
         finally:
             self.logger.info('}')
 
@@ -192,13 +193,13 @@ class Scheduler(SynergyProcess):
         """fires free-run worker with no dependencies to track"""
         try:
             assert isinstance(thread_handler_header, ThreadHandlerHeader)
-            self.logger.info('%r {' % (thread_handler_header.key, ))
+            self.logger.info('{0} {{'.format(thread_handler_header.key))
 
             state_machine = self.timetable.state_machines[STATE_MACHINE_FREERUN]
             state_machine.manage_schedulable(thread_handler_header.process_entry)
 
         except Exception as e:
-            self.logger.error('fire_freerun_worker: %s' % str(e))
+            self.logger.error('fire_freerun_worker: {0}'.format(e))
         finally:
             self.logger.info('}')
 

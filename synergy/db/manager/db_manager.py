@@ -27,16 +27,16 @@ def synch_db():
     for process_entry in process_entries:
         process_name = process_entry.process_name
         if process_name not in context.process_context:
-            logger.error('Process %r has no reflection in the context. Skipping it.' % process_name)
+            logger.error('Process {0} has no reflection in the context. Skipping it.'.format(process_name))
             continue
 
         if not isinstance(context.process_context[process_name], ManagedProcessEntry):
-            logger.error('Process entry %s of non-managed type %s found in managed_process table. Skipping it.'
-                         % (process_name, context.process_context[process_name].__class__.__name__))
+            logger.error('Process entry {0} of non-managed type {1} found in managed_process table. Skipping it.'
+                         .format(process_name, context.process_context[process_name].__class__.__name__))
             continue
 
         context.process_context[process_name] = process_entry
-        logger.info('Context updated with process entry %s.' % process_entry.key)
+        logger.info('Context updated with process entry {0}.'.format(process_entry.key))
 
 
 def update_db():

@@ -58,7 +58,8 @@ class JobDao(object):
         document = collection.find_one({job.PROCESS_NAME: key, job.TIMEPERIOD: timeperiod})
 
         if document is None:
-            raise LookupError('MongoDB has no job record in %s collection for (%s, %s)' % (collection, key, timeperiod))
+            raise LookupError('MongoDB has no job record in collection {0} for {1}@{2}'
+                              .format(collection, key, timeperiod))
         return Job.from_json(document)
 
     @thread_safe
@@ -72,7 +73,7 @@ class JobDao(object):
 
         cursor = collection.find(query)
         if cursor.count() == 0:
-            raise LookupError('MongoDB has no job records in %s collection since %r' % (collection_name, since))
+            raise LookupError('MongoDB has no job records in collection {0} since {1}'.format(collection_name, since))
         return [Job.from_json(document) for document in cursor]
 
     @thread_safe

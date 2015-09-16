@@ -89,7 +89,7 @@ class UnitOfWorkDao(object):
                     candidates.append(uow)
 
         if len(candidates) == 0:
-            raise LookupError('MongoDB has no reprocessing candidates units of work')
+            raise LookupError('MongoDB has no UOW reprocessing candidates')
         return candidates
 
     @thread_safe
@@ -103,7 +103,7 @@ class UnitOfWorkDao(object):
 
         document = collection.find_one(query)
         if document is None:
-            raise LookupError('Unit_of_work satisfying query %r was not found' % query)
+            raise LookupError('UOW satisfying query {0} was not found'.format(query))
         return UnitOfWork.from_json(document)
 
     @thread_safe
@@ -151,7 +151,7 @@ class UnitOfWorkDao(object):
             try:
                 return self.get_by_params(e.process_name, e.timeperiod, e.start_id, e.end_id)
             except LookupError as e:
-                self.logger.error('Unable to recover from DuplicateKeyError error due to %s' % e.message, exc_info=True)
+                self.logger.error('Unable to recover from DuplicateKeyError error due to {0}'.format(e), exc_info=True)
         else:
-            msg = 'Unable to recover from DuplicateKeyError due to unspecified unit_of_work primary key'
+            msg = 'Unable to recover from DuplicateKeyError due to unspecified UOW primary key'
             self.logger.error(msg)

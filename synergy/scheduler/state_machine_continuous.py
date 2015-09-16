@@ -31,7 +31,7 @@ class StateMachineContinuous(AbstractStateMachine):
         job_record = node.job_record
 
         if not job_record.is_final_run:
-            self.logger.info('Suppressing job state change since the job for {0} in {1} is not in STATE_FINAL_RUN'
+            self.logger.info('Suppressing state change for Job {0}@{1}, since it is not in STATE_FINAL_RUN'
                              .format(uow.process_name, uow.timeperiod))
             return
         self._process_state_final_run(job_record)

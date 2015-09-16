@@ -30,7 +30,7 @@ class AbstractThreadHandler(object):
         self.is_started = False
         self.is_terminated = False
 
-        self.logger.info('Created Synergy Scheduler Thread Handler {0}~{1}'.format(key, trigger_frequency))
+        self.logger.info('Created Scheduler Thread Handler {0}~{1}'.format(key, trigger_frequency))
 
     def __del__(self):
         self.timer_instance.cancel()
