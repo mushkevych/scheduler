@@ -38,17 +38,17 @@ class BashRunnable(threading.Thread):
             uow = self.uow_dao.get_one(self.mq_request.unit_of_work_id)
             if not uow.is_requested:
                 # accept only UOW in STATE_REQUESTED
-                self.logger.warn('Skipping unit_of_work: id %s; state %s;' % (str(self.message.body), uow.state),
+                self.logger.warn('Skipping UOW: id {0}; state {1};'.format(self.message.body, uow.state),
                                  exc_info=False)
                 self.consumer.acknowledge(self.message.delivery_tag)
                 return
         except Exception:
-            self.logger.error('Safety fuse. Can not identify unit_of_work %s' % str(self.message.body), exc_info=True)
+            self.logger.error('Safety fuse. Can not identify UOW {0}'.format(self.message.body), exc_info=True)
             self.consumer.acknowledge(self.message.delivery_tag)
             return
 
         try:
-            self.logger.info('start: %s {' % self.thread_name)
+            self.logger.info('start: {0} {{'.format(self.thread_name))
             self.alive = True
 
             uow.state = unit_of_work.STATE_IN_PROGRESS
@@ -62,7 +62,7 @@ class BashRunnable(threading.Thread):
 
             command = os.path.join(uow.arguments[ARGUMENT_CMD_PATH],
                                    uow.arguments[ARGUMENT_CMD_FILE])
-            command += ' %s' % uow.arguments[ARGUMENT_CMD_ARGS]
+            command += ' {0}'.format(uow.arguments[ARGUMENT_CMD_ARGS])
 
             run_result = fabric.operations.run(command, pty=False)
             if run_result.succeeded:
@@ -72,9 +72,9 @@ class BashRunnable(threading.Thread):
             uow.state = unit_of_work.STATE_PROCESSED
             self.uow_dao.update(uow)
 
-            self.logger.info('Completed %s with result = %r' % (self.thread_name, self.return_code))
+            self.logger.info('Completed {0} with result = {1}'.format(self.thread_name, self.return_code))
         except Exception:
-            self.logger.error('Exception on starting: %s' % self.thread_name, exc_info=True)
+            self.logger.error('Exception on starting: {0}'.format(self.thread_name), exc_info=True)
             uow.state = unit_of_work.STATE_INVALID
             self.uow_dao.update(uow)
         finally:
@@ -95,10 +95,11 @@ class BashRunnable(threading.Thread):
             else:
                 self.performance_ticker.tracker.increment_failure()
 
-            self.logger.info('BashDriver for %s return code is %r' % (self.thread_name, code))
+            self.logger.info('BashDriver for {0} return code is {1}'.format(self.thread_name, code))
         except Exception as e:
             self.performance_ticker.tracker.increment_failure()
-            self.logger.error('Safety fuse while processing request %r: %r' % (self.message.body, e), exc_info=True)
+            self.logger.error('Safety fuse while processing request {0}: {1}'.format(self.message.body, e),
+                              exc_info=True)
         finally:
             self.consumer.acknowledge(self.message.delivery_tag)
 

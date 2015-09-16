@@ -12,7 +12,7 @@ RETURN_CODE_NOOP_UOW = 77776666
 
 class AbstractCliWorker(AbstractUowAwareWorker):
     """ Module contains common logic for Command Line Callers.
-    It executes shell command and updates unit_of_work base on command's return code """
+        It executes shell command and updates unit_of_work base on command's return code """
 
     def __init__(self, process_name):
         super(AbstractCliWorker, self).__init__(process_name)
@@ -35,17 +35,17 @@ class AbstractCliWorker(AbstractUowAwareWorker):
             return_code = self.cli_process.wait(timeout=0.01)
             if return_code is None:
                 # process is already terminated
-                self.logger.info('Process %s is terminated' % self.process_name)
+                self.logger.info('Process {0} is terminated'.format(self.process_name))
             else:
                 # process is terminated; possibly by OS
-                self.logger.info('Process %s got terminated. Cleaning up' % self.process_name)
+                self.logger.info('Process {0} got terminated. Cleaning up'.format(self.process_name))
             self.cli_process = None
             return False, return_code
         except TimeoutExpired:
             # process is alive and OK
             return True, None
         except Exception:
-            self.logger.error('Exception on polling: %s' % self.process_name, exc_info=True)
+            self.logger.error('Exception on polling: {0}'.format(self.process_name), exc_info=True)
             return False, 999
 
     def _process_uow(self, uow):
@@ -56,7 +56,7 @@ class AbstractCliWorker(AbstractUowAwareWorker):
             alive, code = self._poll_process()
             time.sleep(0.1)
 
-        self.logger.info('Command Line Command return code is %r' % code)
+        self.logger.info('Command Line Command return code is {0}'.format(code))
         if code == 0:
             return 0, unit_of_work.STATE_PROCESSED
         elif code == RETURN_CODE_CANCEL_UOW:
@@ -64,4 +64,4 @@ class AbstractCliWorker(AbstractUowAwareWorker):
         elif code == RETURN_CODE_NOOP_UOW:
             return 0, unit_of_work.STATE_NOOP
         else:
-            raise UserWarning('Command Line Command return code is not 0 but %r' % code)
+            raise UserWarning('Command Line Command return code is not 0 but {0}'.format(code))

@@ -48,12 +48,12 @@ class AbstractUowAwareWorker(AbstractMqWorker):
             uow = self.uow_dao.get_one(mq_request.unit_of_work_id)
             if not uow.is_requested:
                 # accept only UOW in STATE_REQUESTED
-                self.logger.warn('Skipping unit_of_work: id %s; state %s;' % (str(message.body), uow.state),
+                self.logger.warn('Skipping UOW: id {0}; state {1};'.format(message.body, uow.state),
                                  exc_info=False)
                 self.consumer.acknowledge(message.delivery_tag)
                 return
         except Exception:
-            self.logger.error('Safety fuse. Can not identify unit_of_work %s' % str(message.body), exc_info=True)
+            self.logger.error('Safety fuse. Can not identify UOW {0}'.format(message.body), exc_info=True)
             self.consumer.acknowledge(message.delivery_tag)
             return
 
@@ -86,12 +86,11 @@ class AbstractUowAwareWorker(AbstractMqWorker):
             fresh_uow = self.uow_dao.get_one(mq_request.unit_of_work_id)
             self.performance_ticker.cancel_uow()
             if fresh_uow.is_canceled:
-                self.logger.warn('unit_of_work: id %s was likely marked by MX as SKIPPED. '
-                                 'No unit_of_work update is performed.' % str(message.body),
-                                 exc_info=False)
+                self.logger.warn('UOW {0} for {1}@{2} was likely marked by MX as SKIPPED. No UOW update is performed.'
+                                 .format(uow.db_id, uow.process_name, uow.timeperiod), exc_info=False)
             else:
-                self.logger.error('Safety fuse while processing unit_of_work %s in timeperiod %s : %r'
-                                  % (message.body, uow.timeperiod, e), exc_info=True)
+                self.logger.error('Safety fuse while processing UOW {0} for {1}@{2}: {3}'
+                                  .format(uow.db_id, uow.process_name, uow.timeperiod, e), exc_info=True)
                 uow.state = unit_of_work.STATE_INVALID
                 self.uow_dao.update(uow)
 
@@ -104,6 +103,6 @@ class AbstractUowAwareWorker(AbstractMqWorker):
             publisher = self.publishers.get(QUEUE_UOW_REPORT)
             publisher.publish(mq_request.document)
             publisher.release()
-            self.logger.info('Published unit_of_work status report into %s queue' % QUEUE_UOW_REPORT)
+            self.logger.info('Published unit_of_work status report into {0} queue'.format(QUEUE_UOW_REPORT))
         except Exception:
             self.logger.error('Error on unit_of_work status report publishing', exc_info=True)

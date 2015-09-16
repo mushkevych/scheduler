@@ -31,7 +31,7 @@ def parse_time_trigger_string(trigger_frequency):
         parsed_trigger_frequency = int(trigger_frequency)
         timer_klass = RepeatTimer
     else:
-        raise ValueError('Unknown time trigger format %s' % trigger_frequency)
+        raise ValueError('Unknown time trigger format {0}'.format(trigger_frequency))
 
     return parsed_trigger_frequency, timer_klass
 
@@ -49,7 +49,7 @@ def format_time_trigger_string(timer_instance):
         timestamps = [repr(x) for x in timer_instance.timestamps]
         return TRIGGER_PREAMBLE_AT + ','.join(timestamps)
     else:
-        raise ValueError('Unknown timer instance type %s' % timer_instance.__class__.__name__)
+        raise ValueError('Unknown timer instance type {0}'.format(timer_instance.__class__.__name__))
 
 
 class EventTime(object):
@@ -67,11 +67,11 @@ class EventTime(object):
             self.time_of_day = datetime.strptime(tokens[0], TIME_OF_DAY_FORMAT)
 
     def __str__(self):
-        return 'EventTime: day_of_week=%s time_of_day=%s' % \
-               (self.day_of_week, self.time_of_day.strftime(TIME_OF_DAY_FORMAT))
+        return 'EventTime: day_of_week={0} time_of_day={1}'\
+               .format(self.day_of_week, self.time_of_day.strftime(TIME_OF_DAY_FORMAT))
 
     def __repr__(self):
-        return '%s-%s' % (self.day_of_week, self.time_of_day.strftime(TIME_OF_DAY_FORMAT))
+        return '{0}-{1}'.format(self.day_of_week, self.time_of_day.strftime(TIME_OF_DAY_FORMAT))
 
     def __eq__(self, other):
         if not isinstance(other, EventTime):
@@ -106,7 +106,7 @@ class EventTime(object):
     @classmethod
     def utc_now(cls):
         utc_now = datetime.utcnow()
-        return EventTime('%s-%s' % (utc_now.weekday(), utc_now.strftime(TIME_OF_DAY_FORMAT)))
+        return EventTime('{0}-{1}'.format(utc_now.weekday(), utc_now.strftime(TIME_OF_DAY_FORMAT)))
 
 
 class EventClock(object):

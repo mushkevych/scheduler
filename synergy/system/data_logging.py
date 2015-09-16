@@ -12,16 +12,14 @@ from synergy.db.model.managed_process_entry import ManagedProcessEntry
 
 
 class Logger(object):
-    """
-    Logger presents standard API to log messages and store them for future analysis
-    """
+    """ Logger presents wrapper around standard API enriched with formaters and roto handlers """
 
     def __init__(self, file_name, log_tag, append_to_console, redirect_stdstream):
         """
         :param file_name: path+name of the output file
         :param log_tag: tag that is printed ahead of every logged message
         :param append_to_console: True if messages should be printed to the terminal console
-        :param redirect_stdstream: True if stdout and stderr are redirected to this Logger instance
+        :param redirect_stdstream: True if stdout and stderr should be redirected to this Logger instance
         """
         self.logger = logging.getLogger(log_tag)
 
@@ -104,7 +102,7 @@ def get_log_tag(process_name):
     elif isinstance(process_obj, DaemonProcessEntry):
         return str(process_obj.token)
     else:
-        raise ValueError('Unknown process type: %s' % process_obj.__class__.__name__)
+        raise ValueError('Unknown process type: {0}'.format(process_obj.__class__.__name__))
 
 
 if __name__ == '__main__':

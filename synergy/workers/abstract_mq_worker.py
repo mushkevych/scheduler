@@ -33,20 +33,20 @@ class AbstractMqWorker(SynergyProcess):
         msg_suffix = 'in Production Mode'
         if settings.settings['under_test']:
             msg_suffix = 'in Testing Mode'
-        self.logger.info('Started %s %s' % (self.process_name, msg_suffix))
+        self.logger.info('Started {0} {1}'.format(self.process_name, msg_suffix))
 
     def __del__(self):
         try:
             self.logger.info('Closing Flopsy Consumer...')
             self.consumer.close()
         except Exception as e:
-            self.logger.error('Exception caught while closing Flopsy Consumer: %s' % str(e))
+            self.logger.error('Exception caught while closing Flopsy Consumer: {0}'.format(e))
 
         try:
             self.logger.info('Canceling Performance Tracker...')
             self.performance_ticker.cancel()
         except Exception as e:
-            self.logger.error('Exception caught while cancelling the performance_ticker: %s' % str(e))
+            self.logger.error('Exception caught while cancelling the Performance Tracker: {0}'.format(e))
         super(AbstractMqWorker, self).__del__()
 
     # ********************** abstract methods ****************************
@@ -72,9 +72,9 @@ class AbstractMqWorker(SynergyProcess):
             self.consumer.register(self._mq_callback)
             self.consumer.wait(self.mq_timeout_seconds)
         except socket.timeout as e:
-            self.logger.warn('Queue %s is likely empty. Worker exits due to: %s' % (self.consumer.queue, str(e)))
+            self.logger.warn('Queue {0} is likely empty. Worker exits due to: {1}'.format(self.consumer.queue, e))
         except (AMQPError, IOError) as e:
-            self.logger.error('AMQPError: %s' % str(e))
+            self.logger.error('AMQPError: {0}'.format(e))
         finally:
             self.__del__()
             self.logger.info('Exiting main thread. All auxiliary threads stopped.')

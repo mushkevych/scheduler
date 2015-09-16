@@ -18,7 +18,7 @@ class SynergyAware(object):
         elif name in context.mq_queue_context:
             the_context = context.mq_queue_context
         else:
-            raise ValueError('Unknown name %s. Unable to retrieve amqp settings.' % name)
+            raise ValueError('Unknown name {0}. Unable to retrieve amqp settings.'.format(name))
 
         self.routing_key = the_context[name].mq_routing_key
         self.exchange = the_context[name].mq_exchange
@@ -46,7 +46,7 @@ class Connection(object):
 
     def connect(self):
         self.connection = amqp.Connection(
-            host='%s:%s' % (self.db_host, self.port),
+            host='{0}:{1}'.format(self.db_host, self.port),
             userid=self.user_id,
             password=self.password,
             virtual_host=self.vhost
@@ -215,11 +215,8 @@ class _Pool(object):
             try:
                 publisher.close()
             except Exception as e:
-                if not suppress_logging:
-                    self.logger.error('Exception on closing Flopsy Publisher %s: %s' % self.name, exc_info=True)
-                else:
-                    self.logger.info('Error while closing Flopsy Publisher for %s: %s. Full trace suppressed.'
-                                     % (self.name, str(e)))
+                self.logger.error('Exception on closing Flopsy Publisher {0}: {1}'.format(self.name, e),
+                                  exc_info=not suppress_logging)
         self.publishers.clear()
 
 
@@ -254,7 +251,7 @@ class PublishersPool(object):
         """ resets established connection by disconnecting and reconnecting """
         self._close(name, suppress_logging)
         self.get(name)
-        self.logger.info('Reset Flopsy Pool for %s' % name)
+        self.logger.info('Reset Flopsy Pool for {0}'.format(name))
 
     def _close(self, name, suppress_logging):
         """ closes one particular pool and all its amqp amqp connections """
@@ -264,10 +261,8 @@ class PublishersPool(object):
                 self.pools[name].close()
                 del self.pools[name]
         except Exception as e:
-            if not suppress_logging:
-                self.logger.error('Exception on closing Flopsy Pool for %s' % name, exc_info=True)
-            else:
-                self.logger.info('Error while closing Flopsy Pool for %s: %s. Full trace suppressed.' % (name, str(e)))
+            self.logger.error('Exception on closing Flopsy Pool for {0}: {1}'.format(name, e),
+                              exc_info=not suppress_logging)
 
     def close(self, suppress_logging=False):
         """ iterates thru all publisher pools and closes them """
@@ -287,10 +282,10 @@ def purge_mq_queue(mq_queue_name):
         conn = Connection()
         chan = conn.connection.channel()
         n = chan.queue_purge(mq_queue_name)
-        sys.stdout.write('Purged %s messages from %s queue\n' % (n, mq_queue_name))
+        sys.stdout.write('Purged {0} messages from {1} queue\n'.format(n, mq_queue_name))
         return n
     except Exception as e:
-        sys.stderr.write('Unable to purge %s due to %s\n' % (mq_queue_name, str(e)))
+        sys.stderr.write('Unable to purge {0} due to {1}\n'.format(mq_queue_name, e))
     finally:
         if chan is not None:
             chan.close()
