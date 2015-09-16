@@ -81,10 +81,10 @@ class Scheduler(SynergyProcess):
 
         if process_entry.is_on:
             handler.activate()
-            self.logger.info('Started Scheduler Thread Handler for {0}:{1}.'
+            self.logger.info('Started {0} for {1}.'
                              .format(handler.__class__.__name__, handler.key))
         else:
-            self.logger.info('Registered Scheduler Thread Handler for {0}:{1}. Idle until activated.'
+            self.logger.info('Registered {0} for {1}. Idle until activated.'
                              .format(handler.__class__.__name__, handler.key))
 
     # **************** Scheduler Methods ************************
@@ -101,8 +101,8 @@ class Scheduler(SynergyProcess):
             try:
                 self._register_process_entry(process_entry, function)
             except Exception:
-                self.logger.error('Scheduler Thread Handler {0} failed to start. Skipping it.'.format(process_entry.key),
-                                  exc_info=True)
+                self.logger.error('Managed Thread Handler {0} failed to start. Skipping it.'
+                                  .format(process_entry.key), exc_info=True)
 
     def _load_freerun_entries(self):
         """ reads scheduler managed entries and starts their timers to trigger events """
@@ -111,8 +111,8 @@ class Scheduler(SynergyProcess):
             try:
                 self._register_process_entry(freerun_entry, self.fire_freerun_worker)
             except Exception:
-                self.logger.error('Scheduler Thread Handler {0} failed to start. Skipping it.'.format(freerun_entry.key),
-                                  exc_info=True)
+                self.logger.error('Freerun Thread Handler {0} failed to start. Skipping it.'
+                                  .format(freerun_entry.key), exc_info=True)
 
     @with_reconnect
     def start(self, *_):
