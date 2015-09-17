@@ -9,7 +9,7 @@ from synergy.system import time_helper
 from synergy.system.time_helper import cast_to_time_qualifier
 
 
-MAX_NUMBER_OF_RETRIES = 3    # number of times a node is re-run before it is considered STATE_SKIPPED
+MAX_NUMBER_OF_FAILURES = 3   # number of times a Job can fail before it is considered STATE_SKIPPED
 LIFE_SUPPORT_HOURS = 48      # number of hours that node is retried infinite number of times
 
 
@@ -150,15 +150,15 @@ class MultiLevelTree(AbstractTree):
         # case 2: this is a bottom-level leaf node. retry this time_period for LIFE_SUPPORT_HOURS
         if node.process_name == self.process_hierarchy.bottom_process.process_name:
             if len(node.children) == 0:
-                # TODO: change timeperiod_dt to the node.job_record.created_at
-                # TODO: thus giving each job_record 2 days to be processed since its creation
+                # TODO: replace logic so only MAX_NUMBER_OF_FAILURES is considered for retry logic
+                # TODO: this change will also affect Garbage Collector
 
                 # no children - this is a leaf
                 timeperiod_dt = time_helper.synergy_to_datetime(node.time_qualifier, node.timeperiod)
                 if datetime.utcnow() - timeperiod_dt < timedelta(hours=LIFE_SUPPORT_HOURS):
                     return False
                 else:
-                    return node.job_record.number_of_failures > MAX_NUMBER_OF_RETRIES
+                    return node.job_record.number_of_failures > MAX_NUMBER_OF_FAILURES
 
         # case 3: here we process process_daily, process_monthly and process_yearly that have children
         # iterate thru children and check if all of them are in STATE_SKIPPED (i.e. no data for parent to process)
@@ -167,7 +167,7 @@ class MultiLevelTree(AbstractTree):
         all_children_spoiled = True
         for key, child in node.children.items():
             if child.job_record is None or \
-                    (child.job_record.number_of_failures <= MAX_NUMBER_OF_RETRIES
+                    (child.job_record.number_of_failures <= MAX_NUMBER_OF_FAILURES
                      and not child.job_record.is_skipped):
                 all_children_spoiled = False
                 break

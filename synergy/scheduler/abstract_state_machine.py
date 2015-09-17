@@ -285,7 +285,7 @@ class AbstractStateMachine(object):
                 self.uow_dao.update(uow)
             self._process_state_in_progress(job_record)
 
-        msg = 'Reprocessing Job {0} for {1}@{2}: state transfer {3} -> {4};' \
+        msg = 'Reprocessed Job {0} for {1}@{2}: state transfer {3} -> {4};' \
               .format(job_record.db_id, job_record.process_name, job_record.timeperiod,
                       original_job_state, job_record.state)
         self._log_message(WARNING, job_record.process_name, job_record.timeperiod, msg)
@@ -307,7 +307,7 @@ class AbstractStateMachine(object):
                 uow.submitted_at = datetime.utcnow()
                 self.uow_dao.update(uow)
 
-        msg = 'Skipping Job {0} for {1}@{2}: state transfer {3} -> {4}; ' \
+        msg = 'Skipped Job {0} for {1}@{2}: state transfer {3} -> {4};' \
               .format(job_record.db_id, job_record.process_name, job_record.timeperiod,
                       original_job_state, job_record.state)
         self._log_message(WARNING, job_record.process_name, job_record.timeperiod, msg)
@@ -332,6 +332,6 @@ class AbstractStateMachine(object):
         job_record.related_unit_of_work = uow.db_id
         self.job_dao.update(job_record)
 
-        msg = 'Updating Job {0} for {1}@{2}: state transfer {3} -> {4};' \
+        msg = 'Updated Job {0} for {1}@{2}: state transfer {3} -> {4};' \
               .format(job_record.db_id, job_record.process_name, job_record.timeperiod, original_job_state, new_state)
         self._log_message(INFO, job_record.process_name, job_record.timeperiod, msg)
