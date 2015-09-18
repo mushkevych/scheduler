@@ -12,7 +12,8 @@ from synergy.workers.abstract_mq_worker import AbstractMqWorker
 
 
 class SingleSessionWorker(AbstractMqWorker):
-    """ this class reads stream of messages from RabbitMQ and dump them into MongoDB """
+    """ illustration suite worker:
+        - reads stream of messages from the RabbitMQ and dumps them into the MongoDB """
 
     # every 15 minutes worker will perform <safe=True> save to Mongo DB
     # this allows to catch MongoDB connection expiration

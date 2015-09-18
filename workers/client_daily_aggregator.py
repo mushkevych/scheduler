@@ -13,7 +13,8 @@ random.seed(9001)
 
 
 class ClientDailyAggregator(AbstractMongoWorker):
-    """ class works as an aggregator from the site_hourly into the site_daily """
+    """ illustration suite worker:
+        - an aggregator from the site_daily into the client_daily """
 
     def __init__(self, process_name):
         super(ClientDailyAggregator, self).__init__(process_name)

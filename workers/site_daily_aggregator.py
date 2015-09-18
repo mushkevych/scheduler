@@ -8,7 +8,8 @@ from workers.abstract_mongo_worker import AbstractMongoWorker
 
 
 class SiteDailyAggregator(AbstractMongoWorker):
-    """ class works as an aggregator from the site_hourly into the site_daily """
+    """ illustration suite worker:
+        - an aggregator from the site_hourly into the site_daily """
 
     def __init__(self, process_name):
         super(SiteDailyAggregator, self).__init__(process_name)

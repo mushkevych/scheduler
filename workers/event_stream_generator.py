@@ -19,6 +19,9 @@ TICK_INTERVAL = 10
 
 
 class EventStreamGenerator(SynergyProcess):
+    """ illustration suite worker:
+        - emulates user activity on the web site """
+
     def __init__(self, process_name):
         super(EventStreamGenerator, self).__init__(process_name)
         self.main_thread = None

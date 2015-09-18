@@ -7,7 +7,8 @@ from workers.client_daily_aggregator import ClientDailyAggregator
 
 
 class ClientMonthlyAggregator(ClientDailyAggregator):
-    """ class works as an aggregator from the client_daily collection into the client_monthly collection """
+    """ illustration suite worker:
+        - an aggregator from the client_daily into the client_monthly """
 
     def __init__(self, process_name):
         super(ClientMonthlyAggregator, self).__init__(process_name)
