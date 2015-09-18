@@ -56,8 +56,9 @@ class FileCollectorUnitTest(unittest.TestCase):
     TEST_HEADER_LIST = []
 
     for table_name in TABLES:
-        TEST_FILE_LIST += [ACTUAL_TIMEPERIOD + '-' + table_name + '-host_%r.domain.com.log.gz' % i for i in range(10)]
-        TEST_HEADER_LIST += [table_name + '-host_%r.domain.com.header' % i for i in range(10)]
+        TEST_FILE_LIST += ['{0}-{1}-host_{2}.domain.com.log.gz'.format(ACTUAL_TIMEPERIOD, table_name, i)
+                           for i in range(10)]
+        TEST_HEADER_LIST += ['{0}-host_{1}.domain.com.header'.format(table_name, i) for i in range(10)]
 
     def create_file_collector(self):
         return DummyFileCollector(PROCESS_UNIT_TEST)
@@ -91,7 +92,7 @@ class FileCollectorUnitTest(unittest.TestCase):
 
         for file_name in self.TEST_HEADER_LIST:
             output = open(os.path.join(fqhf, file_name), 'w')
-            output.write(','.join(['column_%r' % x for x in range(5)]))
+            output.write(','.join(['column_{0}'.format(x) for x in range(5)]))
             output.close()
 
         settings.settings['remote_source_host_list'] = {socket.getfqdn(): ''}
@@ -106,7 +107,7 @@ class FileCollectorUnitTest(unittest.TestCase):
         del self.worker
 
         if self.tempdir_copying:
-            self.logger.info('Cleaning up %r' % self.tempdir_copying)
+            self.logger.info('Cleaning up {0}'.format(self.tempdir_copying))
             shutil.rmtree(self.tempdir_copying, True)
             self.tempdir_copying = None
 

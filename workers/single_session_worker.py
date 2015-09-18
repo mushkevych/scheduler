@@ -71,14 +71,14 @@ class SingleSessionWorker(AbstractMqWorker):
             self.ss_dao.update(session, is_safe)
             self.consumer.acknowledge(message.delivery_tag)
         except AutoReconnect as e:
-            self.logger.error('MongoDB connection error: %r\nRe-queueing message & exiting the worker' % e)
+            self.logger.error('MongoDB connection error: {0}\nRe-queueing message & exiting the worker'.format(e))
             self.consumer.reject(message.delivery_tag)
             raise e
         except (KeyError, IndexError) as e:
-            self.logger.error('Error is considered Unrecoverable: %r\nCancelled message: %r' % (e, message.body))
+            self.logger.error('Error is considered Unrecoverable: {0}\nCancelled message: {1}'.format(e, message.body))
             self.consumer.cancel(message.delivery_tag)
         except Exception as e:
-            self.logger.error('Error is considered Recoverable: %r\nRe-queueing message: %r' % (e, message.body))
+            self.logger.error('Error is considered Recoverable: {0}\nRe-queueing message: {1}'.format(e, message.body))
             self.consumer.reject(message.delivery_tag)
 
     def update_session_body(self, raw_data, session):
