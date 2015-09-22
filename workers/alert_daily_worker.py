@@ -13,7 +13,7 @@ from synergy.system.time_qualifier import *
 class AlertDailyWorker(AbstractMongoWorker):
     """ illustration suite worker:
         - compares site daily statistics with 1-week old one
-          and reports an alert should any of the given threshold be crossed """
+          reports an alert should any of the given threshold be crossed """
 
     def __init__(self, process_name):
         super(AlertDailyWorker, self).__init__(process_name)
