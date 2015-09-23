@@ -12,7 +12,7 @@ setup(name='synergy_scheduler',
       package_data={'synergy.mx': ['static/images/*', 'static/fonts/*', 'static/js/*', 'static/css/*', 'templates/*'],
                     'synergy.mq': ['AUTHORS', 'LICENSE']},
       long_description='Synergy Scheduler shines in governing interdependent processes and their jobs. '
-                       'Alternatively, it can work as a cron-like job trigger.',
+                       'Has rich Web UI. Can also work as a cron-like job trigger.',
       license='Modified BSD License',
       classifiers=[
           'Development Status :: 5 - Production/Stable',

@@ -59,7 +59,7 @@ class StatusBusListener(object):
                 return
 
             process_entry = self.scheduler.managed_handlers[uow.process_name].process_entry
-            state_machine = self.scheduler.timetable.state_machines[process_entry.state_machine_name]
+            state_machine = self.timetable.state_machines[process_entry.state_machine_name]
             assert isinstance(state_machine, AbstractStateMachine)
 
             self.logger.info('Commencing State Machine notification with UOW from {0}@{1} in {2}.'
@@ -68,8 +68,6 @@ class StatusBusListener(object):
 
         except KeyError:
             self.logger.error('Access error for {0}'.format(message.body), exc_info=True)
-        except LookupError:
-            self.logger.error('Can not perform shallow state update for {0}'.format(message.body), exc_info=True)
         except Exception:
             self.logger.error('Error during StateMachine.notify call {0}'.format(message.body), exc_info=True)
         finally:
@@ -85,7 +83,7 @@ class StatusBusListener(object):
             self.logger.error('StatusBusListener: AMQPError {0}'.format(e))
         finally:
             self.__del__()
-            self.logger.info('StatusBusListener: Shutting down... All auxiliary threads stopped.')
+            self.logger.info('StatusBusListener: Shut down.')
 
     def start(self, *_):
         self.main_thread = Thread(target=self._run_mq_listener)
