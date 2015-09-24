@@ -105,6 +105,12 @@ class GarbageCollector(object):
             self._flush_queue(q, ignore_priority)
 
     @thread_safe
+    def clear(self):
+        """ method purges reprocessing queues. no UOW re-submits are performed """
+        self.reprocess_uows.clear()
+        self.logger.warn('reprocessing queue cleared')
+
+    @thread_safe
     def flush_one(self, process_name, ignore_priority=False):
         """ method iterates over the reprocessing queue for the given process
             and re-submits UOW whose waiting time has expired """

@@ -66,6 +66,7 @@ class ManagedActionHandler(AbstractActionHandler):
         self.scheduler.timetable.add_log_entry(self.process_name, self.timeperiod, msg)
         self.logger.info(msg + ' {')
 
+        self.scheduler.gc.clear()
         tx_context = self.scheduler.timetable.skip_tree_node(node)
 
         resp = collections.defaultdict(dict)
