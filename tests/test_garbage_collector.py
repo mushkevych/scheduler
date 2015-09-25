@@ -23,6 +23,7 @@ from synergy.scheduler.synergy_scheduler import Scheduler
 from synergy.scheduler.thread_handler import ManagedThreadHandler
 from synergy.scheduler.garbage_collector import GarbageCollector
 from synergy.system.data_logging import get_logger
+from synergy.system.priority_queue import PriorityEntry
 from tests.ut_context import *
 
 
@@ -167,6 +168,31 @@ class GarbageCollectorUnitTest(unittest.TestCase):
         self.assertEqual(len(self.worker.reprocess_uows[uow.process_name]), 0)
         self.worker._cancel_uow.assert_called_once_with(mock.ANY)
         self.publisher.publish.assert_called_once_with(mock.ANY)
+
+    def test_validation(self):
+        uow = get_valid_and_stale_uow()
+        entry = PriorityEntry(uow)
+
+        self.worker.reprocess_uows[uow.process_name].put(entry)
+        self.assertEqual(len(self.worker.reprocess_uows[uow.process_name]), 1)
+        uow.state = unit_of_work.STATE_CANCELED
+
+        self.worker.uow_dao.get_one = mock.MagicMock(return_value=uow)
+
+        self.worker.validate()
+        self.assertEqual(len(self.worker.reprocess_uows[uow.process_name]), 0)
+
+    def test_resubmit(self):
+        uow = get_valid_and_stale_uow()
+        uow.state = unit_of_work.STATE_CANCELED
+
+        self.worker.uow_dao.get_one = mock.MagicMock(return_value=uow)
+        self.worker.uow_dao.update = mock.MagicMock()
+        self.worker._resubmit_uow(uow)
+
+        self.assertEqual(len(self.worker.reprocess_uows[uow.process_name]), 0)
+        self.assertTrue(self.publisher.publish.call_args_list == [])        # called 0 times
+        self.assertTrue(self.worker.uow_dao.update.call_args_list == [])    # called 0 times
 
     def test_select_reprocessing_candidates(self):
         logger = get_logger(PROCESS_UNIT_TEST)

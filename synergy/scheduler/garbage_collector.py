@@ -132,8 +132,14 @@ class GarbageCollector(object):
         self._flush_queue(q, ignore_priority)
 
     def _resubmit_uow(self, uow):
-        mq_request = SynergyMqTransmission(process_name=uow.process_name, unit_of_work_id=uow.db_id)
+        # re-read UOW from the DB, in case it was CANCELLED by MX
+        uow = self.uow_dao.get_one(uow.db_id)
+        if uow.is_canceled:
+            self.logger.info('suppressed re-submission of UOW {0} for {1}@{2} in {3};'
+                             .format(uow.db_id, uow.process_name, uow.timeperiod, uow.state))
+            return
 
+        mq_request = SynergyMqTransmission(process_name=uow.process_name, unit_of_work_id=uow.db_id)
         if uow.is_invalid:
             uow.number_of_retries += 1
 
