@@ -182,15 +182,15 @@ class GarbageCollectorUnitTest(unittest.TestCase):
         except:
             initial_positive_candidates = []
 
-        positive_timeperiods = {u'2010123123': PROCESS_SITE_HOURLY,  # hourly time qualifier
-                                u'2010123100': PROCESS_SITE_DAILY,  # daily time qualifier
-                                u'2010120000': PROCESS_SITE_MONTHLY,  # monthly time qualifier
-                                u'2010000000': PROCESS_SITE_YEARLY}  # yearly time qualifier
+        positive_timeperiods = {u'2010123123': PROCESS_SITE_HOURLY,     # hourly time qualifier
+                                u'2010123100': PROCESS_SITE_DAILY,      # daily time qualifier
+                                u'2010120000': PROCESS_SITE_MONTHLY,    # monthly time qualifier
+                                u'2010000000': PROCESS_SITE_YEARLY}     # yearly time qualifier
 
-        negative_timeperiods = {u'2009123123': PROCESS_SITE_HOURLY,  # hourly time qualifier
-                                u'2009123100': PROCESS_SITE_DAILY,  # daily time qualifier
-                                u'2009120000': PROCESS_SITE_MONTHLY,  # monthly time qualifier
-                                u'2009000000': PROCESS_SITE_YEARLY}  # yearly time qualifier
+        negative_timeperiods = {u'2009123123': PROCESS_SITE_HOURLY,     # hourly time qualifier
+                                u'2009123100': PROCESS_SITE_DAILY,      # daily time qualifier
+                                u'2009120000': PROCESS_SITE_MONTHLY,    # monthly time qualifier
+                                u'2009000000': PROCESS_SITE_YEARLY}     # yearly time qualifier
 
         all_timeperiods = dict()
         all_timeperiods.update(positive_timeperiods)

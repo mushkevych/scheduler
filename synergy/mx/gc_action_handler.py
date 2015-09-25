@@ -13,8 +13,9 @@ class GcActionHandler(BaseRequestHandler):
             self.process_name = self.process_name.strip()
 
     def action_refresh(self):
+        self.scheduler.gc.validate()
         self.scheduler.gc.scan_uow_candidates()
-        self.logger.info('MX: performed GC refresh')
+        self.logger.info('MX: performed GC Refresh')
         return self.reply_ok()
 
     def action_flush_all(self):

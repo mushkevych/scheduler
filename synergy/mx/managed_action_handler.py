@@ -50,6 +50,7 @@ class ManagedActionHandler(AbstractActionHandler):
         self.logger.info(msg + ' {')
 
         tx_context = self.scheduler.timetable.reprocess_tree_node(node)
+        self.scheduler.gc.validate()
 
         resp = collections.defaultdict(dict)
         for process_name, nodes_context in tx_context.items():
@@ -66,8 +67,8 @@ class ManagedActionHandler(AbstractActionHandler):
         self.scheduler.timetable.add_log_entry(self.process_name, self.timeperiod, msg)
         self.logger.info(msg + ' {')
 
-        self.scheduler.gc.clear()
         tx_context = self.scheduler.timetable.skip_tree_node(node)
+        self.scheduler.gc.validate()
 
         resp = collections.defaultdict(dict)
         for process_name, nodes_context in tx_context.items():

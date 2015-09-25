@@ -105,10 +105,24 @@ class GarbageCollector(object):
             self._flush_queue(q, ignore_priority)
 
     @thread_safe
-    def clear(self):
-        """ method purges reprocessing queues. no UOW re-submits are performed """
-        self.reprocess_uows.clear()
-        self.logger.warn('reprocessing queue cleared')
+    def validate(self):
+        """ method iterates over the reprocessing queue and synchronizes state of every UOW with the DB
+            should it change by the MX to STATE_CANCELED - removed the UOW from the queue """
+        for process_name, q in self.reprocess_uows.items():
+            if not q:
+                continue
+
+            invalid_entries = list()
+            for entry in q.queue:
+                assert isinstance(entry, PriorityEntry)
+                uow = self.uow_dao.get_one(entry.entry.db_id)
+                if uow.is_canceled:
+                    invalid_entries.append(entry)
+
+            for entry in invalid_entries:
+                q.queue.remove(entry)
+
+        self.logger.info('reprocessing queue validated')
 
     @thread_safe
     def flush_one(self, process_name, ignore_priority=False):

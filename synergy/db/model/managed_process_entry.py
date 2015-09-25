@@ -4,7 +4,7 @@ from odm.fields import StringField, ObjectIdField, BooleanField, IntegerField
 
 from synergy.db.model.daemon_process_entry import DaemonProcessEntry
 from synergy.scheduler.scheduler_constants import BLOCKING_CHILDREN, BLOCKING_DEPENDENCIES, BLOCKING_NORMAL, \
-    EXCHANGE_MANAGED_WORKER
+    EXCHANGE_MANAGED_WORKER, STATE_MACHINE_DISCRETE
 
 
 PROCESS_NAME = 'process_name'
@@ -43,8 +43,8 @@ def managed_context_entry(process_name,
                           classname,
                           token,
                           time_qualifier,
-                          trigger_frequency,
-                          state_machine_name,
+                          trigger_frequency='every 60',
+                          state_machine_name=STATE_MACHINE_DISCRETE,
                           is_on=True,
                           exchange=EXCHANGE_MANAGED_WORKER,
                           blocking_type=BLOCKING_NORMAL,
