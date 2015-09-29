@@ -211,9 +211,7 @@ class MultiLevelTree(AbstractTree):
         node.job_record = job_record
 
     def get_node(self, process_name, timeperiod):
-        """
-        Method retrieves a tree node identified by the time_qualifier and the timeperiod
-        """
+        """ Method retrieves a tree node identified by the time_qualifier and the timeperiod """
         if process_name not in self.process_hierarchy:
             raise ValueError('unable to retrieve the node due to unknown process: {0}'.format(process_name))
 
@@ -221,8 +219,8 @@ class MultiLevelTree(AbstractTree):
         return self._get_node(time_qualifier, timeperiod)
 
     def validate(self):
-        """method starts validation of the tree.
-        @see TreeNode.validate"""
+        """ method starts validation of the tree.
+            @see TreeNode.validate """
         for timeperiod, child in self.root.children.items():
             child.validate()
         self.validation_timestamp = datetime.utcnow()

@@ -291,9 +291,9 @@ class AbstractStateMachine(object):
         self._log_message(WARNING, job_record.process_name, job_record.timeperiod, msg)
 
     def skip_job(self, job_record):
-        """ method marks given job as SKIPPED:
-            - UOW if not in finished state, is marked as CANCELED
-            - job record, if not in finished state, is marked as SKIPPED """
+        """ method transfers:
+            - given job into STATE_SKIPPED if it is not not in finished state
+            - UOW into STATE_CANCELED if it is not in finished state """
         original_job_state = job_record.state
 
         if not job_record.is_finished:

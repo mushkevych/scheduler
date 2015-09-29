@@ -16,6 +16,7 @@ from synergy.system import time_helper
 from synergy.system.decorator import with_reconnect, thread_safe
 from synergy.system.synergy_process import SynergyProcess
 from synergy.scheduler.garbage_collector import GarbageCollector
+from synergy.scheduler.job_status_broadcaster import JobStatusBroadcaster
 from synergy.scheduler.status_bus_listener import StatusBusListener
 from synergy.scheduler.scheduler_constants import *
 from synergy.scheduler.timetable import Timetable
@@ -42,12 +43,14 @@ class Scheduler(SynergyProcess):
 
         self.gc = GarbageCollector(self)
         self.bus_listener = StatusBusListener(self)
+        self.status_broadcaster = JobStatusBroadcaster(self)
         self.mx = MX(self)
         self.logger.info('Started {0}'.format(self.process_name))
 
     def __del__(self):
         self.mx.stop()
         self.bus_listener.stop()
+        self.status_broadcaster.stop()
         self.gc.stop()
 
         for key, handler in self.managed_handlers.items():
@@ -128,10 +131,13 @@ class Scheduler(SynergyProcess):
         # Scheduler is initialized and running. GarbageCollector can be safely started
         self.gc.start()
 
-        # Scheduler is initialized and running. Status Bus Listener can be safely started
+        # Job Status Broadcaster can be safely started
+        self.status_broadcaster.start()
+
+        # Status Bus Listener has dependency on Job Status Broadcaster and should be started after it
         self.bus_listener.start()
 
-        # Scheduler is initialized and running. Management Extension (MX) can be safely started
+        # Management Extension (MX) should be the last to start
         self.mx.start()
 
     @thread_safe
@@ -178,6 +184,7 @@ class Scheduler(SynergyProcess):
 
             job_record = _fire_worker(thread_handler_header.process_entry, None)
             while job_record and job_record.is_finished:
+                self.status_broadcaster.broadcast(job_record)
                 job_record = _fire_worker(thread_handler_header.process_entry, job_record)
 
         except (AMQPError, IOError) as e:
