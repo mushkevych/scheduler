@@ -11,7 +11,7 @@ from db.dao.single_session_dao import SingleSessionDao
 from synergy.db.dao.unit_of_work_dao import UnitOfWorkDao
 from synergy.db.model import unit_of_work
 from synergy.db.model.unit_of_work import UnitOfWork
-from synergy.db.model.synergy_mq_transmission import SynergyMqTransmission
+from synergy.db.model.mq_transmission import MqTransmission
 from synergy.db.manager import ds_manager
 from synergy.system import time_helper
 from synergy.system.time_qualifier import *
@@ -26,7 +26,7 @@ TOTAL_ENTRIES = 101
 class TestMessage(object):
     """ mock class substituting MQ Message. Used for Unit Tests only """
     def __init__(self, process_name=None, uow_id=None):
-        mq_request = SynergyMqTransmission(process_name=process_name, unit_of_work_id=uow_id)
+        mq_request = MqTransmission(process_name=process_name, record_db_id=uow_id)
         self.body = mq_request.to_json()
         self.delivery_tag = None
 

@@ -7,15 +7,15 @@ from synergy.conf import context
 from synergy.db.error import DuplicateKeyError
 from synergy.db.model import unit_of_work
 from synergy.db.model.unit_of_work import UnitOfWork
-from synergy.db.model.synergy_mq_transmission import SynergyMqTransmission
+from synergy.db.model.mq_transmission import MqTransmission
 from synergy.db.model.freerun_process_entry import FreerunProcessEntry, MAX_NUMBER_OF_LOG_ENTRIES
 from synergy.db.dao.unit_of_work_dao import UnitOfWorkDao
 from synergy.db.dao.freerun_process_dao import FreerunProcessDao
 from synergy.system import time_helper
 from synergy.system.time_qualifier import QUALIFIER_REAL_TIME
 from synergy.system.decorator import with_reconnect
+from synergy.system.mq_transmitter import MqTransmitter
 from synergy.scheduler.scheduler_constants import STATE_MACHINE_FREERUN
-from synergy.mq.flopsy import PublishersPool
 
 
 class StateMachineFreerun(object):
@@ -24,16 +24,9 @@ class StateMachineFreerun(object):
     def __init__(self, logger, name=STATE_MACHINE_FREERUN):
         self.name = name
         self.logger = logger
-        self.publishers = PublishersPool(self.logger)
+        self.mq_transmitter = MqTransmitter(self.logger)
         self.uow_dao = UnitOfWorkDao(self.logger)
         self.sfe_dao = FreerunProcessDao(self.logger)
-
-    def __del__(self):
-        try:
-            self.logger.info('Closing Flopsy Publishers Pool...')
-            self.publishers.close()
-        except Exception as e:
-            self.logger.error('Exception caught while closing Flopsy Publishers Pool: {0}'.format(e))
 
     @with_reconnect
     def _log_message(self, level, freerun_entry, msg):
@@ -71,20 +64,13 @@ class StateMachineFreerun(object):
         uow.arguments = freerun_entry.arguments
         uow.db_id = self.uow_dao.insert(uow)
 
-        msg = 'Created: UOW {0} for {1}@{2}.'\
+        msg = 'Created: UOW {0} for {1}@{2}.' \
               .format(uow.db_id, freerun_entry.schedulable_name, current_timeperiod)
         self._log_message(INFO, freerun_entry, msg)
         return uow
 
     def _publish_uow(self, freerun_entry, uow):
-        mq_request = SynergyMqTransmission(process_name=freerun_entry.process_name,
-                                           entry_name=freerun_entry.entry_name,
-                                           unit_of_work_id=uow.db_id)
-
-        publisher = self.publishers.get(freerun_entry.process_name)
-        publisher.publish(mq_request.document)
-        publisher.release()
-
+        self.mq_transmitter.publish_freerun_uow(freerun_entry, uow)
         msg = 'Published: UOW {0} for {1}.'.format(uow.db_id, freerun_entry.schedulable_name)
         self._log_message(INFO, freerun_entry, msg)
 
@@ -102,7 +88,7 @@ class StateMachineFreerun(object):
             freerun_entry.related_unit_of_work = uow.db_id
             self.sfe_dao.update(freerun_entry)
         else:
-            msg = 'PERSISTENT TIER ERROR! Unable to locate UOW for {0}'\
+            msg = 'PERSISTENT TIER ERROR! Unable to locate UOW for {0}' \
                   .format(freerun_entry.schedulable_name)
             self._log_message(WARNING, freerun_entry, msg)
 
@@ -146,7 +132,7 @@ class StateMachineFreerun(object):
                 self._log_message(ERROR, freerun_entry, msg)
 
         except LookupError as e:
-            msg = 'Lookup issue for schedulable: {0} in timeperiod {1}, because of: {2}'\
+            msg = 'Lookup issue for schedulable: {0} in timeperiod {1}, because of: {2}' \
                   .format(freerun_entry.db_id, uow.timeperiod, e)
             self._log_message(WARNING, freerun_entry, msg)
 

@@ -10,7 +10,7 @@ from synergy.conf import settings
 from synergy.workers.abstract_mq_worker import AbstractMqWorker
 from synergy.workers.worker_constants import *
 from synergy.db.model import unit_of_work
-from synergy.db.model.synergy_mq_transmission import SynergyMqTransmission
+from synergy.db.model.mq_transmission import MqTransmission
 from synergy.db.dao.unit_of_work_dao import UnitOfWorkDao
 
 
@@ -20,7 +20,7 @@ class BashRunnable(threading.Thread):
     def __init__(self, logger, message, consumer, performance_ticker):
         self.logger = logger
         self.message = message
-        self.mq_request = SynergyMqTransmission.from_json(message.body)
+        self.mq_request = MqTransmission.from_json(message.body)
         self.consumer = consumer
         self.performance_ticker = performance_ticker
         self.alive = False
@@ -35,7 +35,7 @@ class BashRunnable(threading.Thread):
 
     def _start_process(self):
         try:
-            uow = self.uow_dao.get_one(self.mq_request.unit_of_work_id)
+            uow = self.uow_dao.get_one(self.mq_request.record_db_id)
             if not uow.is_requested:
                 # accept only UOW in STATE_REQUESTED
                 self.logger.warn('Skipping UOW: id {0}; state {1};'.format(self.message.body, uow.state),

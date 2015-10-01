@@ -3,10 +3,7 @@ __author__ = 'Bohdan Mushkevych'
 from datetime import datetime, timedelta
 from threading import Lock
 
-from amqp import AMQPError
-
 from synergy.conf import context
-from synergy.mq.flopsy import PublishersPool
 from synergy.mx.synergy_mx import MX
 from synergy.db.manager import db_manager
 from synergy.db.model.managed_process_entry import ManagedProcessEntry
@@ -16,8 +13,8 @@ from synergy.system import time_helper
 from synergy.system.decorator import with_reconnect, thread_safe
 from synergy.system.synergy_process import SynergyProcess
 from synergy.scheduler.garbage_collector import GarbageCollector
-from synergy.scheduler.job_status_broadcaster import JobStatusBroadcaster
-from synergy.scheduler.status_bus_listener import StatusBusListener
+from synergy.scheduler.uow_status_listener import UowStatusListener
+from synergy.scheduler.job_status_listener import JobStatusListener
 from synergy.scheduler.scheduler_constants import *
 from synergy.scheduler.timetable import Timetable
 from synergy.scheduler.thread_handler import ThreadHandlerHeader, ManagedThreadHandler, FreerunThreadHandler
@@ -35,22 +32,21 @@ class Scheduler(SynergyProcess):
         super(Scheduler, self).__init__(process_name)
         self.lock = Lock()
         self.logger.info('Starting {0}'.format(self.process_name))
-        self.publishers = PublishersPool(self.logger)
         self.managed_handlers = dict()
         self.freerun_handlers = dict()
         self.timetable = Timetable(self.logger)
         self.freerun_process_dao = FreerunProcessDao(self.logger)
 
         self.gc = GarbageCollector(self)
-        self.bus_listener = StatusBusListener(self)
-        self.status_broadcaster = JobStatusBroadcaster(self)
+        self.uow_listener = UowStatusListener(self)
+        self.job_listener = JobStatusListener(self)
         self.mx = MX(self)
         self.logger.info('Started {0}'.format(self.process_name))
 
     def __del__(self):
         self.mx.stop()
-        self.bus_listener.stop()
-        self.status_broadcaster.stop()
+        self.uow_listener.stop()
+        self.job_listener.stop()
         self.gc.stop()
 
         for key, handler in self.managed_handlers.items():
@@ -60,8 +56,6 @@ class Scheduler(SynergyProcess):
         for key, handler in self.freerun_handlers.items():
             handler.deactivate(update_persistent=False)
         self.freerun_handlers.clear()
-
-        self.publishers.close()
 
         super(Scheduler, self).__del__()
 
@@ -131,11 +125,9 @@ class Scheduler(SynergyProcess):
         # Scheduler is initialized and running. GarbageCollector can be safely started
         self.gc.start()
 
-        # Job Status Broadcaster can be safely started
-        self.status_broadcaster.start()
-
-        # Status Bus Listener has dependency on Job Status Broadcaster and should be started after it
-        self.bus_listener.start()
+        # Job/UOW Status Listeners can be safely started
+        self.uow_listener.start()
+        self.job_listener.start()
 
         # Management Extension (MX) should be the last to start
         self.mx.start()
@@ -184,12 +176,8 @@ class Scheduler(SynergyProcess):
 
             job_record = _fire_worker(thread_handler_header.process_entry, None)
             while job_record and job_record.is_finished:
-                self.status_broadcaster.broadcast(job_record)
                 job_record = _fire_worker(thread_handler_header.process_entry, job_record)
 
-        except (AMQPError, IOError) as e:
-            self.logger.error('AMQPError: {0}'.format(e), exc_info=True)
-            self.publishers.reset_all(suppress_logging=True)
         except Exception as e:
             self.logger.error('Exception: {0}'.format(e), exc_info=True)
         finally:

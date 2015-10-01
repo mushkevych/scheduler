@@ -3,12 +3,11 @@ __author__ = 'Bohdan Mushkevych'
 from datetime import datetime
 
 from synergy.db.model import unit_of_work
-from synergy.db.model.synergy_mq_transmission import SynergyMqTransmission
+from synergy.db.model.mq_transmission import MqTransmission
 from synergy.db.dao.unit_of_work_dao import UnitOfWorkDao
-from synergy.mq.flopsy import PublishersPool
-from synergy.workers.abstract_mq_worker import AbstractMqWorker
+from synergy.system.mq_transmitter import MqTransmitter
 from synergy.system.performance_tracker import UowAwareTracker
-from synergy.scheduler.scheduler_constants import QUEUE_UOW_REPORT
+from synergy.workers.abstract_mq_worker import AbstractMqWorker
 
 
 class AbstractUowAwareWorker(AbstractMqWorker):
@@ -18,10 +17,10 @@ class AbstractUowAwareWorker(AbstractMqWorker):
     def __init__(self, process_name):
         super(AbstractUowAwareWorker, self).__init__(process_name)
         self.uow_dao = UnitOfWorkDao(self.logger)
-        self.publishers = PublishersPool(self.logger)
+        self.mq_transmitter = MqTransmitter(self.logger)
 
     def __del__(self):
-        self.publishers.close()
+        del self.mq_transmitter
         super(AbstractUowAwareWorker, self).__del__()
 
     # **************** Abstract Methods ************************
@@ -44,8 +43,8 @@ class AbstractUowAwareWorker(AbstractMqWorker):
 
     def _mq_callback(self, message):
         try:
-            mq_request = SynergyMqTransmission.from_json(message.body)
-            uow = self.uow_dao.get_one(mq_request.unit_of_work_id)
+            mq_request = MqTransmission.from_json(message.body)
+            uow = self.uow_dao.get_one(mq_request.record_db_id)
             if not uow.is_requested:
                 # accept only UOW in STATE_REQUESTED
                 self.logger.warn('Skipping UOW: id {0}; state {1};'.format(message.body, uow.state),
@@ -83,7 +82,7 @@ class AbstractUowAwareWorker(AbstractMqWorker):
                 self.performance_ticker.cancel_uow()
 
         except Exception as e:
-            fresh_uow = self.uow_dao.get_one(mq_request.unit_of_work_id)
+            fresh_uow = self.uow_dao.get_one(mq_request.record_db_id)
             self.performance_ticker.cancel_uow()
             if fresh_uow.is_canceled:
                 self.logger.warn('UOW {0} for {1}@{2} was likely marked by MX as SKIPPED. No UOW update is performed.'
@@ -100,9 +99,7 @@ class AbstractUowAwareWorker(AbstractMqWorker):
             self._clean_up()
 
         try:
-            publisher = self.publishers.get(QUEUE_UOW_REPORT)
-            publisher.publish(mq_request.document)
-            publisher.release()
-            self.logger.info('Published UOW status report into queue {0}'.format(QUEUE_UOW_REPORT))
+            self.mq_transmitter.publish_uow_status(uow)
+            self.logger.info('Published UOW status report into')
         except Exception:
             self.logger.error('Error on UOW status report publishing', exc_info=True)

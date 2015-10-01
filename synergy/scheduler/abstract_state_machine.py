@@ -10,8 +10,7 @@ from synergy.db.dao.unit_of_work_dao import UnitOfWorkDao
 from synergy.db.dao.job_dao import JobDao
 from synergy.db.model import unit_of_work
 from synergy.db.model.unit_of_work import UnitOfWork
-from synergy.db.model.synergy_mq_transmission import SynergyMqTransmission
-from synergy.mq.flopsy import PublishersPool
+from synergy.system.mq_transmitter import MqTransmitter
 from synergy.conf import context
 from synergy.system.decorator import with_reconnect
 from synergy.scheduler.tree_node import NodesCompositeState
@@ -23,17 +22,10 @@ class AbstractStateMachine(object):
     def __init__(self, logger, timetable, name):
         self.name = name
         self.logger = logger
-        self.publishers = PublishersPool(self.logger)
+        self.mq_transmitter = MqTransmitter(self.logger)
         self.timetable = timetable
         self.uow_dao = UnitOfWorkDao(self.logger)
         self.job_dao = JobDao(self.logger)
-
-    def __del__(self):
-        try:
-            self.logger.info('Closing Flopsy Publishers Pool...')
-            self.publishers.close()
-        except Exception as e:
-            self.logger.error('Exception caught while closing Flopsy Publishers Pool: {0}'.format(e))
 
     @property
     def run_on_active_timeperiod(self):
@@ -74,12 +66,7 @@ class AbstractStateMachine(object):
         return uow
 
     def _publish_uow(self, uow):
-        mq_request = SynergyMqTransmission(process_name=uow.process_name, unit_of_work_id=uow.db_id)
-
-        publisher = self.publishers.get(uow.process_name)
-        publisher.publish(mq_request.document)
-        publisher.release()
-
+        self.mq_transmitter.publish_managed_uow(uow)
         msg = 'Published: UOW {0} for {1}@{2}.'.format(uow.db_id, uow.process_name, uow.start_timeperiod)
         self._log_message(INFO, uow.process_name, uow.start_timeperiod, msg)
 
@@ -143,6 +130,7 @@ class AbstractStateMachine(object):
         self.job_dao.update(job_record)
         tree = self.timetable.get_tree(job_record.process_name)
         tree.update_node(job_record)
+        self.mq_transmitter.publish_job_status(job_record)
 
         time_grouping = context.process_context[job_record.process_name].time_grouping
         msg = 'Job {0}@{1} with time_grouping {2} was transferred to STATE_NOOP' \
@@ -215,6 +203,7 @@ class AbstractStateMachine(object):
             self.job_dao.update(job_record)
             tree = self.timetable.get_tree(job_record.process_name)
             tree.update_node(job_record)
+            self.mq_transmitter.publish_job_status(job_record)
 
             msg = 'Job {0}@{1} is blocked by STATE_SKIPPED dependencies. ' \
                   'Transferred the job to STATE_SKIPPED'.format(job_record.process_name, job_record.timeperiod)
@@ -299,6 +288,7 @@ class AbstractStateMachine(object):
         if not job_record.is_finished:
             job_record.state = job.STATE_SKIPPED
             self.job_dao.update(job_record)
+            self.mq_transmitter.publish_job_status(job_record)
 
         if job_record.related_unit_of_work:
             uow = self.uow_dao.get_one(job_record.related_unit_of_work)
@@ -335,3 +325,6 @@ class AbstractStateMachine(object):
         msg = 'Updated Job {0} for {1}@{2}: state transfer {3} -> {4};' \
               .format(job_record.db_id, job_record.process_name, job_record.timeperiod, original_job_state, new_state)
         self._log_message(INFO, job_record.process_name, job_record.timeperiod, msg)
+
+        if job_record.is_finished:
+            self.mq_transmitter.publish_job_status(job_record)

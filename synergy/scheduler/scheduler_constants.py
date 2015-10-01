@@ -40,4 +40,5 @@ COLLECTION_JOB_DAILY = 'job_daily'
 COLLECTION_JOB_MONTHLY = 'job_monthly'
 COLLECTION_JOB_YEARLY = 'job_yearly'
 
-QUEUE_UOW_REPORT = 'q_uow_report'
+QUEUE_UOW_STATUS = 'q_uow_status'
+QUEUE_JOB_STATUS = 'q_job_status'

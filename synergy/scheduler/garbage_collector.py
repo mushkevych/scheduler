@@ -9,10 +9,10 @@ from synergy.system.data_logging import get_logger
 from synergy.system.decorator import thread_safe
 from synergy.system.priority_queue import PriorityEntry, PriorityQueue, compute_release_time
 from synergy.system.repeat_timer import RepeatTimer
-from synergy.scheduler.scheduler_constants import QUEUE_UOW_REPORT, PROCESS_GC
+from synergy.system.mq_transmitter import MqTransmitter
+from synergy.scheduler.scheduler_constants import PROCESS_GC
 from synergy.scheduler.thread_handler import ManagedThreadHandler
 from synergy.db.model import unit_of_work
-from synergy.db.model.synergy_mq_transmission import SynergyMqTransmission
 from synergy.db.dao.unit_of_work_dao import UnitOfWorkDao
 
 
@@ -25,7 +25,7 @@ class GarbageCollector(object):
     def __init__(self, scheduler):
         self.logger = get_logger(PROCESS_GC, append_to_console=False, redirect_stdstream=False)
         self.managed_handlers = scheduler.managed_handlers
-        self.publishers = scheduler.publishers
+        self.mq_transmitter = MqTransmitter(self.logger)
         self.timetable = scheduler.timetable
 
         self.lock = Lock()
@@ -132,14 +132,13 @@ class GarbageCollector(object):
         self._flush_queue(q, ignore_priority)
 
     def _resubmit_uow(self, uow):
-        # re-read UOW from the DB, in case it was CANCELLED by MX
+        # re-read UOW from the DB, in case it was STATE_CANCELLED by MX
         uow = self.uow_dao.get_one(uow.db_id)
         if uow.is_canceled:
             self.logger.info('suppressed re-submission of UOW {0} for {1}@{2} in {3};'
                              .format(uow.db_id, uow.process_name, uow.timeperiod, uow.state))
             return
 
-        mq_request = SynergyMqTransmission(process_name=uow.process_name, unit_of_work_id=uow.db_id)
         if uow.is_invalid:
             uow.number_of_retries += 1
 
@@ -147,23 +146,15 @@ class GarbageCollector(object):
         uow.submitted_at = datetime.utcnow()
         self.uow_dao.update(uow)
 
-        publisher = self.publishers.get(uow.process_name)
-        publisher.publish(mq_request.document)
-        publisher.release()
-
+        self.mq_transmitter.publish_managed_uow(uow)
         self.logger.info('re-submitted UOW {0} for {1}@{2}; attempt {3}'
                          .format(uow.db_id, uow.process_name, uow.timeperiod, uow.number_of_retries))
 
     def _cancel_uow(self, uow):
-        mq_request = SynergyMqTransmission(process_name=uow.process_name, unit_of_work_id=uow.db_id)
-
         uow.state = unit_of_work.STATE_CANCELED
         self.uow_dao.update(uow)
 
-        publisher = self.publishers.get(QUEUE_UOW_REPORT)
-        publisher.publish(mq_request.document)
-        publisher.release()
-
+        self.mq_transmitter.publish_uow_status(uow)
         self.logger.info('canceled UOW {0} for {1}@{2}; attempt {3}; created at {4}'
                          .format(uow.db_id, uow.process_name, uow.timeperiod, uow.number_of_retries, uow.created_at))
 
