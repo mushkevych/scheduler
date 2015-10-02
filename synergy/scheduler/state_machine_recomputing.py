@@ -34,6 +34,7 @@ class StateMachineRecomputing(AbstractStateMachine):
                              .format(uow.process_name, uow.timeperiod))
             return
         self._process_state_final_run(job_record)
+        self.mq_transmitter.publish_job_status(job_record)
 
     @with_reconnect
     def update_scope_of_processing(self, process_name, uow, start_timeperiod, end_timeperiod):

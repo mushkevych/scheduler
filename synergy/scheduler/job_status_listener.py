@@ -6,7 +6,6 @@ from amqp import AMQPError
 
 from synergy.db.model.mq_transmission import MqTransmission
 from synergy.db.dao.job_dao import JobDao
-from synergy.scheduler.abstract_state_machine import AbstractStateMachine
 from synergy.scheduler.scheduler_constants import QUEUE_JOB_STATUS
 from synergy.scheduler.thread_handler import ManagedThreadHandler
 from synergy.mq.flopsy import Consumer
@@ -47,15 +46,13 @@ class JobStatusListener(object):
             dependant_nodes = self.timetable._find_dependant_tree_nodes(tree_node)
 
             # step 2: form list of handlers to trigger
-            handlers_to_trigger = list()
+            handlers_to_trigger = set()
             for node in dependant_nodes:
-                process_entry = self.scheduler.managed_handlers[node.process_name].process_entry
-                state_machine = self.timetable.state_machines[process_entry.state_machine_name]
-                assert isinstance(state_machine, AbstractStateMachine)
+                state_machine = self.scheduler.state_machine_for(node.process_name)
                 if state_machine.run_on_active_timeperiod:
                     # ignore dependant processes whose state machine can run on an active timeperiod
                     continue
-                handlers_to_trigger.append(self.scheduler.managed_handlers[node.process_name])
+                handlers_to_trigger.add(self.scheduler.managed_handlers[node.process_name])
 
             # step 3: iterate the list of handlers and trigger them
             for handler in handlers_to_trigger:

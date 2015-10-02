@@ -26,7 +26,7 @@ class AbstractMongoWorker(AbstractUowAwareWorker):
     # **************** Abstract Methods ************************
     def _flush_aggregated_objects(self):
         """ method inserts aggregated objects into MongoDB
-            @return number_of_aggregated_objects """
+            :return number_of_aggregated_objects """
         if len(self.aggregated_objects) == 0:
             # nothing to do
             return 0
@@ -48,7 +48,7 @@ class AbstractMongoWorker(AbstractUowAwareWorker):
 
     def _get_aggregated_object(self, composite_key):
         """ method talks with the map of instances of aggregated objects
-        :param composite_key presents tuple, comprising of domain_name and timeperiod"""
+            :param composite_key presents tuple, comprising of domain_name and timeperiod"""
         if composite_key not in self.aggregated_objects:
             self.aggregated_objects[composite_key] = self._init_sink_object(composite_key)
         return self.aggregated_objects[composite_key]

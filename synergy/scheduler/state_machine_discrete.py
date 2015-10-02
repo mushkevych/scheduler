@@ -38,6 +38,7 @@ class StateMachineDiscrete(AbstractStateMachine):
 
         if uow.timeperiod < actual_timeperiod and is_job_finalizable is True:
             self.__process_finalizable_job(job_record, uow)
+            self.mq_transmitter.publish_job_status(job_record)
 
         elif uow.timeperiod >= actual_timeperiod:
             self.logger.info('Suppressing state change for Job {0}@{1}, '

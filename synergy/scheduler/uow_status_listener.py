@@ -7,7 +7,6 @@ from amqp import AMQPError
 from synergy.db.model.mq_transmission import MqTransmission
 from synergy.db.model import unit_of_work
 from synergy.db.dao.unit_of_work_dao import UnitOfWorkDao
-from synergy.scheduler.abstract_state_machine import AbstractStateMachine
 from synergy.scheduler.scheduler_constants import QUEUE_UOW_STATUS
 from synergy.mq.flopsy import Consumer
 
@@ -58,10 +57,7 @@ class UowStatusListener(object):
                                  .format(uow.process_name, uow.timeperiod, uow.state))
                 return
 
-            process_entry = self.scheduler.managed_handlers[uow.process_name].process_entry
-            state_machine = self.timetable.state_machines[process_entry.state_machine_name]
-            assert isinstance(state_machine, AbstractStateMachine)
-
+            state_machine = self.scheduler.state_machine_for(node.process_name)
             self.logger.info('Commencing StateMachine.notify with UOW from {0}@{1} in {2}.'
                              .format(uow.process_name, uow.timeperiod, uow.state))
             state_machine.notify(uow)

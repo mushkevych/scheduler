@@ -128,7 +128,6 @@ class AbstractStateMachine(object):
             its state should be set to STATE_NOOP without any processing """
         job_record.state = job.STATE_NOOP
         self.job_dao.update(job_record)
-        self.mq_transmitter.publish_job_status(job_record)
 
         time_grouping = context.process_context[job_record.process_name].time_grouping
         msg = 'Job {0}@{1} with time_grouping {2} was transferred to STATE_NOOP' \
@@ -215,12 +214,11 @@ class AbstractStateMachine(object):
             - update boundaries of the processing; republish
             - wait another tick; idle """
         assert isinstance(job_record, Job)
-
-        if self._is_noop_timeperiod(job_record.process_name, job_record.timeperiod):
-            self._process_noop_timeperiod(job_record)
-            return
-
         try:
+            if self._is_noop_timeperiod(job_record.process_name, job_record.timeperiod):
+                self._process_noop_timeperiod(job_record)
+                return
+
             if job_record.is_embryo:
                 self._process_state_embryo(job_record)
 
@@ -250,6 +248,9 @@ class AbstractStateMachine(object):
             msg = 'Increasing fail counter for Job {0}@{1}, because of: {2}' \
                   .format(job_record.process_name, job_record.timeperiod, e)
             self._log_message(WARNING, job_record.process_name, job_record.timeperiod, msg)
+
+        finally:
+            self.mq_transmitter.publish_job_status(job_record)
 
     def reprocess_job(self, job_record):
         """ method marks given job for reprocessing:
@@ -284,7 +285,6 @@ class AbstractStateMachine(object):
         if not job_record.is_finished:
             job_record.state = job.STATE_SKIPPED
             self.job_dao.update(job_record)
-            self.mq_transmitter.publish_job_status(job_record)
 
         if job_record.related_unit_of_work:
             uow = self.uow_dao.get_one(job_record.related_unit_of_work)
@@ -321,6 +321,3 @@ class AbstractStateMachine(object):
         msg = 'Updated Job {0} for {1}@{2}: state transfer {3} -> {4};' \
               .format(job_record.db_id, job_record.process_name, job_record.timeperiod, original_job_state, new_state)
         self._log_message(INFO, job_record.process_name, job_record.timeperiod, msg)
-
-        if job_record.is_finished:
-            self.mq_transmitter.publish_job_status(job_record)

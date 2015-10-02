@@ -24,7 +24,7 @@ def get_class(kls):
         module = '.'.join(parts[:-1])
         m = __import__(module)
     except ImportError:
-        # If first try fails, try to import module hosting Class with a starter method
+        # Alternatively, try to import module hosting Class with a starter method
         module = '.'.join(parts[:-2])
         m = __import__(module)
 

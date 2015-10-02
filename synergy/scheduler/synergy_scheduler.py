@@ -84,7 +84,6 @@ class Scheduler(SynergyProcess):
             self.logger.info('Registered {0} for {1}. Idle until activated.'
                              .format(handler.__class__.__name__, handler.key))
 
-    # **************** Scheduler Methods ************************
     def _load_managed_entries(self):
         """ loads scheduler managed entries. no start-up procedures are performed """
         for process_name, process_entry in context.process_context.items():
@@ -132,9 +131,14 @@ class Scheduler(SynergyProcess):
         # Management Extension (MX) should be the last to start
         self.mx.start()
 
+    def state_machine_for(self, process_name):
+        """ :return: state machine for the given process name """
+        process_entry = self.managed_handlers[process_name].process_entry
+        return self.timetable.state_machines[process_entry.state_machine_name]
+
     @thread_safe
     def fire_managed_worker(self, thread_handler_header):
-        """requests next valid job for given process and manages its state"""
+        """ requests next valid job for given process and manages its state """
 
         def _fire_worker(process_entry, prev_job_record):
             assert isinstance(process_entry, ManagedProcessEntry)
@@ -185,7 +189,7 @@ class Scheduler(SynergyProcess):
 
     @thread_safe
     def fire_freerun_worker(self, thread_handler_header):
-        """fires free-run worker with no dependencies to track"""
+        """ fires free-run worker with no dependencies to track """
         try:
             assert isinstance(thread_handler_header, ThreadHandlerHeader)
             self.logger.info('{0} {{'.format(thread_handler_header.key))

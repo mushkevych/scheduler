@@ -42,9 +42,11 @@ class MqTransmitter(object):
         publisher.release()
 
     @thread_safe
-    def publish_job_status(self, job_record):
-        mq_request = MqTransmission(process_name=job_record.process_name, record_db_id=job_record.db_id)
+    def publish_job_status(self, job_record, finished_only=True):
+        if finished_only and not job_record.is_finished:
+            return
 
+        mq_request = MqTransmission(process_name=job_record.process_name, record_db_id=job_record.db_id)
         publisher = self.publishers.get(QUEUE_JOB_STATUS)
         publisher.publish(mq_request.document)
         publisher.release()

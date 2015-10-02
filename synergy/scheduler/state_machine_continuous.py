@@ -32,6 +32,7 @@ class StateMachineContinuous(AbstractStateMachine):
                              .format(uow.process_name, uow.timeperiod))
             return
         self._process_state_final_run(job_record)
+        self.mq_transmitter.publish_job_status(job_record)
 
     def _compute_next_job_state(self, job_record):
         time_qualifier = context.process_context[job_record.process_name].time_qualifier
