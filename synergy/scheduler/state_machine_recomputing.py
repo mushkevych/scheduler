@@ -19,9 +19,6 @@ class StateMachineRecomputing(AbstractStateMachine):
         super(StateMachineRecomputing, self).__init__(logger, timetable, name=STATE_MACHINE_RECOMPUTING)
         self.ds = ds_manager.ds_factory(self.logger)
 
-    def __del__(self):
-        super(StateMachineRecomputing, self).__del__()
-
     @property
     def run_on_active_timeperiod(self):
         """ :return: True, as this StateMachine allows multiple runs for some given timeperiod """

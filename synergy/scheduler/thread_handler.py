@@ -2,7 +2,7 @@ __author__ = 'Bohdan Mushkevych'
 
 from synergy.db.dao.freerun_process_dao import FreerunProcessDao
 from synergy.db.dao.managed_process_dao import ManagedProcessDao
-from synergy.system.event_clock import parse_time_trigger_string
+from synergy.system.time_trigger_factory import parse_time_trigger_string
 
 
 class ThreadHandlerHeader(object):

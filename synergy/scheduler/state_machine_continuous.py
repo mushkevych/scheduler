@@ -17,9 +17,6 @@ class StateMachineContinuous(AbstractStateMachine):
     def __init__(self, logger, timetable, name=STATE_MACHINE_CONTINUOUS):
         super(StateMachineContinuous, self).__init__(logger, timetable, name)
 
-    def __del__(self):
-        super(StateMachineContinuous, self).__del__()
-
     @property
     def run_on_active_timeperiod(self):
         """ :return: True, as we allow multiple runs on a given timeperiod """

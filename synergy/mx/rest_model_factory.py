@@ -1,6 +1,6 @@
 __author__ = 'Bohdan Mushkevych'
 
-from synergy.system.event_clock import format_time_trigger_string
+from synergy.system.time_trigger_factory import format_time_trigger_string
 from synergy.mx.rest_model import *
 
 

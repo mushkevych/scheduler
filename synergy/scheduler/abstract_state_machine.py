@@ -128,8 +128,6 @@ class AbstractStateMachine(object):
             its state should be set to STATE_NOOP without any processing """
         job_record.state = job.STATE_NOOP
         self.job_dao.update(job_record)
-        tree = self.timetable.get_tree(job_record.process_name)
-        tree.update_node(job_record)
         self.mq_transmitter.publish_job_status(job_record)
 
         time_grouping = context.process_context[job_record.process_name].time_grouping
@@ -201,8 +199,6 @@ class AbstractStateMachine(object):
             # Skip this timeperiod itself
             job_record.state = job.STATE_SKIPPED
             self.job_dao.update(job_record)
-            tree = self.timetable.get_tree(job_record.process_name)
-            tree.update_node(job_record)
             self.mq_transmitter.publish_job_status(job_record)
 
             msg = 'Job {0}@{1} is blocked by STATE_SKIPPED dependencies. ' \

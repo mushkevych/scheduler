@@ -17,9 +17,6 @@ class StateMachineDiscrete(AbstractStateMachine):
     def __init__(self, logger, timetable):
         super(StateMachineDiscrete, self).__init__(logger, timetable, name=STATE_MACHINE_DISCRETE)
 
-    def __del__(self):
-        super(StateMachineDiscrete, self).__del__()
-
     @property
     def run_on_active_timeperiod(self):
         """ :return: False, since there should be only 1 run for given timeperiod """

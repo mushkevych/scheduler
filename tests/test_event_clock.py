@@ -3,8 +3,9 @@ __author__ = 'Bohdan Mushkevych'
 import unittest
 from datetime import datetime, timedelta
 
-from synergy.system.event_clock import EventClock, EventTime, parse_time_trigger_string, format_time_trigger_string
+from synergy.system.event_clock import EventClock, EventTime
 from synergy.system.repeat_timer import RepeatTimer
+from synergy.system.time_trigger_factory import parse_time_trigger_string, format_time_trigger_string
 
 
 class TestEventClock(unittest.TestCase):
