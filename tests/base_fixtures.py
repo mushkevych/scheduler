@@ -2,7 +2,7 @@ __author__ = 'Bohdan Mushkevych'
 
 import inspect
 import random
-from datetime import datetime, timedelta
+from datetime import datetime
 
 from db.model import raw_data
 from db.model.site_statistics import SiteStatistics
@@ -14,7 +14,6 @@ from synergy.db.model.unit_of_work import UnitOfWork
 from synergy.db.model.mq_transmission import MqTransmission
 from synergy.db.manager import ds_manager
 from synergy.system import time_helper
-from synergy.system.time_qualifier import *
 from synergy.conf import context
 from synergy.system.data_logging import get_logger
 from tests.ut_context import PROCESS_UNIT_TEST
@@ -231,20 +230,6 @@ def wind_actual_timeperiod(new_time):
         return time_helper.datetime_to_synergy(time_qualifier, new_time)
 
     return actual_timeperiod
-
-
-def wind_the_time(time_qualifier, timeperiod, delta):
-    """ method is used to calculate new timeperiod, shifted by number of units (hours or days)"""
-    pattern = time_helper.define_pattern(timeperiod)
-    t = datetime.strptime(timeperiod, pattern)
-
-    if time_qualifier == QUALIFIER_HOURLY:
-        t = t + timedelta(hours=delta)
-        return t.strftime('%Y%m%d%H')
-    elif time_qualifier == QUALIFIER_DAILY:
-        t = t + timedelta(days=delta)
-        return t.strftime('%Y%m%d00')
-    raise ValueError('unsupported time_qualifier')
 
 
 if __name__ == '__main__':

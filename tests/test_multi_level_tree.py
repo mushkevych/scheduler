@@ -94,9 +94,9 @@ class TestTwoLevelTree(unittest.TestCase):
         for tree in self.trees:
             assert isinstance(tree, MultiLevelTree)
             time_qualifier = tree.process_hierarchy.bottom_process.time_qualifier
-            new_synergy_start_time = base_fixtures.wind_the_time(time_qualifier,
-                                                                 self.actual_timeperiod,
-                                                                 -delta)
+            new_synergy_start_time = time_helper.increment_timeperiod(time_qualifier,
+                                                                      self.actual_timeperiod,
+                                                                      -delta)
             settings.settings['synergy_start_timeperiod'] = new_synergy_start_time
 
             tree.build_tree()
@@ -108,9 +108,9 @@ class TestTwoLevelTree(unittest.TestCase):
         for tree in self.trees:
             assert isinstance(tree, MultiLevelTree)
             time_qualifier = tree.process_hierarchy.bottom_process.time_qualifier
-            new_synergy_start_time = base_fixtures.wind_the_time(time_qualifier,
-                                                                 self.actual_timeperiod,
-                                                                 -delta)
+            new_synergy_start_time = time_helper.increment_timeperiod(time_qualifier,
+                                                                      self.actual_timeperiod,
+                                                                      -delta)
             settings.settings['synergy_start_timeperiod'] = new_synergy_start_time
 
             tree.build_tree()
@@ -118,9 +118,9 @@ class TestTwoLevelTree(unittest.TestCase):
 
         for tree in self.trees:
             time_qualifier = tree.process_hierarchy.bottom_process.time_qualifier
-            new_actual_timeperiod = base_fixtures.wind_the_time(time_qualifier,
-                                                                self.actual_timeperiod,
-                                                                delta)
+            new_actual_timeperiod = time_helper.increment_timeperiod(time_qualifier,
+                                                                     self.actual_timeperiod,
+                                                                     delta)
 
             time_helper.actual_timeperiod = \
                 base_fixtures.wind_actual_timeperiod(time_helper.synergy_to_datetime(time_qualifier,
