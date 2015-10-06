@@ -1,6 +1,6 @@
 __author__ = 'Bohdan Mushkevych'
 
-from datetime import datetime, timedelta
+from datetime import datetime
 
 from synergy.scheduler.process_hierarchy import ProcessHierarchy
 from synergy.scheduler.tree_node import TreeNode, RootNode
@@ -9,8 +9,8 @@ from synergy.system import time_helper
 from synergy.system.time_helper import cast_to_time_qualifier
 
 
-MAX_NUMBER_OF_FAILURES = 3   # number of times a Job can fail before it is considered STATE_SKIPPED
-LIFE_SUPPORT_HOURS = 48      # number of hours that node is retried infinite number of times
+# number of times a Job can fail before it is considered STATE_SKIPPED.
+MAX_NUMBER_OF_FAILURES = 3
 
 
 class AbstractTree(object):
@@ -147,18 +147,11 @@ class MultiLevelTree(AbstractTree):
         if node.job_record.is_finished:
             return True
 
-        # case 2: this is a bottom-level leaf node. retry this time_period for LIFE_SUPPORT_HOURS
+        # case 2: this is a bottom-level leaf node. retry this node for MAX_NUMBER_OF_FAILURES
         if node.process_name == self.process_hierarchy.bottom_process.process_name:
             if len(node.children) == 0:
-                # TODO: replace logic so only MAX_NUMBER_OF_FAILURES is considered for retry logic
-                # TODO: this change will also affect Garbage Collector
-
                 # no children - this is a leaf
-                timeperiod_dt = time_helper.synergy_to_datetime(node.time_qualifier, node.timeperiod)
-                if datetime.utcnow() - timeperiod_dt < timedelta(hours=LIFE_SUPPORT_HOURS):
-                    return False
-                else:
-                    return node.job_record.number_of_failures > MAX_NUMBER_OF_FAILURES
+                return node.job_record.number_of_failures > MAX_NUMBER_OF_FAILURES
 
         # case 3: here we process process_daily, process_monthly and process_yearly that have children
         # iterate thru children and check if all of them are in STATE_SKIPPED (i.e. no data for parent to process)

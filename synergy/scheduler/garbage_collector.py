@@ -107,7 +107,7 @@ class GarbageCollector(object):
     @thread_safe
     def validate(self):
         """ method iterates over the reprocessing queue and synchronizes state of every UOW with the DB
-            should it change by the MX to STATE_CANCELED - removed the UOW from the queue """
+            should it change via the MX to STATE_CANCELED - remove the UOW from the queue """
         for process_name, q in self.reprocess_uows.items():
             if not q:
                 continue
@@ -162,16 +162,19 @@ class GarbageCollector(object):
         try:
             self.logger.info('run {')
 
-            self.logger.debug('step 1: scan reprocessing candidates')
+            self.logger.debug('step 1: validate existing queue entries')
+            self.validate()
+
+            self.logger.debug('step 2: scan reprocessing candidates')
             self.scan_uow_candidates()
 
-            self.logger.debug('step 2: repost after timeout')
+            self.logger.debug('step 3: repost after timeout')
             self.flush()
 
-            self.logger.debug('step 3: timetable housekeeping')
+            self.logger.debug('step 4: timetable housekeeping')
             self.timetable.build_trees()
 
-            self.logger.debug('step 4: timetable validation')
+            self.logger.debug('step 5: timetable validation')
             self.timetable.validate()
         except Exception as e:
             self.logger.error('GC run exception: {0}'.format(e))

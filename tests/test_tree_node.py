@@ -73,29 +73,29 @@ class TestTreeNode(unittest.TestCase):
         actual_daily_timeperiod = time_helper.actual_timeperiod(QUALIFIER_DAILY)
         actual_hourly_timeperiod = time_helper.actual_timeperiod(QUALIFIER_HOURLY)
 
-        # case 1 - left-to-right successful comparison
+        # use-case 1 - left-to-right successful comparison
         node_a = tree_two_level.get_node(PROCESS_CLIENT_MONTHLY, actual_monthly_timeperiod)
         node_b = node_a.find_counterpart_in(tree_four_level)
         self.assertIsNotNone(node_b)
         self.assertEqual(node_a.timeperiod, node_b.timeperiod)
 
-        # case 2 - right-to-left successful comparison
+        # use-case 2 - right-to-left successful comparison
         node_a = tree_four_level.get_node(PROCESS_SITE_MONTHLY, actual_monthly_timeperiod)
         node_b = node_a.find_counterpart_in(tree_two_level)
         self.assertIsNotNone(node_b)
         self.assertEqual(node_a.timeperiod, node_b.timeperiod)
 
-        # case 3 - right-to-left unsuccessful comparison
+        # use-case 3 - right-to-left unsuccessful comparison
         node_a = tree_four_level.get_node(PROCESS_SITE_DAILY, actual_daily_timeperiod)
         node_b = node_a.find_counterpart_in(tree_two_level)
         self.assertIsNone(node_b)
 
-        # case 4 - right-to-left unsuccessful comparison
+        # use-case 4 - right-to-left unsuccessful comparison
         node_a = tree_four_level.get_node(PROCESS_SITE_HOURLY, actual_hourly_timeperiod)
         node_b = node_a.find_counterpart_in(tree_two_level)
         self.assertIsNone(node_b)
 
-        # case 5 - right-to-left unsuccessful comparison
+        # use-case 5 - right-to-left unsuccessful comparison
         node_a = tree_four_level.get_node(PROCESS_SITE_YEARLY, actual_yearly_timeperiod)
         node_b = node_a.find_counterpart_in(tree_two_level)
         self.assertIsNone(node_b)

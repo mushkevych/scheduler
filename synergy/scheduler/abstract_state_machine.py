@@ -254,8 +254,8 @@ class AbstractStateMachine(object):
 
     def reprocess_job(self, job_record):
         """ method marks given job for reprocessing:
-            - if no UOW was bind with the job record - it is transferred to state EMBRYO only
-            - if related UOW was not finished - we mark the UOW as CANCELED
+            - if no UOW was bind with the job record - it is transferred to STATE_EMBRYO only
+            - if related UOW was not finished - we mark the UOW as STATE_CANCELED
                 and pass the job record thru the _process_in_progress routine
             - otherwise job record is passed thru the _process_in_progress routine """
         original_job_state = job_record.state

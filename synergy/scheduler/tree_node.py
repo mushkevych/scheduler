@@ -71,15 +71,15 @@ class AbstractTreeNode(object):
         * requests nodes for reprocessing, if STATE_PROCESSED node relies on unfinalized nodes
         * requests node for skipping if it is daily node and all 24 of its Hourly nodes are in STATE_SKIPPED state"""
 
-        # step 0: request Job record if current one is not set
+        # step 1: request Job record if current one is not set
         if self.job_record is None:
             self.tree.timetable.assign_job_record(self)
 
-        # step 1: define if current node has a younger sibling
+        # step 2: define if current node has a younger sibling
         next_timeperiod = time_helper.increment_timeperiod(self.time_qualifier, self.timeperiod)
         has_younger_sibling = next_timeperiod in self.parent.children
 
-        # step 2: define if all children are done and if perhaps they all are in STATE_SKIPPED
+        # step 3: define if all children are done and if perhaps they all are in STATE_SKIPPED
         all_children_skipped = True
         all_children_finished = True
         for timeperiod, child in self.children.items():
@@ -90,12 +90,12 @@ class AbstractTreeNode(object):
             if not child.job_record.is_skipped:
                 all_children_skipped = False
 
-        # step 3: request this node's reprocessing if it is enroute to STATE_PROCESSED
+        # step 4: request this node's reprocessing if it is enroute to STATE_PROCESSED
         # while some of its children are still performing processing
         if all_children_finished is False and self.job_record.is_finished:
             self.tree.timetable.reprocess_tree_node(self)
 
-        # step 4: verify if this node should be transferred to STATE_SKIPPED
+        # step 5: verify if this node should be transferred to STATE_SKIPPED
         # algorithm is following:
         # point a: node must have children
         # point b: existence of a younger sibling means that the tree contains another node of the same level

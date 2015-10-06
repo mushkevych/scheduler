@@ -17,7 +17,6 @@ from synergy.db.dao.unit_of_work_dao import UnitOfWorkDao
 from tests.base_fixtures import create_unit_of_work, create_and_insert_unit_of_work
 from constants import *
 from synergy.mq.flopsy import PublishersPool, Publisher
-from synergy.scheduler.tree import LIFE_SUPPORT_HOURS
 from synergy.scheduler.timetable import Timetable
 from synergy.scheduler.synergy_scheduler import Scheduler
 from synergy.scheduler.thread_handler import ManagedThreadHandler
@@ -44,7 +43,7 @@ def get_invalid_and_stale_uow():
         0,
         1,
         state=unit_of_work.STATE_INVALID,
-        created_at=datetime.utcnow() - timedelta(hours=LIFE_SUPPORT_HOURS),
+        created_at=datetime.utcnow() - timedelta(hours=settings.settings['gc_life_support_hours']),
         submitted_at=datetime.utcnow() - timedelta(hours=settings.settings['gc_resubmit_after_hours']),
         uow_id=0)
 
@@ -66,7 +65,7 @@ def get_valid_and_stale_uow():
         0,
         1,
         state=unit_of_work.STATE_REQUESTED,
-        created_at=datetime.utcnow() - timedelta(hours=LIFE_SUPPORT_HOURS),
+        created_at=datetime.utcnow() - timedelta(hours=settings.settings['gc_life_support_hours']),
         submitted_at=datetime.utcnow() - timedelta(hours=settings.settings['gc_resubmit_after_hours']),
         uow_id=0)
 
