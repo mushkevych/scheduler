@@ -20,13 +20,13 @@ body {
 
 .grid-header {
     width: 16%;
-    height: 195px;
+    height: 170px;
     position: relative;
     overflow-x: hidden;
     overflow-y: hidden;
     background-color: whitesmoke;
     margin-right: 0.5%;
-    margin-bottom: 15px;
+    margin-bottom: 10px;
     float: left;
     min-width: 244px;
 }
