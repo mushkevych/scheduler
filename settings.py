@@ -45,6 +45,8 @@ testable_modules = [
 ]
 
 test_cases = [
+    'tests.test_tree_node',
+    'tests.test_multi_level_tree',
     'tests.test_process_hierarchy',
     'tests.test_abstract_state_machine',
     'tests.test_state_machine_recomputing',
@@ -52,21 +54,20 @@ test_cases = [
     'tests.test_state_machine_discrete',
     'tests.test_publishers_pool',
     'tests.test_garbage_collector',
+    'tests.test_priority_queue',
+    'tests.test_repeat_timer',
+    'tests.test_event_clock',
     'tests.test_system_utils',
-    'tests.test_multi_level_tree',
-    'tests.test_raw_data',
-    'tests.test_site_statistics',
-    'tests.test_single_session',
     'tests.test_time_helper',
     'tests.test_timeperiod_dict',
-    'tests.test_repeat_timer',
     'tests.test_process_starter',
     'tests.test_site_hourly_aggregator',
     'tests.test_site_daily_aggregator',
     'tests.test_site_monthly_aggregator',
     'tests.test_site_yearly_aggregator',
-    'tests.test_tree_node',
-    'tests.test_event_clock',
+    'tests.test_raw_data',
+    'tests.test_site_statistics',
+    'tests.test_single_session',
 ]
 
 

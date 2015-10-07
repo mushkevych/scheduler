@@ -3,6 +3,7 @@ __author__ = 'Bohdan Mushkevych'
 import unittest
 import mock
 
+from synergy.system.mq_transmitter import MqTransmitter
 from synergy.db.dao.unit_of_work_dao import UnitOfWorkDao
 from tests import base_fixtures
 from tests.base_fixtures import TestMessage
@@ -13,8 +14,7 @@ def get_test_aggregator(baseclass, process_name):
     class TestAggregator(baseclass):
         def __init__(self, process_name):
             super(TestAggregator, self).__init__(process_name)
-            self.publishers = mock.Mock()
-            self.publishers.get = mock.MagicMock(return_value=mock.Mock())
+            self.mq_transmitter = mock.create_autospec(MqTransmitter)
 
         def _init_performance_ticker(self, logger):
             super(TestAggregator, self)._init_performance_ticker(logger)

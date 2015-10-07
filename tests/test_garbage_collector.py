@@ -16,11 +16,11 @@ from synergy.db.dao.unit_of_work_dao import UnitOfWorkDao
 
 from tests.base_fixtures import create_unit_of_work, create_and_insert_unit_of_work
 from constants import *
-from synergy.mq.flopsy import PublishersPool, Publisher
 from synergy.scheduler.timetable import Timetable
 from synergy.scheduler.synergy_scheduler import Scheduler
 from synergy.scheduler.thread_handler import ManagedThreadHandler
 from synergy.scheduler.garbage_collector import GarbageCollector
+from synergy.system.mq_transmitter import MqTransmitter
 from synergy.system.data_logging import get_logger
 from synergy.system.priority_queue import PriorityEntry
 from tests.ut_context import *
@@ -98,13 +98,10 @@ class GarbageCollectorUnitTest(unittest.TestCase):
         self.managed_handlers_mocked[PROCESS_SITE_HOURLY] = self.thread_handler
         self.scheduler_mocked.managed_handlers = self.managed_handlers_mocked
 
-        self.publisher = mock.create_autospec(Publisher)
-        self.scheduler_mocked.publishers = mock.create_autospec(PublishersPool)
-        self.scheduler_mocked.publishers.get = mock.MagicMock(return_value=self.publisher)
-
         self.worker = GarbageCollector(self.scheduler_mocked)
         self.worker._resubmit_uow = mock.Mock(side_effect=self.worker._resubmit_uow)
         self.worker._cancel_uow = mock.Mock(side_effect=self.worker._cancel_uow)
+        self.worker.mq_transmitter = mock.create_autospec(MqTransmitter)
 
     def tearDown(self):
         # killing the worker
@@ -139,7 +136,7 @@ class GarbageCollectorUnitTest(unittest.TestCase):
         self.worker.scan_uow_candidates()
         self.assertEqual(len(self.worker.reprocess_uows[uow.process_name]), 0)
         self.worker._cancel_uow.assert_called_once_with(uow)
-        self.publisher.publish.assert_called_once_with(mock.ANY)
+        self.worker.mq_transmitter.publish_uow_status.assert_called_once_with(mock.ANY)
 
     def test_valid_and_fresh_uow(self):
         uow = get_valid_and_fresh_uow()
@@ -153,7 +150,7 @@ class GarbageCollectorUnitTest(unittest.TestCase):
         self.worker.scan_uow_candidates()
         self.assertEqual(len(self.worker.reprocess_uows[uow.process_name]), 0)
         self.assertTrue(self.worker._cancel_uow.call_args_list == [])  # called 0 times
-        self.assertTrue(self.publisher.publish.call_args_list == [])  # called 0 times
+        self.assertTrue(self.worker.mq_transmitter.publish_uow_status.call_args_list == [])  # called 0 times
 
     def test_valid_and_stale_uow(self):
         uow = get_valid_and_stale_uow()
@@ -166,7 +163,7 @@ class GarbageCollectorUnitTest(unittest.TestCase):
         self.worker.scan_uow_candidates()
         self.assertEqual(len(self.worker.reprocess_uows[uow.process_name]), 0)
         self.worker._cancel_uow.assert_called_once_with(mock.ANY)
-        self.publisher.publish.assert_called_once_with(mock.ANY)
+        self.worker.mq_transmitter.publish_uow_status.assert_called_once_with(mock.ANY)
 
     def test_validation(self):
         uow = get_valid_and_stale_uow()
@@ -190,7 +187,7 @@ class GarbageCollectorUnitTest(unittest.TestCase):
         self.worker._resubmit_uow(uow)
 
         self.assertEqual(len(self.worker.reprocess_uows[uow.process_name]), 0)
-        self.assertTrue(self.publisher.publish.call_args_list == [])        # called 0 times
+        self.assertTrue(self.worker.mq_transmitter.publish_uow_status.call_args_list == [])        # called 0 times
         self.assertTrue(self.worker.uow_dao.update.call_args_list == [])    # called 0 times
 
     def test_select_reprocessing_candidates(self):

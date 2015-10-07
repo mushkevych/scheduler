@@ -1,6 +1,6 @@
 from synergy.db.model.queue_context_entry import queue_context_entry
 from synergy.scheduler.scheduler_constants import PROCESS_GC, TOKEN_GC, PROCESS_MX, TOKEN_WERKZEUG, EXCHANGE_UTILS, \
-    PROCESS_SCHEDULER, TOKEN_SCHEDULER, QUEUE_UOW_STATUS
+    PROCESS_SCHEDULER, TOKEN_SCHEDULER, QUEUE_UOW_STATUS, QUEUE_JOB_STATUS
 from synergy.supervisor.supervisor_constants import PROCESS_SUPERVISOR, TOKEN_SUPERVISOR
 from synergy.db.model.daemon_process_entry import daemon_context_entry
 
@@ -28,6 +28,7 @@ process_context = {
 
 mq_queue_context = {
     QUEUE_UOW_STATUS: queue_context_entry(exchange=EXCHANGE_UTILS, queue_name=QUEUE_UOW_STATUS),
+    QUEUE_JOB_STATUS: queue_context_entry(exchange=EXCHANGE_UTILS, queue_name=QUEUE_JOB_STATUS),
 }
 
 timetable_context = {
