@@ -15,3 +15,8 @@ install:
 # command to run tests
 script:
     - python ./launch.py test
+branches:
+  only:
+    - master
+    - 1.14
+    - 1.15
