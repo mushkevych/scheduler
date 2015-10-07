@@ -115,7 +115,7 @@ class TestTreeNode(unittest.TestCase):
             child_mock.job_record.is_active = True
             self.the_node.children[_index] = child_mock
 
-        # step 0: request Job record if current one is not set
+        # request Job record if current one is not set
         self.the_node.job_record = None
         self.time_table_mocked.reprocess_tree_node = mock.Mock()
         self.time_table_mocked.skip_tree_node = mock.Mock()
@@ -148,7 +148,7 @@ class TestTreeNode(unittest.TestCase):
             child_mock.job_record.is_skipped = True
             self.the_node.children[_index] = child_mock
 
-        # step 4: verify if this node should be transferred to STATE_SKIPPED
+        # verify if this node should be transferred to STATE_SKIPPED
         self.the_node.job_record.is_skipped = False
         self.time_table_mocked.reprocess_tree_node = mock.Mock()
         self.time_table_mocked.skip_tree_node = mock.Mock()

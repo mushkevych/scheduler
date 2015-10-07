@@ -58,4 +58,3 @@ class MqTransmitter(object):
         publisher = self.publishers.get(QUEUE_UOW_STATUS)
         publisher.publish(mq_request.document)
         publisher.release()
-
