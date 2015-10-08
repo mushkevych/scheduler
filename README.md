@@ -1,6 +1,10 @@
 Synergy Scheduler
 =========
 
+[![PyPI version](https://img.shields.io/pypi/v/synergy_scheduler.svg)](https://pypi.python.org/pypi/synergy_scheduler)
+[![PyPI monthly downloads](https://img.shields.io/pypi/dm/synergy_scheduler.svg)](https://pypi.python.org/pypi/synergy_scheduler)
+[![Build Status](https://travis-ci.org/mushkevych/scheduler.svg)](https://travis-ci.org/mushkevych/scheduler)
+
 Synergy Scheduler tracks its history to 2011. It is a production-grade Job Scheduling System, used to run simple and complex interdependent jobs.
 Common use-cases:
 
