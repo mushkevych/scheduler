@@ -8,19 +8,16 @@ services:
   - mongodb
 # use container-based travis-ci infrastructure
 sudo: false
-# os-level dependencies
-#addons:
-  #apt:
-    #packages:
-    #- linux-headers
-    #- python-dev
+
 install:
+  - mkdir -p /mnt/logs/synergy-scheduler
   - pip install virtualenv
   - python ./launch.py install
   - python ./launch.py db --reset
-# command to run tests
+
 script:
   - python ./launch.py test
+
 branches:
   only:
     - master
