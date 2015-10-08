@@ -6,9 +6,16 @@ python:
 services:
   - rabbitmq
   - mongodb
-# install OS-level dependencies
-#before_install:
-#  - sudo apt-get install -qq linux-headers python-dev
+# use container-based travis-ci infrastructure
+sudo: false
+# os-level dependencies
+#addons:
+  #apt:
+    #packages:
+    #- linux-headers
+    #- python-dev
+before_script:
+  - pip install virtualenv
 install:
   - python ./launch.py install
   - python ./launch.py db --reset
@@ -18,5 +25,4 @@ script:
 branches:
   only:
     - master
-    - 1.14
     - 1.15
