@@ -10,7 +10,7 @@ services:
 sudo: false
 
 install:
-  - mkdir -p /mnt/logs/synergy-scheduler
+  - mkdir -p /tmp/logs/synergy-scheduler
   - pip install virtualenv
   - python ./launch.py install
   - python ./launch.py db --reset

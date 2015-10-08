@@ -3,6 +3,9 @@ from datetime import datetime
 settings = dict(
     process_cwd='/tmp',   # daemonized process working directory, where it can create .cache and other folders
 
+    log_directory='/tmp/logs/synergy-scheduler/',
+    pid_directory='/tmp/logs/synergy-scheduler/',
+
     # created with: sudo rabbitmqctl add_vhost unit_test
     # set permissions with: sudo rabbitmqctl set_permissions -p unit_test guest ".*" ".*" ".*"
     mq_host='127.0.0.1',
