@@ -8,13 +8,13 @@ services:
   - mongodb
 # install OS-level dependencies
 before_install:
-	- sudo apt-get install -qq linux-headers python-dev
+  - sudo apt-get install -qq linux-headers python-dev
 install:
-    - python ./launch.py install
-    - python ./launch.py db --reset
+  - python ./launch.py install
+  - python ./launch.py db --reset
 # command to run tests
 script:
-    - python ./launch.py test
+  - python ./launch.py test
 branches:
   only:
     - master
