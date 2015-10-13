@@ -123,7 +123,7 @@ class MongoDbManager(BaseManager):
         db_entry = conn.find_one(query)
         if db_entry is None:
             msg = 'Instance with ID={0} was not found'.format(primary_key)
-            self.logger.warn(msg)
+            self.logger.warning(msg)
             raise LookupError(msg)
         return db_entry
 

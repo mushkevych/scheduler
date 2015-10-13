@@ -1,12 +1,14 @@
 # coding=utf-8
 __author__ = 'Bohdan Mushkevych'
 
-import unittest
 from datetime import datetime, timedelta
+import unittest
+try:
+    import mock
+except ImportError:
+    from unittest import mock
 
-import mock
 from settings import enable_test_mode
-
 enable_test_mode()
 
 from synergy.conf import settings

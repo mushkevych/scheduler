@@ -186,10 +186,10 @@ class Timetable(object):
                         unsupported_records.get(job_record.process_name, 0) + 1
 
             for name, counter in unsupported_records.items():
-                self.logger.warn('Skipping {0} job records for {0} as no tree is handling it.'.format(counter, name))
+                self.logger.warning('Skipping {0} job records for {0} as no tree is handling it.'.format(counter, name))
 
         except LookupError:
-            self.logger.warn('No job records in {0}.'.format(collection_name))
+            self.logger.warning('No job records in {0}.'.format(collection_name))
 
     @thread_safe
     def load_tree(self):

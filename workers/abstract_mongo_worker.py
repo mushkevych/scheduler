@@ -92,7 +92,7 @@ class AbstractMongoWorker(AbstractUowAwareWorker):
 
             if iteration == 0 and cursor.count(with_limit_and_skip=True) == 0:
                 msg = 'No entries in {0} at range [{1} : {2}]'.format(collection_name, start_id_obj, end_id_obj)
-                self.logger.warn(msg)
+                self.logger.warning(msg)
                 break
 
             start_id_obj = None

@@ -38,7 +38,7 @@ class BashRunnable(threading.Thread):
             uow = self.uow_dao.get_one(self.mq_request.record_db_id)
             if not uow.is_requested:
                 # accept only UOW in STATE_REQUESTED
-                self.logger.warn('Skipping UOW: id {0}; state {1};'.format(self.message.body, uow.state),
+                self.logger.warning('Skipping UOW: id {0}; state {1};'.format(self.message.body, uow.state),
                                  exc_info=False)
                 self.consumer.acknowledge(self.message.delivery_tag)
                 return

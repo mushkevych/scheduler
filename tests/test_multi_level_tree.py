@@ -1,7 +1,10 @@
 __author__ = 'Bohdan Mushkevych'
 
-import mock
 import unittest
+try:
+    import mock
+except ImportError:
+    from unittest import mock
 
 from tests import base_fixtures
 from constants import PROCESS_SITE_HOURLY, PROCESS_SITE_DAILY, PROCESS_SITE_YEARLY, PROCESS_SITE_MONTHLY

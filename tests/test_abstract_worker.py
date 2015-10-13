@@ -1,7 +1,10 @@
 __author__ = 'Bohdan Mushkevych'
 
 import unittest
-import mock
+try:
+    import mock
+except ImportError:
+    from unittest import mock
 
 from synergy.system.mq_transmitter import MqTransmitter
 from synergy.db.dao.unit_of_work_dao import UnitOfWorkDao

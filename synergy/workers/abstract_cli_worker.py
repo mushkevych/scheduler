@@ -30,7 +30,7 @@ class AbstractCliWorker(AbstractUowAwareWorker):
             this can be done either by os.wait() or process.wait()
             :return tuple (boolean: alive, int: return_code) """
         try:
-            self.logger.warn(self.cli_process.stderr.read())
+            self.logger.warning(self.cli_process.stderr.read())
             self.logger.info(self.cli_process.stdout.read())
             return_code = self.cli_process.wait(timeout=0.01)
             if return_code is None:

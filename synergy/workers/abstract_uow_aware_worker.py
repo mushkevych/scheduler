@@ -47,7 +47,7 @@ class AbstractUowAwareWorker(AbstractMqWorker):
             uow = self.uow_dao.get_one(mq_request.record_db_id)
             if not uow.is_requested:
                 # accept only UOW in STATE_REQUESTED
-                self.logger.warn('Skipping UOW: id {0}; state {1};'.format(message.body, uow.state),
+                self.logger.warning('Skipping UOW: id {0}; state {1};'.format(message.body, uow.state),
                                  exc_info=False)
                 self.consumer.acknowledge(message.delivery_tag)
                 return
@@ -64,7 +64,7 @@ class AbstractUowAwareWorker(AbstractMqWorker):
 
             result = self._process_uow(uow)
             if result is None:
-                self.logger.warn('method {0}._process_uow returned None. Assuming happy flow.'
+                self.logger.warning('method {0}._process_uow returned None. Assuming happy flow.'
                                  .format(self.__class__.__name__))
                 number_of_aggregated_objects, target_state = 0, unit_of_work.STATE_PROCESSED
             else:
@@ -85,7 +85,7 @@ class AbstractUowAwareWorker(AbstractMqWorker):
             fresh_uow = self.uow_dao.get_one(mq_request.record_db_id)
             self.performance_ticker.cancel_uow()
             if fresh_uow.is_canceled:
-                self.logger.warn('UOW {0} for {1}@{2} was likely marked by MX as SKIPPED. No UOW update is performed.'
+                self.logger.warning('UOW {0} for {1}@{2} was likely marked by MX as SKIPPED. No UOW update is performed.'
                                  .format(uow.db_id, uow.process_name, uow.timeperiod), exc_info=False)
             else:
                 self.logger.error('Safety fuse while processing UOW {0} for {1}@{2}: {3}'

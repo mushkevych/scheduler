@@ -73,7 +73,7 @@ class SupervisorEntry(object):
                     raise ValueError('SupervisorEntry support (string, integer) values. Type {0} unsupported'
                                      .format(type(re_box)))
             except TypeError:
-                self.logger.warn('SupervisorEntry compilation error for {0}'.format(re_box))
+                self.logger.warning('SupervisorEntry compilation error for {0}'.format(re_box))
 
     def is_present_on(self, box_id):
         box_id = box_id.lower()

@@ -88,7 +88,7 @@ class ManagedStatements(object):
                                                       include_processed, include_noop, include_failed)
             records_list = self.job_dao.run_query(collection_name, query)
             if len(records_list) == 0:
-                self.logger.warn('MX: no Job Records found in {0} since {1}.'.format(collection_name, timeperiod))
+                self.logger.warning('MX: no Job Records found in {0} since {1}.'.format(collection_name, timeperiod))
 
             for job_record in records_list:
                 if job_record.process_name not in self.managed_handlers:
@@ -121,7 +121,7 @@ class FreerunStatements(object):
                                                              include_processed, include_noop, include_failed)
             records_list = self.uow_dao.run_query(query)
             if len(records_list) == 0:
-                self.logger.warn('MX: no Freerun UOW records found since {0}.'.format(timeperiod))
+                self.logger.warning('MX: no Freerun UOW records found since {0}.'.format(timeperiod))
 
             for uow_record in records_list:
                 if uow_record.process_name not in self.freerun_handlers:

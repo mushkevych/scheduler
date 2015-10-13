@@ -72,7 +72,7 @@ class AbstractMqWorker(SynergyProcess):
             self.consumer.register(self._mq_callback)
             self.consumer.wait(self.mq_timeout_seconds)
         except socket.timeout as e:
-            self.logger.warn('Queue {0} is likely empty. Worker exits due to: {1}'.format(self.consumer.queue, e))
+            self.logger.warning('Queue {0} is likely empty. Worker exits due to: {1}'.format(self.consumer.queue, e))
         except (AMQPError, IOError) as e:
             self.logger.error('AMQPError: {0}'.format(e))
         finally:

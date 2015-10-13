@@ -4,8 +4,7 @@ import sys
 import logging
 import logging.handlers
 
-from synergy.conf import settings
-from synergy.conf import context
+from synergy.conf import context, settings
 from synergy.db.model.daemon_process_entry import DaemonProcessEntry
 from synergy.db.model.freerun_process_entry import FreerunProcessEntry
 from synergy.db.model.managed_process_entry import ManagedProcessEntry
@@ -31,11 +30,6 @@ class Logger(object):
             stream_handler.setFormatter(stream_formatter)
             self.logger.addHandler(stream_handler)
 
-        if redirect_stdstream:
-            # While under_test, tools as xml_unittest_runner are doing complex sys.stdXXX reassignments
-            sys.stdout = self
-            sys.stderr = self
-
         if settings.settings['debug']:
             self.logger.setLevel(logging.DEBUG)
         else:
@@ -47,6 +41,11 @@ class Logger(object):
                                                 datefmt='%Y-%m-%d %H:%M:%S')
         roto_file_handler.setFormatter(roto_file_formatter)
         self.logger.addHandler(roto_file_handler)
+
+        if redirect_stdstream:
+            # While under_test, tools as xml_unittest_runner are doing complex sys.stdXXX reassignments
+            sys.stderr = self
+            sys.stdout = self
 
     def get_logger(self):
         return self.logger
@@ -106,8 +105,10 @@ def get_log_tag(process_name):
 
 
 if __name__ == '__main__':
-    process_name = 'TestAggregator'
-    logger = get_logger(process_name)
+    from tests.ut_context import PROCESS_UNIT_TEST, register_processes
+    register_processes()
+
+    logger = get_logger(PROCESS_UNIT_TEST)
     logger.info('test_message')
     print('regular print message')
     sys.stdout.flush()

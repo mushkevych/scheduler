@@ -119,7 +119,7 @@ class Scheduler(SynergyProcess):
         try:
             self._load_freerun_entries()
         except LookupError as e:
-            self.logger.warn('DB Lookup: {0}'.format(e))
+            self.logger.warning('DB Lookup: {0}'.format(e))
 
         # Scheduler is initialized and running. GarbageCollector can be safely started
         self.gc.start()

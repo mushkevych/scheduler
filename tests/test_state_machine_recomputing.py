@@ -1,7 +1,11 @@
 __author__ = 'Bohdan Mushkevych'
 
-import mock
 import unittest
+try:
+    import mock
+except ImportError:
+    from unittest import mock
+
 from settings import enable_test_mode
 enable_test_mode()
 

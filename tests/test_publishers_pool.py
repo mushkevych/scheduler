@@ -1,8 +1,10 @@
 __author__ = 'Bohdan Mushkevych'
 
 import unittest
-
-import mock
+try:
+    import mock
+except ImportError:
+    from unittest import mock
 
 from synergy.mq.flopsy import PublishersPool, _Pool, Publisher
 from synergy.system.data_logging import get_logger
