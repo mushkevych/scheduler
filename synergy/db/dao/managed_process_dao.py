@@ -19,4 +19,4 @@ class ManagedProcessDao(BaseDao):
     def clear(self):
         """ removes all documents in this collection """
         collection = self.ds.connection(COLLECTION_MANAGED_PROCESS)
-        return collection.remove()
+        return collection.delete_many(filter={})

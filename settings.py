@@ -25,7 +25,8 @@ settings = dict(
 
     debug=False,                # if True, logger.setLevel is set to DEBUG. Otherwise to INFO
 
-    under_test=False            # if True, STDOUT and STDERR logger tries to append "console" adapter.
+    under_test=False            # marks execution of the Unit Tests
+                                # if True, a console handler for STDOUT and STDERR are appended to the logger.
                                 # Otherwise STDOUT and STDERR are redirected to .log files
 )
 

@@ -56,7 +56,7 @@ def compare_dictionaries(dict_actual, dict_expected):
                 actual_value = list(actual_value)
             assert actual_value.sort() == expected_value.sort()
         elif actual_value != expected_value:
-            assert False, 'key {0}: actual {1} vs expected {2}'.format(expected_key, actual_value, expected_value)
+            assert False, 'actual vs expected for key {0}: {1} vs {2}'.format(expected_key, actual_value, expected_value)
 
 
 def create_unit_of_work(process_name,
@@ -221,7 +221,7 @@ def clean_site_entries(collection_name, time_qualifier):
     connection = ds.connection(collection_name)
     for i in range(TOTAL_ENTRIES):
         key = generate_site_composite_key(i, time_qualifier)
-        connection.remove({raw_data.DOMAIN_NAME: key[0], raw_data.TIMEPERIOD: key[1]})
+        connection.delete_one(filter={raw_data.DOMAIN_NAME: key[0], raw_data.TIMEPERIOD: key[1]})
 
 
 def wind_actual_timeperiod(new_time):

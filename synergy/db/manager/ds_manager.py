@@ -101,7 +101,8 @@ class MongoDbManager(BaseManager):
             pass
 
     def __str__(self):
-        return 'MongoDbManager: {0}@{1}' % (settings.settings['mongodb_host_list'], settings.settings['mongo_db_name'])
+        return 'MongoDbManager: {0}@{1}'\
+               .format(settings.settings['mongodb_host_list'], settings.settings['mongo_db_name'])
 
     def is_alive(self):
         return self._db_client.alive()
@@ -115,7 +116,7 @@ class MongoDbManager(BaseManager):
 
     def delete(self, table_name, primary_key):
         conn = self._db[table_name]
-        return conn.remove(primary_key, safe=True)
+        return conn.delete_one(filter=primary_key).raw_result
 
     def get(self, table_name, primary_key):
         query = {'_id': primary_key}
@@ -129,11 +130,11 @@ class MongoDbManager(BaseManager):
 
     def insert(self, table_name, instance):
         conn = self._db[table_name]
-        return conn.insert(instance, safe=True)
+        return conn.insert_one(instance).inserted_id
 
     def update(self, table_name, primary_key, instance):
         conn = self._db[table_name]
-        conn.update(primary_key, instance, upsert=True, safe=True)
+        conn.update_one(primary_key, instance, upsert=True)
 
     def highest_primary_key(self, table_name, timeperiod_low, timeperiod_high):
         query = {TIMEPERIOD: {'$gte': timeperiod_low, '$lt': timeperiod_high}}

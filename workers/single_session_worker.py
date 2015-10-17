@@ -1,6 +1,5 @@
 __author__ = 'Bohdan Mushkevych'
 
-import time
 from pymongo.errors import AutoReconnect
 from db.model.single_session import SingleSession
 from db.model.raw_data import *
@@ -15,10 +14,6 @@ class SingleSessionWorker(AbstractMqWorker):
     """ illustration suite worker:
         - reads stream of messages from the RabbitMQ and dumps them into the MongoDB """
 
-    # every 15 minutes worker will perform <safe=True> save to Mongo DB
-    # this allows to catch MongoDB connection expiration
-    SAFE_SAVE_INTERVAL = 900
-
     def __init__(self, process_name):
         super(SingleSessionWorker, self).__init__(process_name)
         self.ss_dao = SingleSessionDao(self.logger)
@@ -27,7 +22,6 @@ class SingleSessionWorker(AbstractMqWorker):
     def _init_performance_ticker(self, logger):
         self.performance_ticker = SessionPerformanceTracker(logger)
         self.performance_ticker.start()
-        self._last_safe_save_time = time.time()
 
     def _mq_callback(self, message):
         """ wraps call of abstract method with try/except 
@@ -63,13 +57,7 @@ class SingleSessionWorker(AbstractMqWorker):
                 self.add_entry(session, 0, raw_data)
                 self.performance_ticker.insert.increment_success()
 
-            if time.time() - self._last_safe_save_time < self.SAFE_SAVE_INTERVAL:
-                is_safe = False
-            else:
-                is_safe = True
-                self._last_safe_save_time = time.time()
-
-            self.ss_dao.update(session, is_safe)
+            self.ss_dao.update(session)
             self.consumer.acknowledge(message.delivery_tag)
         except AutoReconnect as e:
             self.logger.error('MongoDB connection error: {0}\nRe-queueing message & exiting the worker'.format(e))

@@ -57,18 +57,18 @@ class BaseDao(object):
         return self.run_query({})
 
     @thread_safe
-    def update(self, instance, is_safe=True):
+    def update(self, instance):
         """ this is upsert method: inserts or updates the DB representation of the model instance """
         assert isinstance(instance, self.model_klass)
         collection = self.ds.connection(self.collection_name)
         document = instance.document
         if instance.db_id:
             document['_id'] = ObjectId(instance.db_id)
-        instance.db_id = collection.save(document, safe=is_safe)
+        instance.db_id = collection.save(document)
         return instance.db_id
 
     @thread_safe
     def remove(self, key):
         query = self._tuple_to_query(key)
         collection = self.ds.connection(self.collection_name)
-        return collection.remove(query, safe=True)
+        return collection.delete_one(query).raw_result

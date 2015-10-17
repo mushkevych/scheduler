@@ -7,10 +7,10 @@ Django is licensed under BSD. License is available at:
 - https://github.com/django/django/blob/master/LICENSE
 """
 import copy
-
 import importlib
-import os
 import operator
+import os
+import six
 
 from synergy.conf import global_context, global_settings
 
@@ -82,9 +82,14 @@ class LazyObject(object):
             return result
         return copy.deepcopy(self._wrapped, memo)
 
-    __str__ = new_method_proxy(str)
-    __unicode__ = new_method_proxy(unicode)
-    __nonzero__ = new_method_proxy(bool)
+    if six.PY3:
+        __bytes__ = new_method_proxy(bytes)
+        __str__ = new_method_proxy(str)
+        __bool__ = new_method_proxy(bool)
+    else:
+        __str__ = new_method_proxy(str)
+        __unicode__ = new_method_proxy(unicode)  # NOQA: unicode undefined on PY3
+        __nonzero__ = new_method_proxy(bool)
 
     # Introspection support
     __dir__ = new_method_proxy(dir)
@@ -96,11 +101,11 @@ class LazyObject(object):
     __ne__ = new_method_proxy(operator.ne)
     __hash__ = new_method_proxy(hash)
 
-    # Dictionary methods support
+    # List/Tuple/Dictionary methods support
     __getitem__ = new_method_proxy(operator.getitem)
     __setitem__ = new_method_proxy(operator.setitem)
     __delitem__ = new_method_proxy(operator.delitem)
-
+    __iter__ = new_method_proxy(iter)
     __len__ = new_method_proxy(len)
     __contains__ = new_method_proxy(operator.contains)
 
