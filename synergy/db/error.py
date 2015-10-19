@@ -1,7 +1,7 @@
 __author__ = 'Bohdan Mushkevych'
 
 
-class DuplicateKeyError(StandardError):
+class DuplicateKeyError(Exception):
     def __init__(self, process_name, timeperiod, start_id, end_id, *args, **kwargs):
         self.process_name = process_name
         self.timeperiod = timeperiod

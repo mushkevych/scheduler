@@ -1,8 +1,11 @@
 __author__ = 'Bohdan Mushkevych'
 
-import json
-import httplib
+try:
+    from http.client import NO_CONTENT
+except ImportError:
+    from httplib import NO_CONTENT
 
+import json
 from werkzeug.wrappers import Response
 from werkzeug.utils import redirect
 
@@ -75,28 +78,28 @@ def details_trees(request, **values):
 def action_update_freerun_entry(request, **values):
     handler = FreerunActionHandler(request, **values)
     handler.action_update_entry()
-    return Response(status=httplib.NO_CONTENT)
+    return Response(status=NO_CONTENT)
 
 
 @expose('/action/reprocess/')
 def action_reprocess(request, **values):
     handler = ManagedActionHandler(request, **values)
     handler.action_reprocess()
-    return Response(status=httplib.NO_CONTENT)
+    return Response(status=NO_CONTENT)
 
 
 @expose('/action/skip/')
 def action_skip(request, **values):
     handler = ManagedActionHandler(request, **values)
     handler.action_skip()
-    return Response(status=httplib.NO_CONTENT)
+    return Response(status=NO_CONTENT)
 
 
 @expose('/action/cancel_uow/')
 def action_cancel_uow(request, **values):
     handler = FreerunActionHandler(request, **values)
     handler.action_cancel_uow()
-    return Response(status=httplib.NO_CONTENT)
+    return Response(status=NO_CONTENT)
 
 
 @expose('/action/get_uow/')
@@ -115,49 +118,49 @@ def action_get_log(request, **values):
 def action_change_interval(request, **values):
     handler = get_action_handler(request, **values)
     handler.action_change_interval()
-    return Response(status=httplib.NO_CONTENT)
+    return Response(status=NO_CONTENT)
 
 
 @expose('/action/trigger_now/')
 def action_trigger_now(request, **values):
     handler = get_action_handler(request, **values)
     handler.action_trigger_now()
-    return Response(status=httplib.NO_CONTENT)
+    return Response(status=NO_CONTENT)
 
 
 @expose('/action/deactivate_trigger/')
 def action_deactivate_trigger(request, **values):
     handler = get_action_handler(request, **values)
     handler.action_deactivate_trigger()
-    return Response(status=httplib.NO_CONTENT)
+    return Response(status=NO_CONTENT)
 
 
 @expose('/action/activate_trigger/')
 def action_activate_trigger(request, **values):
     handler = get_action_handler(request, **values)
     handler.action_activate_trigger()
-    return Response(status=httplib.NO_CONTENT)
+    return Response(status=NO_CONTENT)
 
 
 @expose('/gc/flush_all/')
 def gc_flush_all(request, **values):
     handler = GcActionHandler(request, **values)
     handler.action_flush_all()
-    return Response(status=httplib.NO_CONTENT)
+    return Response(status=NO_CONTENT)
 
 
 @expose('/gc/flush_one/')
 def gc_flush_one(request, **values):
     handler = GcActionHandler(request, **values)
     handler.action_flush_one()
-    return Response(status=httplib.NO_CONTENT)
+    return Response(status=NO_CONTENT)
 
 
 @expose('/gc/refresh/')
 def gc_refresh(request, **values):
     handler = GcActionHandler(request, **values)
     handler.action_refresh()
-    return Response(status=httplib.NO_CONTENT)
+    return Response(status=NO_CONTENT)
 
 
 def get_action_handler(request, **values):

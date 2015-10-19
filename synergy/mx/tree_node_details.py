@@ -42,7 +42,8 @@ class TreeNodeDetails(BaseRequestHandler):
         if not self.timeperiod:
             # return list of yearly nodes OR leafs for linear tree
             # limit number of children to return, since a linear tree can holds thousands of nodes
-            sorted_keys = sorted(self.tree.root.children.keys(), reverse=True)
+            children_keys = list(self.tree.root.children)
+            sorted_keys = sorted(children_keys, reverse=True)
             sorted_keys = sorted_keys[:settings.settings['mx_children_limit']]
             for key in sorted_keys:
                 child = self.tree.root.children[key]

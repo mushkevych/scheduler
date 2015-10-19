@@ -16,8 +16,8 @@ class SchedulerEntries(BaseRequestHandler):
     def managed_entries(self):
         list_of_rows = []
         try:
-            sorter_keys = sorted(self.scheduler.managed_handlers.keys())
-            for key in sorter_keys:
+            handler_keys = list(self.scheduler.managed_handlers)
+            for key in sorted(handler_keys):
                 thread_handler = self.scheduler.managed_handlers[key]
                 rest_model = create_rest_managed_scheduler_entry(thread_handler,
                                                                  self.scheduler.timetable,
@@ -32,8 +32,8 @@ class SchedulerEntries(BaseRequestHandler):
     def freerun_entries(self):
         list_of_rows = []
         try:
-            sorter_keys = sorted(self.scheduler.freerun_handlers.keys())
-            for key in sorter_keys:
+            handler_keys = list(self.scheduler.freerun_handlers)
+            for key in sorted(handler_keys):
                 thread_handler = self.scheduler.freerun_handlers[key]
                 rest_model = create_rest_freerun_scheduler_entry(thread_handler)
                 list_of_rows.append(rest_model.document)

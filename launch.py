@@ -29,7 +29,7 @@ VE_ROOT = path.join(PROJECT_ROOT, '.ve')
 def init_parser():
     try:
         from synergy.conf import context, settings
-        process_names = context.process_context.keys()
+        process_names = list(context.process_context)
         config_file = settings.settings['config_file']
     except ImportError:
         process_names = ['Virtual Environment is pending installation']
@@ -160,7 +160,7 @@ def query_configuration(parser_args):
     from synergy.system import process_helper
     from synergy.conf import context
 
-    process_names = [parser_args.process_name] if parser_args.process_name else context.process_context.keys()
+    process_names = [parser_args.process_name] if parser_args.process_name else list(context.process_context)
     for process_name in process_names:
         process_helper.poll_process(process_name)
     sys.stdout.write('\n')
@@ -254,7 +254,8 @@ def run_shell(parser_args):
 def list_processes(parser_args):
     from synergy.conf import context
 
-    msg = 'List of registered processes: {0} \n'.format(context.process_context.keys())
+    process_names = list(context.process_context)
+    msg = 'List of registered processes: {0} \n'.format(process_names)
     sys.stdout.write(msg)
 
 

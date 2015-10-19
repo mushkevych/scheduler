@@ -243,7 +243,7 @@ class PublishersPool(object):
 
     def reset_all(self, suppress_logging=False):
         """ iterates thru the list of established connections and resets them by disconnecting and reconnecting """
-        pool_names = self.pools.keys()
+        pool_names = list(self.pools)
         for name in pool_names:
             self.reset(name, suppress_logging)
 
@@ -256,7 +256,7 @@ class PublishersPool(object):
     def _close(self, name, suppress_logging):
         """ closes one particular pool and all its amqp amqp connections """
         try:
-            pool_names = self.pools.keys()
+            pool_names = list(self.pools)
             if name in pool_names:
                 self.pools[name].close()
                 del self.pools[name]
@@ -266,7 +266,7 @@ class PublishersPool(object):
 
     def close(self, suppress_logging=False):
         """ iterates thru all publisher pools and closes them """
-        pool_names = self.pools.keys()
+        pool_names = list(self.pools)
         for name in pool_names:
             self._close(name, suppress_logging)
 

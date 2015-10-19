@@ -60,7 +60,7 @@ commonlist=(
     "docutils-0.12.tar.gz"
     "pysmell-0.7.3.zip"
 
-    "pymongo-3.0.3.tar.gz"
+    "pymongo-2.9.tar.gz"
     "MarkupSafe-0.23.tar.gz"
     "Jinja2-2.8.tar.gz"
     "Werkzeug-0.10.4.tar.gz"

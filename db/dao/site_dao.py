@@ -37,5 +37,5 @@ class SiteDao(object):
         document = instance.document
         if instance.db_id:
             document['_id'] = ObjectId(instance.db_id)
-        instance.db_id = collection.save(document)
+        instance.db_id = collection.save(document, safe=True)
         return instance.db_id

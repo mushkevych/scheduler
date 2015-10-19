@@ -67,7 +67,7 @@ class TestEventClock(unittest.TestCase):
     def test_next_run_in(self):
         # 2014-05-01 is Thu. In Python it is weekday=3
         fixed_utc_now = \
-            datetime(year=2014, month=05, day=01, hour=13, minute=00, second=00, microsecond=00, tzinfo=None)
+            datetime(year=2014, month=5, day=1, hour=13, minute=0, second=0, microsecond=0, tzinfo=None)
         fixture = {EventClock(['*-17:00', '4-15:45', '*-09:00'], None):
                        timedelta(days=0, hours=4, minutes=0, seconds=0, microseconds=0, milliseconds=0),
                    EventClock(['5-18:00', '4-18:05', '1-9:01'], None):

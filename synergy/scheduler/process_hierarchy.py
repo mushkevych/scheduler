@@ -88,7 +88,7 @@ class ProcessHierarchy(object):
         if parent_qualifier not in self.qualifiers:
             return None
 
-        process_qualifiers = self.qualifiers.keys()
+        process_qualifiers = list(self.qualifiers)
         if parent_qualifier == process_qualifiers[-1]:
             return None
 

@@ -62,17 +62,18 @@ class MultiLevelTree(AbstractTree):
         """ Used by _get_next_child_node, this method is called to find next possible parent.
             For example if timeperiod 2011010200 has all children processed, but is not yet processed itself
             then it makes sense to look in 2011010300 for hourly nodes """
-        parent_of_parent = parent.parent
-        if parent_of_parent is None:
+        grandparent = parent.parent
+        if grandparent is None:
             # here, we work at yearly/linear level
             return None
 
-        sorted_keys = sorted(parent_of_parent.children.keys())
+        parent_siblings = list(grandparent.children)
+        sorted_keys = sorted(parent_siblings)
         index = sorted_keys.index(parent.timeperiod)
         if index + 1 >= len(sorted_keys):
             return None
         else:
-            return parent_of_parent.children[sorted_keys[index + 1]]
+            return grandparent.children[sorted_keys[index + 1]]
 
     def _get_next_child_node(self, parent):
         """
@@ -80,7 +81,8 @@ class MultiLevelTree(AbstractTree):
             In case given parent has no suitable nodes, a younger parent will be found
             and the logic will be repeated for him
         """
-        sorted_keys = sorted(parent.children.keys())
+        children_keys = list(parent.children)
+        sorted_keys = sorted(children_keys)
         for key in sorted_keys:
             node = parent.children[key]
             if node.job_record is None:

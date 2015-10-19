@@ -11,7 +11,7 @@ from synergy.system.time_qualifier import QUALIFIER_REAL_TIME
 def compute_release_time(lag_in_minutes):
     future_dt = datetime.utcnow() + timedelta(minutes=lag_in_minutes)
     release_time_str = time_helper.datetime_to_synergy(QUALIFIER_REAL_TIME, future_dt)
-    return long(release_time_str)
+    return int(release_time_str)
 
 
 class PriorityEntry(object):

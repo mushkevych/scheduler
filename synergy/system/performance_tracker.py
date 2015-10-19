@@ -13,23 +13,15 @@ class FootprintCalculator(object):
     def __init__(self):
         self.pid = os.getpid()
 
-    def group(self, number):
-        """ method formats number and inserts thousands separators """
-        s = str(number)
-        groups = []
-        while s and s[-1].isdigit():
-            groups.append(s[-3:])
-            s = s[:-3]
-        return s + '\''.join(reversed(groups))
-
     @property
     def document(self):
         ps = psutil.Process(self.pid)
-        return {'memory_rss': self.group(ps.get_memory_info()[0]),
-                'memory_vms': self.group(ps.get_memory_info()[1]),
-                'cpu_utilization': '%02d' % ps.get_cpu_percent(),
-                'mem_virtual_free': self.group(psutil.virtual_memory().free),
-                'mem_swap_free': self.group(psutil.swap_memory().free)}
+        # '{:,}'.format(number) returns a string with coma as a thousand-separator
+        return {'memory_rss': '{:,}'.format(ps.memory_info()[0]),
+                'memory_vms': '{:,}'.format(ps.memory_info()[1]),
+                'cpu_utilization': '{0:02d}'.format(ps.cpu_percent()),
+                'mem_virtual_free': '{:,}'.format(psutil.virtual_memory().free),
+                'mem_swap_free': '{:,}'.format(psutil.swap_memory().free)}
 
     def get_snapshot(self):
         resp = 'Footprint: RSS={memory_rss} VMS={memory_vms} CPU={cpu_utilization}; ' \

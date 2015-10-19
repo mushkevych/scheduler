@@ -1,5 +1,6 @@
 __author__ = 'Bohdan Mushkevych'
 
+from six import string_types
 from odm.fields import ObjectIdField, NestedDocumentField, DictField
 from db.model.raw_data import *
 
@@ -30,12 +31,12 @@ class NestedBrowsingHistory(BaseDocument):
     entries_timestamps = DictField(FAMILY_ENTRIES)
 
     def set_entry_timestamp(self, entry_id, value):
-        if not isinstance(entry_id, basestring):
+        if not isinstance(entry_id, string_types):
             entry_id = str(entry_id)
         self.entries_timestamps[entry_id] = value
 
     def get_entry_timestamp(self, entry_id):
-        if not isinstance(entry_id, basestring):
+        if not isinstance(entry_id, string_types):
             entry_id = str(entry_id)
         return self.entries_timestamps[entry_id]
 

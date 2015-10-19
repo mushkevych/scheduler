@@ -114,7 +114,7 @@ class UnitOfWorkDao(object):
         document = instance.document
         if instance.db_id:
             document['_id'] = ObjectId(instance.db_id)
-        instance.db_id = collection.save(document)
+        instance.db_id = collection.save(document, safe=True)
         return instance.db_id
 
     @thread_safe
@@ -124,7 +124,7 @@ class UnitOfWorkDao(object):
         assert isinstance(instance, UnitOfWork)
         collection = self.ds.connection(COLLECTION_UNIT_OF_WORK)
         try:
-            return collection.insert_one(instance.document).inserted_id
+            return collection.insert(instance.document, safe=True)
         except MongoDuplicateKeyError as e:
             exc = DuplicateKeyError(instance.process_name,
                                     instance.start_timeperiod,
@@ -137,7 +137,7 @@ class UnitOfWorkDao(object):
     def remove(self, uow_id):
         assert isinstance(uow_id, (str, ObjectId))
         collection = self.ds.connection(COLLECTION_UNIT_OF_WORK)
-        return collection.delete_one(filter={'_id': uow_id}).raw_result
+        return collection.remove({'_id': uow_id}, safe=True)
 
     @thread_safe
     def run_query(self, query):
