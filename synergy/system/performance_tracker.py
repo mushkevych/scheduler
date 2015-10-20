@@ -19,7 +19,7 @@ class FootprintCalculator(object):
         # '{:,}'.format(number) returns a string with coma as a thousand-separator
         return {'memory_rss': '{:,}'.format(ps.memory_info()[0]),
                 'memory_vms': '{:,}'.format(ps.memory_info()[1]),
-                'cpu_utilization': '{0:02d}'.format(ps.cpu_percent()),
+                'cpu_utilization': '{0:02.0f}'.format(ps.cpu_percent()),
                 'mem_virtual_free': '{:,}'.format(psutil.virtual_memory().free),
                 'mem_swap_free': '{:,}'.format(psutil.swap_memory().free)}
 

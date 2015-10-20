@@ -38,7 +38,7 @@ class JobStatusListener(object):
             self.logger.info('JobStatusListener {')
 
             mq_request = MqTransmission.from_json(message.body)
-            job_record = self.job_dao.get_one(mq_request.record_db_id, )
+            job_record = self.job_dao.get_by_id(mq_request.process_name, mq_request.record_db_id)
 
             # step 1: identify dependant tree nodes
             tree_obj = self.timetable.get_tree(job_record.process_name)

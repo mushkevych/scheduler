@@ -40,11 +40,7 @@ class UnitOfWorkDao(object):
     @thread_safe
     def get_one(self, key):
         """ method finds unit_of_work record and returns it to the caller"""
-        if not isinstance(key, ObjectId):
-            # cast key to ObjectId
-            key = ObjectId(key)
-
-        query = {'_id': key}
+        query = {'_id': ObjectId(key)}
         collection = self.ds.connection(COLLECTION_UNIT_OF_WORK)
 
         document = collection.find_one(query)
@@ -135,9 +131,8 @@ class UnitOfWorkDao(object):
 
     @thread_safe
     def remove(self, uow_id):
-        assert isinstance(uow_id, (str, ObjectId))
         collection = self.ds.connection(COLLECTION_UNIT_OF_WORK)
-        return collection.remove({'_id': uow_id}, safe=True)
+        return collection.remove({'_id': ObjectId(uow_id)}, safe=True)
 
     @thread_safe
     def run_query(self, query):

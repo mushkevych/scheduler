@@ -27,7 +27,7 @@ def synch_db():
     for process_entry in process_entries:
         process_name = process_entry.process_name
         if process_name not in context.process_context:
-            logger.error('Process {0} has no reflection in the context. Skipping it.'.format(process_name))
+            logger.warning('Process {0} has no reflection in the context. Skipping it.'.format(process_name))
             continue
 
         if not isinstance(context.process_context[process_name], ManagedProcessEntry):

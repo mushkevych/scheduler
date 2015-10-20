@@ -52,8 +52,19 @@ class JobDao(object):
         return collection
 
     @thread_safe
+    def get_by_id(self, process_name, db_id):
+        """ method finds a single job record and returns it to the caller"""
+        collection = self._get_job_collection(process_name)
+        document = collection.find_one({'_id': ObjectId(db_id)})
+
+        if document is None:
+            raise LookupError('MongoDB has no job record in collection {0} for {1}'
+                              .format(collection, db_id))
+        return Job.from_json(document)
+
+    @thread_safe
     def get_one(self, process_name, timeperiod):
-        """ method finds job record and returns it to the caller"""
+        """ method finds a single job record and returns it to the caller"""
         collection = self._get_job_collection(process_name)
         document = collection.find_one({job.PROCESS_NAME: process_name, job.TIMEPERIOD: timeperiod})
 

@@ -31,7 +31,7 @@ class Scheduler(SynergyProcess):
     def __init__(self, process_name):
         super(Scheduler, self).__init__(process_name)
         self.lock = Lock()
-        self.logger.info('Starting {0}'.format(self.process_name))
+        self.logger.info('Initializing {0}...'.format(self.process_name))
         self.managed_handlers = dict()
         self.freerun_handlers = dict()
         self.timetable = Timetable(self.logger)
@@ -41,7 +41,7 @@ class Scheduler(SynergyProcess):
         self.uow_listener = UowStatusListener(self)
         self.job_listener = JobStatusListener(self)
         self.mx = MX(self)
-        self.logger.info('Started {0}'.format(self.process_name))
+        self.logger.info('Initialization complete.')
 
     def __del__(self):
         self.mx.stop()
@@ -90,8 +90,8 @@ class Scheduler(SynergyProcess):
             if isinstance(process_entry, ManagedProcessEntry):
                 function = self.fire_managed_worker
             else:
-                self.logger.error('Skipping non-managed context entry {0} of type {1}.'
-                                  .format(process_name, process_entry.__class__.__name__))
+                self.logger.warning('Skipping non-managed context entry {0} of type {1}.'
+                                    .format(process_name, process_entry.__class__.__name__))
                 continue
 
             try:
@@ -113,6 +113,7 @@ class Scheduler(SynergyProcess):
     @with_reconnect
     def start(self, *_):
         """ reads managed process entries and starts timer instances; starts dependant threads """
+        self.logger.info('Scheduler Starting...')
         db_manager.synch_db()
         self._load_managed_entries()
 
@@ -128,6 +129,7 @@ class Scheduler(SynergyProcess):
         self.uow_listener.start()
         self.job_listener.start()
 
+        self.logger.info('Startup Sequence Complete. Starting MX.')
         # Management Extension (MX) should be the last to start
         self.mx.start()
 

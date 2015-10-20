@@ -161,15 +161,10 @@ class MongoDbManager(BaseManager):
                     iteration,
                     start_timeperiod,
                     end_timeperiod):
-        if not isinstance(start_id_obj, ObjectId):
-            start_id_obj = ObjectId(start_id_obj)
-        if not isinstance(end_id_obj, ObjectId):
-            end_id_obj = ObjectId(end_id_obj)
-
         if iteration == 0:
-            queue = {'_id': {'$gte': start_id_obj, '$lte': end_id_obj}}
+            queue = {'_id': {'$gte': ObjectId(start_id_obj), '$lte': ObjectId(end_id_obj)}}
         else:
-            queue = {'_id': {'$gt': start_id_obj, '$lte': end_id_obj}}
+            queue = {'_id': {'$gt': ObjectId(start_id_obj), '$lte': ObjectId(end_id_obj)}}
 
         if start_timeperiod is not None and end_timeperiod is not None:
             # remove all accident objects that may be in [start_id_obj : end_id_obj] range

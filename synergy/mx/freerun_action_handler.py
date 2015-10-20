@@ -62,7 +62,9 @@ class FreerunActionHandler(AbstractActionHandler):
             process_entry.entry_name = self.entry_name
 
             if self.request_arguments['arguments']:
-                arguments = self.request_arguments['arguments'].decode('unicode-escape')
+                arguments = self.request_arguments['arguments']
+                if isinstance(arguments, bytes):
+                    arguments = arguments.decode('unicode-escape')
                 process_entry.arguments = json.loads(arguments)
             else:
                 process_entry.arguments = {}
@@ -78,7 +80,9 @@ class FreerunActionHandler(AbstractActionHandler):
             is_interval_changed = self.process_entry.trigger_frequency != self.request_arguments['trigger_frequency']
 
             if self.request_arguments['arguments']:
-                arguments = self.request_arguments['arguments'].decode('unicode-escape')
+                arguments = self.request_arguments['arguments']
+                if isinstance(arguments, bytes):
+                    arguments = arguments.decode('unicode-escape')
                 self.process_entry.arguments = json.loads(arguments)
             else:
                 self.process_entry.arguments = {}
@@ -102,6 +106,7 @@ class FreerunActionHandler(AbstractActionHandler):
             self.thread_handler.deactivate()
             self.freerun_process_dao.remove(handler_key)
             del self.scheduler.freerun_handlers[handler_key]
+            self.logger.info('MX: Deleted FreerunThreadHandler for {0}'.format(handler_key))
 
         elif 'cancel_button' in self.request_arguments:
             pass

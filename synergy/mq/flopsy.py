@@ -119,7 +119,7 @@ class Consumer(SynergyAware):
             self.channel.dispatch_method(method_sig, args, content)
 
     def dispatch(self, message):
-        if not isinstance(message.body, str):
+        if isinstance(message.body, bytes):
             message.body = message.body.decode('utf-8')
 
         decoded = json.loads(message.body)
