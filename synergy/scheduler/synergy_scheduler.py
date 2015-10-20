@@ -113,7 +113,7 @@ class Scheduler(SynergyProcess):
     @with_reconnect
     def start(self, *_):
         """ reads managed process entries and starts timer instances; starts dependant threads """
-        self.logger.info('Scheduler Starting...')
+        self.logger.info('Starting Scheduler...')
         db_manager.synch_db()
         self._load_managed_entries()
 
