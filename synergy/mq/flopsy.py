@@ -119,6 +119,9 @@ class Consumer(SynergyAware):
             self.channel.dispatch_method(method_sig, args, content)
 
     def dispatch(self, message):
+        if not isinstance(message.body, str):
+            message.body = message.body.decode('utf-8')
+
         decoded = json.loads(message.body)
         message.body = decoded['data']
         if self.callback is not None:
@@ -137,6 +140,7 @@ class Consumer(SynergyAware):
             self.channel.basic_reject(delivery_tag=tag, requeue=False)
 
     def register(self, callback):
+        assert callable(callback)
         self.callback = callback
 
     def unregister(self):

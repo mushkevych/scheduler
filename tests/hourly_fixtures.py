@@ -243,8 +243,6 @@ EXPECTED_SITE_HOURLY_33 = {
 
 
 def generate_session_composite_key(index, total):
-    # h1 = '20010303101010'
-    # h2 = '20010303111111'
     h1 = '2001030310'
     h2 = '2001030311'
 
@@ -263,7 +261,7 @@ def clean_session_entries():
         connection.remove({
             raw_data.DOMAIN_NAME: key[0],
             raw_data.TIMEPERIOD: key[1],
-            raw_data.FAMILY_USER_PROFILE + '.' + raw_data.SESSION_ID: 'session_id_{0}'.format(i)})
+            '{0}.{1}'.format(raw_data.FAMILY_USER_PROFILE, raw_data.SESSION_ID): 'session_id_{0}'.format(i)})
 
 
 def generated_session_entries():

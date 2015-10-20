@@ -56,7 +56,7 @@ def compare_dictionaries(dict_actual, dict_expected):
                 actual_value = list(actual_value)
             assert actual_value.sort() == expected_value.sort()
         elif actual_value != expected_value:
-            assert False, 'actual vs expected for key {0}: {1} vs {2}'.format(expected_key, actual_value, expected_value)
+            assert False, 'actual vs expected for {0}: {1} vs {2}'.format(expected_key, actual_value, expected_value)
 
 
 def create_unit_of_work(process_name,

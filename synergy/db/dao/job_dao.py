@@ -52,14 +52,14 @@ class JobDao(object):
         return collection
 
     @thread_safe
-    def get_one(self, key, timeperiod):
+    def get_one(self, process_name, timeperiod):
         """ method finds job record and returns it to the caller"""
-        collection = self._get_job_collection(key)
-        document = collection.find_one({job.PROCESS_NAME: key, job.TIMEPERIOD: timeperiod})
+        collection = self._get_job_collection(process_name)
+        document = collection.find_one({job.PROCESS_NAME: process_name, job.TIMEPERIOD: timeperiod})
 
         if document is None:
             raise LookupError('MongoDB has no job record in collection {0} for {1}@{2}'
-                              .format(collection, key, timeperiod))
+                              .format(collection, process_name, timeperiod))
         return Job.from_json(document)
 
     @thread_safe

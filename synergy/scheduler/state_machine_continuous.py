@@ -46,7 +46,7 @@ class StateMachineContinuous(AbstractStateMachine):
             return job.STATE_FINAL_RUN
 
         else:
-            msg = 'Job record {0} has timeperiod from future {1} vs current time {2}' \
+            msg = 'Job {0} has timeperiod {1} from the future vs current timeperiod {2}' \
                 .format(job_record.db_id, job_record.timeperiod, actual_timeperiod)
             self._log_message(ERROR, job_record.process_name, job_record.timeperiod, msg)
             raise ValueError(msg)
