@@ -132,7 +132,7 @@ class UnitOfWorkDao(object):
     @thread_safe
     def remove(self, uow_id):
         collection = self.ds.connection(COLLECTION_UNIT_OF_WORK)
-        return collection.remove({'_id': ObjectId(uow_id)}, safe=True)
+        collection.delete_one({'_id': ObjectId(uow_id)})
 
     @thread_safe
     def run_query(self, query):

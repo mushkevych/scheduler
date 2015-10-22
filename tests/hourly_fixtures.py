@@ -258,7 +258,7 @@ def clean_session_entries():
     connection = ds.connection(COLLECTION_SINGLE_SESSION)
     for i in range(base_fixtures.TOTAL_ENTRIES):
         key = generate_session_composite_key(i, base_fixtures.TOTAL_ENTRIES)
-        connection.remove({
+        connection.delete_one({
             raw_data.DOMAIN_NAME: key[0],
             raw_data.TIMEPERIOD: key[1],
             '{0}.{1}'.format(raw_data.FAMILY_USER_PROFILE, raw_data.SESSION_ID): 'session_id_{0}'.format(i)})

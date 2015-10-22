@@ -71,4 +71,4 @@ class BaseDao(object):
     def remove(self, key):
         query = self._tuple_to_query(key)
         collection = self.ds.connection(self.collection_name)
-        return collection.remove(query, safe=True)
+        collection.delete_one(query)

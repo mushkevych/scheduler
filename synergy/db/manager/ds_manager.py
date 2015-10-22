@@ -116,7 +116,7 @@ class MongoDbManager(BaseManager):
 
     def delete(self, table_name, primary_key):
         conn = self._db[table_name]
-        return conn.remove(primary_key, safe=True)
+        conn.delete_one(primary_key)
 
     def get(self, table_name, primary_key):
         query = {'_id': primary_key}

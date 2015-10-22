@@ -221,7 +221,7 @@ def clean_site_entries(collection_name, time_qualifier):
     connection = ds.connection(collection_name)
     for i in range(TOTAL_ENTRIES):
         key = generate_site_composite_key(i, time_qualifier)
-        connection.remove({raw_data.DOMAIN_NAME: key[0], raw_data.TIMEPERIOD: key[1]})
+        connection.delete_one({raw_data.DOMAIN_NAME: key[0], raw_data.TIMEPERIOD: key[1]})
 
 
 def wind_actual_timeperiod(new_time):
