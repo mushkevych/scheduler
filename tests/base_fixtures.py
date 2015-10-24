@@ -1,7 +1,6 @@
 __author__ = 'Bohdan Mushkevych'
 
 import inspect
-import random
 from datetime import datetime
 
 from db.model import raw_data
@@ -16,6 +15,7 @@ from synergy.db.manager import ds_manager
 from synergy.system import time_helper
 from synergy.conf import context
 from synergy.system.data_logging import get_logger
+from tests.mt19937 import MT19937
 from tests.ut_context import PROCESS_UNIT_TEST
 
 
@@ -112,7 +112,7 @@ def create_session_stats(composite_key_function, seed='RANDOM_SEED_OBJECT'):
     logger = get_logger(PROCESS_UNIT_TEST)
     ss_dao = SingleSessionDao(logger)
     time_array = ['20010303102210', '20010303102212', '20010303102215', '20010303102250']
-    random.seed(seed)
+    rnd = MT19937(seed)
     object_ids = []
     for i in range(TOTAL_ENTRIES):
         key = composite_key_function(i, TOTAL_ENTRIES)
@@ -137,10 +137,10 @@ def create_session_stats(composite_key_function, seed='RANDOM_SEED_OBJECT'):
             session.user_profile.language = 'ua_uk'
             session.user_profile.country = 'eu'
 
-        session.browsing_history.total_duration = random.randint(0, 200)
-        session.browsing_history.number_of_pageviews = random.randint(1, 5)
+        session.browsing_history.total_duration = rnd.extract_number()
+        session.browsing_history.number_of_pageviews = rnd.extract_number()
 
-        for index in range(random.randint(1, 4)):
+        for index in range(4):
             session.browsing_history.number_of_entries = index + 1
             session.browsing_history.set_entry_timestamp(index, time_array[index])
 
@@ -173,14 +173,14 @@ def generate_site_composite_key(index, time_qualifier):
 def create_site_stats(collection_name, time_qualifier, seed='RANDOM_SEED_OBJECT'):
     logger = get_logger(PROCESS_UNIT_TEST)
     ds = ds_manager.ds_factory(logger)
-    random.seed(seed)
+    rnd = MT19937(seed)
     object_ids = []
     for i in range(TOTAL_ENTRIES):
         key = generate_site_composite_key(i, time_qualifier)
         site_stat = SiteStatistics()
         site_stat.key = key
-        site_stat.stat.number_of_visits = random.randint(1, 1000)
-        site_stat.stat.total_duration = random.randint(0, 100)
+        site_stat.stat.number_of_visits = rnd.extract_number()
+        site_stat.stat.total_duration = rnd.extract_number()
 
         items = _generate_entries('os_', 5, i)
         site_stat.stat.os = items
