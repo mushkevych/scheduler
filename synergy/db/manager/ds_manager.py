@@ -5,6 +5,7 @@ from bson.objectid import ObjectId
 
 from synergy.conf import settings
 from synergy.db.model.unit_of_work import TIMEPERIOD
+from odm.document import BaseDocument
 
 QUERY_GET_ALL = {}
 
@@ -105,7 +106,7 @@ class MongoDbManager(BaseManager):
                .format(settings.settings['mongodb_host_list'], settings.settings['mongo_db_name'])
 
     def is_alive(self):
-        return self._db_client.alive()
+        return self._db_client.admin.command('ping')
 
     def connection(self, table_name):
         return self._db[table_name]
@@ -115,13 +116,14 @@ class MongoDbManager(BaseManager):
         return conn.find(query)
 
     def delete(self, table_name, primary_key):
+        assert isinstance(primary_key, dict)
         conn = self._db[table_name]
         conn.delete_one(primary_key)
 
     def get(self, table_name, primary_key):
-        query = {'_id': primary_key}
+        assert isinstance(primary_key, dict)
         conn = self._db[table_name]
-        db_entry = conn.find_one(query)
+        db_entry = conn.find_one(primary_key)
         if db_entry is None:
             msg = 'Instance with ID={0} was not found'.format(primary_key)
             self.logger.warning(msg)
@@ -129,12 +131,15 @@ class MongoDbManager(BaseManager):
         return db_entry
 
     def insert(self, table_name, instance):
+        assert isinstance(instance, BaseDocument)
         conn = self._db[table_name]
-        return conn.insert(instance, safe=True)
+        return conn.insert_one(instance.document).inserted_id
 
     def update(self, table_name, primary_key, instance):
+        assert isinstance(primary_key, dict)
+        assert isinstance(instance, BaseDocument)
         conn = self._db[table_name]
-        conn.update(primary_key, instance, upsert=True, safe=True)
+        conn.update_one(primary_key, instance.document, upsert=True)
 
     def highest_primary_key(self, table_name, timeperiod_low, timeperiod_high):
         query = {TIMEPERIOD: {'$gte': timeperiod_low, '$lt': timeperiod_high}}

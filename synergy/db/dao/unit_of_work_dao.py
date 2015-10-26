@@ -110,7 +110,7 @@ class UnitOfWorkDao(object):
         document = instance.document
         if instance.db_id:
             document['_id'] = ObjectId(instance.db_id)
-        instance.db_id = collection.save(document, safe=True)
+        instance.db_id = collection.save(document)
         return instance.db_id
 
     @thread_safe
@@ -120,7 +120,7 @@ class UnitOfWorkDao(object):
         assert isinstance(instance, UnitOfWork)
         collection = self.ds.connection(COLLECTION_UNIT_OF_WORK)
         try:
-            return collection.insert(instance.document, safe=True)
+            return collection.insert_one(instance.document).inserted_id
         except MongoDuplicateKeyError as e:
             exc = DuplicateKeyError(instance.process_name,
                                     instance.start_timeperiod,

@@ -7,6 +7,18 @@ from synergy.db.manager import ds_manager
 from synergy.system.decorator import thread_safe
 
 
+def build_db_query(fields_names, field_values):
+    """ method builds query dictionary by zipping together DB field names with the field values """
+    if isinstance(field_values, str):
+        field_values = [field_values]
+    assert len(field_values) == len(fields_names)
+
+    query = dict()
+    for k, v in zip(fields_names, field_values):
+        query[k] = v
+    return query
+
+
 class BaseDao(object):
     """ Thread-safe base Data Access Object """
 
@@ -20,20 +32,10 @@ class BaseDao(object):
         self.lock = RLock()
         self.ds = ds_manager.ds_factory(logger)
 
-    def _tuple_to_query(self, key_tuple):
-        if isinstance(key_tuple, str):
-            key_tuple = [key_tuple]
-        assert len(key_tuple) == len(self.primary_key)
-
-        query = dict()
-        for k, v in zip(self.primary_key, key_tuple):
-            query[k] = v
-        return query
-
     @thread_safe
     def get_one(self, key):
         """ method finds single record base on the given primary key and returns it to the caller"""
-        query = self._tuple_to_query(key)
+        query = build_db_query(self.primary_key, key)
         collection = self.ds.connection(self.collection_name)
 
         document = collection.find_one(query)
@@ -64,11 +66,11 @@ class BaseDao(object):
         document = instance.document
         if instance.db_id:
             document['_id'] = ObjectId(instance.db_id)
-        instance.db_id = collection.save(document, safe=True)
+        instance.db_id = collection.save(document)
         return instance.db_id
 
     @thread_safe
     def remove(self, key):
-        query = self._tuple_to_query(key)
+        query = build_db_query(self.primary_key, key)
         collection = self.ds.connection(self.collection_name)
         collection.delete_one(query)
