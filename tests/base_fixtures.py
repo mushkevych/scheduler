@@ -3,15 +3,14 @@ __author__ = 'Bohdan Mushkevych'
 import inspect
 from datetime import datetime
 
-from db.model import raw_data
 from db.model.site_statistics import SiteStatistics
 from db.model.single_session import SingleSession
 from db.dao.single_session_dao import SingleSessionDao
+from db.dao.site_dao import SiteDao
 from synergy.db.dao.unit_of_work_dao import UnitOfWorkDao
 from synergy.db.model import unit_of_work
 from synergy.db.model.unit_of_work import UnitOfWork
 from synergy.db.model.mq_transmission import MqTransmission
-from synergy.db.manager import ds_manager
 from synergy.system import time_helper
 from synergy.conf import context
 from synergy.system.data_logging import get_logger
@@ -115,9 +114,8 @@ def create_session_stats(composite_key_function, seed='RANDOM_SEED_OBJECT'):
     rnd = MT19937(seed)
     object_ids = []
     for i in range(TOTAL_ENTRIES):
-        key = composite_key_function(i, TOTAL_ENTRIES)
         session = SingleSession()
-        session.key = (key[0], key[1], 'session_id_{0}'.format(i))
+        session.key = composite_key_function(i, TOTAL_ENTRIES)
         session.ip = '192.168.0.2'
         if i % 3 == 0:
             session.user_profile.screen_res = (240, 360)
@@ -172,7 +170,7 @@ def generate_site_composite_key(index, time_qualifier):
 
 def create_site_stats(collection_name, time_qualifier, seed='RANDOM_SEED_OBJECT'):
     logger = get_logger(PROCESS_UNIT_TEST)
-    ds = ds_manager.ds_factory(logger)
+    site_dao = SiteDao(logger)
     rnd = MT19937(seed)
     object_ids = []
     for i in range(TOTAL_ENTRIES):
@@ -209,7 +207,7 @@ def create_site_stats(collection_name, time_qualifier, seed='RANDOM_SEED_OBJECT'
         items['us'] = 9
         site_stat.stat.countries = items
 
-        stat_id = ds.insert(collection_name, site_stat.document)
+        stat_id = site_dao.insert(collection_name, site_stat)
         object_ids.append(stat_id)
 
     return object_ids
@@ -217,19 +215,10 @@ def create_site_stats(collection_name, time_qualifier, seed='RANDOM_SEED_OBJECT'
 
 def clean_site_entries(collection_name, time_qualifier):
     logger = get_logger(PROCESS_UNIT_TEST)
-    ds = ds_manager.ds_factory(logger)
-    connection = ds.connection(collection_name)
+    site_dao = SiteDao(logger)
     for i in range(TOTAL_ENTRIES):
         key = generate_site_composite_key(i, time_qualifier)
-        connection.delete_one({raw_data.DOMAIN_NAME: key[0], raw_data.TIMEPERIOD: key[1]})
-
-
-def wind_actual_timeperiod(new_time):
-    """ method is used to overload actual_timeperiod method from the time_helper """
-    def actual_timeperiod(time_qualifier):
-        return time_helper.datetime_to_synergy(time_qualifier, new_time)
-
-    return actual_timeperiod
+        site_dao.remove(collection_name, key[0], key[1])
 
 
 if __name__ == '__main__':

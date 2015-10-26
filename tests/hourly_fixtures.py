@@ -3,9 +3,8 @@ __author__ = 'Bohdan Mushkevych'
 from synergy.system.time_qualifier import *
 
 from tests import base_fixtures
-from db.model import raw_data
-from constants import COLLECTION_SINGLE_SESSION, COLLECTION_SITE_HOURLY
-from synergy.db.manager import ds_manager
+from db.dao.single_session_dao import SingleSessionDao
+from constants import COLLECTION_SITE_HOURLY
 from synergy.system.data_logging import get_logger
 from tests.ut_context import PROCESS_UNIT_TEST
 
@@ -48,25 +47,16 @@ EXPECTED_SITE_HOURLY_33 = {'timeperiod': '2001030310', 'stat': {'language': {'en
 
 
 def generate_session_composite_key(index, total):
-    h1 = '2001030310'
-    h2 = '2001030311'
-
-    if index <= total / 2:
-        return 'domain_name_{0}'.format(index // 3), h1
-    else:
-        return 'domain_name_{0}'.format(index // 3), h2
+    timeperiod = '2001030310' if index <= total / 2 else '2001030311'
+    return 'domain_name_{0}'.format(index // 3), timeperiod, 'session_id_{0}'.format(index)
 
 
 def clean_session_entries():
     logger = get_logger(PROCESS_UNIT_TEST)
-    ds = ds_manager.ds_factory(logger)
-    connection = ds.connection(COLLECTION_SINGLE_SESSION)
+    ss_dao = SingleSessionDao(logger)
     for i in range(base_fixtures.TOTAL_ENTRIES):
         key = generate_session_composite_key(i, base_fixtures.TOTAL_ENTRIES)
-        connection.delete_one({
-            raw_data.DOMAIN_NAME: key[0],
-            raw_data.TIMEPERIOD: key[1],
-            '{0}.{1}'.format(raw_data.FAMILY_USER_PROFILE, raw_data.SESSION_ID): 'session_id_{0}'.format(i)})
+        ss_dao.remove(key)
 
 
 def generated_session_entries():

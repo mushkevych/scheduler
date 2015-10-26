@@ -1,7 +1,7 @@
 from distutils.core import setup
 
 setup(name='synergy_scheduler',
-      version='1.14',
+      version='1.15',
       description='Synergy Scheduler',
       author='Bohdan Mushkevych',
       author_email='mushkevych@gmail.com',
@@ -13,7 +13,7 @@ setup(name='synergy_scheduler',
                     'synergy.mq': ['AUTHORS', 'LICENSE']},
       long_description='Synergy Scheduler shines in governing interdependent processes and their jobs. '
                        'Has rich Web UI. Can also work as a cron-like job trigger.',
-      license='Modified BSD License',
+      license='BSD 3-Clause License',
       classifiers=[
           'Development Status :: 5 - Production/Stable',
           'Environment :: Console',

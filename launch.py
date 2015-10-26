@@ -147,8 +147,8 @@ def install_virtualenv_p3(root, python_version):
 
 def install_virtualenv(parser_args):
     """ Installs virtual environment """
-    sys.stdout.write('Installing virtualenv into {0} \n'.format(VE_ROOT))
     python_version = '.'.join(str(v) for v in sys.version_info[:2])
+    sys.stdout.write('Installing Python {0} virtualenv into {1} \n'.format(python_version, VE_ROOT))
     if sys.version_info < (3, 3):
         install_virtualenv_p2(VE_ROOT, python_version)
     else:

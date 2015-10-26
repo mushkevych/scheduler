@@ -12,5 +12,5 @@ class SingleSessionDao(BaseDao):
     def __init__(self, logger):
         super(SingleSessionDao, self).__init__(logger=logger,
                                                model_class=SingleSession,
-                                               primary_key=[DOMAIN_NAME, SESSION_ID],
+                                               primary_key=[DOMAIN_NAME, TIMEPERIOD, SESSION_ID],
                                                collection_name=COLLECTION_SINGLE_SESSION)

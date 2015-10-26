@@ -6,7 +6,6 @@ try:
 except ImportError:
     from unittest import mock
 
-from tests import base_fixtures
 from constants import PROCESS_SITE_HOURLY, PROCESS_SITE_DAILY, PROCESS_SITE_YEARLY, PROCESS_SITE_MONTHLY
 from synergy.system import time_helper
 from synergy.system.utils import increment_family_property
@@ -125,9 +124,9 @@ class TestTwoLevelTree(unittest.TestCase):
                                                                      self.actual_timeperiod,
                                                                      delta)
 
-            time_helper.actual_timeperiod = \
-                base_fixtures.wind_actual_timeperiod(time_helper.synergy_to_datetime(time_qualifier,
-                                                                                     new_actual_timeperiod))
+            new_actual_dt = time_helper.synergy_to_datetime(time_qualifier, new_actual_timeperiod)
+            time_helper.actual_timeperiod = mock.MagicMock(
+                side_effect=lambda time_qualifier: time_helper.datetime_to_synergy(time_qualifier, new_actual_dt))
 
             assert isinstance(tree, MultiLevelTree)
             tree.build_tree()

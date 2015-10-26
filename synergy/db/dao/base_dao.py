@@ -58,7 +58,7 @@ class BaseDao(object):
 
     @thread_safe
     def update(self, instance):
-        """ this is upsert method: inserts or updates the DB representation of the model instance """
+        """ this is an upsert method: inserts or updates the DB representation of the model instance """
         assert isinstance(instance, self.model_klass)
         collection = self.ds.connection(self.collection_name)
         document = instance.document
