@@ -274,9 +274,16 @@ def run_tests(parser_args):
 
     def unittest_main(test_runner=None):
         try:
-            argv = [sys.argv[0]] + parser_args.extra_parameters
-            unittest.main(module=None, defaultTest='__main__.load_all_tests',
-                          argv=argv, testRunner=test_runner)
+            argv = [sys.argv[0]]
+            if parser_args.extra_parameters:
+                argv += parser_args.extra_parameters
+            else:
+                # workaround to avoid full unit test discovery
+                # and limit test suite to settings.test_cases
+                # argv.append('__main__.load_all_tests')
+                argv.append('__main__.load_all_tests')
+
+            unittest.main(module=None, argv=argv, testRunner=test_runner)
         except SystemExit as e:
             if e.code == 0:
                 logging.info('PASS')
