@@ -29,6 +29,8 @@ services:
   - mongodb
 
 before_script:
+  - rabbitmq-plugins enable rabbitmq_management
+  - service rabbitmq-server restart
   - rabbitmqadmin declare exchange name=ex_utils type=direct
   - rabbitmqadmin declare exchange name=ex_managed_worker type=direct
   - rabbitmqadmin declare exchange name=ex_freerun_worker type=direct
