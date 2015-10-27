@@ -1,24 +1,39 @@
-language: python
-python:
-  - "2.7"
-#  - "3.4"
-#  - "3.5"
-services:
-  - rabbitmq
-  - mongodb
 # use container-based travis-ci infrastructure
 sudo: false
 
+# use legacy infrastructure
+#sudo: required
+
+matrix:
+  include:
+    - python: "2.7"
+      env: PYTHON_BINARY="python2.7"
+      before_install:
+        - pip install virtualenv
+
+    - python: "3.4"
+      env: PYTHON_BINARY="python3.4"
+      addons:
+        apt:
+          packages:
+          - python3-setuptools
+          - python3-dev
+      before_install:
+# deactivate Travis-CI Python3 VirtualEnv, as it conflicts with the launch.py one
+        - deactivate
+
+services:
+  - rabbitmq
+  - mongodb
+
 install:
   - mkdir -p /tmp/logs/synergy-scheduler
-  - pip install virtualenv
-  - python ./launch.py install
-  - python ./launch.py db --reset
+  - ${PYTHON_BINARY} launch.py install
+  - ${PYTHON_BINARY} launch.py db --reset
 
 script:
-  - python ./launch.py test
+  - ${PYTHON_BINARY} launch.py test
 
 branches:
   only:
     - master
-    - 1.15
