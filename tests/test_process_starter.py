@@ -92,7 +92,7 @@ class TestProcessStarter(unittest.TestCase):
     @mock.patch('synergy.workers.abstract_mq_worker.Consumer')
     def test_starting_method(self, mock_tracker, mock_consumer):
         """
-        performance_ticker and Flopsy consumer must be mocked
+        performance_tracker and Flopsy consumer must be mocked
         otherwise they will instantiate threads
         and prevent Unit Tests from finishing
         """

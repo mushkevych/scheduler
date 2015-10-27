@@ -17,12 +17,12 @@ from synergy.db.dao.unit_of_work_dao import UnitOfWorkDao
 class BashRunnable(threading.Thread):
     """Process starts remote or local bash script job, supervises its execution and updates mq"""
 
-    def __init__(self, logger, message, consumer, performance_ticker):
+    def __init__(self, logger, message, consumer, performance_tracker):
         self.logger = logger
         self.message = message
         self.mq_request = MqTransmission.from_json(message.body)
         self.consumer = consumer
-        self.performance_ticker = performance_ticker
+        self.performance_tracker = performance_tracker
         self.alive = False
         self.return_code = -1
         self.uow_dao = UnitOfWorkDao(self.logger)
@@ -39,7 +39,7 @@ class BashRunnable(threading.Thread):
             if not uow.is_requested:
                 # accept only UOW in STATE_REQUESTED
                 self.logger.warning('Skipping UOW: id {0}; state {1};'.format(self.message.body, uow.state),
-                                 exc_info=False)
+                                    exc_info=False)
                 self.consumer.acknowledge(self.message.delivery_tag)
                 return
         except Exception:
@@ -91,13 +91,13 @@ class BashRunnable(threading.Thread):
                 time.sleep(0.1)
 
             if code == 0:
-                self.performance_ticker.tracker.increment_success()
+                self.performance_tracker.tracker.increment_success()
             else:
-                self.performance_ticker.tracker.increment_failure()
+                self.performance_tracker.tracker.increment_failure()
 
             self.logger.info('BashDriver for {0} return code is {1}'.format(self.thread_name, code))
         except Exception as e:
-            self.performance_ticker.tracker.increment_failure()
+            self.performance_tracker.tracker.increment_failure()
             self.logger.error('Safety fuse while processing request {0}: {1}'.format(self.message.body, e),
                               exc_info=True)
         finally:
@@ -116,7 +116,7 @@ class BashDriver(AbstractMqWorker):
         while threading.active_count() > settings.settings['bash_runnable_count'] + self.initial_thread_count:
             time.sleep(0.1)
 
-        t = BashRunnable(self.logger, message, self.consumer, self.performance_ticker)
+        t = BashRunnable(self.logger, message, self.consumer, self.performance_tracker)
         t.daemon = True
         t.start()
 

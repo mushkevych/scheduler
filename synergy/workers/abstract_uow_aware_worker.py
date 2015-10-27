@@ -24,9 +24,9 @@ class AbstractUowAwareWorker(AbstractMqWorker):
         super(AbstractUowAwareWorker, self).__del__()
 
     # **************** Abstract Methods ************************
-    def _init_performance_ticker(self, logger):
-        self.performance_ticker = UowAwareTracker(logger)
-        self.performance_ticker.start()
+    def _init_performance_tracker(self, logger):
+        self.performance_tracker = UowAwareTracker(logger)
+        self.performance_tracker.start()
 
     def _process_uow(self, uow):
         """
@@ -48,7 +48,7 @@ class AbstractUowAwareWorker(AbstractMqWorker):
             if not uow.is_requested:
                 # accept only UOW in STATE_REQUESTED
                 self.logger.warning('Skipping UOW: id {0}; state {1};'.format(message.body, uow.state),
-                                 exc_info=False)
+                                    exc_info=False)
                 self.consumer.acknowledge(message.delivery_tag)
                 return
         except Exception:
@@ -60,33 +60,33 @@ class AbstractUowAwareWorker(AbstractMqWorker):
             uow.state = unit_of_work.STATE_IN_PROGRESS
             uow.started_at = datetime.utcnow()
             self.uow_dao.update(uow)
-            self.performance_ticker.start_uow(uow)
+            self.performance_tracker.start_uow(uow)
 
             result = self._process_uow(uow)
             if result is None:
                 self.logger.warning('method {0}._process_uow returned None. Assuming happy flow.'
-                                 .format(self.__class__.__name__))
+                                    .format(self.__class__.__name__))
                 number_of_aggregated_objects, target_state = 0, unit_of_work.STATE_PROCESSED
             else:
                 number_of_aggregated_objects, target_state = result
 
             uow.number_of_aggregated_documents = number_of_aggregated_objects
-            uow.number_of_processed_documents = self.performance_ticker.success_per_job
+            uow.number_of_processed_documents = self.performance_tracker.success_per_job
             uow.finished_at = datetime.utcnow()
             uow.state = target_state
             self.uow_dao.update(uow)
 
             if uow.is_finished:
-                self.performance_ticker.finish_uow()
+                self.performance_tracker.finish_uow()
             else:
-                self.performance_ticker.cancel_uow()
+                self.performance_tracker.cancel_uow()
 
         except Exception as e:
             fresh_uow = self.uow_dao.get_one(mq_request.record_db_id)
-            self.performance_ticker.cancel_uow()
+            self.performance_tracker.cancel_uow()
             if fresh_uow.is_canceled:
-                self.logger.warning('UOW {0} for {1}@{2} was likely marked by MX as SKIPPED. No UOW update is performed.'
-                                 .format(uow.db_id, uow.process_name, uow.timeperiod), exc_info=False)
+                self.logger.warning('UOW {0} for {1}@{2} was likely marked by MX as SKIPPED. No UOW update performed.'
+                                    .format(uow.db_id, uow.process_name, uow.timeperiod), exc_info=False)
             else:
                 self.logger.error('Safety fuse while processing UOW {0} for {1}@{2}: {3}'
                                   .format(uow.db_id, uow.process_name, uow.timeperiod, e), exc_info=True)

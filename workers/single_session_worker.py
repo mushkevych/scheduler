@@ -19,9 +19,9 @@ class SingleSessionWorker(AbstractMqWorker):
         self.ss_dao = SingleSessionDao(self.logger)
 
     # ********************** abstract methods ****************************
-    def _init_performance_ticker(self, logger):
-        self.performance_ticker = SessionPerformanceTracker(logger)
-        self.performance_ticker.start()
+    def _init_performance_tracker(self, logger):
+        self.performance_tracker = SessionPerformanceTracker(logger)
+        self.performance_tracker.start()
 
     def _mq_callback(self, message):
         """ wraps call of abstract method with try/except 
@@ -41,7 +41,7 @@ class SingleSessionWorker(AbstractMqWorker):
 
                 index = session.browsing_history.number_of_entries
                 self.add_entry(session, index, raw_data)
-                self.performance_ticker.update.increment_success()
+                self.performance_tracker.update.increment_success()
             except LookupError:
                 # insert the record
                 session = SingleSession()
@@ -55,7 +55,7 @@ class SingleSessionWorker(AbstractMqWorker):
 
                 session = self.update_session_body(raw_data, session)
                 self.add_entry(session, 0, raw_data)
-                self.performance_ticker.insert.increment_success()
+                self.performance_tracker.insert.increment_success()
 
             self.ss_dao.update(session)
             self.consumer.acknowledge(message.delivery_tag)

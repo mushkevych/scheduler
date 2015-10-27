@@ -27,8 +27,8 @@ class AbstractMqWorker(SynergyProcess):
         self._init_mq_consumer()
 
         self.main_thread = None
-        self.performance_ticker = None
-        self._init_performance_ticker(self.logger)
+        self.performance_tracker = None
+        self._init_performance_tracker(self.logger)
 
         msg_suffix = 'in Production Mode'
         if settings.settings['under_test']:
@@ -44,15 +44,15 @@ class AbstractMqWorker(SynergyProcess):
 
         try:
             self.logger.info('Canceling Performance Tracker...')
-            self.performance_ticker.cancel()
+            self.performance_tracker.cancel()
         except Exception as e:
             self.logger.error('Exception caught while cancelling the Performance Tracker: {0}'.format(e))
         super(AbstractMqWorker, self).__del__()
 
     # ********************** abstract methods ****************************
-    def _init_performance_ticker(self, logger):
-        self.performance_ticker = SimpleTracker(logger)
-        self.performance_ticker.start()
+    def _init_performance_tracker(self, logger):
+        self.performance_tracker = SimpleTracker(logger)
+        self.performance_tracker.start()
 
     def _init_mq_consumer(self):
         self.consumer = Consumer(self.process_name)

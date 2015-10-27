@@ -19,9 +19,9 @@ def get_test_aggregator(baseclass, process_name):
             super(TestAggregator, self).__init__(process_name)
             self.mq_transmitter = mock.create_autospec(MqTransmitter)
 
-        def _init_performance_ticker(self, logger):
-            super(TestAggregator, self)._init_performance_ticker(logger)
-            self.performance_ticker.cancel()
+        def _init_performance_tracker(self, logger):
+            super(TestAggregator, self)._init_performance_tracker(logger)
+            self.performance_tracker.cancel()
 
         def _init_mq_consumer(self):
             self.consumer = mock.Mock()

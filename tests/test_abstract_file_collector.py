@@ -72,7 +72,7 @@ class FileCollectorUnitTest(unittest.TestCase):
         self.actual_timeperiod = self.ACTUAL_TIMEPERIOD
 
         # switch off auxiliary threads
-        self.worker.performance_ticker.cancel()
+        self.worker.performance_tracker.cancel()
 
         self.worker._create_directories()
         self.tempdir_copying = tempfile.mkdtemp()
@@ -103,7 +103,7 @@ class FileCollectorUnitTest(unittest.TestCase):
         settings.settings['remote_source_folder'] = self.original_source_folder
 
         # killing the worker
-        self.worker.performance_ticker.cancel()
+        self.worker.performance_tracker.cancel()
         del self.worker
 
         if self.tempdir_copying:

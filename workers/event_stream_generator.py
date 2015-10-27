@@ -26,7 +26,7 @@ class EventStreamGenerator(SynergyProcess):
         super(EventStreamGenerator, self).__init__(process_name)
         self.main_thread = None
         self.publisher = Publisher(process_name)
-        self.performance_ticker = SimpleTracker(self.logger)
+        self.performance_tracker = SimpleTracker(self.logger)
         self.previous_tick = time.time()
         self.thread_is_running = True
 
@@ -42,7 +42,7 @@ class EventStreamGenerator(SynergyProcess):
 
     def __del__(self):
         self.publisher.close()
-        self.performance_ticker.cancel()
+        self.performance_tracker.cancel()
         super(EventStreamGenerator, self).__del__()
         self.logger.info('Exiting main thread. All auxiliary threads stopped.')
 
@@ -58,7 +58,7 @@ class EventStreamGenerator(SynergyProcess):
     def _run_stream_generation(self):
         self.logger.info('Stream Generator: ON. Expected rate: {0}/s, {1}/m, {2}/h, {3}/d'
                          .format(1 / SLEEP_TIME, 1 / SLEEP_TIME * 60, 1 / SLEEP_TIME * 3600, 1 / SLEEP_TIME * 86400))
-        self.performance_ticker.start()
+        self.performance_tracker.start()
         random.seed('RANDOM_SEED_OBJECT')
         document = RawData()
         while self.thread_is_running:
@@ -75,17 +75,17 @@ class EventStreamGenerator(SynergyProcess):
 
                 document.screen_res = (random.randrange(340, 1080, 100), random.randrange(240, 980, 100))
 
-                if self.performance_ticker.tracker.success.per_tick % 7 == 0:
+                if self.performance_tracker.tracker.success.per_tick % 7 == 0:
                     document.os = 'OSX'
                     document.browser = 'Safari-10'
                     document.language = 'en_us'
                     document.country = 'usa'
-                elif self.performance_ticker.tracker.success.per_tick % 5 == 0:
+                elif self.performance_tracker.tracker.success.per_tick % 5 == 0:
                     document.os = 'Linux'
                     document.browser = 'FireFox-40'
                     document.language = 'en_ca'
                     document.country = 'canada'
-                elif self.performance_ticker.tracker.success.per_tick % 3 == 0:
+                elif self.performance_tracker.tracker.success.per_tick % 3 == 0:
                     document.os = 'Windows'
                     document.browser = 'IE-60'
                     document.language = 'ge_de'
@@ -98,14 +98,14 @@ class EventStreamGenerator(SynergyProcess):
 
                 document.is_page_view = True
                 self.publisher.publish(document.document)
-                self.performance_ticker.tracker.increment_success()
+                self.performance_tracker.tracker.increment_success()
                 time.sleep(SLEEP_TIME)
             except (AMQPError, IOError) as e:
                 self.thread_is_running = False
-                self.performance_ticker.cancel()
+                self.performance_tracker.cancel()
                 self.logger.error('AMQPError: {0}'.format(e))
             except Exception as e:
-                self.performance_ticker.tracker.increment_failure()
+                self.performance_tracker.tracker.increment_failure()
                 self.logger.info('safety fuse: {0}'.format(e))
 
     def start(self, *_):
