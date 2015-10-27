@@ -31,10 +31,10 @@ services:
 before_script:
   - sudo rabbitmq-plugins enable rabbitmq_management
   - sudo service rabbitmq-server restart
-  - wget http://127.0.0.1:15672/cli/rabbitmqadmin ./rabbitmqadmin
-  - python2.7 rabbitmqadmin declare exchange name=ex_utils type=direct
-  - python2.7 rabbitmqadmin declare exchange name=ex_managed_worker type=direct
-  - python2.7 rabbitmqadmin declare exchange name=ex_freerun_worker type=direct
+  - wget http://127.0.0.1:15672/cli/rabbitmqadmin ${TRAVIS_BUILD_DIR}/rabbitmqadmin
+  - python2.7 ${TRAVIS_BUILD_DIR}/rabbitmqadmin declare exchange name=ex_utils type=direct
+  - python2.7 ${TRAVIS_BUILD_DIR}/rabbitmqadmin declare exchange name=ex_managed_worker type=direct
+  - python2.7 ${TRAVIS_BUILD_DIR}/rabbitmqadmin declare exchange name=ex_freerun_worker type=direct
 
 install:
   - mkdir -p /tmp/logs/synergy-scheduler
