@@ -28,6 +28,11 @@ services:
   - rabbitmq
   - mongodb
 
+before_script:
+  - rabbitmqadmin declare exchange name=ex_utils type=direct
+  - rabbitmqadmin declare exchange name=ex_managed_worker type=direct
+  - rabbitmqadmin declare exchange name=ex_freerun_worker type=direct
+
 install:
   - mkdir -p /tmp/logs/synergy-scheduler
   - ${PYTHON_BINARY} launch.py install
