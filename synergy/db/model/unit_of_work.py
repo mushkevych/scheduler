@@ -60,13 +60,13 @@ class UnitOfWork(BaseDocument):
 
     db_id = ObjectIdField('_id', null=True)
     process_name = StringField(PROCESS_NAME)
-    timeperiod = StringField(TIMEPERIOD)
-    start_timeperiod = StringField(START_TIMEPERIOD)
-    end_timeperiod = StringField(END_TIMEPERIOD)
+    timeperiod = StringField(TIMEPERIOD, null=True)
+    start_timeperiod = StringField(START_TIMEPERIOD, null=True)
+    end_timeperiod = StringField(END_TIMEPERIOD, null=True)
     start_id = ObjectIdField(START_OBJ_ID)
     end_id = ObjectIdField(END_OBJ_ID)
-    source = StringField(SOURCE)
-    sink = StringField(SINK)
+    source = StringField(SOURCE, null=True)
+    sink = StringField(SINK, null=True)
     arguments = DictField(ARGUMENTS)
     state = StringField(STATE, choices=[STATE_INVALID, STATE_REQUESTED, STATE_IN_PROGRESS,
                                         STATE_PROCESSED, STATE_CANCELED, STATE_NOOP])

@@ -45,7 +45,7 @@ class DiscreteSMUnitTest(unittest.TestCase):
     def test_future_timeperiod(self):
         """ coverage scope: make sure no actual processing methods are called for the Future timeperiod"""
         job_record = get_job_record(job.STATE_IN_PROGRESS, TEST_FUTURE_TIMEPERIOD, PROCESS_SITE_HOURLY)
-        manual_uow = create_unit_of_work(PROCESS_SITE_HOURLY, 0, 1, None)
+        manual_uow = create_unit_of_work(PROCESS_SITE_HOURLY, 0, 1, TEST_ACTUAL_TIMEPERIOD)
 
         self.uow_dao_mocked.get_one = mock.MagicMock(return_value=manual_uow)
         self.time_table_mocked.is_job_record_finalizable = mock.MagicMock(return_value=True)
@@ -61,7 +61,7 @@ class DiscreteSMUnitTest(unittest.TestCase):
         """ coverage scope: valid timeperiod with non_finalizable job => call non_finalizable method"""
         for timeperiod in [TEST_PAST_TIMEPERIOD, TEST_ACTUAL_TIMEPERIOD]:
             job_record = get_job_record(job.STATE_IN_PROGRESS, timeperiod, PROCESS_SITE_HOURLY)
-            manual_uow = create_unit_of_work(PROCESS_SITE_HOURLY, 0, 1, None)
+            manual_uow = create_unit_of_work(PROCESS_SITE_HOURLY, 0, 1, timeperiod)
 
             self.uow_dao_mocked.get_one = mock.MagicMock(return_value=manual_uow)
             self.time_table_mocked.is_job_record_finalizable = mock.MagicMock(return_value=False)
@@ -79,7 +79,7 @@ class DiscreteSMUnitTest(unittest.TestCase):
     def test_finalizable_job(self):
         """ coverage scope: past timeperiod + finalizable job => call on_finalizable method"""
         job_record = get_job_record(job.STATE_IN_PROGRESS, TEST_PAST_TIMEPERIOD, PROCESS_SITE_HOURLY)
-        manual_uow = create_unit_of_work(PROCESS_SITE_HOURLY, 0, 1, None)
+        manual_uow = create_unit_of_work(PROCESS_SITE_HOURLY, 0, 1, TEST_ACTUAL_TIMEPERIOD)
 
         self.uow_dao_mocked.get_one = mock.MagicMock(return_value=manual_uow)
         self.time_table_mocked.is_job_record_finalizable = mock.MagicMock(return_value=True)

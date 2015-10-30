@@ -29,7 +29,7 @@ class DaemonProcessEntry(BaseDocument):
     mq_exchange = StringField(MQ_EXCHANGE)
     mq_routing_key = StringField(MQ_ROUTING_KEY)
     arguments = DictField(ARGUMENTS)
-    present_on_boxes = ListField(PRESENT_ON_BOXES)
+    present_on_boxes = ListField(PRESENT_ON_BOXES, null=True)
     pid_filename = StringField(PID_FILENAME)
     log_filename = StringField(LOG_FILENAME)
 
@@ -58,28 +58,18 @@ def daemon_context_entry(process_name,
     _QUEUE_PREFIX = 'queue_'
     _SUFFIX = '_daemon'
 
-    if queue is None:
-        queue = _QUEUE_PREFIX + token + _SUFFIX
-    if routing is None:
-        routing = _ROUTING_PREFIX + token + _SUFFIX
-    if pid_file is None:
-        pid_file = token + _SUFFIX + '.pid'
-    if log_file is None:
-        log_file = token + _SUFFIX + '.log'
-    if arguments is None:
-        arguments = dict()
-    else:
+    if arguments is not None:
         assert isinstance(arguments, dict)
 
     process_entry = DaemonProcessEntry(
         process_name=process_name,
         classname=classname,
         token=token,
-        mq_queue=queue,
-        mq_routing_key=routing,
+        mq_queue=queue if queue is not None else _QUEUE_PREFIX + token + _SUFFIX,
+        mq_routing_key=routing if routing is not None else _ROUTING_PREFIX + token + _SUFFIX,
         mq_exchange=exchange,
         present_on_boxes=present_on_boxes,
-        arguments=arguments,
-        log_filename=log_file,
-        pid_filename=pid_file)
+        arguments=arguments if arguments is not None else dict(),
+        log_filename=log_file if log_file is not None else token + _SUFFIX + '.log',
+        pid_filename=pid_file if pid_file is not None else token + _SUFFIX + '.pid')
     return process_entry

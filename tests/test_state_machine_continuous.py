@@ -99,7 +99,7 @@ class ContinuousSMUnitTest(unittest.TestCase):
     def test_future_timeperiod_state_in_progress(self):
         """ method tests timetable records in STATE_IN_PROGRESS state"""
         job_record = get_job_record(job.STATE_IN_PROGRESS, TEST_FUTURE_TIMEPERIOD, PROCESS_SITE_HOURLY)
-        manual_uow = create_unit_of_work(PROCESS_SITE_HOURLY, 0, 1, None)
+        manual_uow = create_unit_of_work(PROCESS_SITE_HOURLY, 0, 1, TEST_ACTUAL_TIMEPERIOD)
 
         self.uow_dao_mocked.get_one = mock.MagicMock(return_value=manual_uow)
         self.time_table_mocked.is_job_record_finalizable = mock.MagicMock(return_value=True)
@@ -113,7 +113,7 @@ class ContinuousSMUnitTest(unittest.TestCase):
         """ method tests timetable records in STATE_IN_PROGRESS state"""
         self.time_table_mocked.is_job_record_finalizable = mock.MagicMock(return_value=True)
         self.uow_dao_mocked.get_one = mock.MagicMock(
-            side_effect=lambda *_: create_unit_of_work(PROCESS_SITE_HOURLY, 0, 1, None))
+            side_effect=lambda *_: create_unit_of_work(PROCESS_SITE_HOURLY, 0, 1, TEST_ACTUAL_TIMEPERIOD))
 
         self.sm_real.insert_and_publish_uow = then_return_uow
 
@@ -127,7 +127,8 @@ class ContinuousSMUnitTest(unittest.TestCase):
         """ method tests timetable records in STATE_IN_PROGRESS state"""
         self.time_table_mocked.is_job_record_finalizable = mock.MagicMock(return_value=True)
         self.uow_dao_mocked.get_one = mock.MagicMock(
-            side_effect=lambda *_: create_unit_of_work(PROCESS_SITE_HOURLY, 1, 1, None, unit_of_work.STATE_PROCESSED))
+            side_effect=lambda *_: create_unit_of_work(
+                PROCESS_SITE_HOURLY, 1, 1, TEST_ACTUAL_TIMEPERIOD, unit_of_work.STATE_PROCESSED))
 
         self.sm_real.insert_and_publish_uow = then_return_duplicate_uow
 
@@ -142,7 +143,8 @@ class ContinuousSMUnitTest(unittest.TestCase):
         """ method tests timetable records in STATE_IN_PROGRESS state"""
         self.time_table_mocked.is_job_record_finalizable = mock.MagicMock(return_value=True)
         self.uow_dao_mocked.get_one = mock.MagicMock(
-            side_effect=lambda *_: create_unit_of_work(PROCESS_SITE_HOURLY, 1, 1, None, unit_of_work.STATE_PROCESSED))
+            side_effect=lambda *_: create_unit_of_work(
+                PROCESS_SITE_HOURLY, 1, 1, TEST_ACTUAL_TIMEPERIOD, unit_of_work.STATE_PROCESSED))
 
         self.sm_real.insert_and_publish_uow = then_return_uow
 
@@ -156,7 +158,8 @@ class ContinuousSMUnitTest(unittest.TestCase):
     def test_processed_state_final_run(self):
         """method tests timetable records in STATE_FINAL_RUN state"""
         self.uow_dao_mocked.get_one = mock.MagicMock(
-            side_effect=lambda *_: create_unit_of_work(PROCESS_SITE_HOURLY, 1, 1, None, unit_of_work.STATE_PROCESSED))
+            side_effect=lambda *_: create_unit_of_work(
+                PROCESS_SITE_HOURLY, 1, 1, TEST_ACTUAL_TIMEPERIOD, unit_of_work.STATE_PROCESSED))
 
         job_record = get_job_record(job.STATE_FINAL_RUN, TEST_PRESET_TIMEPERIOD, PROCESS_SITE_HOURLY)
         self.sm_real.manage_job(job_record)
@@ -167,7 +170,8 @@ class ContinuousSMUnitTest(unittest.TestCase):
     def test_cancelled_state_final_run(self):
         """method tests timetable records in STATE_FINAL_RUN state"""
         self.uow_dao_mocked.get_one = mock.MagicMock(
-            side_effect=lambda *_: create_unit_of_work(PROCESS_SITE_HOURLY, 1, 1, None, unit_of_work.STATE_CANCELED))
+            side_effect=lambda *_: create_unit_of_work(
+                PROCESS_SITE_HOURLY, 1, 1, TEST_ACTUAL_TIMEPERIOD, unit_of_work.STATE_CANCELED))
 
         job_record = get_job_record(job.STATE_FINAL_RUN, TEST_PRESET_TIMEPERIOD, PROCESS_SITE_HOURLY)
         self.sm_real.manage_job(job_record)

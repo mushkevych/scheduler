@@ -14,7 +14,7 @@ class MqTransmission(BaseDocument):
      - response/report from the worker to the Synergy Scheduler """
 
     process_name = StringField(PROCESS_NAME)
-    entry_name = StringField(ENTRY_NAME)
+    entry_name = StringField(ENTRY_NAME, null=True)
     record_db_id = ObjectIdField(RECORD_DB_ID)
 
     @BaseDocument.key.getter

@@ -61,17 +61,7 @@ def managed_context_entry(process_name,
     _ROUTING_PREFIX = 'routing_'
     _QUEUE_PREFIX = 'queue_'
 
-    if queue is None:
-        queue = _QUEUE_PREFIX + token + time_qualifier
-    if routing is None:
-        routing = _ROUTING_PREFIX + token + time_qualifier
-    if pid_file is None:
-        pid_file = token + time_qualifier + '.pid'
-    if log_file is None:
-        log_file = token + time_qualifier + '.log'
-    if arguments is None:
-        arguments = dict()
-    else:
+    if arguments is not None:
         assert isinstance(arguments, dict)
 
     process_entry = ManagedProcessEntry(
@@ -84,13 +74,13 @@ def managed_context_entry(process_name,
         token=token,
         source=source,
         sink=sink,
-        mq_queue=queue,
-        mq_routing_key=routing,
+        mq_queue=queue if queue is not None else _QUEUE_PREFIX + token + time_qualifier,
+        mq_routing_key=routing if routing is not None else _ROUTING_PREFIX + token + time_qualifier,
         mq_exchange=exchange,
         present_on_boxes=present_on_boxes,
-        arguments=arguments,
+        arguments=arguments if arguments is not None else dict(),
         time_qualifier=time_qualifier,
         time_grouping=time_grouping,
-        log_filename=log_file,
-        pid_filename=pid_file)
+        log_filename=log_file if log_file is not None else token + time_qualifier + '.log',
+        pid_filename=pid_file if pid_file is not None else token + time_qualifier + '.pid')
     return process_entry
