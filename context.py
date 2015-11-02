@@ -12,8 +12,6 @@ from synergy.db.model.timetable_tree_entry import timetable_tree_entry
 
 
 mq_queue_context = {
-    QUEUE_REQUESTED_PACKAGES: queue_context_entry(exchange=EXCHANGE_FREERUN_WORKER,
-                                                  queue_name=QUEUE_REQUESTED_PACKAGES),
 }
 
 

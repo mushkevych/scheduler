@@ -36,11 +36,9 @@ TOKEN_ALERT = 'alert'
 PREFIX_ROUTING = 'routing_'
 PREFIX_QUEUE = 'queue_'
 
-QUEUE_REQUESTED_PACKAGES = 'q_requested_package'
 QUEUE_RAW_DATA = 'q_raw_data'
-ROUTING_IRRELEVANT = 'routing_irrelevant'
-
 EXCHANGE_RAW_DATA = 'ex_raw_data'
+ROUTING_IRRELEVANT = 'routing_irrelevant'
 
 # *** DB Collection/Table names ***
 COLLECTION_SINGLE_SESSION = 'single_session'

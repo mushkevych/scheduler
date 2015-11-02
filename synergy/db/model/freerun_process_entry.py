@@ -22,8 +22,8 @@ class FreerunProcessEntry(DaemonProcessEntry):
     """ Class presents single configuration entry for the freerun process/bash_driver . """
 
     db_id = ObjectIdField('_id', null=True)
-    source = StringField(SOURCE)
-    sink = StringField(SINK)
+    source = StringField(SOURCE, null=True)
+    sink = StringField(SINK, null=True)
     trigger_frequency = StringField(TRIGGER_FREQUENCY)
     is_on = BooleanField(IS_ON, default=False)
     state_machine_name = StringField(STATE_MACHINE_NAME)

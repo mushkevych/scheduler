@@ -21,8 +21,8 @@ TIME_GROUPING = 'time_grouping'
 class ManagedProcessEntry(DaemonProcessEntry):
     """ Class presents single configuration entry for scheduler managed (i.e. - non-freerun) processes. """
     db_id = ObjectIdField('_id', null=True)
-    source = StringField(SOURCE)
-    sink = StringField(SINK)
+    source = StringField(SOURCE, null=True)
+    sink = StringField(SINK, null=True)
     time_qualifier = StringField(TIME_QUALIFIER)
     time_grouping = IntegerField(TIME_GROUPING)
     trigger_frequency = StringField(TRIGGER_FREQUENCY)
