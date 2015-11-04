@@ -22,7 +22,7 @@ class FreerunActionHandler(AbstractActionHandler):
         if self.is_request_valid:
             self.process_name = self.process_name.strip()
             self.entry_name = self.entry_name.strip()
-            self.is_requested_state_on = 'is_on' in self.request_arguments and self.request_arguments['is_on']
+            self.is_requested_state_on = self.request_arguments.get('is_on') == 'on'
 
     @AbstractActionHandler.thread_handler.getter
     def thread_handler(self):
