@@ -60,6 +60,7 @@ class SupervisorEntry(object):
         self.logger = get_logger(PROCESS_SUPERVISOR, True)
         self.process_name = process_name
         self.re_boxes = context.process_context[process_name].present_on_boxes
+        self.re_boxes = self.re_boxes if self.re_boxes else list()
         self.re_co_boxes = []  # compiled RE of boxes where the process should be present
 
         for re_box in self.re_boxes:
