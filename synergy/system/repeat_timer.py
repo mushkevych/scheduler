@@ -10,11 +10,17 @@ from datetime import datetime, timedelta
 
 class RepeatTimer(threading.Thread):
     """ This class triggers every number of seconds """
-    def __init__(self, interval, call_back, args=None, kwargs=None):
+    def __init__(self, interval, call_back, daemonic=None, args=None, kwargs=None):
         if not kwargs: kwargs = {}
         if not args: args = []
         
         threading.Thread.__init__(self)
+        # handle daemonic state as in Python3
+        if daemonic is not None:
+            self.daemon = daemonic
+        else:
+            self.daemon = threading.current_thread().daemon
+
         assert isinstance(interval, numbers.Number)
         # interval_current shows number of seconds in currently triggered <tick>
         self.interval_current = interval

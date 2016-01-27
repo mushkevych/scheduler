@@ -5,7 +5,7 @@ from synergy.system.time_qualifier import *
 from tests import base_fixtures
 from db.dao.single_session_dao import SingleSessionDao
 from constants import COLLECTION_SITE_HOURLY
-from synergy.system.data_logging import get_logger
+from synergy.system.system_logger import get_logger
 from tests.ut_context import PROCESS_UNIT_TEST
 
 # pylint: disable=C0301

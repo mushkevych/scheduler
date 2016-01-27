@@ -9,7 +9,7 @@ import unittest
 import socket
 
 from synergy.conf import settings
-from synergy.system.data_logging import get_logger
+from synergy.system.system_logger import get_logger
 from synergy.system import time_helper
 from synergy.system.time_qualifier import *
 from workers.abstract_file_collector_worker import AbstractFileCollectorWorker

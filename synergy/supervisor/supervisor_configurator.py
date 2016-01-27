@@ -8,7 +8,7 @@ from synergy.db.manager import ds_manager
 from synergy.db.model.box_configuration import BoxConfiguration, BOX_ID, PROCESS_NAME
 from synergy.conf import context, settings
 from synergy.supervisor.supervisor_constants import PROCESS_SUPERVISOR, COLLECTION_BOX_CONFIGURATION
-from synergy.system.data_logging import get_logger
+from synergy.system.system_logger import get_logger
 
 
 CONFIG_FILE_TEMPLATE = (

@@ -14,7 +14,7 @@ from synergy.db.dao.job_dao import JobDao
 from synergy.db.dao.unit_of_work_dao import UnitOfWorkDao
 from synergy.db.model import job, unit_of_work
 from synergy.db.manager.ds_manager import BaseManager
-from synergy.system.data_logging import get_logger
+from synergy.system.system_logger import get_logger
 from synergy.scheduler.timetable import Timetable
 from synergy.scheduler.state_machine_continuous import StateMachineContinuous
 from tests.state_machine_testing_utils import *

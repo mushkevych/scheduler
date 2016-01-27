@@ -3,7 +3,7 @@ __author__ = 'Bohdan Mushkevych'
 import setproctitle
 
 from synergy.conf import settings
-from synergy.system.data_logging import get_logger
+from synergy.system.system_logger import get_logger
 from synergy.system.utils import create_pid_file, remove_pid_file
 
 

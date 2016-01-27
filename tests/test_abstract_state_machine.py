@@ -14,7 +14,7 @@ from synergy.conf import context
 from synergy.db.model import job
 from synergy.db.dao.job_dao import JobDao
 from synergy.db.dao.unit_of_work_dao import UnitOfWorkDao
-from synergy.system.data_logging import get_logger
+from synergy.system.system_logger import get_logger
 from synergy.scheduler.timetable import Timetable
 from synergy.system.timeperiod_dict import TimeperiodDict
 from synergy.scheduler.abstract_state_machine import AbstractStateMachine

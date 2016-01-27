@@ -13,7 +13,7 @@ from synergy.db.model.unit_of_work import UnitOfWork
 from synergy.db.model.mq_transmission import MqTransmission
 from synergy.system import time_helper
 from synergy.conf import context
-from synergy.system.data_logging import get_logger
+from synergy.system.system_logger import get_logger
 from tests.mt19937 import MT19937
 from tests.ut_context import PROCESS_UNIT_TEST
 

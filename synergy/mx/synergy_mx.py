@@ -6,7 +6,7 @@ from werkzeug.wsgi import ClosingIterator, SharedDataMiddleware
 from werkzeug.exceptions import HTTPException, NotFound
 from werkzeug.serving import run_simple
 from synergy.conf import settings
-from synergy.system.data_logging import get_logger
+from synergy.system.system_logger import get_logger
 from synergy.scheduler.scheduler_constants import PROCESS_MX
 
 from synergy.mx.utils import STATIC_PATH, local, local_manager, url_map, jinja_env

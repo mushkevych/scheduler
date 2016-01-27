@@ -7,7 +7,7 @@ except ImportError:
     from unittest import mock
 
 from synergy.mq.flopsy import PublishersPool, _Pool, Publisher
-from synergy.system.data_logging import get_logger
+from synergy.system.system_logger import get_logger
 from tests.ut_context import PROCESS_UNIT_TEST, register_processes
 
 

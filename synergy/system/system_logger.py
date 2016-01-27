@@ -73,10 +73,13 @@ class Logger(object):
 logger_pool = dict()
 
 
-def get_logger(process_name,
-               append_to_console=settings.settings['under_test'],
-               redirect_stdstream=not settings.settings['under_test']):
+def get_logger(process_name, append_to_console=None, redirect_stdstream=None):
     """ method returns initiated logger"""
+    if append_to_console is None:
+        append_to_console = settings.settings['under_test']
+    if redirect_stdstream is None:
+        redirect_stdstream=not settings.settings['under_test']
+
     if process_name not in logger_pool:
         file_name = get_log_filename(process_name)
         log_tag = get_log_tag(process_name)

@@ -5,7 +5,7 @@ from threading import Lock
 from datetime import datetime, timedelta
 
 from synergy.conf import settings
-from synergy.system.data_logging import get_logger
+from synergy.system.system_logger import get_logger
 from synergy.system.decorator import thread_safe
 from synergy.system.priority_queue import PriorityEntry, PriorityQueue, compute_release_time
 from synergy.system.repeat_timer import RepeatTimer

@@ -23,7 +23,7 @@ from synergy.scheduler.synergy_scheduler import Scheduler
 from synergy.scheduler.thread_handler import ManagedThreadHandler
 from synergy.scheduler.garbage_collector import GarbageCollector
 from synergy.system.mq_transmitter import MqTransmitter
-from synergy.system.data_logging import get_logger
+from synergy.system.system_logger import get_logger
 from synergy.system.priority_queue import PriorityEntry
 from tests.ut_context import *
 

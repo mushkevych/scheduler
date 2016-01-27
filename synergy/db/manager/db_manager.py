@@ -10,7 +10,7 @@ from synergy.db.dao.managed_process_dao import ManagedProcessDao
 
 from synergy.conf import context, settings
 from synergy.scheduler.scheduler_constants import *
-from synergy.system.data_logging import get_logger
+from synergy.system.system_logger import get_logger
 
 
 def synch_db():

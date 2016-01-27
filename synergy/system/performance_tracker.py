@@ -87,7 +87,7 @@ class TickerThread(object):
         self.mark_24_hours = time.time()
         self.mark_footprint = time.time()
         self.footprint = FootprintCalculator()
-        self.timer = RepeatTimer(self.interval, self._run_tick_thread)
+        self.timer = RepeatTimer(self.interval, self._run_tick_thread, daemonic=True)
 
     def add_tracker(self, tracker):
         self.trackers[tracker.name] = tracker
