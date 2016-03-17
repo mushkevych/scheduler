@@ -129,12 +129,8 @@ class LazyObject(object):
 
 
 class LazySettings(LazyObject):
-    """
-    A lazy proxy for either global Synergy settings or a custom settings object.
-    The user can manually configure settings prior to using them. Otherwise,
-    Django uses the settings module pointed to by SYNERGY_SETTINGS_MODULE.
-    """
-    def _setup(self, name=None):
+    """ A lazy proxy for Synergy Settings """
+    def _setup(self):
         """
         Load the settings module pointed to by the environment variable. This
         is used the first time we need any settings at all, if the user has not
@@ -142,43 +138,41 @@ class LazySettings(LazyObject):
         """
         settings_module = os.environ.get(ENVIRONMENT_SETTINGS_VARIABLE, 'settings')
         if not settings_module:
-            desc = 'setting {0}'.format(name) if name else 'settings'
             raise ImproperlyConfigured(
-                'Requested {0}, but settings are not configured. '
-                'You must either define the environment variable {1} '
-                'or call settings.configure() before accessing settings.'
-                .format(desc, ENVIRONMENT_SETTINGS_VARIABLE))
+                'Requested settings module points to an empty variable. '
+                'You must either define the environment variable {0} '
+                'or call settings.configure() before accessing the settings.'
+                .format(ENVIRONMENT_SETTINGS_VARIABLE))
 
         self._wrapped = Settings(settings_module, default_settings=global_settings)
 
     def __getattr__(self, name):
         if self._wrapped is empty:
-            self._setup(name)
+            self._setup()
         return getattr(self._wrapped, name)
 
 
 class LazyContext(LazyObject):
     """ A lazy proxy for Synergy Context """
-    def _setup(self, name=None):
+    def _setup(self):
         """
-        Load the settings module pointed to by the environment variable. This
-        is used the first time we need any settings at all, if the user has not
-        previously configured the settings manually.
+        Load the context module pointed to by the environment variable. This
+        is used the first time we need the context at all, if the user has not
+        previously configured the context manually.
         """
-        settings_module = os.environ.get(ENVIRONMENT_CONTEXT_VARIABLE, 'context')
-        if not settings_module:
-            desc = 'setting {0}'.format(name) if name else 'settings'
+        context_module = os.environ.get(ENVIRONMENT_CONTEXT_VARIABLE, 'context')
+        if not context_module:
             raise ImproperlyConfigured(
-                'Requested {0}, but context is not configured. '
-                'You must either define the environment variable {1} '
+                'Requested context points to an empty variable. '
+                'You must either define the environment variable {0} '
                 'or call context.configure() before accessing the context.'
-                .format(desc, ENVIRONMENT_CONTEXT_VARIABLE))
+                .format(ENVIRONMENT_CONTEXT_VARIABLE))
 
-        self._wrapped = Settings(settings_module, default_settings=global_context)
+        self._wrapped = Settings(context_module, default_settings=global_context)
 
     def __getattr__(self, name):
         if self._wrapped is empty:
-            self._setup(name)
+            self._setup()
         return getattr(self._wrapped, name)
 
 
