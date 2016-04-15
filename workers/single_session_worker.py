@@ -1,6 +1,8 @@
 __author__ = 'Bohdan Mushkevych'
 
+import calendar
 from pymongo.errors import AutoReconnect
+
 from db.model.single_session import SingleSession
 from db.model.raw_data import *
 from db.dao.single_session_dao import SingleSessionDao
@@ -32,12 +34,14 @@ class SingleSessionWorker(AbstractMqWorker):
         try:
             raw_data = RawData.from_json(message.body)
             try:
-                session = self.ss_dao.get_one((raw_data.domain_name, raw_data.session_id))
+                session = self.ss_dao.find_by_session_id(raw_data.domain_name, raw_data.session_id)
 
                 # update the click_xxx info
                 session = self.update_session_body(raw_data, session)
-                duration = raw_data.timestamp - time_helper.session_to_epoch(session.timeperiod)
-                session.browsing_history.total_duration = duration
+
+                epoch_current = calendar.timegm(raw_data.timestamp.replace(tzinfo=None).utctimetuple())
+                epoch_start = time_helper.session_to_epoch(session.timeperiod)
+                session.browsing_history.total_duration = (epoch_current - epoch_start) / 1000
 
                 index = session.browsing_history.number_of_entries
                 self.add_entry(session, index, raw_data)

@@ -14,3 +14,8 @@ class SingleSessionDao(BaseDao):
                                                model_class=SingleSession,
                                                primary_key=[DOMAIN_NAME, TIMEPERIOD, SESSION_ID],
                                                collection_name=COLLECTION_SINGLE_SESSION)
+
+    def find_by_session_id(self, domain_name, session_id):
+        query = {DOMAIN_NAME: domain_name, SESSION_ID: session_id}
+        sessions = self.run_query(query)
+        return sessions[0]

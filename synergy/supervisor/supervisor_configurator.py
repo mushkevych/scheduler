@@ -144,4 +144,4 @@ class SupervisorConfigurator(object):
         box_configurations = self.bc_dao.run_query(QUERY_PROCESSES_FOR_BOX_ID(self.box_id))
 
         for box_config in box_configurations:
-            self.logger.info('{0}:\t{1}'.format(box_config.process_name, box_config.state))
+            self.logger.info('{0}:\t{1}'.format(box_config.process_name, box_config.is_on))

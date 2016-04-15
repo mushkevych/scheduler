@@ -139,7 +139,7 @@ class MongoDbManager(BaseManager):
         assert isinstance(primary_key, dict)
         assert isinstance(instance, BaseDocument)
         conn = self._db[table_name]
-        conn.update_one(primary_key, instance.document, upsert=True)
+        conn.update(primary_key, instance.document, upsert=True)
 
     def highest_primary_key(self, table_name, timeperiod_low, timeperiod_high):
         query = {TIMEPERIOD: {'$gte': timeperiod_low, '$lt': timeperiod_high}}

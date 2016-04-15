@@ -11,7 +11,8 @@ def build_db_query(fields_names, field_values):
     """ method builds query dictionary by zipping together DB field names with the field values """
     if isinstance(field_values, str):
         field_values = [field_values]
-    assert len(field_values) == len(fields_names)
+    assert len(field_values) == len(fields_names), \
+        'Unable to build a primary key query due to mismatch in number of fields'
 
     query = dict()
     for k, v in zip(fields_names, field_values):

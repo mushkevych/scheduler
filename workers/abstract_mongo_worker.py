@@ -13,7 +13,7 @@ class AbstractMongoWorker(AbstractUowAwareWorker):
     Module holds logic on handling unit_of_work and declaration of abstract methods """
 
     def __init__(self, process_name):
-        super(AbstractMongoWorker, self).__init__(process_name)
+        super(AbstractMongoWorker, self).__init__(process_name, perform_db_logging=True)
         self.aggregated_objects = dict()
         self.source = context.process_context[self.process_name].source
         self.sink = context.process_context[self.process_name].sink
@@ -37,7 +37,7 @@ class AbstractMongoWorker(AbstractUowAwareWorker):
         for key in self.aggregated_objects:
             document = self.aggregated_objects[key]
             mongo_pk = self._mongo_sink_key(*key)
-            self.ds.update(self.sink, mongo_pk, document.document)
+            self.ds.update(self.sink, mongo_pk, document)
 
         self.logger.info('Flush successful.')
 
