@@ -111,7 +111,7 @@ def action_get_uow(request, **values):
 @expose('/action/get_log/')
 def action_get_log(request, **values):
     handler = get_action_handler(request, **values)
-    return Response(response=json.dumps(handler.action_get_log()), mimetype='application/json')
+    return Response(response=json.dumps(handler.action_get_event_log()), mimetype='application/json')
 
 
 @expose('/action/change_interval/')

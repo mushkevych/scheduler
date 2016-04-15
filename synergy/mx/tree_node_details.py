@@ -27,7 +27,7 @@ class TreeNodeDetails(BaseRequestHandler):
             number_of_children=len(node.children),
             number_of_failures='NA' if not node.job_record else node.job_record.number_of_failures,
             state='NA' if not node.job_record else node.job_record.state,
-            log=[] if not node.job_record else node.job_record.log)
+            event_log=[] if not node.job_record else node.job_record.event_log)
 
         if as_model:
             return rest_job

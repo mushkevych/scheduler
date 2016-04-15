@@ -63,7 +63,7 @@ def create_rest_freerun_scheduler_entry(thread_handler):
         trigger_frequency=format_time_trigger_string(thread_handler.timer_instance),
         description=thread_handler.process_entry.description,
         next_run_in=get_next_run_in(thread_handler),
-        log=thread_handler.process_entry.log,
+        event_log=thread_handler.process_entry.event_log,
         arguments=thread_handler.process_entry.arguments
     )
     return rest_model

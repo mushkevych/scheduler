@@ -20,9 +20,6 @@ NUMBER_OF_RETRIES = 'number_of_retries'
 PROCESS_NAME = 'process_name'          # process name of the aggregator/alarm/etc that processed the range
 SOURCE = 'source'                      # defines source of data for the computation
 SINK = 'sink'                          # defines sink where the aggregated data will be inserted
-PROCESSED_LOG = 'processed_log'        # log contains list of processed files or other artifacts
-FILE_NAME = 'file_name'                # Name of processed file
-MD5 = 'md5'                            # MD5 tag for the hash of the file
 ARGUMENTS = 'arguments'                # task-level arguments that could supplement or override process-level ones
 
 UNIT_OF_WORK_TYPE = 'unit_of_work_type'     # whether the unit_of_work is TYPE_MANAGED or TYPE_FREERUN
@@ -78,7 +75,6 @@ class UnitOfWork(BaseDocument):
     number_of_aggregated_documents = IntegerField(NUMBER_OF_AGGREGATED_DOCUMENTS)
     number_of_processed_documents = IntegerField(NUMBER_OF_PROCESSED_DOCUMENTS)
     number_of_retries = IntegerField(NUMBER_OF_RETRIES, default=0)
-    processed_log = DictField(PROCESSED_LOG)
     unit_of_work_type = StringField(UNIT_OF_WORK_TYPE, choices=[TYPE_MANAGED, TYPE_FREERUN])
 
     @property

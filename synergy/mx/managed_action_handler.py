@@ -92,6 +92,6 @@ class ManagedActionHandler(AbstractActionHandler):
         return resp
 
     @valid_action_request
-    def action_get_log(self):
+    def action_get_event_log(self):
         node = self._get_tree_node()
-        return {'log': [] if not node.job_record else node.job_record.log}
+        return {'event_log': [] if not node.job_record else node.job_record.event_log}

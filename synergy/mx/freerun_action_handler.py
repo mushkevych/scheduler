@@ -51,8 +51,8 @@ class FreerunActionHandler(AbstractActionHandler):
         return resp
 
     @valid_action_request
-    def action_get_log(self):
-        return {'log': self.process_entry.log}
+    def action_get_event_log(self):
+        return {'event_log': self.process_entry.event_log}
 
     @valid_action_request
     def action_update_entry(self):

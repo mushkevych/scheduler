@@ -109,12 +109,12 @@ class AbstractTreeNode(object):
             self.tree.timetable.skip_tree_node(self)
 
     def add_log_entry(self, entry):
-        """ :db.model.job record holds MAX_NUMBER_OF_LOG_ENTRIES of log entries, that can be accessed by MX
+        """ :db.model.job record holds event log, that can be accessed by MX
             this method adds a record and removes oldest one if necessary """
-        log = self.job_record.log
-        if len(log) > job.MAX_NUMBER_OF_LOG_ENTRIES:
-            del log[-1]
-        log.insert(0, entry)
+        event_log = self.job_record.event_log
+        if len(event_log) > job.MAX_NUMBER_OF_EVENTS:
+            del event_log[-1]
+        event_log.insert(0, entry)
 
     def find_counterpart_in(self, tree_b):
         """ Finds a TreeNode counterpart for this node in tree_b

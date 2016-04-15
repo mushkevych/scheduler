@@ -13,8 +13,9 @@ STATE_MACHINE_NAME = 'state_machine_name'
 SOURCE = 'source'
 SINK = 'sink'
 
-HISTORIC_LOG = 'historic_log'           # contains list of MAX_NUMBER_OF_LOG_ENTRIES last log messages
-MAX_NUMBER_OF_LOG_ENTRIES = 64
+# contains list of last MAX_NUMBER_OF_EVENTS job events, such as emission of the UOW
+EVENT_LOG = 'event_log'
+MAX_NUMBER_OF_EVENTS = 128
 RELATED_UNIT_OF_WORK = 'related_unit_of_work'
 
 
@@ -30,7 +31,7 @@ class FreerunProcessEntry(DaemonProcessEntry):
 
     entry_name = StringField(ENTRY_NAME)
     description = StringField(DESCRIPTION)
-    log = ListField(HISTORIC_LOG)
+    event_log = ListField(EVENT_LOG)
     related_unit_of_work = ObjectIdField(RELATED_UNIT_OF_WORK)
 
     @DaemonProcessEntry.key.getter

@@ -5,6 +5,7 @@ from synergy.db.manager import ds_manager
 from synergy.db.model.freerun_process_entry import ENTRY_NAME
 from synergy.db.model.managed_process_entry import PROCESS_NAME, ManagedProcessEntry
 from synergy.db.model.unit_of_work import TIMEPERIOD, START_OBJ_ID, END_OBJ_ID
+from synergy.db.model.uow_log_entry import RELATED_UNIT_OF_WORK, CREATED_AT
 
 from synergy.db.dao.managed_process_dao import ManagedProcessDao
 
@@ -73,6 +74,15 @@ def reset_db():
                              (TIMEPERIOD, pymongo.ASCENDING),
                              (START_OBJ_ID, pymongo.ASCENDING),
                              (END_OBJ_ID, pymongo.ASCENDING)], unique=True)
+
+    connection = ds.connection(COLLECTION_UOW_LOG)
+    connection.create_index([(RELATED_UNIT_OF_WORK, pymongo.ASCENDING)], unique=True)
+
+    # expireAfterSeconds: <int> Used to create an expiring (TTL) collection.
+    # MongoDB will automatically delete documents from this collection after <int> seconds.
+    # The indexed field must be a UTC datetime or the data will not expire.
+    ttl_seconds = settings.settings['uow_log_ttl_days'] * 86400     # number of seconds for TTL
+    connection.create_index(CREATED_AT, expireAfterSeconds=ttl_seconds)
 
     for collection_name in [COLLECTION_JOB_HOURLY, COLLECTION_JOB_DAILY,
                             COLLECTION_JOB_MONTHLY, COLLECTION_JOB_YEARLY]:

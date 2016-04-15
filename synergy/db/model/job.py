@@ -3,15 +3,15 @@ __author__ = 'Bohdan Mushkevych'
 from odm.document import BaseDocument
 from odm.fields import StringField, ObjectIdField, ListField, IntegerField
 
-MAX_NUMBER_OF_LOG_ENTRIES = 32
+MAX_NUMBER_OF_EVENTS = 128
 TIMEPERIOD = 'timeperiod'
 PROCESS_NAME = 'process_name'
 STATE = 'state'
 RELATED_UNIT_OF_WORK = 'related_unit_of_work'
 NUMBER_OF_FAILURES = 'number_of_failures'
 
-# contains list of MAX_NUMBER_OF_LOG_ENTRIES last log messages
-HISTORIC_LOG = 'historic_log'
+# contains list of last MAX_NUMBER_OF_EVENTS job events, such as emission of the UOW
+EVENT_LOG = 'event_log'
 
 # given Job was _not_ processed by aggregator because of multiple errors/missing data
 # this state allows to mute current Job abd allow other timeperiods/Jobs to be processed
@@ -49,7 +49,7 @@ class Job(BaseDocument):
     state = StringField(STATE, choices=[STATE_IN_PROGRESS, STATE_PROCESSED, STATE_FINAL_RUN,
                                         STATE_EMBRYO, STATE_SKIPPED, STATE_NOOP])
     related_unit_of_work = ObjectIdField(RELATED_UNIT_OF_WORK)
-    log = ListField(HISTORIC_LOG)
+    event_log = ListField(EVENT_LOG)
     number_of_failures = IntegerField(NUMBER_OF_FAILURES, default=0)
 
     @BaseDocument.key.getter

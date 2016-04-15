@@ -7,8 +7,7 @@ from synergy.conf import context
 from synergy.db.error import DuplicateKeyError
 from synergy.db.model import unit_of_work
 from synergy.db.model.unit_of_work import UnitOfWork
-from synergy.db.model.mq_transmission import MqTransmission
-from synergy.db.model.freerun_process_entry import FreerunProcessEntry, MAX_NUMBER_OF_LOG_ENTRIES
+from synergy.db.model.freerun_process_entry import FreerunProcessEntry, MAX_NUMBER_OF_EVENTS
 from synergy.db.dao.unit_of_work_dao import UnitOfWorkDao
 from synergy.db.dao.freerun_process_dao import FreerunProcessDao
 from synergy.system import time_helper
@@ -34,10 +33,10 @@ class StateMachineFreerun(object):
         self.logger.log(level, msg)
 
         assert isinstance(freerun_entry, FreerunProcessEntry)
-        log = freerun_entry.log
-        if len(log) > MAX_NUMBER_OF_LOG_ENTRIES:
-            del log[-1]
-        log.insert(0, msg)
+        event_log = freerun_entry.event_log
+        if len(event_log) > MAX_NUMBER_OF_EVENTS:
+            del event_log[-1]
+        event_log.insert(0, msg)
         self.sfe_dao.update(freerun_entry)
 
     @with_reconnect

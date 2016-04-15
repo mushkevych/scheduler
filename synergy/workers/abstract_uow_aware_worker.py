@@ -7,15 +7,17 @@ from synergy.db.model.mq_transmission import MqTransmission
 from synergy.db.dao.unit_of_work_dao import UnitOfWorkDao
 from synergy.system.mq_transmitter import MqTransmitter
 from synergy.system.performance_tracker import UowAwareTracker
+from synergy.system.uow_log_handler import UowLogHandler
 from synergy.workers.abstract_mq_worker import AbstractMqWorker
 
 
 class AbstractUowAwareWorker(AbstractMqWorker):
     """ Abstract class is inherited by all workers/aggregators
-    that are aware of unit_of_work and capable of processing it"""
+    that are aware of unit_of_work and capable of processing it """
 
-    def __init__(self, process_name):
+    def __init__(self, process_name, perform_db_logging=False):
         super(AbstractUowAwareWorker, self).__init__(process_name)
+        self.perform_db_logging = perform_db_logging
         self.uow_dao = UnitOfWorkDao(self.logger)
         self.mq_transmitter = MqTransmitter(self.logger)
 
@@ -56,11 +58,15 @@ class AbstractUowAwareWorker(AbstractMqWorker):
             self.consumer.acknowledge(message.delivery_tag)
             return
 
+        db_log_handler = UowLogHandler(self.logger, uow.db_id)
         try:
             uow.state = unit_of_work.STATE_IN_PROGRESS
             uow.started_at = datetime.utcnow()
             self.uow_dao.update(uow)
             self.performance_tracker.start_uow(uow)
+
+            if self.perform_db_logging:
+                db_log_handler.attach()
 
             result = self._process_uow(uow)
             if result is None:
@@ -97,9 +103,10 @@ class AbstractUowAwareWorker(AbstractMqWorker):
             self.consumer.acknowledge(message.delivery_tag)
             self.consumer.close()
             self._clean_up()
+            db_log_handler.detach()
 
         try:
             self.mq_transmitter.publish_uow_status(uow)
-            self.logger.info('Published UOW status report into')
+            self.logger.info('Published UOW status report {0}.'.format(uow.state))
         except Exception:
             self.logger.error('Error on UOW status report publishing', exc_info=True)
