@@ -1,11 +1,15 @@
 __author__ = 'Bohdan Mushkevych'
 
 from synergy.mx.base_request_handler import BaseRequestHandler, valid_action_request
+from synergy.db.dao.unit_of_work_dao import UnitOfWorkDao
+from synergy.db.dao.uow_log_dao import UowLogDao
 
 
 class AbstractActionHandler(BaseRequestHandler):
     def __init__(self, request, **values):
         super(AbstractActionHandler, self).__init__(request, **values)
+        self.uow_dao = UnitOfWorkDao(self.logger)
+        self.uow_log_dao = UowLogDao(self.logger)
 
     @property
     def thread_handler(self):
@@ -15,16 +19,31 @@ class AbstractActionHandler(BaseRequestHandler):
     def process_entry(self):
         raise NotImplementedError('property process_entry must be implemented by {0}'.format(self.__class__.__name__))
 
+    @property
+    def uow_id(self):
+        raise NotImplementedError('property uow_id must be implemented by {0}'.format(self.__class__.__name__))
+
     def action_get_uow(self):
-        raise NotImplementedError('method action_get_uow must be implemented by {0}'.format(self.__class__.__name__))
+        if self.uow_id is None:
+            resp = {'response': 'no related unit_of_work'}
+        else:
+            resp = self.uow_dao.get_one(self.uow_id).document
+            for key in resp:
+                resp[key] = str(resp[key])
+        return resp
 
     def action_get_event_log(self):
         raise NotImplementedError('method action_get_event_log must be implemented by {0}'
                                   .format(self.__class__.__name__))
 
     def action_get_uow_log(self):
-        raise NotImplementedError('method action_get_uow_log must be implemented by {0}'
-                                  .format(self.__class__.__name__))
+        if self.uow_id is None:
+            resp = {'response': 'no related uow log'}
+        else:
+            resp = self.uow_log_dao.get_one(self.uow_id).document
+            for key in resp:
+                resp[key] = str(resp[key])
+        return resp
 
     @valid_action_request
     def action_change_interval(self):

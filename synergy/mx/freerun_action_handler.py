@@ -3,7 +3,6 @@ __author__ = 'Bohdan Mushkevych'
 import json
 
 from synergy.db.model.freerun_process_entry import FreerunProcessEntry
-from synergy.db.dao.unit_of_work_dao import UnitOfWorkDao
 from synergy.db.dao.freerun_process_dao import FreerunProcessDao
 from synergy.mx.base_request_handler import valid_action_request
 from synergy.mx.abstract_action_handler import AbstractActionHandler
@@ -16,7 +15,6 @@ class FreerunActionHandler(AbstractActionHandler):
         self.process_name = self.request_arguments.get('process_name')
         self.entry_name = self.request_arguments.get('entry_name')
         self.freerun_process_dao = FreerunProcessDao(self.logger)
-        self.uow_dao = UnitOfWorkDao(self.logger)
         self.is_request_valid = True if self.process_name and self.entry_name else False
 
         if self.is_request_valid:
@@ -33,6 +31,10 @@ class FreerunActionHandler(AbstractActionHandler):
     def process_entry(self):
         return self.thread_handler.process_entry
 
+    @AbstractActionHandler.uow_id.getter
+    def uow_id(self):
+        return self.process_entry.related_unit_of_work
+
     @valid_action_request
     def action_cancel_uow(self):
         freerun_state_machine = self.scheduler.timetable.state_machines[STATE_MACHINE_FREERUN]
@@ -40,23 +42,8 @@ class FreerunActionHandler(AbstractActionHandler):
         return self.reply_ok()
 
     @valid_action_request
-    def action_get_uow(self):
-        uow_id = self.process_entry.related_unit_of_work
-        if uow_id is None:
-            resp = {'response': 'no related unit_of_work'}
-        else:
-            resp = self.uow_dao.get_one(uow_id).document
-            for key in resp:
-                resp[key] = str(resp[key])
-        return resp
-
-    @valid_action_request
     def action_get_event_log(self):
         return {'event_log': self.process_entry.event_log}
-
-    @valid_action_request
-    def action_get_uow_log(self):
-        return {'uow_log': []}
 
     @valid_action_request
     def action_update_entry(self):

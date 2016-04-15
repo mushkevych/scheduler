@@ -183,8 +183,8 @@ function info_job_tile(job_entry, tile, is_next_timeperiod, is_selected_timeperi
         + '</ul>'));
     tile.$el.append('<div class="clear"></div>');
     tile.$el.append($('<div></div>').append(uow_button).append(skip_button));
-    tile.$el.append($('<div></div>').append(event_log_button).append(reprocess_button));
-    tile.$el.append($('<div></div>').append(uow_log_button));
+    tile.$el.append($('<div></div>').append(uow_log_button).append(reprocess_button));
+    tile.$el.append($('<div></div>').append(event_log_button));
 }
 
 
