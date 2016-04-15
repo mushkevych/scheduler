@@ -108,10 +108,16 @@ def action_get_uow(request, **values):
     return Response(response=json.dumps(handler.action_get_uow()), mimetype='application/json')
 
 
-@expose('/action/get_log/')
-def action_get_log(request, **values):
+@expose('/action/get_event_log/')
+def action_get_event_log(request, **values):
     handler = get_action_handler(request, **values)
     return Response(response=json.dumps(handler.action_get_event_log()), mimetype='application/json')
+
+
+@expose('/action/get_uow_log/')
+def action_get_uow_log(request, **values):
+    handler = get_action_handler(request, **values)
+    return Response(response=json.dumps(handler.action_get_uow_log()), mimetype='application/json')
 
 
 @expose('/action/change_interval/')

@@ -19,7 +19,12 @@ class AbstractActionHandler(BaseRequestHandler):
         raise NotImplementedError('method action_get_uow must be implemented by {0}'.format(self.__class__.__name__))
 
     def action_get_event_log(self):
-        raise NotImplementedError('method action_get_log must be implemented by {0}'.format(self.__class__.__name__))
+        raise NotImplementedError('method action_get_event_log must be implemented by {0}'
+                                  .format(self.__class__.__name__))
+
+    def action_get_uow_log(self):
+        raise NotImplementedError('method action_get_uow_log must be implemented by {0}'
+                                  .format(self.__class__.__name__))
 
     @valid_action_request
     def action_change_interval(self):

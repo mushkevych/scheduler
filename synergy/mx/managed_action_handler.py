@@ -95,3 +95,7 @@ class ManagedActionHandler(AbstractActionHandler):
     def action_get_event_log(self):
         node = self._get_tree_node()
         return {'event_log': [] if not node.job_record else node.job_record.event_log}
+
+    @valid_action_request
+    def action_get_uow_log(self):
+        return {'uow_log': []}

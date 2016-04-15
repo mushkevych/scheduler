@@ -11,8 +11,9 @@
         <th scope="col"></th>  <!-- Trigger Now -->
         <th scope="col">Next Run In</th>
         <th scope="col">Arguments</th>
-        <th scope="col"></th>  <!-- View Log -->
         <th scope="col"></th>  <!-- View Uow -->
+        <th scope="col"></th>  <!-- Uow Log -->
+        <th scope="col"></th>  <!-- Event Log -->
         <th scope="col"></th>  <!-- Cancel Uow -->
         <th scope="col"></th>  <!-- Edit -->
     </tr>
@@ -55,17 +56,24 @@
         <td>{{ row.next_run_in }}</td>
         <td>{{ row.arguments|jsonify }}</td>
         <td>
-            {% set url = 'action=action/get_log' + '&process_name=' + row.process_name + '&entry_name=' + row.entry_name + '&is_freerun=True' %}
-            <form method="GET" onsubmit="window.open('/object_viewer/?{{ url }}','View Log',
-                 'toolbar=no,scrollbars=yes,resizable=yes,top=250,left=250,width=720,height=480'); return false;">
-                <input type="submit" class="action_button fa-input" title="View Log" value="&#xf00b;&nbsp;Log"/>
+            {% set url = 'action=action/get_uow' + '&process_name=' + row.process_name + '&entry_name=' + row.entry_name + '&is_freerun=True' %}
+            <form method="GET" onsubmit="window.open('/object_viewer/?{{ url }}','View Uow',
+                 'toolbar=no,scrollbars=yes,resizable=yes,top=250,left=250,width=450,height=400'); return false;">
+                <input type="submit" class="action_button fa-input" title="View Uow" value="&#xf1c9;&nbsp;Uow"/>
             </form>
         </td>
         <td>
-            {% set url = 'action=action/get_uow' + '&process_name=' + row.process_name + '&entry_name=' + row.entry_name + '&is_freerun=True' %}
-            <form method="GET" onsubmit="window.open('/object_viewer/?{{ url }}','Get Uow',
-                 'toolbar=no,scrollbars=yes,resizable=yes,top=250,left=250,width=400,height=350'); return false;">
-                <input type="submit" class="action_button fa-input" title="View Uow" value="&#xf1c9;&nbsp;Uow"/>
+            {% set url = 'action=action/get_uow_log' + '&process_name=' + row.process_name + '&entry_name=' + row.entry_name + '&is_freerun=True' %}
+            <form method="GET" onsubmit="window.open('/object_viewer/?{{ url }}','Uow Log',
+                    'toolbar=no,scrollbars=yes,resizable=yes,top=250,left=250,width=800,height=480'); return false;">
+                <input type="submit" class="action_button fa-input" title="Log Uow" value="&#xf0f6;&nbsp;Log&nbsp;Log"/>
+            </form>
+        </td>
+        <td>
+            {% set url = 'action=action/get_event_log' + '&process_name=' + row.process_name + '&entry_name=' + row.entry_name + '&is_freerun=True' %}
+            <form method="GET" onsubmit="window.open('/object_viewer/?{{ url }}','Event Log',
+                    'toolbar=no,scrollbars=yes,resizable=yes,top=250,left=250,width=800,height=480'); return false;">
+                <input type="submit" class="action_button fa-input" title="Event Uow" value="&#xf00b;&nbsp;Event&nbsp;Log"/>
             </form>
         </td>
         <td>

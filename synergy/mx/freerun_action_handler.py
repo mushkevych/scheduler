@@ -55,6 +55,10 @@ class FreerunActionHandler(AbstractActionHandler):
         return {'event_log': self.process_entry.event_log}
 
     @valid_action_request
+    def action_get_uow_log(self):
+        return {'uow_log': []}
+
+    @valid_action_request
     def action_update_entry(self):
         if 'insert_button' in self.request_arguments:
             process_entry = FreerunProcessEntry()

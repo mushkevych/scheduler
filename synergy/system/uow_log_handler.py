@@ -15,9 +15,10 @@ class UowLogHandler(logging.Handler):
         self.uow_log_dao = UowLogDao(logger)
 
     def attach(self):
-        """ method attaches this handler to the logger
+        """ method clears existing uow_log entries, creates a new one
+            and attaches this handler to the logger
             from this moment every log record will be recorded in the DB """
-        uow_log = UowLogEntry(related_unit_of_work=self.uow_id, created_at=datetime.utc_now())
+        uow_log = UowLogEntry(related_unit_of_work=self.uow_id, created_at=datetime.utcnow())
         self.uow_log_dao.remove(self.uow_id)
         self.uow_log_dao.update(uow_log)
         self.logger.addHandler(self)

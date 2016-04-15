@@ -8,7 +8,7 @@ var GRID_HEADER_TEMPLATE = grid_info_template(1);
 /**
  * function returns a Tiles.js template for job records
  * template contains tiles_number of tiles
- * each tile has proportion 3x2 (wider than taller)
+ * each tile has proportion 5x3 (wider than taller)
  */
 function grid_info_template(tiles_number) {
     var arr = [];
@@ -140,18 +140,23 @@ function info_job_tile(job_entry, tile, is_next_timeperiod, is_selected_timeperi
     var uow_button = $('<button class="action_button"><i class="fa fa-file-code-o"></i>&nbsp;Uow</button>').click(function (e) {
         var params = { action: 'action/get_uow', timeperiod: job_entry.timeperiod, process_name: job_entry.process_name };
         var viewer_url = '/object_viewer/?' + $.param(params);
-        window.open(viewer_url, 'Object Viewer', 'width=400,height=350,screenX=400,screenY=200,scrollbars=1');
+        window.open(viewer_url, 'Object Viewer', 'width=450,height=400,screenX=400,screenY=200,scrollbars=1');
     });
-    var log_button = $('<button class="action_button"><i class="fa fa-th-list"></i>&nbsp;Log</button>').click(function (e) {
-        var params = { action: 'action/get_log', timeperiod: job_entry.timeperiod, process_name: job_entry.process_name };
+    var event_log_button = $('<button class="action_button"><i class="fa fa-th-list"></i>&nbsp;Event&nbsp;Log</button>').click(function (e) {
+        var params = { action: 'action/get_event_log', timeperiod: job_entry.timeperiod, process_name: job_entry.process_name };
         var viewer_url = '/object_viewer/?' + $.param(params);
-        window.open(viewer_url, 'Object Viewer', 'width=720,height=480,screenX=400,screenY=200,scrollbars=1');
+        window.open(viewer_url, 'Object Viewer', 'width=800,height=480,screenX=400,screenY=200,scrollbars=1');
     });
     var skip_button = $('<button class="action_button"><i class="fa fa-step-forward"></i>&nbsp;Skip</button>').click(function (e) {
         process_job('action/skip', tile.process_name, tile.timeperiod, true);
     });
     var reprocess_button = $('<button class="action_button"><i class="fa fa-repeat"></i>&nbsp;Reprocess</button>').click(function (e) {
         process_job('action/reprocess', tile.process_name, tile.timeperiod, true);
+    });
+    var uow_log_button = $('<button class="action_button"><i class="fa fa-file-text-o"></i>&nbsp;Uow&nbsp;Log</button>').click(function (e) {
+        var params = { action: 'action/get_uow_log', timeperiod: job_entry.timeperiod, process_name: job_entry.process_name };
+        var viewer_url = '/object_viewer/?' + $.param(params);
+        window.open(viewer_url, 'Object Viewer', 'width=800,height=480,screenX=400,screenY=200,scrollbars=1');
     });
 
     tile.process_name = job_entry.process_name;
@@ -178,7 +183,8 @@ function info_job_tile(job_entry, tile, is_next_timeperiod, is_selected_timeperi
         + '</ul>'));
     tile.$el.append('<div class="clear"></div>');
     tile.$el.append($('<div></div>').append(uow_button).append(skip_button));
-    tile.$el.append($('<div></div>').append(log_button).append(reprocess_button));
+    tile.$el.append($('<div></div>').append(event_log_button).append(reprocess_button));
+    tile.$el.append($('<div></div>').append(uow_log_button));
 }
 
 

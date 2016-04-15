@@ -107,6 +107,6 @@ class AbstractUowAwareWorker(AbstractMqWorker):
 
         try:
             self.mq_transmitter.publish_uow_status(uow)
-            self.logger.info('Published UOW status report {0}.'.format(uow.state))
+            self.logger.info('UOW *{0}* status report published into MQ'.format(uow.state))
         except Exception:
             self.logger.error('Error on UOW status report publishing', exc_info=True)
