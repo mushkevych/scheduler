@@ -63,6 +63,7 @@ test_cases = [
     'tests.test_time_helper',
     'tests.test_timeperiod_dict',
     'tests.test_process_starter',
+    'tests.test_uow_log_handler',
     'tests.test_site_hourly_aggregator',
     'tests.test_site_daily_aggregator',
     'tests.test_site_monthly_aggregator',

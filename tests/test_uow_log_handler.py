@@ -15,11 +15,11 @@ from synergy.system.system_logger import get_logger
 from synergy.system.mq_transmitter import MqTransmitter
 from synergy.workers.abstract_uow_aware_worker import AbstractUowAwareWorker
 from tests.base_fixtures import create_and_insert_unit_of_work, TestMessage
-from tests.ut_context import PROCESS_UNIT_TEST
+from context import PROCESS_ALERT_DAILY
 
-INFO_LOG_MESSAGES = ['111222333 INFO log message string {0}'.format(x) for x in range(50)]
-WARN_LOG_MESSAGES = ['444555666 WARNING log message string {0}'.format(x) for x in range(50)]
-STD_MESSAGES = ['777888999 STD OUTPUT message {0}'.format(x) for x in range(50)]
+INFO_LOG_MESSAGES = ['111222333 INFO log message string {0}'.format(x) for x in range(10)]
+WARN_LOG_MESSAGES = ['444555666 WARNING log message string {0}'.format(x) for x in range(10)]
+STD_MESSAGES = ['777888999 STD OUTPUT message {0}'.format(x) for x in range(10)]
 
 
 class TheWorker(AbstractUowAwareWorker):
@@ -63,7 +63,7 @@ class UowLogHandlerUnitTest(unittest.TestCase):
     """
 
     def setUp(self):
-        self.process_name = PROCESS_UNIT_TEST
+        self.process_name = PROCESS_ALERT_DAILY
         self.logger = get_logger(self.process_name)
         self.uow_id = create_and_insert_unit_of_work(self.process_name, 'range_start', 'range_end')
         self.uow_id = str(self.uow_id)

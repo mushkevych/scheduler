@@ -33,4 +33,5 @@ class UowLogHandler(logging.Handler):
             self.uow_log_dao.append_log(self.uow_id, msg)
         except Exception as e:
             self.detach()
-            self.logger.error('Detached UowLogHandler: exception on UowLogDao.append_log: {0}'.format(e))
+            self.logger.error('Detached UowLogHandler. Exception on UowLogDao.append_log: {0}'.format(e),
+                              exc_info=True)
