@@ -28,4 +28,5 @@ class UowLogHandler(logging.Handler):
         self.logger.removeHandler(self)
 
     def emit(self, record):
-        self.uow_log_dao.append_log(self.uow_id, record)
+        msg = self.format(record)
+        self.uow_log_dao.append_log(self.uow_id, msg)

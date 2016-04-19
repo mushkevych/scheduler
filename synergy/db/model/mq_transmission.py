@@ -1,5 +1,6 @@
 __author__ = 'Bohdan Mushkevych'
 
+from six import string_types
 from odm.document import BaseDocument
 from odm.fields import StringField, ObjectIdField
 
@@ -23,7 +24,7 @@ class MqTransmission(BaseDocument):
 
     @key.setter
     def key(self, value):
-        if not isinstance(value, str):
+        if not isinstance(value, string_types):
             self.process_name = value[0]
             self.entry_name = value[1]
         else:

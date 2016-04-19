@@ -1,5 +1,6 @@
 __author__ = 'Bohdan Mushkevych'
 
+from six import string_types
 from odm.document import BaseDocument
 from odm.fields import StringField, ListField
 
@@ -34,8 +35,8 @@ def timetable_tree_entry(tree_name,
                          mx_name=None,
                          mx_page=None):
     """ creates timetable context entry """
-    assert enclosed_processes is not None and not isinstance(enclosed_processes, str)
-    assert dependent_on is not None and not isinstance(dependent_on, str)
+    assert enclosed_processes is not None and not isinstance(enclosed_processes, string_types)
+    assert dependent_on is not None and not isinstance(dependent_on, string_types)
 
     timetable_entry = TimetableTreeEntry(tree_name=tree_name,
                                          enclosed_processes=enclosed_processes,

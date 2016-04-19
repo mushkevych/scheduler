@@ -14,11 +14,11 @@ class UowLogDao(BaseDao):
                                         primary_key=[RELATED_UNIT_OF_WORK],
                                         collection_name=COLLECTION_UOW_LOG)
 
-    def append_log(self, uow_id, record):
+    def append_log(self, uow_id, msg):
         collection = self.ds.connection(self.collection_name)
 
         result = collection.update_one({RELATED_UNIT_OF_WORK: uow_id},
-                                       {'$push': {LOG: record}},
+                                       {'$push': {LOG: msg}},
                                        upsert=True)
         if result.modified_count == 0:
             raise LookupError('Log append failed for {0} in collection {1}'.format(uow_id, self.collection_name))

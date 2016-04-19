@@ -2,6 +2,7 @@ __author__ = 'Bohdan Mushkevych'
 
 from bson import ObjectId
 from threading import RLock
+from six import string_types
 
 from synergy.db.manager import ds_manager
 from synergy.system.decorator import thread_safe
@@ -9,7 +10,7 @@ from synergy.system.decorator import thread_safe
 
 def build_db_query(fields_names, field_values):
     """ method builds query dictionary by zipping together DB field names with the field values """
-    if isinstance(field_values, str):
+    if isinstance(field_values, string_types):
         field_values = [field_values]
     assert len(field_values) == len(fields_names), \
         'Unable to build a primary key query due to mismatch in number of fields'

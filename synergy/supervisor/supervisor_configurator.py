@@ -2,6 +2,7 @@ __author__ = 'Bohdan Mushkevych'
 
 import re
 import pymongo
+from six import string_types
 
 from synergy.db.dao.box_configuration_dao import BoxConfigurationDao, QUERY_PROCESSES_FOR_BOX_ID
 from synergy.db.manager import ds_manager
@@ -65,7 +66,7 @@ class SupervisorEntry(object):
 
         for re_box in self.re_boxes:
             try:
-                if isinstance(re_box, str):
+                if isinstance(re_box, string_types):
                     re_box = re_box.lower()
                     self.re_co_boxes.append(re.compile(re_box))
                 elif isinstance(re_box, int):
