@@ -42,6 +42,8 @@ class AbstractActionHandler(BaseRequestHandler):
         else:
             resp = self.uow_log_dao.get_one(self.uow_id).document
             for key in resp:
+                if isinstance(resp[key], (list, dict)):
+                    continue
                 resp[key] = str(resp[key])
         return resp
 
