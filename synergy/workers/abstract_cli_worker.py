@@ -14,8 +14,8 @@ class AbstractCliWorker(AbstractUowAwareWorker):
     """ Module contains common logic for Command Line Callers.
         It executes shell command and updates unit_of_work base on command's return code """
 
-    def __init__(self, process_name):
-        super(AbstractCliWorker, self).__init__(process_name)
+    def __init__(self, process_name, perform_db_logging=False):
+        super(AbstractCliWorker, self).__init__(process_name, perform_db_logging)
         self.cli_process = None
 
     def __del__(self):
