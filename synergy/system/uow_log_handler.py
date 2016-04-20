@@ -30,7 +30,7 @@ class UowLogHandler(logging.Handler):
     def emit(self, record):
         msg = self.format(record)
         try:
-            self.uow_log_dao.append_log(self.uow_id, msg)
+            self.uow_log_dao.append_log(self.uow_id, msg.rstrip())
         except Exception as e:
             self.detach()
             self.logger.error('Detached UowLogHandler. Exception on UowLogDao.append_log: {0}'.format(e),
