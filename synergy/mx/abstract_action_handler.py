@@ -1,6 +1,6 @@
 __author__ = 'Bohdan Mushkevych'
 
-from synergy.mx.base_request_handler import BaseRequestHandler, valid_action_request
+from synergy.mx.base_request_handler import BaseRequestHandler, valid_action_request, safe_json_response
 from synergy.db.dao.unit_of_work_dao import UnitOfWorkDao
 from synergy.db.dao.uow_log_dao import UowLogDao
 
@@ -23,28 +23,24 @@ class AbstractActionHandler(BaseRequestHandler):
     def uow_id(self):
         raise NotImplementedError('property uow_id must be implemented by {0}'.format(self.__class__.__name__))
 
+    def action_get_event_log(self):
+        raise NotImplementedError('method action_get_event_log must be implemented by {0}'
+                                  .format(self.__class__.__name__))
+
+    @safe_json_response
     def action_get_uow(self):
         if self.uow_id is None:
             resp = {'response': 'no related unit_of_work'}
         else:
             resp = self.uow_dao.get_one(self.uow_id).document
-            for key in resp:
-                resp[key] = str(resp[key])
         return resp
 
-    def action_get_event_log(self):
-        raise NotImplementedError('method action_get_event_log must be implemented by {0}'
-                                  .format(self.__class__.__name__))
-
+    @safe_json_response
     def action_get_uow_log(self):
-        if self.uow_id is None:
-            resp = {'response': 'no related uow log'}
-        else:
+        try:
             resp = self.uow_log_dao.get_one(self.uow_id).document
-            for key in resp:
-                if isinstance(resp[key], (list, dict)):
-                    continue
-                resp[key] = str(resp[key])
+        except (TypeError, LookupError):
+            resp = {'response': 'no related uow log'}
         return resp
 
     @valid_action_request
