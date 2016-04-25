@@ -83,8 +83,8 @@ class UowLogHandlerUnitTest(unittest.TestCase):
         messages = INFO_LOG_MESSAGES + WARN_LOG_MESSAGES  # + STD_MESSAGES
         self.assertLessEqual(len(messages), len(uow_log.log))
 
-        for message in messages:
-            self.assertIn(message, uow_log.log)
+        for index, message in enumerate(messages):
+            self.assertIn(message, uow_log.log[index])
 
     def test_exception_logging(self):
         self.worker = ExceptionWorker(self.process_name)

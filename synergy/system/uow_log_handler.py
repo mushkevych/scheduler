@@ -21,6 +21,10 @@ class UowLogHandler(logging.Handler):
         uow_log = UowLogEntry(related_unit_of_work=self.uow_id, created_at=datetime.utcnow())
         self.uow_log_dao.remove(self.uow_id)
         self.uow_log_dao.update(uow_log)
+
+        formatter = logging.Formatter(fmt='%(asctime)s %(levelname)-8s %(message)s',
+                                      datefmt='%Y-%m-%d %H:%M:%S')
+        self.setFormatter(formatter)
         self.logger.addHandler(self)
 
     def detach(self):
