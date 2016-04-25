@@ -263,6 +263,7 @@ class AbstractStateMachine(object):
 
         if not job_record.related_unit_of_work:
             job_record.state = job.STATE_EMBRYO
+            self.job_dao.update(job_record)
         else:
             uow = self.uow_dao.get_one(job_record.related_unit_of_work)
             if not uow.is_finished:
