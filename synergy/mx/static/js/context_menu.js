@@ -97,7 +97,7 @@ function process_batch(action, is_freerun) {
                 json = eval("(" + selected[i].value + ")");
                 process_name = json['process_name'];
                 timeperiod = json['timeperiod'];
-                process_job(action, process_name, timeperiod, false);
+                process_trigger(action, process_name, timeperiod, null, is_freerun, false);
                 selected[i].checked = false;
             }
             Alertify.log("refresh the tree view", null, 1500, null);
@@ -107,7 +107,7 @@ function process_batch(action, is_freerun) {
                     json = eval("(" + selected[i].value + ")");
                     process_name = json['process_name'];
                     entry_name = json['entry_name'];
-                    process_trigger(action, process_name, null, entry_name, is_freerun, i < selected.length - 1, false);
+                    process_trigger(action, process_name, null, entry_name, is_freerun, i < selected.length - 1);
                     selected[i].checked = false;
                 }
             } else {
@@ -115,7 +115,7 @@ function process_batch(action, is_freerun) {
                     json = eval("(" + selected[i].value + ")");
                     process_name = json['process_name'];
                     timeperiod = json['timeperiod'];
-                    process_trigger(action, process_name, timeperiod, null, is_freerun, i < selected.length - 1, false);
+                    process_trigger(action, process_name, timeperiod, null, is_freerun, i < selected.length - 1);
                     selected[i].checked = false;
                 }
             }
@@ -123,11 +123,10 @@ function process_batch(action, is_freerun) {
             Alertify.error('Action ' + action + ' is not supported by Synergy Scheduler MX JavaScript library.');
         }
     })
-
 }
 
 // function applies given "action" to the job record identified by "process_name+timeperiod"
-function process_job(action, process_name, timeperiod, show_confirmation_dialog) {
+function process_job(action, tree_name, process_name, timeperiod) {
     /**
      * function do_the_call performs communication with the server and parses response
      */
@@ -137,55 +136,35 @@ function process_job(action, process_name, timeperiod, show_confirmation_dialog)
             if (response !== undefined && response !== null) {
                 Alertify.log("response: " + response.responseText, null, 1500, null);
             }
-            if (show_confirmation_dialog) {
-                Alertify.log("refresh the tree view", null, 1500, null);
-            }
+            Alertify.log("tree view is being refreshed", null, 1500, null);
+
+            var tree_refresh_button = document.getElementById('refresh_button_' + tree_name);
+            tree_refresh_button.click();
         });
     }
 
-    if (show_confirmation_dialog) {
-        var msg = 'You are about to ' + action + ' ' + timeperiod + ' for ' + process_name;
-        Alertify.confirm(msg, function (e) {
-            if (!e) {
-                return;
-            }
-            do_the_call();
-        });
-    } else {
+    var msg = 'You are about to ' + action + ' ' + timeperiod + ' for ' + process_name;
+    Alertify.confirm(msg, function (e) {
+        if (!e) {
+            return;
+        }
         do_the_call();
-    }
+    });
 }
 
 // function applies given "action" to the SchedulerThreadHandler entry
-function process_trigger(action, process_name, timeperiod, entry_name, is_freerun, reload_afterwards, show_confirmation_dialog) {
-    /**
-     * function do_the_call performs communication with the server and reloads browser page afterwards
-     */
-    function do_the_call() {
-        var params;
-        if (is_freerun) {
-            params = {'process_name': process_name, 'entry_name': entry_name, 'is_freerun': is_freerun};
-        } else {
-            params = {'process_name': process_name, 'timeperiod': timeperiod, 'is_freerun': is_freerun};
-        }
-
-        $.get('/' + action + '/', params, function (response) {
-            // once the response arrives - reload the page
-            if (reload_afterwards) {
-                location.reload(true);
-            }
-        });
-    }
-
-    if (show_confirmation_dialog) {
-        var msg = 'You are about to ' + action + ' ' + timeperiod + ' for ' + process_name;
-        Alertify.confirm(msg, function (e) {
-            if (!e) {
-                return;
-            }
-            do_the_call();
-        });
+function process_trigger(action, process_name, timeperiod, entry_name, is_freerun, reload_afterwards) {
+    var params;
+    if (is_freerun) {
+        params = {'process_name': process_name, 'entry_name': entry_name, 'is_freerun': is_freerun};
     } else {
-        do_the_call();
+        params = {'process_name': process_name, 'timeperiod': timeperiod, 'is_freerun': is_freerun};
     }
+
+    $.get('/' + action + '/', params, function (response) {
+        // once the response arrives - reload the page
+        if (reload_afterwards) {
+            location.reload(true);
+        }
+    });
 }

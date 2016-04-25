@@ -40,8 +40,10 @@ function get_grid(grid_name) {
     return grid;
 }
 
+
 function header_tree_tile(mx_tree, tile) {
-    var refresh_button = $('<button class="action_button"><i class="fa fa-refresh"></i>&nbsp;Refresh</button>').click(function (e) {
+    var refresh_button = $('<button class="action_button" id="refresh_button_' + mx_tree.tree_name + '">' +
+        '<i class="fa fa-refresh"></i>&nbsp;Refresh</button>').click(function (e) {
         clear_tree(mx_tree.tree_name);
         mx_trees[mx_tree.tree_name] = get_tree(mx_tree.tree_name);
         build_tree(mx_tree.tree_name);
@@ -85,10 +87,10 @@ function header_process_tile(process_entry, tile) {
 
     var is_on;
     if (process_entry.is_on) {
-        is_on = '<a onclick="process_trigger(\'action/deactivate_trigger\', \'' + process_entry.process_name + '\', \'NA\', null, false, true, false)">' +
+        is_on = '<a onclick="process_trigger(\'action/deactivate_trigger\', \'' + process_entry.process_name + '\', \'NA\', null, false, true)">' +
         '<i class="fa fa-toggle-on action_toogle" title="is ON"></i></a>';
     } else {
-        is_on = '<a onclick="process_trigger(\'action/activate_trigger\', \'' + process_entry.process_name + '\', \'NA\', null, false, true, false)">' +
+        is_on = '<a onclick="process_trigger(\'action/activate_trigger\', \'' + process_entry.process_name + '\', \'NA\', null, false, true)">' +
         '<i class="fa fa-toggle-off action_toogle" title="is OFF"></i></a>';
     }
 
@@ -148,10 +150,10 @@ function info_job_tile(job_entry, tile, is_next_timeperiod, is_selected_timeperi
         window.open(viewer_url, 'Object Viewer', 'width=800,height=480,screenX=400,screenY=200,scrollbars=1');
     });
     var skip_button = $('<button class="action_button"><i class="fa fa-step-forward"></i>&nbsp;Skip</button>').click(function (e) {
-        process_job('action/skip', tile.process_name, tile.timeperiod, true);
+        process_job('action/skip', tile.tree_name, tile.process_name, tile.timeperiod);
     });
     var reprocess_button = $('<button class="action_button"><i class="fa fa-repeat"></i>&nbsp;Reprocess</button>').click(function (e) {
-        process_job('action/reprocess', tile.process_name, tile.timeperiod, true);
+        process_job('action/reprocess', tile.tree_name, tile.process_name, tile.timeperiod);
     });
     var uow_log_button = $('<button class="action_button"><i class="fa fa-file-text-o"></i>&nbsp;Uow&nbsp;Log</button>').click(function (e) {
         var params = { action: 'action/get_uow_log', timeperiod: job_entry.timeperiod, process_name: job_entry.process_name };
@@ -238,6 +240,7 @@ function build_job_grid(grid_name, tree_level, next_timeperiod, selected_timeper
     grid.createTile = function (tileId) {
         var tile = new Tiles.Tile(tileId);
         tile.grid = grid;
+        tile.tree_name = tree_obj.tree_name;
 
         // translate sequential IDs to the Timeperiods
         var reverse_index = timeperiods.length - tileId;    // tileId starts with 1

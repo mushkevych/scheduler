@@ -56,8 +56,8 @@ class ExceptionWorker(TheWorker):
 class UowLogHandlerUnitTest(unittest.TestCase):
     """ Test flow:
         1. create a UOW in the database
-        2. assert that no uow_log records are present in the DB
-        3. call process_uow method
+        2. emulate mq message
+        3. call _mq_callback method
         4. validate that all the messages are now found in the uow_log record
         5. remove UOW and uow_log record
     """
