@@ -97,17 +97,16 @@ function process_batch(action, is_freerun) {
                 json = eval("(" + selected[i].value + ")");
                 process_name = json['process_name'];
                 timeperiod = json['timeperiod'];
-                process_trigger(action, process_name, timeperiod, null, is_freerun, false);
+                process_trigger(action, process_name, timeperiod, null, is_freerun, i == selected.length - 1);
                 selected[i].checked = false;
             }
-            Alertify.log("refresh the tree view", null, 1500, null);
         } else if (action.indexOf('activate') > -1 || action.indexOf('deactivate') > -1) {
             if (is_freerun) {
                 for (i = 0; i < selected.length; i++) {
                     json = eval("(" + selected[i].value + ")");
                     process_name = json['process_name'];
                     entry_name = json['entry_name'];
-                    process_trigger(action, process_name, null, entry_name, is_freerun, i < selected.length - 1);
+                    process_trigger(action, process_name, null, entry_name, is_freerun, i == selected.length - 1);
                     selected[i].checked = false;
                 }
             } else {
@@ -115,7 +114,7 @@ function process_batch(action, is_freerun) {
                     json = eval("(" + selected[i].value + ")");
                     process_name = json['process_name'];
                     timeperiod = json['timeperiod'];
-                    process_trigger(action, process_name, timeperiod, null, is_freerun, i < selected.length - 1);
+                    process_trigger(action, process_name, timeperiod, null, is_freerun, i == selected.length - 1);
                     selected[i].checked = false;
                 }
             }
