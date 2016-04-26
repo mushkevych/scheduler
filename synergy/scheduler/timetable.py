@@ -8,7 +8,7 @@ from synergy.db.dao.job_dao import JobDao
 from synergy.db.model.job import Job
 from synergy.conf import context
 from synergy.conf import settings
-from synergy.system import time_helper
+from synergy.system import time_helper, utils
 from synergy.system.time_qualifier import *
 from synergy.system.decorator import thread_safe
 from synergy.scheduler.scheduler_constants import COLLECTION_JOB_HOURLY, COLLECTION_JOB_DAILY, \
@@ -172,24 +172,36 @@ class Timetable(object):
                 return tree
 
     @thread_safe
-    def _build_tree_by_level(self, collection_name, since):
+    def _build_tree_by_level(self, time_qualifier, collection_name, since):
         """ method iterated thru all documents in all job collections and builds a tree of known system state"""
+        invalid_tree_records = dict()
+        invalid_tq_records = dict()
+
         try:
-            unsupported_records = dict()
             job_records = self.job_dao.get_all(collection_name, since)
             for job_record in job_records:
-                tree = self.get_tree(job_record.process_name)
-                if tree is not None:
-                    tree.update_node(job_record)
-                else:
-                    unsupported_records[job_record.process_name] = \
-                        unsupported_records.get(job_record.process_name, 0) + 1
+                job_time_qualifier = context.process_context[job_record.process_name].time_qualifier
+                if time_qualifier != job_time_qualifier:
+                    utils.increment_family_property(job_record.process_name, invalid_tq_records)
+                    continue
 
-            for name, counter in unsupported_records.items():
-                self.logger.warning('Skipping {0} job records for {1} as no tree is handling it.'.format(counter, name))
+                tree = self.get_tree(job_record.process_name)
+                if tree is None:
+                    utils.increment_family_property(job_record.process_name, invalid_tree_records)
+                    continue
+
+                tree.update_node(job_record)
 
         except LookupError:
             self.logger.warning('No job records in {0}.'.format(collection_name))
+
+        for name, counter in invalid_tree_records.items():
+            self.logger.warning('Skipping {0} job records for {1} since no tree is handling it.'
+                                .format(counter, name))
+
+        for name, counter in invalid_tq_records.items():
+            self.logger.warning('Skipping {0} job records for {1} since the process has changed time qualifier.'
+                                .format(counter, name))
 
     @thread_safe
     def load_tree(self):
@@ -201,10 +213,10 @@ class Timetable(object):
         daily_timeperiod = time_helper.cast_to_time_qualifier(QUALIFIER_DAILY, timeperiod)
         hourly_timeperiod = time_helper.cast_to_time_qualifier(QUALIFIER_HOURLY, timeperiod)
 
-        self._build_tree_by_level(COLLECTION_JOB_HOURLY, since=hourly_timeperiod)
-        self._build_tree_by_level(COLLECTION_JOB_DAILY, since=daily_timeperiod)
-        self._build_tree_by_level(COLLECTION_JOB_MONTHLY, since=monthly_timeperiod)
-        self._build_tree_by_level(COLLECTION_JOB_YEARLY, since=yearly_timeperiod)
+        self._build_tree_by_level(QUALIFIER_HOURLY, COLLECTION_JOB_HOURLY, since=hourly_timeperiod)
+        self._build_tree_by_level(QUALIFIER_DAILY, COLLECTION_JOB_DAILY, since=daily_timeperiod)
+        self._build_tree_by_level(QUALIFIER_MONTHLY, COLLECTION_JOB_MONTHLY, since=monthly_timeperiod)
+        self._build_tree_by_level(QUALIFIER_YEARLY, COLLECTION_JOB_YEARLY, since=yearly_timeperiod)
 
     @thread_safe
     def build_trees(self):
