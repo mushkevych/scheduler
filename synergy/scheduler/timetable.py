@@ -180,14 +180,14 @@ class Timetable(object):
         try:
             job_records = self.job_dao.get_all(collection_name, since)
             for job_record in job_records:
-                job_time_qualifier = context.process_context[job_record.process_name].time_qualifier
-                if time_qualifier != job_time_qualifier:
-                    utils.increment_family_property(job_record.process_name, invalid_tq_records)
-                    continue
-
                 tree = self.get_tree(job_record.process_name)
                 if tree is None:
                     utils.increment_family_property(job_record.process_name, invalid_tree_records)
+                    continue
+
+                job_time_qualifier = context.process_context[job_record.process_name].time_qualifier
+                if time_qualifier != job_time_qualifier:
+                    utils.increment_family_property(job_record.process_name, invalid_tq_records)
                     continue
 
                 tree.update_node(job_record)
@@ -200,7 +200,7 @@ class Timetable(object):
                                 .format(counter, name))
 
         for name, counter in invalid_tq_records.items():
-            self.logger.warning('Skipping {0} job records for {1} since the process has changed time qualifier.'
+            self.logger.warning('Skipping {0} job records for {1} since the process has different time qualifier.'
                                 .format(counter, name))
 
     @thread_safe
