@@ -111,8 +111,9 @@ class AbstractStateMachine(object):
         """ method verifies if the given timeperiod for given process is valid or falls in-between grouping checkpoints
         :param process_name: name of the process
         :param timeperiod: timeperiod to verify
-        :return: False, if given process has no time_grouping set or it is equal to 1. False if time_grouping is custom
-        but the given timeperiod matches the grouped timeperiod. True if the timeperiod falls in-between grouping cracks
+        :return: False, if given process has no time_grouping set or it is equal to 1.
+                 False, if time_grouping is custom but the given timeperiod matches the grouped timeperiod.
+                 True, if the timeperiod falls in-between grouping cracks
         """
         time_grouping = context.process_context[process_name].time_grouping
         if time_grouping == 1:

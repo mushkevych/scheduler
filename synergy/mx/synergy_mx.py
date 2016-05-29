@@ -12,6 +12,9 @@ from synergy.scheduler.scheduler_constants import PROCESS_MX
 from synergy.mx.utils import STATIC_PATH, local, local_manager, url_map, jinja_env
 from synergy.mx import views
 
+import socket
+socket.setdefaulttimeout(30.0)
+
 
 class MX(object):
     """ MX stands for Management Extension and represents HTTP server serving UI front-end for Synergy Scheduler """
@@ -63,7 +66,7 @@ class MX(object):
         reloader = False        # use_reloader: the default setting for the reloader.
         debugger = False        #
         evalex = True           # should the exception evaluation feature be enabled?
-        threaded = False        # True if each request in handled in a separate thread
+        threaded = False        # True if each request is handled in a separate thread
         processes = 1           # if greater than 1 then handle each request in a new process
         reloader_interval = 1   # the interval for the reloader in seconds.
         static_files = None     # static_files: optional dict of static files.

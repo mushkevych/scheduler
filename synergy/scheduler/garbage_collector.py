@@ -54,7 +54,6 @@ class GarbageCollector(object):
 
                 thread_handler = self.managed_handlers[uow.process_name]
                 assert isinstance(thread_handler, ManagedThreadHandler)
-
                 if not thread_handler.process_entry.is_on:
                     self.logger.debug('process {0} is inactive. Skipping its UOW.'.format(uow.process_name))
                     continue
@@ -137,6 +136,13 @@ class GarbageCollector(object):
         if uow.is_canceled:
             self.logger.info('suppressed re-submission of UOW {0} for {1}@{2} in {3};'
                              .format(uow.db_id, uow.process_name, uow.timeperiod, uow.state))
+            return
+
+        thread_handler = self.managed_handlers[uow.process_name]
+        assert isinstance(thread_handler, ManagedThreadHandler)
+        if not thread_handler.process_entry.is_on:
+            self.logger.debug('suppressed re-submission of UOW {0} for {1}@{2} in {3}, since the process is inactive.'
+                              .format(uow.db_id, uow.process_name, uow.timeperiod, uow.state))
             return
 
         if uow.is_invalid:
