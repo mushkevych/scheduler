@@ -118,6 +118,11 @@ class GarbageCollector(object):
                 if uow.is_canceled:
                     invalid_entries.append(entry)
 
+                thread_handler = self.managed_handlers[uow.process_name]
+                assert isinstance(thread_handler, ManagedThreadHandler)
+                if not thread_handler.process_entry.is_on:
+                    invalid_entries.append(entry)
+
             for entry in invalid_entries:
                 q.queue.remove(entry)
 

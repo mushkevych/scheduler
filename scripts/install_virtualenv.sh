@@ -63,8 +63,9 @@ commonlist=(
     "pymongo-2.9.tar.gz"
     "MarkupSafe-0.23.tar.gz"
     "Jinja2-2.8.tar.gz"
-    "Werkzeug-0.10.4.tar.gz"
+    "Werkzeug-0.11.2.tar.gz"
     "synergy_odm-0.9.tar.gz"
+    "synergy_flow-0.6.tar.gz"
 )
 
 if [ -z "$1" ]; then
