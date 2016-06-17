@@ -141,12 +141,12 @@ function info_job_tile(job_entry, tile, is_next_timeperiod, is_selected_timeperi
 
     var uow_button = $('<button class="action_button"><i class="fa fa-file-code-o"></i>&nbsp;Uow</button>').click(function (e) {
         var params = { action: 'action/get_uow', timeperiod: job_entry.timeperiod, process_name: job_entry.process_name };
-        var viewer_url = '/object_viewer/?' + $.param(params);
+        var viewer_url = '/viewer/object/?' + $.param(params);
         window.open(viewer_url, 'Object Viewer', 'width=450,height=400,screenX=400,screenY=200,scrollbars=1');
     });
     var event_log_button = $('<button class="action_button"><i class="fa fa-th-list"></i>&nbsp;Event&nbsp;Log</button>').click(function (e) {
         var params = { action: 'action/get_event_log', timeperiod: job_entry.timeperiod, process_name: job_entry.process_name };
-        var viewer_url = '/object_viewer/?' + $.param(params);
+        var viewer_url = '/viewer/object/?' + $.param(params);
         window.open(viewer_url, 'Object Viewer', 'width=800,height=480,screenX=400,screenY=200,scrollbars=1');
     });
     var skip_button = $('<button class="action_button"><i class="fa fa-step-forward"></i>&nbsp;Skip</button>').click(function (e) {
@@ -157,8 +157,13 @@ function info_job_tile(job_entry, tile, is_next_timeperiod, is_selected_timeperi
     });
     var uow_log_button = $('<button class="action_button"><i class="fa fa-file-text-o"></i>&nbsp;Uow&nbsp;Log</button>').click(function (e) {
         var params = { action: 'action/get_uow_log', timeperiod: job_entry.timeperiod, process_name: job_entry.process_name };
-        var viewer_url = '/object_viewer/?' + $.param(params);
+        var viewer_url = '/viewer/object/?' + $.param(params);
         window.open(viewer_url, 'Object Viewer', 'width=800,height=480,screenX=400,screenY=200,scrollbars=1');
+    });
+    var flow_button = $('<button class="action_button"><i class="fa fa-stumbleupon"></i>Flow</button>').click(function (e) {
+        var params = { action: 'action/get_flow', timeperiod: job_entry.timeperiod, process_name: job_entry.process_name };
+        var viewer_url = '/viewer/flow/?' + $.param(params);
+        window.open(viewer_url, 'Flow Viewer', 'width=800,height=480,screenX=400,screenY=200,scrollbars=1');
     });
 
     tile.process_name = job_entry.process_name;

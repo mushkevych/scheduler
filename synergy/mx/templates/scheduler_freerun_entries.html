@@ -57,21 +57,21 @@
         <td>{{ row.arguments|jsonify }}</td>
         <td>
             {% set url = 'action=action/get_uow' + '&process_name=' + row.process_name + '&entry_name=' + row.entry_name + '&is_freerun=True' %}
-            <form method="GET" onsubmit="window.open('/object_viewer/?{{ url }}','View Uow',
+            <form method="GET" onsubmit="window.open('/viewer/object/?{{ url }}','View Uow',
                  'toolbar=no,scrollbars=yes,resizable=yes,top=250,left=250,width=450,height=400'); return false;">
                 <input type="submit" class="action_button fa-input" title="View Uow" value="&#xf1c9;&nbsp;Uow"/>
             </form>
         </td>
         <td>
             {% set url = 'action=action/get_uow_log' + '&process_name=' + row.process_name + '&entry_name=' + row.entry_name + '&is_freerun=True' %}
-            <form method="GET" onsubmit="window.open('/object_viewer/?{{ url }}','Uow Log',
+            <form method="GET" onsubmit="window.open('/viewer/object/?{{ url }}','Uow Log',
                     'toolbar=no,scrollbars=yes,resizable=yes,top=250,left=250,width=800,height=480'); return false;">
                 <input type="submit" class="action_button fa-input" title="Log Uow" value="&#xf0f6;&nbsp;Log&nbsp;Log"/>
             </form>
         </td>
         <td>
             {% set url = 'action=action/get_event_log' + '&process_name=' + row.process_name + '&entry_name=' + row.entry_name + '&is_freerun=True' %}
-            <form method="GET" onsubmit="window.open('/object_viewer/?{{ url }}','Event Log',
+            <form method="GET" onsubmit="window.open('/viewer/object/?{{ url }}','Event Log',
                     'toolbar=no,scrollbars=yes,resizable=yes,top=250,left=250,width=800,height=480'); return false;">
                 <input type="submit" class="action_button fa-input" title="Event Uow" value="&#xf00b;&nbsp;Event&nbsp;Log"/>
             </form>
@@ -85,7 +85,7 @@
             </form>
         </td>
         <td>
-            {% set form_url = url_for('open_schedulable_form') %}
+            {% set form_url = url_for('/viewer/schedulable/') %}
             {% set url = form_url + '?process_name=' + row.process_name + '&entry_name=' + row.entry_name + '&is_freerun=True' + '&is_new_entry=False'%}
             <form method="GET"
                  onsubmit="window.open('{{ url }}','Edit Freerun Trigger',
@@ -98,7 +98,7 @@
 
     <tr>
         <td colspan="13">
-            {% set form_url = url_for('open_schedulable_form') %}
+            {% set form_url = url_for('/viewer/schedulable/') %}
             {% set url = form_url + '?is_new_entry=True'%}
             <a href="#" onClick="MyWindow=window.open('{{ url }}','New Freerun Trigger',
                 'toolbar=no,scrollbars=yes,resizable=yes,top=250,left=250,width=750,height=550'); return false;">

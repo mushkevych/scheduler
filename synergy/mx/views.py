@@ -31,14 +31,6 @@ def scheduler_freerun_entries(request, **values):
     return render_template('scheduler_freerun_entries.html', details=details)
 
 
-@expose('/open_schedulable_form/')
-def open_schedulable_form(request, **values):
-    if 'is_new_entry' in request.args and request.args['is_new_entry'] in ('True', 'true', '1'):
-        handler = None
-    else:
-        handler = FreerunActionHandler(request, **values)
-    return render_template('schedulable_form.html', handler=handler)
-
 @expose('/')
 def landing_page(request, **values):
     return redirect('/dashboard/managed/')
@@ -177,9 +169,23 @@ def get_action_handler(request, **values):
     return handler
 
 
-@expose('/object_viewer/')
+@expose('/viewer/object/')
 def object_viewer(request, **values):
     return render_template('object_viewer.html')
+
+
+@expose('/viewer/flow/')
+def flow_viewer(request, **values):
+    return render_template('flow_viewer.html')
+
+
+@expose('/viewer/schedulable/')
+def schedulable_viewer(request, **values):
+    if 'is_new_entry' in request.args and request.args['is_new_entry'] in ('True', 'true', '1'):
+        handler = None
+    else:
+        handler = FreerunActionHandler(request, **values)
+    return render_template('schedulable_form.html', handler=handler)
 
 
 @expose('/mx_page_tiles/')

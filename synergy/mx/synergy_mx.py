@@ -11,9 +11,10 @@ from synergy.scheduler.scheduler_constants import PROCESS_MX
 
 from synergy.mx.utils import STATIC_PATH, local, local_manager, url_map, jinja_env
 from synergy.mx import views
+from flow.mx import STATIC_FLOW_ENDPOINT, STATIC_FLOW_PATH
 
 import socket
-socket.setdefaulttimeout(30.0)
+socket.setdefaulttimeout(10.0)  # set default socket timeout at 10 seconds
 
 
 class MX(object):
@@ -25,7 +26,8 @@ class MX(object):
         jinja_env.globals['mbean'] = mbean
 
         self.dispatch = SharedDataMiddleware(self.dispatch, {
-            '/static': STATIC_PATH
+            '/static': STATIC_PATH,
+            '/{0}'.format(STATIC_FLOW_ENDPOINT): STATIC_FLOW_PATH,
         })
 
         # during the get_logger call a 'werkzeug' logger will be created
