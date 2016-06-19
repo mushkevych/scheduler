@@ -22,7 +22,7 @@ local_manager = LocalManager([local])
 
 # Synergy MX map of URL routing
 url_map = Map()
-url_map.add([Rule('/static/<file>', endpoint='static', build_only=True)])
+url_map.add(Rule('/static/<file>', endpoint='static', build_only=True))
 url_map.add(Rule('/{0}/<file>'.format(STATIC_FLOW_ENDPOINT), endpoint=STATIC_FLOW_ENDPOINT, build_only=True))
 
 # tree/group of trees will be shown on a separate page defined by tree property MX_PAGE

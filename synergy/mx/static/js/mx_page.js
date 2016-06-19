@@ -76,7 +76,7 @@ function header_process_tile(process_entry, tile) {
     var trigger_form = '<form method="GET" action="/action/trigger_now/" onsubmit="xmlhttp.send(); return false;">'
         + '<input type="hidden" name="process_name" value="' + process_entry.process_name + '" />'
         + '<input type="hidden" name="timeperiod" value="NA" />'
-        + '<input type="submit" title="trigger_' + process_entry.process_name + '" class="fa-input" value="&#xf1d9"/>'
+        + '<input type="submit" title="trigger_' + process_entry.process_name + '" class="fa-input" value="&#xf135"/>'
         + '</form>';
 
     var next_run_block = '<div class="table_layout">'
@@ -160,7 +160,7 @@ function info_job_tile(job_entry, tile, is_next_timeperiod, is_selected_timeperi
         var viewer_url = '/viewer/object/?' + $.param(params);
         window.open(viewer_url, 'Object Viewer', 'width=800,height=480,screenX=400,screenY=200,scrollbars=1');
     });
-    var flow_button = $('<button class="action_button"><i class="fa fa-stumbleupon"></i>Flow</button>').click(function (e) {
+    var flow_button = $('<button class="action_button"><i class="fa fa-random"></i>Workflow</button>').click(function (e) {
         var params = { action: 'action/get_flow', timeperiod: job_entry.timeperiod, process_name: job_entry.process_name };
         var viewer_url = '/viewer/flow/?' + $.param(params);
         window.open(viewer_url, 'Flow Viewer', 'width=800,height=480,screenX=400,screenY=200,scrollbars=1');
@@ -191,7 +191,7 @@ function info_job_tile(job_entry, tile, is_next_timeperiod, is_selected_timeperi
     tile.$el.append('<div class="clear"></div>');
     tile.$el.append($('<div></div>').append(uow_button).append(skip_button));
     tile.$el.append($('<div></div>').append(uow_log_button).append(reprocess_button));
-    tile.$el.append($('<div></div>').append(event_log_button));
+    tile.$el.append($('<div></div>').append(event_log_button).append(flow_button));
 }
 
 
