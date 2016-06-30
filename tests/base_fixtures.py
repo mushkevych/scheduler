@@ -67,7 +67,7 @@ def create_unit_of_work(process_name,
                         submitted_at=datetime.utcnow(),
                         uow_id=None):
     """ method creates and returns unit_of_work """
-    process_entry = context.process_context[process_name]
+    process_obj = context.process_context[process_name]
 
     uow = UnitOfWork()
     uow.process_name = process_name
@@ -78,12 +78,12 @@ def create_unit_of_work(process_name,
     uow.end_timeperiod = timeperiod
     uow.created_at = created_at
     uow.submitted_at = submitted_at
-    uow.source = process_entry.source if hasattr(process_entry, 'source') else None
-    uow.sink = process_entry.sink if hasattr(process_entry, 'sink') else None
+    uow.source = process_obj.source if hasattr(process_obj, 'source') else None
+    uow.sink = process_obj.sink if hasattr(process_obj, 'sink') else None
     uow.state = state
     uow.unit_of_work_type = unit_of_work.TYPE_MANAGED
     uow.number_of_retries = 0
-    uow.arguments = process_entry.arguments
+    uow.arguments = process_obj.arguments
 
     if uow_id is not None:
         uow.db_id = uow_id
