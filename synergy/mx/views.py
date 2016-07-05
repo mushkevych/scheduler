@@ -174,11 +174,6 @@ def object_viewer(request, **values):
     return render_template('object_viewer.html')
 
 
-@expose('/viewer/flow/')
-def flow_viewer(request, **values):
-    return render_template('flow_viewer.html')
-
-
 @expose('/viewer/schedulable/')
 def schedulable_viewer(request, **values):
     if 'is_new_entry' in request.args and request.args['is_new_entry'] in ('True', 'true', '1'):

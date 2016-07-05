@@ -11,6 +11,7 @@ from synergy.scheduler.scheduler_constants import PROCESS_MX
 
 from synergy.mx.utils import STATIC_PATH, local, local_manager, url_map, jinja_env
 from synergy.mx import views
+from flow.mx import views as flow_views
 from flow.mx import STATIC_FLOW_ENDPOINT, STATIC_FLOW_PATH
 
 import socket
@@ -42,7 +43,13 @@ class MX(object):
 
         try:
             endpoint, values = adapter.match()
-            handler = getattr(views, endpoint)
+
+            # first - try to read from synergy.mx.views
+            handler = getattr(views, endpoint, None)
+            if not handler:
+                # otherwise - read from flow.mx.views
+                handler = getattr(flow_views, endpoint)
+
             response = handler(request, **values)
         except NotFound:
             response = views.not_found(request)

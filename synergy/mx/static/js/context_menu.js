@@ -137,8 +137,10 @@ function process_job(action, tree_name, process_name, timeperiod) {
             }
             Alertify.log("tree view is being refreshed", null, 1500, null);
 
-            var tree_refresh_button = document.getElementById('refresh_button_' + tree_name);
-            tree_refresh_button.click();
+            if (tree_name) {
+                var tree_refresh_button = document.getElementById('refresh_button_' + tree_name);
+                tree_refresh_button.click();
+            }
         });
     }
 
