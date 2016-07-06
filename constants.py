@@ -14,6 +14,7 @@ PROCESS_CLIENT_DAILY = 'ClientDailyAggregator'
 PROCESS_CLIENT_MONTHLY = 'ClientMonthlyAggregator'
 PROCESS_CLIENT_YEARLY = 'ClientYearlyAggregator'
 PROCESS_ALERT_DAILY = 'AlertDailyWorker'
+PROCESS_SIMPLE_FLOW_DAILY = 'SimpleFlowDaily'
 
 # List of MX_PAGE_XXX, which are rendered by :mx.views.mx_page_tiles function
 MX_PAGE_TRAFFIC = 'traffic_details'
@@ -23,6 +24,7 @@ MX_PAGE_ALERT = 'alert_details'
 TREE_SITE = 'tree_site'
 TREE_CLIENT = 'tree_client'
 TREE_ALERT = 'tree_alert'
+TREE_FLOW = 'tree_alert'
 
 # Process tokens. There should be one token per one Timetable tree or stand-alone process
 TOKEN_LAUNCH_PY = 'launch_py'
@@ -31,6 +33,10 @@ TOKEN_SESSION = 'session'
 TOKEN_SITE = 'site'
 TOKEN_CLIENT = 'client'
 TOKEN_ALERT = 'alert'
+TOKEN_FLOW = 'simple_flow'
+
+# Flow constants
+CLIENT_DAILY_FLOW_NAME = 'client_daily'
 
 # *** MQ Constants ***
 PREFIX_ROUTING = 'routing_'

@@ -20,7 +20,7 @@ RELATED_UNIT_OF_WORK = 'related_unit_of_work'
 
 
 class FreerunProcessEntry(DaemonProcessEntry):
-    """ Class presents single configuration entry for the freerun process/bash_driver . """
+    """ Class presents single configuration entry for the freerun process/bash_driver """
 
     db_id = ObjectIdField('_id', null=True)
     source = StringField(SOURCE, null=True)

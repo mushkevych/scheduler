@@ -1,5 +1,7 @@
 __author__ = 'Bohdan Mushkevych'
 
+from synergy.db.model.freerun_process_entry import FreerunProcessEntry
+from synergy.db.model.managed_process_entry import ManagedProcessEntry
 from synergy.db.dao.freerun_process_dao import FreerunProcessDao
 from synergy.db.dao.managed_process_dao import ManagedProcessDao
 from synergy.system.time_trigger_factory import parse_time_trigger_string
@@ -19,6 +21,8 @@ class AbstractThreadHandler(object):
     """ ThreadHandler is a thread running within the Synergy Scheduler and triggering Scheduler's fire_XXX logic"""
 
     def __init__(self, logger, key, trigger_frequency, call_back, process_entry):
+        assert isinstance(process_entry, (FreerunProcessEntry, ManagedProcessEntry))
+
         self.logger = logger
         self.key = key
         self.trigger_frequency = trigger_frequency

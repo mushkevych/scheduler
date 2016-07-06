@@ -9,6 +9,7 @@ from synergy.db.model.queue_context_entry import queue_context_entry
 from synergy.db.model.daemon_process_entry import daemon_context_entry
 from synergy.db.model.managed_process_entry import managed_context_entry
 from synergy.db.model.timetable_tree_entry import timetable_tree_entry
+from flow.workers.flow_constants import *
 
 
 mq_queue_context = {
@@ -150,6 +151,17 @@ process_context = {
         trigger_frequency='every 21600',
         present_on_boxes=['dev.*']),
 
+    PROCESS_SIMPLE_FLOW_DAILY: managed_context_entry(
+        process_name=PROCESS_SIMPLE_FLOW_DAILY,
+        classname='flow.workers.flow_driver.FlowDriver.start',
+        token=TOKEN_FLOW,
+        time_qualifier=QUALIFIER_DAILY,
+        arguments={ARGUMENT_FLOW_NAME: CLIENT_DAILY_FLOW_NAME},
+        state_machine_name=STATE_MACHINE_DISCRETE,
+        blocking_type=BLOCKING_DEPENDENCIES,
+        trigger_frequency='every 600',
+        present_on_boxes=['dev.*']),
+
     PROCESS_BASH_DRIVER: daemon_context_entry(
         process_name=PROCESS_BASH_DRIVER,
         classname='workers.bash_driver.BashDriver.start',
@@ -180,7 +192,14 @@ timetable_context = {
         enclosed_processes=[PROCESS_ALERT_DAILY],
         dependent_on=[],
         mx_name=TOKEN_ALERT,
-        mx_page=MX_PAGE_ALERT)
+        mx_page=MX_PAGE_ALERT),
+
+    TREE_FLOW: timetable_tree_entry(
+        tree_name=TREE_FLOW,
+        enclosed_processes=[PROCESS_SIMPLE_FLOW_DAILY],
+        dependent_on=[],
+        mx_name=TOKEN_FLOW,
+        mx_page=MX_PAGE_ALERT),
 }
 
 # Update current dict with the environment-specific settings
