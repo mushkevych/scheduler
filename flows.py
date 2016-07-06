@@ -1,5 +1,8 @@
-# empty
-# module is required to initialized flow.conf and run unit tests
+# NOTICE: do not remove flows.py, as this module is required 
+# to initialized flow.conf and run unit tests
+# If no flows are registered in the system - simply keep 
+# an empty file with this header
+
 from flow.core.flow_graph import FlowGraph
 from flow.core.simple_actions import ShellCommandAction, IdentityAction
 
