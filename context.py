@@ -9,7 +9,7 @@ from synergy.db.model.queue_context_entry import queue_context_entry
 from synergy.db.model.daemon_process_entry import daemon_context_entry
 from synergy.db.model.managed_process_entry import managed_context_entry
 from synergy.db.model.timetable_tree_entry import timetable_tree_entry
-from flow.workers.flow_constants import *
+from flow.flow_constants import *
 
 
 mq_queue_context = {
@@ -156,7 +156,7 @@ process_context = {
         classname='flow.workers.flow_driver.FlowDriver.start',
         token=TOKEN_FLOW,
         time_qualifier=QUALIFIER_DAILY,
-        arguments={ARGUMENT_FLOW_NAME: CLIENT_DAILY_FLOW_NAME},
+        arguments={ARGUMENT_FLOW_NAME: SIMPLE_FLOW_NAME},
         state_machine_name=STATE_MACHINE_DISCRETE,
         blocking_type=BLOCKING_DEPENDENCIES,
         trigger_frequency='every 600',

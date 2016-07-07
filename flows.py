@@ -6,7 +6,7 @@
 from flow.core.flow_graph import FlowGraph
 from flow.core.simple_actions import ShellCommandAction, IdentityAction
 
-from constants import CLIENT_DAILY_FLOW_NAME
+from constants import SIMPLE_FLOW_NAME
 
 sa_ls = ShellCommandAction('ls -al')
 sa_mkdir = ShellCommandAction('mkdir -p /tmp/trash/flows')
@@ -14,7 +14,7 @@ sa_rmdir = ShellCommandAction('rm -Rf /tmp/trash/')
 sa_identity = IdentityAction()
 
 flows = {
-    CLIENT_DAILY_FLOW_NAME: FlowGraph(CLIENT_DAILY_FLOW_NAME) \
+    SIMPLE_FLOW_NAME: FlowGraph(SIMPLE_FLOW_NAME) \
         .append(name='step_1',
                 dependent_on_names=[],
                 main_action=sa_rmdir, pre_actions=[sa_mkdir],

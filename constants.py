@@ -36,7 +36,7 @@ TOKEN_ALERT = 'alert'
 TOKEN_FLOW = 'simple_flow'
 
 # Flow constants
-CLIENT_DAILY_FLOW_NAME = 'client_daily'
+SIMPLE_FLOW_NAME = 'simple_flow'
 
 # *** MQ Constants ***
 PREFIX_ROUTING = 'routing_'
