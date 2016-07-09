@@ -8,19 +8,19 @@ var GRID_HEADER_TEMPLATE = grid_info_template(1);
 /**
  * function returns a Tiles.js template for job records
  * template contains tiles_number of tiles
- * each tile has proportion 5x3 (wider than taller)
+ * each tile has proportion 4x3 (wider than taller)
  */
 function grid_info_template(tiles_number) {
     var arr = [];
     for (var i = 0; i < tiles_number; i++) {
         if (i % 2 == 0) {
-            arr.push(" A A A A A ");
-            arr.push(" A A A A A ");
-            arr.push(" A A A A A ");
+            arr.push(" A A A A ");
+            arr.push(" A A A A ");
+            arr.push(" A A A A ");
         } else {
-            arr.push(" B B B B B ");
-            arr.push(" B B B B B ");
-            arr.push(" B B B B B ");
+            arr.push(" B B B B ");
+            arr.push(" B B B B ");
+            arr.push(" B B B B ");
         }
     }
     return arr;
@@ -150,10 +150,10 @@ function info_job_tile(job_entry, tile, is_next_timeperiod, is_selected_timeperi
         window.open(viewer_url, 'Object Viewer', 'width=800,height=480,screenX=400,screenY=200,scrollbars=1');
     });
     var skip_button = $('<button class="action_button"><i class="fa fa-step-forward"></i>&nbsp;Skip</button>').click(function (e) {
-        process_job('action/skip', tile.tree_name, tile.process_name, tile.timeperiod);
+        process_job('action/skip', tile.tree_name, tile.process_name, tile.timeperiod, null);
     });
     var reprocess_button = $('<button class="action_button"><i class="fa fa-repeat"></i>&nbsp;Reprocess</button>').click(function (e) {
-        process_job('action/reprocess', tile.tree_name, tile.process_name, tile.timeperiod);
+        process_job('action/reprocess', tile.tree_name, tile.process_name, tile.timeperiod, null);
     });
     var uow_log_button = $('<button class="action_button"><i class="fa fa-file-text-o"></i>&nbsp;Uow&nbsp;Log</button>').click(function (e) {
         var params = { action: 'action/get_uow_log', timeperiod: job_entry.timeperiod, process_name: job_entry.process_name };

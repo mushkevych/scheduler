@@ -24,7 +24,7 @@ MX_PAGE_ALERT = 'alert_details'
 TREE_SITE = 'tree_site'
 TREE_CLIENT = 'tree_client'
 TREE_ALERT = 'tree_alert'
-TREE_FLOW = 'tree_alert'
+TREE_FLOW = 'tree_flow'
 
 # Process tokens. There should be one token per one Timetable tree or stand-alone process
 TOKEN_LAUNCH_PY = 'launch_py'
