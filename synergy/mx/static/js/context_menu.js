@@ -125,19 +125,25 @@ function process_batch(action, is_freerun) {
 }
 
 // function applies given "action" to the job record identified by "process_name+timeperiod"
-function process_job(action, tree_name, process_name, timeperiod, flow_name) {
+function process_job(action, tree_name, process_name, timeperiod, flow_name, step_name) {
     /**
      * function do_the_call performs communication with the server and parses response
      */
     function do_the_call() {
-        var params = {'process_name': process_name, 'timeperiod': timeperiod, 'flow_name': flow_name};
+        var params = {
+            'process_name': process_name,
+            'timeperiod': timeperiod,
+            'flow_name': flow_name,
+            'step_name': step_name
+        };
+
         $.get('/' + action + '/', params, function (response) {
             if (response !== undefined && response !== null) {
                 Alertify.log('response: ' + response.responseText, null, 1500, null);
             }
-            Alertify.log('tree view is being refreshed', null, 1500, null);
 
             if (tree_name) {
+                Alertify.log('tree view is being refreshed', null, 1500, null);
                 var tree_refresh_button = document.getElementById('refresh_button_' + tree_name);
                 tree_refresh_button.click();
             }
@@ -147,6 +153,9 @@ function process_job(action, tree_name, process_name, timeperiod, flow_name) {
     var msg = 'You are about to ' + action + ' ' + ' for ' + process_name + '@' + timeperiod;
     if (flow_name) {
         msg += ' ->  ' + flow_name;
+    }
+    if (step_name) {
+        msg += '::' + step_name;
     }
     Alertify.confirm(msg, function (e) {
         if (!e) {

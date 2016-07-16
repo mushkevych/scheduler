@@ -150,10 +150,10 @@ function info_job_tile(job_entry, tile, is_next_timeperiod, is_selected_timeperi
         window.open(viewer_url, 'Object Viewer', 'width=800,height=480,screenX=400,screenY=200,scrollbars=1');
     });
     var skip_button = $('<button class="action_button"><i class="fa fa-step-forward"></i>&nbsp;Skip</button>').click(function (e) {
-        process_job('action/skip', tile.tree_name, tile.process_name, tile.timeperiod, null);
+        process_job('action/skip', tile.tree_name, tile.process_name, tile.timeperiod, null, null);
     });
     var reprocess_button = $('<button class="action_button"><i class="fa fa-repeat"></i>&nbsp;Reprocess</button>').click(function (e) {
-        process_job('action/reprocess', tile.tree_name, tile.process_name, tile.timeperiod, null);
+        process_job('action/reprocess', tile.tree_name, tile.process_name, tile.timeperiod, null, null);
     });
     var uow_log_button = $('<button class="action_button"><i class="fa fa-file-text-o"></i>&nbsp;Uow&nbsp;Log</button>').click(function (e) {
         var params = { action: 'action/get_uow_log', timeperiod: job_entry.timeperiod, process_name: job_entry.process_name };
