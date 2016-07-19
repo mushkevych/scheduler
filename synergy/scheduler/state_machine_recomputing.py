@@ -60,6 +60,7 @@ class StateMachineRecomputing(AbstractStateMachine):
         start_id = self.ds.highest_primary_key(source_collection_name, start_timeperiod, end_timeperiod)
         end_id = self.ds.lowest_primary_key(source_collection_name, start_timeperiod, end_timeperiod)
         uow, is_duplicate = self.insert_and_publish_uow(process_name,
+                                                        job_record.timeperiod,
                                                         start_timeperiod,
                                                         end_timeperiod,
                                                         start_id,
@@ -73,6 +74,7 @@ class StateMachineRecomputing(AbstractStateMachine):
         start_id = self.ds.highest_primary_key(source_collection_name, start_timeperiod, end_timeperiod)
         end_id = self.ds.lowest_primary_key(source_collection_name, start_timeperiod, end_timeperiod)
         uow, transfer_to_final = self.insert_and_publish_uow(process_name,
+                                                             job_record.timeperiod,
                                                              start_timeperiod,
                                                              end_timeperiod,
                                                              start_id,
@@ -84,32 +86,35 @@ class StateMachineRecomputing(AbstractStateMachine):
 
     def _process_state_embryo(self, job_record):
         """ method that takes care of processing job records in STATE_EMBRYO state"""
-        time_qualifier = context.process_context[job_record.process_name].time_qualifier
-        end_timeperiod = time_helper.increment_timeperiod(time_qualifier, job_record.timeperiod)
-        self._compute_and_transfer_to_progress(job_record.process_name, job_record.timeperiod,
+        start_timeperiod = self.compute_start_timeperiod(job_record.process_name, job_record.timeperiod)
+        end_timeperiod = self.compute_end_timeperiod(job_record.process_name, job_record.timeperiod)
+        self._compute_and_transfer_to_progress(job_record.process_name, start_timeperiod,
                                                end_timeperiod, job_record)
 
     def _process_state_in_progress(self, job_record):
         """ method that takes care of processing job records in STATE_IN_PROGRESS state"""
+        start_timeperiod = self.compute_start_timeperiod(job_record.process_name, job_record.timeperiod)
+        end_timeperiod = self.compute_end_timeperiod(job_record.process_name, job_record.timeperiod)
+
         time_qualifier = context.process_context[job_record.process_name].time_qualifier
-        end_timeperiod = time_helper.increment_timeperiod(time_qualifier, job_record.timeperiod)
         actual_timeperiod = time_helper.actual_timeperiod(time_qualifier)
+
         is_job_finalizable = self.timetable.is_job_record_finalizable(job_record)
         uow = self.uow_dao.get_one(job_record.related_unit_of_work)
 
         if job_record.timeperiod == actual_timeperiod or is_job_finalizable is False:
             if uow.is_invalid or uow.is_requested:
                 # current uow has not been processed yet. update it
-                self.update_scope_of_processing(job_record.process_name, uow, job_record.timeperiod, end_timeperiod)
+                self.update_scope_of_processing(job_record.process_name, uow, start_timeperiod, end_timeperiod)
             else:
                 # STATE_IN_PROGRESS, STATE_PROCESSED, STATE_CANCELED, STATE_NOOP
                 # create new uow to cover new inserts
-                self._compute_and_transfer_to_progress(job_record.process_name, job_record.timeperiod,
+                self._compute_and_transfer_to_progress(job_record.process_name, start_timeperiod,
                                                        end_timeperiod, job_record)
 
         elif job_record.timeperiod < actual_timeperiod and is_job_finalizable is True:
             # create new uow for FINAL RUN
-            self._compute_and_transfer_to_final_run(job_record.process_name, job_record.timeperiod,
+            self._compute_and_transfer_to_final_run(job_record.process_name, start_timeperiod,
                                                     end_timeperiod, job_record)
 
         else:

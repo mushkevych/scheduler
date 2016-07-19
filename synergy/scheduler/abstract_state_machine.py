@@ -13,6 +13,7 @@ from synergy.db.model.unit_of_work import UnitOfWork
 from synergy.system.mq_transmitter import MqTransmitter
 from synergy.conf import context
 from synergy.system.decorator import with_reconnect
+from synergy.system import time_helper
 from synergy.scheduler.tree_node import NodesCompositeState
 
 
@@ -41,12 +42,12 @@ class AbstractStateMachine(object):
         self.logger.log(level, msg)
 
     @with_reconnect
-    def _insert_uow(self, process_name, start_timeperiod, end_timeperiod, start_id, end_id):
+    def _insert_uow(self, process_name, timeperiod, start_timeperiod, end_timeperiod, start_id, end_id):
         """creates unit_of_work and inserts it into the DB
             :raise DuplicateKeyError: if unit_of_work with given parameters already exists """
         uow = UnitOfWork()
         uow.process_name = process_name
-        uow.timeperiod = start_timeperiod
+        uow.timeperiod = timeperiod
         uow.start_id = str(start_id)
         uow.end_id = str(end_id)
         uow.start_timeperiod = start_timeperiod
@@ -70,14 +71,14 @@ class AbstractStateMachine(object):
         msg = 'Published: UOW {0} for {1}@{2}.'.format(uow.db_id, uow.process_name, uow.start_timeperiod)
         self._log_message(INFO, uow.process_name, uow.start_timeperiod, msg)
 
-    def insert_and_publish_uow(self, process_name, start_timeperiod, end_timeperiod, start_id, end_id):
+    def insert_and_publish_uow(self, process_name, timeperiod, start_timeperiod, end_timeperiod, start_id, end_id):
         """ method creates and publishes a unit_of_work. it also handles DuplicateKeyError and attempts recovery
         :return: tuple (uow, is_duplicate)
         :raise UserWarning: if the recovery from DuplicateKeyError was unsuccessful
         """
         try:
             is_duplicate = False
-            uow = self._insert_uow(process_name, start_timeperiod, end_timeperiod, start_id, end_id)
+            uow = self._insert_uow(process_name, timeperiod, start_timeperiod, end_timeperiod, start_id, end_id)
         except DuplicateKeyError as e:
             is_duplicate = True
             msg = 'Catching up with latest UOW {0}@{1}, because of: {2}' \
@@ -106,6 +107,52 @@ class AbstractStateMachine(object):
         if applicable, method will update job_record state and Timetable tree node state
         :assumptions: uow is in [STATE_NOOP, STATE_CANCELED, STATE_PROCESSED] """
         pass
+
+    def compute_start_timeperiod(self, process_name, timeperiod):
+        """ computes lowest *inclusive* timeperiod boundary for job to process
+            for process with time_grouping == 1, it returns given timeperiod with no change
+            for process with time_grouping != 1, it computes first timeperiod, not processed by the previous job run
+            For instance: with time_grouping = 3, QUALIFIER_HOURLY, and timeperiod = 2016042018,
+            the start_timeperiod will be = 2016042016 (computed as 2016042018 - 3 + 1)
+        """
+        time_grouping = context.process_context[process_name].time_grouping
+        if time_grouping == 1:
+            return timeperiod
+
+        # step1: translate given timeperiod to the time grouped one
+        process_hierarchy = self.timetable.get_tree(process_name).process_hierarchy
+        timeperiod_dict = process_hierarchy[process_name].timeperiod_dict
+        translated_timeperiod = timeperiod_dict._translate_timeperiod(timeperiod)
+
+        # step 2: compute previous grouped period
+        # NOTICE: simple `time_helper.increment_timeperiod(time_qualifier, timeperiod)` is insufficient
+        #         as it does not address edge cases, such as the last day of the month or the last hour of the day
+        # For instance: with time_grouping=3, QUALIFIER_DAILY, and 2016123100
+        # the `increment_timeperiod` will yield 2016122800 instead of 2016123100
+        time_qualifier = context.process_context[process_name].time_qualifier
+        for i in range(1, time_grouping + 1):
+            prev_timeperiod = time_helper.increment_timeperiod(time_qualifier, translated_timeperiod, delta=-i)
+            if prev_timeperiod == timeperiod_dict._translate_timeperiod(prev_timeperiod):
+                # prev_timeperiod is currently at the last grouped timeperiod
+                break
+
+        # step 3: compute first exclusive timeperiod after the *prev_timeperiod*,
+        # which becomes first inclusive timeperiod for this job run
+        over_the_edge_timeperiod = time_helper.increment_timeperiod(time_qualifier, prev_timeperiod, delta=-1)
+        if prev_timeperiod != timeperiod_dict._translate_timeperiod(over_the_edge_timeperiod):
+            # over_the_edge_timeperiod fell into previous day or month or year
+            # *prev_timeperiod* points to the first month, first day of the month or 00 hour
+            start_timeperiod = prev_timeperiod
+        else:
+            start_timeperiod = self.compute_end_timeperiod(process_name, prev_timeperiod)
+
+        return start_timeperiod
+
+    def compute_end_timeperiod(self, process_name, timeperiod):
+        """ computes first *exclusive* timeperiod for job to process """
+        time_qualifier = context.process_context[process_name].time_qualifier
+        end_timeperiod = time_helper.increment_timeperiod(time_qualifier, timeperiod)
+        return end_timeperiod
 
     def _is_noop_timeperiod(self, process_name, timeperiod):
         """ method verifies if the given timeperiod for given process is valid or falls in-between grouping checkpoints

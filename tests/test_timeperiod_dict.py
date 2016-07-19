@@ -66,6 +66,31 @@ class TestTimeperiodDict(unittest.TestCase):
             except AssertionError:
                 self.assertTrue(True)
 
+    def test_daily_translation(self):
+        test_dict = TimeperiodDict(QUALIFIER_DAILY, 3)
+        fixture = OrderedDict()
+        fixture[(1, 4)] = '2010120300'
+        fixture[(4, 7)] = '2010120600'
+        fixture[(7, 10)] = '2010120900'
+        fixture[(10, 13)] = '2010121200'
+        fixture[(13, 16)] = '2010121500'
+        fixture[(16, 19)] = '2010121800'
+        fixture[(19, 22)] = '2010122100'
+        fixture[(22, 25)] = '2010122400'
+        fixture[(25, 28)] = '2010122700'
+        fixture[(28, 31)] = '2010123000'
+        fixture[(31, 32)] = '2010123100'
+
+        timeperiod = '2010120100'
+        for boundaries, value in fixture.items():
+            lower_boundary, upper_boundary = boundaries
+            for i in range(lower_boundary, upper_boundary):
+                actual_value = test_dict._translate_timeperiod(timeperiod)
+                self.assertEqual(actual_value, value,
+                                 msg='failing combination: timeperiod={0} i={1} actual/expected={2}/{3}'.
+                                 format(timeperiod, i, actual_value, value))
+                timeperiod = time_helper.increment_timeperiod(QUALIFIER_DAILY, timeperiod)
+
     def test_container_methods(self):
         test_dict = TimeperiodDict(QUALIFIER_HOURLY, 3)
         timeperiod = '2010123100'

@@ -17,16 +17,16 @@ def then_raise_uw(*_):
     raise UserWarning('Simulated UserWarning Exception')
 
 
-def then_raise_dpk(process_name, start_timeperiod, end_timeperiod, start_id, end_id):
-    raise DuplicateKeyError(process_name, start_timeperiod, start_id, end_id, 'Simulated Exception')
+def then_raise_dpk(process_name, timeperiod, start_timeperiod, end_timeperiod, start_id, end_id):
+    raise DuplicateKeyError(process_name, timeperiod, start_id, end_id, 'Simulated Exception')
 
 
-def then_return_uow(process_name, start_timeperiod, end_timeperiod, start_id, end_id):
-    return create_unit_of_work(process_name, start_id, end_id, start_timeperiod, uow_id='a_uow_id'), False
+def then_return_uow(process_name, timeperiod, start_timeperiod, end_timeperiod, start_id, end_id):
+    return create_unit_of_work(process_name, start_id, end_id, timeperiod, uow_id='a_uow_id'), False
 
 
-def then_return_duplicate_uow(process_name, start_timeperiod, end_timeperiod, start_id, end_id):
-    return create_unit_of_work(process_name, start_id, end_id, start_timeperiod, uow_id='a_uow_id'), True
+def then_return_duplicate_uow(process_name, timeperiod, start_timeperiod, end_timeperiod, start_id, end_id):
+    return create_unit_of_work(process_name, start_id, end_id, timeperiod, uow_id='a_uow_id'), True
 
 
 def get_job_record(state, timeperiod, process_name):

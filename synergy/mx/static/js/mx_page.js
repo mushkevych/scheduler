@@ -14,13 +14,15 @@ function grid_info_template(tiles_number) {
     var arr = [];
     for (var i = 0; i < tiles_number; i++) {
         if (i % 2 == 0) {
-            arr.push(" A A A A ");
-            arr.push(" A A A A ");
-            arr.push(" A A A A ");
+            // arr.push(" A A A A ");
+            // arr.push(" A A A A ");
+            // arr.push(" A A A A ");
+            arr.push(" A ");
         } else {
-            arr.push(" B B B B ");
-            arr.push(" B B B B ");
-            arr.push(" B B B B ");
+            // arr.push(" B B B B ");
+            // arr.push(" B B B B ");
+            // arr.push(" B B B B ");
+            arr.push(" B ");
         }
     }
     return arr;
