@@ -71,11 +71,16 @@ class AbstractStateMachine(object):
         msg = 'Published: UOW {0} for {1}@{2}.'.format(uow.db_id, uow.process_name, uow.start_timeperiod)
         self._log_message(INFO, uow.process_name, uow.start_timeperiod, msg)
 
-    def insert_and_publish_uow(self, process_name, timeperiod, start_timeperiod, end_timeperiod, start_id, end_id):
+    def insert_and_publish_uow(self, job_record, start_id, end_id):
         """ method creates and publishes a unit_of_work. it also handles DuplicateKeyError and attempts recovery
         :return: tuple (uow, is_duplicate)
         :raise UserWarning: if the recovery from DuplicateKeyError was unsuccessful
         """
+        process_name = job_record.process_name
+        timeperiod = job_record.timeperiod
+        start_timeperiod = self.compute_start_timeperiod(job_record.process_name, job_record.timeperiod)
+        end_timeperiod = self.compute_end_timeperiod(job_record.process_name, job_record.timeperiod)
+
         try:
             is_duplicate = False
             uow = self._insert_uow(process_name, timeperiod, start_timeperiod, end_timeperiod, start_id, end_id)

@@ -59,12 +59,7 @@ class StateMachineRecomputing(AbstractStateMachine):
         source_collection_name = context.process_context[process_name].source
         start_id = self.ds.highest_primary_key(source_collection_name, start_timeperiod, end_timeperiod)
         end_id = self.ds.lowest_primary_key(source_collection_name, start_timeperiod, end_timeperiod)
-        uow, is_duplicate = self.insert_and_publish_uow(process_name,
-                                                        job_record.timeperiod,
-                                                        start_timeperiod,
-                                                        end_timeperiod,
-                                                        start_id,
-                                                        end_id)
+        uow, is_duplicate = self.insert_and_publish_uow(job_record, start_id, end_id)
         self.update_job(job_record, uow, job.STATE_IN_PROGRESS)
 
     def _compute_and_transfer_to_final_run(self, process_name, start_timeperiod, end_timeperiod, job_record):
@@ -73,12 +68,7 @@ class StateMachineRecomputing(AbstractStateMachine):
         source_collection_name = context.process_context[process_name].source
         start_id = self.ds.highest_primary_key(source_collection_name, start_timeperiod, end_timeperiod)
         end_id = self.ds.lowest_primary_key(source_collection_name, start_timeperiod, end_timeperiod)
-        uow, transfer_to_final = self.insert_and_publish_uow(process_name,
-                                                             job_record.timeperiod,
-                                                             start_timeperiod,
-                                                             end_timeperiod,
-                                                             start_id,
-                                                             end_id)
+        uow, transfer_to_final = self.insert_and_publish_uow(job_record, start_id, end_id)
         self.update_job(job_record, uow, job.STATE_FINAL_RUN)
 
         if transfer_to_final:

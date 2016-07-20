@@ -68,8 +68,7 @@ class DiscreteSMUnitTest(unittest.TestCase):
 
             self.sm_real.manage_job(job_record)
             self.sm_real._process_state_in_progress.assert_called_once_with(mock.ANY)
-            self.sm_real._StateMachineDiscrete__process_non_finalizable_job.\
-                assert_called_once_with(mock.ANY, mock.ANY, mock.ANY, mock.ANY)
+            self.sm_real._StateMachineDiscrete__process_non_finalizable_job.assert_called_once_with(mock.ANY, mock.ANY)
             self.assertTrue(self.sm_real._StateMachineDiscrete__process_finalizable_job.call_args_list == [])
 
             # reset mock call count

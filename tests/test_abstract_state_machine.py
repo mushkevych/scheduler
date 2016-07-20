@@ -42,13 +42,13 @@ class AbstractSMUnitTest(unittest.TestCase):
 
     def test_insert_and_publish_uow(self):
         """ method tests happy-flow for insert_and_publish_uow method """
-        self.sm_real._insert_uow = lambda *args: then_return_uow(*args)[0]
+        self.sm_real._insert_uow = lambda *args: mock_insert_uow_return_uow(*args)
         self.sm_real._publish_uow = mock.MagicMock(return_value=True)
 
-        uow, is_duplicate = self.sm_real.insert_and_publish_uow(PROCESS_SITE_HOURLY,
-                                                                TEST_PRESET_TIMEPERIOD,
-                                                                None, None, 0, 1)
-        manual_uow = then_return_uow(PROCESS_SITE_HOURLY, TEST_PRESET_TIMEPERIOD, None, None, 0, 1)[0]
+        job_record = Job(process_name=PROCESS_SITE_HOURLY, timeperiod=TEST_PRESET_TIMEPERIOD)
+        manual_uow, _ = then_return_uow(job_record, 0, 1)
+        uow, is_duplicate = self.sm_real.insert_and_publish_uow(job_record, 0, 1)
+
         self.assertFalse(is_duplicate)
         self.assertDictEqual(uow.document, manual_uow.document)
 
@@ -58,22 +58,22 @@ class AbstractSMUnitTest(unittest.TestCase):
         self.sm_real._publish_uow = mock.MagicMock(return_value=True)
 
         try:
-            self.sm_real.insert_and_publish_uow(PROCESS_SITE_HOURLY, TEST_PRESET_TIMEPERIOD, None, None, 0, 1)
+            job_record = Job(process_name=PROCESS_SITE_HOURLY, timeperiod=TEST_PRESET_TIMEPERIOD)
+            self.sm_real.insert_and_publish_uow(job_record, 0, 1)
             self.assertTrue(False, 'UserWarning exception should have been thrown')
         except UserWarning:
             self.assertTrue(True)
 
     def test_handled_exception_iapu(self):
         """ method tests handled UserWarning exception at insert_and_publish_uow method """
-        manual_uow = then_return_uow(PROCESS_SITE_HOURLY, TEST_PRESET_TIMEPERIOD, None, None, 0, 1)[0]
+        job_record = Job(process_name=PROCESS_SITE_HOURLY, timeperiod=TEST_PRESET_TIMEPERIOD)
+        manual_uow, _ = then_return_uow(job_record, 0, 1)
 
-        self.sm_real._insert_uow = then_raise_dpk
+        self.sm_real._insert_uow = mock_insert_uow_raise_dpk
         self.sm_real._publish_uow = mock.MagicMock(return_value=True)
 
         self.uow_dao_mocked.recover_from_duplicatekeyerror = mock.MagicMock(return_value=manual_uow)
-        uow, is_duplicate = self.sm_real.insert_and_publish_uow(PROCESS_SITE_HOURLY,
-                                                                TEST_PRESET_TIMEPERIOD,
-                                                                None, None, 0, 1)
+        uow, is_duplicate = self.sm_real.insert_and_publish_uow(job_record, 0, 1)
         self.assertTrue(is_duplicate)
         self.assertDictEqual(uow.document, manual_uow.document)
 

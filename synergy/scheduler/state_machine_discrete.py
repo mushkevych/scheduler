@@ -49,7 +49,7 @@ class StateMachineDiscrete(AbstractStateMachine):
             self.logger.info('Suppressing state change for Job {0}@{1}, '
                              'since the job is not finalizable'.format(uow.process_name, uow.timeperiod))
 
-    def __process_non_finalizable_job(self, job_record, uow, start_timeperiod, end_timeperiod):
+    def __process_non_finalizable_job(self, job_record, uow):
         """ method handles given job_record based on the unit_of_work status
         Assumption: job_record is in STATE_IN_PROGRESS and is not yet finalizable """
         if uow.is_active:
@@ -58,12 +58,7 @@ class StateMachineDiscrete(AbstractStateMachine):
             pass
         elif uow.is_finished:
             # create new uow to cover new inserts
-            uow, is_duplicate = self.insert_and_publish_uow(job_record.process_name,
-                                                            job_record.timeperiod,
-                                                            start_timeperiod,
-                                                            end_timeperiod,
-                                                            0,
-                                                            int(uow.end_id) + 1)
+            uow, is_duplicate = self.insert_and_publish_uow(job_record, 0, int(uow.end_id) + 1)
             self.update_job(job_record, uow, job.STATE_IN_PROGRESS)
 
     def __process_finalizable_job(self, job_record, uow):
@@ -96,29 +91,18 @@ class StateMachineDiscrete(AbstractStateMachine):
 
     def _process_state_embryo(self, job_record):
         """ method that takes care of processing job records in STATE_EMBRYO state"""
-        start_timeperiod = self.compute_start_timeperiod(job_record.process_name, job_record.timeperiod)
-        end_timeperiod = self.compute_end_timeperiod(job_record.process_name, job_record.timeperiod)
-        uow, is_duplicate = self.insert_and_publish_uow(job_record.process_name,
-                                                        job_record.timeperiod,
-                                                        start_timeperiod,
-                                                        end_timeperiod,
-                                                        0,
-                                                        0)
+        uow, is_duplicate = self.insert_and_publish_uow(job_record, 0, 0)
         self.update_job(job_record, uow, job.STATE_IN_PROGRESS)
 
     def _process_state_in_progress(self, job_record):
         """ method that takes care of processing job records in STATE_IN_PROGRESS state """
-        start_timeperiod = self.compute_start_timeperiod(job_record.process_name, job_record.timeperiod)
-        end_timeperiod = self.compute_end_timeperiod(job_record.process_name, job_record.timeperiod)
-
         time_qualifier = context.process_context[job_record.process_name].time_qualifier
         actual_timeperiod = time_helper.actual_timeperiod(time_qualifier)
-
         is_job_finalizable = self.timetable.is_job_record_finalizable(job_record)
         uow = self.uow_dao.get_one(job_record.related_unit_of_work)
 
         if job_record.timeperiod == actual_timeperiod or is_job_finalizable is False:
-            self.__process_non_finalizable_job(job_record, uow, start_timeperiod, end_timeperiod)
+            self.__process_non_finalizable_job(job_record, uow)
 
         elif job_record.timeperiod < actual_timeperiod and is_job_finalizable is True:
             self.__process_finalizable_job(job_record, uow)

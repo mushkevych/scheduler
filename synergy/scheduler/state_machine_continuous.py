@@ -53,15 +53,7 @@ class StateMachineContinuous(AbstractStateMachine):
 
     def _process_state_embryo(self, job_record):
         """ method that takes care of processing job records in STATE_EMBRYO state"""
-        start_timeperiod = self.compute_start_timeperiod(job_record.process_name, job_record.timeperiod)
-        end_timeperiod = self.compute_end_timeperiod(job_record.process_name, job_record.timeperiod)
-        uow, is_duplicate = self.insert_and_publish_uow(job_record.process_name,
-                                                        job_record.timeperiod,
-                                                        start_timeperiod,
-                                                        end_timeperiod,
-                                                        0,
-                                                        0)
-
+        uow, is_duplicate = self.insert_and_publish_uow(job_record, 0, 0)
         try:
             target_state = self._compute_next_job_state(job_record)
             self.update_job(job_record, uow, target_state)
@@ -78,18 +70,10 @@ class StateMachineContinuous(AbstractStateMachine):
                 pass
             elif uow.is_finished:
                 # create new UOW to cover new inserts
-                new_uow, is_duplicate = self.insert_and_publish_uow(job_record.process_name,
-                                                                    job_record.timeperiod,
-                                                                    start_timeperiod,
-                                                                    end_timeperiod,
-                                                                    0,
-                                                                    int(uow.end_id) + 1)
+                new_uow, is_duplicate = self.insert_and_publish_uow(job_record, 0, int(uow.end_id) + 1)
                 self.update_job(job_record, new_uow, target_state)
 
-        start_timeperiod = self.compute_start_timeperiod(job_record.process_name, job_record.timeperiod)
-        end_timeperiod = self.compute_end_timeperiod(job_record.process_name, job_record.timeperiod)
         uow = self.uow_dao.get_one(job_record.related_unit_of_work)
-
         try:
             target_state = self._compute_next_job_state(job_record)
             _process_state(target_state, uow)
