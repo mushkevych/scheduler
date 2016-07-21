@@ -23,6 +23,7 @@ class TimeperiodDict(collections.MutableMapping):
         upper_boundary = self._get_stem_upper_boundary()
         assert 1 <= time_grouping <= upper_boundary
 
+        # format: {grouped_timeperiod: value}
         self.data = dict()
         self.update(dict(*args, **kwargs))
 

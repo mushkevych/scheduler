@@ -111,7 +111,7 @@ function header_process_tile(process_entry, tile) {
         + '<li title="Process Name"><i class="fa-li fa fa-terminal"></i>' + process_entry.process_name + '</li>'
         + '<li title="Next Timeperiod"><i class="fa-li fa fa-play"></i>' + process_entry.next_timeperiod + '</li>'
         + '<li title="Next Run In"><i class="fa-li fa fa-rocket"></i>' + next_run_block + '</li>'
-        + '<li title="Reprocessing Queue"><i class="fa-li fa fa-retweet"></i>' + reprocessing_block + '</li>'
+        + '<li title="Reprocessing Queue"><i class="fa-li fa fa-recycle"></i>' + reprocessing_block + '</li>'
         + '</ul>');
 }
 
