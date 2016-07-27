@@ -21,7 +21,7 @@ settings = dict(
 
     ds_type='mongo_db',
     mongo_db_name='scheduler',
-    uow_log_ttl_days=365,       # number of days to keep entries in the uow_log collection/table
+    db_log_ttl_days=365,        # number of days to keep entries in the log_recordings collection/table
     batch_size=1024,            # illustration suite setting: number of DB documents to read in batch
 
     debug=False,                # if True, logger.setLevel is set to DEBUG. Otherwise to INFO
