@@ -10,7 +10,7 @@ from settings import enable_test_mode
 enable_test_mode()
 
 from synergy.db.dao.unit_of_work_dao import UnitOfWorkDao
-from synergy.db.dao.uow_log_dao import UowLogDao
+from synergy.db.dao.log_recording_dao import LogRecordingDao
 from synergy.system.system_logger import get_logger
 from synergy.system.mq_transmitter import MqTransmitter
 from synergy.workers.abstract_uow_aware_worker import AbstractUowAwareWorker
@@ -53,7 +53,7 @@ class ExceptionWorker(TheWorker):
             self.logger.error('Exception: {0}'.format(e), exc_info=True)
 
 
-class UowLogHandlerUnitTest(unittest.TestCase):
+class LogRecordingHandlerUnitTest(unittest.TestCase):
     """ Test flow:
         1. create a UOW in the database
         2. emulate mq message
@@ -68,18 +68,18 @@ class UowLogHandlerUnitTest(unittest.TestCase):
         self.uow_id = create_and_insert_unit_of_work(self.process_name, 'range_start', 'range_end')
         self.uow_id = str(self.uow_id)
         self.uow_dao = UnitOfWorkDao(self.logger)
-        self.uow_log_dao = UowLogDao(self.logger)
+        self.log_recording_dao = LogRecordingDao(self.logger)
 
     def tearDown(self):
         self.uow_dao.remove(self.uow_id)
-        self.uow_log_dao.remove(self.uow_id)
+        self.log_recording_dao.remove(self.uow_id)
 
     def test_logging(self):
         self.worker = ChattyWorker(self.process_name)
         message = TestMessage(process_name=self.process_name, uow_id=self.uow_id)
         self.worker._mq_callback(message)
 
-        uow_log = self.uow_log_dao.get_one(self.uow_id)
+        uow_log = self.log_recording_dao.get_one(self.uow_id)
         messages = INFO_LOG_MESSAGES + WARN_LOG_MESSAGES  # + STD_MESSAGES
         self.assertLessEqual(len(messages), len(uow_log.log))
 
@@ -91,7 +91,7 @@ class UowLogHandlerUnitTest(unittest.TestCase):
         message = TestMessage(process_name=self.process_name, uow_id=self.uow_id)
         self.worker._mq_callback(message)
 
-        uow_log = self.uow_log_dao.get_one(self.uow_id)
+        uow_log = self.log_recording_dao.get_one(self.uow_id)
         messages = ['Exception: Artificially triggered exception to test Uow Exception Logging',
                     'method ExceptionWorker._process_uow returned None. Assuming happy flow.',
                     'at INVALID_TIMEPERIOD: Success/Failure 0/0']

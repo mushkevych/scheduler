@@ -260,7 +260,7 @@ class Timetable(object):
 
     @thread_safe
     def is_job_record_finalizable(self, job_record):
-        """ :return: True, if the node and all its children are either in STATE_PROCESSED or STATE_SKIPPED"""
+        """ :return: True, if the node and all its children are in [STATE_PROCESSED, STATE_SKIPPED, STATE_NOOP] """
         assert isinstance(job_record, Job)
         tree = self.get_tree(job_record.process_name)
         node = tree.get_node(job_record.process_name, job_record.timeperiod)

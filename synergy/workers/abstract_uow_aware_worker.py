@@ -7,7 +7,7 @@ from synergy.db.model.mq_transmission import MqTransmission
 from synergy.db.dao.unit_of_work_dao import UnitOfWorkDao
 from synergy.system.mq_transmitter import MqTransmitter
 from synergy.system.performance_tracker import UowAwareTracker
-from synergy.system.uow_log_handler import UowLogHandler
+from synergy.system.log_recording_handler import LogRecordingHandler
 from synergy.workers.abstract_mq_worker import AbstractMqWorker
 
 
@@ -58,7 +58,7 @@ class AbstractUowAwareWorker(AbstractMqWorker):
             self.consumer.acknowledge(message.delivery_tag)
             return
 
-        db_log_handler = UowLogHandler(self.logger, uow.db_id)
+        log_recording_handler = LogRecordingHandler(self.logger, uow.db_id)
         try:
             uow.state = unit_of_work.STATE_IN_PROGRESS
             uow.started_at = datetime.utcnow()
@@ -66,7 +66,7 @@ class AbstractUowAwareWorker(AbstractMqWorker):
             self.performance_tracker.start_uow(uow)
 
             if self.perform_db_logging:
-                db_log_handler.attach()
+                log_recording_handler.attach()
 
             result = self._process_uow(uow)
             if result is None:
@@ -103,7 +103,7 @@ class AbstractUowAwareWorker(AbstractMqWorker):
             self.consumer.acknowledge(message.delivery_tag)
             self.consumer.close()
             self._clean_up()
-            db_log_handler.detach()
+            log_recording_handler.detach()
 
         try:
             self.mq_transmitter.publish_uow_status(uow)

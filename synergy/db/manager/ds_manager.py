@@ -10,7 +10,7 @@ from odm.document import BaseDocument
 QUERY_GET_ALL = {}
 
 if 'ds_factory' not in globals():
-    # this block defines global variable ds_factory
+    # this block defines module-level variable ds_factory
 
     def factory():
         # the only way to implement nonlocal closure variables in Python 2.X

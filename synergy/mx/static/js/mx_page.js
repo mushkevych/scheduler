@@ -68,11 +68,11 @@ function header_process_tile(process_entry, tile) {
         + '</form>';
 
     var reprocessing_block = '<div class="table_layout">'
+        + '<div class="table_layout_element">' + flush_one_form + '</div>'
+        + '<div class="table_layout_element">&nbsp;</div>'
         + '<div class="table_layout_element"><textarea rows="1" cols="20" readonly>'
         + process_entry.reprocessing_queue.toString()
         + '</textarea></div>'
-        + '<div class="table_layout_element">&nbsp;</div>'
-        + '<div class="table_layout_element">' + flush_one_form + '</div>'
         + '</div>';
 
     var trigger_form = '<form method="GET" action="/action/trigger_now/" onsubmit="xmlhttp.send(); return false;">'
@@ -82,9 +82,9 @@ function header_process_tile(process_entry, tile) {
         + '</form>';
 
     var next_run_block = '<div class="table_layout">'
-        + '<div class="table_layout_element">' + process_entry.next_run_in + '</div>'
-        + '<div class="table_layout_element">&nbsp;</div>'
         + '<div class="table_layout_element">' + trigger_form + '</div>'
+        + '<div class="table_layout_element">&nbsp;</div>'
+        + '<div class="table_layout_element">' + process_entry.next_run_in + '</div>'
         + '</div>';
 
     var is_on;
@@ -110,9 +110,11 @@ function header_process_tile(process_entry, tile) {
         + '<li title="Trigger Alive"><i class="fa-li fa fa-bolt"></i>' + is_alive + '</li>'
         + '<li title="Process Name"><i class="fa-li fa fa-terminal"></i>' + process_entry.process_name + '</li>'
         + '<li title="Next Timeperiod"><i class="fa-li fa fa-play"></i>' + process_entry.next_timeperiod + '</li>'
-        + '<li title="Next Run In"><i class="fa-li fa fa-rocket"></i>' + next_run_block + '</li>'
-        + '<li title="Reprocessing Queue"><i class="fa-li fa fa-recycle"></i>' + reprocessing_block + '</li>'
-        + '</ul>');
+        // + '<li title="Next Run In"><i class="fa-li fa fa-rocket"></i>' + next_run_block + '</li>'
+        // + '<li title="Reprocessing Queue"><i class="fa-li fa fa-recycle"></i>' + reprocessing_block + '</li>'
+        + '</ul>'
+        + next_run_block
+        + reprocessing_block);
 }
 
 

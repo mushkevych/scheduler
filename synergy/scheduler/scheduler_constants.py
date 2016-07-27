@@ -34,7 +34,7 @@ EXCHANGE_UTILS = 'ex_utils'
 COLLECTION_MANAGED_PROCESS = 'managed_process'
 COLLECTION_FREERUN_PROCESS = 'freerun_process'
 COLLECTION_UNIT_OF_WORK = 'unit_of_work'
-COLLECTION_UOW_LOG = 'uow_log'
+COLLECTION_LOG_RECORDING = 'log_recording'
 
 COLLECTION_JOB_HOURLY = 'job_hourly'
 COLLECTION_JOB_DAILY = 'job_daily'

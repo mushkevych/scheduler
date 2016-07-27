@@ -2,14 +2,14 @@ __author__ = 'Bohdan Mushkevych'
 
 from synergy.mx.base_request_handler import BaseRequestHandler, valid_action_request, safe_json_response
 from synergy.db.dao.unit_of_work_dao import UnitOfWorkDao
-from synergy.db.dao.uow_log_dao import UowLogDao
+from synergy.db.dao.log_recording_dao import LogRecordingDao
 
 
 class AbstractActionHandler(BaseRequestHandler):
     def __init__(self, request, **values):
         super(AbstractActionHandler, self).__init__(request, **values)
         self.uow_dao = UnitOfWorkDao(self.logger)
-        self.uow_log_dao = UowLogDao(self.logger)
+        self.log_recording_dao = LogRecordingDao(self.logger)
 
     @property
     def thread_handler(self):
@@ -38,7 +38,7 @@ class AbstractActionHandler(BaseRequestHandler):
     @safe_json_response
     def action_get_uow_log(self):
         try:
-            resp = self.uow_log_dao.get_one(self.uow_id).document
+            resp = self.log_recording_dao.get_one(self.uow_id).document
         except (TypeError, LookupError):
             resp = {'response': 'no related uow log'}
         return resp
