@@ -110,8 +110,6 @@ function header_process_tile(process_entry, tile) {
         + '<li title="Trigger Alive"><i class="fa-li fa fa-bolt"></i>' + is_alive + '</li>'
         + '<li title="Process Name"><i class="fa-li fa fa-terminal"></i>' + process_entry.process_name + '</li>'
         + '<li title="Next Timeperiod"><i class="fa-li fa fa-play"></i>' + process_entry.next_timeperiod + '</li>'
-        // + '<li title="Next Run In"><i class="fa-li fa fa-rocket"></i>' + next_run_block + '</li>'
-        // + '<li title="Reprocessing Queue"><i class="fa-li fa fa-recycle"></i>' + reprocessing_block + '</li>'
         + '</ul>'
         + next_run_block
         + reprocessing_block);
@@ -164,10 +162,10 @@ function info_job_tile(job_entry, tile, is_next_timeperiod, is_selected_timeperi
         var viewer_url = '/viewer/object/?' + $.param(params);
         window.open(viewer_url, 'Object Viewer', 'width=800,height=480,screenX=400,screenY=200,scrollbars=1');
     });
-    var flow_button = $('<button class="action_button"><i class="fa fa-random"></i>Workflow</button>').click(function (e) {
+    var flow_button = $('<button class="action_button"><i class="fa fa-random"></i>&nbsp;Workflow</button>').click(function (e) {
         var params = { action: 'flow/details/flow', timeperiod: job_entry.timeperiod, process_name: job_entry.process_name };
         var viewer_url = '/viewer/flow/?' + $.param(params);
-        window.open(viewer_url, 'Flow Viewer', 'width=800,height=480,screenX=400,screenY=200,scrollbars=1');
+        window.open(viewer_url, 'Flow Viewer', 'width=800,height=800,screenX=400,screenY=150,scrollbars=1');
     });
 
     tile.process_name = job_entry.process_name;

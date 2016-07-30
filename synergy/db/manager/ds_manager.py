@@ -144,7 +144,7 @@ class MongoDbManager(BaseManager):
     def highest_primary_key(self, table_name, timeperiod_low, timeperiod_high):
         query = {TIMEPERIOD: {'$gte': timeperiod_low, '$lt': timeperiod_high}}
         conn = self._db[table_name]
-        asc_search = conn.find(spec=query, fields='_id').sort('_id', ASCENDING).limit(1)
+        asc_search = conn.find(filter=query, projection='_id').sort('_id', ASCENDING).limit(1)
         if asc_search.count() == 0:
             raise LookupError('No records in timeperiod: [{0} : {1}) in collection {2}'
                               .format(timeperiod_low, timeperiod_high, table_name))
@@ -153,7 +153,7 @@ class MongoDbManager(BaseManager):
     def lowest_primary_key(self, table_name, timeperiod_low, timeperiod_high):
         query = {TIMEPERIOD: {'$gte': timeperiod_low, '$lt': timeperiod_high}}
         conn = self._db[table_name]
-        dec_search = conn.find(spec=query, fields='_id').sort('_id', DESCENDING).limit(1)
+        dec_search = conn.find(filter=query, projection='_id').sort('_id', DESCENDING).limit(1)
         if dec_search.count() == 0:
             raise LookupError('No records in timeperiod: [{0} : {1}) in collection {2}'
                               .format(timeperiod_low, timeperiod_high, table_name))

@@ -13,6 +13,7 @@
         <th scope="col">State</th>
         <th scope="col"></th>  <!-- View Uow -->
         <th scope="col"></th>  <!-- Uow Log -->
+        <th scope="col"></th>  <!-- Workflow -->
     </tr>
     </thead>
     <tbody>
@@ -35,6 +36,13 @@
             <form method="GET" onsubmit="window.open('/viewer/object/?{{ url }}','Uow Log',
                     'toolbar=no,scrollbars=yes,resizable=yes,top=250,left=250,width=800,height=480'); return false;">
                 <input type="submit" class="action_button fa-input" title="Uow Log" value="&#xf0f6;&nbsp;Uow&nbsp;Log"/>
+            </form>
+        </td>
+        <td>
+            {% set url = 'action=flow/details/flow' + '&process_name=' + job_entry.process_name + '&timeperiod=' + job_entry.timeperiod + '&is_freerun=True'  %}
+            <form method="GET" onsubmit="window.open('/viewer/flow/?{{ url }}','Workflow',
+                    'toolbar=no,scrollbars=yes,resizable=yes,top=150,left=250,width=800,height=800'); return false;">
+                <input type="submit" class="action_button fa-input" title="Workflow" value="&#xf074;&nbsp;Workflow"/>
             </form>
         </td>
     </tr>

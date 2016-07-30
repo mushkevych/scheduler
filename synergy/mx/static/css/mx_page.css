@@ -85,7 +85,7 @@ body {
 .action_button {
     display: inline-block;
     width: 110px;
-    padding: 3px;
+    padding: 1px;
 }
 
 .action_toogle:hover {
