@@ -1,7 +1,8 @@
 __author__ = 'Bohdan Mushkevych'
 
-from bson import ObjectId
 from threading import RLock
+
+from bson import ObjectId
 from six import string_types
 
 from synergy.db.manager import ds_manager
@@ -65,13 +66,13 @@ class BaseDao(object):
 
     @thread_safe
     def update(self, instance):
-        """ this is an upsert method: inserts or updates the DB representation of the model instance """
+        """ this is an upsert method: replaces or creates the DB representation of the model instance """
         assert isinstance(instance, self.model_klass)
-        collection = self.ds.connection(self.collection_name)
-        document = instance.document
         if instance.db_id:
-            document['_id'] = ObjectId(instance.db_id)
-        instance.db_id = collection.save(document)
+            query = {'_id': ObjectId(instance.db_id)}
+        else:
+            query = build_db_query(self.primary_key, instance.key)
+        self.ds.update(self.collection_name, query, instance)
         return instance.db_id
 
     @thread_safe

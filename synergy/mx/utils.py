@@ -42,7 +42,6 @@ def expose(rule, **kw):
     def decorate(f):
         url_map.add(Rule(rule, endpoint=f.__name__))
         return f
-
     return decorate
 
 
@@ -51,8 +50,7 @@ def url_for(endpoint, _external=False, **values):
 
 
 def render_template(template, **context):
-    return Response(jinja_env.get_template(template).render(**context),
-                    mimetype='text/html')
+    return Response(jinja_env.get_template(template).render(**context), mimetype='text/html')
 
 
 def scheduler_uptime():

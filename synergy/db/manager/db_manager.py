@@ -4,7 +4,7 @@ import pymongo
 from synergy.db.manager import ds_manager
 from synergy.db.model.freerun_process_entry import ENTRY_NAME
 from synergy.db.model.managed_process_entry import PROCESS_NAME, ManagedProcessEntry
-from synergy.db.model.unit_of_work import TIMEPERIOD, START_OBJ_ID, END_OBJ_ID
+from synergy.db.model.unit_of_work import TIMEPERIOD, START_ID, END_ID
 from synergy.db.model.log_recording import PARENT_OBJECT_ID, CREATED_AT
 
 from synergy.db.dao.managed_process_dao import ManagedProcessDao
@@ -12,6 +12,7 @@ from synergy.db.dao.managed_process_dao import ManagedProcessDao
 from synergy.conf import context, settings
 from synergy.scheduler.scheduler_constants import *
 from synergy.system.system_logger import get_logger
+from flow.db import db_manager
 
 
 def synch_db():
@@ -72,8 +73,8 @@ def reset_db():
     connection = ds.connection(COLLECTION_UNIT_OF_WORK)
     connection.create_index([(PROCESS_NAME, pymongo.ASCENDING),
                              (TIMEPERIOD, pymongo.ASCENDING),
-                             (START_OBJ_ID, pymongo.ASCENDING),
-                             (END_OBJ_ID, pymongo.ASCENDING)], unique=True)
+                             (START_ID, pymongo.ASCENDING),
+                             (END_ID, pymongo.ASCENDING)], unique=True)
 
     connection = ds.connection(COLLECTION_LOG_RECORDING)
     connection.create_index([(PARENT_OBJECT_ID, pymongo.ASCENDING)], unique=True)
@@ -88,6 +89,9 @@ def reset_db():
                             COLLECTION_JOB_MONTHLY, COLLECTION_JOB_YEARLY]:
         connection = ds.connection(collection_name)
         connection.create_index([(PROCESS_NAME, pymongo.ASCENDING), (TIMEPERIOD, pymongo.ASCENDING)], unique=True)
+
+    # reset Synergy Flow tables
+    db_manager.reset_db()
     logger.info('*scheduler* db has been recreated')
 
 

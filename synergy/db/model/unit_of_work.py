@@ -6,8 +6,8 @@ from odm.fields import StringField, ObjectIdField, IntegerField, DictField, Date
 TIMEPERIOD = 'timeperiod'
 START_TIMEPERIOD = 'start_timeperiod'  # lower boundary (as Synergy date) of the period that needs to be processed
 END_TIMEPERIOD = 'end_timeperiod'      # upper boundary (as Synergy date) of the period that needs to be processed
-START_OBJ_ID = 'start_obj_id'          # lower boundary (as DB _id) of the period that needs to be processed
-END_OBJ_ID = 'end_obj_id'              # upper boundary (as DB _id) of the period that needs to be processed
+START_ID = 'start_obj_id'              # lower boundary (as DB _id) of the period that needs to be processed
+END_ID = 'end_obj_id'                  # upper boundary (as DB _id) of the period that needs to be processed
 STATE = 'state'
 CREATED_AT = 'created_at'
 SUBMITTED_AT = 'submitted_at'
@@ -60,8 +60,8 @@ class UnitOfWork(BaseDocument):
     timeperiod = StringField(TIMEPERIOD, null=True)
     start_timeperiod = StringField(START_TIMEPERIOD, null=True)
     end_timeperiod = StringField(END_TIMEPERIOD, null=True)
-    start_id = ObjectIdField(START_OBJ_ID)
-    end_id = ObjectIdField(END_OBJ_ID)
+    start_id = ObjectIdField(START_ID)
+    end_id = ObjectIdField(END_ID)
     source = StringField(SOURCE, null=True)
     sink = StringField(SINK, null=True)
     arguments = DictField(ARGUMENTS)

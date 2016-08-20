@@ -3,14 +3,15 @@ __author__ = 'Bohdan Mushkevych'
 from threading import RLock
 
 from bson import ObjectId
+
+from synergy.conf import context
 from synergy.db.manager import ds_manager
 from synergy.db.model import job
 from synergy.db.model.job import Job
-from synergy.system.decorator import thread_safe
-from synergy.system.time_qualifier import *
 from synergy.scheduler.scheduler_constants import COLLECTION_JOB_HOURLY, COLLECTION_JOB_DAILY, \
     COLLECTION_JOB_MONTHLY, COLLECTION_JOB_YEARLY
-from synergy.conf import context
+from synergy.system.decorator import thread_safe
+from synergy.system.time_qualifier import *
 
 
 QUERY_GET_LIKE_TIMEPERIOD = lambda timeperiod, include_running, include_processed, include_noop, include_failed: {
@@ -34,27 +35,28 @@ class JobDao(object):
         self.ds = ds_manager.ds_factory(logger)
 
     @thread_safe
-    def _get_job_collection(self, process_name):
+    def _get_job_collection_name(self, process_name):
         """jobs are stored in 4 collections: hourly, daily, monthly and yearly;
         method looks for the proper job_collection base on process TIME_QUALIFIER"""
         qualifier = context.process_context[process_name].time_qualifier
 
         if qualifier == QUALIFIER_HOURLY:
-            collection = self.ds.connection(COLLECTION_JOB_HOURLY)
+            collection_name = COLLECTION_JOB_HOURLY
         elif qualifier == QUALIFIER_DAILY:
-            collection = self.ds.connection(COLLECTION_JOB_DAILY)
+            collection_name = COLLECTION_JOB_DAILY
         elif qualifier == QUALIFIER_MONTHLY:
-            collection = self.ds.connection(COLLECTION_JOB_MONTHLY)
+            collection_name = COLLECTION_JOB_MONTHLY
         elif qualifier == QUALIFIER_YEARLY:
-            collection = self.ds.connection(COLLECTION_JOB_YEARLY)
+            collection_name = COLLECTION_JOB_YEARLY
         else:
             raise ValueError('Unknown time qualifier: {0} for {1}'.format(qualifier, process_name))
-        return collection
+        return collection_name
 
     @thread_safe
     def get_by_id(self, process_name, db_id):
         """ method finds a single job record and returns it to the caller"""
-        collection = self._get_job_collection(process_name)
+        collection_name = self._get_job_collection_name(process_name)
+        collection = self.ds.connection(collection_name)
         document = collection.find_one({'_id': ObjectId(db_id)})
 
         if document is None:
@@ -65,7 +67,8 @@ class JobDao(object):
     @thread_safe
     def get_one(self, process_name, timeperiod):
         """ method finds a single job record and returns it to the caller"""
-        collection = self._get_job_collection(process_name)
+        collection_name = self._get_job_collection_name(process_name)
+        collection = self.ds.connection(collection_name)
         document = collection.find_one({job.PROCESS_NAME: process_name, job.TIMEPERIOD: timeperiod})
 
         if document is None:
@@ -96,9 +99,11 @@ class JobDao(object):
     @thread_safe
     def update(self, instance):
         assert isinstance(instance, Job)
-        collection = self._get_job_collection(instance.process_name)
-        document = instance.document
+        collection_name = self._get_job_collection_name(instance.process_name)
         if instance.db_id:
-            document['_id'] = ObjectId(instance.db_id)
-        instance.db_id = collection.save(document)
+            query = {'_id': ObjectId(instance.db_id)}
+        else:
+            query = {job.PROCESS_NAME: instance.process_name,
+                     job.TIMEPERIOD: instance.timeperiod}
+        self.ds.update(collection_name, query, instance)
         return instance.db_id

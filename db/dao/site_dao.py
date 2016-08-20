@@ -1,7 +1,8 @@
 __author__ = 'Bohdan Mushkevych'
 
-from bson import ObjectId
 from threading import RLock
+
+from bson import ObjectId
 
 from db.model.raw_data import *
 from db.model.site_statistics import SiteStatistics
@@ -20,9 +21,7 @@ class SiteDao(object):
     @thread_safe
     def get_one(self, collection_name, domain_name, timeperiod):
         collection = self.ds.connection(collection_name)
-
-        query = {DOMAIN_NAME: domain_name, TIMEPERIOD: timeperiod}
-        document = collection.find_one(query)
+        document = collection.find_one(filter={DOMAIN_NAME: domain_name, TIMEPERIOD: timeperiod})
         if document is None:
             raise LookupError('MongoDB has no site record in {0} for ({1}, {2})'
                               .format(collection_name, domain_name, timeperiod))
@@ -32,11 +31,12 @@ class SiteDao(object):
     def update(self, collection_name, instance):
         """ method finds Site Statistics record and update it DB representation """
         assert isinstance(instance, SiteStatistics)
-        collection = self.ds.connection(collection_name)
-        document = instance.document
         if instance.db_id:
-            document['_id'] = ObjectId(instance.db_id)
-        instance.db_id = collection.save(document)
+            query = {'_id': ObjectId(instance.db_id)}
+        else:
+            query = {DOMAIN_NAME: instance.domain_name,
+                     TIMEPERIOD: instance.timeperiod}
+        self.ds.update(collection_name, query, instance)
         return instance.db_id
 
     @thread_safe

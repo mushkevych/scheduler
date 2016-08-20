@@ -136,10 +136,17 @@ class MongoDbManager(BaseManager):
         return conn.insert_one(instance.document).inserted_id
 
     def update(self, table_name, primary_key, instance):
+        """ replaces document identified by the primary_key or creates one if a matching document does not exist"""
         assert isinstance(primary_key, dict)
         assert isinstance(instance, BaseDocument)
-        conn = self._db[table_name]
-        conn.update(primary_key, instance.document, upsert=True)
+        collection = self._db[table_name]
+        if '_id' in instance.document:
+            instance.document['_id'] = ObjectId(instance.document['_id'])
+
+        update_result = collection.replace_one(filter=primary_key, replacement=instance.document, upsert=True)
+        if update_result.upserted_id:
+            instance.document['_id'] = update_result.upserted_id
+        return update_result.upserted_id
 
     def highest_primary_key(self, table_name, timeperiod_low, timeperiod_high):
         query = {TIMEPERIOD: {'$gte': timeperiod_low, '$lt': timeperiod_high}}

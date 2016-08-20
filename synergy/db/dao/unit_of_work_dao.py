@@ -6,15 +6,15 @@ from bson.objectid import ObjectId
 from pymongo import ASCENDING
 from pymongo.errors import DuplicateKeyError as MongoDuplicateKeyError
 
-from synergy.system import time_helper
-from synergy.system.time_qualifier import *
-from synergy.system.decorator import thread_safe
-from synergy.scheduler.scheduler_constants import COLLECTION_UNIT_OF_WORK
 from synergy.conf import context
 from synergy.db.error import DuplicateKeyError
+from synergy.db.manager import ds_manager
 from synergy.db.model import unit_of_work
 from synergy.db.model.unit_of_work import UnitOfWork
-from synergy.db.manager import ds_manager
+from synergy.scheduler.scheduler_constants import COLLECTION_UNIT_OF_WORK
+from synergy.system import time_helper
+from synergy.system.decorator import thread_safe
+from synergy.system.time_qualifier import *
 
 QUERY_GET_FREERUN_SINCE = lambda timeperiod, include_running, include_processed, include_noop, include_failed: {
     unit_of_work.TIMEPERIOD: {'$gte': timeperiod},
@@ -89,12 +89,12 @@ class UnitOfWorkDao(object):
         return candidates
 
     @thread_safe
-    def get_by_params(self, process_name, timeperiod, start_obj_id, end_obj_id):
+    def get_by_params(self, process_name, timeperiod, start_id, end_id):
         """ method finds unit_of_work record and returns it to the caller"""
         query = {unit_of_work.PROCESS_NAME: process_name,
                  unit_of_work.TIMEPERIOD: timeperiod,
-                 unit_of_work.START_OBJ_ID: start_obj_id,
-                 unit_of_work.END_OBJ_ID: end_obj_id}
+                 unit_of_work.START_ID: start_id,
+                 unit_of_work.END_ID: end_id}
         collection = self.ds.connection(COLLECTION_UNIT_OF_WORK)
 
         document = collection.find_one(query)
@@ -106,11 +106,14 @@ class UnitOfWorkDao(object):
     def update(self, instance):
         """ method finds unit_of_work record and change its status"""
         assert isinstance(instance, UnitOfWork)
-        collection = self.ds.connection(COLLECTION_UNIT_OF_WORK)
-        document = instance.document
         if instance.db_id:
-            document['_id'] = ObjectId(instance.db_id)
-        instance.db_id = collection.save(document)
+            query = {'_id': ObjectId(instance.db_id)}
+        else:
+            query = {unit_of_work.PROCESS_NAME: instance.process_name,
+                     unit_of_work.TIMEPERIOD: instance.timeperiod,
+                     unit_of_work.START_ID: instance.start_id,
+                     unit_of_work.END_ID: instance.end_id}
+        self.ds.update(COLLECTION_UNIT_OF_WORK, query, instance)
         return instance.db_id
 
     @thread_safe
