@@ -51,6 +51,7 @@ class Connection(object):
             password=self.password,
             virtual_host=self.vhost
         )
+        self.connection.connect()
 
     def close(self):
         if hasattr(self, 'connection') and self.connection:
@@ -112,11 +113,7 @@ class Consumer(SynergyAware):
 
     def wait(self, timeout=None):
         while self.is_running:
-            channel_id, method_sig, args, content = \
-                self.connection.connection._wait_multiple(channels={self.channel.channel_id: self.channel},
-                                                          allowed_methods=None,
-                                                          timeout=timeout)
-            self.channel.dispatch_method(method_sig, args, content)
+            self.connection.connection.blocking_read(timeout=timeout)
 
     def dispatch(self, message):
         if isinstance(message.body, bytes):

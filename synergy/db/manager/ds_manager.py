@@ -140,12 +140,16 @@ class MongoDbManager(BaseManager):
         assert isinstance(primary_key, dict)
         assert isinstance(instance, BaseDocument)
         collection = self._db[table_name]
-        if '_id' in instance.document:
-            instance.document['_id'] = ObjectId(instance.document['_id'])
 
-        update_result = collection.replace_one(filter=primary_key, replacement=instance.document, upsert=True)
+        # work with a copy of the document, as the direct type change of the _id field
+        # is later negated by the `BaseDocument.to_json` method
+        document = instance.document
+        if '_id' in document:
+            document['_id'] = ObjectId(document['_id'])
+
+        update_result = collection.replace_one(filter=primary_key, replacement=document, upsert=True)
         if update_result.upserted_id:
-            instance.document['_id'] = update_result.upserted_id
+            instance['_id'] = update_result.upserted_id
         return update_result.upserted_id
 
     def highest_primary_key(self, table_name, timeperiod_low, timeperiod_high):

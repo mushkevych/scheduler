@@ -5,15 +5,17 @@ python2list=(
     "linecache2-1.0.0.tar.gz"
     "traceback2-1.4.0.tar.gz"
     "six-1.10.0.tar.gz"
-    "virtualenv-13.1.2.tar.gz"
-    "setuptools-18.3.2.tar.gz"
+    "virtualenv-15.0.3.tar.gz"
+    "setuptools-26.0.0.tar.gz"
     "distribute-0.7.3.zip"
     "unittest2-1.1.0.tar.gz"
     "pbr-1.8.1.tar.gz"
-    "funcsigs-0.4.tar.gz"
-    "mock-1.3.0.tar.gz"
+
+    # mock section
+    "funcsigs-1.0.2.tar.gz"
+    "mock-2.0.0.tar.gz"
+
     "nose-1.3.7.tar.gz"
-    "ordereddict-1.1.tar.gz"
 )
 
 python3list=(
@@ -21,7 +23,8 @@ python3list=(
 )
 
 commonlist=(
-    "pip-7.1.2.tar.gz"
+    "pip-8.1.2.tar.gz"
+    "ordereddict-1.1.tar.gz"
 
     # ipython
     "path.py-8.1.2.tar.gz"
@@ -35,15 +38,19 @@ commonlist=(
     "ipython-4.0.0.tar.gz"
 
     # pylint section start
-    "logilab-common-1.0.2.tar.gz"
-    "logilab-astng-0.24.3.tar.gz"
-    "astroid-1.3.8.tar.gz"
-    "pylint-1.4.4.tar.gz"
+    "backports.functools_lru_cache-1.2.1.tar.gz"
+    "configparser-3.5.0.tar.gz"
+    "mccabe-0.5.2.tar.gz"
+    "isort-4.2.5.tar.gz"
+    "lazy-object-proxy-1.2.2.tar.gz"
+    "wrapt-1.10.8.tar.gz"
+    "astroid-1.4.8.tar.gz"
+    "pylint-1.6.4.tar.gz"
 
     "coverage-4.0.tar.gz"
-    "unittest-xml-reporting-1.12.0.tar.gz"
-    "setproctitle-1.1.9.tar.gz"
-    "psutil-3.2.2.tar.gz"
+    "unittest-xml-reporting-2.1.0.tar.gz"
+    "setproctitle-1.1.10.tar.gz"
+    "psutil-4.3.0.tar.gz"
 
     # Fabric section
     "ecdsa-0.13.tar.gz"
@@ -51,7 +58,10 @@ commonlist=(
     "paramiko-1.15.2.tar.gz"
     "Fabric-1.10.2.tar.gz"
 
-    "amqp-1.4.7.tar.gz"
+    # Amqp
+    "vine-1.1.1.tar.gz"
+    "amqp-2.0.3.tar.gz"
+
     "pyrepl-0.8.4.tar.gz"
     "fancycompleter-0.4.tar.gz"
     "Pygments-2.0.2.tar.gz"
@@ -60,10 +70,10 @@ commonlist=(
     "docutils-0.12.tar.gz"
     "pysmell-0.7.3.zip"
 
-    "pymongo-2.9.tar.gz"
+    "pymongo-3.3.0.tar.gz"
     "MarkupSafe-0.23.tar.gz"
     "Jinja2-2.8.tar.gz"
-    "Werkzeug-0.11.2.tar.gz"
+    "Werkzeug-0.11.10.tar.gz"
     "synergy_odm-0.9.tar.gz"
     "synergy_flow-0.6.tar.gz"
 )
