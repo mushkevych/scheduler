@@ -9,7 +9,7 @@ python2list=(
     "setuptools-26.0.0.tar.gz"
     "distribute-0.7.3.zip"
     "unittest2-1.1.0.tar.gz"
-    "pbr-1.8.1.tar.gz"
+    "pbr-1.10.0.tar.gz"
 
     # mock section
     "funcsigs-1.0.2.tar.gz"
@@ -29,13 +29,18 @@ commonlist=(
     # ipython
     "path.py-8.1.2.tar.gz"
     "ipython_genutils-0.1.0.tar.gz"
-    "ptyprocess-0.5.tar.gz"
-    "decorator-4.0.4.tar.gz"
-    "pickleshare-0.5.tar.gz"
+    "ptyprocess-0.5.1.tar.gz"
+    "decorator-4.0.10.tar.gz"
+    "pathlib2-2.1.0.tar.gz"
+    "pickleshare-0.7.4.tar.gz"
     "simplegeneric-0.8.1.zip"
-    "traitlets-4.0.0.tar.gz"
-    "pexpect-4.0.1.tar.gz"
-    "ipython-4.0.0.tar.gz"
+    "traitlets-4.2.2.tar.gz"
+    "pexpect-4.2.1.tar.gz"
+    "backports.shutil_get_terminal_size-1.0.0.tar.gz"
+    "wcwidth-0.1.7.tar.gz"
+    "prompt_toolkit-1.0.7.tar.gz"
+    "Pygments-2.1.3.tar.gz"
+    "ipython-5.1.0.tar.gz"
 
     # pylint section start
     "backports.functools_lru_cache-1.2.1.tar.gz"
@@ -47,7 +52,7 @@ commonlist=(
     "astroid-1.4.8.tar.gz"
     "pylint-1.6.4.tar.gz"
 
-    "coverage-4.0.tar.gz"
+    "coverage-4.2.tar.gz"
     "unittest-xml-reporting-2.1.0.tar.gz"
     "setproctitle-1.1.10.tar.gz"
     "psutil-4.3.0.tar.gz"
@@ -55,17 +60,16 @@ commonlist=(
     # Fabric section
     "ecdsa-0.13.tar.gz"
     "pycrypto-2.6.1.tar.gz"
-    "paramiko-1.15.2.tar.gz"
-    "Fabric-1.10.2.tar.gz"
+    "paramiko-1.17.2.tar.gz"
+    "Fabric-1.12.0.tar.gz"
 
     # Amqp
     "vine-1.1.1.tar.gz"
     "amqp-2.0.3.tar.gz"
 
     "pyrepl-0.8.4.tar.gz"
-    "fancycompleter-0.4.tar.gz"
-    "Pygments-2.0.2.tar.gz"
-    "wmctrl-0.2.tar.gz"
+    "fancycompleter-0.5.tar.gz"
+    "wmctrl-0.3.tar.gz"
     "pdbpp-0.8.3.tar.gz"
     "docutils-0.12.tar.gz"
     "pysmell-0.7.3.zip"
