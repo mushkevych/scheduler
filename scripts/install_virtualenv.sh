@@ -6,7 +6,10 @@ python2list=(
     "traceback2-1.4.0.tar.gz"
     "six-1.10.0.tar.gz"
     "virtualenv-15.0.3.tar.gz"
-    "setuptools-26.0.0.tar.gz"
+
+    # NOTICE: setuptools-25.x.x and 26.0.0 does not work with pylint-1.6.4
+    "setuptools-24.3.1.tar.gz"
+
     "distribute-0.7.3.zip"
     "unittest2-1.1.0.tar.gz"
     "pbr-1.10.0.tar.gz"
