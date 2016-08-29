@@ -40,19 +40,32 @@ class StateMachineFreerun(object):
         self.sfe_dao.update(freerun_entry)
 
     @with_reconnect
-    def _insert_uow(self, freerun_entry):
+    def _insert_uow(self, freerun_entry, flow_request=None):
         """ creates unit_of_work and inserts it into the DB
             :raise DuplicateKeyError: if unit_of_work with given parameters already exists """
-        current_timeperiod = time_helper.actual_timeperiod(QUALIFIER_REAL_TIME)
         process_entry = context.process_context[freerun_entry.process_name]
+        if flow_request:
+            schedulable_name = flow_request.schedulable_name
+            timeperiod = flow_request.timeperiod
+            start_timeperiod = flow_request.start_timeperiod
+            end_timeperiod = flow_request.end_timeperiod
+            arguments = dict()
+            arguments.update(freerun_entry.arguments)
+            arguments.update(flow_request.arguments)
+        else:
+            schedulable_name = freerun_entry.schedulable_name
+            timeperiod = time_helper.actual_timeperiod(QUALIFIER_REAL_TIME)
+            start_timeperiod = timeperiod
+            end_timeperiod = timeperiod
+            arguments = freerun_entry.arguments
 
         uow = UnitOfWork()
-        uow.process_name = freerun_entry.schedulable_name
-        uow.timeperiod = current_timeperiod
+        uow.process_name = schedulable_name
+        uow.timeperiod = timeperiod
         uow.start_id = 0
         uow.end_id = 0
-        uow.start_timeperiod = current_timeperiod
-        uow.end_timeperiod = current_timeperiod
+        uow.start_timeperiod = start_timeperiod
+        uow.end_timeperiod = end_timeperiod
         uow.created_at = datetime.utcnow()
         uow.submitted_at = datetime.utcnow()
         uow.source = process_entry.source if hasattr(process_entry, 'source') else None
@@ -60,11 +73,11 @@ class StateMachineFreerun(object):
         uow.state = unit_of_work.STATE_REQUESTED
         uow.unit_of_work_type = unit_of_work.TYPE_FREERUN
         uow.number_of_retries = 0
-        uow.arguments = freerun_entry.arguments
+        uow.arguments = arguments
         uow.db_id = self.uow_dao.insert(uow)
 
         msg = 'Created: UOW {0} for {1}@{2}.' \
-              .format(uow.db_id, freerun_entry.schedulable_name, current_timeperiod)
+              .format(uow.db_id, freerun_entry.schedulable_name, timeperiod)
         self._log_message(INFO, freerun_entry, msg)
         return uow
 
@@ -73,9 +86,9 @@ class StateMachineFreerun(object):
         msg = 'Published: UOW {0} for {1}.'.format(uow.db_id, freerun_entry.schedulable_name)
         self._log_message(INFO, freerun_entry, msg)
 
-    def insert_and_publish_uow(self, freerun_entry):
+    def insert_and_publish_uow(self, freerun_entry, flow_request=None):
         try:
-            uow = self._insert_uow(freerun_entry)
+            uow = self._insert_uow(freerun_entry, flow_request)
         except DuplicateKeyError as e:
             msg = 'Duplication of UOW found for {0}. Error msg: {1}'.format(freerun_entry.schedulable_name, e)
             self._log_message(WARNING, freerun_entry, msg)
@@ -91,24 +104,25 @@ class StateMachineFreerun(object):
                   .format(freerun_entry.schedulable_name)
             self._log_message(WARNING, freerun_entry, msg)
 
-    def _process_state_embryo(self, freerun_entry):
+    def _process_state_embryo(self, freerun_entry, flow_request=None):
         """ method creates unit_of_work and associates it with the FreerunProcessEntry """
-        self.insert_and_publish_uow(freerun_entry)
+        self.insert_and_publish_uow(freerun_entry, flow_request)
 
-    def _process_state_in_progress(self, freerun_entry, uow):
+    def _process_state_in_progress(self, freerun_entry, uow, flow_request=None):
         """ method that takes care of processing unit_of_work records in STATE_REQUESTED or STATE_IN_PROGRESS states"""
         self._publish_uow(freerun_entry, uow)
 
-    def _process_terminal_state(self, freerun_entry, uow):
+    def _process_terminal_state(self, freerun_entry, uow, flow_request=None):
         """ method that takes care of processing unit_of_work records in
             STATE_PROCESSED, STATE_NOOP, STATE_INVALID, STATE_CANCELED states"""
         msg = 'UOW for {0} found in state {1}.'.format(freerun_entry.schedulable_name, uow.state)
         self._log_message(INFO, freerun_entry, msg)
-        self.insert_and_publish_uow(freerun_entry)
+        self.insert_and_publish_uow(freerun_entry, flow_request)
 
-    def manage_schedulable(self, freerun_entry):
+    def manage_schedulable(self, freerun_entry, flow_request=None):
         """ method main duty - is to _avoid_ publishing another unit_of_work, if previous was not yet processed
-        In case the Scheduler sees that the unit_of_work is pending it will fire another WorkerMqRequest """
+            In case the Scheduler sees that the unit_of_work is pending,
+            it will issue new WorkerMqRequest for the same UOW """
 
         assert isinstance(freerun_entry, FreerunProcessEntry)
         if freerun_entry.related_unit_of_work is None:
@@ -118,13 +132,13 @@ class StateMachineFreerun(object):
 
         try:
             if uow is None:
-                self._process_state_embryo(freerun_entry)
+                self._process_state_embryo(freerun_entry, flow_request)
 
             elif uow.is_requested or uow.is_in_progress:
-                self._process_state_in_progress(freerun_entry, uow)
+                self._process_state_in_progress(freerun_entry, uow, flow_request)
 
             elif uow.is_finished or uow.is_invalid:
-                self._process_terminal_state(freerun_entry, uow)
+                self._process_terminal_state(freerun_entry, uow, flow_request)
 
             else:
                 msg = 'Unknown state {0} of the UOW {1}'.format(uow.state, uow.db_id)

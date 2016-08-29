@@ -25,7 +25,8 @@ class Scheduler(SynergyProcess):
         - timetable: container for job tress and state machines
         - GarbageCollector: recycles failed/stalled unit of works
         - freerun and managed thread handlers: logic to trigger job execution
-        - StatusBarListener: MQ Listener of workers feedback
+        - UowStatusListener: MQ Listener receiving UOW statuses from the workers
+        - JobStatusListener: asynchronous intra-scheduler notification bus
         - MX: HTTP server with management UI """
 
     def __init__(self, process_name):
@@ -129,7 +130,7 @@ class Scheduler(SynergyProcess):
         self.uow_listener.start()
         self.job_listener.start()
 
-        self.logger.info('Startup Sequence Complete. Starting MX.')
+        self.logger.info('Startup Sequence Completed. Starting MX.')
         # Management Extension (MX) should be the last to start
         self.mx.start()
 
