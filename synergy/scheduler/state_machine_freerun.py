@@ -4,17 +4,17 @@ from datetime import datetime
 from logging import ERROR, WARNING, INFO
 
 from synergy.conf import context
+from synergy.db.dao.freerun_process_dao import FreerunProcessDao
+from synergy.db.dao.unit_of_work_dao import UnitOfWorkDao
 from synergy.db.error import DuplicateKeyError
 from synergy.db.model import unit_of_work
-from synergy.db.model.unit_of_work import UnitOfWork
 from synergy.db.model.freerun_process_entry import FreerunProcessEntry, MAX_NUMBER_OF_EVENTS
-from synergy.db.dao.unit_of_work_dao import UnitOfWorkDao
-from synergy.db.dao.freerun_process_dao import FreerunProcessDao
+from synergy.db.model.unit_of_work import UnitOfWork
+from synergy.scheduler.scheduler_constants import STATE_MACHINE_FREERUN
 from synergy.system import time_helper
-from synergy.system.time_qualifier import QUALIFIER_REAL_TIME
 from synergy.system.decorator import with_reconnect
 from synergy.system.mq_transmitter import MqTransmitter
-from synergy.scheduler.scheduler_constants import STATE_MACHINE_FREERUN
+from synergy.system.time_qualifier import QUALIFIER_REAL_TIME
 
 
 class StateMachineFreerun(object):
@@ -86,6 +86,16 @@ class StateMachineFreerun(object):
         msg = 'Published: UOW {0} for {1}.'.format(uow.db_id, freerun_entry.schedulable_name)
         self._log_message(INFO, freerun_entry, msg)
 
+    def _find_flow_uow(self, flow_request):
+        try:
+            uow = self.uow_dao.get_by_params(process_name=flow_request.schedulable_name,
+                                             timeperiod=flow_request.timeperiod,
+                                             start_id=0,
+                                             end_id=0)
+        except:
+            uow = None
+        return uow
+
     def insert_and_publish_uow(self, freerun_entry, flow_request=None):
         try:
             uow = self._insert_uow(freerun_entry, flow_request)
@@ -126,7 +136,7 @@ class StateMachineFreerun(object):
 
         assert isinstance(freerun_entry, FreerunProcessEntry)
         if freerun_entry.related_unit_of_work is None:
-            uow = None
+            uow = None if flow_request is None else self._find_flow_uow(flow_request)
         else:
             uow = self.uow_dao.get_one(freerun_entry.related_unit_of_work)
 

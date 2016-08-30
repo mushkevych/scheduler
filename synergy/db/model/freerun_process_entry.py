@@ -1,6 +1,6 @@
 __author__ = 'Bohdan Mushkevych'
 
-from synergy.scheduler.scheduler_constants import STATE_MACHINE_FREERUN
+from synergy.scheduler.scheduler_constants import STATE_MACHINE_FREERUN, EXCHANGE_FREERUN_WORKER
 from synergy.db.model.daemon_process_entry import DaemonProcessEntry
 from odm.fields import StringField, ListField, ObjectIdField, BooleanField
 
@@ -52,12 +52,12 @@ def freerun_context_entry(process_name,
                           entry_name,
                           classname,
                           token,
-                          exchange,
                           trigger_frequency,
                           is_on=True,
                           present_on_boxes=None,
                           description=None,
                           arguments=None,
+                          exchange=EXCHANGE_FREERUN_WORKER,
                           queue=None,
                           routing=None,
                           pid_file=None,
