@@ -2,6 +2,7 @@ __author__ = 'Bohdan Mushkevych'
 
 from synergy.db.dao.base_dao import BaseDao
 from synergy.db.model.log_recording import LogRecording, PARENT_OBJECT_ID, LOG
+from synergy.system.decorator import thread_safe
 from synergy.scheduler.scheduler_constants import COLLECTION_LOG_RECORDING
 
 
@@ -14,6 +15,7 @@ class LogRecordingDao(BaseDao):
                                               primary_key=[PARENT_OBJECT_ID],
                                               collection_name=COLLECTION_LOG_RECORDING)
 
+    @thread_safe
     def append_log(self, uow_id, msg):
         collection = self.ds.connection(self.collection_name)
 

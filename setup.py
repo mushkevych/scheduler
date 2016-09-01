@@ -12,7 +12,7 @@ setup(name='synergy_scheduler',
       package_data={'synergy.mx': ['static/images/*', 'static/fonts/*', 'static/js/*', 'static/css/*', 'templates/*'],
                     'synergy.mq': ['AUTHORS', 'LICENSE']},
       long_description='Synergy Scheduler breaks time into intervals, associates every interval with a job '
-                       'and makes sure that each job is completed in the sequential order. '
+                       'and makes sure that each job is completed in the right order. '
                        'Tracks dependencies between jobs. Has rich Web UI. '
                        'Can also work as a cron-like job trigger.',
       license='BSD 3-Clause License',

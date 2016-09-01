@@ -4,12 +4,14 @@ Synergy Scheduler
 [![PyPI version](https://img.shields.io/pypi/v/synergy_scheduler.svg)](https://pypi.python.org/pypi/synergy_scheduler)
 [![Build Status](https://travis-ci.org/mushkevych/scheduler.svg?branch=master)](https://travis-ci.org/mushkevych/scheduler)
 
-Synergy Scheduler tracks its history to 2011. It is a production-grade Job Scheduling System, used to run simple and complex interdependent jobs.
+Synergy Scheduler is a production-grade Job Scheduling System. It breaks time into intervals, 
+associates every interval with a job and makes sure that no job is missed and that each job is completed in the right order.  
+
 Common use-cases:
 
-- run a job every 30 minutes *or* two times per day on Tue, Thu and Fri
-- wait with processing of **daily** jobs until all **hourly** are successfully finished
+- wait with starting the **daily** jobs until all nested **hourly** are successfully finished
 - mark **daily** and other dependant jobs for reprocessing, should an **hourly** be manually triggered for reprocessing
+- run a job every 30 minutes *or* two times per day on Tue, Thu and Fri
 
 Synergy Scheduler use of Rabbit MQ for communication with subsidiaries makes it a good choice for deployments where part of the system is remote or machine/location dependent.
 
