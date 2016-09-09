@@ -177,6 +177,8 @@ class AbstractSMUnitTest(unittest.TestCase):
             try:
                 context.process_context[process_name].time_grouping = 3
                 for key, value in f.items():
+                    print('*** Problematic set: {0} {1}->{2}'
+                          .format(process_name, key, value))
                     _ = self.sm_real.compute_start_timeperiod(process_name, key)
                 self.assertTrue(False, 'YEARLY should allow only identity grouping (i.e. grouping=1)')
             except AssertionError:
