@@ -174,11 +174,12 @@ class AbstractSMUnitTest(unittest.TestCase):
                                   '2011000000': '2011000000'}
         }
         for process_name, f in fixture.items():
+            type(process_hierarchy[process_name]).timeperiod_dict = \
+                mock.PropertyMock(return_value=TimeperiodDict(context.process_context[process_name].time_qualifier,
+                                                              context.process_context[process_name].time_grouping))
             try:
                 context.process_context[process_name].time_grouping = 3
                 for key, value in f.items():
-                    print('*** Problematic set: {0} {1}->{2}'
-                          .format(process_name, key, value))
                     _ = self.sm_real.compute_start_timeperiod(process_name, key)
                 self.assertTrue(False, 'YEARLY should allow only identity grouping (i.e. grouping=1)')
             except AssertionError:
