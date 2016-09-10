@@ -60,12 +60,6 @@ commonlist=(
     "setproctitle-1.1.10.tar.gz"
     "psutil-4.3.0.tar.gz"
 
-    # Fabric section
-    "ecdsa-0.13.tar.gz"
-    "pycrypto-2.6.1.tar.gz"
-    "paramiko-1.17.2.tar.gz"
-    "Fabric-1.12.0.tar.gz"
-
     # Amqp
     "vine-1.1.1.tar.gz"
     "amqp-2.0.3.tar.gz"
