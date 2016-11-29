@@ -13,10 +13,6 @@ settings = dict(
     log_directory='/mnt/logs/synergy-scheduler/', 
     pid_directory='/mnt/logs/synergy-scheduler/',
 
-    remote_source_host_list=['user@f.q.h.n'],
-    remote_source_password={'user@f.q.h.n': '***SSH_PASSWORD***'},
-    remote_source_folder='/mnt/remote_folder/',
-    compute_gzip_md5=True,      # True, if AbstractFileCollector should compute MD5 for every file it processes
     bash_runnable_count=5,      # number of concurrently running shell scripts supported by BashDriver
 
     ds_type='mongo_db',
