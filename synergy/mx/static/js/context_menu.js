@@ -78,7 +78,7 @@ function get_checked_boxes(checkbox_name) {
 }
 
 // function applies given "action" to all records with selected checkboxes
-function process_batch(action, is_freerun) {
+function process_batch(action) {
     var selected = get_checked_boxes('batch_processing');
     var msg = 'You are about to ' + action + ' all selected';
     var i;
@@ -97,26 +97,18 @@ function process_batch(action, is_freerun) {
                 json = eval("(" + selected[i].value + ")");
                 process_name = json['process_name'];
                 timeperiod = json['timeperiod'];
-                process_trigger(action, process_name, timeperiod, null, is_freerun, i == selected.length - 1);
+                process_trigger(action, process_name, timeperiod, null, i == selected.length - 1);
                 selected[i].checked = false;
             }
         } else if (action.indexOf('activate') > -1 || action.indexOf('deactivate') > -1) {
-            if (is_freerun) {
-                for (i = 0; i < selected.length; i++) {
-                    json = eval("(" + selected[i].value + ")");
-                    process_name = json['process_name'];
-                    entry_name = json['entry_name'];
-                    process_trigger(action, process_name, null, entry_name, is_freerun, i == selected.length - 1);
-                    selected[i].checked = false;
-                }
-            } else {
-                for (i = 0; i < selected.length; i++) {
-                    json = eval("(" + selected[i].value + ")");
-                    process_name = json['process_name'];
-                    timeperiod = json['timeperiod'];
-                    process_trigger(action, process_name, timeperiod, null, is_freerun, i == selected.length - 1);
-                    selected[i].checked = false;
-                }
+            for (i = 0; i < selected.length; i++) {
+                json = eval("(" + selected[i].value + ")");
+                process_name = json['process_name'];
+                timeperiod = 'timeperiod' in json ? json['timeperiod'] : null;
+                entry_name = 'entry_name' in json ? json['entry_name'] : null;
+
+                process_trigger(action, process_name, timeperiod, entry_name, i == selected.length - 1);
+                selected[i].checked = false;
             }
         } else {
             Alertify.error('Action ' + action + ' is not supported by Synergy Scheduler MX JavaScript library.');
@@ -166,14 +158,8 @@ function process_job(action, tree_name, process_name, timeperiod, flow_name, ste
 }
 
 // function applies given "action" to the SchedulerThreadHandler entry
-function process_trigger(action, process_name, timeperiod, entry_name, is_freerun, reload_afterwards) {
-    var params;
-    if (is_freerun) {
-        params = {'process_name': process_name, 'entry_name': entry_name, 'is_freerun': is_freerun};
-    } else {
-        params = {'process_name': process_name, 'timeperiod': timeperiod, 'is_freerun': is_freerun};
-    }
-
+function process_trigger(action, process_name, timeperiod, entry_name, reload_afterwards) {
+    var params = {'process_name': process_name, 'timeperiod': timeperiod, 'entry_name': entry_name};
     $.get('/' + action + '/', params, function (response) {
         // once the response arrives - reload the page
         if (reload_afterwards) {

@@ -42,67 +42,63 @@ class FreerunActionHandler(AbstractActionHandler):
         return self.reply_ok()
 
     @valid_action_request
-    def action_get_event_log(self):
+    def get_event_log(self):
         return {'event_log': self.process_entry.event_log}
 
     @valid_action_request
-    def action_update_entry(self):
-        if 'insert_button' in self.request_arguments:
-            process_entry = FreerunProcessEntry()
-            process_entry.process_name = self.process_name
-            process_entry.entry_name = self.entry_name
+    def create_entry(self):
+        process_entry = FreerunProcessEntry()
+        process_entry.process_name = self.process_name
+        process_entry.entry_name = self.entry_name
 
-            if self.request_arguments['arguments']:
-                arguments = self.request_arguments['arguments']
-                if isinstance(arguments, bytes):
-                    arguments = arguments.decode('unicode-escape')
-                process_entry.arguments = json.loads(arguments)
-            else:
-                process_entry.arguments = {}
-
-            process_entry.description = self.request_arguments['description']
-            process_entry.is_on = self.is_requested_state_on
-            process_entry.trigger_frequency = self.request_arguments['trigger_frequency']
-            self.freerun_process_dao.update(process_entry)
-
-            self.scheduler._register_process_entry(process_entry, self.scheduler.fire_freerun_worker)
-
-        elif 'update_button' in self.request_arguments:
-            is_interval_changed = self.process_entry.trigger_frequency != self.request_arguments['trigger_frequency']
-
-            if self.request_arguments['arguments']:
-                arguments = self.request_arguments['arguments']
-                if isinstance(arguments, bytes):
-                    arguments = arguments.decode('unicode-escape')
-                self.process_entry.arguments = json.loads(arguments)
-            else:
-                self.process_entry.arguments = {}
-
-            self.process_entry.description = self.request_arguments['description']
-            self.process_entry.is_on = self.is_requested_state_on
-            self.process_entry.trigger_frequency = self.request_arguments['trigger_frequency']
-            self.freerun_process_dao.update(self.process_entry)
-
-            if is_interval_changed:
-                self.action_change_interval()
-
-            if self.process_entry.is_on != self.is_requested_state_on:
-                if self.is_requested_state_on:
-                    self.action_activate_trigger()
-                else:
-                    self.action_deactivate_trigger()
-
-        elif 'delete_button' in self.request_arguments:
-            handler_key = (self.process_name, self.entry_name)
-            self.thread_handler.deactivate()
-            self.freerun_process_dao.remove(handler_key)
-            del self.scheduler.freerun_handlers[handler_key]
-            self.logger.info('MX: Deleted FreerunThreadHandler for {0}'.format(handler_key))
-
-        elif 'cancel_button' in self.request_arguments:
-            pass
-
+        if self.request_arguments['arguments']:
+            arguments = self.request_arguments['arguments']
+            if isinstance(arguments, bytes):
+                arguments = arguments.decode('unicode-escape')
+            process_entry.arguments = json.loads(arguments)
         else:
-            self.logger.error('MX Error: unknown action requested by schedulable_form.html')
+            process_entry.arguments = {}
 
+        process_entry.description = self.request_arguments['description']
+        process_entry.is_on = self.is_requested_state_on
+        process_entry.trigger_frequency = self.request_arguments['trigger_frequency']
+        self.freerun_process_dao.update(process_entry)
+
+        self.scheduler._register_process_entry(process_entry, self.scheduler.fire_freerun_worker)
+        return self.reply_ok()
+
+    @valid_action_request
+    def delete_entry(self):
+        handler_key = (self.process_name, self.entry_name)
+        self.thread_handler.deactivate()
+        self.freerun_process_dao.remove(handler_key)
+        del self.scheduler.freerun_handlers[handler_key]
+        self.logger.info('MX: Deleted FreerunThreadHandler for {0}'.format(handler_key))
+        return self.reply_ok()
+
+    @valid_action_request
+    def update_entry(self):
+        is_interval_changed = self.process_entry.trigger_frequency != self.request_arguments['trigger_frequency']
+
+        if self.request_arguments['arguments']:
+            arguments = self.request_arguments['arguments']
+            if isinstance(arguments, bytes):
+                arguments = arguments.decode('unicode-escape')
+            self.process_entry.arguments = json.loads(arguments)
+        else:
+            self.process_entry.arguments = {}
+
+        self.process_entry.description = self.request_arguments['description']
+        self.process_entry.is_on = self.is_requested_state_on
+        self.process_entry.trigger_frequency = self.request_arguments['trigger_frequency']
+        self.freerun_process_dao.update(self.process_entry)
+
+        if is_interval_changed:
+            self.change_interval()
+
+        if self.process_entry.is_on != self.is_requested_state_on:
+            if self.is_requested_state_on:
+                self.activate_trigger()
+            else:
+                self.deactivate_trigger()
         return self.reply_ok()

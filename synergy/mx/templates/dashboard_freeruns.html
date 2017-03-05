@@ -25,21 +25,21 @@
         <td>{{ uow_entry.timeperiod }}</td>
         <td>{{ uow_entry.state }}</td>
         <td>
-            {% set url = 'action=action/get_uow' + '&process_name=' + uow_entry.process_name + '&entry_name=' + uow_entry.entry_name + '&is_freerun=True' %}
+            {% set url = 'action=freerun/uow' + '&process_name=' + uow_entry.process_name + '&entry_name=' + uow_entry.entry_name %}
             <form method="GET" onsubmit="window.open('/viewer/object/?{{ url }}','View Uow',
                     'toolbar=no,scrollbars=yes,resizable=yes,top=250,left=250,width=450,height=400'); return false;">
                 <input type="submit" class="action_button fa-input" title="View Uow" value="&#xf1c9;&nbsp;Uow"/>
             </form>
         </td>
         <td>
-            {% set url = 'action=action/get_uow_log' + '&process_name=' + uow_entry.process_name + '&entry_name=' + uow_entry.entry_name + '&is_freerun=True' %}
+            {% set url = 'action=freerun/log/uow' + '&process_name=' + uow_entry.process_name + '&entry_name=' + uow_entry.entry_name %}
             <form method="GET" onsubmit="window.open('/viewer/object/?{{ url }}','Uow Log',
                     'toolbar=no,scrollbars=yes,resizable=yes,top=250,left=250,width=800,height=480'); return false;">
                 <input type="submit" class="action_button fa-input" title="Uow Log" value="&#xf0f6;&nbsp;Uow&nbsp;Log"/>
             </form>
         </td>
         <td>
-            {% set url = 'action=flow/details/flow' + '&process_name=' + job_entry.process_name + '&timeperiod=' + job_entry.timeperiod + '&is_freerun=True'  %}
+            {% set url = 'action=flow/details/flow' + '&process_name=' + job_entry.process_name + '&timeperiod=' + job_entry.timeperiod %}
             <form method="GET" onsubmit="window.open('/viewer/flow/?{{ url }}','Workflow',
                     'toolbar=no,scrollbars=yes,resizable=yes,top=150,left=250,width=800,height=800'); return false;">
                 <input type="submit" class="action_button fa-input" title="Workflow" value="&#xf074;&nbsp;Workflow"/>

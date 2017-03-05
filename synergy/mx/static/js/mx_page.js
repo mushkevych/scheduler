@@ -62,7 +62,7 @@ function header_tree_tile(mx_tree, tile) {
 
 
 function header_process_tile(process_entry, tile) {
-    var flush_one_form = '<form method="GET" action="/gc/flush_one/" onsubmit="xmlhttp.send(); return false;">'
+    var flush_one_form = '<form method="GET" action="/gc/flush/one/" onsubmit="xmlhttp.send(); return false;">'
         + '<input type="hidden" name="process_name" value="' + process_entry.process_name + '" />'
         + '<input type="submit" title="flush_' + process_entry.process_name + '" class="fa-input" value="&#xf1b8"/>'
         + '</form>';
@@ -75,7 +75,7 @@ function header_process_tile(process_entry, tile) {
         + '</textarea></div>'
         + '</div>';
 
-    var trigger_form = '<form method="GET" action="/action/trigger_now/" onsubmit="xmlhttp.send(); return false;">'
+    var trigger_form = '<form method="POST" action="/managed/entry/trigger/" onsubmit="xmlhttp.send(); return false;">'
         + '<input type="hidden" name="process_name" value="' + process_entry.process_name + '" />'
         + '<input type="hidden" name="timeperiod" value="NA" />'
         + '<input type="submit" title="trigger_' + process_entry.process_name + '" class="fa-input" value="&#xf135"/>'
@@ -89,10 +89,10 @@ function header_process_tile(process_entry, tile) {
 
     var is_on;
     if (process_entry.is_on) {
-        is_on = '<a onclick="process_trigger(\'action/deactivate_trigger\', \'' + process_entry.process_name + '\', \'NA\', null, false, true)">' +
+        is_on = '<a onclick="process_trigger(\'managed/entry/deactivate\', \'' + process_entry.process_name + '\', \'NA\', null, false, true)">' +
         '<i class="fa fa-toggle-on action_toogle" title="is ON"></i></a>';
     } else {
-        is_on = '<a onclick="process_trigger(\'action/activate_trigger\', \'' + process_entry.process_name + '\', \'NA\', null, false, true)">' +
+        is_on = '<a onclick="process_trigger(\'managed/entry/activate\', \'' + process_entry.process_name + '\', \'NA\', null, false, true)">' +
         '<i class="fa fa-toggle-off action_toogle" title="is OFF"></i></a>';
     }
 
@@ -117,7 +117,7 @@ function header_process_tile(process_entry, tile) {
 
 
 function info_process_tile(process_entry, tile) {
-    var change_interval_form = '<form method="GET" action="/action/change_interval/" onsubmit="xmlhttp.send(); return false;">'
+    var change_interval_form = '<form method="POST" action="/freerun/entry/interval/" onsubmit="xmlhttp.send(); return false;">'
         + '<input type="hidden" name="process_name" value="' + process_entry.process_name + '" />'
         + '<input type="hidden" name="timeperiod" value="NA" />'
         + '<input type="text" size="8" maxlength="32" name="interval" value="' + process_entry.trigger_frequency + '" />'
@@ -142,23 +142,23 @@ function info_job_tile(job_entry, tile, is_next_timeperiod, is_selected_timeperi
     var checkbox_div = '<input type="checkbox" name="batch_processing" value="' + checkbox_value + '"/>';
 
     var uow_button = $('<button class="action_button"><i class="fa fa-file-code-o"></i>&nbsp;Uow</button>').click(function (e) {
-        var params = { action: 'action/get_uow', timeperiod: job_entry.timeperiod, process_name: job_entry.process_name };
+        var params = { action: 'managed/uow', timeperiod: job_entry.timeperiod, process_name: job_entry.process_name };
         var viewer_url = '/viewer/object/?' + $.param(params);
         window.open(viewer_url, 'Object Viewer', 'width=450,height=400,screenX=400,screenY=200,scrollbars=1');
     });
     var event_log_button = $('<button class="action_button"><i class="fa fa-th-list"></i>&nbsp;Event&nbsp;Log</button>').click(function (e) {
-        var params = { action: 'action/get_event_log', timeperiod: job_entry.timeperiod, process_name: job_entry.process_name };
+        var params = { action: 'managed/log/event', timeperiod: job_entry.timeperiod, process_name: job_entry.process_name };
         var viewer_url = '/viewer/object/?' + $.param(params);
         window.open(viewer_url, 'Object Viewer', 'width=800,height=480,screenX=400,screenY=200,scrollbars=1');
     });
     var skip_button = $('<button class="action_button"><i class="fa fa-step-forward"></i>&nbsp;Skip</button>').click(function (e) {
-        process_job('action/skip', tile.tree_name, tile.process_name, tile.timeperiod, null, null);
+        process_job('tree/node/skip', tile.tree_name, tile.process_name, tile.timeperiod, null, null);
     });
     var reprocess_button = $('<button class="action_button"><i class="fa fa-repeat"></i>&nbsp;Reprocess</button>').click(function (e) {
-        process_job('action/reprocess', tile.tree_name, tile.process_name, tile.timeperiod, null, null);
+        process_job('tree/node/reprocess', tile.tree_name, tile.process_name, tile.timeperiod, null, null);
     });
     var uow_log_button = $('<button class="action_button"><i class="fa fa-file-text-o"></i>&nbsp;Uow&nbsp;Log</button>').click(function (e) {
-        var params = { action: 'action/get_uow_log', timeperiod: job_entry.timeperiod, process_name: job_entry.process_name };
+        var params = { action: 'managed/log/uow', timeperiod: job_entry.timeperiod, process_name: job_entry.process_name };
         var viewer_url = '/viewer/object/?' + $.param(params);
         window.open(viewer_url, 'Object Viewer', 'width=800,height=480,screenX=400,screenY=200,scrollbars=1');
     });
@@ -297,7 +297,7 @@ function get_tree_nodes(process_name, timeperiod){
         data: {'process_name': process_name, 'timeperiod': timeperiod},
         dataType: "json",
         type: "GET",
-        url: '/details/tree_nodes/',
+        url: '/tree/nodes/',
         cache: false,
         async: false
     }).responseText;
@@ -310,7 +310,7 @@ function get_tree(tree_name){
         data: {'tree_name': tree_name},
         dataType: "json",
         type: "GET",
-        url: '/details/tree/',
+        url: '/tree/',
         cache: false,
         async: false
     }).responseText;

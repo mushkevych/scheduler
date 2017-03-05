@@ -38,9 +38,9 @@ for rule in mx_page_context:
     url_map.add(Rule('/{0}/'.format(rule), endpoint='mx_page_tiles'))
 
 
-def expose(rule, **kw):
+def expose(rule, methods=None, **kw):
     def decorate(f):
-        url_map.add(Rule(rule, endpoint=f.__name__))
+        url_map.add(Rule(rule, methods=methods, endpoint=f.__name__))
         return f
     return decorate
 

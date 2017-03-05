@@ -23,12 +23,12 @@ class AbstractActionHandler(BaseRequestHandler):
     def uow_id(self):
         raise NotImplementedError('property uow_id must be implemented by {0}'.format(self.__class__.__name__))
 
-    def action_get_event_log(self):
+    def get_event_log(self):
         raise NotImplementedError('method action_get_event_log must be implemented by {0}'
                                   .format(self.__class__.__name__))
 
     @safe_json_response
-    def action_get_uow(self):
+    def get_uow(self):
         if self.uow_id is None:
             resp = {'response': 'no related unit_of_work'}
         else:
@@ -36,7 +36,7 @@ class AbstractActionHandler(BaseRequestHandler):
         return resp
 
     @safe_json_response
-    def action_get_uow_log(self):
+    def get_uow_log(self):
         try:
             resp = self.log_recording_dao.get_one(self.uow_id).document
         except (TypeError, LookupError):
@@ -44,7 +44,7 @@ class AbstractActionHandler(BaseRequestHandler):
         return resp
 
     @valid_action_request
-    def action_change_interval(self):
+    def change_interval(self):
         resp = dict()
         new_interval = self.request_arguments['interval']
         if new_interval is not None:
@@ -56,19 +56,19 @@ class AbstractActionHandler(BaseRequestHandler):
         return resp
 
     @valid_action_request
-    def action_trigger_now(self):
+    def trigger_now(self):
         self.thread_handler.trigger()
         self.logger.info('MX: triggered thread handler {0}'.format(self.thread_handler.key))
         return self.reply_ok()
 
     @valid_action_request
-    def action_activate_trigger(self):
+    def activate_trigger(self):
         self.thread_handler.activate()
         self.logger.info('MX: activated thread handler {0}'.format(self.thread_handler.key))
         return self.reply_ok()
 
     @valid_action_request
-    def action_deactivate_trigger(self):
+    def deactivate_trigger(self):
         self.thread_handler.deactivate()
         self.logger.info('MX: deactivated thread handler {0}'.format(self.thread_handler.key))
         return self.reply_ok()

@@ -30,7 +30,8 @@ class TreeDetails(BaseRequestHandler):
             return dict()
 
     @cached_property
-    def mx_page_entries(self):
+    def mx_page_trees(self):
+        """ return trees assigned to given MX Page"""
         resp = dict()
         for tree_name, tree in self.scheduler.timetable.trees.items():
             if tree.mx_page in self.request.path:

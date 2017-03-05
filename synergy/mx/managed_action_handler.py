@@ -45,7 +45,7 @@ class ManagedActionHandler(AbstractActionHandler):
         return None if not node.job_record else node.job_record.related_unit_of_work
 
     @valid_action_request
-    def action_reprocess(self):
+    def reprocess_tree_node(self):
         node = self._get_tree_node()
 
         msg = 'MX: requesting REPROCESS for {0} in timeperiod {1}'.format(self.process_name, self.timeperiod)
@@ -63,7 +63,7 @@ class ManagedActionHandler(AbstractActionHandler):
         return resp
 
     @valid_action_request
-    def action_skip(self):
+    def skip_tree_node(self):
         node = self._get_tree_node()
 
         msg = 'MX: requesting SKIP for {0} in timeperiod {1}'.format(self.process_name, self.timeperiod)
@@ -81,6 +81,6 @@ class ManagedActionHandler(AbstractActionHandler):
         return resp
 
     @valid_action_request
-    def action_get_event_log(self):
+    def get_event_log(self):
         node = self._get_tree_node()
         return {'event_log': [] if not node.job_record else node.job_record.event_log}

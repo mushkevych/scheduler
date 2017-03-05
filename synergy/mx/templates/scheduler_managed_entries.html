@@ -29,7 +29,7 @@
         <td>{{ row.is_on }} / {{ row.is_alive }}</td>
         <td>{{ row.process_name }}</td>
         <td>
-            <form method="GET" action="/action/change_interval/">
+            <form method="POST" action="/managed/entry/interval/">
                 <input type="hidden" name="process_name" value="{{ row.process_name }}" />
                 <input type="hidden" name="timeperiod" value="NA" />
                 <input type="text" size="8" maxlength="32" name="interval" value="{{ row.trigger_frequency }}" />
@@ -37,7 +37,7 @@
             </form>
         </td>
         <td>
-            <form method="GET" action="/action/trigger_now/">
+            <form method="POST" action="/managed/entry/trigger/">
                 <input type="hidden" name="process_name" value="{{ row.process_name }}" />
                 <input type="hidden" name="timeperiod" value="NA" />
                 <input type="submit" class="action_button fa-input" title="Trigger" value="&#xf135;&nbsp;Trigger"/>
@@ -57,7 +57,7 @@
         <th scope="col" width="15%">
             <div class="table_layout">
                 <div class="table_layout_element">
-                    <form method="GET" action="/gc/flush_all/" onsubmit="refreshWithDelay()">
+                    <form method="GET" action="/gc/flush/all/" onsubmit="refreshWithDelay()">
                         <input type="submit" title="Flush All" class="action_button fa-input" value="&#xf1b8;&nbsp;Flush&nbsp;All"/>
                     </form>
                 </div>
@@ -81,7 +81,7 @@
     {%- if nonEmptyQ.append('A') -%}{%- endif -%}
     <tr>
         <td>
-            <form method="GET" action="/gc/flush_one/" onsubmit="refreshWithDelay()">
+            <form method="GET" action="/gc/flush/one/" onsubmit="refreshWithDelay()">
                 <input type="hidden" name="process_name" value="{{ process_name }}" />
                 <input type="submit" title="Flush" class="action_button fa-input" value="&#xf1b8;&nbsp;Flush"/>
             </form>
