@@ -27,7 +27,7 @@
 {%- endfor %}
 
 <script type="text/javascript">
-    $(document).ready(function () {
+    $(function () {  // former $(document).ready(function () {...})
         loadDataset('#form_time_window', 'form_initial_load', {{ sorted_columns|safe }});
     });
 </script>

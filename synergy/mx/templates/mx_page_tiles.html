@@ -1,7 +1,7 @@
 {% extends 'main_header.html' %}
-{% block body scoped %}
-
-    {% set mx_trees = details.mx_page_trees(mx_page) %}
+{% block body %}
+    {# active_mx_page is declared in the main_header.html#}
+    {% set mx_trees = details.mx_page_trees(active_mx_page[0]) %}
     {%- for tree_name, tree_obj in mx_trees.items() %}
         <div class="grid-container">
             <div id="grid-header-{{ tree_name }}" class="grid-header"></div>
@@ -21,7 +21,7 @@
 {{ context_menu.job_menu() }}
 
 <script type="text/javascript">
-    var mx_trees = {{ details.mx_page_trees(mx_page)|jsonify|safe }};
+    var mx_trees = {{ details.mx_page_trees(active_mx_page[0])|jsonify|safe }};
 </script>
 <script type="text/javascript" src="{{ url_for('static', file='js/tiles.js') }}"></script>
 <script type="text/javascript" src="{{ url_for('static', file='js/mx_page.js') }}"></script>

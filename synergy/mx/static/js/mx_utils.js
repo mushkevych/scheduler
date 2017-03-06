@@ -142,8 +142,7 @@ function getUrlParameter(sParam) {
  */
 function loadDataset(form_name, flag_name, table_sorting) {
     if ($(form_name).data(flag_name) == false) {
-        $(function () {
-            // former $(document).ready(function () {...})
+        $(function () {  // former $(document).ready(function () {...})
             $(form_name).submit();
         });
     }

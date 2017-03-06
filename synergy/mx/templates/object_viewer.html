@@ -19,7 +19,7 @@
 </form>
 
 <script type="text/javascript">
-    $(document).ready(function () {
+    $(function () {  // former $(document).ready(function () {...})
         var action = getUrlParameter('action');
         var url = '/' + action + '/?' + window.location.search.substring(1);
 
