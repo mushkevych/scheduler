@@ -2,42 +2,12 @@
 
 // function iterates over all checkboxes with name "batch_processing"
 // and marks/unmarks them accordingly to the state of the "source" checkbox
-function toggle_all_checkboxes(source) {
+function toggleAllCheckboxes(source) {
     var checkboxes = document.getElementsByName('batch_processing');
     for (var i = 0, n = checkboxes.length; i < n; i++) {
         checkboxes[i].checked = source.checked;
     }
 }
-
-// event call-back for "window.load" event
-$(window).load(assign_context_menu());
-
-// function replaces standard right-mouse-click menu with the custom one
-function assign_context_menu() {
-    var els = document.getElementsByClassName('context-menu');
-    if (els) {
-        Array.prototype.forEach.call(els, function (el) {
-            el.addEventListener('contextmenu', function (event) {
-                var y = mouse_y(event) - 2;  // subtract 2px to position pointer within the menu frame
-                var x = mouse_x(event) - 2;  // subtract 2px to position pointer within the menu frame
-                document.getElementById('rmenu').style.top = y + 'px';
-                document.getElementById('rmenu').style.left = x + 'px';
-                document.getElementById('rmenu').className = 'context_menu_show';
-
-                event.preventDefault();
-                var evt = event || window.event;
-                evt.returnValue = false;
-            }, false);
-        });
-    }
-}
-
-// hide the right-click-menu if user clicked outside its boundaries
-$(document).bind('click', function (event) {
-    if (document.getElementById('rmenu')) {
-        document.getElementById('rmenu').className = 'context_menu_hide';
-    }
-});
 
 // function allows to identify X coordinate to rendering context menu
 function mouse_x(event) {
@@ -63,8 +33,38 @@ function mouse_y(event) {
     }
 }
 
+// function replaces standard right-mouse-click menu with the custom one
+function assignContextMenu() {
+    var els = document.getElementsByClassName('context-menu');
+    if (els) {
+        Array.prototype.forEach.call(els, function (el) {
+            el.addEventListener('contextmenu', function (event) {
+                var y = mouse_y(event) - 2;  // subtract 2px to position pointer within the menu frame
+                var x = mouse_x(event) - 2;  // subtract 2px to position pointer within the menu frame
+                document.getElementById('rmenu').style.top = y + 'px';
+                document.getElementById('rmenu').style.left = x + 'px';
+                document.getElementById('rmenu').className = 'context_menu_show';
+
+                event.preventDefault();
+                var evt = event || window.event;
+                evt.returnValue = false;
+            }, false);
+        });
+    }
+}
+
+// event call-back for "window.load" event
+$(window).load(assignContextMenu());
+
+// hide the right-click-menu if user clicked outside its boundaries
+$(document).bind('click', function (event) {
+    if (document.getElementById('rmenu')) {
+        document.getElementById('rmenu').className = 'context_menu_hide';
+    }
+});
+
 // function iterates over all checkboxes in the document and selects checked ones
-function get_checked_boxes(checkbox_name) {
+function getCheckedBoxes(checkbox_name) {
     var checkboxes = document.getElementsByName(checkbox_name);
     var selected_checkboxes = [];
 
@@ -78,8 +78,8 @@ function get_checked_boxes(checkbox_name) {
 }
 
 // function applies given "action" to all records with selected checkboxes
-function process_batch(action) {
-    var selected = get_checked_boxes('batch_processing');
+function processBatch(action) {
+    var selected = getCheckedBoxes('batch_processing');
     var msg = 'You are about to ' + action + ' all selected';
     var i;
     var process_name;
@@ -97,7 +97,7 @@ function process_batch(action) {
                 json = eval("(" + selected[i].value + ")");
                 process_name = json['process_name'];
                 timeperiod = json['timeperiod'];
-                process_trigger(action, process_name, timeperiod, null, i == selected.length - 1);
+                processTrigger(action, process_name, timeperiod, null, i == selected.length - 1);
                 selected[i].checked = false;
             }
         } else if (action.indexOf('activate') > -1 || action.indexOf('deactivate') > -1) {
@@ -107,7 +107,7 @@ function process_batch(action) {
                 timeperiod = 'timeperiod' in json ? json['timeperiod'] : null;
                 entry_name = 'entry_name' in json ? json['entry_name'] : null;
 
-                process_trigger(action, process_name, timeperiod, entry_name, i == selected.length - 1);
+                processTrigger(action, process_name, timeperiod, entry_name, i == selected.length - 1);
                 selected[i].checked = false;
             }
         } else {
@@ -117,7 +117,7 @@ function process_batch(action) {
 }
 
 // function applies given "action" to the job record identified by "process_name+timeperiod"
-function process_job(action, tree_name, process_name, timeperiod, flow_name, step_name) {
+function processJob(action, tree_name, process_name, timeperiod, flow_name, step_name) {
     /**
      * function do_the_call performs communication with the server and parses response
      */
@@ -158,7 +158,7 @@ function process_job(action, tree_name, process_name, timeperiod, flow_name, ste
 }
 
 // function applies given "action" to the SchedulerThreadHandler entry
-function process_trigger(action, process_name, timeperiod, entry_name, reload_afterwards) {
+function processTrigger(action, process_name, timeperiod, entry_name, reload_afterwards) {
     var params = {'process_name': process_name, 'timeperiod': timeperiod, 'entry_name': entry_name};
     $.get('/' + action + '/', params, function (response) {
         // once the response arrives - reload the page

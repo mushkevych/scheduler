@@ -7,7 +7,7 @@
     <link rel="stylesheet" type="text/css" href="{{ url_for('static', file='css/mx_page.css') }}">
     <link rel="stylesheet" type="text/css" href="{{ url_for('static', file='css/font-awesome.css') }}">
     <script type="text/javascript" src="{{ url_for('static', file='js/mx_utils.js') }}"></script>
-    <script type="text/javascript" src="{{ url_for('static', file='js/jquery-3.1.0.min.js') }}"></script>
+    <script type="text/javascript" src="{{ url_for('static', file='js/jquery-3.1.1.min.js') }}"></script>
     <title>Object Viewer</title>
 </head>
 
@@ -20,7 +20,7 @@
 
 <script type="text/javascript">
     $(document).ready(function () {
-        var action = get_url_parameter('action');
+        var action = getUrlParameter('action');
         var url = '/' + action + '/?' + window.location.search.substring(1);
 
         $.get(url, function (data) {

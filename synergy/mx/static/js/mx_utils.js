@@ -107,7 +107,7 @@ function formatJSON(oData, sIndent) {
 }
 
 
-function keys_to_list(dictionary, sorted) {
+function keysToList(dictionary, sorted) {
     var keys = [];
     for (var key in dictionary) {
         if (dictionary.hasOwnProperty(key)) {
@@ -123,7 +123,7 @@ function keys_to_list(dictionary, sorted) {
 }
 
 
-function get_url_parameter(sParam) {
+function getUrlParameter(sParam) {
     var sPageURL = window.location.search.substring(1);
     var sURLVariables = sPageURL.split('&');
     for (var i = 0; i < sURLVariables.length; i++) {
@@ -138,9 +138,9 @@ function get_url_parameter(sParam) {
 /**
  * verifies if the given form_name::flag_name is set to *true*
  * triggers form submit if the flag is *false*
- * and converts all tables with style *synergy_datatable* to JS DataTable
+ * and converts all tables with style *synergy-datatable* to JS DataTable
  */
-function load_dataset(form_name, flag_name, table_sorting) {
+function loadDataset(form_name, flag_name, table_sorting) {
     if ($(form_name).data(flag_name) == false) {
         $(document).ready(function () {
             $(form_name).submit();
@@ -148,7 +148,7 @@ function load_dataset(form_name, flag_name, table_sorting) {
     }
 
     // convert HTML table into JS dataTable
-    $('.synergy_datatable').dataTable({"bPaginate": true,
+    $('.synergy-datatable').dataTable({"bPaginate": true,
         "bSort": true,
         "iDisplayLength": 36,
         "bLengthChange": false,

@@ -29,8 +29,8 @@ class TreeDetails(BaseRequestHandler):
         else:
             return dict()
 
-    @cached_property
-    def mx_page_trees(self):
+    # @cached_property
+    def mx_page_trees(self, mx_page=None):
         """ return trees assigned to given MX Page"""
         resp = dict()
         for tree_name, tree in self.scheduler.timetable.trees.items():

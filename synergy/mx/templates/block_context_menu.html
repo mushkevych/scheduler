@@ -2,12 +2,12 @@
 <div class="context_menu_hide" id="rmenu">
     <ul>
         <li>
-            <a onclick="process_batch({% if is_freerun %}'freerun/entry/activate'{% else %}'managed/entry/activate'{% endif %} )">
+            <a onclick="processBatch({% if is_freerun %}'freerun/entry/activate'{% else %}'managed/entry/activate'{% endif %})">
                 <i class="fa fa-toggle-on"></i>&nbsp;Activate
             </a>
         </li>
         <li>
-            <a onclick="process_batch({% if is_freerun %}'freerun/entry/deactivate'{% else %}'managed/entry/deactivate'{% endif %} )">
+            <a onclick="processBatch({% if is_freerun %}'freerun/entry/deactivate'{% else %}'managed/entry/deactivate'{% endif %})">
                 <i class="fa fa-toggle-off"></i>&nbsp;Deactivate
             </a>
         </li>
@@ -21,12 +21,12 @@
 <div class="context_menu_hide" id="rmenu">
     <ul>
         <li>
-            <a onclick="process_batch('tree/node/skip', false)">
+            <a onclick="processBatch('tree/node/skip')">
                 <i class="fa fa-step-forward"></i>&nbsp;Skip
             </a>
         </li>
         <li>
-            <a onclick="process_batch('tree/node/reprocess', false)">
+            <a onclick="processBatch('tree/node/reprocess')">
                 <i class="fa fa-repeat"></i>&nbsp;Reprocess
             </a>
         </li>

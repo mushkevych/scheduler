@@ -231,7 +231,7 @@ def schedulable_viewer(request, **values):
 @expose('/mx_page_tiles/')
 def mx_page_tiles(request, **values):
     details = TreeDetails(request, **values)
-    return render_template('mx_page_tiles.html', details=details.mx_page_trees)
+    return render_template('mx_page_tiles.html', details=details)
 
 
 # referenced from mx.synergy_mx.py module
