@@ -86,6 +86,10 @@ body {
     display: inline-block;
     width: 110px;
     padding: 1px;
+
+    /* flat button */
+
+
 }
 
 .action_toogle:hover {

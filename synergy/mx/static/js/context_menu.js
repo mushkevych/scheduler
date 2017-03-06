@@ -54,10 +54,10 @@ function assignContextMenu() {
 }
 
 // event call-back for "window.load" event
-$(window).load(assignContextMenu());
+$(window).on('load', assignContextMenu);
 
 // hide the right-click-menu if user clicked outside its boundaries
-$(document).bind('click', function (event) {
+$(document).on('click', function (event) {
     if (document.getElementById('rmenu')) {
         document.getElementById('rmenu').className = 'context_menu_hide';
     }

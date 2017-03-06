@@ -459,7 +459,8 @@ function buildTree(tree_name) {
  * NOTICE: variable @mx_trees is in the format {tree_name: tree_obj}
  *         and is set in mx_page_tiles.html by the templating engine
  */
-$(document).ready(function () {
+$(function() {
+    // former $(document).ready(function () {...})
     for (var tree_name in mx_trees) {
         if (!mx_trees.hasOwnProperty(tree_name)) {
             continue;
