@@ -83,14 +83,14 @@ def action_skip(request, **values):
 @expose('/freerun/entry/', methods=['DELETE', 'PUT', 'POST'])
 def action_freerun_entry(request, **values):
     handler = FreerunActionHandler(request, **values)
-    if 'insert_button' in handler.request_arguments or request.method == 'PUT':
+    if 'cancel_button' in handler.request_arguments or request.method == 'HEAD':
+        pass
+    elif 'insert_button' in handler.request_arguments or request.method == 'PUT':
         handler.create_entry()
     elif 'delete_button' in handler.request_arguments or request.method == 'DELETE':
         handler.delete_entry()
     elif 'update_button' in handler.request_arguments or request.method == 'POST':
         handler.update_entry()
-    elif 'cancel_button' in handler.request_arguments or request.method == 'HEAD':
-        pass
     else:
         handler.logger.error('MX Error: unsupported method for by /freerun/entry/: {0}'.format(request.method))
     return Response(status=NO_CONTENT)
