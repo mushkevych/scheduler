@@ -101,6 +101,8 @@ class AbstractStateMachine(object):
             # this UOW was marked for re-processing. recycle it
             uow.created_at = datetime.utcnow()      # reset created_at to bypass GC cancellation logic
             uow.submitted_at = datetime.utcnow()    # reset submitted_at to allow 1 hour free of GC resubmitting
+            uow.started_at = None
+            uow.finished_at = None
             uow.state = unit_of_work.STATE_REQUESTED
 
         # publish the created/caught up unit_of_work
