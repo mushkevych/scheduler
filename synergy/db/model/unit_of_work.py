@@ -69,8 +69,8 @@ class UnitOfWork(BaseDocument):
                                         STATE_PROCESSED, STATE_CANCELED, STATE_NOOP])
     created_at = DateTimeField(CREATED_AT)
     submitted_at = DateTimeField(SUBMITTED_AT)
-    started_at = DateTimeField(STARTED_AT, null=True)
-    finished_at = DateTimeField(FINISHED_AT, null=True)
+    started_at = DateTimeField(STARTED_AT)
+    finished_at = DateTimeField(FINISHED_AT)
 
     number_of_aggregated_documents = IntegerField(NUMBER_OF_AGGREGATED_DOCUMENTS)
     number_of_processed_documents = IntegerField(NUMBER_OF_PROCESSED_DOCUMENTS)

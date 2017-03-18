@@ -113,8 +113,13 @@ class StateMachineFreerun(object):
         uow.submitted_at = datetime.utcnow()
         uow.state = unit_of_work.STATE_REQUESTED
         uow.unit_of_work_type = unit_of_work.TYPE_FREERUN
+        del uow.started_at
+        del uow.finished_at
+        del uow.number_of_aggregated_documents
+        del uow.number_of_processed_documents
         uow.number_of_retries = 0
         uow.arguments = arguments
+        self.uow_dao.update(uow)
 
     def insert_and_publish_uow(self, freerun_entry, flow_request=None, reset_uow=False):
         try:
