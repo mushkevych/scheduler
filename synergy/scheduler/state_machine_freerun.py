@@ -25,7 +25,7 @@ class StateMachineFreerun(object):
         self.logger = logger
         self.mq_transmitter = MqTransmitter(self.logger)
         self.uow_dao = UnitOfWorkDao(self.logger)
-        self.sfe_dao = FreerunProcessDao(self.logger)
+        self.freerun_process_dao = FreerunProcessDao(self.logger)
 
     @with_reconnect
     def _log_message(self, level, freerun_entry, msg):
@@ -37,7 +37,7 @@ class StateMachineFreerun(object):
         if len(event_log) > MAX_NUMBER_OF_EVENTS:
             del event_log[-1]
         event_log.insert(0, msg)
-        self.sfe_dao.update(freerun_entry)
+        self.freerun_process_dao.update(freerun_entry)
 
     @with_reconnect
     def _insert_uow(self, freerun_entry, flow_request=None):
@@ -133,10 +133,10 @@ class StateMachineFreerun(object):
             self._reset_flow_uow(freerun_entry, uow, flow_request)
 
         if uow is not None:
-            # publish the created/caught up unit_of_work
+            # publish the created/recovered/recycled unit_of_work
             self._publish_uow(freerun_entry, uow)
             freerun_entry.related_unit_of_work = uow.db_id
-            self.sfe_dao.update(freerun_entry)
+            self.freerun_process_dao.update(freerun_entry)
         else:
             msg = 'PERSISTENT TIER ERROR! Unable to locate UOW for {0}' \
                   .format(freerun_entry.schedulable_name)

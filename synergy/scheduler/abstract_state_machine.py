@@ -108,7 +108,7 @@ class AbstractStateMachine(object):
             uow.state = unit_of_work.STATE_REQUESTED
             self.uow_dao.update(uow)
 
-        # publish the created/caught up unit_of_work
+        # publish the created/recovered/recycled unit_of_work
         self._publish_uow(uow)
         return uow, is_duplicate
 

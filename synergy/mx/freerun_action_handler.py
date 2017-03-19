@@ -36,7 +36,7 @@ class FreerunActionHandler(AbstractActionHandler):
         return self.process_entry.related_unit_of_work
 
     @valid_action_request
-    def action_cancel_uow(self):
+    def cancel_uow(self):
         freerun_state_machine = self.scheduler.timetable.state_machines[STATE_MACHINE_FREERUN]
         freerun_state_machine.cancel_uow(self.process_entry)
         return self.reply_ok()

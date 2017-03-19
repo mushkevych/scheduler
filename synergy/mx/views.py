@@ -74,7 +74,7 @@ def reprocess_job(request, **values):
 
 
 @expose('/tree/node/skip/')
-def action_skip(request, **values):
+def skip_job(request, **values):
     handler = ManagedActionHandler(request, **values)
     handler.skip_tree_node()
     return Response(status=NO_CONTENT)
@@ -109,9 +109,9 @@ def freerun_uow(request, **values):
 
 
 @expose('/freerun/uow/cancel/')
-def action_cancel_uow(request, **values):
+def freerun_cancel_uow(request, **values):
     handler = FreerunActionHandler(request, **values)
-    handler.action_cancel_uow()
+    handler.cancel_uow()
     return Response(status=NO_CONTENT)
 
 
