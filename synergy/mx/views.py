@@ -80,7 +80,7 @@ def skip_job(request, **values):
     return Response(status=NO_CONTENT)
 
 
-@expose('/freerun/entry/', methods=['DELETE', 'PUT', 'POST'])
+@expose('/freerun/entry/', methods=['HEAD', 'DELETE', 'PUT', 'POST'])
 def action_freerun_entry(request, **values):
     handler = FreerunActionHandler(request, **values)
     if 'cancel_button' in handler.request_arguments or request.method == 'HEAD':
@@ -213,6 +213,13 @@ def gc_flush_one(request, **values):
 def gc_refresh(request, **values):
     handler = GcActionHandler(request, **values)
     handler.refresh()
+    return Response(status=NO_CONTENT)
+
+
+@expose('/supervisor/entries/')
+def supervisor_entries(request, **values):
+    # details = SupervisorEntries(request, **values)
+    # return render_template('supervisor_entries.html', details=details)
     return Response(status=NO_CONTENT)
 
 

@@ -47,6 +47,7 @@
         {%- endfor -%}
         <th></th>
         <th></th>
+        <th></th>
     </tr>
     </thead>
     <tbody>
@@ -58,6 +59,7 @@
         {%- endfor -%}
         {{  render_td(url_for('scheduler_managed_entries'), 'scheduler managed entries') }}
         {{  render_td(url_for('scheduler_freerun_entries'), 'scheduler freerun entries') }}
+        {{  render_td(url_for('supervisor_entries'), 'supervisor') }}
     </tr>
     </tbody>
 </table>
