@@ -58,7 +58,7 @@ class SupervisorEntry(object):
             raise ValueError('SupervisorEntry: process {0} is not found in process_context. Aborting'
                              .format(process_name))
 
-        self.logger = get_logger(PROCESS_SUPERVISOR, True)
+        self.logger = get_logger(PROCESS_SUPERVISOR, append_to_console=True)
         self.process_name = process_name
         self.re_boxes = context.process_context[process_name].present_on_boxes
         self.re_boxes = self.re_boxes if self.re_boxes else list()
@@ -97,7 +97,7 @@ class SupervisorEntry(object):
 class SupervisorConfigurator(object):
     def __init__(self):
         super(SupervisorConfigurator, self).__init__()
-        self.logger = get_logger(PROCESS_SUPERVISOR, True)
+        self.logger = get_logger(PROCESS_SUPERVISOR, append_to_console=True)
         self.bc_dao = BoxConfigurationDao(self.logger)
 
         self.box_id = get_box_id(self.logger)
@@ -109,8 +109,8 @@ class SupervisorConfigurator(object):
                 continue
 
     def _change_state(self, process_name, new_state):
-        self.logger.info('INFO: Supervisor configuration: setting state {0} for process {1} \n'
-                         .format(new_state, process_name))
+        self.logger.info('INFO: Supervisor Configurator set state {0} for process {1} on box {2}\n'
+                         .format(new_state, process_name, self.box_id))
         box_config = self.bc_dao.get_one([self.box_id, process_name])
         box_config.is_on = new_state
         self.bc_dao.update(box_config)

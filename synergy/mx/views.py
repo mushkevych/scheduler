@@ -17,6 +17,7 @@ from synergy.mx.dashboard_handler import DashboardHandler
 from synergy.mx.utils import render_template, expose
 from synergy.mx.tree_node_details import TreeNodeDetails
 from synergy.mx.tree_details import TreeDetails
+from synergy.mx.supervisor_action_handler import SupervisorActionHandler
 
 
 @expose('/managed/entries/')
@@ -218,8 +219,21 @@ def gc_refresh(request, **values):
 
 @expose('/supervisor/entries/')
 def supervisor_entries(request, **values):
-    # details = SupervisorEntries(request, **values)
-    # return render_template('supervisor_entries.html', details=details)
+    handler = SupervisorActionHandler(request, **values)
+    return render_template('supervisor_entries.html', details=handler.entries)
+
+
+@expose('/supervisor/entry/start/')
+def supervisor_start_process(request, **values):
+    handler = SupervisorActionHandler(request, **values)
+    handler.mark_for_start()
+    return Response(status=NO_CONTENT)
+
+
+@expose('/supervisor/entry/stop/')
+def supervisor_start_process(request, **values):
+    handler = SupervisorActionHandler(request, **values)
+    handler.mark_for_stop()
     return Response(status=NO_CONTENT)
 
 
