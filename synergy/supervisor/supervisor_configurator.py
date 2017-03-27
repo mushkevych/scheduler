@@ -95,12 +95,12 @@ class SupervisorEntry(object):
 
 
 class SupervisorConfigurator(object):
-    def __init__(self):
+    def __init__(self, logger=None, box_id=None):
         super(SupervisorConfigurator, self).__init__()
-        self.logger = get_logger(PROCESS_SUPERVISOR, append_to_console=True)
+        self.logger = logger if logger else get_logger(PROCESS_SUPERVISOR, append_to_console=True)
+        self.box_id = box_id if box_id else get_box_id(self.logger)
         self.bc_dao = BoxConfigurationDao(self.logger)
 
-        self.box_id = get_box_id(self.logger)
         self.process_map = dict()
         for process_name in context.process_context:
             try:

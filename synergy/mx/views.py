@@ -82,7 +82,7 @@ def skip_job(request, **values):
 
 
 @expose('/freerun/entry/', methods=['HEAD', 'DELETE', 'PUT', 'POST'])
-def action_freerun_entry(request, **values):
+def freerun_entry_action(request, **values):
     handler = FreerunActionHandler(request, **values)
     if 'cancel_button' in handler.request_arguments or request.method == 'HEAD':
         pass
