@@ -16,3 +16,12 @@ class BoxConfiguration(BaseDocument):
     process_name = StringField(PROCESS_NAME)
     is_on = BooleanField(IS_ON, default=False)
     pid = IntegerField(PID, null=True)
+
+    @BaseDocument.key.getter
+    def key(self):
+        return self.db_id, self.process_name
+
+    @key.setter
+    def key(self, value):
+        """ :param value: tuple holding (db_id, process_name) """
+        self.db_id, self.process_name = value
