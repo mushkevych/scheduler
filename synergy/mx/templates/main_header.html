@@ -24,16 +24,16 @@
 
 {% macro render_td(endpoint, title) %}
     {% set td_class = '' %}
-    {%- if '/' + endpoint in local.request.path -%}
+    {%- if endpoint in local.request.path -%}
         <script type="text/javascript">
-            var active_mx_page = "{{ endpoint|safe }}";
+            var active_mx_page = "{{ endpoint|lstrip_slash|safe }}";
         </script>
-        {% do active_mx_page.append(endpoint) %}
+        {% do active_mx_page.append(endpoint|lstrip_slash|safe) %}
         {% set td_class = 'class="active"' %}
     {%- endif -%}
 
     <td {{ td_class|safe }}>
-        <a href="{{ '/' + endpoint }}"> {{ title }}</a>
+        <a href="{{ endpoint }}">{{ title }}</a>
     </td>
 {% endmacro %}
 
@@ -55,7 +55,7 @@
         {{  render_td(url_for('dashboard_managed'), 'dashboard jobs') }}
         {{  render_td(url_for('dashboard_freeruns'), 'dashboard freeruns') }}
         {%- for mx_rule, mx_page_name in mx_processing_context.items() %}
-            {{  render_td( mx_rule, mx_page_name) }}
+            {{  render_td( '/' + mx_rule, mx_page_name) }}
         {%- endfor -%}
         {{  render_td(url_for('scheduler_managed_entries'), 'scheduler managed entries') }}
         {{  render_td(url_for('scheduler_freerun_entries'), 'scheduler freerun entries') }}
