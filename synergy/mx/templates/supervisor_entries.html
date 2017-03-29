@@ -1,6 +1,11 @@
 {% extends 'main_header.html' %}
 {% block body %}
 
+<br/>
+Table below provides list of processes and boxes known to the system
+<br/>
+<strong>NOTICE</strong> list is for reference only, as there might be processes entered manually or decommissioned boxes
+<br/>
 <div><table class="one-column-emphasis synergy-datatable" id="supervisor_table">
     <thead>
     <tr class="one-column-emphasis-first">
@@ -8,22 +13,27 @@
         <th scope="col">Process Name</th>
         <th scope="col">Is On</th>
         <th scope="col">PID</th>
-        <th scope="col"></th> <!-- enable/disable-->
+        <th scope="col"></th> <!-- start/stop-->
     </tr>
     </thead>
     <tbody>
 
-    {%- for db_id, bc_entry in details.entries.items() -%}
+    {%- for bc_entry in details -%}
     <tr class="{{ bc_entry.state }}">
         <td>{{ bc_entry.box_id }}</td>
         <td>{{ bc_entry.process_name }}</td>
         <td>{{ bc_entry.is_on }}</td>
         <td>{{ bc_entry.pid }}</td>
+
+        {% set action_url = '/supervisor/entry/stop/' if bc_entry.is_on else '/supervisor/entry/start/' %}
+        {% set button_title = 'Stop' if bc_entry.is_on else 'Start' %}
+        {% set button_value = '&#xf04d;&nbsp;Stop' if bc_entry.is_on else '&#xf04b;&nbsp;Start' %}
+
         <td>
-            <form method="POST" action="/managed/entry/trigger/">
+            <form method="POST" action="{{ action_url }}">
                 <input type="hidden" name="box_id" value="{{ bc_entry.box_id }}" />
                 <input type="hidden" name="process_name" value="{{ bc_entry.process_name }}" />
-                <input type="submit" class="action_button fa-input" title="Activate" value="&#xf135;&nbsp;Trigger"/>
+                <input type="submit" class="action_button fa-input" title="{{ button_title }}" value="{{ button_value }}"/>
             </form>
         </td>
     </tr>

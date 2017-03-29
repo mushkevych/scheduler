@@ -22,7 +22,7 @@ class SupervisorActionHandler(BaseRequestHandler):
 
     @cached_property
     def entries(self):
-        """ reading box configuration entries for all boxes supervised by Synergy Supervisor """
+        """ reading box configuration entries for all boxes managed by Synergy Supervisor """
         list_of_rows = []
         try:
             list_of_rows = self.configurator.bc_dao.get_all()
