@@ -1,10 +1,9 @@
 {% extends 'main_header.html' %}
 {% block body %}
 
-<br/>
-Table below provides list of processes and boxes known to the system
-<br/>
-<strong>NOTICE</strong> list is for reference only, as there might be processes entered manually or decommissioned boxes
+<div style="text-align: center;">
+<strong>NOTICE:</strong> list can contain processes from manual context.py update or decommissioned boxes
+</div>
 <br/>
 <div><table class="one-column-emphasis synergy-datatable" id="supervisor_table">
     <thead>
@@ -30,7 +29,7 @@ Table below provides list of processes and boxes known to the system
         {% set button_value = '&#xf04d;&nbsp;Stop' if bc_entry.is_on else '&#xf04b;&nbsp;Start' %}
 
         <td>
-            <form method="POST" action="{{ action_url }}">
+            <form method="POST" action="{{ action_url }}" onsubmit="refreshWithDelay()">
                 <input type="hidden" name="box_id" value="{{ bc_entry.box_id }}" />
                 <input type="hidden" name="process_name" value="{{ bc_entry.process_name }}" />
                 <input type="submit" class="action_button fa-input" title="{{ button_title }}" value="{{ button_value|safe }}"/>

@@ -48,7 +48,8 @@ def get_box_id(logger):
         if box_id is None:
             raise LookupError('BOX_ID is not defined in {0}'.format(config_file))
 
-    except EnvironmentError:  # parent of IOError, OSError
+    # TODO: likely remove EnvironmentError catching. wrap get_box_id in try/catch for UI and crash fast for daemons
+    except EnvironmentError:  # parent of IOError, OSError, FileNotFoundError
         logger.error('Can not read configuration file.', exc_info=True)
 
 
