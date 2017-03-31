@@ -231,7 +231,7 @@ def supervisor_start_process(request, **values):
 
 
 @expose('/supervisor/entry/stop/')
-def supervisor_start_process(request, **values):
+def supervisor_stop_process(request, **values):
     handler = SupervisorActionHandler(request, **values)
     handler.mark_for_stop()
     return Response(status=NO_CONTENT)

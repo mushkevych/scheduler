@@ -30,7 +30,9 @@ def set_box_id(logger, box_id):
 
 
 def get_box_id(logger):
-    """ retrieves box id from the /etc/synergy.conf configuration file """
+    """ retrieves box id from the /etc/synergy.conf configuration file
+        :raise EnvironmentError: if the configuration file could not be opened
+        :raise LookupError: if the configuration file does not define BOX_ID variable """
     try:
         box_id = None
         config_file = settings.settings['config_file']
@@ -48,9 +50,9 @@ def get_box_id(logger):
         if box_id is None:
             raise LookupError('BOX_ID is not defined in {0}'.format(config_file))
 
-    # TODO: likely remove EnvironmentError catching. wrap get_box_id in try/catch for UI and crash fast for daemons
     except EnvironmentError:  # parent of IOError, OSError, FileNotFoundError
         logger.error('Can not read configuration file.', exc_info=True)
+        raise
 
 
 class SupervisorEntry(object):
