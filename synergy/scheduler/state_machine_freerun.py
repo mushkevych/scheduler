@@ -87,8 +87,8 @@ class StateMachineFreerun(object):
         self._log_message(INFO, freerun_entry, msg)
 
     def _find_flow_uow(self, flow_request):
-        """ most of the FreerunProcessEntries for workflows are run-time only
-            i.e. that they disappear after the Scheduler restart, unlike persistent UOW
+        """ unless created manually, FreerunProcessEntries for workflows are run-time only objects
+            i.e. they disappear after Synergy Scheduler restart; unlike persistent UOW
             hence, we have to try to fetch UOW associated with workflow+step+timeperiod """
         if not flow_request:
             return None
@@ -136,7 +136,11 @@ class StateMachineFreerun(object):
             # publish the created/recovered/recycled unit_of_work
             self._publish_uow(freerun_entry, uow)
             freerun_entry.related_unit_of_work = uow.db_id
-            self.freerun_process_dao.update(freerun_entry)
+
+            if not flow_request:
+                # FreerunProcessEntry for workflows are runtime-only objects
+                # skip persistence update if this is a workflow request
+                self.freerun_process_dao.update(freerun_entry)
         else:
             msg = 'PERSISTENT TIER ERROR! Unable to locate UOW for {0}' \
                   .format(freerun_entry.schedulable_name)
@@ -163,7 +167,7 @@ class StateMachineFreerun(object):
             it will issue new WorkerMqRequest for the same UOW """
 
         assert isinstance(freerun_entry, FreerunProcessEntry)
-        if freerun_entry.related_unit_of_work is None:
+        if freerun_entry.related_unit_of_work is not None:
             uow = self.uow_dao.get_one(freerun_entry.related_unit_of_work)
         else:
             uow = self._find_flow_uow(flow_request)
