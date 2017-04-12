@@ -9,6 +9,7 @@ from synergy.db.dao import job_dao
 from synergy.db.dao.job_dao import JobDao
 from synergy.db.dao import unit_of_work_dao
 from synergy.db.dao.unit_of_work_dao import UnitOfWorkDao
+from synergy.db.model.freerun_process_entry import split_schedulable_name
 from synergy.scheduler.scheduler_constants import COLLECTION_JOB_YEARLY, \
     COLLECTION_JOB_MONTHLY, COLLECTION_JOB_DAILY, COLLECTION_JOB_HOURLY
 from synergy.system.decorator import thread_safe
@@ -124,10 +125,12 @@ class FreerunStatements(object):
                 self.logger.warning('MX: no Freerun UOW records found since {0}.'.format(timeperiod))
 
             for uow_record in records_list:
-                if uow_record.process_name not in self.freerun_handlers:
+                # freerun uow.process_name is a composite in format <process_name::entry_name>
+                handler_key = split_schedulable_name(uow_record.process_name)
+                if handler_key not in self.freerun_handlers:
                     continue
 
-                thread_handler = self.freerun_handlers[uow_record.process_name]
+                thread_handler = self.freerun_handlers[handler_key]
                 if not include_disabled and not thread_handler.process_entry.is_on:
                     continue
 

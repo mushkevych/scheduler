@@ -19,6 +19,14 @@ MAX_NUMBER_OF_EVENTS = 128
 RELATED_UNIT_OF_WORK = 'related_unit_of_work'
 
 
+def split_schedulable_name(name):
+    return name.split('::', 1)
+
+
+def build_schedulable_name(prefix, suffix):
+    return '{0}::{1}'.format(prefix, suffix)
+
+
 class FreerunProcessEntry(DaemonProcessEntry):
     """ Class presents single configuration entry for the freerun process/bash_driver """
 
@@ -45,7 +53,7 @@ class FreerunProcessEntry(DaemonProcessEntry):
 
     @property
     def schedulable_name(self):
-        return '{0}::{1}'.format(self.process_name, self.entry_name)
+        return build_schedulable_name(self.process_name, self.entry_name)
 
 
 def freerun_context_entry(process_name,

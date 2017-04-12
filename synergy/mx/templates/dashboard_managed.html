@@ -48,7 +48,7 @@
             </form>
         </td>
         <td>
-            {% set url = 'action=flow/details/flow' + '&process_name=' + job_entry.process_name + '&timeperiod=' + job_entry.timeperiod %}
+            {% set url = 'action=flow/flow/details' + '&process_name=' + job_entry.process_name + '&timeperiod=' + job_entry.timeperiod + '&unit_of_work_type=type_managed' %}
             <form method="GET" onsubmit="window.open('/viewer/flow/?{{ url }}','Workflow',
                  'toolbar=no,scrollbars=yes,resizable=yes,top=150,left=250,width=800,height=800'); return false;">
                 <input type="submit" class="action_button fa-input" title="Workflow" value="&#xf074;&nbsp;Workflow"/>

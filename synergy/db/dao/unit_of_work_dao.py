@@ -27,6 +27,12 @@ QUERY_GET_FREERUN_SINCE = lambda timeperiod, include_running, include_processed,
                                  unit_of_work.STATE_NOOP if include_noop else None]}
 }
 
+QUERY_GET_FLOW_FREERUNS = lambda schedulable_stem, timeperiod: {
+    unit_of_work.TIMEPERIOD: timeperiod,
+    unit_of_work.UNIT_OF_WORK_TYPE: unit_of_work.TYPE_FREERUN,
+    unit_of_work.PROCESS_NAME: {'$regex': schedulable_stem + '*', '$options': 'i'}
+}
+
 
 class UnitOfWorkDao(object):
     """ Thread-safe Data Access Object from units_of_work table/collection """

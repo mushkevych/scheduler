@@ -86,21 +86,6 @@ class StateMachineFreerun(object):
         msg = 'Published: UOW {0} for {1}.'.format(uow.db_id, freerun_entry.schedulable_name)
         self._log_message(INFO, freerun_entry, msg)
 
-    def _find_flow_uow(self, flow_request):
-        """ unless created manually, FreerunProcessEntries for workflows are run-time only objects
-            i.e. they disappear after Synergy Scheduler restart; unlike persistent UOW
-            hence, we have to try to fetch UOW associated with workflow+step+timeperiod """
-        if not flow_request:
-            return None
-        try:
-            uow = self.uow_dao.get_by_params(process_name=flow_request.schedulable_name,
-                                             timeperiod=flow_request.timeperiod,
-                                             start_id=0,
-                                             end_id=0)
-        except:
-            uow = None
-        return uow
-
     def _reset_flow_uow(self, freerun_entry, uow, flow_request):
         """ there can be multiple freeruns for a single combination of workflow+step+timeperiod
             hence, we have to *recycle* finished UOW """
@@ -167,10 +152,9 @@ class StateMachineFreerun(object):
             it will issue new WorkerMqRequest for the same UOW """
 
         assert isinstance(freerun_entry, FreerunProcessEntry)
-        if freerun_entry.related_unit_of_work is not None:
+        uow = None
+        if freerun_entry.related_unit_of_work:
             uow = self.uow_dao.get_one(freerun_entry.related_unit_of_work)
-        else:
-            uow = self._find_flow_uow(flow_request)
 
         try:
             if uow is None:
