@@ -30,11 +30,11 @@ class ManagedProcessEntry(DaemonProcessEntry):
     state_machine_name = StringField(STATE_MACHINE_NAME)
     blocking_type = StringField(BLOCKING_TYPE, choices=[BLOCKING_CHILDREN, BLOCKING_DEPENDENCIES, BLOCKING_NORMAL])
 
-    @DaemonProcessEntry.key.getter
+    @property
     def key(self):
         return self.process_name
 
-    @DaemonProcessEntry.key.setter
+    @key.setter
     def key(self, value):
         self.process_name = value
 

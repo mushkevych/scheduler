@@ -42,11 +42,11 @@ class FreerunProcessEntry(DaemonProcessEntry):
     event_log = ListField(EVENT_LOG)
     related_unit_of_work = ObjectIdField(RELATED_UNIT_OF_WORK)
 
-    @DaemonProcessEntry.key.getter
+    @property
     def key(self):
         return self.process_name, self.entry_name
 
-    @DaemonProcessEntry.key.setter
+    @key.setter
     def key(self, value):
         self.process_name = value[0]
         self.entry_name = value[1]
