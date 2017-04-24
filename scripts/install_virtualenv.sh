@@ -76,7 +76,7 @@ commonlist=(
     "Jinja2-2.8.tar.gz"
     "Werkzeug-0.11.10.tar.gz"
     "synergy_odm-0.9.tar.gz"
-    "synergy_flow-0.7.tar.gz"
+    "synergy_flow-0.9.tar.gz"
 )
 
 if [ -z "$1" ]; then
