@@ -67,6 +67,7 @@ test_cases = [
     'tests.test_raw_data',
     'tests.test_site_statistics',
     'tests.test_single_session',
+    'tests.test_freerun_process_entry',
 ]
 
 
