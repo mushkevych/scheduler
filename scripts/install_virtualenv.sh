@@ -61,8 +61,8 @@ commonlist=(
     "psutil-4.3.0.tar.gz"
 
     # Amqp
-    "vine-1.1.1.tar.gz"
-    "amqp-2.0.3.tar.gz"
+    "vine-1.1.4.tar.gz"
+    "amqp-2.2.2.tar.gz"
 
     "pyrepl-0.8.4.tar.gz"
     "fancycompleter-0.5.tar.gz"
