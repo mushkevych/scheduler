@@ -89,10 +89,10 @@ function headerProcessTile(process_entry, tile) {
 
     var is_on;
     if (process_entry.is_on) {
-        is_on = '<a onclick="processTrigger(\'managed/entry/deactivate\', \'' + process_entry.process_name + '\', \'NA\', null, false, true)">' +
+        is_on = '<a onclick="processTrigger(\'managed/entry/deactivate\', \'' + process_entry.process_name + '\', \'NA\', null, true)">' +
         '<i class="fa fa-toggle-on action_toogle" title="is ON"></i></a>';
     } else {
-        is_on = '<a onclick="processTrigger(\'managed/entry/activate\', \'' + process_entry.process_name + '\', \'NA\', null, false, true)">' +
+        is_on = '<a onclick="processTrigger(\'managed/entry/activate\', \'' + process_entry.process_name + '\', \'NA\', null, true)">' +
         '<i class="fa fa-toggle-off action_toogle" title="is OFF"></i></a>';
     }
 

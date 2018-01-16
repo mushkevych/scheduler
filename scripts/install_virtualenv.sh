@@ -4,77 +4,76 @@
 python2list=(
     "linecache2-1.0.0.tar.gz"
     "traceback2-1.4.0.tar.gz"
-    "six-1.10.0.tar.gz"
-    "virtualenv-15.0.3.tar.gz"
-
-    # NOTICE: setuptools-25.x.x and 26.0.0 does not work with pylint-1.6.4
-    "setuptools-24.3.1.tar.gz"
+    "six-1.11.0.tar.gz"
+    "virtualenv-15.1.0.tar.gz"
+    "setuptools-28.8.1.tar.gz"
 
     "distribute-0.7.3.zip"
     "unittest2-1.1.0.tar.gz"
-    "pbr-1.10.0.tar.gz"
+    "pbr-3.1.1.tar.gz"
 
     # mock section
     "funcsigs-1.0.2.tar.gz"
     "mock-2.0.0.tar.gz"
 
+    # seems to be replaced by the Python3 libs
+    "pyrepl-0.8.4.tar.gz"
+    "fancycompleter-0.8.tar.gz"
+    "wmctrl-0.3.tar.gz"
+    "pdbpp-0.9.2.tar.gz"
+    "docutils-0.14.tar.gz"
+    "pysmell-0.7.3.zip"
+
     "nose-1.3.7.tar.gz"
 )
 
 python3list=(
-    "six-1.10.0.tar.gz"
+    "six-1.11.0.tar.gz"
 )
 
 commonlist=(
-    "pip-8.1.2.tar.gz"
+    "pip-9.0.1.tar.gz"
     "ordereddict-1.1.tar.gz"
 
     # ipython
-    "path.py-8.1.2.tar.gz"
+    "path.py-10.5.tar.gz"
     "ipython_genutils-0.1.0.tar.gz"
-    "ptyprocess-0.5.1.tar.gz"
-    "decorator-4.0.10.tar.gz"
-    "pathlib2-2.1.0.tar.gz"
+    "ptyprocess-0.5.2.tar.gz"
+    "decorator-4.4.2.tar.gz"
+    "pathlib2-2.3.0.tar.gz"
     "pickleshare-0.7.4.tar.gz"
     "simplegeneric-0.8.1.zip"
-    "traitlets-4.2.2.tar.gz"
-    "pexpect-4.2.1.tar.gz"
+    "traitlets-4.3.2.tar.gz"
+    "pexpect-4.3.1.tar.gz"
     "backports.shutil_get_terminal_size-1.0.0.tar.gz"
     "wcwidth-0.1.7.tar.gz"
     "prompt_toolkit-1.0.7.tar.gz"
-    "Pygments-2.1.3.tar.gz"
-    "ipython-5.1.0.tar.gz"
+    "Pygments-2.2.0.tar.gz"
+    "ipython-5.5.0.tar.gz"
 
     # pylint section start
-    "backports.functools_lru_cache-1.2.1.tar.gz"
+    "backports.functools_lru_cache-1.4.tar.gz"
     "configparser-3.5.0.tar.gz"
-    "mccabe-0.5.2.tar.gz"
-    "isort-4.2.5.tar.gz"
-    "lazy-object-proxy-1.2.2.tar.gz"
-    "wrapt-1.10.8.tar.gz"
-    "astroid-1.4.8.tar.gz"
-    "pylint-1.6.4.tar.gz"
+    "mccabe-0.6.1.tar.gz"
+    "isort-4.2.15.tar.gz"
+    "lazy-object-proxy-1.3.1.tar.gz"
+    "wrapt-1.10.11.tar.gz"
+    "astroid-1.6.0.tar.gz"
+    "pylint-1.8.1.tar.gz"
 
-    "coverage-4.2.tar.gz"
+    "coverage-4.4.2.tar.gz"
     "unittest-xml-reporting-2.1.0.tar.gz"
     "setproctitle-1.1.10.tar.gz"
-    "psutil-4.3.0.tar.gz"
+    "psutil-5.4.3.tar.gz"
 
     # Amqp
     "vine-1.1.4.tar.gz"
     "amqp-2.2.2.tar.gz"
 
-    "pyrepl-0.8.4.tar.gz"
-    "fancycompleter-0.5.tar.gz"
-    "wmctrl-0.3.tar.gz"
-    "pdbpp-0.8.3.tar.gz"
-    "docutils-0.12.tar.gz"
-    "pysmell-0.7.3.zip"
-
-    "pymongo-3.3.0.tar.gz"
-    "MarkupSafe-0.23.tar.gz"
-    "Jinja2-2.8.tar.gz"
-    "Werkzeug-0.11.10.tar.gz"
+    "pymongo-3.6.0.tar.gz"
+    "MarkupSafe-1.0.tar.gz"
+    "Jinja2-2.10.tar.gz"
+    "Werkzeug-0.14.1.tar.gz"
     "synergy_odm-0.9.tar.gz"
     "synergy_flow-0.9.tar.gz"
 )
