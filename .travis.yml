@@ -58,5 +58,5 @@ script:
 branches:
   only:
     - master
-    - 1.18
     - 1.19
+    - 2.0
