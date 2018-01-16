@@ -35,6 +35,17 @@ matrix:
 # deactivate Travis-CI Python3 VirtualEnv, as it conflicts with the launch.py one
         - deactivate
 
+    - python: "3.6"
+      env: PYTHON_BINARY="python3.6"
+      addons:
+        apt:
+          packages:
+          - python3-setuptools
+          - python3-dev
+      before_install:
+# deactivate Travis-CI Python3 VirtualEnv, as it conflicts with the launch.py one
+        - deactivate
+
 services:
   - rabbitmq
   - mongodb
@@ -58,5 +69,5 @@ script:
 branches:
   only:
     - master
-    - 1.18
-    - 1.19
+    - 2.0
+    - 2.1
