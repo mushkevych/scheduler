@@ -1,11 +1,9 @@
-# our base image
 FROM alpine:3.7
 
-# Set one or more individual labels
 LABEL maintainer="mushkevych@gmail.com"
 LABEL synergy_scheduler.docker.version="0.1"
 
-# add python
+# add python3
 RUN apk add --no-cache python3 && \
     python3 -m ensurepip && \
     rm -r /usr/lib/python*/ensurepip && \
@@ -22,8 +20,8 @@ WORKDIR /opt/synergy_scheduler/
 
 RUN /opt/synergy_scheduler/launch.py install
 
-# run the application
+# start Synergy Scheduler daemon
 ENTRYPOINT ["python", "/opt/synergy_scheduler/launch.py", "start", "Scheduler"]
 
-# tell the port number the container should expose
+# port number the container should expose
 EXPOSE 5000
