@@ -59,7 +59,7 @@ before_script:
   - python2.7 ${TRAVIS_BUILD_DIR}/rabbitmqadmin declare exchange name=ex_freerun_worker type=direct
 
 install:
-  - sudo mkdir --mode=755 -p /var/log/synergy-scheduler
+  - sudo mkdir --mode=777 -p /var/log/synergy-scheduler
   - ${PYTHON_BINARY} launch.py install
   - ${PYTHON_BINARY} launch.py db --reset
 
