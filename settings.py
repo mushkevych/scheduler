@@ -10,8 +10,8 @@ settings = dict(
     config_file='/etc/synergy.conf',
     version='%BUILD_NUMBER%',
 
-    log_directory='/mnt/logs/synergy-scheduler/', 
-    pid_directory='/mnt/logs/synergy-scheduler/',
+    log_directory='/var/log/synergy-scheduler/',
+    pid_directory='/var/log/synergy-scheduler/',
 
     bash_runnable_count=5,      # number of concurrently running shell scripts supported by BashDriver
 
