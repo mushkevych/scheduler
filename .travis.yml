@@ -32,7 +32,7 @@ matrix:
           - python3-setuptools
           - python3-dev
       before_install:
-        - which python3
+        - export PATH="$PYENV_ROOT/bin:$PATH"
 # deactivate Travis-CI Python3 VirtualEnv, as it conflicts with the launch.py one
         - deactivate
 
@@ -44,8 +44,7 @@ matrix:
           - python3-setuptools
           - python3-dev
       before_install:
-        - which python3
-        - python3 --version
+        - export PATH="$PYENV_ROOT/bin:$PATH"
 # deactivate Travis-CI Python3 VirtualEnv, as it conflicts with the launch.py one
         - deactivate
 
@@ -64,6 +63,7 @@ before_script:
 install:
   - sudo mkdir --mode=777 -p /var/log/synergy-scheduler
   - which python3
+  - python3 --version
   - ${PYTHON_BINARY} launch.py install
   - ${PYTHON_BINARY} launch.py db --reset
 
