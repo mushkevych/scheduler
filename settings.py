@@ -78,7 +78,7 @@ def enable_test_mode():
 
     test_settings = dict(
         mongo_db_name=settings['mongo_db_name'] + '_test',
-        # mq_vhost='/unit_test',
+        mq_vhost='/unit_test',
         debug=True,
         under_test=True,
         synergy_start_timeperiod=datetime.utcnow().strftime('%Y%m%d%H'),
