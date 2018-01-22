@@ -20,9 +20,6 @@ matrix:
           packages:
           - python3-setuptools
           - python3-dev
-      before_install:
-        # deactivate Travis-CI Python3 VirtualEnv, as it conflicts with the launch.py one
-        - deactivate
 
     - python: "3.5"
       env: PYTHON_BINARY="python3.5"
@@ -31,10 +28,6 @@ matrix:
           packages:
           - python3-setuptools
           - python3-dev
-      before_install:
-        - export PATH="$PYENV_ROOT/bin:$PATH"
-        # deactivate Travis-CI Python3 VirtualEnv, as it conflicts with the launch.py one
-        - deactivate
 
     - python: "3.6"
       env: PYTHON_BINARY="python3.6"
@@ -43,19 +36,20 @@ matrix:
           packages:
           - python3-setuptools
           - python3-dev
-      before_install:
-        - export PATH="$PYENV_ROOT/bin:$PATH"
-        # deactivate Travis-CI Python3 VirtualEnv, as it conflicts with the launch.py one
-        - deactivate
 
 services:
   - docker
 
 before_install:
+  # deactivate Travis-CI Python3 VirtualEnv, as it conflicts with the launch.py one
+  - deactivate
+
+install:
   # mongodb section
   - docker pull mongo:3
   - sudo mkdir --mode=777 -p /data/db/
   - docker run -d --name syn-mongo -v /data/db/:/data/db -p 27017:27017 mongo:3 --storageEngine wiredTiger
+
   # rabbit mq section
   - docker pull rabbitmq:3
   - docker run -d --hostname syn-rabbit --name syn-rabbit -p 5672:5672 rabbitmq:3
@@ -69,12 +63,10 @@ before_install:
   - python3 /tmp/rabbitmqadmin declare exchange --vhost=unit_test name=ex_managed_worker type=direct
   - python3 /tmp/rabbitmqadmin declare exchange --vhost=unit_test name=ex_freerun_worker type=direct
 
-install:
+before_script:
   - echo "PATH=${PATH}"
   - sudo mkdir --mode=777 -p /var/log/synergy-scheduler
   - ${PYTHON_BINARY} launch.py install
-
-before_script:
   - python3 launch.py db --reset
 
 script:
