@@ -48,5 +48,5 @@ def get_job_record(state, timeperiod, process_name):
     return Job(process_name=process_name,
                timeperiod=timeperiod,
                state=state,
-               db_id='alpha_id'
+               db_id='000000000000000123456789'
                )

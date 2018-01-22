@@ -1,5 +1,6 @@
 __author__ = 'Bohdan Mushkevych'
 
+import atexit
 from pymongo import MongoClient, ASCENDING, DESCENDING
 from bson.objectid import ObjectId
 
@@ -26,6 +27,7 @@ if 'ds_factory' not in globals():
                     instances[ds_type] = HBaseManager(logger)
                 else:
                     raise ValueError('Unsupported Data Source type: {0}'.format(ds_type))
+                atexit.register(instances[ds_type].interpreter_terminating)
             return instances[ds_type]
 
         return get_instance
@@ -43,9 +45,14 @@ class BaseManager(object):
     def __init__(self, logger):
         super(BaseManager, self).__init__()
         self.logger = logger
+        self.interpreter_is_terminating = False
 
     def __str__(self):
         raise NotImplementedError('method __str__ must be implemented by {0}'.format(self.__class__.__name__))
+
+    def interpreter_terminating(self):
+        """ method is registered with the atexit hook, and notifies about Python interpreter shutdown sequnce """
+        self.interpreter_is_terminating = True
 
     def is_alive(self):
         """ :return: True if the database server is available. False otherwise """
@@ -98,8 +105,14 @@ class MongoDbManager(BaseManager):
     def __del__(self):
         try:
             self._db_client.close()
-        except AttributeError:
-            pass
+        except Exception as e:
+            if self.interpreter_is_terminating:
+                self.logger.error('MongoDbManager cleanup likely followed MongoClient cleanup: {0}'.format(e))
+            else:
+                self.logger.error('Exception on closing MongoClient: {0}'.format(e), exc_info=True)
+        finally:
+            self._db = None
+            self._db_client = None
 
     def __str__(self):
         return 'MongoDbManager: {0}@{1}'\
