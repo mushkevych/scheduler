@@ -21,31 +21,31 @@ matrix:
           - python3-setuptools
           - python3-dev
 
-    - python: "3.5"
-      env: PYTHON_BINARY="python3.5"
-      addons:
-        apt:
-          sources:
-          # apt source hosting Python3.5 and 3.6
-          - deadsnakes
-          packages:
-          # Travis-ci has a known issue with Python3.5 and 3.6
-          - python3.5
-          - python3-setuptools
-          - python3-dev
-
-    - python: "3.6"
-      env: PYTHON_BINARY="python3.6"
-      addons:
-        apt:
-          sources:
-          # apt source hosting Python3.5 and 3.6
-          - deadsnakes
-          packages:
-          # Travis-ci has a known issue with Python3.5 and 3.6
-          - python3.6
-          - python3-setuptools
-          - python3-dev
+#    - python: "3.5"
+#      env: PYTHON_BINARY="python3.5"
+#      addons:
+#        apt:
+#          sources:
+#          # apt source hosting Python3.5 and 3.6
+#          - deadsnakes
+#          packages:
+#          # Travis-ci has a known issue with Python3.5 and 3.6
+#          - python3.5
+#          - python3-setuptools
+#          - python3-dev
+#
+#    - python: "3.6"
+#      env: PYTHON_BINARY="python3.6"
+#      addons:
+#        apt:
+#          sources:
+#          # apt source hosting Python3.5 and 3.6
+#          - deadsnakes
+#          packages:
+#          # Travis-ci has a known issue with Python3.5 and 3.6
+#          - python3.6
+#          - python3-setuptools
+#          - python3-dev
 
 services:
   - docker
