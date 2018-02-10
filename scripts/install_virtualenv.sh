@@ -39,7 +39,7 @@ commonlist=(
     "path.py-10.5.tar.gz"
     "ipython_genutils-0.1.0.tar.gz"
     "ptyprocess-0.5.2.tar.gz"
-    "decorator-4.4.2.tar.gz"
+    "decorator-4.2.1.tar.gz"
     "pathlib2-2.3.0.tar.gz"
     "pickleshare-0.7.4.tar.gz"
     "simplegeneric-0.8.1.zip"
