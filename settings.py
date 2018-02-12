@@ -76,6 +76,8 @@ def enable_test_mode():
         # test mode is already enabled
         return
 
+    # mq_vhost is created with: sudo rabbitmqctl add_vhost unit_test
+    # permissions are set with: sudo rabbitmqctl set_permissions -p unit_test guest ".*" ".*" ".*"
     test_settings = dict(
         mongo_db_name=settings['mongo_db_name'] + '_test',
         #mq_vhost='/unit_test',

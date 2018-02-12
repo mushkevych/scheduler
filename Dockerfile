@@ -1,25 +1,25 @@
 # docker commands:
-# docker build . -t mushkevych/synergy-scheduler:2.0
-# docker run mushkevych/synergy-scheduler:2.0
+# docker build . --tag mushkevych/synergy-scheduler:2.0
+# docker run --detach --name syn-scheduler --publish 5000:5000 mushkevych/synergy-scheduler:2.0
+# docker -D run -it mushkevych/synergy-scheduler:2.0 /bin/bash
 
-# list of alpine packages
-# https://pkgs.alpinelinux.org/packages
+# list of alpine packages: https://pkgs.alpinelinux.org/packages
 FROM alpine:3.7
 
 LABEL maintainer="mushkevych@gmail.com"
 LABEL synergy_scheduler.docker.version="0.1"
 
-# Install needed packages. Notes:
+# OS-level required packages:
 #   * dumb-init: a proper init system for containers, to reap zombie children
 #   * linux-headers: commonly needed, and an unusual package name from Alpine.
-#   * build-base: used so we include the basic development packages (gcc)
+#   * build-base: include basic development packages (gcc, g++, etc)
 #   * bash gawk sed grep bc coreutils: bash & shell utils
 #   * ca-certificates: for SSL verification during Pip and easy_install
 ENV PACKAGES="\
   dumb-init \
   linux-headers \
   build-base \
-  bash gawk sed grep bc coreutils \
+  bash gawk sed grep bc curl coreutils \
   ca-certificates \
 "
 RUN apk add --no-cache ${PACKAGES}
@@ -36,10 +36,12 @@ RUN apk add --no-cache python3 python3-dev && \
 COPY . /opt/synergy_scheduler
 WORKDIR /opt/synergy_scheduler/
 
+RUN mkdir -p /var/log/synergy-scheduler/
+
 RUN /opt/synergy_scheduler/launch.py install
 
 # start Synergy Scheduler daemon
-ENTRYPOINT ["python", "/opt/synergy_scheduler/launch.py", "start", "Scheduler"]
+#ENTRYPOINT ["python", "/opt/synergy_scheduler/launch.py", "start", "Scheduler"]
 
 # port number the container should expose
 EXPOSE 5000
