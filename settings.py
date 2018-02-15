@@ -80,7 +80,7 @@ def enable_test_mode():
     # permissions are set with: sudo rabbitmqctl set_permissions -p unit_test guest ".*" ".*" ".*"
     test_settings = dict(
         mongo_db_name=settings['mongo_db_name'] + '_test',
-        #mq_vhost='/unit_test',
+        #mq_vhost='unit_test',
         debug=True,
         under_test=True,
         synergy_start_timeperiod=datetime.utcnow().strftime('%Y%m%d%H'),

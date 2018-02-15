@@ -1,0 +1,61 @@
+version: '3.6'
+
+# TODO: add volume creation on the host for syn-mongo
+# TODO: add volume to the syn-rabbit container
+# TODO: add automatic exchange and vhost creation after the syn-rabbit started
+# TODO: add volume for synergy-scheduler settings/flow/context files
+# TODO: add worker container
+
+# sudo mkdir --mode=777 -p /data/db/
+
+#wget http://127.0.0.1:15672/cli/rabbitmqadmin -O /tmp/rabbitmqadmin
+
+#python3 /tmp/rabbitmqadmin declare vhost name=unit_test
+#for i in "/" "unit_test"; do
+#  python3 /tmp/rabbitmqadmin declare exchange --vhost=${i} name=ex_utils type=direct
+#  python3 /tmp/rabbitmqadmin declare exchange --vhost=${i} name=ex_managed_worker type=direct
+#  python3 /tmp/rabbitmqadmin declare exchange --vhost=${i} name=ex_freerun_worker type=direct
+#done
+
+networks:
+  syn-network:
+
+services:
+  syn-mongo:
+    image: mongo:3
+    ports:
+      # HOST:CONTAINER
+      - "27017:27017"
+    networks:
+      - syn-network
+    volume:
+      - "/data/db:/data/db"
+    restart: 'unless-stopped'
+
+  syn-rabbit:
+    image: rabbitmq:3-management
+    ports:
+      # HOST:CONTAINER
+      - "5672:5672"
+      - "15672:15672"
+    environment:
+      - RABBITMQ_DEFAULT_USER = guest
+      - RABBITMQ_DEFAULT_PASS = guest
+    networks:
+      - syn-network
+    restart: 'unless-stopped'
+
+  synergy-scheduler:
+    # Container names are unique; once a custom name is specified, attempting to scale beyond 1 results in an error
+    container_name: synergy-scheduler
+    image: mushkevych/synergy-scheduler:2.0
+    ports:
+      # HOST:CONTAINER
+      - "0.0.0.0:5000:5000"
+    networks:
+      - syn-network
+    restart: 'unless-stopped'
+    depends_on:
+      - syn-mongo
+      - syn-rabbit
+​
