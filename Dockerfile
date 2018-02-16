@@ -1,4 +1,5 @@
 # docker commands:
+# docker system prune -a --volumes
 # docker build . --tag mushkevych/synergy-scheduler:2.0
 # docker run --detach --name syn-scheduler --publish 5000:5000 mushkevych/synergy-scheduler:2.0
 # docker -D run -it mushkevych/synergy-scheduler:2.0 /bin/bash
@@ -31,7 +32,7 @@ RUN apk add --no-cache python3 python3-dev && \
 #    pip3 install --upgrade pip setuptools && \
     if [[ ! -e /usr/bin/pip ]]; then ln -s pip3 /usr/bin/pip; fi && \
     if [[ ! -e /usr/bin/python ]]; then ln -sf /usr/bin/python3 /usr/bin/python; fi && \
-    if [ -d /root/.cache ]; then rm -r /root/.cache; fi
+    if [[ -d /root/.cache ]]; then rm -r /root/.cache; fi
 
 COPY . /opt/synergy_scheduler
 WORKDIR /opt/synergy_scheduler/

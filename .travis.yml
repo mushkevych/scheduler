@@ -6,6 +6,12 @@ language: python
 # use legacy infrastructure
 sudo: required
 
+addons:
+  hosts:
+    # hostnames will be enlisted in /etc/hosts and resolved to 127.0.0.1
+    - syn-rabbit
+    - syn-mongo
+
 matrix:
   include:
     - python: "2.7"

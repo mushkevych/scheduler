@@ -6,17 +6,6 @@ version: '3.6'
 # TODO: add volume for synergy-scheduler settings/flow/context files
 # TODO: add worker container
 
-# sudo mkdir --mode=777 -p /data/db/
-
-#wget http://127.0.0.1:15672/cli/rabbitmqadmin -O /tmp/rabbitmqadmin
-
-#python3 /tmp/rabbitmqadmin declare vhost name=unit_test
-#for i in "/" "unit_test"; do
-#  python3 /tmp/rabbitmqadmin declare exchange --vhost=${i} name=ex_utils type=direct
-#  python3 /tmp/rabbitmqadmin declare exchange --vhost=${i} name=ex_managed_worker type=direct
-#  python3 /tmp/rabbitmqadmin declare exchange --vhost=${i} name=ex_freerun_worker type=direct
-#done
-
 networks:
   syn-network:
 
@@ -45,6 +34,18 @@ services:
       - syn-network
     restart: 'unless-stopped'
 
+  syn-rabbitmq-config:
+    # Container names are unique; once a custom name is specified, attempting to scale beyond 1 results in an error
+    container_name: syn-rabbitmq-config
+    build:
+      context: ./scripts
+      dockerfile: ./scripts/rabbitmq_config.dockerfile
+    networks:
+      - syn-network
+    restart: 'no'
+    depends_on:
+      - syn-rabbit
+​
   synergy-scheduler:
     # Container names are unique; once a custom name is specified, attempting to scale beyond 1 results in an error
     container_name: synergy-scheduler
@@ -57,5 +58,5 @@ services:
     restart: 'unless-stopped'
     depends_on:
       - syn-mongo
-      - syn-rabbit
+      - syn-rabbitmq-config
 ​
