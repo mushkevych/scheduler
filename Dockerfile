@@ -35,6 +35,7 @@ RUN apk add --no-cache python3 python3-dev && \
     if [[ -d /root/.cache ]]; then rm -r /root/.cache; fi
 
 COPY . /opt/synergy_scheduler
+COPY ./scripts/entrypoint.sh /opt/synergy_scheduler/entrypoint.sh
 WORKDIR /opt/synergy_scheduler/
 
 RUN mkdir -p /var/log/synergy-scheduler/
@@ -42,7 +43,7 @@ RUN mkdir -p /var/log/synergy-scheduler/
 RUN /opt/synergy_scheduler/launch.py install
 
 # start Synergy Scheduler daemon
-#ENTRYPOINT ["python", "/opt/synergy_scheduler/launch.py", "start", "Scheduler"]
+CMD /opt/synergy_scheduler/entrypoint.sh
 
 # port number the container should expose
 EXPOSE 5000

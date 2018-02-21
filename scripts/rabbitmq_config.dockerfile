@@ -10,6 +10,6 @@ RUN apk add --no-cache python3 && \
     if [[ ! -e /usr/bin/python ]]; then ln -sf /usr/bin/python3 /usr/bin/python; fi && \
     if [[ -d /root/.cache ]]; then rm -r /root/.cache; fi
 
-COPY scripts/rabbitmq_config.sh /opt/init/rabbitmq_config.sh
+COPY rabbitmq_config.sh /opt/init/rabbitmq_config.sh
 
-ENTRYPOINT [/opt/init/rabbitmq_config.sh"]
+ENTRYPOINT ["/opt/init/rabbitmq_config.sh"]

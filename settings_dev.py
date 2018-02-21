@@ -3,7 +3,7 @@ from datetime import datetime
 settings = dict(
     process_cwd='/tmp',   # daemonized process working directory, where it can create .cache and other folders
 
-    mq_host='syn-rabbit',
+    mq_host='syn-rabbitmq',
     mq_user_id='guest',
     mq_password='guest',
     mq_vhost='/',

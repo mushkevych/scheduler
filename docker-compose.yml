@@ -1,27 +1,29 @@
-version: '3.6'
+version: "3.5"
 
 # TODO: add volume creation on the host for syn-mongo
 # TODO: add volume to the syn-rabbit container
-# TODO: add automatic exchange and vhost creation after the syn-rabbit started
 # TODO: add volume for synergy-scheduler settings/flow/context files
 # TODO: add worker container
 
 networks:
   syn-network:
+    driver: bridge
 
 services:
   syn-mongo:
+    container_name: syn-mongo
     image: mongo:3
     ports:
       # HOST:CONTAINER
       - "27017:27017"
     networks:
       - syn-network
-    volume:
+    volumes:
       - "/data/db:/data/db"
-    restart: 'unless-stopped'
+    restart: "unless-stopped"
 
-  syn-rabbit:
+  syn-rabbitmq:
+    container_name: syn-rabbitmq
     image: rabbitmq:3-management
     ports:
       # HOST:CONTAINER
@@ -32,20 +34,20 @@ services:
       - RABBITMQ_DEFAULT_PASS = guest
     networks:
       - syn-network
-    restart: 'unless-stopped'
+    restart: "unless-stopped"
 
   syn-rabbitmq-config:
     # Container names are unique; once a custom name is specified, attempting to scale beyond 1 results in an error
     container_name: syn-rabbitmq-config
     build:
       context: ./scripts
-      dockerfile: ./scripts/rabbitmq_config.dockerfile
+      dockerfile: rabbitmq_config.dockerfile
     networks:
       - syn-network
-    restart: 'no'
+    restart: "no"
     depends_on:
-      - syn-rabbit
-​
+      - syn-rabbitmq
+
   synergy-scheduler:
     # Container names are unique; once a custom name is specified, attempting to scale beyond 1 results in an error
     container_name: synergy-scheduler
@@ -55,8 +57,7 @@ services:
       - "0.0.0.0:5000:5000"
     networks:
       - syn-network
-    restart: 'unless-stopped'
+    restart: "unless-stopped"
     depends_on:
       - syn-mongo
       - syn-rabbitmq-config
-​
