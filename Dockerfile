@@ -1,8 +1,8 @@
 # docker commands:
 # docker system prune -a --volumes
-# docker build . --tag mushkevych/synergy-scheduler:2.0
-# docker run --network=schedulergit_syn-network --detach --name syn-scheduler --publish 5000:5000 mushkevych/synergy-scheduler:2.0
-# docker -D run --name synergy-scheduler --network=schedulergit_syn-network -p 5000:5000 -it mushkevych/synergy-scheduler:2.0 /bin/bash
+# docker build . --tag mushkevych/scheduler:2.0
+# docker run --network=schedulergit_syn-network --detach --name syn-scheduler --publish 5000:5000 mushkevych/scheduler:2.0
+# docker -D run --name synergy-scheduler --network=schedulergit_syn-network -p 5000:5000 -it mushkevych/scheduler:2.0 /bin/bash
 
 # list of alpine packages: https://pkgs.alpinelinux.org/packages
 FROM alpine:3.7

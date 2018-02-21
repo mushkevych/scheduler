@@ -51,7 +51,7 @@ services:
   synergy-scheduler:
     # Container names are unique; once a custom name is specified, attempting to scale beyond 1 results in an error
     container_name: synergy-scheduler
-    image: mushkevych/synergy-scheduler:2.0
+    image: mushkevych/scheduler:2.0
     ports:
       # HOST:CONTAINER
       - "0.0.0.0:5000:5000"
