@@ -1,8 +1,8 @@
 # docker commands:
 # docker system prune -a --volumes
 # docker build . --tag mushkevych/synergy-scheduler:2.0
-# docker run --detach --name syn-scheduler --publish 5000:5000 mushkevych/synergy-scheduler:2.0
-# docker -D run -it mushkevych/synergy-scheduler:2.0 /bin/bash
+# docker run --network=schedulergit_syn-network --detach --name syn-scheduler --publish 5000:5000 mushkevych/synergy-scheduler:2.0
+# docker -D run --name synergy-scheduler --network=schedulergit_syn-network -p 5000:5000 -it mushkevych/synergy-scheduler:2.0 /bin/bash
 
 # list of alpine packages: https://pkgs.alpinelinux.org/packages
 FROM alpine:3.7
@@ -35,7 +35,6 @@ RUN apk add --no-cache python3 python3-dev && \
     if [[ -d /root/.cache ]]; then rm -r /root/.cache; fi
 
 COPY . /opt/synergy_scheduler
-COPY ./scripts/entrypoint.sh /opt/synergy_scheduler/entrypoint.sh
 WORKDIR /opt/synergy_scheduler/
 
 RUN mkdir -p /var/log/synergy-scheduler/
