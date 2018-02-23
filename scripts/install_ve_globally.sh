@@ -7,4 +7,4 @@ fi
 
 vendor=$1/vendors
 cd ${vendor}
-sudo easy_install ${vendor}/virtualenv-15.0.3.tar.gz
+sudo easy_install ${vendor}/virtualenv-15.1.0.tar.gz
