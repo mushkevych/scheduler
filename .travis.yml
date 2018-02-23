@@ -6,22 +6,25 @@ language: python
 # use legacy infrastructure
 sudo: required
 
-addons:
-  hosts:
-    # hostnames will be enlisted in /etc/hosts and resolved to 127.0.0.1
-    - syn-rabbitmq
-    - syn-mongo
-
 matrix:
   include:
     - python: "2.7"
       env: PYTHON_BINARY="python2.7"
+      addons:
+        hosts:
+          # hostnames will be enlisted in /etc/hosts and resolved to 127.0.0.1
+          - syn-rabbitmq
+          - syn-mongodb
       before_install:
         - pip install virtualenv
 
     - python: "3.4"
       env: PYTHON_BINARY="python3.4"
       addons:
+        hosts:
+          # hostnames will be enlisted in /etc/hosts and resolved to 127.0.0.1
+          - syn-rabbitmq
+          - syn-mongodb
         apt:
           packages:
           - python3-setuptools
@@ -63,7 +66,7 @@ before_install:
 install:
   # mongodb section
   - docker pull mongo:3
-  - docker run -d --name syn-mongo -p 27017:27017 mongo:3
+  - docker run -d --name syn-mongodb -p 27017:27017 mongo:3
 
   # rabbit mq section
   - docker pull rabbitmq:3

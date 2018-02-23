@@ -10,7 +10,7 @@ settings = dict(
     mq_port=5672,
     mq_timeout_sec=None,
 
-    mongodb_host_list=['mongodb://syn-mongo:27017'],
+    mongodb_host_list=['mongodb://syn-mongodb:27017'],
 
     perf_ticker_interval=30,                                            # seconds between performance tracker ticks
     # synergy_start_timeperiod='2015032000',    # precision is process dependent
