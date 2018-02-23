@@ -73,10 +73,10 @@ install:
 before_script:
   - sudo mkdir --mode=777 -p /var/log/synergy-scheduler
   - ${PYTHON_BINARY} launch.py install
-  - ${PYTHON_BINARY} launch.py db --reset
+  - python3 launch.py db --reset
 
 script:
-  - ${PYTHON_BINARY} launch.py test
+  - python3 launch.py test
 
 branches:
   only:
