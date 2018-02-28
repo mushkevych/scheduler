@@ -10,53 +10,79 @@ matrix:
   include:
     - python: "2.7"
       env: PYTHON_BINARY="python2.7"
+      addons:
+        hosts:
+          # hostnames will be enlisted in /etc/hosts and resolved to 127.0.0.1
+          - syn-rabbitmq
+          - syn-mongodb
       before_install:
         - pip install virtualenv
 
     - python: "3.4"
       env: PYTHON_BINARY="python3.4"
       addons:
+        hosts:
+          # hostnames will be enlisted in /etc/hosts and resolved to 127.0.0.1
+          - syn-rabbitmq
+          - syn-mongodb
         apt:
           packages:
           - python3-setuptools
           - python3-dev
-      before_install:
-# deactivate Travis-CI Python3 VirtualEnv, as it conflicts with the launch.py one
-        - deactivate
 
-    - python: "3.5"
-      env: PYTHON_BINARY="python3.5"
-      addons:
-        apt:
-          packages:
-          - python3-setuptools
-          - python3-dev
-      before_install:
-# deactivate Travis-CI Python3 VirtualEnv, as it conflicts with the launch.py one
-        - deactivate
+#    - python: "3.5"
+#      env: PYTHON_BINARY="python3.5"
+#      addons:
+#        apt:
+#          sources:
+#          # apt source hosting Python3.5 and 3.6
+#          - deadsnakes
+#          packages:
+#          # Travis-ci has a known issue with Python3.5 and 3.6
+#          - python3.5
+#          - python3-setuptools
+#          - python3-dev
+#
+#    - python: "3.6"
+#      env: PYTHON_BINARY="python3.6"
+#      addons:
+#        apt:
+#          sources:
+#          # apt source hosting Python3.5 and 3.6
+#          - deadsnakes
+#          packages:
+#          # Travis-ci has a known issue with Python3.5 and 3.6
+#          - python3.6
+#          - python3-setuptools
+#          - python3-dev
 
 services:
-  - rabbitmq
-  - mongodb
+  - docker
 
-before_script:
-  - sudo rabbitmq-plugins enable rabbitmq_management
-  - sudo service rabbitmq-server restart
-  - wget http://127.0.0.1:15672/cli/rabbitmqadmin -O ${TRAVIS_BUILD_DIR}/rabbitmqadmin
-  - python2.7 ${TRAVIS_BUILD_DIR}/rabbitmqadmin declare exchange name=ex_utils type=direct
-  - python2.7 ${TRAVIS_BUILD_DIR}/rabbitmqadmin declare exchange name=ex_managed_worker type=direct
-  - python2.7 ${TRAVIS_BUILD_DIR}/rabbitmqadmin declare exchange name=ex_freerun_worker type=direct
+before_install:
+  # deactivate Travis-CI Python3 VirtualEnv, as it conflicts with the launch.py one
+  - deactivate
 
 install:
-  - mkdir -p /tmp/logs/synergy-scheduler
+  # mongodb section
+  - docker pull mongo:3
+  - docker run -d --name syn-mongodb -p 27017:27017 mongo:3
+
+  # rabbit mq section
+  - docker pull rabbitmq:3
+  - docker run -d --hostname syn-rabbitmq --name syn-rabbitmq -p 5672:5672 -p 15672:15672 rabbitmq:3-management
+  - scripts/rabbitmq_config.sh
+
+before_script:
+  - sudo mkdir --mode=777 -p /var/log/synergy-scheduler
   - ${PYTHON_BINARY} launch.py install
-  - ${PYTHON_BINARY} launch.py db --reset
+  - python3 launch.py db --reset
 
 script:
-  - ${PYTHON_BINARY} launch.py test
+  - python3 launch.py test
 
 branches:
   only:
     - master
-    - 1.19
     - 2.0
+    - 2.1

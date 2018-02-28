@@ -177,14 +177,20 @@ class Publisher(SynergyAware):
             self.close()
 
     def close(self):
-        if hasattr(self, 'channel') and self.channel:
+        try:
             self.channel.close()
+        except:
+            pass
 
-        if hasattr(self, 'connection') and self.connection:
+        try:
             self.connection.close()
+        except:
+            pass
 
-        if hasattr(self, 'parent_pool') and self.parent_pool:
+        try:
             del self.parent_pool
+        except:
+            pass
 
 
 class _Pool(object):

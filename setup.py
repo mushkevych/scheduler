@@ -1,7 +1,7 @@
 from distutils.core import setup
 
 setup(name='synergy_scheduler',
-      version='1.19',
+      version='2.0',
       description='Synergy Scheduler',
       author='Bohdan Mushkevych',
       author_email='mushkevych@gmail.com',
@@ -29,6 +29,7 @@ setup(name='synergy_scheduler',
           'Programming Language :: Python :: 2.7',
           'Programming Language :: Python :: 3.4',
           'Programming Language :: Python :: 3.5',
+          'Programming Language :: Python :: 3.6',
           'Programming Language :: JavaScript',
           'Topic :: Office/Business :: Scheduling',
           'Topic :: Utilities',

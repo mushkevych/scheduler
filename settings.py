@@ -10,8 +10,8 @@ settings = dict(
     config_file='/etc/synergy.conf',
     version='%BUILD_NUMBER%',
 
-    log_directory='/mnt/logs/synergy-scheduler/', 
-    pid_directory='/mnt/logs/synergy-scheduler/',
+    log_directory='/var/log/synergy-scheduler/',
+    pid_directory='/var/log/synergy-scheduler/',
 
     bash_runnable_count=5,      # number of concurrently running shell scripts supported by BashDriver
 
@@ -76,9 +76,11 @@ def enable_test_mode():
         # test mode is already enabled
         return
 
+    # mq_vhost is created with: sudo rabbitmqctl add_vhost unit_test
+    # permissions are set with: sudo rabbitmqctl set_permissions -p unit_test guest ".*" ".*" ".*"
     test_settings = dict(
         mongo_db_name=settings['mongo_db_name'] + '_test',
-        # mq_vhost='/unit_test',
+        #mq_vhost='unit_test',
         debug=True,
         under_test=True,
         synergy_start_timeperiod=datetime.utcnow().strftime('%Y%m%d%H'),
