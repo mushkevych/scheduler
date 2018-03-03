@@ -19,9 +19,9 @@ class BoxConfiguration(BaseDocument):
 
     @BaseDocument.key.getter
     def key(self):
-        return self.db_id, self.process_name
+        return self.box_id, self.process_name
 
     @key.setter
     def key(self, value):
-        """ :param value: tuple holding (db_id, process_name) """
-        self.db_id, self.process_name = value
+        """ :param value: tuple holding (box_id, process_name) """
+        self.box_id, self.process_name = value
