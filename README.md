@@ -58,7 +58,7 @@ Metafile:
 
 Wiki Links
 ---------
-[Wiki Home Page](https://github.com/mushkevych/scheduler/wiki)
+[Wiki Home Page](https://github.com/mushkevych/scheduler/wiki)  
 [Deployment wiki](https://github.com/mushkevych/scheduler-distro/wiki)
 
 
