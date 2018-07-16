@@ -21,12 +21,12 @@ def get_class(kls):
     parts = kls.split('.')
     try:
         # First, try to import module hosting starter function
-        module = '.'.join(parts[:-1])
-        m = __import__(module)
+        fqn_module = '.'.join(parts[:-1])
+        m = __import__(fqn_module)
     except ImportError:
         # Alternatively, try to import module hosting Class with a starter method
-        module = '.'.join(parts[:-2])
-        m = __import__(module)
+        fqn_module = '.'.join(parts[:-2])
+        m = __import__(fqn_module)
 
     t = None
     starter = None
@@ -65,8 +65,8 @@ def start_by_process_name(process_name, *args):
         method(*args)
     elif isinstance(m, types.FunctionType):
         sys.stdout.write('INFO: Starting module.\n')
-        function = m
-        function(*args)
+        _function = m
+        _function(*args)
     else:
         raise ValueError('Improper starter path {0}'.format(context.process_context[process_name].classname))
 

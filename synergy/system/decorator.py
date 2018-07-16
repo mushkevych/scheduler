@@ -45,12 +45,15 @@ def with_reconnect(func):
 
     @functools.wraps(func)
     def _reconnector(*args, **kwargs):
+        e = None
         for _ in range(20):
             try:
                 return func(*args, **kwargs)
-            except AutoReconnect:
+            except AutoReconnect as ar:
                 time.sleep(0.250)
-        raise
+                e = ar
+        if e:
+            raise e
 
     return _reconnector
 

@@ -23,7 +23,7 @@ class RepeatTimer(threading.Thread):
 
         assert isinstance(interval, numbers.Number)
         # interval_current shows number of seconds in currently triggered <tick>
-        self.interval_current = interval
+        self.interval_current = float(interval)
         # interval_new shows number of seconds for next <tick>
         self.interval_new = interval
         self.call_back = call_back

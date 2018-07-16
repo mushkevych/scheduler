@@ -29,13 +29,13 @@ class TestMessage(object):
         self.delivery_tag = None
 
 
-def get_field_starting_with(prefix, module):
+def get_field_starting_with(prefix, fqn_module):
     """method reads Python module and iterates thru all its fields
     Those that are starting with defined prefix are returned as list
     :param prefix: define prefix. For example EXPECTED_YEARLY_TEMPLATE
-    :param module: defines fully qualified name of the Python module. For example tests.yearly_fixtures"""
+    :param fqn_module: defines fully qualified name of the Python module. For example tests.yearly_fixtures"""
     fields = []
-    for name, value in inspect.getmembers(module):
+    for name, value in inspect.getmembers(fqn_module):
         if name.startswith(prefix):
             fields.append(value)
 

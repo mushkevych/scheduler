@@ -89,14 +89,14 @@ class Scheduler(SynergyProcess):
         """ loads scheduler managed entries. no start-up procedures are performed """
         for process_name, process_entry in context.process_context.items():
             if isinstance(process_entry, ManagedProcessEntry):
-                function = self.fire_managed_worker
+                _function = self.fire_managed_worker
             else:
                 self.logger.warning('Skipping non-managed context entry {0} of type {1}.'
                                     .format(process_name, process_entry.__class__.__name__))
                 continue
 
             try:
-                self._register_process_entry(process_entry, function)
+                self._register_process_entry(process_entry, _function)
             except Exception:
                 self.logger.error('Managed Thread Handler {0} failed to start. Skipping it.'
                                   .format(process_entry.key), exc_info=True)
