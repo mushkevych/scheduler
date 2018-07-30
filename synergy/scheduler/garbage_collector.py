@@ -65,6 +65,11 @@ class GarbageCollector(object):
 
                 # ASSUMPTION: UOW is re-created by a state machine during reprocessing
                 # thus - any UOW older 2 days could be marked as STATE_CANCELED
+                # NOTE: canceling UOW is not identical to cancelling a Job.
+                # The Job lifecycle is managed by:
+                # - synergy.scheduler.abstract_state_machine.AbstractStateMachine.notify
+                # - synergy.scheduler.abstract_state_machine.AbstractStateMachine.manage_job
+                # - synergy.scheduler.timetable.Timetable.validate (via GarbageCollector._run)
                 if datetime.utcnow() - uow.created_at > timedelta(hours=settings.settings['gc_life_support_hours']):
                     self._cancel_uow(uow)
                     continue
