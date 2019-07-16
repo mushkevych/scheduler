@@ -10,14 +10,14 @@ TOKEN_GC = 'gc'
 TOKEN_WERKZEUG = 'werkzeug'
 
 # Job is run once per timeperiod, after the period is complete
-STATE_MACHINE_RECOMPUTING = 'recomputing'
+STATE_MACHINE_DISCRETE = 'discrete'
 
 # Job is run multiple times per timeperiod
 STATE_MACHINE_CONTINUOUS = 'continuous'
 
 # Job is run multiple times per timeperiod; assumes the
 # underlying data is streaming and recomputes the processing boundaries
-STATE_MACHINE_DISCRETE = 'discrete'
+STATE_MACHINE_RECOMPUTING = 'recomputing'
 
 STATE_MACHINE_FREERUN = 'freerun'
 

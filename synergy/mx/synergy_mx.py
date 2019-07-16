@@ -105,6 +105,7 @@ class MX(object):
             raise RuntimeError('MX Error: no Shutdown Function registered for the Werkzeug Server')
         func()
 
+
 if __name__ == '__main__':
     from synergy.scheduler.scheduler_constants import PROCESS_SCHEDULER
     from synergy.scheduler.synergy_scheduler import Scheduler

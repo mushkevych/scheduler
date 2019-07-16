@@ -69,13 +69,18 @@ def create_unit_of_work(process_name,
     """ method creates and returns unit_of_work """
     process_obj = context.process_context[process_name]
 
+    try:
+        end_timeperiod = time_helper.increment_timeperiod(process_obj.time_qualifier, timeperiod)
+    except:
+        end_timeperiod = timeperiod
+
     uow = UnitOfWork()
     uow.process_name = process_name
     uow.timeperiod = timeperiod
     uow.start_id = start_id
     uow.end_id = end_id
     uow.start_timeperiod = timeperiod
-    uow.end_timeperiod = timeperiod
+    uow.end_timeperiod = end_timeperiod
     uow.created_at = created_at
     uow.submitted_at = submitted_at
     uow.source = process_obj.source if hasattr(process_obj, 'source') else None

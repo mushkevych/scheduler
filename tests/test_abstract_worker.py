@@ -34,13 +34,15 @@ def get_test_aggregator(baseclass, process_name):
 
 # pylint: disable=E1101
 class AbstractWorkerUnitTest(unittest.TestCase):
-    def constructor(self, baseclass, process_name, output_prefix, output_module, generate_output, compare_results):
+    def constructor(self, baseclass, process_name, output_prefix, output_module, generate_output, compare_results,
+                    timeperiod=None):
         self.baseclass = baseclass
         self.process_name = process_name
         self.output_prefix = output_prefix
         self.output_module = output_module
         self.generate_output = generate_output
         self.compare_results = compare_results
+        self.timeperiod = timeperiod
 
     def virtual_set_up(self):
         """Abstract method to be implemented by children"""
@@ -54,7 +56,7 @@ class AbstractWorkerUnitTest(unittest.TestCase):
         self.uow_id = base_fixtures.create_and_insert_unit_of_work(self.process_name,
                                                                    str(list_of_stats[0]),
                                                                    str(list_of_stats[-1]),
-                                                                   timeperiod=None)
+                                                                   timeperiod=self.timeperiod)
 
     def virtual_tear_down(self):
         """Abstract method to be implemented by children"""
