@@ -15,3 +15,9 @@ http://fontawesome.io/license/
 
 ## included version
 4.6.3
+
+#version upgrade 4->5
+    blocking anchor -> traffic-light
+    launch rocket -> running
+    fa-pagelines -> seedling, signature, sign
+    workflow random -> project-diagram

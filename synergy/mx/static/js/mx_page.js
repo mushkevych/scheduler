@@ -52,9 +52,9 @@ function headerTreeTile(mx_tree, tile) {
     });
 
     tile.$el.append('<ul class="fa-ul">'
-        + '<li title="Tree Name"><i class="fa-li fa fa-sitemap"></i>' + mx_tree.tree_name + '</li>'
-        + '<li title="Dependent On"><i class="fa-li fa fa-expand"></i>' + formatJSON(mx_tree.dependent_on) + '</li>'
-        + '<li title="Dependant Trees"><i class="fa-li fa fa-compress"></i>' + formatJSON(mx_tree.dependant_trees) + '</li>'
+        + '<li title="Tree Name"><i class="fa-li fa fa-pagelines"></i>' + mx_tree.tree_name + '</li>'
+        + '<li title="Dependent On"><i class="fa-li fa fa-sitemap fa-rotate-180"></i>' + formatJSON(mx_tree.dependent_on) + '</li>'
+        + '<li title="Dependant Trees"><i class="fa-li fa fa-sitemap"></i>' + formatJSON(mx_tree.dependant_trees) + '</li>'
         + '</ul>');
     tile.$el.append($('<div></div>').append(refresh_button));
     tile.$el.attr('class', 'tree_header_tile');
