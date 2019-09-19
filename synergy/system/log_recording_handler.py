@@ -37,5 +37,5 @@ class LogRecordingHandler(logging.Handler):
             self.log_recording_dao.append_log(self.parent_object_id, msg.rstrip())
         except Exception as e:
             self.detach()
-            self.logger.error('Detached LogRecordingHandler. Exception on LogRecordingDao.append_log: {0}'.format(e),
+            self.logger.error(f'Detached LogRecordingHandler. Exception on LogRecordingDao.append_log: {e}',
                               exc_info=True)

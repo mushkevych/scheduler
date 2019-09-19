@@ -69,9 +69,9 @@ class BaseRequestHandler(object):
         return {'status': 'OK'}
 
     def reply_bad_request(self):
-        self.logger.error('MX Bad Request: {0}'.format(self.request))
+        self.logger.error(f'MX Bad Request: {self.request}')
         return {}
 
     def reply_server_error(self, e):
-        self.logger.error('MX Processing Exception: {0}'.format(e), exc_info=True)
+        self.logger.error(f'MX Processing Exception: {e}', exc_info=True)
         return {'status': 'Server Internal Error'}

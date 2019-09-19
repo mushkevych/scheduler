@@ -23,8 +23,7 @@ class SiteDao(object):
         collection = self.ds.connection(collection_name)
         document = collection.find_one(filter={DOMAIN_NAME: domain_name, TIMEPERIOD: timeperiod})
         if document is None:
-            raise LookupError('MongoDB has no site record in {0} for ({1}, {2})'
-                              .format(collection_name, domain_name, timeperiod))
+            raise LookupError(f'MongoDB has no site record in {collection_name} for ({domain_name}, {timeperiod})')
         return SiteStatistics.from_json(document)
 
     @thread_safe

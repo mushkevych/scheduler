@@ -55,7 +55,7 @@ def compare_dictionaries(dict_actual, dict_expected):
                 actual_value = list(actual_value)
             assert actual_value.sort() == expected_value.sort()
         elif actual_value != expected_value:
-            assert False, 'actual vs expected for {0}: {1} vs {2}'.format(expected_key, actual_value, expected_value)
+            assert False, f'actual vs expected for {expected_key}: {actual_value} vs {expected_value}'
 
 
 def create_unit_of_work(process_name,
@@ -165,7 +165,7 @@ def generate_site_composite_key(index, time_qualifier):
                                                                 iteration_timeperiod,
                                                                 delta=iteration_index)
 
-    return 'domain_name_{0}'.format(index - iteration_index * 33), iteration_timeperiod
+    return f'domain_name_{index - iteration_index * 33}', iteration_timeperiod
 
 
 def create_site_stats(collection_name, time_qualifier, seed='RANDOM_SEED_OBJECT'):

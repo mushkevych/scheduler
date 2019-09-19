@@ -22,7 +22,7 @@ class TestFreerunProcessEntry(unittest.TestCase):
 
         for k, v in fixture.items():
             actual = build_schedulable_name(*k)
-            self.assertEqual(actual, v, u'actual vs expected: {0} vs {1}'.format(actual, v))
+            self.assertEqual(actual, v, f'actual vs expected: {actual} vs {v}')
 
     def test_split_schedulable_name(self):
         fixture = {
@@ -35,7 +35,7 @@ class TestFreerunProcessEntry(unittest.TestCase):
 
         for k, v in fixture.items():
             actual = split_schedulable_name(k)
-            self.assertSequenceEqual(actual, v, u'actual vs expected: {0} vs {1}'.format(actual, v))
+            self.assertSequenceEqual(actual, v, f'actual vs expected: {actual} vs {v}')
 
 
 if __name__ == '__main__':

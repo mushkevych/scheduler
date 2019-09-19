@@ -1,5 +1,6 @@
 __author__ = 'Bohdan Mushkevych'
 
+import os
 import sys
 import logging
 import logging.handlers
@@ -91,7 +92,7 @@ def get_logger(process_name, append_to_console=None, redirect_stdstream=None):
 
 def get_log_filename(process_name):
     """method returns path for the Log filename"""
-    return settings.settings['log_directory'] + context.process_context[process_name].log_filename
+    return os.path.join(settings.settings['log_directory'], context.process_context[process_name].log_filename)
 
 
 def get_log_tag(process_name):
@@ -104,7 +105,7 @@ def get_log_tag(process_name):
     elif isinstance(process_obj, DaemonProcessEntry):
         return str(process_obj.token)
     else:
-        raise ValueError('Unknown process type: {0}'.format(process_obj.__class__.__name__))
+        raise ValueError(f'Unknown process type: {process_obj.__class__.__name__}')
 
 
 if __name__ == '__main__':

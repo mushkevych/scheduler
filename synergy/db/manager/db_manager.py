@@ -29,7 +29,7 @@ def synch_db():
     for process_entry in process_entries:
         process_name = process_entry.process_name
         if process_name not in context.process_context:
-            logger.warning('Process {0} has no reflection in the context. Skipping it.'.format(process_name))
+            logger.warning(f'Process {process_name} has no reflection in the context. Skipping it.')
             continue
 
         if not isinstance(context.process_context[process_name], ManagedProcessEntry):
@@ -38,7 +38,7 @@ def synch_db():
             continue
 
         context.process_context[process_name] = process_entry
-        logger.info('Context updated with process entry {0}.'.format(process_entry.key))
+        logger.info(f'Context updated with process entry {process_entry.key}.')
 
 
 def update_db():
@@ -52,7 +52,7 @@ def update_db():
             continue
 
         managed_process_dao.update(process_entry)
-        logger.info('Updated DB with process entry {0} from the context.'.format(process_entry.key))
+        logger.info(f'Updated DB with process entry {process_entry.key} from the context.')
 
 
 def reset_db():

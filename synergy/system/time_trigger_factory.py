@@ -28,7 +28,7 @@ def parse_time_trigger_string(trigger_frequency):
         parsed_trigger_frequency = int(trigger_frequency)
         timer_klass = RepeatTimer
     else:
-        raise ValueError('Unknown time trigger format {0}'.format(trigger_frequency))
+        raise ValueError(f'Unknown time trigger format {trigger_frequency}')
 
     return parsed_trigger_frequency, timer_klass
 
@@ -46,4 +46,4 @@ def format_time_trigger_string(timer_instance):
         timestamps = [repr(x) for x in timer_instance.timestamps]
         return TRIGGER_PREAMBLE_AT + ','.join(timestamps)
     else:
-        raise ValueError('Unknown timer instance type {0}'.format(timer_instance.__class__.__name__))
+        raise ValueError(f'Unknown timer instance type {timer_instance.__class__.__name__}')

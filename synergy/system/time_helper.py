@@ -132,7 +132,7 @@ def increment_timeperiod(time_qualifier, timeperiod, delta=1):
         t = t.replace(year=t.year + delta)
         return t.strftime(SYNERGY_YEARLY_PATTERN)
     else:
-        raise ValueError('unknown time qualifier: {0}'.format(time_qualifier))
+        raise ValueError(f'unknown time qualifier: {time_qualifier}')
 
 
 def cast_to_time_qualifier(time_qualifier, timeperiod):
@@ -148,7 +148,7 @@ def cast_to_time_qualifier(time_qualifier, timeperiod):
     elif time_qualifier == QUALIFIER_YEARLY:
         date_format = SYNERGY_YEARLY_PATTERN
     else:
-        raise ValueError('unknown time qualifier: {0}'.format(time_qualifier))
+        raise ValueError(f'unknown time qualifier: {time_qualifier}')
 
     pattern = define_pattern(timeperiod)
     t = datetime.strptime(timeperiod, pattern)
@@ -168,7 +168,7 @@ def datetime_to_synergy(time_qualifier, dt):
     elif time_qualifier == QUALIFIER_REAL_TIME:
         date_format = SYNERGY_SESSION_PATTERN
     else:
-        raise ValueError('unknown time qualifier: {0}'.format(time_qualifier))
+        raise ValueError(f'unknown time qualifier: {time_qualifier}')
     return dt.strftime(date_format)
 
 
@@ -185,7 +185,7 @@ def synergy_to_datetime(time_qualifier, timeperiod):
     elif time_qualifier == QUALIFIER_REAL_TIME:
         date_format = SYNERGY_SESSION_PATTERN
     else:
-        raise ValueError('unknown time qualifier: {0}'.format(time_qualifier))
+        raise ValueError(f'unknown time qualifier: {time_qualifier}')
     return datetime.strptime(timeperiod, date_format).replace(tzinfo=None)
 
 
@@ -204,7 +204,7 @@ def tokenize_timeperiod(timeperiod):
                   yearly  2015000000 -> ('2015', '00', '00', '00')
     :return: tuple of four values
     """
-    assert len(timeperiod) == 10, 'timeperiod {0} does not match accepted format YYYYMMDDHH'.format(timeperiod)
+    assert len(timeperiod) == 10, f'timeperiod {timeperiod} does not match accepted format YYYYMMDDHH'
     return timeperiod[:4], timeperiod[4: 6], timeperiod[6: 8], timeperiod[8:],
 
 

@@ -32,7 +32,7 @@ class AbstractMongoWorker(AbstractUowAwareWorker):
             return 0
 
         number_of_aggregated_objects = len(self.aggregated_objects)
-        self.logger.info('Aggregated {0} documents. Performing flush.'.format(number_of_aggregated_objects))
+        self.logger.info(f'Aggregated {number_of_aggregated_objects} documents. Performing flush.')
 
         for key in self.aggregated_objects:
             document = self.aggregated_objects[key]
@@ -91,7 +91,7 @@ class AbstractMongoWorker(AbstractUowAwareWorker):
                                          end_timeperiod)
 
             if iteration == 0 and cursor.count(with_limit_and_skip=True) == 0:
-                msg = 'No entries in {0} at range [{1} : {2}]'.format(collection_name, start_id_obj, end_id_obj)
+                msg = f'No entries in {collection_name} at range [{start_id_obj} : {end_id_obj}]'
                 self.logger.warning(msg)
                 break
 
@@ -105,7 +105,7 @@ class AbstractMongoWorker(AbstractUowAwareWorker):
             iteration += 1
 
         self._cursor_exploited()
-        msg = 'Cursor exploited after {0} iterations'.format(iteration)
+        msg = f'Cursor exploited after {iteration} iterations'
         self.logger.info(msg)
 
     def _run_data_engine(self, start_timeperiod, end_timeperiod):
@@ -119,7 +119,7 @@ class AbstractMongoWorker(AbstractUowAwareWorker):
             self.performance_tracker.increment_success()
 
         self._cursor_exploited()
-        msg = 'Cursor exploited after fetching {0} documents'.format(self.performance_tracker.success_per_job)
+        msg = f'Cursor exploited after fetching {self.performance_tracker.success_per_job} documents'
         self.logger.info(msg)
 
     def _process_uow(self, uow):

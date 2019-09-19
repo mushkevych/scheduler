@@ -27,7 +27,7 @@ class JobStatusListener(object):
             self.logger.info('JobStatusListener: Closing Flopsy Consumer...')
             self.consumer.close()
         except Exception as e:
-            self.logger.error('JobStatusListener: Exception caught while closing Flopsy Consumer: {0}'.format(e))
+            self.logger.error(f'JobStatusListener: Exception caught while closing Flopsy Consumer: {e}')
 
     # ********************** thread-related methods ****************************
     def _mq_callback(self, message):
@@ -60,9 +60,9 @@ class JobStatusListener(object):
                 handler.trigger()
 
         except KeyError:
-            self.logger.error('Access error for {0}'.format(message.body), exc_info=True)
+            self.logger.error(f'Access error for {message.body}', exc_info=True)
         except Exception:
-            self.logger.error('Error during ManagedThreadHandler.trigger call {0}'.format(message.body), exc_info=True)
+            self.logger.error(f'Error during ManagedThreadHandler.trigger call {message.body}', exc_info=True)
         finally:
             self.consumer.acknowledge(message.delivery_tag)
             self.logger.info('JobStatusListener }')
@@ -73,7 +73,7 @@ class JobStatusListener(object):
             self.logger.info('JobStatusListener: instantiated and activated.')
             self.consumer.wait()
         except (AMQPError, IOError) as e:
-            self.logger.error('JobStatusListener: AMQPError {0}'.format(e))
+            self.logger.error(f'JobStatusListener: AMQPError {e}')
         finally:
             self.__del__()
             self.logger.info('JobStatusListener: Shut down.')

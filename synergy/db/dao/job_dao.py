@@ -49,7 +49,7 @@ class JobDao(object):
         elif qualifier == QUALIFIER_YEARLY:
             collection_name = COLLECTION_JOB_YEARLY
         else:
-            raise ValueError('Unknown time qualifier: {0} for {1}'.format(qualifier, process_name))
+            raise ValueError(f'Unknown time qualifier: {qualifier} for {process_name}')
         return collection_name
 
     @thread_safe
@@ -60,8 +60,7 @@ class JobDao(object):
         document = collection.find_one({'_id': ObjectId(db_id)})
 
         if document is None:
-            raise LookupError('MongoDB has no job record in collection {0} for {1}'
-                              .format(collection, db_id))
+            raise LookupError(f'MongoDB has no job record in collection {collection} for {db_id}')
         return Job.from_json(document)
 
     @thread_safe
@@ -72,8 +71,7 @@ class JobDao(object):
         document = collection.find_one({job.PROCESS_NAME: process_name, job.TIMEPERIOD: timeperiod})
 
         if document is None:
-            raise LookupError('MongoDB has no job record in collection {0} for {1}@{2}'
-                              .format(collection, process_name, timeperiod))
+            raise LookupError(f'MongoDB has no job record in collection {collection} for {process_name}@{timeperiod}')
         return Job.from_json(document)
 
     @thread_safe
@@ -87,7 +85,7 @@ class JobDao(object):
 
         cursor = collection.find(query)
         if cursor.count() == 0:
-            raise LookupError('MongoDB has no job records in collection {0} since {1}'.format(collection_name, since))
+            raise LookupError(f'MongoDB has no job records in collection {collection_name} since {since}')
         return [Job.from_json(document) for document in cursor]
 
     @thread_safe

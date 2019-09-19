@@ -13,19 +13,18 @@ class AbstractActionHandler(BaseRequestHandler):
 
     @property
     def thread_handler(self):
-        raise NotImplementedError('property thread_handler must be implemented by {0}'.format(self.__class__.__name__))
+        raise NotImplementedError(f'property thread_handler must be implemented by {self.__class__.__name__}')
 
     @property
     def process_entry(self):
-        raise NotImplementedError('property process_entry must be implemented by {0}'.format(self.__class__.__name__))
+        raise NotImplementedError(f'property process_entry must be implemented by {self.__class__.__name__}')
 
     @property
     def uow_id(self):
-        raise NotImplementedError('property uow_id must be implemented by {0}'.format(self.__class__.__name__))
+        raise NotImplementedError(f'property uow_id must be implemented by {self.__class__.__name__}')
 
     def get_event_log(self):
-        raise NotImplementedError('method action_get_event_log must be implemented by {0}'
-                                  .format(self.__class__.__name__))
+        raise NotImplementedError(f'method action_get_event_log must be implemented by {self.__class__.__name__}')
 
     @safe_json_response
     def get_uow(self):
@@ -49,8 +48,8 @@ class AbstractActionHandler(BaseRequestHandler):
         new_interval = self.request_arguments['interval']
         if new_interval is not None:
             self.thread_handler.change_interval(new_interval)
-            msg = 'changed interval for {0} to {1}'.format(self.thread_handler.key, new_interval)
-            self.logger.info('MX: {0}'.format(msg))
+            msg = f'changed interval for {self.thread_handler.key} to {new_interval}'
+            self.logger.info(f'MX: {msg}')
             resp['status'] = msg
 
         return resp
@@ -58,17 +57,17 @@ class AbstractActionHandler(BaseRequestHandler):
     @valid_action_request
     def trigger_now(self):
         self.thread_handler.trigger()
-        self.logger.info('MX: triggered thread handler {0}'.format(self.thread_handler.key))
+        self.logger.info(f'MX: triggered thread handler {self.thread_handler.key}')
         return self.reply_ok()
 
     @valid_action_request
     def activate_trigger(self):
         self.thread_handler.activate()
-        self.logger.info('MX: activated thread handler {0}'.format(self.thread_handler.key))
+        self.logger.info(f'MX: activated thread handler {self.thread_handler.key}')
         return self.reply_ok()
 
     @valid_action_request
     def deactivate_trigger(self):
         self.thread_handler.deactivate()
-        self.logger.info('MX: deactivated thread handler {0}'.format(self.thread_handler.key))
+        self.logger.info(f'MX: deactivated thread handler {self.thread_handler.key}')
         return self.reply_ok()

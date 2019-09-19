@@ -21,7 +21,7 @@ class MqTransmitter(object):
             self.logger.info('Closing Flopsy Publishers Pool...')
             self.publishers.close()
         except Exception as e:
-            self.logger.error('Exception caught while closing Flopsy Publishers Pool: {0}'.format(e))
+            self.logger.error(f'Exception caught while closing Flopsy Publishers Pool: {e}')
 
     @thread_safe
     def publish_managed_uow(self, uow):

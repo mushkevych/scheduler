@@ -13,7 +13,7 @@ class TimeperiodDict(collections.MutableMapping):
 
     def __init__(self, time_qualifier, time_grouping, *args, **kwargs):
         assert time_qualifier in [QUALIFIER_HOURLY, QUALIFIER_DAILY, QUALIFIER_MONTHLY, QUALIFIER_YEARLY], \
-            'time qualifier {0} is not supported by TimeperiodDict'.format(time_qualifier)
+            f'time qualifier {time_qualifier} is not supported by TimeperiodDict'
         super(TimeperiodDict, self).__init__()
 
         self.time_grouping = time_grouping
@@ -49,7 +49,7 @@ class TimeperiodDict(collections.MutableMapping):
         elif self.time_qualifier == QUALIFIER_YEARLY:
             upper_boundary = 1
         else:
-            raise ValueError('unknown time qualifier: {0}'.format(self.time_qualifier))
+            raise ValueError(f'unknown time qualifier: {self.time_qualifier}')
         return upper_boundary
 
     def _do_stem_grouping(self, timeperiod, stem):

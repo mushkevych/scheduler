@@ -64,7 +64,7 @@ def init_parser():
     super_group.add_argument('--reset', action='store_true',
                              help='defines Supervisor DB schema. recreates synergy.box_configuration table')
     super_group.add_argument('--boxid', action='store_true',
-                             help='creates {0} and records BOX_ID in it'.format(config_file))
+                             help=f'creates {config_file} and records BOX_ID in it')
     super_parser.add_argument('argument', nargs='?')
 
     start_parser = subparsers.add_parser('start', help='start a process by name')
@@ -125,7 +125,7 @@ def install_virtualenv_p2(root, python_version):
     except ImportError:
         sys.stdout.write('Installing virtualenv into global interpreter \n')
         ret_code = subprocess.call([VE_GLOBAL_SCRIPT, PROJECT_ROOT])
-        sys.stdout.write('Installation finished with code {0}. Re-run ./launch.py install \n'.format(ret_code))
+        sys.stdout.write(f'Installation finished with code {ret_code}. Re-run ./launch.py install \n')
         sys.exit(ret_code)
 
     if path.exists(root):
@@ -148,7 +148,7 @@ def install_virtualenv_p3(root, python_version):
 def install_virtualenv(parser_args):
     """ Installs virtual environment """
     python_version = '.'.join(str(v) for v in sys.version_info[:2])
-    sys.stdout.write('Installing Python {0} virtualenv into {1} \n'.format(python_version, VE_ROOT))
+    sys.stdout.write(f'Installing Python {python_version} virtualenv into {VE_ROOT} \n')
     if sys.version_info < (3, 3):
         install_virtualenv_p2(VE_ROOT, python_version)
     else:
@@ -206,13 +206,17 @@ def start_process(parser_args):
     """ Start up specific daemon """
     import psutil
     import process_starter
-    from synergy.system import process_helper
+    import settings
+    from synergy.system import process_helper, utils
+
+    utils.ensure_dir(settings.settings['pid_directory'])
+    utils.ensure_dir(settings.settings['log_directory'])
 
     try:
         pid = process_helper.get_process_pid(parser_args.process_name)
         if pid is not None:
             if psutil.pid_exists(pid):
-                message = 'ERROR: Process {0} is already running with pid {1}\n'.format(parser_args.process_name, pid)
+                message = f'ERROR: Process {parser_args.process_name} is already running with pid {pid}\n'
                 sys.stderr.write(message)
                 sys.exit(1)
 
@@ -222,7 +226,7 @@ def start_process(parser_args):
         else:
             process_starter.start_by_process_name(parser_args.process_name, parser_args.extra_parameters)
     except Exception as e:
-        sys.stderr.write('Exception on starting {0} : {1}\n'.format(parser_args.process_name, e))
+        sys.stderr.write(f'Exception on starting {parser_args.process_name} : {e}\n')
         traceback.print_exc(file=sys.stderr)
 
 
@@ -233,13 +237,13 @@ def stop_process(parser_args):
     try:
         pid = process_helper.get_process_pid(parser_args.process_name)
         if pid is None or process_helper.poll_process(parser_args.process_name) is False:
-            message = 'ERROR: Process {0} is already terminated {1}\n'.format(parser_args.process_name, pid)
+            message = f'ERROR: Process {parser_args.process_name} is already terminated {pid}\n'
             sys.stderr.write(message)
             sys.exit(1)
 
         process_helper.kill_process(parser_args.process_name)
     except Exception as e:
-        sys.stderr.write('Exception on killing {0} : {1}\n'.format(parser_args.process_name, e))
+        sys.stderr.write(f'Exception on killing {parser_args.process_name} : {e}\n')
         traceback.print_exc(file=sys.stderr)
 
 
@@ -255,7 +259,7 @@ def list_processes(parser_args):
     from synergy.conf import context
 
     process_names = list(context.process_context)
-    msg = 'List of registered processes: {0} \n'.format(process_names)
+    msg = f'List of registered processes: {process_names} \n'
     sys.stdout.write(msg)
 
 

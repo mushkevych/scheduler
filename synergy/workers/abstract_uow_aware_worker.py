@@ -37,7 +37,7 @@ class AbstractUowAwareWorker(AbstractMqWorker):
         if None is returned then it is assumed that the return tuple is (0, unit_of_work.STATE_PROCESSED)
         :raise an Exception if the UOW shall be marked as STATE_INVALID
         """
-        raise NotImplementedError('method _process_uow must be implemented by {0}'.format(self.__class__.__name__))
+        raise NotImplementedError(f'method _process_uow must be implemented by {self.__class__.__name__}')
 
     def _clean_up(self):
         """ method is called from the *finally* clause and is suppose to clean up after the uow processing """
@@ -49,12 +49,11 @@ class AbstractUowAwareWorker(AbstractMqWorker):
             uow = self.uow_dao.get_one(mq_request.record_db_id)
             if not uow.is_requested:
                 # accept only UOW in STATE_REQUESTED
-                self.logger.warning('Skipping UOW: id {0}; state {1};'.format(message.body, uow.state),
-                                    exc_info=False)
+                self.logger.warning(f'Skipping UOW: id {message.body}; state {uow.state};', exc_info=False)
                 self.consumer.acknowledge(message.delivery_tag)
                 return
         except Exception:
-            self.logger.error('Safety fuse. Can not identify UOW {0}'.format(message.body), exc_info=True)
+            self.logger.error(f'Safety fuse. Can not identify UOW {message.body}', exc_info=True)
             self.consumer.acknowledge(message.delivery_tag)
             return
 
@@ -70,8 +69,8 @@ class AbstractUowAwareWorker(AbstractMqWorker):
 
             result = self._process_uow(uow)
             if result is None:
-                self.logger.warning('method {0}._process_uow returned None. Assuming happy flow.'
-                                    .format(self.__class__.__name__))
+                self.logger.warning(f'Method {self.__class__.__name__}._process_uow returned None. '
+                                    f'Assuming happy flow.')
                 number_of_aggregated_objects, target_state = 0, unit_of_work.STATE_PROCESSED
             else:
                 number_of_aggregated_objects, target_state = result
@@ -107,6 +106,6 @@ class AbstractUowAwareWorker(AbstractMqWorker):
 
         try:
             self.mq_transmitter.publish_uow_status(uow)
-            self.logger.info('UOW *{0}* status report published into MQ'.format(uow.state))
+            self.logger.info(f'UOW *{uow.state}* status report published into MQ')
         except Exception:
             self.logger.error('Error on UOW status report publishing', exc_info=True)

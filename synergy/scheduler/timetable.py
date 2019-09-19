@@ -193,15 +193,14 @@ class Timetable(object):
                 tree.update_node(job_record)
 
         except LookupError:
-            self.logger.warning('No job records in {0}.'.format(collection_name))
+            self.logger.warning(f'No job records in {collection_name}.')
 
         for name, counter in invalid_tree_records.items():
-            self.logger.warning('Skipping {0} job records for {1} since no tree is handling it.'
-                                .format(counter, name))
+            self.logger.warning(f'Skipping {counter} job records for {name} since no tree is handling it.')
 
         for name, counter in invalid_tq_records.items():
-            self.logger.warning('Skipping {0} job records for {1} since the process has different time qualifier.'
-                                .format(counter, name))
+            self.logger.warning(f'Skipping {counter} job records for {name} since the process '
+                                f'has different time qualifier.')
 
     @thread_safe
     def load_tree(self):

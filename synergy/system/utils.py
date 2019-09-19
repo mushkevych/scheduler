@@ -1,5 +1,3 @@
-from __future__ import print_function
-
 __author__ = 'Bohdan Mushkevych'
 
 import os
@@ -11,12 +9,6 @@ from six import string_types
 
 from synergy.conf import settings
 from synergy.conf import context
-
-
-def fully_qualified_table_name(table_name):
-    # fully qualified table name
-    fqtn = settings.settings['aws_redshift_orca_prefix'] + table_name + settings.settings['aws_redshift_orca_suffix']
-    return fqtn
 
 
 def create_s3_file_uri(s3_bucket, timeperiod, file_name):
@@ -72,9 +64,25 @@ def copy_and_sum_families(family_source, family_target):
             family_target[every] += family_source[every]
 
 
+def ensure_dir(fqdp):
+    """
+    :param fqdp: fully qualified directory path
+    """
+    if os.path.isdir(fqdp):
+        # directory exists - nothing to do
+        return
+
+    try:
+        print(f'Attempting to create a dirs: {fqdp}...', file=sys.stdout)
+        os.makedirs(fqdp)
+        print(f'Path {fqdp} created successfully', file=sys.stdout)
+    except OSError as e:
+        print(f'Unable to create path: {fqdp}, because of: {e}', file=sys.stderr)
+
+
 def get_pid_filename(process_name):
     """method returns path for the PID FILENAME """
-    return settings.settings['pid_directory'] + context.process_context[process_name].pid_filename
+    return os.path.join(settings.settings['pid_directory'], context.process_context[process_name].pid_filename)
 
 
 def create_pid_file(process_name):
@@ -84,16 +92,18 @@ def create_pid_file(process_name):
         with open(pid_filename, mode='w') as pid_file:
             pid_file.write(str(os.getpid()))
     except Exception as e:
-        print('Unable to create pid file at: {0}, because of: {1}'.format(pid_filename, e),
-              file=sys.stderr)
+        print(f'Unable to create pid file at: {pid_filename}, because of: {e}', file=sys.stderr)
 
 
 def remove_pid_file(process_name):
     """ removes pid file """
     pid_filename = get_pid_filename(process_name)
+    if not os.path.exists(pid_filename):
+        print(f'Unable to removed non-existent pid file at: {pid_filename}', file=sys.stdout)
+        return
+
     try:
         os.remove(pid_filename)
-        print('Removed pid file at: {0}'.format(pid_filename), file=sys.stdout)
+        print(f'Removed pid file at: {pid_filename}', file=sys.stdout)
     except Exception as e:
-        print('Unable to remove pid file at: {0}, because of: {1}'.format(pid_filename, e),
-              file=sys.stderr)
+        print(f'Unable to remove pid file at: {pid_filename}, because of: {e}', file=sys.stderr)

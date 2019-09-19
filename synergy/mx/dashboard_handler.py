@@ -89,7 +89,7 @@ class ManagedStatements(object):
                                                       include_processed, include_noop, include_failed)
             records_list = self.job_dao.run_query(collection_name, query)
             if len(records_list) == 0:
-                self.logger.warning('MX: no Job Records found in {0} since {1}.'.format(collection_name, timeperiod))
+                self.logger.warning(f'MX: no Job Records found in {collection_name} since {timeperiod}.')
 
             for job_record in records_list:
                 if job_record.process_name not in self.managed_handlers:
@@ -101,7 +101,7 @@ class ManagedStatements(object):
 
                 resp[job_record.key] = job_record.document
         except Exception as e:
-            self.logger.error('MX Dashboard ManagedStatements error: {0}'.format(e))
+            self.logger.error(f'MX Dashboard ManagedStatements error: {e}')
         return resp
 
 
@@ -122,7 +122,7 @@ class FreerunStatements(object):
                                                              include_processed, include_noop, include_failed)
             records_list = self.uow_dao.run_query(query)
             if len(records_list) == 0:
-                self.logger.warning('MX: no Freerun UOW records found since {0}.'.format(timeperiod))
+                self.logger.warning(f'MX: no Freerun UOW records found since {timeperiod}.')
 
             for uow_record in records_list:
                 # freerun uow.process_name is a composite in format <process_name::entry_name>
@@ -136,5 +136,5 @@ class FreerunStatements(object):
 
                 resp[uow_record.key] = uow_record.document
         except Exception as e:
-            self.logger.error('MX Dashboard FreerunStatements error: {0}'.format(e))
+            self.logger.error(f'MX Dashboard FreerunStatements error: {e}')
         return resp

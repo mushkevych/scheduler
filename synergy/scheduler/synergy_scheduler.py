@@ -121,7 +121,7 @@ class Scheduler(SynergyProcess):
         try:
             self._load_freerun_entries()
         except LookupError as e:
-            self.logger.warning('DB Lookup: {0}'.format(e))
+            self.logger.warning(f'DB Lookup: {e}')
 
         # Scheduler is initialized and running. GarbageCollector can be safely started
         self.gc.start()
@@ -173,20 +173,20 @@ class Scheduler(SynergyProcess):
             elif blocking_type == BLOCKING_NORMAL:
                 state_machine.manage_job(job_record)
             else:
-                raise ValueError('Unknown managed process type {0}'.format(blocking_type))
+                raise ValueError(f'Unknown managed process type {blocking_type}')
 
             return job_record
 
         try:
             assert isinstance(thread_handler_header, ThreadHandlerHeader)
-            self.logger.info('{0} {{'.format(thread_handler_header.key))
+            self.logger.info(f'{thread_handler_header.key} {{')
 
             job_record = _fire_worker(thread_handler_header.process_entry, None)
             while job_record and job_record.is_finished:
                 job_record = _fire_worker(thread_handler_header.process_entry, job_record)
 
         except Exception as e:
-            self.logger.error('Exception: {0}'.format(e), exc_info=True)
+            self.logger.error(f'Exception: {e}', exc_info=True)
         finally:
             self.logger.info('}')
 
@@ -195,13 +195,13 @@ class Scheduler(SynergyProcess):
         """ fires free-run worker with no dependencies to track """
         try:
             assert isinstance(thread_handler_header, ThreadHandlerHeader)
-            self.logger.info('{0} {{'.format(thread_handler_header.key))
+            self.logger.info(f'{thread_handler_header.key} {{')
 
             state_machine = self.timetable.state_machines[STATE_MACHINE_FREERUN]
             state_machine.manage_schedulable(thread_handler_header.process_entry)
 
         except Exception as e:
-            self.logger.error('fire_freerun_worker: {0}'.format(e))
+            self.logger.error(f'fire_freerun_worker: {e}')
         finally:
             self.logger.info('}')
 

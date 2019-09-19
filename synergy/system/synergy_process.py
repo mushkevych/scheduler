@@ -22,4 +22,4 @@ class SynergyProcess(object):
     def __del__(self):
         """ removes PID file """
         remove_pid_file(self.process_name)
-        self.logger.info('Shutdown {0}'.format(self.process_name))
+        self.logger.info(f'Shutdown {self.process_name}')

@@ -23,7 +23,7 @@ class ManagedActionHandler(AbstractActionHandler):
     def _get_tree_node(self):
         tree = self.scheduler.timetable.get_tree(self.process_name)
         if tree is None:
-            raise UserWarning('No Timetable tree is registered for process {0}'.format(self.process_name))
+            raise UserWarning(f'No Timetable tree is registered for process {self.process_name}')
 
         time_qualifier = context.process_context[self.process_name].time_qualifier
         self.timeperiod = time_helper.cast_to_time_qualifier(time_qualifier, self.timeperiod)
@@ -48,7 +48,7 @@ class ManagedActionHandler(AbstractActionHandler):
     def reprocess_tree_node(self):
         node = self._get_tree_node()
 
-        msg = 'MX: requesting REPROCESS for {0} in timeperiod {1}'.format(self.process_name, self.timeperiod)
+        msg = f'MX: requesting REPROCESS for {self.process_name} in timeperiod {self.timeperiod}'
         self.scheduler.timetable.add_log_entry(self.process_name, self.timeperiod, msg)
         self.logger.info(msg + ' {')
 
@@ -66,7 +66,7 @@ class ManagedActionHandler(AbstractActionHandler):
     def skip_tree_node(self):
         node = self._get_tree_node()
 
-        msg = 'MX: requesting SKIP for {0} in timeperiod {1}'.format(self.process_name, self.timeperiod)
+        msg = f'MX: requesting SKIP for {self.process_name} in timeperiod {self.timeperiod}'
         self.scheduler.timetable.add_log_entry(self.process_name, self.timeperiod, msg)
         self.logger.info(msg + ' {')
 

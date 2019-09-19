@@ -38,7 +38,7 @@ class EventStreamGenerator(SynergyProcess):
             utc_date.minute * math.pow(10, 4) + \
             utc_date.second * math.pow(10, 2)
 
-        self.logger.info('Started {0}'.format(self.process_name))
+        self.logger.info(f'Started {self.process_name}')
 
     def __del__(self):
         self.publisher.close()
@@ -103,10 +103,10 @@ class EventStreamGenerator(SynergyProcess):
             except (AMQPError, IOError) as e:
                 self.thread_is_running = False
                 self.performance_tracker.cancel()
-                self.logger.error('AMQPError: {0}'.format(e))
+                self.logger.error(f'AMQPError: {e}')
             except Exception as e:
                 self.performance_tracker.tracker.increment_failure()
-                self.logger.info('safety fuse: {0}'.format(e))
+                self.logger.info(f'safety fuse: {e}')
 
     def start(self, *_):
         self.main_thread = Thread(target=self._run_stream_generation)

@@ -18,7 +18,7 @@ class SynergyAware(object):
         elif name in context.mq_queue_context:
             the_context = context.mq_queue_context
         else:
-            raise ValueError('Unknown name {0}. Unable to retrieve amqp settings.'.format(name))
+            raise ValueError(f'Unknown name {name}. Unable to retrieve amqp settings.')
 
         self.routing_key = the_context[name].mq_routing_key
         self.exchange = the_context[name].mq_exchange
@@ -222,7 +222,7 @@ class _Pool(object):
             try:
                 publisher.close()
             except Exception as e:
-                self.logger.error('Exception on closing Flopsy Publisher {0}: {1}'.format(self.name, e),
+                self.logger.error(f'Exception on closing Flopsy Publisher {self.name}: {e}',
                                   exc_info=not suppress_logging)
         self.publishers.clear()
 
@@ -258,7 +258,7 @@ class PublishersPool(object):
         """ resets established connection by disconnecting and reconnecting """
         self._close(name, suppress_logging)
         self.get(name)
-        self.logger.info('Reset Flopsy Pool for {0}'.format(name))
+        self.logger.info(f'Reset Flopsy Pool for {name}')
 
     def _close(self, name, suppress_logging):
         """ closes one particular pool and all its amqp amqp connections """
@@ -268,8 +268,7 @@ class PublishersPool(object):
                 self.pools[name].close()
                 del self.pools[name]
         except Exception as e:
-            self.logger.error('Exception on closing Flopsy Pool for {0}: {1}'.format(name, e),
-                              exc_info=not suppress_logging)
+            self.logger.error(f'Exception on closing Flopsy Pool for {name}: {e}', exc_info=not suppress_logging)
 
     def close(self, suppress_logging=False):
         """ iterates thru all publisher pools and closes them """
@@ -289,10 +288,10 @@ def purge_mq_queue(mq_queue_name):
         conn = Connection()
         chan = conn.connection.channel()
         n = chan.queue_purge(mq_queue_name)
-        sys.stdout.write('Purged {0} messages from {1} queue\n'.format(n, mq_queue_name))
+        sys.stdout.write(f'Purged {n} messages from {mq_queue_name} queue\n')
         return n
     except Exception as e:
-        sys.stderr.write('Unable to purge {0} due to {1}\n'.format(mq_queue_name, e))
+        sys.stderr.write(f'Unable to purge {mq_queue_name} due to {e}\n')
     finally:
         if chan is not None:
             chan.close()

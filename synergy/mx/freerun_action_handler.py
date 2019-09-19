@@ -73,7 +73,7 @@ class FreerunActionHandler(AbstractActionHandler):
         self.thread_handler.deactivate()
         self.freerun_process_dao.remove(handler_key)
         del self.scheduler.freerun_handlers[handler_key]
-        self.logger.info('MX: Deleted FreerunThreadHandler for {0}'.format(handler_key))
+        self.logger.info(f'MX: Deleted FreerunThreadHandler for {handler_key}')
         return self.reply_ok()
 
     @valid_action_request

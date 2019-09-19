@@ -23,4 +23,4 @@ class LogRecordingDao(BaseDao):
                                        {'$push': {LOG: msg}},
                                        upsert=True)
         if result.modified_count == 0:
-            raise LookupError('Log append failed for {0} in collection {1}'.format(uow_id, self.collection_name))
+            raise LookupError(f'Log append failed for {uow_id} in collection {self.collection_name}')

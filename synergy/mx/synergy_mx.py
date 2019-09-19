@@ -2,7 +2,8 @@ __author__ = 'Bohdan Mushkevych'
 
 from threading import Thread
 from werkzeug.wrappers import Request
-from werkzeug.wsgi import ClosingIterator, SharedDataMiddleware
+from werkzeug.wsgi import ClosingIterator
+from werkzeug.middleware.shared_data import SharedDataMiddleware
 from werkzeug.exceptions import HTTPException, NotFound
 from werkzeug.serving import run_simple
 from synergy.conf import settings

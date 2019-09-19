@@ -87,8 +87,8 @@ class TestTwoLevelTree(unittest.TestCase):
 
         number_of_leafs = calculate_leafs(tree.root)
         self.assertEqual(number_of_leafs, delta + 1,
-                         'Expected number of leaf nodes for {0} was {1}, while actual is {2}'
-                         .format(tree.mx_name, delta + 1, number_of_leafs))
+                         f'Expected number of leaf nodes for {tree.mx_name} was {delta + 1}, '
+                         f'while actual is {number_of_leafs}')
 
     def test_less_simple_build_tree(self):
         delta = 105

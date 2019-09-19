@@ -24,7 +24,7 @@ class Supervisor(SynergyProcess):
         self.lock = Lock()
         self.box_id = get_box_id(self.logger)
         self.bc_dao = BoxConfigurationDao(self.logger)
-        self.logger.info('Started {0} with configuration for BOX_ID={1}'.format(self.process_name, self.box_id))
+        self.logger.info(f'Started {self.process_name} with configuration for BOX_ID={self.box_id}')
 
     def __del__(self):
         self.logger.info('Shutting down Supervisor...')
@@ -37,8 +37,8 @@ class Supervisor(SynergyProcess):
     def _kill_process(self, box_config):
         """ method is called to kill a running process """
         try:
-            self.logger.info('kill: {0} {{'.format(box_config.process_name))
-            self.logger.info('target process pid={0}'.format(box_config.pid))
+            self.logger.info(f'kill: {box_config.process_name} {{')
+            self.logger.info(f'target process pid={box_config.pid}')
             if box_config.pid and psutil.pid_exists(box_config.pid):
                 p = psutil.Process(box_config.pid)
                 p.kill()
@@ -47,7 +47,7 @@ class Supervisor(SynergyProcess):
                 self.bc_dao.update(box_config)
                 remove_pid_file(box_config.process_name)
         except Exception:
-            self.logger.error('Exception on killing: {0}'.format(box_config.process_name), exc_info=True)
+            self.logger.error(f'Exception on killing: {box_config.process_name}', exc_info=True)
         finally:
             self.logger.info('}')
 
@@ -55,10 +55,10 @@ class Supervisor(SynergyProcess):
         if not self.bc_dao.ds.is_alive():
             # ping DB to make sure it is alive.
             # otherwise, processes will be spawned uncontrollably
-            raise UserWarning('DB Down Exception: unable to reach db {0}'.format(self.bc_dao.ds))
+            raise UserWarning(f'DB Down Exception: unable to reach db {self.bc_dao.ds}')
 
         try:
-            self.logger.info('start: {0} {{'.format(box_config.process_name))
+            self.logger.info(f'start: {box_config.process_name} {{')
             p = psutil.Popen([get_python(), PROJECT_ROOT + '/' + PROCESS_STARTER, box_config.process_name],
                              close_fds=True,
                              cwd=settings.settings['process_cwd'],
@@ -66,10 +66,10 @@ class Supervisor(SynergyProcess):
                              stdout=PIPE,
                              stderr=PIPE)
             box_config.pid = p.pid
-            self.logger.info('Started {0} with pid = {1}'.format(box_config.process_name, p.pid))
+            self.logger.info(f'Started {box_config.process_name} with pid = {p.pid}')
         except Exception:
             box_config.set_process_pid(box_config.process_name, None)
-            self.logger.error('Exception on starting: {0}'.format(box_config.process_name), exc_info=True)
+            self.logger.error(f'Exception on starting: {box_config.process_name}', exc_info=True)
         finally:
             self.bc_dao.update(box_config)
             self.logger.info('}')
@@ -84,18 +84,18 @@ class Supervisor(SynergyProcess):
             return_code = p.wait(timeout=0.01)
             if return_code is None:
                 # process is already terminated
-                self.logger.info('Process {0} is terminated'.format(box_config.process_name))
+                self.logger.info(f'Process {box_config.process_name} is terminated')
                 return
             else:
                 # process is terminated; possibly by OS
                 box_config.pid = None
                 self.bc_dao.update(box_config)
-                self.logger.info('Process {0} got terminated. Cleaning up'.format(box_config.process_name))
+                self.logger.info(f'Process {box_config.process_name} got terminated. Cleaning up')
         except TimeoutExpired:
             # process is alive and OK
             pass
         except Exception:
-            self.logger.error('Exception on polling: {0}'.format(box_config.process_name), exc_info=True)
+            self.logger.error(f'Exception on polling: {box_config.process_name}', exc_info=True)
 
     def start(self, *_):
         """ reading box configurations and starting timers to start/monitor/kill processes """
@@ -106,10 +106,10 @@ class Supervisor(SynergyProcess):
                 handler = RepeatTimer(TRIGGER_INTERVAL, self.manage_process, args=[box_config.process_name])
                 self.thread_handlers[box_config.process_name] = handler
                 handler.start()
-                self.logger.info('Started Supervisor Thread for {0}, triggering every {1} seconds'
-                                 .format(box_config.process_name, TRIGGER_INTERVAL))
+                self.logger.info(f'Started Supervisor Thread for {box_config.process_name}, '
+                                 f'triggering every {TRIGGER_INTERVAL} seconds')
         except LookupError as e:
-            self.logger.error('Supervisor failed to start because of: {0}'.format(e))
+            self.logger.error(f'Supervisor failed to start because of: {e}')
 
     @thread_safe
     def manage_process(self, *args):
@@ -127,7 +127,7 @@ class Supervisor(SynergyProcess):
             elif box_config.pid and psutil.pid_exists(box_config.pid):
                 self._poll_process(box_config)
         except Exception as e:
-            self.logger.error('Exception: {0}'.format(e), exc_info=True)
+            self.logger.error(f'Exception: {e}', exc_info=True)
 
 
 if __name__ == '__main__':

@@ -22,7 +22,7 @@ class AbstractCliWorker(AbstractUowAwareWorker):
         super(AbstractCliWorker, self).__del__()
 
     def _start_process(self, start_timeperiod, end_timeperiod, arguments):
-        raise NotImplementedError('method _start_process must be implemented by {0}'.format(self.__class__.__name__))
+        raise NotImplementedError(f'method _start_process must be implemented by {self.__class__.__name__}')
 
     def _poll_process(self):
         """ between death of a process and its actual termination lies poorly documented requirement -
@@ -35,17 +35,17 @@ class AbstractCliWorker(AbstractUowAwareWorker):
             return_code = self.cli_process.wait(timeout=0.01)
             if return_code is None:
                 # process is already terminated
-                self.logger.info('Process {0} is terminated'.format(self.process_name))
+                self.logger.info(f'Process {self.process_name} is terminated')
             else:
                 # process is terminated; possibly by OS
-                self.logger.info('Process {0} got terminated. Cleaning up'.format(self.process_name))
+                self.logger.info(f'Process {self.process_name} got terminated. Cleaning up')
             self.cli_process = None
             return False, return_code
         except TimeoutExpired:
             # process is alive and OK
             return True, None
         except Exception:
-            self.logger.error('Exception on polling: {0}'.format(self.process_name), exc_info=True)
+            self.logger.error(f'Exception on polling: {self.process_name}', exc_info=True)
             return False, 999
 
     def _process_uow(self, uow):
@@ -56,7 +56,7 @@ class AbstractCliWorker(AbstractUowAwareWorker):
             alive, code = self._poll_process()
             time.sleep(0.1)
 
-        self.logger.info('Command Line Command return code is {0}'.format(code))
+        self.logger.info(f'Command Line Command return code is {code}')
         if code == 0:
             return 0, unit_of_work.STATE_PROCESSED
         elif code == RETURN_CODE_CANCEL_UOW:
@@ -64,4 +64,4 @@ class AbstractCliWorker(AbstractUowAwareWorker):
         elif code == RETURN_CODE_NOOP_UOW:
             return 0, unit_of_work.STATE_NOOP
         else:
-            raise UserWarning('Command Line Command return code is not 0 but {0}'.format(code))
+            raise UserWarning(f'Command Line Command return code is not 0 but {code}')

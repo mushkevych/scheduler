@@ -45,7 +45,7 @@ class AbstractThreadHandler(object):
 
     @property
     def dao(self):
-        raise NotImplementedError('property dao must be implemented by {0}'.format(self.__class__.__name__))
+        raise NotImplementedError(f'property dao must be implemented by {self.__class__.__name__}')
 
     def activate(self, update_persistent=True):
         if self.timer_instance.is_alive():

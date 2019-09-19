@@ -15,9 +15,8 @@ def build_db_query(fields_names, field_values):
         field_values = [field_values]
 
     if len(fields_names) != len(field_values):
-        raise ValueError('Error: unable to build a primary key query due '
-                         'to mismatch in number of fields {0} vs {1}'
-                         .format(len(fields_names), len(field_values)))
+        raise ValueError(f'Error: unable to build a primary key query due '
+                         f'to mismatch in number of fields {len(fields_names)} vs {len(field_values)}')
 
     query = dict()
     for k, v in zip(fields_names, field_values):
@@ -46,7 +45,7 @@ class BaseDao(object):
 
         document = collection.find_one(query)
         if document is None:
-            raise LookupError('{0} with key {1} was not found'.format(self.model_klass.__name__, query))
+            raise LookupError(f'{self.model_klass.__name__} with key {query} was not found')
         return self.model_klass.from_json(document)
 
     @thread_safe
@@ -56,8 +55,7 @@ class BaseDao(object):
 
         cursor = collection.find(query)
         if cursor.count() == 0:
-            raise LookupError('Collection {0} has no {1} records'
-                              .format(self.collection_name, self.model_klass.__name__))
+            raise LookupError(f'Collection {self.collection_name} has no {self.model_klass.__name__} records')
         return [self.model_klass.from_json(entry) for entry in cursor]
 
     @thread_safe

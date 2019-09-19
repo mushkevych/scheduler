@@ -28,5 +28,5 @@ class GcActionHandler(BaseRequestHandler):
     @valid_action_request
     def flush_one(self):
         self.scheduler.gc.flush_one(process_name=self.process_name, ignore_priority=True)
-        self.logger.info('MX: performed GC Flush for {0}'.format(self.process_name))
+        self.logger.info(f'MX: performed GC Flush for {self.process_name}')
         return self.reply_ok()

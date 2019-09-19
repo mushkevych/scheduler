@@ -114,5 +114,4 @@ class StateMachineDiscrete(AbstractStateMachine):
 
     def _process_state_final_run(self, job_record):
         """method takes care of processing job records in STATE_FINAL_RUN state"""
-        raise NotImplementedError('Method _process_state_final_run is not supported by {0}'
-                                  .format(self.__class__.__name__))
+        raise NotImplementedError(f'Method _process_state_final_run is not supported by {self.__class__.__name__}')

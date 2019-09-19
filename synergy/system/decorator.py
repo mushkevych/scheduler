@@ -23,7 +23,7 @@ def thread_safe(method):
             try:
                 self.lock.release()
             except:
-                sys.stderr.write('Exception on releasing lock at method {0}'.format(method.__name__))
+                sys.stderr.write(f'Exception on releasing lock at method {method.__name__}')
                 traceback.print_exc(file=sys.stderr)
 
     return _locker

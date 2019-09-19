@@ -27,7 +27,7 @@ class UowStatusListener(object):
             self.logger.info('UowStatusListener: Closing Flopsy Consumer...')
             self.consumer.close()
         except Exception as e:
-            self.logger.error('UowStatusListener: Exception caught while closing Flopsy Consumer: {0}'.format(e))
+            self.logger.error(f'UowStatusListener: Exception caught while closing Flopsy Consumer: {e}')
 
     # ********************** thread-related methods ****************************
     def _mq_callback(self, message):
@@ -63,9 +63,9 @@ class UowStatusListener(object):
             state_machine.notify(uow)
 
         except KeyError:
-            self.logger.error('Access error for {0}'.format(message.body), exc_info=True)
+            self.logger.error(f'Access error for {message.body}', exc_info=True)
         except Exception:
-            self.logger.error('Error during StateMachine.notify call {0}'.format(message.body), exc_info=True)
+            self.logger.error(f'Error during StateMachine.notify call {message.body}', exc_info=True)
         finally:
             self.consumer.acknowledge(message.delivery_tag)
             self.logger.info('UowStatusListener }')
@@ -76,7 +76,7 @@ class UowStatusListener(object):
             self.logger.info('UowStatusListener: instantiated and activated.')
             self.consumer.wait()
         except (AMQPError, IOError) as e:
-            self.logger.error('UowStatusListener: AMQPError {0}'.format(e))
+            self.logger.error(f'UowStatusListener: AMQPError {e}')
         finally:
             self.__del__()
             self.logger.info('UowStatusListener: Shut down.')

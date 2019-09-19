@@ -166,8 +166,8 @@ class AbstractSMUnitTest(unittest.TestCase):
             for key, value in f.items():
                 actual_value = self.sm_real.compute_start_timeperiod(process_name, key)
                 self.assertEqual(actual_value, value,
-                                 msg='failing combination: q={0} fixture={1}/{2} actual={3}'
-                                 .format(process_name, key, value, actual_value))
+                                 msg=f'failing combination: '
+                                     f'q={process_name} fixture={key}/{value} actual={actual_value}')
 
         fixture = {
             PROCESS_SITE_YEARLY: {'2010000000': '2010000000',

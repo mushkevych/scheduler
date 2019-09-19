@@ -33,8 +33,7 @@ class AbstractStateMachine(object):
         """
         :return: True if given State Machine allows execution on *live* timeperiod, as opposed to the finished one
         """
-        raise NotImplementedError('property run_on_active_timeperiod must be implemented by {0}'
-                                  .format(self.__class__.__name__))
+        raise NotImplementedError(f'property run_on_active_timeperiod must be implemented by {self.__class__.__name__}')
 
     def _log_message(self, level, process_name, timeperiod, msg):
         """ method performs logging into log file and Timetable's tree node"""

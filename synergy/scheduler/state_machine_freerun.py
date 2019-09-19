@@ -83,7 +83,7 @@ class StateMachineFreerun(object):
 
     def _publish_uow(self, freerun_entry, uow):
         self.mq_transmitter.publish_freerun_uow(freerun_entry, uow)
-        msg = 'Published: UOW {0} for {1}.'.format(uow.db_id, freerun_entry.schedulable_name)
+        msg = f'Published: UOW {uow.db_id} for {freerun_entry.schedulable_name}.'
         self._log_message(INFO, freerun_entry, msg)
 
     def _reset_flow_uow(self, freerun_entry, uow, flow_request):
@@ -110,7 +110,7 @@ class StateMachineFreerun(object):
         try:
             uow = self._insert_uow(freerun_entry, flow_request)
         except DuplicateKeyError as e:
-            msg = 'Duplication of UOW found for {0}. Error msg: {1}'.format(freerun_entry.schedulable_name, e)
+            msg = f'Duplication of UOW found for {freerun_entry.schedulable_name}. Error msg: {e}'
             self._log_message(WARNING, freerun_entry, msg)
             uow = self.uow_dao.recover_from_duplicatekeyerror(e)
 
@@ -127,8 +127,7 @@ class StateMachineFreerun(object):
                 # skip persistence update if this is a workflow request
                 self.freerun_process_dao.update(freerun_entry)
         else:
-            msg = 'PERSISTENT TIER ERROR! Unable to locate UOW for {0}' \
-                  .format(freerun_entry.schedulable_name)
+            msg = f'PERSISTENT TIER ERROR! Unable to locate UOW for {freerun_entry.schedulable_name}'
             self._log_message(WARNING, freerun_entry, msg)
 
     def _process_state_embryo(self, freerun_entry, flow_request=None):
@@ -142,7 +141,7 @@ class StateMachineFreerun(object):
     def _process_terminal_state(self, freerun_entry, uow, flow_request=None):
         """ method that takes care of processing unit_of_work records in
             STATE_PROCESSED, STATE_NOOP, STATE_INVALID, STATE_CANCELED states"""
-        msg = 'UOW for {0} found in state {1}.'.format(freerun_entry.schedulable_name, uow.state)
+        msg = f'UOW for {freerun_entry.schedulable_name} found in state {uow.state}.'
         self._log_message(INFO, freerun_entry, msg)
         self.insert_and_publish_uow(freerun_entry, flow_request, reset_uow=True)
 
@@ -167,21 +166,20 @@ class StateMachineFreerun(object):
                 self._process_terminal_state(freerun_entry, uow, flow_request)
 
             else:
-                msg = 'Unknown state {0} of the UOW {1}'.format(uow.state, uow.db_id)
+                msg = f'Unknown state {uow.state} of the UOW {uow.db_id}'
                 self._log_message(ERROR, freerun_entry, msg)
 
         except LookupError as e:
-            msg = 'Lookup issue for schedulable: {0} in timeperiod {1}, because of: {2}' \
-                  .format(freerun_entry.db_id, uow.timeperiod, e)
+            msg = f'Lookup issue for schedulable: {freerun_entry.db_id} in timeperiod {uow.timeperiod}, because of: {e}'
             self._log_message(WARNING, freerun_entry, msg)
 
     def cancel_uow(self, freerun_entry):
         uow_id = freerun_entry.related_unit_of_work
         if uow_id is None:
-            msg = 'cancel_uow: no related UOW for {0}'.format(freerun_entry.schedulable_name)
+            msg = f'cancel_uow: no related UOW for {freerun_entry.schedulable_name}'
         else:
             uow = self.uow_dao.get_one(uow_id)
             uow.state = unit_of_work.STATE_CANCELED
             self.uow_dao.update(uow)
-            msg = 'cancel_uow: canceled UOW {0} for {1}'.format(uow_id, freerun_entry.schedulable_name)
+            msg = f'cancel_uow: canceled UOW {uow_id} for {freerun_entry.schedulable_name}'
         self._log_message(INFO, freerun_entry, msg)

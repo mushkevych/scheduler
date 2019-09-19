@@ -80,8 +80,7 @@ class AbstractWorkerUnitTest(unittest.TestCase):
         if self.generate_output:
             i = 0
             for key in self.aggregator.aggregated_objects:
-                print('{0}_{1:02d} = {2}'.format(self.output_prefix, i,
-                                                 self.aggregator.aggregated_objects[key].document))
+                print(f'{self.output_prefix}_{i:02d} = {self.aggregator.aggregated_objects[key].document}')
                 i += 1
 
         if self.compare_results:

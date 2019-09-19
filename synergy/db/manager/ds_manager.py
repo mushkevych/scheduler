@@ -26,7 +26,7 @@ if 'ds_factory' not in globals():
                 elif ds_type == "hbase":
                     instances[ds_type] = HBaseManager(logger)
                 else:
-                    raise ValueError('Unsupported Data Source type: {0}'.format(ds_type))
+                    raise ValueError(f'Unsupported Data Source type: {ds_type}')
                 atexit.register(instances[ds_type].interpreter_terminating)
             return instances[ds_type]
 
@@ -48,7 +48,7 @@ class BaseManager(object):
         self.interpreter_is_terminating = False
 
     def __str__(self):
-        raise NotImplementedError('method __str__ must be implemented by {0}'.format(self.__class__.__name__))
+        raise NotImplementedError(f'method __str__ must be implemented by {self.__class__.__name__}')
 
     def interpreter_terminating(self):
         """ method is registered with the atexit hook, and notifies about Python interpreter shutdown sequnce """
@@ -56,27 +56,25 @@ class BaseManager(object):
 
     def is_alive(self):
         """ :return: True if the database server is available. False otherwise """
-        raise NotImplementedError('method is_alive must be implemented by {0}'.format(self.__class__.__name__))
+        raise NotImplementedError(f'method is_alive must be implemented by {self.__class__.__name__}')
 
     def get(self, table_name, primary_key):
-        raise NotImplementedError('method get must be implemented by {0}'.format(self.__class__.__name__))
+        raise NotImplementedError(f'method get must be implemented by {self.__class__.__name__}')
 
     def filter(self, table_name, query):
-        raise NotImplementedError('method filter must be implemented by {0}'.format(self.__class__.__name__))
+        raise NotImplementedError(f'method filter must be implemented by {self.__class__.__name__}')
 
     def update(self, table_name, primary_key, instance):
-        raise NotImplementedError('method update must be implemented by {0}'.format(self.__class__.__name__))
+        raise NotImplementedError(f'method update must be implemented by {self.__class__.__name__}')
 
     def delete(self, table_name, primary_key):
-        raise NotImplementedError('method delete must be implemented by {0}'.format(self.__class__.__name__))
+        raise NotImplementedError(f'method delete must be implemented by {self.__class__.__name__}')
 
     def highest_primary_key(self, table_name, timeperiod_low, timeperiod_high):
-        raise NotImplementedError(
-            'method highest_primary_key must be implemented by {0}'.format(self.__class__.__name__))
+        raise NotImplementedError(f'method highest_primary_key must be implemented by {self.__class__.__name__}')
 
     def lowest_primary_key(self, table_name, timeperiod_low, timeperiod_high):
-        raise NotImplementedError(
-            'method lowest_primary_key must be implemented by {0}'.format(self.__class__.__name__))
+        raise NotImplementedError(f'method lowest_primary_key must be implemented by {self.__class__.__name__}')
 
     def cursor_fine(self,
                     table_name,
@@ -86,14 +84,14 @@ class BaseManager(object):
                     start_timeperiod,
                     end_timeperiod):
         """ method returns DB cursor based on precise boundaries """
-        raise NotImplementedError('method cursor_fine must be implemented by {0}'.format(self.__class__.__name__))
+        raise NotImplementedError(f'method cursor_fine must be implemented by {self.__class__.__name__}')
 
     def cursor_batch(self,
                      table_name,
                      start_timeperiod,
                      end_timeperiod):
         """ method returns batched DB cursor """
-        raise NotImplementedError('method cursor_batch must be implemented by {0}'.format(self.__class__.__name__))
+        raise NotImplementedError(f'method cursor_batch must be implemented by {self.__class__.__name__}')
 
 
 class MongoDbManager(BaseManager):
@@ -107,16 +105,15 @@ class MongoDbManager(BaseManager):
             self._db_client.close()
         except Exception as e:
             if self.interpreter_is_terminating:
-                self.logger.error('MongoDbManager cleanup likely followed MongoClient cleanup: {0}'.format(e))
+                self.logger.error(f'MongoDbManager cleanup likely followed MongoClient cleanup: {e}')
             else:
-                self.logger.error('Exception on closing MongoClient: {0}'.format(e), exc_info=True)
+                self.logger.error(f'Exception on closing MongoClient: {e}', exc_info=True)
         finally:
             self._db = None
             self._db_client = None
 
     def __str__(self):
-        return 'MongoDbManager: {0}@{1}'\
-               .format(settings.settings['mongodb_host_list'], settings.settings['mongo_db_name'])
+        return f'MongoDbManager: {settings.settings["mongodb_host_list"]}@{settings.settings["mongo_db_name"]}'
 
     def is_alive(self):
         return self._db_client.admin.command('ping')
@@ -138,7 +135,7 @@ class MongoDbManager(BaseManager):
         conn = self._db[table_name]
         db_entry = conn.find_one(primary_key)
         if db_entry is None:
-            msg = 'Instance with ID={0} was not found'.format(primary_key)
+            msg = f'Instance with ID={primary_key} was not found'
             self.logger.warning(msg)
             raise LookupError(msg)
         return db_entry
@@ -170,8 +167,8 @@ class MongoDbManager(BaseManager):
         conn = self._db[table_name]
         asc_search = conn.find(filter=query, projection='_id').sort('_id', ASCENDING).limit(1)
         if asc_search.count() == 0:
-            raise LookupError('No records in timeperiod: [{0} : {1}) in collection {2}'
-                              .format(timeperiod_low, timeperiod_high, table_name))
+            raise LookupError(
+                f'No records in timeperiod: [{timeperiod_low} : {timeperiod_high}) in collection {table_name}')
         return asc_search[0]['_id']
 
     def lowest_primary_key(self, table_name, timeperiod_low, timeperiod_high):
@@ -179,8 +176,8 @@ class MongoDbManager(BaseManager):
         conn = self._db[table_name]
         dec_search = conn.find(filter=query, projection='_id').sort('_id', DESCENDING).limit(1)
         if dec_search.count() == 0:
-            raise LookupError('No records in timeperiod: [{0} : {1}) in collection {2}'
-                              .format(timeperiod_low, timeperiod_high, table_name))
+            raise LookupError(
+                f'No records in timeperiod: [{timeperiod_low} : {timeperiod_high}) in collection {table_name}')
         return dec_search[0]['_id']
 
     def cursor_fine(self,

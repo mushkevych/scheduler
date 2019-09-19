@@ -42,7 +42,7 @@ class GarbageCollector(object):
             since = settings.settings['synergy_start_timeperiod']
             uow_list = self.uow_dao.get_reprocessing_candidates(since)
         except LookupError as e:
-            self.logger.info('flow: no UOW candidates found for reprocessing: {0}'.format(e))
+            self.logger.info(f'flow: no UOW candidates found for reprocessing: {e}')
             return
 
         for uow in uow_list:
@@ -55,7 +55,7 @@ class GarbageCollector(object):
                 thread_handler = self.managed_handlers[uow.process_name]
                 assert isinstance(thread_handler, ManagedThreadHandler)
                 if not thread_handler.process_entry.is_on:
-                    self.logger.debug('process {0} is inactive. Skipping its UOW.'.format(uow.process_name))
+                    self.logger.debug(f'process {uow.process_name} is inactive. Skipping its UOW.')
                     continue
 
                 entry = PriorityEntry(uow)
@@ -81,7 +81,7 @@ class GarbageCollector(object):
                     self.reprocess_uows[uow.process_name].put(entry)
 
             except Exception as e:
-                self.logger.error('flow exception: {0}'.format(e), exc_info=True)
+                self.logger.error(f'flow exception: {e}', exc_info=True)
 
     def _flush_queue(self, q, ignore_priority=False):
         """
@@ -193,7 +193,7 @@ class GarbageCollector(object):
             self.logger.debug('step 5: timetable validation')
             self.timetable.validate()
         except Exception as e:
-            self.logger.error('GC run exception: {0}'.format(e))
+            self.logger.error(f'GC run exception: {e}')
         finally:
             self.logger.info('}')
 

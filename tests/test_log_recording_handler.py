@@ -17,9 +17,9 @@ from synergy.workers.abstract_uow_aware_worker import AbstractUowAwareWorker
 from tests.base_fixtures import create_and_insert_unit_of_work, TestMessage
 from context import PROCESS_ALERT_DAILY
 
-INFO_LOG_MESSAGES = ['111222333 INFO log message string {0}'.format(x) for x in range(10)]
-WARN_LOG_MESSAGES = ['444555666 WARNING log message string {0}'.format(x) for x in range(10)]
-STD_MESSAGES = ['777888999 STD OUTPUT message {0}'.format(x) for x in range(10)]
+INFO_LOG_MESSAGES = [f'111222333 INFO log message string {x}' for x in range(10)]
+WARN_LOG_MESSAGES = [f'444555666 WARNING log message string {x}' for x in range(10)]
+STD_MESSAGES = [f'777888999 STD OUTPUT message {x}' for x in range(10)]
 
 
 class TheWorker(AbstractUowAwareWorker):
@@ -40,7 +40,7 @@ class ChattyWorker(TheWorker):
         for message in INFO_LOG_MESSAGES:
             self.logger.info(message)
         for message in WARN_LOG_MESSAGES:
-            self.logger.warn(message)
+            self.logger.warning(message)
         for message in STD_MESSAGES:
             print(message)
 
@@ -50,7 +50,7 @@ class ExceptionWorker(TheWorker):
         try:
             raise ValueError('Artificially triggered exception to test Uow Exception Logging')
         except Exception as e:
-            self.logger.error('Exception: {0}'.format(e), exc_info=True)
+            self.logger.error(f'Exception: {e}', exc_info=True)
 
 
 class LogRecordingHandlerUnitTest(unittest.TestCase):
@@ -93,8 +93,8 @@ class LogRecordingHandlerUnitTest(unittest.TestCase):
 
         uow_log = self.log_recording_dao.get_one(self.uow_id)
         messages = ['Exception: Artificially triggered exception to test Uow Exception Logging',
-                    'method ExceptionWorker._process_uow returned None. Assuming happy flow.',
-                    'at INVALID_TIMEPERIOD: Success/Failure 0/0']
+                    'Method ExceptionWorker._process_uow returned None. Assuming happy flow.',
+                    'at INVALID_TIMEPERIOD: Success/Failure 0/0 entries']
 
         for index, message in enumerate(messages):
             self.assertIn(message, uow_log.log[index])

@@ -93,7 +93,7 @@ def freerun_entry_action(request, **values):
     elif 'update_button' in handler.request_arguments or request.method == 'POST':
         handler.update_entry()
     else:
-        handler.logger.error('MX Error: unsupported method for by /freerun/entry/: {0}'.format(request.method))
+        handler.logger.error(f'MX Error: unsupported method for by /freerun/entry/: {request.method}')
     return Response(status=NO_CONTENT)
 
 

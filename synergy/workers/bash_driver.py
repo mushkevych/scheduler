@@ -38,17 +38,16 @@ class BashRunnable(threading.Thread):
             uow = self.uow_dao.get_one(self.mq_request.record_db_id)
             if not uow.is_requested:
                 # accept only UOW in STATE_REQUESTED
-                self.logger.warning('Skipping UOW: id {0}; state {1};'.format(self.message.body, uow.state),
-                                    exc_info=False)
+                self.logger.warning(f'Skipping UOW: id {self.message.body}; state {uow.state};', exc_info=False)
                 self.consumer.acknowledge(self.message.delivery_tag)
                 return
         except Exception:
-            self.logger.error('Safety fuse. Can not identify UOW {0}'.format(self.message.body), exc_info=True)
+            self.logger.error(f'Safety fuse. Can not identify UOW {self.message.body}', exc_info=True)
             self.consumer.acknowledge(self.message.delivery_tag)
             return
 
         try:
-            self.logger.info('start: {0} {{'.format(self.thread_name))
+            self.logger.info(f'start: {self.thread_name} {{')
             self.alive = True
 
             uow.state = unit_of_work.STATE_IN_PROGRESS
@@ -72,9 +71,9 @@ class BashRunnable(threading.Thread):
             uow.state = unit_of_work.STATE_PROCESSED
             self.uow_dao.update(uow)
 
-            self.logger.info('Completed {0} with result = {1}'.format(self.thread_name, self.return_code))
+            self.logger.info(f'Completed {self.thread_name} with result = {self.return_code}')
         except Exception:
-            self.logger.error('Exception on starting: {0}'.format(self.thread_name), exc_info=True)
+            self.logger.error(f'Exception on starting: {self.thread_name}', exc_info=True)
             uow.state = unit_of_work.STATE_INVALID
             self.uow_dao.update(uow)
         finally:
@@ -95,11 +94,10 @@ class BashRunnable(threading.Thread):
             else:
                 self.performance_tracker.tracker.increment_failure()
 
-            self.logger.info('BashDriver for {0} return code is {1}'.format(self.thread_name, code))
+            self.logger.info(f'BashDriver for {self.thread_name} return code is {code}')
         except Exception as e:
             self.performance_tracker.tracker.increment_failure()
-            self.logger.error('Safety fuse while processing request {0}: {1}'.format(self.message.body, e),
-                              exc_info=True)
+            self.logger.error(f'Safety fuse while processing request {self.message.body}: {e}', exc_info=True)
         finally:
             self.consumer.acknowledge(self.message.delivery_tag)
 

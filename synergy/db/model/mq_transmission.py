@@ -32,4 +32,4 @@ class MqTransmission(BaseDocument):
             self.entry_name = None
 
     def __str__(self):
-        return '{0}::{1}#{2}'.format(self.process_name, self.entry_name, self.record_db_id)
+        return f'{self.process_name}::{self.entry_name}#{self.record_db_id}'

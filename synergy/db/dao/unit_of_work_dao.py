@@ -51,7 +51,7 @@ class UnitOfWorkDao(object):
 
         document = collection.find_one(query)
         if document is None:
-            msg = 'UOW with ID={0} was not found'.format(key)
+            msg = f'UOW with ID={key} was not found'
             self.logger.warning(msg)
             raise LookupError(msg)
         return UnitOfWork.from_json(document)
@@ -105,7 +105,7 @@ class UnitOfWorkDao(object):
 
         document = collection.find_one(query)
         if document is None:
-            raise LookupError('UOW satisfying query {0} was not found'.format(query))
+            raise LookupError(f'UOW satisfying query {query} was not found')
         return UnitOfWork.from_json(document)
 
     @thread_safe
@@ -155,7 +155,7 @@ class UnitOfWorkDao(object):
             try:
                 return self.get_by_params(e.process_name, e.timeperiod, e.start_id, e.end_id)
             except LookupError as e:
-                self.logger.error('Unable to recover from DuplicateKeyError error due to {0}'.format(e), exc_info=True)
+                self.logger.error(f'Unable to recover from DuplicateKeyError error due to {e}', exc_info=True)
         else:
             msg = 'Unable to recover from DuplicateKeyError due to unspecified UOW primary key'
             self.logger.error(msg)

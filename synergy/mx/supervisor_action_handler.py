@@ -48,7 +48,7 @@ class SupervisorActionHandler(BaseRequestHandler):
         try:
             list_of_rows = self.bc_dao.get_all()
         except LookupError as e:
-            self.logger.error('MX Exception {0}'.format(e), exc_info=True)
+            self.logger.error(f'MX Exception {e}', exc_info=True)
         return list_of_rows
 
     @valid_configurator

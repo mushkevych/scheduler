@@ -48,7 +48,7 @@ def get_box_id(logger):
                     return box_id
 
         if box_id is None:
-            raise LookupError('BOX_ID is not defined in {0}'.format(config_file))
+            raise LookupError(f'BOX_ID is not defined in {config_file}')
 
     except EnvironmentError:  # parent of IOError, OSError, FileNotFoundError
         logger.error('Can not read configuration file.', exc_info=True)
@@ -58,8 +58,7 @@ def get_box_id(logger):
 class SupervisorEntry(object):
     def __init__(self, process_name):
         if process_name not in context.process_context:
-            raise ValueError('SupervisorEntry: process {0} is not found in process_context. Aborting'
-                             .format(process_name))
+            raise ValueError(f'SupervisorEntry: process {process_name} is not found in process_context. Aborting')
 
         self.logger = get_logger(PROCESS_SUPERVISOR, append_to_console=True)
         self.process_name = process_name
@@ -75,10 +74,10 @@ class SupervisorEntry(object):
                 elif isinstance(re_box, int):
                     self.re_co_boxes.append(re_box)
                 else:
-                    raise ValueError('SupervisorEntry support (string, integer) values. Type {0} unsupported'
-                                     .format(type(re_box)))
+                    raise ValueError(f'SupervisorEntry support (string, integer) values. '
+                                     f'Type {type(re_box)} unsupported')
             except TypeError:
-                self.logger.warning('SupervisorEntry compilation error for {0}'.format(re_box))
+                self.logger.warning(f'SupervisorEntry compilation error for {re_box}')
 
     def is_present_on(self, box_id):
         box_id = box_id.lower()
@@ -112,8 +111,8 @@ class SupervisorConfigurator(object):
                 continue
 
     def _change_state(self, process_name, new_state):
-        self.logger.info('INFO: Supervisor Configurator set state {0} for process {1} on box {2}\n'
-                         .format(new_state, process_name, self.box_id))
+        self.logger.info(f'INFO: Supervisor Configurator set state {new_state} '
+                         f'for process {process_name} on box {self.box_id}\n')
         box_config = self.bc_dao.get_one([self.box_id, process_name])
         box_config.is_on = new_state
         self.bc_dao.update(box_config)
@@ -144,8 +143,8 @@ class SupervisorConfigurator(object):
         self.logger.info('*synergy.box_configuration* db has been recreated')
 
     def query(self):
-        self.logger.info('\nSupervisor Snapshot for BOX_ID={0}:\n'.format(self.box_id))
+        self.logger.info(f'\nSupervisor Snapshot for BOX_ID={self.box_id}:\n')
         box_configurations = self.bc_dao.run_query(QUERY_PROCESSES_FOR_BOX_ID(self.box_id))
 
         for box_config in box_configurations:
-            self.logger.info('{0}:\t{1}'.format(box_config.process_name, box_config.is_on))
+            self.logger.info(f'{box_config.process_name}:\t{box_config.is_on}')
