@@ -56,8 +56,7 @@ def safe_json_response(method):
 
 
 class BaseRequestHandler(object):
-    def __init__(self, request, **values):
-        assert isinstance(request, Request)
+    def __init__(self, request: Request, **values):
         self.scheduler = jinja_env.globals['mbean']
         self.logger = self.scheduler.logger
         self.request = request

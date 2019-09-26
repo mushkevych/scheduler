@@ -10,8 +10,7 @@ from synergy.system.timeperiod_dict import TimeperiodDict
 
 
 class HierarchyEntry(object):
-    def __init__(self, hierarchy, parent, process_entry):
-        assert isinstance(process_entry, ManagedProcessEntry)
+    def __init__(self, hierarchy, parent, process_entry: ManagedProcessEntry):
         self.hierarchy = hierarchy
         self.parent = parent
         self.process_entry = process_entry

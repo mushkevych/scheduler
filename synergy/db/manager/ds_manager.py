@@ -125,13 +125,11 @@ class MongoDbManager(BaseManager):
         conn = self._db[table_name]
         return conn.find(query)
 
-    def delete(self, table_name, primary_key):
-        assert isinstance(primary_key, dict)
+    def delete(self, table_name, primary_key: dict):
         conn = self._db[table_name]
         conn.delete_one(primary_key)
 
-    def get(self, table_name, primary_key):
-        assert isinstance(primary_key, dict)
+    def get(self, table_name, primary_key: dict):
         conn = self._db[table_name]
         db_entry = conn.find_one(primary_key)
         if db_entry is None:
@@ -140,15 +138,12 @@ class MongoDbManager(BaseManager):
             raise LookupError(msg)
         return db_entry
 
-    def insert(self, table_name, instance):
-        assert isinstance(instance, BaseDocument)
+    def insert(self, table_name, instance: BaseDocument):
         conn = self._db[table_name]
         return conn.insert_one(instance.document).inserted_id
 
-    def update(self, table_name, primary_key, instance):
+    def update(self, table_name, primary_key: dict, instance: BaseDocument):
         """ replaces document identified by the primary_key or creates one if a matching document does not exist"""
-        assert isinstance(primary_key, dict)
-        assert isinstance(instance, BaseDocument)
         collection = self._db[table_name]
 
         # work with a copy of the document, as the direct type change of the _id field

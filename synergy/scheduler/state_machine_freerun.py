@@ -145,12 +145,11 @@ class StateMachineFreerun(object):
         self._log_message(INFO, freerun_entry, msg)
         self.insert_and_publish_uow(freerun_entry, flow_request, reset_uow=True)
 
-    def manage_schedulable(self, freerun_entry, flow_request=None):
+    def manage_schedulable(self, freerun_entry: FreerunProcessEntry, flow_request=None):
         """ method main duty - is to _avoid_ publishing another unit_of_work, if previous was not yet processed
             In case the Scheduler sees that the unit_of_work is pending,
             it will issue new WorkerMqRequest for the same UOW """
 
-        assert isinstance(freerun_entry, FreerunProcessEntry)
         uow = None
         if freerun_entry.related_unit_of_work:
             uow = self.uow_dao.get_one(freerun_entry.related_unit_of_work)

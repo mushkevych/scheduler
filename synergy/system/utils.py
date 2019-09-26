@@ -99,7 +99,7 @@ def remove_pid_file(process_name):
     """ removes pid file """
     pid_filename = get_pid_filename(process_name)
     if not os.path.exists(pid_filename):
-        print(f'Unable to removed non-existent pid file at: {pid_filename}', file=sys.stdout)
+        # pid file does not exist - nothing to do
         return
 
     try:
