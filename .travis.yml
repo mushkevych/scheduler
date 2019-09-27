@@ -10,7 +10,7 @@ sudo: required
 matrix:
   include:
     - python: "3.7-dev"
-      env: PYTHON_BINARY="python3.7"
+      env: PYTHON_BINARY=" /home/travis/virtualenv/python3.7-dev/bin/python3.7"
       addons:
         hosts:
           # hostnames will be enlisted in /etc/hosts and resolved to 127.0.0.1
