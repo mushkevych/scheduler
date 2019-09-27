@@ -8,6 +8,8 @@
     <link rel="stylesheet" type="text/css" href="{{ url_for('static', file='css/scheduler_ui.css') }}">
     <link rel="stylesheet" type="text/css" href="{{ url_for('static', file='css/context_menu.css') }}">
     <link rel="stylesheet" type="text/css" href="{{ url_for('static', file='css/mx_page.css') }}">
+    <!-- <link rel="stylesheet" type="text/css" href="{{ url_for('static', file='css/skeleton.css') }}"> -->
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', file='css/normalize.css') }}">
     <link rel="stylesheet" type="text/css" href="{{ url_for('static', file='css/font-awesome.css') }}">
     <link rel="stylesheet" type="text/css" href="{{ url_for('static', file='css/jquery.datatables-1.10.18.css') }}">
     <link rel="stylesheet" type="text/css" href="{{ url_for('static', file='css/alertify.css') }}">
@@ -67,10 +69,7 @@
 {% import 'block_enable_auto_refresh.html' as block_enable_refresh %}
 {{ block_enable_refresh.enable_auto_refresh() }}
 
-<br/>
-<br/>
 <div class="body">{% block body %}{% endblock %}</div>
-<br/>
 
 <div id="footer" class="table_layout">
     <div class="table_layout_element">

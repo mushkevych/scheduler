@@ -1,166 +1,254 @@
 html,
 body {
-    margin: 0;
-    padding: 0;
-    font-family: "Lucida Sans Unicode", "Lucida Grande", sans-serif;
+	margin: 0;
+	padding: 0;
+	font-family: "Lucida Sans Unicode", "Lucida Grande", sans-serif;
 }
 
+html {
+  -webkit-box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  box-sizing: border-box;
+}
+*, *:before, *:after {
+  -webkit-box-sizing: inherit;
+  -moz-box-sizing: inherit;
+  box-sizing: inherit;
+  }
+
 body {
-    color: #006;
-    padding: 10px;
+	color: #006;
+	padding: 10px;
 }
 
 div#footer {
-    clear: both;
-    background: #333;
-    color: #FFF;
-    width: 100%;
+	clear: both;
+	background: #333;
+	color: #fff;
+	width: 100%;
 }
 
 div#footer a {
-    display: inline;
-    padding: 0;
-    color: #C6D5FD;
-    text-align: right;
+	display: inline;
+	padding: 0;
+	color: #c6d5fd;
+	text-align: right;
 }
 
 /*
  * Table that host data rows on all pages
  */
 .one-column-emphasis {
-    width: 100% !important;
-    font-size: 12px;
-    text-align: left;
-    border-collapse: collapse;
+	width: 100% !important;
+	font-size: 12px;
+	text-align: left;
+	border-collapse: collapse;
 }
 
 .one-column-emphasis th {
-    font-size: 14px;
-    font-weight: normal;
-    padding: 12px 15px;
-    color: #039;
+	font-size: 14px;
+	font-weight: normal;
+	padding: 12px 15px;
+	color: #039;
 }
 
 .one-column-emphasis td {
-    padding: 10px 15px;
-    color: #669;
-    border-top: 1px solid #e8edff;
+	padding: 10px 15px;
+	color: #669;
+	border-top: 1px solid #e8edff;
 }
 
 .one-column-emphasis tr:hover td {
-    color: #339;
-    background: #eff2ff;
+	color: #339;
+	background: #eff2ff;
 }
 
 .one-column-emphasis-first {
-    background: #d0dafd;
-    border-right: 10px solid transparent;
-    border-left: 10px solid transparent;
+	background: #d0dafd;
+	border-right: 10px solid transparent;
+	border-left: 10px solid transparent;
 }
 
 /*
  * Table that holds list of tabs on top of the page
  */
 .header-table {
-    font-size: 12px;
-    width: 100%;
-    min-width: 1200px;
-    table-layout: fixed;
-    text-align: left;
-    border-collapse: collapse;
-    color: #FFFFFF;
-    background: #333333;
+	width: 100%;
+	min-width: 1200px;
+	table-layout: fixed;
+	text-align: left;
+	border-collapse: collapse;
+	color: #ffffff;
+	background: #333333;
 }
 
 .header-table th {
-    font-size: 20px;
-    font-weight: bold;
-    padding: 12px 15px;
+	font-size: 20px;
+	font-weight: bold;
+	padding: 12px 15px;
 }
 
 .header-table td {
-    padding: 10px 15px;
-    border-top: 1px solid #FFFFFF;
+	padding: 10px 15px;
+	border-top: 1px solid #ffffff;
 }
 
 .header-table tr td a {
-    text-decoration: none;
-    color: #FFFFFF;
+	text-decoration: none;
+	color: #ffffff;
 }
 
 .header-table tr:hover td:hover {
-    background: lightsalmon;
+	background: lightsalmon;
 }
 
 .header-table td.active {
-    background: #CC0000;
+	background: #cc0000;
 }
 
-.header-table tr:hover td:hover a, .header-table tr:hover td:hover a:hover {
-    text-decoration: none;
-    color: black;
-    background: lightsalmon;
+.header-table tr:hover td:hover a,
+.header-table tr:hover td:hover a:hover {
+	text-decoration: none;
+	color: black;
+	background: lightsalmon;
 }
 
 .side-tool-bar {
-    float: right;
-    padding: 5px;
-    font-size: 12px;
+	/* float: right; */
+	width: 100%;
+	right: 0;
+	margin: 0.5rem 0;
+	/* font-size: 12px; */
+	display: flex;
+	justify-content: flex-end;
+	align-content: center;
+	vertical-align: center;
+}
+
+.switch-label {
+	margin: 0 0.5rem;
+}
+
+.switch {
+	position: relative;
+	display: inline-block;
+	width: 3rem;
+	height: 1.5rem;
+	/* margin-left: auto;
+	order: 3; */
+}
+
+.switch input {
+	opacity: 0;
+	width: 0;
+	height: 0;
+}
+
+.slider {
+	position: absolute;
+	cursor: pointer;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	background-color: #ccc;
+	-webkit-transition: .4s;
+	transition: .4s;
+}
+
+/* slider indicator */
+.slider:before {
+	position: absolute;
+	content: "";
+	height: 1rem;
+	width: 1rem;
+	left: 0.25rem;
+	bottom: 0.25rem;
+	background-color: white;
+	-webkit-transition: .2s;
+	transition: .2s;
+}
+
+/* background color when checked */
+input:checked + .slider {
+	background-color: #333333;
+}
+
+input:focus + .slider {
+	box-shadow: 0 0 1px #333;
+}
+
+input:checked + .slider:before {
+	/* -webkit-transform: translateX(26px);
+	-ms-transform: translateX(26px);
+	transform: translateX(26px); */
+	-webkit-transform: translateX(1.5rem);
+	-ms-transform: translateX(1.5rem);
+	transform: translateX(1.5rem);
+}
+
+/* Rounded sliders */
+.slider.round {
+	border-radius: 34px;
+}
+
+.slider.round:before {
+	border-radius: 50%;
 }
 
 /* highlighting rows in dataTables accordingly to Job state */
 tr.state_embryo {
-    background-color: #D5F5FF !important;
+	background-color: #d5f5ff !important;
 }
 
 tr.state_embryo td {
-    color: #000000 !important;
+	color: #000000 !important;
 }
 
 tr.state_in_progress {
-    background-color: #C3FDB8 !important;
+	background-color: #c3fdb8 !important;
 }
 
 tr.state_in_progress td {
-    color: #000000 !important;
+	color: #000000 !important;
 }
 
 tr.state_processed {
-    background-color: #15C200 !important;
+	background-color: #15c200 !important;
 }
 
 tr.state_processed td {
-    color: #000000 !important;
+	color: #000000 !important;
 }
 
 tr.state_final_run {
-    background-color: #ADFF2F !important;
+	background-color: #adff2f !important;
 }
 
 tr.state_final_run td {
-    color: #000000 !important;
+	color: #000000 !important;
 }
 
 tr.state_skipped {
-    background-color: #FF4500 !important;
+	background-color: #ff4500 !important;
 }
 
 tr.state_skipped td {
-    color: #000000 !important;
+	color: #000000 !important;
 }
 
 tr.state_noop {
-    background-color: #FFFFAA !important;
+	background-color: #ffffaa !important;
 }
 
 tr.state_noop td {
-    color: #000000 !important;
+	color: #000000 !important;
 }
 
 tr.state_inconsistent {
-    background-color: #d28aff !important;
+	background-color: #d28aff !important;
 }
 
 tr.state_inactive {
-    background-color: lightgray !important;
+	background-color: lightgray !important;
 }

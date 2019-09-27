@@ -1,6 +1,7 @@
 #!/bin/bash
 
-RABBITMQ_HOST=syn-rabbitmq
+# RABBITMQ_HOST=syn-rabbitmq
+RABBITMQ_HOST=127.0.0.1
 
 attempts=0
 until wget http://${RABBITMQ_HOST}:15672/cli/rabbitmqadmin -O /tmp/rabbitmqadmin || [ ${attempts} -eq 5 ]; do
