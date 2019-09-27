@@ -9,29 +9,8 @@ sudo: required
 
 matrix:
   include:
-    - python: "2.7"
-      env: PYTHON_BINARY="python2.7"
-      addons:
-        hosts:
-          # hostnames will be enlisted in /etc/hosts and resolved to 127.0.0.1
-          - syn-rabbitmq
-          - syn-mongodb
-      before_install:
-        - pip install virtualenv
-
-    - python: "3.6-dev"
-      env: PYTHON_BINARY="python3.6"
-      addons:
-        hosts:
-          # hostnames will be enlisted in /etc/hosts and resolved to 127.0.0.1
-          - syn-rabbitmq
-          - syn-mongodb
-        apt:
-          packages:
-          - python3-setuptools
-
     - python: "3.7-dev"
-      env: PYTHON_BINARY="python3.6"
+      env: PYTHON_BINARY="python3.7"
       addons:
         hosts:
           # hostnames will be enlisted in /etc/hosts and resolved to 127.0.0.1

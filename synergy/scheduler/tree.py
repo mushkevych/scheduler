@@ -3,7 +3,7 @@ __author__ = 'Bohdan Mushkevych'
 from datetime import datetime
 
 from synergy.scheduler.process_hierarchy import ProcessHierarchy
-from synergy.scheduler.tree_node import TreeNode, RootNode
+from synergy.scheduler.tree_node import TreeNode, RootNode, AbstractTreeNode
 from synergy.conf import settings
 from synergy.system import time_helper
 from synergy.system.time_helper import cast_to_time_qualifier
@@ -143,7 +143,7 @@ class MultiLevelTree(AbstractTree):
 
         return self._get_next_child_node(parent)
 
-    def should_skip_tree_node(self, node):
+    def should_skip_tree_node(self, node: AbstractTreeNode):
         """ :return True: in case the node should be _skipped_ and not included into processing """
         # case 1: node processing is complete
         if node.job_record.is_finished:
