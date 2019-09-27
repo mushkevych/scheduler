@@ -35,6 +35,82 @@ div#footer a {
 	text-align: right;
 }
 
+.inline {
+	display: inline;
+}
+
+.nav .title {
+
+}
+
+.nav {
+	display: inline-flex;
+	justify-content: space-between;
+	width: 100%;
+	margin: 0;
+	padding: 2rem 1rem;
+	background-color: rgba(0, 204, 255, 1);
+	color: white;
+	vertical-align: middle;
+	align-items: center;
+}
+
+.nav .navbar {
+	margin: 0;
+	display: inline-flex;
+	height: 100%;
+	/* align-self: flex-end; */
+	/* justify-self: right; */
+	/* padding: 0.5rem 1rem; */
+}
+
+.nav-item {
+	display: inline-flex;
+	border-right: 1px solid white;
+	color: whitesmoke;
+	padding: 0 2rem;
+	margin: 0;
+	height: 100%;
+}
+
+/* .nav-item
+
+.nav-item a {
+	color: whitesmoke;
+	text-decoration: none;
+	box-sizing: border-box;
+	height: 100%;
+	width: 100%;
+}
+
+.nav-item a:hover {
+	color: white;
+}
+
+.nav-item a:active {
+	color: white;
+} */
+
+a.nav-item {
+	color: whitesmoke;
+	text-decoration: none;
+	box-sizing: border-box;
+	height: 100%;
+	/* width: 100%; */
+}
+
+.nav-item:hover {
+	color: white;
+}
+
+.nav-item:active {
+	color: white;
+}
+
+.nav-item:last-of-type {
+	border: none;
+}
+
 /*
  * Table that host data rows on all pages
  */
@@ -114,14 +190,10 @@ div#footer a {
 }
 
 .side-tool-bar {
-	/* float: right; */
-	width: 100%;
-	right: 0;
+	/* right: 0; */
 	margin: 0.5rem 0;
-	/* font-size: 12px; */
 	display: flex;
 	justify-content: flex-end;
-	align-content: center;
 	vertical-align: center;
 }
 

@@ -56,23 +56,23 @@ function headerTreeTile(mx_tree, tile) {
         + '<li title="Dependent On"><i class="fa-li fa fa-sitemap fa-rotate-180"></i>' + formatJSON(mx_tree.dependent_on) + '</li>'
         + '<li title="Dependant Trees"><i class="fa-li fa fa-sitemap"></i>' + formatJSON(mx_tree.dependant_trees) + '</li>'
         + '</ul>');
-    tile.$el.append($('<div></div>').append(refresh_button));
+    // tile.$el.append($('<div></div>').append(refresh_button));
+    tile.$el.append(refresh_button);
     tile.$el.attr('class', 'tree_header_tile');
 }
 
 
 function headerProcessTile(process_entry, tile) {
     var flush_one_form = '<form method="GET" action="/gc/flush/one/" onsubmit="xmlhttp.send(); return false;">'
-        + '<input type="hidden" name="process_name" value="' + process_entry.process_name + '" />'
-        + '<input type="submit" title="flush_' + process_entry.process_name + '" class="fa-input" value="&#xf1b8"/>'
+        + `<input type="hidden" name="process_name" value=${process_entry.process_name} />`
+        + '<input type="submit" alt="Flush" title="flush_' + process_entry.process_name + '" class="fa-input" value="&#xf1b8"/>'
         + '</form>';
 
     var reprocessing_block = '<div class="table_layout">'
         + '<div class="table_layout_element">' + flush_one_form + '</div>'
         + '<div class="table_layout_element">&nbsp;</div>'
-        + '<div class="table_layout_element"><textarea rows="1" cols="20" readonly>'
-        + process_entry.reprocessing_queue.toString()
-        + '</textarea></div>'
+        + `<div class="table_layout_element"><input readonly value=${process_entry.reprocessing_queue.toString()} />`
+        + '</div>'
         + '</div>';
 
     var trigger_form = '<form method="POST" action="/managed/entry/trigger/" onsubmit="xmlhttp.send(); return false;">'
@@ -106,8 +106,10 @@ function headerProcessTile(process_entry, tile) {
     }
 
     tile.$el.append('<ul class="fa-ul">'
-        + '<li title="Trigger On/Off"><i class="fa-li fa fa-power-off"></i>' + is_on + '</li>'
-        + '<li title="Trigger Alive"><i class="fa-li fa fa-bolt"></i>' + is_alive + '</li>'
+        + '<li class="inline" title="Trigger On/Off"><i class="fa-li fa fa-power-off"></i>' + is_on + '</li>'
+        + '<li class="inline" title="Trigger Alive"><i class="fa-li fa fa-bolt"></i>' + is_alive + '</li>'
+        + `</ul>`
+        + `<ul class="fa-ul">`
         + '<li title="Process Name"><i class="fa-li fa fa-terminal"></i>' + process_entry.process_name + '</li>'
         + '<li title="Next Timeperiod"><i class="fa-li fa fa-play"></i>' + process_entry.next_timeperiod + '</li>'
         + '</ul>'

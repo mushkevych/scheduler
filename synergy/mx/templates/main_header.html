@@ -1,83 +1,142 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!DOCTYPE html
+    PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en">
-<head profile="http://www.w3.org/2005/10/profile">
-    <meta http-equiv="content-type" content="text/html; charset=UTF-8"/>
-    <link rel="icon" type="image/png" href="{{ url_for('static', file='images/sy_brown.png') }}">
-    <link rel="stylesheet" type="text/css" href="{{ url_for('static', file='css/scheduler_ui.css') }}">
-    <link rel="stylesheet" type="text/css" href="{{ url_for('static', file='css/context_menu.css') }}">
-    <link rel="stylesheet" type="text/css" href="{{ url_for('static', file='css/mx_page.css') }}">
-    <!-- <link rel="stylesheet" type="text/css" href="{{ url_for('static', file='css/skeleton.css') }}"> -->
-    <link rel="stylesheet" type="text/css" href="{{ url_for('static', file='css/normalize.css') }}">
-    <link rel="stylesheet" type="text/css" href="{{ url_for('static', file='css/font-awesome.css') }}">
-    <link rel="stylesheet" type="text/css" href="{{ url_for('static', file='css/jquery.datatables-1.10.18.css') }}">
-    <link rel="stylesheet" type="text/css" href="{{ url_for('static', file='css/alertify.css') }}">
-    <script type="text/javascript" src="{{ url_for('static', file='js/jquery-3.4.1.min.js') }}"></script>
-    <script type="text/javascript" src="{{ url_for('static', file='js/jquery.datatables-1.10.18.min.js') }}"></script>
-    <script type="text/javascript" src="{{ url_for('static', file='js/alertify-0.3.17.trunk.js') }}"></script>
-    <script type="text/javascript" src="{{ url_for('static', file='js/mx_utils.js') }}"></script>
 
-    <title>Synergy Scheduler</title>
-</head>
+    <head profile="http://www.w3.org/2005/10/profile">
+        <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+        <link rel="icon" type="image/png" href="{{ url_for('static', file='images/sy_brown.png') }}">
+        <link rel="stylesheet" type="text/css" href="{{ url_for('static', file='css/scheduler_ui.css') }}">
+        <link rel="stylesheet" type="text/css" href="{{ url_for('static', file='css/context_menu.css') }}">
+        <link rel="stylesheet" type="text/css" href="{{ url_for('static', file='css/mx_page.css') }}">
+        <link rel="stylesheet" type="text/css" href="{{ url_for('static', file='css/skeleton.css') }}">
+        <link rel="stylesheet" type="text/css" href="{{ url_for('static', file='css/normalize.css') }}">
+        <link rel="stylesheet" type="text/css" href="{{ url_for('static', file='css/font-awesome.css') }}">
+        <link rel="stylesheet" type="text/css" href="{{ url_for('static', file='css/jquery.datatables-1.10.18.css') }}">
+        <link rel="stylesheet" type="text/css" href="{{ url_for('static', file='css/alertify.css') }}">
+        <script type="text/javascript" src="{{ url_for('static', file='js/jquery-3.4.1.min.js') }}"></script>
+        <script type="text/javascript"
+            src="{{ url_for('static', file='js/jquery.datatables-1.10.18.min.js') }}"></script>
+        <script type="text/javascript" src="{{ url_for('static', file='js/alertify-0.3.17.trunk.js') }}"></script>
+        <script type="text/javascript" src="{{ url_for('static', file='js/mx_utils.js') }}"></script>
 
-{# Jinja2 variable scope visibility workaround: declared as a list so it is available to inherited templates #}
-{% set active_mx_page = [] %}
+        <title>Synergy Scheduler</title>
+    </head>
 
-{% macro render_td(endpoint, title) %}
+    {# Jinja2 variable scope visibility workaround: declared as a list so it is available to inherited templates #}
+    {% set active_mx_page = [] %}
+
+    {% macro render_td(endpoint, title) %}
     {% set td_class = '' %}
     {%- if endpoint in local.request.path -%}
-        <script type="text/javascript">
-            var active_mx_page = "{{ endpoint|lstrip_slash|safe }}";
-        </script>
-        {% do active_mx_page.append(endpoint|lstrip_slash|safe) %}
-        {% set td_class = 'class="active"' %}
+    <script type="text/javascript">
+        var active_mx_page = "{{ endpoint|lstrip_slash|safe }}";
+    </script>
+    {% do active_mx_page.append(endpoint|lstrip_slash|safe) %}
+    {% set td_class = 'class="active"' %}
     {%- endif -%}
 
     <td {{ td_class|safe }}>
         <a href="{{ endpoint }}">{{ title }}</a>
     </td>
-{% endmacro %}
+    {% endmacro %}
 
-<body>
-<table class="header-table">
-    <thead>
-    <tr>
-        <th colspan="2">Synergy Scheduler</th>
-        {%- for mx_rule, mx_name in mx_processing_context.items() -%}
-        <th></th>
-        {%- endfor -%}
-        <th></th>
-        <th></th>
-        <th></th>
-    </tr>
-    </thead>
-    <tbody>
-    <tr>
-        {{  render_td(url_for('dashboard_managed'), 'dashboard jobs') }}
-        {{  render_td(url_for('dashboard_freeruns'), 'dashboard freeruns') }}
-        {%- for mx_rule, mx_page_name in mx_processing_context.items() %}
-            {{  render_td( '/' + mx_rule, mx_page_name) }}
-        {%- endfor -%}
-        {{  render_td(url_for('scheduler_managed_entries'), 'scheduler managed entries') }}
-        {{  render_td(url_for('scheduler_freerun_entries'), 'scheduler freerun entries') }}
-        {{  render_td(url_for('supervisor_entries'), 'supervisor') }}
-    </tr>
-    </tbody>
-</table>
+    <body>
+        <!-- <table class="header-table">
+            <thead>
+                <tr>
+                    <th colspan="2">Synergy Scheduler</th>
+                    {%- for mx_rule, mx_name in mx_processing_context.items() -%}
+                    <th></th>
+                    {%- endfor -%}
+                    <th></th>
+                    <th></th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    {{  render_td(url_for('dashboard_managed'), 'dashboard jobs') }}
+                    {{  render_td(url_for('dashboard_freeruns'), 'dashboard freeruns') }}
+                    {%- for mx_rule, mx_page_name in mx_processing_context.items() %}
+                    {{  render_td( '/' + mx_rule, mx_page_name) }}
+                    {%- endfor -%}
+                    {{  render_td(url_for('scheduler_managed_entries'), 'scheduler managed entries') }}
+                    {{  render_td(url_for('scheduler_freerun_entries'), 'scheduler freerun entries') }}
+                    {{  render_td(url_for('supervisor_entries'), 'supervisor') }}
+                </tr>
+            </tbody>
+        </table> -->
+        <div class="nav">
+            <div class="inline title">
+                <h1 class="inline">Synergy Scheduler</h1>
+            </div>
+            <div class="navbar">
+                <!-- <div class="nav-item"><a href="{{  url_for('dashboard_managed')}}">dashboard jobs</a>
+                </div>
+                <div class="nav-item"><a href="{{  url_for('dashboard_freeruns')}}">dashboard
+                        freeruns</a></div>
+                {%- for mx_rule, mx_page_name in mx_processing_context.items() %}
+                <div class="nav-item">
+                    <a href="{{ '/' + mx_rule }}">{{ mx_page_name }}</a>
+                </div>
+                {%- endfor -%}
+                <div class="nav-item"><a href="{{  url_for('scheduler_managed_entries')}}">scheduler
+                        managed entries</a></div>
+                <div class="nav-item"><a href="{{  url_for('scheduler_freerun_entries')}}">scheduler
+                        freerun entries</a></div>
+                <div class="nav-item"><a href="{{  url_for('supervisor_entries')}}">supervisor</a></div> -->
 
-{% import 'block_enable_auto_refresh.html' as block_enable_refresh %}
-{{ block_enable_refresh.enable_auto_refresh() }}
 
-<div class="body">{% block body %}{% endblock %}</div>
+                <a class="nav-item" href="{{  url_for('dashboard_managed')}}">dashboard jobs</a>
 
-<div id="footer" class="table_layout">
-    <div class="table_layout_element">
-        page rendered: {{ get_current_time() }}
-    </div>
-    <div class="table_layout_element" style="text-align: right">
-        <a href="mailto:scheduler.feedback@gmail.com?subject=Comments to Scheduler MX page">Feedback</a>
-    </div>
-</div>
-</body>
+                <a class="nav-item" href="{{  url_for('dashboard_freeruns')}}">dashboard
+                    freeruns</a>
+                {%- for mx_rule, mx_page_name in mx_processing_context.items() %}
+                <a class="nav-item" href="{{ '/' + mx_rule }}">{{ mx_page_name }}</a>
+
+                {%- endfor -%}
+                <a class="nav-item" href="{{  url_for('scheduler_managed_entries')}}">scheduler
+                    managed entries</a>
+                <a class="nav-item" href="{{  url_for('scheduler_freerun_entries')}}">scheduler
+                    freerun entries</a>
+                <a class="nav-item" href="{{  url_for('supervisor_entries')}}">supervisor</a>
+
+            </div>
+        </div>
+
+
+
+
+        <div class="container-fluid">
+            {% import 'block_enable_auto_refresh.html' as block_enable_refresh %}
+            {{ block_enable_refresh.enable_auto_refresh() }}
+
+            {% macro render_td(endpoint, title) %}
+            {%- if endpoint in local.request.path -%}
+            <script type="text/javascript">
+                var active_mx_page = "{{ endpoint|lstrip_slash|safe }}";
+                console.log(active_mx_page)
+            </script>
+            {% do active_mx_page.append(endpoint|lstrip_slash|safe) %}
+            {% set td_class = 'class="active"' %}
+            {%- endif -%}
+
+            <h2>{{ title }}</h2>
+            {% endmacro %}
+
+            {% block body %}
+            {% endblock %}
+        </div>
+
+        <div id="footer" class="table_layout">
+            <div class="table_layout_element">
+                page rendered: {{ get_current_time() }}
+            </div>
+            <div class="table_layout_element" style="text-align: right">
+                <a href="mailto:scheduler.feedback@gmail.com?subject=Comments to Scheduler MX page">Feedback</a>
+            </div>
+        </div>
+    </body>
+
 </html>
