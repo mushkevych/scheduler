@@ -1,0 +1,42 @@
+#  Bitbucket Pipeline definition for Scheduler
+image: python:3.7.4
+
+definitions:
+  services:
+    mongodb:
+      image: mongo:3
+      name: syn-mongodb
+      hostname: syn-mongodb
+
+    rabbitmq:
+      image: rabbitmq:3
+      hostname: syn-rabbitmq
+      name: syn-rabbitmq
+      environment:
+        RABBITMQ_DEFAULT_USER: guest
+        RABBITMQ_DEFAULT_PASS: guest
+      ports:
+        - 5672:5672
+        - 15672:15672
+
+pipelines:
+  default:
+      - step:
+          name: Installation
+          script:
+            - pip install python3-setuptools
+#            - echo "127.0.0.1 syn-rabbitmq" &gt;&gt; /etc/hosts
+#            - echo "127.0.0.1 syn-mongodb" &gt;&gt; /etc/hosts
+            - scripts/rabbitmq_config.sh
+            - mkdir --mode=777 -p /var/log/synergy-scheduler
+            - python launch.py install
+            - python launch.py db --reset
+
+          services:
+            - mongodb
+            - rabbitmq
+
+      - step:
+          name: Test execution
+          script:
+              - python3 launch.py test
