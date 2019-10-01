@@ -1,18 +1,21 @@
 {% extends 'main_header.html' %}
 {% block body %}
+<div class="page-title-bar">
+    {% import 'block_enable_auto_refresh.html' as block_enable_refresh %}
+    {{ block_enable_refresh.enable_auto_refresh() }}
+</div>
+
 <div class="grid-container">
     {# active_mx_page is declared in the main_header.html#}
     {% set mx_trees = details.mx_page_trees(active_mx_page[0]) %}
     <!-- NOTE: data is requested from mx/views.py -->
     {%- for tree_name, tree_obj in mx_trees.items() %}
-        <h2>{%- print(tree_name) %}</h2>
         <div class="grid-row grid-row-{{ tree_name }}">
             <div id="grid-header-{{ tree_name }}" class="grid-header"></div>
             {% for process_name in tree_obj.sorted_process_names %}
             <div id="grid-header-{{ process_name }}" class="grid-header"></div>
             {%- endfor %}
-        <!-- </div>
-        <div class="grid-row"> -->
+
             <div id="grid-info-{{ tree_name }}" class="grid-info"></div>
             {% for process_name in tree_obj.sorted_process_names %}
             <div id="grid-info-{{ process_name }}" class="grid-info context-menu"></div>
@@ -27,7 +30,6 @@
     var mx_trees = {{ details.mx_page_trees(active_mx_page[0])|jsonify|safe }};
     let treeSite = mx_trees.tree_site
     let treeClient = mx_trees.tree_client
-    console.log(mx_trees)
 </script>
 <script type="text/javascript" src="{{ url_for('static', file='js/tiles.js') }}"></script>
 <script type="text/javascript" src="{{ url_for('static', file='js/mx_page.js') }}"></script>

@@ -1,5 +1,12 @@
 {% extends 'main_header.html' %}
 {% block body %}
+
+<div class="page-title-bar">
+    <h2>scheduler freerun entries</h2>
+    {% import 'block_enable_auto_refresh.html' as block_enable_refresh %}
+    {{ block_enable_refresh.enable_auto_refresh() }}
+</div>
+
 <table class="one-column-emphasis context-menu">
     <thead>
     <tr class="one-column-emphasis-first">

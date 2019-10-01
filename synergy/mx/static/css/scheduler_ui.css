@@ -21,26 +21,23 @@ body {
 	padding: 10px;
 }
 
-div#footer {
-	clear: both;
-	background: #333;
-	color: #fff;
+.footer {
 	width: 100%;
+	margin: 0;
+	padding: 1rem;
+	clear: both;
+	background-color: rgba(0, 204, 255, 1);
+	color: white;
+	display: inline-flex;
+	justify-content: space-between;
 }
 
-div#footer a {
-	display: inline;
-	padding: 0;
-	color: #c6d5fd;
-	text-align: right;
+.footer a {
+	color: white;
 }
 
 .inline {
 	display: inline;
-}
-
-.nav .title {
-
 }
 
 .nav {
@@ -73,6 +70,24 @@ div#footer a {
 	height: 100%;
 }
 
+.page-title-bar {
+	padding: 1rem 2rem;
+	display: flex;
+	justify-content: right;
+}
+
+.page-title-bar h2 {
+	display: inline-flex;
+	margin-bottom: 0;
+}
+
+.page-title-bar .side-tool-bar {
+	display: inline-flex;
+	vertical-align: middle;
+	align-self: flex-end;
+	align-items: flex-end;
+}
+
 /* .nav-item
 
 .nav-item a {
@@ -99,12 +114,19 @@ a.nav-item {
 	/* width: 100%; */
 }
 
+a.nav-item.active {
+	text-decoration: underline;
+	color: white;
+	background-color: rgba(255,255,255,0.5);
+}
+
 .nav-item:hover {
 	color: white;
 }
 
 .nav-item:active {
 	color: white;
+	text-decoration: underline;
 }
 
 .nav-item:last-of-type {
@@ -115,40 +137,33 @@ a.nav-item {
  * Table that host data rows on all pages
  */
 .one-column-emphasis {
-	width: 100% !important;
-	font-size: 12px;
-	text-align: left;
-	border-collapse: collapse;
 }
 
+
+
 .one-column-emphasis th {
-	font-size: 14px;
-	font-weight: normal;
-	padding: 12px 15px;
-	color: #039;
+
 }
 
 .one-column-emphasis td {
-	padding: 10px 15px;
+	/* padding: 10px 15px; */
 	color: #669;
 	border-top: 1px solid #e8edff;
 }
 
 .one-column-emphasis tr:hover td {
-	color: #339;
+	/* color: #339; */
 	background: #eff2ff;
 }
 
 .one-column-emphasis-first {
 	background: #d0dafd;
-	border-right: 10px solid transparent;
-	border-left: 10px solid transparent;
 }
 
 /*
  * Table that holds list of tabs on top of the page
  */
-.header-table {
+/* .header-table {
 	width: 100%;
 	min-width: 1200px;
 	table-layout: fixed;
@@ -187,7 +202,7 @@ a.nav-item {
 	text-decoration: none;
 	color: black;
 	background: lightsalmon;
-}
+} */
 
 .side-tool-bar {
 	/* right: 0; */
@@ -259,6 +274,7 @@ input:checked + .slider:before {
 	transform: translateX(1.5rem);
 }
 
+
 /* Rounded sliders */
 .slider.round {
 	border-radius: 34px;
@@ -266,6 +282,75 @@ input:checked + .slider:before {
 
 .slider.round:before {
 	border-radius: 50%;
+}
+
+/* Checkbox styles */
+ /* Customize the label (the container) */
+ .checkbox-container {
+  display: block;
+  position: relative;
+  padding-left: 35px;
+  margin-bottom: 12px;
+  cursor: pointer;
+  font-size: 22px;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+
+/* Hide the browser's default checkbox */
+.checkbox-container input {
+  position: absolute;
+  opacity: 0;
+  cursor: pointer;
+  height: 0;
+  width: 0;
+}
+
+/* Create a custom checkbox */
+.checkmark {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 25px;
+  width: 25px;
+  background-color: #eee;
+}
+
+/* On mouse-over, add a grey background color */
+.checkbox-container:hover input ~ .checkmark {
+  background-color: #ccc;
+}
+
+/* When the checkbox is checked, add a blue background */
+.checkbox-container input:checked ~ .checkmark {
+  background-color: #2196F3;
+}
+
+/* Create the checkmark/indicator (hidden when not checked) */
+.checkmark:after {
+  content: "";
+  position: absolute;
+  display: none;
+}
+
+/* Show the checkmark when checked */
+.checkbox-container input:checked ~ .checkmark:after {
+  display: block;
+}
+
+/* Style the checkmark/indicator */
+.checkbox-container .checkmark:after {
+  left: 9px;
+  top: 5px;
+  width: 5px;
+  height: 10px;
+  border: solid white;
+  border-width: 0 3px 3px 0;
+  -webkit-transform: rotate(45deg);
+  -ms-transform: rotate(45deg);
+  transform: rotate(45deg);
 }
 
 /* highlighting rows in dataTables accordingly to Job state */

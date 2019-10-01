@@ -1,6 +1,11 @@
 {% extends 'main_header.html' %}
 {% block body %}
 
+<div class="page-title-bar">
+    {% import 'block_enable_auto_refresh.html' as block_enable_refresh %}
+    {{ block_enable_refresh.enable_auto_refresh() }}
+</div>
+
 {% import 'block_time_window_selector.html' as block_time_window %}
 {{ block_time_window.time_window_selector(details, 2) }}
 
