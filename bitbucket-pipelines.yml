@@ -17,7 +17,7 @@ pipelines:
       - step:
           name: Installation
           script:
-            - pip install python3-setuptools
+#            - pip install python3-setuptools
             - echo "127.0.0.1 syn-rabbitmq" &gt;&gt; /etc/hosts
             - echo "127.0.0.1 syn-mongodb" &gt;&gt; /etc/hosts
             - scripts/rabbitmq_config.sh
