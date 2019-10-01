@@ -17,11 +17,9 @@ pipelines:
       - step:
           name: Setup Env and Run Test
           script:
-#            - pip install python3-setuptools
-#            - echo "127.0.0.1 syn-rabbitmq" >> /etc/hosts
-#            - echo "127.0.0.1 syn-mongodb" >> /etc/hosts
-            - cat /etc/hosts
-            - RABBITMQ_HOST=localhost scripts/rabbitmq_config.sh
+            - echo "127.0.0.1 syn-rabbitmq" >> /etc/hosts
+            - echo "127.0.0.1 syn-mongodb" >> /etc/hosts
+            - scripts/rabbitmq_config.sh
             - mkdir --mode=777 -p /var/log/synergy-scheduler
             - python launch.py install
             - python launch.py db --reset
