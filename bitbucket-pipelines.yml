@@ -18,8 +18,8 @@ pipelines:
           name: Installation
           script:
 #            - pip install python3-setuptools
-            - echo "127.0.0.1 syn-rabbitmq" &gt;&gt; /etc/hosts
-            - echo "127.0.0.1 syn-mongodb" &gt;&gt; /etc/hosts
+            - echo "127.0.0.1 syn-rabbitmq" >> /etc/hosts
+            - echo "127.0.0.1 syn-mongodb" >> /etc/hosts
             - scripts/rabbitmq_config.sh
             - mkdir --mode=777 -p /var/log/synergy-scheduler
             - python launch.py install
