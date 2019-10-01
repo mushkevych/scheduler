@@ -1,0 +1,199 @@
+.grid-container
+    margin 2rem 4rem
+
+.grid-row
+    background-color whitesmoke
+    display grid
+    grid-gap 0.75rem
+    justify-content space-between
+    margin 1rem 0 3rem 0
+    padding 1rem
+    height 90vh
+
+    .header
+        height 100%
+
+.grid-row-tree_site
+    grid-template-columns auto repeat(4, 1fr)
+
+.grid-row-tree_client
+    grid-template-columns auto repeat(3, 1fr)
+
+.grid-header
+    background-color $color-1
+
+.grid-header
+.grid-info
+    height 100%
+
+.grid-header > div
+.grid-info > div
+    padding 1rem
+
+.grid-info
+    height 100%
+    overflow-y scroll
+
+    >div
+        margin 1rem 0
+
+        &:first-child
+            margin 0
+
+.action_button
+    font-size 0.9265rem
+    display inline-block
+    min-width 86px
+    padding 0px 6px
+    text-align left
+    margin 2px
+    border-color $color-4
+    opacity 0.75
+
+    i
+        padding 0
+
+    &:hover
+        border-color $color-5
+        opacity 1
+
+.action_toogle
+    &:hover
+        color $color-2
+
+.clear
+    clear both
+
+.header-tile-icons
+    display flex
+    justify-content flex-start
+    margin 4px 0.3rem
+
+    span
+        vertical-align middle
+        margin 0 0.25rem 0 0
+
+        i
+            margin 0 0.42rem
+
+    .state-warning
+        color red
+
+.header-tile-info
+    margin-bottom 0
+
+    li
+        display flex
+        vertical-align middle
+        margin-bottom 0
+
+        i
+            padding 0
+            vertical-align middle
+
+ul
+    &.process-info
+        margin-bottom 0
+
+        li
+            margin-bottom 4px
+
+div
+    &.process_header_tile_off
+        background-color lightgray
+        height 100%
+
+    &.process_header_tile_on
+        background-color $color-3
+        height 100%
+
+    &.process_info_tile
+        background $color-6
+        overflow-x scroll
+        width 100%
+
+    &.table_layout
+        display block
+        margin-bottom 0.5rem
+
+    &.table_layout_element
+        &:first-child
+            margin-right 8px
+
+
+    &.is_selected_timeperiod
+        border 4px solid $color-7
+        box-sizing content-box
+
+    &.is_next_timeperiod
+        border 4px solid $color-8
+
+    &.state_embryo
+        background-color $color-9
+
+        div
+            color $color-10
+
+    &.state_in_progress
+        background-color $color-11
+
+        div
+            color $color-10
+
+    &.state_processed
+        background-color $color-12
+
+        div
+            color $color-10
+
+    &.state_final_run
+        background-color $color-13
+
+        div
+            color $color-10
+
+    &.state_skipped
+        background-color $color-14
+
+        div
+            color $color-10
+
+        .action_button
+            border-color $color-4
+
+    &.state_noop
+        background-color $color-15
+
+        div
+            color $color-10
+
+    &.state_inconsistent
+        background-color $color-16
+
+    &.state_inactive
+        background-color lightgray
+
+.process-form
+    margin-bottom 0
+
+    input[type="text"]
+        height 2.5rem
+        padding 2px 5px
+        margin-right 0.5rem
+
+    button
+        height 2.5rem
+        border-color $color-4
+        opacity 0.75
+        padding 0 6px
+        min-width 4rem
+
+        i
+            opacity 0.8
+
+        &:hover
+            border-color $color-5
+            opacity 1
+
+.btn-center
+    text-align center

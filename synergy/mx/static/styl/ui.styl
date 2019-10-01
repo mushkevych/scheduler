@@ -1,0 +1,280 @@
+$ui-color-1 = #006
+$ui-color-2 = rgba(0, 204, 255, 1)
+$ui-color-3 = rgba(255,255,255,0.5)
+$ui-color-4 = #669
+$ui-color-5 = #e8edff
+$ui-color-6 = #eff2ff
+$ui-color-7 = #d0dafd
+$ui-color-8 = #ccc
+$ui-color-9 = #333
+$ui-color-10 = #eee
+$ui-color-11 = #2196f3
+$ui-color-12 = #d5f5ff
+$ui-color-13 = #000
+$ui-color-14 = #c3fdb8
+$ui-color-15 = #15c200
+$ui-color-16 = #adff2f
+$ui-color-17 = #ff4500
+$ui-color-18 = #ffffaa
+$ui-color-19 = #d28aff
+
+html
+body
+    margin 0
+    padding 0
+    font-family "Lucida Sans Unicode", "Lucida Grande", sans-serif
+
+html
+    box-sizing border-box
+
+*
+*:before
+*:after
+    box-sizing inherit
+
+body
+    color $ui-color-1
+    padding 10px
+
+.footer
+    width 100%
+    margin 0
+    padding 1rem
+    clear both
+    background-color $ui-color-2
+    color white
+    display inline-flex
+    justify-content space-between
+
+    a
+        color white
+
+.inline
+    display inline
+
+.nav
+    display inline-flex
+    justify-content space-between
+    width 100%
+    margin 0
+    padding 2rem 1rem
+    background-color $ui-color-2
+    color white
+    vertical-align middle
+    align-items center
+
+    .navbar
+        margin 0
+        display inline-flex
+        height 100%
+
+.nav-item
+    display inline-flex
+    border-right 1px solid white
+    color whitesmoke
+    padding 0 2rem
+    margin 0
+    height 100%
+
+    &:hover
+        color white
+
+    &:active
+        color white
+        text-decoration underline
+
+    &:last-of-type
+        border none
+
+.page-title-bar
+    padding 1rem 2rem
+    display flex
+    justify-content right
+
+    h2
+        display inline-flex
+        margin-bottom 0
+
+    .side-tool-bar
+        display inline-flex
+        vertical-align middle
+        align-self flex-end
+        align-items flex-end
+
+a
+    &.nav-item
+        color whitesmoke
+        text-decoration none
+        box-sizing border-box
+        height 100%
+
+        &.active
+            text-decoration underline
+            color white
+            background-color $ui-color-3
+
+.one-column-emphasis
+
+    td
+        color $ui-color-4
+        border-top 1px solid $ui-color-5
+
+    tr
+        &:hover
+            td
+                background $ui-color-6
+
+.one-column-emphasis-first
+    background $ui-color-7
+
+.side-tool-bar
+    margin 0.5rem 0
+    display flex
+    justify-content flex-end
+    vertical-align center
+
+.switch-label
+    margin 0 0.5rem
+
+.switch
+    position relative
+    display inline-block
+    width 3rem
+    height 1.5rem
+
+    input
+        opacity 0
+        width 0
+        height 0
+
+.slider
+    position absolute
+    cursor pointer
+    top 0
+    left 0
+    right 0
+    bottom 0
+    background-color $ui-color-8
+    transition .4s
+
+    &:before
+        position absolute
+        content ""
+        height 1rem
+        width 1rem
+        left 0.25rem
+        bottom 0.25rem
+        background-color white
+        transition .2s
+
+    &.round
+        border-radius 34px
+
+        &:before
+            border-radius 50%
+
+input
+    &:checked
+        +.slider
+            background-color $ui-color-9
+
+            &:before
+                transform translateX(1.5rem)
+
+    &:focus
+        +.slider
+            box-shadow 0 0 1px $ui-color-9
+
+.checkbox-container
+    display block
+    position relative
+    padding-left 35px
+    margin-bottom 12px
+    cursor pointer
+    font-size 22px
+    user-select none
+
+    input
+        position absolute
+        opacity 0
+        cursor pointer
+        height 0
+        width 0
+
+        &:checked
+            ~.checkmark
+                background-color $ui-color-11
+
+                &:after
+                    display block
+
+    &:hover
+        input
+            ~.checkmark
+                background-color $ui-color-8
+
+    .checkmark
+        &:after
+            left 9px
+            top 5px
+            width 5px
+            height 10px
+            border solid white
+            border-width 0 3px 3px 0
+            transform rotate(45deg)
+
+.checkmark
+    position absolute
+    top 0
+    left 0
+    height 25px
+    width 25px
+    background-color $ui-color-10
+
+    &:after
+        content ""
+        position absolute
+        display none
+
+tr
+    &.state_embryo
+        background-color $ui-color-12 !important
+
+        td
+            color $ui-color-13 !important
+
+    &.state_in_progress
+        background-color $ui-color-14 !important
+
+        td
+            color $ui-color-13 !important
+
+    &.state_processed
+        background-color $ui-color-15 !important
+
+        td
+            color $ui-color-13 !important
+
+    &.state_final_run
+        background-color $ui-color-16 !important
+
+        td
+            color $ui-color-13 !important
+
+    &.state_skipped
+        background-color $ui-color-17 !important
+
+        td
+            color $ui-color-13 !important
+
+    &.state_noop
+        background-color $ui-color-18 !important
+
+        td
+            color $ui-color-13 !important
+
+    &.state_inconsistent
+        background-color $ui-color-19 !important
+
+    &.state_inactive
+        background-color lightgray !important

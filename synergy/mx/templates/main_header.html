@@ -6,9 +6,10 @@
     <head profile="http://www.w3.org/2005/10/profile">
         <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
         <link rel="icon" type="image/png" href="{{ url_for('static', file='images/sy_brown.png') }}">
-        <link rel="stylesheet" type="text/css" href="{{ url_for('static', file='css/scheduler_ui.css') }}">
+        <!-- <link rel="stylesheet" type="text/css" href="{{ url_for('static', file='css/scheduler_ui.css') }}"> -->
         <link rel="stylesheet" type="text/css" href="{{ url_for('static', file='css/context_menu.css') }}">
-        <link rel="stylesheet" type="text/css" href="{{ url_for('static', file='css/mx_page.css') }}">
+        <!-- <link rel="stylesheet" type="text/css" href="{{ url_for('static', file='css/mx_page.css') }}"> -->
+        <link rel="stylesheet" type="text/css" href="{{ url_for('static', file='css/index.css') }}">
         <link rel="stylesheet" type="text/css" href="{{ url_for('static', file='css/normalize.css') }}">
         <link rel="stylesheet" type="text/css" href="{{ url_for('static', file='css/skeleton.css') }}">
         <link rel="stylesheet" type="text/css" href="{{ url_for('static', file='css/font-awesome.css') }}">
@@ -73,22 +74,6 @@
                 <h3 class="inline">Synergy Scheduler</h3>
             </div>
             <div class="navbar" id="navbar">
-                <!-- <div class="nav-item"><a href="{{  url_for('dashboard_managed')}}">dashboard jobs</a>
-                </div>
-                <div class="nav-item"><a href="{{  url_for('dashboard_freeruns')}}">dashboard
-                        freeruns</a></div>
-                {%- for mx_rule, mx_page_name in mx_processing_context.items() %}
-                <div class="nav-item">
-                    <a href="{{ '/' + mx_rule }}">{{ mx_page_name }}</a>
-                </div>
-                {%- endfor -%}
-                <div class="nav-item"><a href="{{  url_for('scheduler_managed_entries')}}">scheduler
-                        managed entries</a></div>
-                <div class="nav-item"><a href="{{  url_for('scheduler_freerun_entries')}}">scheduler
-                        freerun entries</a></div>
-                <div class="nav-item"><a href="{{  url_for('supervisor_entries')}}">supervisor</a></div> -->
-
-
                 <a class="nav-item" href="{{  url_for('dashboard_managed')}}">dashboard jobs</a>
 
                 <a class="nav-item" href="{{  url_for('dashboard_freeruns')}}">dashboard

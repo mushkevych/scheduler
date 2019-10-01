@@ -1,0 +1,248 @@
+html,
+body {
+  margin: 0;
+  padding: 0;
+  font-family: "Lucida Sans Unicode", "Lucida Grande", sans-serif;
+}
+html {
+  box-sizing: border-box;
+}
+*,
+*:before,
+*:after {
+  box-sizing: inherit;
+}
+body {
+  color: #006;
+  padding: 10px;
+}
+.footer {
+  width: 100%;
+  margin: 0;
+  padding: 1rem;
+  clear: both;
+  background-color: #0cf;
+  color: #fff;
+  display: inline-flex;
+  justify-content: space-between;
+}
+.footer a {
+  color: #fff;
+}
+.inline {
+  display: inline;
+}
+.nav {
+  display: inline-flex;
+  justify-content: space-between;
+  width: 100%;
+  margin: 0;
+  padding: 2rem 1rem;
+  background-color: #0cf;
+  color: #fff;
+  vertical-align: middle;
+  align-items: center;
+}
+.nav .navbar {
+  margin: 0;
+  display: inline-flex;
+  height: 100%;
+}
+.nav-item {
+  display: inline-flex;
+  border-right: 1px solid #fff;
+  color: #f5f5f5;
+  padding: 0 2rem;
+  margin: 0;
+  height: 100%;
+}
+.nav-item:hover {
+  color: #fff;
+}
+.nav-item:active {
+  color: #fff;
+  text-decoration: underline;
+}
+.nav-item:last-of-type {
+  border: none;
+}
+.page-title-bar {
+  padding: 1rem 2rem;
+  display: flex;
+  justify-content: right;
+}
+.page-title-bar h2 {
+  display: inline-flex;
+  margin-bottom: 0;
+}
+.page-title-bar .side-tool-bar {
+  display: inline-flex;
+  vertical-align: middle;
+  align-self: flex-end;
+  align-items: flex-end;
+}
+a.nav-item {
+  color: #f5f5f5;
+  text-decoration: none;
+  box-sizing: border-box;
+  height: 100%;
+}
+a.nav-item.active {
+  text-decoration: underline;
+  color: #fff;
+  background-color: rgba(255,255,255,0.5);
+}
+.one-column-emphasis td {
+  color: #669;
+  border-top: 1px solid #e8edff;
+}
+.one-column-emphasis tr:hover td {
+  background: #eff2ff;
+}
+.one-column-emphasis-first {
+  background: #d0dafd;
+}
+.side-tool-bar {
+  margin: 0.5rem 0;
+  display: flex;
+  justify-content: flex-end;
+  vertical-align: center;
+}
+.switch-label {
+  margin: 0 0.5rem;
+}
+.switch {
+  position: relative;
+  display: inline-block;
+  width: 3rem;
+  height: 1.5rem;
+}
+.switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+.slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #ccc;
+  transition: 0.4s;
+}
+.slider:before {
+  position: absolute;
+  content: "";
+  height: 1rem;
+  width: 1rem;
+  left: 0.25rem;
+  bottom: 0.25rem;
+  background-color: #fff;
+  transition: 0.2s;
+}
+.slider.round {
+  border-radius: 34px;
+}
+.slider.round:before {
+  border-radius: 50%;
+}
+input:checked +.slider {
+  background-color: #333;
+}
+input:checked +.slider:before {
+  transform: translateX(1.5rem);
+}
+input:focus +.slider {
+  box-shadow: 0 0 1px #333;
+}
+.checkbox-container {
+  display: block;
+  position: relative;
+  padding-left: 35px;
+  margin-bottom: 12px;
+  cursor: pointer;
+  font-size: 22px;
+  user-select: none;
+}
+.checkbox-container input {
+  position: absolute;
+  opacity: 0;
+  cursor: pointer;
+  height: 0;
+  width: 0;
+}
+.checkbox-container input:checked ~.checkmark {
+  background-color: #2196f3;
+}
+.checkbox-container input:checked ~.checkmark:after {
+  display: block;
+}
+.checkbox-container:hover input ~.checkmark {
+  background-color: #ccc;
+}
+.checkbox-container .checkmark:after {
+  left: 9px;
+  top: 5px;
+  width: 5px;
+  height: 10px;
+  border: solid #fff;
+  border-width: 0 3px 3px 0;
+  transform: rotate(45deg);
+}
+.checkmark {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 25px;
+  width: 25px;
+  background-color: #eee;
+}
+.checkmark:after {
+  content: "";
+  position: absolute;
+  display: none;
+}
+tr.state_embryo {
+  background-color: #d5f5ff !important;
+}
+tr.state_embryo td {
+  color: #000 !important;
+}
+tr.state_in_progress {
+  background-color: #c3fdb8 !important;
+}
+tr.state_in_progress td {
+  color: #000 !important;
+}
+tr.state_processed {
+  background-color: #15c200 !important;
+}
+tr.state_processed td {
+  color: #000 !important;
+}
+tr.state_final_run {
+  background-color: #adff2f !important;
+}
+tr.state_final_run td {
+  color: #000 !important;
+}
+tr.state_skipped {
+  background-color: #ff4500 !important;
+}
+tr.state_skipped td {
+  color: #000 !important;
+}
+tr.state_noop {
+  background-color: #ffa !important;
+}
+tr.state_noop td {
+  color: #000 !important;
+}
+tr.state_inconsistent {
+  background-color: #d28aff !important;
+}
+tr.state_inactive {
+  background-color: #d3d3d3 !important;
+}
