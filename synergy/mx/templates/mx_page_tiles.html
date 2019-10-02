@@ -10,24 +10,25 @@
     {% set mx_trees = details.mx_page_trees(active_mx_page[0]) %}
     <!-- NOTE: data is requested from mx/views.py -->
     {%- for tree_name, tree_obj in mx_trees.items() %}
-        <div class="grid-row grid-row-{{ tree_name }}">
-            <div id="grid-header-{{ tree_name }}" class="grid-header"></div>
-            {% for process_name in tree_obj.sorted_process_names %}
-            <div id="grid-header-{{ process_name }}" class="grid-header"></div>
-            {%- endfor %}
+    <h5>{{tree_name}}</h5>
+    <div class="grid-row grid-row-{{ tree_name }}">
+        <div id="grid-header-{{ tree_name }}" class="grid-header"></div>
+        {% for process_name in tree_obj.sorted_process_names %}
+        <div id="grid-header-{{ process_name }}" class="grid-header"></div>
+        {%- endfor %}
 
-            <div id="grid-info-{{ tree_name }}" class="grid-info"></div>
-            {% for process_name in tree_obj.sorted_process_names %}
-            <div id="grid-info-{{ process_name }}" class="grid-info context-menu"></div>
-            {%- endfor %}
-        </div>
+        <div id="grid-info-{{ tree_name }}" class="grid-info"></div>
+        {% for process_name in tree_obj.sorted_process_names %}
+        <div id="grid-info-{{ process_name }}" class="grid-info context-menu"></div>
+        {%- endfor %}
+    </div>
     {% endfor -%}
 </div>
 {% import 'block_context_menu.html' as context_menu %}
 {{ context_menu.job_menu() }}
 
 <script type="text/javascript">
-    var mx_trees = {{ details.mx_page_trees(active_mx_page[0])|jsonify|safe }};
+    var mx_trees = {{ details.mx_page_trees(active_mx_page[ 0 ]) | jsonify | safe }}
     let treeSite = mx_trees.tree_site
     let treeClient = mx_trees.tree_client
 </script>

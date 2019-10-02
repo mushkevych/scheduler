@@ -42,7 +42,7 @@ function getGrid (grid_name) {
 
 function headerTreeTile (mx_tree, tile) {
 	var refresh_button = $(
-		'<button class="action_button" id="refresh_button_' +
+		'<button class="action_button auto-width" id="refresh_button_' +
 			mx_tree.tree_name +
 			'">' +
 			'<i class="fa fa-refresh"></i>&nbsp;Refresh</button>'
@@ -69,14 +69,18 @@ function headerProcessTile (process_entry, tile) {
 	var flush_one_form = `
         <form class="process-form inline" method="GET" action="/gc/flush/one/" onsubmit="xmlhttp.send(); return false;">
             <input type="hidden" name="process_name" value=${process_entry.process_name} />
-            <button type="submit" alt="Flush" title="flush_${process_entry.process_name}" class="inline fa-input"><i class="fa fa-recycle"></i>
+            <button type="submit" alt="Flush" title="flush_${process_entry.process_name}" class="inline fa"><i class="fa fa-recycle"></i>
             </button>
         </form>`
 
 	var reprocessing_block = `<div class="table_layout">
         <div class="inline table_layout_element">
-            ${flush_one_form}</div>
-        <span class="inline">${process_entry.reprocessing_queue.toString()}</span></div>`
+						${flush_one_form}
+				</div>
+				<span class="inline table_layout_element">
+				${process_entry.reprocessing_queue.toString() || '<em>--</em>'}
+				</span>
+				</div>`
 
 	var trigger_form =
 		'<form class="process-form inline" method="POST" action="/managed/entry/trigger/" onsubmit="xmlhttp.send(); return false;">' +
@@ -84,16 +88,16 @@ function headerProcessTile (process_entry, tile) {
 		process_entry.process_name +
 		'" />' +
 		'<input type="hidden" name="timeperiod" value="NA" />' +
-		`<button class="inline fa fa-input" type="submit" value="&#f135" alt="trigger_${process_entry.process_name}"><i class="fa fa-bolt"></i></button>` +
+		`<button class="inline fa" type="submit" value="&#f135" alt="trigger_${process_entry.process_name}"><i class="fa fa-bolt"></i></button>` +
 		'</form>'
 
 	var next_run_block = `<div class="table_layout">
             <div class="inline table_layout_element">
                 ${trigger_form}
             </div>
-            <div class="inline table_layout_element">
-            ${process_entry.next_run_in}
-            </div>
+            <span class="inline table_layout_element">
+            ${process_entry.next_run_in || '<em>--</em>'}
+            </span>
         </div>`
 
 	var is_on
@@ -130,12 +134,14 @@ function headerProcessTile (process_entry, tile) {
 	//     + '</ul>'
 	//     + next_run_block
 	//     + reprocessing_block);
-	let isAliveToggle = `<span class="fa-span fa" title="Trigger Alive">
+	/* let isAliveToggle = `<span class="fa-span fa" title="Trigger Alive">
 	<i class="fa fa-bolt"></i>
 	${is_alive}
-</span>`
-	// QUESTION: language for warning icon
-	let stateWarning = process_entry.is_on == process_entry.is_alive ? '<i class="fa fa-exclamation state-warning" alt="State inconsistent"></i>' : ''
+</span>` */
+	let stateWarning =
+		process_entry.is_on == process_entry.is_alive
+			? '<i class="fa fa-exclamation state-warning" title="State inconsistent" aria-label="State inconsistent"></i>'
+			: ''
 	tile.$el.append(
 		`
       <div class="header-tile-icons">
@@ -171,7 +177,7 @@ function infoProcessTile (process_entry, tile) {
 		'<input type="text" size="8" maxlength="32" name="interval" value="' +
 		process_entry.trigger_frequency +
 		'" />' +
-		'<button type="submit" title="Apply" class="fa-input" value="&#xf00c;"><i class="fa fa-check"></i></button>' +
+		'<button type="submit" title="Apply" class="fa"><i class="fa fa-check"></i></button>' +
 		'</form>'
 
 	tile.process_name = process_entry.process_name
@@ -197,41 +203,80 @@ function infoProcessTile (process_entry, tile) {
 
 function infoJobTile (job_entry, tile, is_next_timeperiod, is_selected_timeperiod) {
 	var checkbox_value = "{ process_name: '" + job_entry.process_name + "', timeperiod: '" + job_entry.timeperiod + "' }"
-	var checkbox_div = `<input type="checkbox" name="batch_processing" value="checkbox_value"/>`
-
+	var checkbox_div = `
+		<div class="checkbox">
+			<input type="checkbox" name="batch_processing" value="${checkbox_value}" />
+			<label></label>
+		</div>
+		`
 	var uow_button = $(
-		'<button class="action_button"><i class="fa fa-file-code-o"></i>&nbsp;Uow</button>'
+		`<button title="Uow" aria-lable="Uow" class="action_button">
+			<i class="fa fa-file-code-o"></i>
+			<span>
+			Uow
+			</span>
+		</button>`
 	).click(function (e) {
 		var params = { action: 'managed/uow', timeperiod: job_entry.timeperiod, process_name: job_entry.process_name }
 		var viewer_url = '/viewer/object/?' + $.param(params)
-		window.open(viewer_url, 'Object Viewer', 'width=450,height=400,screenX=400,screenY=200,scrollbars=1')
+		window.open(
+			viewer_url,
+			'Object Viewer',
+			`width=${window.innerWidth / 2},height=${window.innerHeight * 0.75},scrollbars=1`
+		)
 	})
 	var event_log_button = $(
-		'<button class="action_button"><i class="fa fa-th-list"></i>&nbsp;Event&nbsp;Log</button>'
+		`<button title="Event Log" aria-lable="Event Log" class="action_button">
+			<i class="fa fa-th-list"></i>
+			<span>
+			Event Log
+			</span>
+		</button>`
 	).click(function (e) {
 		var params = { action: 'managed/log/event', timeperiod: job_entry.timeperiod, process_name: job_entry.process_name }
 		var viewer_url = '/viewer/object/?' + $.param(params)
-		window.open(viewer_url, 'Object Viewer', 'width=800,height=480,screenX=400,screenY=200,scrollbars=1')
+		window.open(viewer_url, 'Object Viewer', `width=${window.innerWidth / 2},height=480,scrollbars=1`)
 	})
 	var skip_button = $(
-		'<button class="action_button"><i class="fa fa-step-forward"></i>&nbsp;Skip</button>'
+		`<button title="Skip" aria-lable="Skip" class="action_button">
+			<i class="fa fa-step-forward"></i>
+			<span>
+			Skip
+			</span>
+		</button>`
 	).click(function (e) {
 		processJob('tree/node/skip', tile.tree_name, tile.process_name, tile.timeperiod, null, null)
 	})
 	var reprocess_button = $(
-		'<button class="action_button"><i class="fa fa-repeat"></i>&nbsp;Reprocess</button>'
+		`<button title="Reprocess" aria-lable="Reprocess" class="action_button">
+		<i class="fa fa-repeat"></i>
+			<span>
+			Reprocess
+			</span>
+			</button>`
 	).click(function (e) {
 		processJob('tree/node/reprocess', tile.tree_name, tile.process_name, tile.timeperiod, null, null)
 	})
 	var uow_log_button = $(
-		'<button class="action_button"><i class="fa fa-file-text-o"></i>&nbsp;Uow&nbsp;Log</button>'
+		`<button title="Uow Log" aria-lable="Uow Log" class="action_button">
+			<i class="fa fa-file-text-o"></i>
+			<span>
+			Uow Log
+			</span>
+		</button>`
 	).click(function (e) {
 		var params = { action: 'managed/log/uow', timeperiod: job_entry.timeperiod, process_name: job_entry.process_name }
 		var viewer_url = '/viewer/object/?' + $.param(params)
-		window.open(viewer_url, 'Object Viewer', 'width=800,height=480,screenX=400,screenY=200,scrollbars=1')
+		// HACK: see web.jpng.info
+		window.open(viewer_url, 'Object Viewer', `width=${window.innerWidth / 2},height=480,scrollbars=1`)
 	})
 	var flow_button = $(
-		'<button class="action_button"><i class="fa fa-random"></i>&nbsp;Workflow</button>'
+		`<button title="Workflow" aria-lable="Workflow" class="action_button">
+			<i class="fa fa-random"></i>
+			<span>
+			Workflow
+			</span>
+		</button>`
 	).click(function (e) {
 		var params = {
 			action: 'flow/flow/details',
@@ -240,7 +285,7 @@ function infoJobTile (job_entry, tile, is_next_timeperiod, is_selected_timeperio
 			unit_of_work_type: 'type_managed'
 		}
 		var viewer_url = '/viewer/flow/?' + $.param(params)
-		window.open(viewer_url, 'Flow Viewer', 'width=800,height=800,screenX=400,screenY=150,scrollbars=1')
+		window.open(viewer_url, 'Flow Viewer', `width=${window.innerWidth / 2},height=480,scrollbars=1`)
 	})
 
 	tile.process_name = job_entry.process_name
@@ -259,26 +304,48 @@ function infoJobTile (job_entry, tile, is_next_timeperiod, is_selected_timeperio
 		tile.$el.attr('class', job_entry.state + ' is_selected_timeperiod')
 	}
 
-	tile.$el.append($('<div class="tile_component"></div>').append(checkbox_div))
+	// tile.$el.append($(`<div class="checkbox">${checkbox_div}</div>`))
 	tile.$el.append(
-		$('<div class="tile_component"></div>').append(
-			'<ul class="fa-ul process-info">' +
-				'<li title="Timeperiod"><i class="fa-li fa fa-clock-o"></i>' +
-				job_entry.timeperiod +
-				'</li>' +
-				'<li title="State"><i class="fa-li fa fa-flag-o"></i>' +
-				job_entry.state +
-				'</li>' +
-				'<li title="# of fails"><i class="fa-li fa fa-exclamation-triangle"></i>' +
-				job_entry.number_of_failures +
-				'</li>' +
-				'</ul>'
-		)
+		$(`<div class="tile_component">
+				<ul class="fa-ul process-info">
+					<li title="Timeperiod"><i class="fa-li fa fa-clock-o"></i>
+					${job_entry.timeperiod}
+					</li>
+					<li title="State"><i class="fa-li fa fa-flag-o"></i>
+					${job_entry.state}
+					</li>
+					<li title="# of fails"><i class="fa-li fa fa-exclamation-triangle"></i>
+					${job_entry.number_of_failures}
+					</li>
+				</ul>
+				${checkbox_div}
+			</div>`)
 	)
 	tile.$el.append('<div class="clear"></div>')
-	tile.$el.append($('<div></div>').append(uow_button).append(skip_button))
-	tile.$el.append($('<div></div>').append(uow_log_button).append(reprocess_button))
-	tile.$el.append($('<div></div>').append(event_log_button).append(flow_button))
+	// tile.$el.append($(`<div class="flex-buttons">
+	// ${uow_button}
+	// ${skip_button}
+	// ${uow_log_button}
+	// ${reprocess_button}
+	// ${event_log_button}
+	// ${flow_button}
+	// </div>`)
+	// 	)
+	tile.$el.append($('<div></div>').append(
+		uow_button
+		).append(
+		skip_button
+		))
+	tile.$el.append($('<div></div>').append(
+		uow_log_button
+		).append(
+		reprocess_button
+		))
+	tile.$el.append($('<div></div>').append(
+		event_log_button
+		).append(
+		flow_button
+		))
 }
 
 function buildHeaderGrid (grid_name, grid_template, builder_function, info_obj) {

@@ -1,5 +1,5 @@
 /* .fa-input,
-.fa-btn {
+.fa-action_button {
 	font-family: FontAwesome, "Lucida Sans Unicode", "Lucida Grande", sans-serif;
 } */
 
@@ -188,7 +188,7 @@ div.process_header_tile_on {
 	opacity: 0.75;
 }
 
-.action_button:hover {
+.btn:hover {
 	border-color: #0e0e0e;
 	opacity: 1;
 }

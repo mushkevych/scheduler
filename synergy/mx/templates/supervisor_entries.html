@@ -11,15 +11,15 @@
 
 <p><strong>NOTICE:</strong> list can contain processes from manual context.py update or decommissioned boxes</p>
 
-<table class="one-column-emphasis u-full-width synergy-datatable" id="supervisor_table">
+<table class="table-entries u-full-width synergy-datatable" id="supervisor_table">
     <thead>
-    <tr class="one-column-emphasis-first">
-        <th scope="col">Box Id</th>
-        <th scope="col">Process Name</th>
-        <th scope="col">Is On</th>
-        <th scope="col">PID</th>
-        <th scope="col"></th> <!-- start/stop-->
-    </tr>
+        <tr class="table-entries-header">
+            <th scope="col">Box Id</th>
+            <th scope="col">Process Name</th>
+            <th scope="col">Is On</th>
+            <th scope="col">PID</th>
+            <th scope="col"></th> <!-- start/stop-->
+        </tr>
     </thead>
     <tbody>
 
@@ -35,10 +35,10 @@
         {% set button_icon = "fa fa-stop" if bc_entry.is_on else "fa fa-play" %}
 
         <td>
-            <form method="POST" action="{{ action_url }}" onsubmit="refreshWithDelay()">
+            <form class="table-form" method="POST" action="{{ action_url }}" onsubmit="refreshWithDelay()">
                 <input type="hidden" name="box_id" value="{{ bc_entry.box_id }}" />
                 <input type="hidden" name="process_name" value="{{ bc_entry.process_name }}" />
-                <button type="submit" class="action_button btn-center" title="{{ button_title }}" value="{{ button_value|safe }}"><i class="{{ button_icon }}"></i> <span>{{ button_title }}</span></button>
+                <button type="submit" class="action_button btn-center" title="{{ button_title }}"><i class="{{ button_icon }}"></i> <span>{{ button_title }}</span></button>
             </form>
         </td>
     </tr>

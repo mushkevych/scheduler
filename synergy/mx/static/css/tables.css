@@ -1,0 +1,69 @@
+.table-entries {
+  border: 1px solid $table-border !important;
+  margin-bottom: 2rem !important;
+}
+tr {
+  border-top: 1px solid $ui-color-5;
+}
+tr:last-child {
+  border-bottom: 1px solid $table-border !important;
+}
+tr th {
+  padding: 1rem 0;
+}
+tr:hover {
+  background-color: $ui-color-6;
+}
+td,
+th {
+  padding: 0.5rem 0;
+}
+td:first-child,
+th:first-child {
+  padding-left: 1rem !important;
+}
+td:last-child,
+th:last-child {
+  padding-right: 1rem !important;
+}
+form.table-form {
+  margin-bottom: 0;
+}
+.table-entries-header {
+  background-color: $ui-color-7;
+  border-top: 1px solid $table-border !important;
+}
+.table-entries-header:hover {
+  background-color: $ui-color-7;
+}
+.table-filter-form {
+  background-color: $color-4;
+  padding: 2rem;
+}
+tr.state_embryo {
+  background-color: $color-10 !important;
+}
+tr.state_in_progress {
+  background-color: $color-12 !important;
+}
+tr.state_processed {
+  background-color: $color-13 !important;
+}
+tr.state_final_run {
+  background-color: $color-14 !important;
+}
+tr.state_skipped {
+  background-color: $color-15 !important;
+}
+tr.state_skipped .action_button {
+  border-color: $color-6 !important;
+}
+tr.state_noop {
+  background-color: $color-16 !important;
+}
+tr.state_inconsistent {
+  background-color: $color-17 !important;
+}
+tr.state_inactive {
+  background-color: #d3d3d3 !important;
+}

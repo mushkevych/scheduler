@@ -1,0 +1,61 @@
+// Table styles
+
+.table-entries
+    border 1px solid $table-border !important
+    margin-bottom: 2rem !important
+  tr
+    border-top 1px solid $ui-color-5
+    &:last-child
+      border-bottom 1px solid $table-border !important
+    th
+      padding 1rem 0
+    &:hover
+      background-color $ui-color-6
+
+  td, th
+    padding 0.5rem 0
+    &:first-child
+      padding-left 1rem !important
+    &:last-child
+      padding-right 1rem !important
+
+  form.table-form
+    margin-bottom 0
+
+.table-entries-header
+  background-color $ui-color-7
+  border-top 1px solid $table-border !important
+  &:hover
+    background-color $ui-color-7
+
+.table-filter-form
+  background-color $color-4
+  padding 2rem
+
+tr
+  &.state_embryo
+    background-color $color-10 !important
+
+  &.state_in_progress
+    background-color $color-12 !important
+
+  &.state_processed
+    background-color $color-13 !important
+
+  &.state_final_run
+    background-color $color-14 !important
+
+  &.state_skipped
+    background-color $color-15 !important
+
+    .action_button
+      border-color $color-6 !important
+
+  &.state_noop
+    background-color $color-16 !important
+
+  &.state_inconsistent
+    background-color $color-17 !important
+
+  &.state_inactive
+    background-color lightgray !important
