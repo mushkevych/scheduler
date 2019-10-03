@@ -4,6 +4,10 @@ var GRIDS = {}
 
 var GRID_HEADER_TEMPLATE = gridInfoTemplate(1)
 
+function parseDateString (t) {
+	return t.slice(0,4) + '-' + t.slice(4,6) + '-' + t.slice(6,8) + ':' + t.slice(8)
+}
+
 /**
  * function returns a Tiles.js template for job records
  * template contains tiles_number of tiles
@@ -151,7 +155,7 @@ function headerProcessTile (process_entry, tile) {
 					${process_entry.process_name}
 				</li>
 				<li title="Next Timeperiod"><i class="fa-li fa fa-play"></i>
-					${process_entry.next_timeperiod}
+					${parseDateString(process_entry.next_timeperiod)}
 				</li>
 			</ul>
 			${next_run_block}
@@ -309,7 +313,7 @@ function infoJobTile (job_entry, tile, is_next_timeperiod, is_selected_timeperio
 		$(`<div class="tile_component">
 				<ul class="fa-ul process-info">
 					<li title="Timeperiod"><i class="fa-li fa fa-clock-o"></i>
-					${job_entry.timeperiod}
+					${parseDateString(job_entry.timeperiod)}
 					</li>
 					<li title="State"><i class="fa-li fa fa-flag-o"></i>
 					${job_entry.state}

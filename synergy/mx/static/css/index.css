@@ -372,7 +372,7 @@ a.nav-item.active {
 }
 .grid-row {
   background-color: #f5f5f5;
-  background-size: cover;
+  background-size: 100%;
   display: grid;
   grid-gap: 1rem;
   justify-content: left;
