@@ -32,6 +32,54 @@
   background-color $color-4
   padding 2rem
 
+
+// freerun table
+.freerun-container
+  max-width 90%
+  margin 0 auto
+
+// table filter
+.table-filter-form
+  .table-filter-container
+    display inline-flex
+    width 100%
+    justify-content space-between
+    flex-wrap auto
+
+    for item in 1 2 3
+      div:nth-child({item})
+        margin-right 1rem
+
+    .filter
+      flex 1 1 auto
+      input[type="search"]
+        height auto
+    .time-window
+      // flex 2 1 auto
+    .include
+      // flex 2 1 auto
+    .refresh-button
+      align-content right
+      align-self flex-end
+      text-align right
+      // flex 0 1 auto
+
+
+// dataTables styles
+.dataTables_wrapper
+  margin-bottom 2rem !important
+
+  .dataTables_filter
+    text-align left !important
+    float none !important
+    display none !important
+    input[type="search"]
+      height auto
+
+#dashboard_table_filter
+  display none !important
+
+
 tr
   &.state_embryo
     background-color $color-10 !important

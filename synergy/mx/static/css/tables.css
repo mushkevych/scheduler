@@ -40,6 +40,50 @@ form.table-form {
   background-color: $color-4;
   padding: 2rem;
 }
+.freerun-container {
+  max-width: 90%;
+  margin: 0 auto;
+}
+.table-filter-form .table-filter-container {
+  display: inline-flex;
+  width: 100%;
+  justify-content: space-between;
+  flex-wrap: auto;
+}
+.table-filter-form .table-filter-container div:nth-child(1) {
+  margin-right: 1rem;
+}
+.table-filter-form .table-filter-container div:nth-child(2) {
+  margin-right: 1rem;
+}
+.table-filter-form .table-filter-container div:nth-child(3) {
+  margin-right: 1rem;
+}
+.table-filter-form .table-filter-container .filter {
+  flex: 1 1 auto;
+}
+.table-filter-form .table-filter-container .filter input[type="search"] {
+  height: auto;
+}
+.table-filter-form .table-filter-container .refresh-button {
+  align-content: right;
+  align-self: flex-end;
+  text-align: right;
+}
+.dataTables_wrapper {
+  margin-bottom: 2rem !important;
+}
+.dataTables_wrapper .dataTables_filter {
+  text-align: left !important;
+  float: none !important;
+  display: none !important;
+}
+.dataTables_wrapper .dataTables_filter input[type="search"] {
+  height: auto;
+}
+#dashboard_table_filter {
+  display: none !important;
+}
 tr.state_embryo {
   background-color: $color-10 !important;
 }

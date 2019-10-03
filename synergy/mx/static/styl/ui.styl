@@ -13,11 +13,15 @@ html
 
 body
   color $ui-color-1
-  padding 10px
-  font-size 1.4rem
+  font-size $body-font-size
 
+
+// footer styles
 .footer
   width 100%
+  bottom 0
+  right 0
+  left 0
   margin 0
   padding 1rem
   clear both
@@ -29,9 +33,7 @@ body
   a
     color white
 
-.inline
-  display inline
-
+// nav styles
 .nav
   display inline-flex
   justify-content space-between
@@ -58,12 +60,20 @@ body
   &:hover
     color white
 
-  &:active
-    color white
-    text-decoration underline
-
   &:last-of-type
     border none
+
+a
+  &.nav-item
+    color whitesmoke
+    text-decoration none
+    box-sizing border-box
+    height 100%
+    white-space nowrap
+
+    &.active
+      color white
+      background-color $ui-color-3
 
 .page-title-bar
   padding 1rem 2rem
@@ -80,22 +90,51 @@ body
     align-self flex-end
     align-items flex-end
 
-a
-  &.nav-item
-    color whitesmoke
-    text-decoration none
-    box-sizing border-box
-    height 100%
 
-    &.active
-      // text-decoration underline
-      color white
-      background-color $ui-color-3
-
-
-
+// sidebar styles
 .side-tool-bar
   margin 0.5rem 0
   display flex
   justify-content flex-end
   vertical-align center
+
+// form styles
+
+.popup-form
+  tr
+    &:last-child
+      td
+        padding 2rem 1rem
+        text-align: right
+      &:hover
+        background-color transparent
+    td
+      &:first-child
+        font-weight bold
+        text-transform uppercase
+        white-space nowrap
+        font-size 1.2rem
+      padding-left 1rem
+      padding-right 1rem
+
+.process-form
+  margin-bottom 0
+
+  input[type="text"]
+    height 2.5rem
+    padding 2px 5px
+    margin-right 0.5rem
+
+  button
+    height 2.5rem
+    border-color $color-5
+    opacity 0.75
+    padding 0 6px
+    min-width 4rem
+
+    i
+      opacity 0.8
+
+    &:hover
+      border-color $color-6
+      opacity 1

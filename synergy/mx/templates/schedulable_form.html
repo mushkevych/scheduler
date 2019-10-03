@@ -20,6 +20,8 @@
             }
 
             function closeWindow() {
+                // QUESTION: is this necessary?
+                // maybe it has something to do with submitting the form?
                 setTimeout("window.close()", 750);
             }
         </script>
@@ -31,11 +33,10 @@
         <div class="container">
             <pre id="json"></pre>
 
-
             <form method="POST" action="/freerun/entry/">
-                <table class="one-column-emphasis">
+                <table class="popup-form">
                     <tr>
-                        <td>Process name:</td>
+                        <td>Process name</td>
                         <td>
                             {%- if not handler -%}
                             <select name="process_name" style="width: 236px">
@@ -52,7 +53,7 @@
                         <td></td>
                     </tr>
                     <tr>
-                        <td>Entry name:</td>
+                        <td>Entry name</td>
                         <td><input type="text" name="entry_name" style="text-align: left"
                                 value="{% if handler %}{{ handler.process_entry.entry_name }}{% endif %}"
                                 {% if handler %} readonly {% endif %}></td>
@@ -60,14 +61,14 @@
                     </tr>
 
                     <tr>
-                        <td>Description:</td>
+                        <td>Description</td>
                         <td><input type="text" name="description" style="text-align: left"
                                 value="{% if handler %}{{ handler.process_entry.description }}{% endif %}"></td>
                         <td>Human-readable description of the schedulable item</td>
                     </tr>
 
                     <tr>
-                        <td>Is Active:</td>
+                        <td>Is Active</td>
                         <td>
                             <label><input type="checkbox" name="is_on" id="is_on"
                                     {% if handler and handler.process_entry.is_on %} checked {% endif %} /></label>
@@ -76,7 +77,7 @@
                     </tr>
 
                     <tr>
-                        <td>Trigger time:</td>
+                        <td>Trigger time</td>
                         <td><input type="text" maxlength="32" name="trigger_frequency" style="text-align: left"
                                 value="{%- if handler %}{{ handler.process_entry.trigger_frequency }}{%- endif %}" />
                         </td>
@@ -91,7 +92,7 @@
                         </td>
                     </tr>
                     <tr>
-                        <td>Arguments:</td>
+                        <td>Arguments</td>
                         <td><textarea rows="10" cols="30" name="arguments">
                 {%- if handler -%}
                     {{ handler.process_entry.arguments|jsonify }}
@@ -102,7 +103,7 @@
                         </td>
                     </tr>
                     <tr>
-                        <td colspan="3" align="center">
+                        <td colspan="3">
                             <div id="buttons">
                                 {%- if not handler -%}
                                 <!-- <input type="submit" name="insert_button" value="Insert" onclick="closeWindow()" /> -->

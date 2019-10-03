@@ -13,11 +13,13 @@ html {
 }
 body {
   color: $ui-color-1;
-  padding: 10px;
-  font-size: 1.4rem;
+  font-size: $body-font-size;
 }
 .footer {
   width: 100%;
+  bottom: 0;
+  right: 0;
+  left: 0;
   margin: 0;
   padding: 1rem;
   clear: both;
@@ -28,9 +30,6 @@ body {
 }
 .footer a {
   color: #fff;
-}
-.inline {
-  display: inline;
 }
 .nav {
   display: inline-flex;
@@ -58,12 +57,19 @@ body {
 .nav-item:hover {
   color: #fff;
 }
-.nav-item:active {
-  color: #fff;
-  text-decoration: underline;
-}
 .nav-item:last-of-type {
   border: none;
+}
+a.nav-item {
+  color: #f5f5f5;
+  text-decoration: none;
+  box-sizing: border-box;
+  height: 100%;
+  white-space: nowrap;
+}
+a.nav-item.active {
+  color: #fff;
+  background-color: $ui-color-3;
 }
 .page-title-bar {
   padding: 1rem 2rem;
@@ -80,19 +86,48 @@ body {
   align-self: flex-end;
   align-items: flex-end;
 }
-a.nav-item {
-  color: #f5f5f5;
-  text-decoration: none;
-  box-sizing: border-box;
-  height: 100%;
-}
-a.nav-item.active {
-  color: #fff;
-  background-color: $ui-color-3;
-}
 .side-tool-bar {
   margin: 0.5rem 0;
   display: flex;
   justify-content: flex-end;
   vertical-align: center;
+}
+.popup-form tr:last-child td {
+  padding: 2rem 1rem;
+  text-align: right;
+}
+.popup-form tr:last-child:hover {
+  background-color: transparent;
+}
+.popup-form tr td {
+  padding-left: 1rem;
+  padding-right: 1rem;
+}
+.popup-form tr td:first-child {
+  font-weight: bold;
+  text-transform: uppercase;
+  white-space: nowrap;
+  font-size: 1.2rem;
+}
+.process-form {
+  margin-bottom: 0;
+}
+.process-form input[type="text"] {
+  height: 2.5rem;
+  padding: 2px 5px;
+  margin-right: 0.5rem;
+}
+.process-form button {
+  height: 2.5rem;
+  border-color: $color-5;
+  opacity: 0.75;
+  padding: 0 6px;
+  min-width: 4rem;
+}
+.process-form button i {
+  opacity: 0.8;
+}
+.process-form button:hover {
+  border-color: $color-6;
+  opacity: 1;
 }

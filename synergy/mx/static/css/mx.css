@@ -43,6 +43,7 @@
 }
 .grid-info >div {
   margin: 1rem 0;
+  border: 4px solid transparent;
 }
 .grid-info >div:first-child {
   margin: 0;
@@ -75,6 +76,9 @@ input[type="button"] {
   cursor: pointer;
   box-sizing: border-box;
 }
+.btn-center {
+  text-align: center !important;
+}
 .flex-buttons {
   width: 100%;
   display: flex;
@@ -87,7 +91,6 @@ input[type="button"] {
   display: inline-block;
   min-width: 86px;
   padding: 0px 6px;
-  text-align: left;
   margin: 2px;
   border-color: $color-5;
   text-transform: uppercase;
@@ -104,7 +107,22 @@ input[type="button"] {
   min-width: 20px;
 }
 .action_button span {
-  margin-left: 0;
+  margin-left: 4px;
+}
+.action_button.btn-icons {
+  font-size: $btn-font-size-icons;
+  min-width: 38px;
+  text-align: center;
+  text-transform: uppercase;
+}
+.action_button.btn-icons span {
+  display: none;
+}
+.grid-info .action_button {
+  text-align: left;
+}
+.grid-info .action_button span {
+  margin: 0;
 }
 .action_toogle:hover {
   color: $color-2;
@@ -127,23 +145,24 @@ input[type="button"] {
 .header-tile-icons .state-warning {
   color: #bf360c;
 }
-.header-tile-info {
-  margin-bottom: 0;
-}
-.header-tile-info li {
-  display: flex;
-  vertical-align: middle;
-  margin-bottom: 0;
-}
-.header-tile-info li i {
-  padding: 0;
-  vertical-align: middle;
-}
 ul.process-info {
   margin-bottom: 0;
 }
 ul.process-info li {
   margin-bottom: 4px;
+}
+ul.header-tile-info {
+  margin-bottom: 0;
+}
+ul.header-tile-info li {
+  display: flex;
+  margin-bottom: 4px;
+  align-items: center;
+  justify-content: left;
+}
+ul.header-tile-info li i {
+  padding: 0;
+  top: 4px;
 }
 div.process_header_tile_off {
   background-color: #d3d3d3;
@@ -198,34 +217,9 @@ div.state_inconsistent {
 div.state_inactive {
   background-color: #d3d3d3;
 }
-.process-form {
-  margin-bottom: 0;
-}
-.process-form input[type="text"] {
-  height: 2.5rem;
-  padding: 2px 5px;
-  margin-right: 0.5rem;
-}
-.process-form button {
-  height: 2.5rem;
-  border-color: $color-5;
-  opacity: 0.75;
-  padding: 0 6px;
-  min-width: 4rem;
-}
-.process-form button i {
-  opacity: 0.8;
-}
-.process-form button:hover {
-  border-color: $color-6;
-  opacity: 1;
-}
-.btn-center {
-  text-align: center;
-}
-@media (max-width: 1280px) {
+@media (max-width: 1290px) {
   .grid-row div .action_button {
-    font-size: 1rem;
+    font-size: $btn-font-size-icons;
     min-width: 40px;
     display: inline-block;
     padding: 0px 6px;
@@ -237,5 +231,8 @@ div.state_inactive {
   }
   .grid-row div .action_button span {
     display: none;
+  }
+  .grid-row div.tree_header_tile .action_button {
+    font-size: $btn-font-size;
   }
 }

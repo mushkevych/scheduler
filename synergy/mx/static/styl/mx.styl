@@ -1,3 +1,4 @@
+// grid styles
 .grid-container
   margin 2rem 4rem
 
@@ -43,6 +44,7 @@
 
   >div
     margin 1rem 0
+    border 4px solid transparent
 
     &:first-child
       margin 0
@@ -54,6 +56,8 @@
 
   .checkbox
     align-self: right
+
+// button styles
 
 .button, button, input[type="submit"], input[type="reset"], input[type="button"]
   display: inline-block;
@@ -78,6 +82,9 @@
   cursor: pointer;
   box-sizing: border-box;
 
+.btn-center
+  text-align center !important
+
 .flex-buttons
   width 100%
   display flex
@@ -90,7 +97,6 @@
   display inline-block
   min-width 86px
   padding 0px 6px
-  text-align left
   margin 2px
   border-color $color-5
   text-transform uppercase
@@ -107,7 +113,22 @@
     min-width 20px
 
   span
-    margin-left 0
+    margin-left 4px
+
+  &.btn-icons
+    font-size $btn-font-size-icons
+    min-width 38px
+    text-align center
+    text-transform uppercase
+    span
+      display none
+
+
+.grid-info
+  .action_button
+    text-align left
+    span
+      margin 0
 
 .action_toogle
   &:hover
@@ -116,6 +137,7 @@
 .clear
   clear both
 
+// tile styles
 .header-tile-icons
   display flex
   justify-content flex-start
@@ -131,17 +153,6 @@
   .state-warning
     color #BF360C
 
-.header-tile-info
-  margin-bottom 0
-
-  li
-    display flex
-    vertical-align middle
-    margin-bottom 0
-
-    i
-      padding 0
-      vertical-align middle
 
 ul
   &.process-info
@@ -149,6 +160,19 @@ ul
 
     li
       margin-bottom 4px
+
+  &.header-tile-info
+    margin-bottom 0
+
+    li
+      display flex
+      margin-bottom 4px
+      align-items center
+      justify-content left
+      i
+        padding 0
+        top 4px
+
 
 div
   &.process_header_tile_off
@@ -207,37 +231,12 @@ div
   &.state_inactive
     background-color lightgray
 
-.process-form
-  margin-bottom 0
-
-  input[type="text"]
-    height 2.5rem
-    padding 2px 5px
-    margin-right 0.5rem
-
-  button
-    height 2.5rem
-    border-color $color-5
-    opacity 0.75
-    padding 0 6px
-    min-width 4rem
-
-    i
-      opacity 0.8
-
-    &:hover
-      border-color $color-6
-      opacity 1
-
-.btn-center
-  text-align center
-
 // HACK: shrink the buttons to icons for smaller screens
-@media (max-width:1280px)
+@media (max-width:1290px)
   .grid-row
     div
       .action_button
-        font-size 1rem
+        font-size $btn-font-size-icons
         min-width 40px
         display inline-block
         padding 0px 6px
@@ -248,3 +247,6 @@ div
         opacity 0.75
         span
           display none
+      &.tree_header_tile
+        .action_button
+          font-size $btn-font-size

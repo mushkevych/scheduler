@@ -8,51 +8,73 @@
 {% set failed_checked = 'checked' if not details.is_request_valid or details.is_include_failed == True else '' %}
 {% set disabled_checked = 'checked' if details.is_include_disabled == True else '' %}
 
-<form class="table-filter-form" data-form_initial_load="{{ 'true' if details.is_request_valid else 'false' }}" method="get" id="form_time_window">
-    <div class="row">
-        <div class="three columns">
-            <label><input type="radio" name="time_window" id="days_1" value="1" {{ days_1_checked }} /><span class="label-body">today</span></label>
+<form class="table-filter-form" data-form_initial_load="{{ 'true' if details.is_request_valid else 'false' }}"
+    method="get" id="form_time_window">
+    <div class="table-filter-container">
+        <div class="filter">
+            <label for="filter">filter</label>
+            <input type="search" id="table-search" />
+        </div>
+        <div class="time-window">
+
+            <!-- <label><input type="radio" name="time_window" id="days_1" value="1" {{ days_1_checked }} /><span class="label-body">today</span></label>
             <label><input type="radio" name="time_window" id="days_7" value="7" {{ days_7_checked }} />
                 <span class="label-body">last 7 days</span>
             </label>
             <label><input type="radio" name="time_window" id="days_30" value="30" {{ days_30_checked }} />
                 <span class="label-body">last 30 days</span>
-            </label>
+            </label> -->
+
+            <label for="time_window">time window</label>
+            <select name="time_window" id="time_window">
+                <option value="1">today</option>
+                <option value="7">last 7 days</option>
+                <option value="30">last 30 days</option>
+            </select>
         </div>
-        <div class="three columns">
-            <label><input type="checkbox" name="include_running" id="include_running" {{ running_checked }} />
-                <span class="label-body">running</span>
-            </label>
-            <label><input type="checkbox" name="include_processed" id="include_processed" {{ processed_checked }} />
-                <span class="label-body">processed</span>
-            </label>
-            <label><input type="checkbox" name="include_noop" id="include_noop" {{ noop_checked }} />
-                <span class="label-body">noop</span>
-            </label>
+        <div class="include">
+            <label for="include">show</label>
+            <div id="include" class="inline">
+                <label class="inline"><input type="checkbox" name="include_running" id="include_running"
+                        {{ running_checked }} />
+                    <span class="label-body">running</span>
+                </label>
+                <label class="inline"><input type="checkbox" name="include_processed" id="include_processed"
+                        {{ processed_checked }} />
+                    <span class="label-body">processed</span>
+                </label>
+                <label class="inline"><input type="checkbox" name="include_noop" id="include_noop" {{ noop_checked }} />
+                    <span class="label-body">noop</span>
+                </label>
+                <label class="inline"><input type="checkbox" name="include_failed" id="include_failed"
+                        {{ failed_checked }} />
+                    <span class="label-body">failed</span>
+                </label>
+                <label class="inline"><input type="checkbox" name="include_disabled" id="include_disabled"
+                        {{ disabled_checked }} />
+                    <span class="label-body">disabled</span>
+                </label>
+            </div>
         </div>
-        <div class="three columns">
-            <label><input type="checkbox" name="include_failed" id="include_failed" {{ failed_checked }} />
-                <span class="label-body">failed</span>
-            </label>
-            <label><input type="checkbox" name="include_disabled" id="include_disabled" {{ disabled_checked }} />
-                <span class="label-body">disabled</span>
-            </label>
-        </div>
-        <!-- <input type="submit" class="action_button fa-input" title="Refresh" value="&#xf021;&nbsp;Refresh"/> -->
-        <div class="u-cf u-pull-right">
-            <button type="submit" class="action_button btn-center" title="Refresh"><i class="fa fa-refresh"></i> <span>Refresh</span></button>
+        <div class="refresh-button">
+            <button type="submit" class="action_button btn-center" title="Refresh"><i class="fa fa-refresh"></i>
+                <span>Refresh</span></button>
         </div>
     </div>
 </form>
 
 {% set sorted_columns = [] %}
 {%- for i in range(number_sorted_columns) %}
-    {% do sorted_columns.append([i + 1, "asc"]) %}
+{% do sorted_columns.append([i + 1, "asc"]) %}
 {%- endfor %}
 
 <script type="text/javascript">
     $(function () {  // former $(document).ready(function () {...})
-        loadDataset('#form_time_window', 'form_initial_load', {{ sorted_columns|safe }});
+        loadDataset('#form_time_window', 'form_initial_load', {{ sorted_columns| safe }});
+    $('#table-search').on('keyup change clear', function () {
+        $('.synergy-datatable').DataTable().search(this.value).draw()
+    })
     });
+
 </script>
 {%- endmacro %}

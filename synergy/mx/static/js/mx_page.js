@@ -41,26 +41,19 @@ function getGrid (grid_name) {
 }
 
 function headerTreeTile (mx_tree, tile) {
-	var refresh_button = $(
-		'<button class="action_button auto-width" id="refresh_button_' +
-			mx_tree.tree_name +
-			'">' +
-			'<i class="fa fa-refresh"></i>&nbsp;Refresh</button>'
-	).click(function (e) {
+	var refresh_button = $(`<button class="action_button auto-width" id="refresh_button_${mx_tree.tree_name}">
+			<i class="fa fa-refresh"></i>&nbsp;Refresh</button>`).click(function (e) {
 		clearTree(mx_tree.tree_name)
 		mx_trees[mx_tree.tree_name] = getTree(mx_tree.tree_name)
 		buildTree(mx_tree.tree_name)
 	})
-
-	tile.$el.append(
-		`<ul class="fa-ul header-tile-info process-info">
-        <li title="Tree Name"><i class="fa-li fa fa-pagelines"></i>${mx_tree.tree_name}</li><li title="Dependent On"><i class="fa-li fa fa-sitemap fa-rotate-180"></i>${formatJSON(
-			mx_tree.dependent_on
-		)}</li><li title="Dependant Trees"><i class="fa-li fa fa-sitemap"></i>${formatJSON(
-			mx_tree.dependant_trees
-		)}</li></ul>`
-	)
-	// tile.$el.append($('<div></div>').append(refresh_button));
+	let treeHeader = `<ul class="fa-ul header-tile-info process-info">
+	<li title="Tree Name"><i class="fa-li fa fa-pagelines"></i>${mx_tree.tree_name}</li><li title="Dependent On"><i class="fa-li fa fa-sitemap fa-rotate-180"></i>${formatJSON(
+		mx_tree.dependent_on
+	)}</li><li title="Dependant Trees"><i class="fa-li fa fa-sitemap"></i>${formatJSON(
+		mx_tree.dependant_trees
+	)}</li></ul>`
+	tile.$el.append(treeHeader)
 	tile.$el.append(refresh_button)
 	tile.$el.attr('class', 'tree_header_tile')
 }
@@ -139,7 +132,7 @@ function headerProcessTile (process_entry, tile) {
 	${is_alive}
 </span>` */
 	let stateWarning =
-		process_entry.is_on == process_entry.is_alive
+		process_entry.is_on !== process_entry.is_alive
 			? '<i class="fa fa-exclamation state-warning" title="State inconsistent" aria-label="State inconsistent"></i>'
 			: ''
 	tile.$el.append(
@@ -168,33 +161,28 @@ function headerProcessTile (process_entry, tile) {
 }
 
 function infoProcessTile (process_entry, tile) {
-	var change_interval_form =
-		'<form class="process-form" method="POST" action="/freerun/entry/interval/" onsubmit="xmlhttp.send(); return false;">' +
-		'<input type="hidden" name="process_name" value="' +
-		process_entry.process_name +
-		'" />' +
-		'<input type="hidden" name="timeperiod" value="NA" />' +
-		'<input type="text" size="8" maxlength="32" name="interval" value="' +
-		process_entry.trigger_frequency +
-		'" />' +
-		'<button type="submit" title="Apply" class="fa"><i class="fa fa-check"></i></button>' +
-		'</form>'
+	var change_interval_form = `<form class="process-form" method="POST" action="/freerun/entry/interval/" onsubmit="xmlhttp.send(); return false;">
+		<input type="hidden" name="process_name" value="${process_entry.process_name}" />
+		<input type="hidden" name="timeperiod" value="NA" />
+		<input type="text" size="8" maxlength="32" name="interval" value="${process_entry.trigger_frequency}" />
+		<button type="submit" title="Apply" class="fa"><i class="fa fa-check"></i></button>
+		</form>`
 
 	tile.process_name = process_entry.process_name
 	tile.$el.append(
 		// TODO: figure out why the icons are not vertically aligned with the text!
 		`<ul class="header-tile-info fa-ul"><li title="Process Name"><i class="fa-li fa fa-terminal"></i>
-			${process_entry.process_name}
+			<span>${process_entry.process_name}</span>
 			</li><li title="Time Qualifier"><i class="fa-li fa fa-calendar"></i>
-			${process_entry.time_qualifier}
+			<span>${process_entry.time_qualifier}</span>
 			</li><li title="Time Grouping"><i class="fa-li fa fa-cubes"></i>
-			${process_entry.time_grouping}
+			<span>${process_entry.time_grouping}</span>
 			</li><li title="State Machine"><i class="fa-li fa fa-puzzle-piece"></i>
-			${process_entry.state_machine_name}
+			<span>${process_entry.state_machine_name}</span>
 			</li><li title="Blocking Type"><i class="fa-li fa fa-anchor"></i>
-			${process_entry.blocking_type}
+			<span>${process_entry.blocking_type}</span>
 			</li><li title="Trigger Frequency"><i class="fa-li fa fa-heartbeat"></i>
-			${change_interval_form}
+			<span>${change_interval_form}</span>
 			</li>
 			</ul>`
 	)
@@ -222,7 +210,24 @@ function infoJobTile (job_entry, tile, is_next_timeperiod, is_selected_timeperio
 		window.open(
 			viewer_url,
 			'Object Viewer',
-			`width=${window.innerWidth / 2},height=${window.innerHeight * 0.75},scrollbars=1`
+			`width=${window.innerWidth / 2},height=${window.innerHeight * 0.85},scrollbars=1`
+		)
+	})
+	var uow_log_button = $(
+		`<button title="Uow Log" aria-lable="Uow Log" class="action_button">
+			<i class="fa fa-file-text-o"></i>
+			<span>
+			Uow Log
+			</span>
+		</button>`
+	).click(function (e) {
+		var params = { action: 'managed/log/uow', timeperiod: job_entry.timeperiod, process_name: job_entry.process_name }
+		var viewer_url = '/viewer/object/?' + $.param(params)
+		// HACK: see web.jpng.info
+		window.open(
+			viewer_url,
+			'Object Viewer',
+			`width=${window.innerWidth / 2},height=${window.innerHeight * 0.85},scrollbars=1`
 		)
 	})
 	var event_log_button = $(
@@ -235,7 +240,11 @@ function infoJobTile (job_entry, tile, is_next_timeperiod, is_selected_timeperio
 	).click(function (e) {
 		var params = { action: 'managed/log/event', timeperiod: job_entry.timeperiod, process_name: job_entry.process_name }
 		var viewer_url = '/viewer/object/?' + $.param(params)
-		window.open(viewer_url, 'Object Viewer', `width=${window.innerWidth / 2},height=480,scrollbars=1`)
+		window.open(
+			viewer_url,
+			'Object Viewer',
+			`width=${window.innerWidth / 2},height=${window.innerHeight * 0.85},scrollbars=1`
+		)
 	})
 	var skip_button = $(
 		`<button title="Skip" aria-lable="Skip" class="action_button">
@@ -257,19 +266,6 @@ function infoJobTile (job_entry, tile, is_next_timeperiod, is_selected_timeperio
 	).click(function (e) {
 		processJob('tree/node/reprocess', tile.tree_name, tile.process_name, tile.timeperiod, null, null)
 	})
-	var uow_log_button = $(
-		`<button title="Uow Log" aria-lable="Uow Log" class="action_button">
-			<i class="fa fa-file-text-o"></i>
-			<span>
-			Uow Log
-			</span>
-		</button>`
-	).click(function (e) {
-		var params = { action: 'managed/log/uow', timeperiod: job_entry.timeperiod, process_name: job_entry.process_name }
-		var viewer_url = '/viewer/object/?' + $.param(params)
-		// HACK: see web.jpng.info
-		window.open(viewer_url, 'Object Viewer', `width=${window.innerWidth / 2},height=480,scrollbars=1`)
-	})
 	var flow_button = $(
 		`<button title="Workflow" aria-lable="Workflow" class="action_button">
 			<i class="fa fa-random"></i>
@@ -285,7 +281,11 @@ function infoJobTile (job_entry, tile, is_next_timeperiod, is_selected_timeperio
 			unit_of_work_type: 'type_managed'
 		}
 		var viewer_url = '/viewer/flow/?' + $.param(params)
-		window.open(viewer_url, 'Flow Viewer', `width=${window.innerWidth / 2},height=480,scrollbars=1`)
+		window.open(
+			viewer_url,
+			'Flow Viewer',
+			`width=${window.innerWidth / 2},height=${window.innerHeight * 0.85},scrollbars=1`
+		)
 	})
 
 	tile.process_name = job_entry.process_name
@@ -331,21 +331,9 @@ function infoJobTile (job_entry, tile, is_next_timeperiod, is_selected_timeperio
 	// ${flow_button}
 	// </div>`)
 	// 	)
-	tile.$el.append($('<div></div>').append(
-		uow_button
-		).append(
-		skip_button
-		))
-	tile.$el.append($('<div></div>').append(
-		uow_log_button
-		).append(
-		reprocess_button
-		))
-	tile.$el.append($('<div></div>').append(
-		event_log_button
-		).append(
-		flow_button
-		))
+	tile.$el.append($('<div></div>').append(uow_button).append(skip_button))
+	tile.$el.append($('<div></div>').append(uow_log_button).append(reprocess_button))
+	tile.$el.append($('<div></div>').append(event_log_button).append(flow_button))
 }
 
 function buildHeaderGrid (grid_name, grid_template, builder_function, info_obj) {

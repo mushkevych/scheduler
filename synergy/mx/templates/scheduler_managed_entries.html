@@ -22,14 +22,15 @@
         </thead>
         <tbody>
 
+
             {%- for row in details.managed_entries -%}
+            {%- set tr_class = '' -%}
             {%- if row.is_on != row.is_alive -%}
-            <tr class="state_inconsistent">
-                {%- elif not row.is_alive -%}
-            <tr class="state_inactive">
-                {%- else -%}
-            <tr>
-                {%- endif -%}
+            {%- set tr_class = 'state_inconsistent' -%}
+            {%- elif not row.is_alive -%}
+            {%- set tr_class = 'state_inactive' -%}
+            {%- endif -%}
+            <tr class="{{ tr_class }}">
                 <td>
                     {% set value = "{ process_name: '" + row.process_name + "', timeperiod: 'NA' }" %}
                     <input type="checkbox" name="batch_processing" value="{{ value }}" />
@@ -43,14 +44,15 @@
                         <input type="text" size="8" maxlength="32" name="interval"
                             value="{{ row.trigger_frequency }}" />
                         <button type="submit" title="Apply" class="action_button btn-center"><i
-                                class="fa">&#xf00c;</i><span>Apply</span></button>
+                                class="fa fa-bolt"></i><span>Apply</span></button>
                     </form>
                 </td>
                 <td>
                     <form class="table-form" method="POST" action="/managed/entry/trigger/">
                         <input type="hidden" name="process_name" value="{{ row.process_name }}" />
                         <input type="hidden" name="timeperiod" value="NA" />
-                        <button type="submit" class="action_button btn-center" title="Trigger"><i class="fa">&#xf135;</i><span>Trigger</span></button>
+                        <button type="submit" class="action_button btn-center" title="Trigger"><i
+                                class="fa fa-bolt"></i><span>Trigger</span></button>
                     </form>
                 </td>
                 <td>{{ row.next_run_in }}</td>
@@ -68,13 +70,15 @@
                 <th scope="col">Units Of Work</th>
                 <th scope="col">
                     <span class="inline u-pull-right">
-                        <form class="table-form inline" method="GET" action="/gc/flush/all/" onsubmit="refreshWithDelay()">
+                        <form class="table-form inline" method="GET" action="/gc/flush/all/"
+                            onsubmit="refreshWithDelay()">
                             <button type="submit" class="action_button btn-center inline" title="Flush All"><i
                                     class="fa">&#xf1b8;</i><span>Flush All</span></button>
                         </form>
                     </span>
                     <span class="inline u-pull-right">
-                        <form class="table-form inline" method="GET" action="/gc/refresh/" onsubmit="refreshWithDelay()">
+                        <form class="table-form inline" method="GET" action="/gc/refresh/"
+                            onsubmit="refreshWithDelay()">
                             <button type="submit" class="action_button btn-center inline" title="Refresh"><i
                                     class="fa">&#xf021;</i><span>Refresh</span></button>
                         </form>
@@ -100,7 +104,8 @@
                     {%- endfor -%}
                 </td>
                 <td>
-                    <form class="table-form u-pull-right" method="GET" action="/gc/flush/one/" onsubmit="refreshWithDelay()">
+                    <form class="table-form u-pull-right" method="GET" action="/gc/flush/one/"
+                        onsubmit="refreshWithDelay()">
                         <input type="hidden" name="process_name" value="{{ process_name }}" />
                         <button type="submit" class="action_button btn-center u-pull-right" title="Flush"><i
                                 class="fa">&#xf1b8;</i><span>Flush</span></button>
@@ -115,8 +120,8 @@
                 <td>Empty</td>
                 <td>Empty</td>
                 <td>
-                    <button type="submit" disabled class="action_button btn-center disabled u-pull-right" title="Flush"><i
-                            class="fa">&#xf1b8;</i><span>Flush</span></button>
+                    <button type="submit" disabled class="action_button btn-center disabled u-pull-right"
+                        title="Flush"><i class="fa">&#xf1b8;</i><span>Flush</span></button>
                 </td>
             </tr>
             {%- endif -%}
