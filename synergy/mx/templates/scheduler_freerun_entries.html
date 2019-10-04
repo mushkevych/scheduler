@@ -61,7 +61,7 @@
                 </td>
 
                 <td>{{ row.next_run_in }}</td>
-                <td>{{ row.arguments|jsonify }}</td>
+                <td style="max-width: 180px">{{ row.arguments|jsonify }}</td>
                 <td class="button-col">
                     {% set url = 'action=freerun/uow' + '&process_name=' + row.process_name + '&entry_name=' + row.entry_name %}
                     <form class="table-form inline" method="GET"
