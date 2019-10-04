@@ -1,19 +1,25 @@
 {% extends 'main_header.html' %}
 {% block body %}
 
-<div style="text-align: center;">
-<strong>NOTICE:</strong> list can contain processes from manual context.py update or decommissioned boxes
+<div class="page-title-bar">
+    <!-- <h2>supervisor entries</h2> -->
+    {% import 'block_enable_auto_refresh.html' as block_enable_refresh %}
+    {{ block_enable_refresh.enable_auto_refresh() }}
 </div>
-<br/>
-<div><table class="one-column-emphasis synergy-datatable" id="supervisor_table">
+
+<div class="container">
+
+<p><strong>NOTICE:</strong> list can contain processes from manual context.py update or decommissioned boxes</p>
+
+<table class="table-entries u-full-width synergy-datatable" id="supervisor_table">
     <thead>
-    <tr class="one-column-emphasis-first">
-        <th scope="col">Box Id</th>
-        <th scope="col">Process Name</th>
-        <th scope="col">Is On</th>
-        <th scope="col">PID</th>
-        <th scope="col"></th> <!-- start/stop-->
-    </tr>
+        <tr class="table-entries-header">
+            <th scope="col">Box Id</th>
+            <th scope="col">Process Name</th>
+            <th scope="col">Is On</th>
+            <th scope="col">PID</th>
+            <th scope="col"></th> <!-- start/stop-->
+        </tr>
     </thead>
     <tbody>
 
@@ -26,19 +32,19 @@
 
         {% set action_url = '/supervisor/entry/stop/' if bc_entry.is_on else '/supervisor/entry/start/' %}
         {% set button_title = 'Stop' if bc_entry.is_on else 'Start' %}
-        {% set button_value = '&#xf04d;&nbsp;Stop' if bc_entry.is_on else '&#xf04b;&nbsp;Start' %}
+        {% set button_icon = "fa fa-stop" if bc_entry.is_on else "fa fa-play" %}
 
         <td>
-            <form method="POST" action="{{ action_url }}" onsubmit="refreshWithDelay()">
+            <form class="table-form" method="POST" action="{{ action_url }}" onsubmit="refreshWithDelay()">
                 <input type="hidden" name="box_id" value="{{ bc_entry.box_id }}" />
                 <input type="hidden" name="process_name" value="{{ bc_entry.process_name }}" />
-                <input type="submit" class="action_button fa-input" title="{{ button_title }}" value="{{ button_value|safe }}"/>
+                <button type="submit" class="action_button btn-center" title="{{ button_title }}"><i class="{{ button_icon }}"></i> <span>{{ button_title }}</span></button>
             </form>
         </td>
     </tr>
     {%- endfor -%}
 
     </tbody>
-</table></div>
-
+</table>
+</div>
 {% endblock %}

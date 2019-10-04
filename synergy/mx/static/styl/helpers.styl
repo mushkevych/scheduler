@@ -1,0 +1,55 @@
+// helper classes
+.inline
+  display inline
+
+.inline-flex
+  display inline-flex
+
+$pad = 1rem
+$margin = 1rem
+for i in 0..4
+  .p-{i}
+    padding $pad * i
+
+  .px-{i}
+    padding-left $pad * i
+    padding-right $pad * i
+
+  .py-{i}
+    padding-top $pad * i
+    padding-bottom $pad * i
+
+  .pl-{i}
+    padding-left $pad * i
+
+  .pr-{i}
+    padding-right $pad * i
+
+  .pt-{i}
+    padding-top $pad * i
+
+  .pb-{i}
+    padding-bottom $pad * i
+
+  .m-{i}
+    margin $margin * i
+
+  .mx-{i}
+    margin-left $margin * i
+    margin-right $margin * i
+
+  .my-{i}
+    margin-top $margin * i
+    margin-bottom $margin * i
+
+  .ml-{i}
+    margin-left $margin * i
+
+  .mr-{i}
+    margin-right $margin * i
+
+  .mt-{i}
+    margin-top $margin * i
+
+  .mb-{i}
+    margin-bottom $margin * i

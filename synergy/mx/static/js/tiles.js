@@ -1,6 +1,8 @@
 /*! Tiles.js | http://thinkpixellab.com/tilesjs | 2013-05-18 */
 
 
+// FIXME: where is the resizing happening???
+
 // single namespace export
 var Tiles = {};
 
@@ -48,47 +50,47 @@ var Tiles = {};
 
     // updates the tile layout with optional animation
     Tile.prototype.resize = function(cellRect, pixelRect, animate, duration, onComplete) {
-       
+
         // store the list of needed changes
         var cssChanges = {},
             changed = false;
 
         // update position and dimensions
-        if (this.left !== pixelRect.x) {
-            cssChanges.left = pixelRect.x;
-            this.left = pixelRect.x;
-            changed = true;
-        }
-        if (this.top !== pixelRect.y) {
-            cssChanges.top = pixelRect.y;
-            this.top = pixelRect.y;
-            changed = true;
-        }
-        if (this.width !== pixelRect.width) {
-            cssChanges.width = pixelRect.width;
-            this.width = pixelRect.width;
-            changed = true;
-        }
-        if (this.height !== pixelRect.height) {
-            cssChanges.height = pixelRect.height;
-            this.height = pixelRect.height;
-            changed = true;
-        }
+        // if (this.left !== pixelRect.x) {
+        //     cssChanges.left = pixelRect.x;
+        //     this.left = pixelRect.x;
+        //     changed = true;
+        // }
+        // if (this.top !== pixelRect.y) {
+        //     cssChanges.top = pixelRect.y;
+        //     this.top = pixelRect.y;
+        //     changed = true;
+        // }
+        // if (this.width !== pixelRect.width) {
+        //     cssChanges.width = pixelRect.width;
+        //     this.width = pixelRect.width;
+        //     changed = true;
+        // }
+        // if (this.height !== pixelRect.height) {
+        //     cssChanges.height = pixelRect.height;
+        //     this.height = pixelRect.height;
+        //     changed = true;
+        // }
 
         // Sometimes animation fails to set the css top and left correctly
         // in webkit. We'll validate upon completion of the animation and
         // set the properties again if they don't match the expected values.
         var tile = this,
             validateChangesAndComplete = function() {
-                var el = tile.$el[0];
-                if (tile.left !== el.offsetLeft) {
-                    //console.log ('mismatch left:' + tile.left + ' actual:' + el.offsetLeft + ' id:' + tile.id);
-                    tile.$el.css('left', tile.left);
-                }
-                if (tile.top !== el.offsetTop) {
-                    //console.log ('mismatch top:' + tile.top + ' actual:' + el.offsetTop + ' id:' + tile.id);
-                    tile.$el.css('top', tile.top);
-                }
+                // var el = tile.$el[0];
+                // if (tile.left !== el.offsetLeft) {
+                //     //console.log ('mismatch left:' + tile.left + ' actual:' + el.offsetLeft + ' id:' + tile.id);
+                //     tile.$el.css('left', tile.left);
+                // }
+                // if (tile.top !== el.offsetTop) {
+                //     //console.log ('mismatch top:' + tile.top + ' actual:' + el.offsetTop + ' id:' + tile.id);
+                //     tile.$el.css('top', tile.top);
+                // }
 
                 if (onComplete) {
                     onComplete();
@@ -97,32 +99,32 @@ var Tiles = {};
 
 
         // make css changes with animation when requested
-        if (animate && changed) {
+        // if (animate && changed) {
 
-            this.$el.animate(cssChanges, {
-                duration: duration,
-                easing: 'swing',
-                complete: validateChangesAndComplete
-            });
-        }
-        else {
+        //     this.$el.animate(cssChanges, {
+        //         duration: duration,
+        //         easing: 'swing',
+        //         complete: validateChangesAndComplete
+        //     });
+        // }
+        // else {
 
-            if (changed) {
-                this.$el.css(cssChanges);
-            }
+        //     if (changed) {
+        //         this.$el.css(cssChanges);
+        //     }
 
-            setTimeout(validateChangesAndComplete, duration);
-        }
+        //     setTimeout(validateChangesAndComplete, duration);
+        // }
     };
 
 })(jQuery);
 
-               
+
 /*
     A grid template specifies the layout of variably sized tiles. A single
     cell tile should use the period character. Larger tiles may be created
     using any character that is unused by a adjacent tile. Whitespace is
-    ignored when parsing the rows. 
+    ignored when parsing the rows.
 
     Examples:
 
@@ -152,7 +154,7 @@ var Tiles = {};
 
         // parse each row
         for(y = 0; y < numRows; y++) {
-            
+
             row = rows[y];
             cells[y] = [];
 
@@ -206,12 +208,12 @@ var Tiles = {};
                     continue;
                 }
 
-                width = 1;    
+                width = 1;
                 height = 1;
 
                 if (cell !== Tiles.Template.SINGLE_CELL) {
 
-                    // find the width by going right until cell id no longer matches 
+                    // find the width by going right until cell id no longer matches
                     while(width + x < numCols &&
                           cell === cells[y][x + width]) {
                         width++;
@@ -263,7 +265,7 @@ var Tiles = {};
         if (this.numCols !== other.numCols) {
             throw 'Appended templates must have the same number of columns';
         }
-        
+
         // new rects begin after the last current row
         var startY = this.numRows,
             i, len, rect;
@@ -330,7 +332,7 @@ var Tiles = {};
 
         return rows;
     };
-    
+
     // period used to designate a single 1x1 cell tile
     Tiles.Template.SINGLE_CELL = '.';
 
@@ -368,7 +370,7 @@ Tiles.UniformTemplates = {
 
         // the default set of factories used when creating templates
         this.templateFactory = Tiles.UniformTemplates;
-        
+
         // defines the page size for prioritization of positions and tiles
         this.priorityPageSize = Number.MAX_VALUE;
 
@@ -403,7 +405,7 @@ Tiles.UniformTemplates = {
     // gets the number of columns during a resize
     Grid.prototype.resizeColumns = function() {
         var panelWidth = this.getContentWidth();
-        
+
         // ensure we have at least one column
         return Math.max(1, Math.floor((panelWidth + this.cellPadding) /
             (this.cellSizeMin + this.cellPadding)));
@@ -417,17 +419,17 @@ Tiles.UniformTemplates = {
     };
 
     Grid.prototype.resize = function() {
-        
+
         var newCols = this.resizeColumns();
         if (this.numCols !== newCols && newCols > 0) {
             this.numCols = newCols;
             this.isDirty = true;
         }
 
-        var newCellSize = this.resizeCellSize();        
+        var newCellSize = this.resizeCellSize();
         if (this.cellSize !== newCellSize && newCellSize > 0) {
             this.cellSize = newCellSize;
-            this.isDirty = true;    
+            this.isDirty = true;
         }
     };
 
@@ -459,17 +461,17 @@ Tiles.UniformTemplates = {
 
         // make sure we have tiles for new additions
         for (i = 0; i < numTiles; i++) {
-            
+
             tile = newTiles[i];
             if (!tile) {
 
                 tileId = newTileIds[i];
-                
+
                 // see if grid has a custom tile factory
                 if (this.createTile) {
-                    
+
                     tile = this.createTile(tileId);
-    
+
                     // skip the tile if it couldn't be created
                     if (!tile) {
                         //console.log('Tile element could not be created, id: ' + tileId);
@@ -480,7 +482,7 @@ Tiles.UniformTemplates = {
 
                     tile = new Tiles.Tile(tileId);
                 }
-                
+
                 // add tiles to queue (will be appended to DOM during redraw)
                 this.tilesAdded.push(tile);
                 //console.log('Adding tile: ' + tile.id);
@@ -527,7 +529,7 @@ Tiles.UniformTemplates = {
             prevTileIds.push(this.tiles[i].id);
         }
 
-        var tileIds = prepend ? newTileIds.concat(prevTileIds) 
+        var tileIds = prepend ? newTileIds.concat(prevTileIds)
             : prevTileIds.concat(newTileIds);
         this.updateTiles(tileIds);
     };
@@ -553,17 +555,17 @@ Tiles.UniformTemplates = {
     };
 
     Grid.prototype.createTemplate = function(numCols, targetTiles) {
-        
+
         // ensure that we have at least one column
         numCols = Math.max(1, numCols);
 
         var template = this.templateFactory.get(numCols, targetTiles);
         if (!template) {
-            
+
             // fallback in case the default factory can't generate a good template
             template = Tiles.UniformTemplates.get(numCols, targetTiles);
         }
-        
+
         return template;
     };
 
@@ -580,7 +582,7 @@ Tiles.UniformTemplates = {
             var missingRects = numTiles - this.template.rects.length;
             if (missingRects > 0) {
                 this.template.append(
-                    this.createTemplate(this.numCols, missingRects));    
+                    this.createTemplate(this.numCols, missingRects));
                 this.isDirty = true;
             }
 
@@ -603,7 +605,7 @@ Tiles.UniformTemplates = {
                 return true;
             }
         }
-        
+
         if (newRect) {
             // will it be visible?
             if (!((newRect.y > viewMaxY) || (newRect.y + newRect.height < viewRect.y) ||
@@ -611,7 +613,7 @@ Tiles.UniformTemplates = {
                 return true;
             }
         }
-        
+
         return false;
     }
 
@@ -642,7 +644,7 @@ Tiles.UniformTemplates = {
                 onComplete(false); // tell callback that we did not redraw
             }
             return;
-        }        
+        }
 
         var numTiles = this.tiles.length,
             pageSize = this.priorityPageSize,
@@ -658,7 +660,7 @@ Tiles.UniformTemplates = {
             tile, added, pageRects, pageTiles, i, len, cellRect, pixelRect,
             animateTile, priorityRects, priorityTiles;
 
-            
+
         // chunk tile layout by pages which are internally prioritized
         for (tileIndex = 0; tileIndex < numTiles; tileIndex += pageSize) {
 
@@ -674,14 +676,14 @@ Tiles.UniformTemplates = {
             if (this.prioritizePage) {
                 this.prioritizePage(priorityRects, priorityTiles);
             }
-                
+
             // place all the tiles for the current page
             for (i = 0, len = priorityTiles.length; i < len; i++) {
                 tile = priorityTiles[i];
                 added = $.inArray(tile, this.tilesAdded) >= 0;
 
                 cellRect = priorityRects[i];
-                pixelRect = new Tiles.Rectangle(                        
+                pixelRect = new Tiles.Rectangle(
                     cellRect.x * cellPlusPadding,
                     cellRect.y * cellPlusPadding,
                     (cellRect.width * cellPlusPadding) - this.cellPadding,
@@ -699,7 +701,7 @@ Tiles.UniformTemplates = {
                     animateTile = animate && wasOrWillBeVisible(viewRect, null, pixelRect);
                     if (animateTile && this.getAppendDelay) {
                         appendDelay = this.getAppendDelay(
-                            cellRect, pageRects, priorityRects, 
+                            cellRect, pageRects, priorityRects,
                             tile, pageTiles, priorityTiles);
                     } else {
                         appendDelay = 0;

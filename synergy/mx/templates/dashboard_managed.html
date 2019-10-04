@@ -1,66 +1,79 @@
 {% extends 'main_header.html' %}
 {% block body %}
 
-{% import 'block_time_window_selector.html' as block_time_window %}
-{{ block_time_window.time_window_selector(details, 2) }}
+<div class="page-title-bar">
+    {% import 'block_enable_auto_refresh.html' as block_enable_refresh %}
+    {{ block_enable_refresh.enable_auto_refresh() }}
+</div>
 
-<div><table class="one-column-emphasis context-menu synergy-datatable" id="dashboard_table">
-    <thead>
-    <tr class="one-column-emphasis-first">
-        <th scope="col"><input type='checkbox' name='select_all' onclick='toggleAllCheckboxes(this)'/> </th>
-        <th scope="col">Process Name</th>
-        <th scope="col">Timeperiod</th>
-        <th scope="col">State</th>
-        <th scope="col"></th>  <!-- View Uow -->
-        <th scope="col"></th>  <!-- Uow Log -->
-        <th scope="col"></th>  <!-- Event Log -->
-        <th scope="col"></th>  <!-- Workflow -->
-    </tr>
-    </thead>
-    <tbody>
+<div class="container u-full-width">
+    {% import 'block_time_window_selector.html' as block_time_window %}
+    {{ block_time_window.time_window_selector(details, 2) }}
 
-    {%- for process_name, job_entry in details.managed.items() -%}
-    <tr class="{{ job_entry.state }}">
-        {% set value = "{ process_name: '" + job_entry.process_name + "', timeperiod: '" + job_entry.timeperiod + "' }" %}
-        <td><input type='checkbox' name='batch_processing' value="{{ value }}" /></td>
-        <td>{{ job_entry.process_name }}</td>
-        <td>{{ job_entry.timeperiod }}</td>
-        <td>{{ job_entry.state }}</td>
-        <td>
-            {% set url = 'action=managed/uow' + '&process_name=' + job_entry.process_name + '&timeperiod=' + job_entry.timeperiod %}
-            <form method="GET" onsubmit="window.open('/viewer/object/?{{ url }}','View Uow',
-                 'toolbar=no,scrollbars=yes,resizable=yes,top=250,left=250,width=450,height=400'); return false;">
-                <input type="submit" class="action_button fa-input" title="View Uow" value="&#xf1c9;&nbsp;Uow"/>
-            </form>
-        </td>
-        <td>
-            {% set url = 'action=managed/log/uow' + '&process_name=' + job_entry.process_name + '&timeperiod=' + job_entry.timeperiod %}
-            <form method="GET" onsubmit="window.open('/viewer/object/?{{ url }}','Uow Log',
-                 'toolbar=no,scrollbars=yes,resizable=yes,top=250,left=250,width=800,height=480'); return false;">
-                <input type="submit" class="action_button fa-input" title="Uow Log" value="&#xf0f6;&nbsp;Uow&nbsp;Log"/>
-            </form>
-        </td>
-        <td>
-            {% set url = 'action=managed/log/event' + '&process_name=' + job_entry.process_name + '&timeperiod=' + job_entry.timeperiod %}
-            <form method="GET" onsubmit="window.open('/viewer/object/?{{ url }}','Event Log',
-                 'toolbar=no,scrollbars=yes,resizable=yes,top=250,left=250,width=800,height=480'); return false;">
-                <input type="submit" class="action_button fa-input" title="Event Log" value="&#xf00b;&nbsp;Event&nbsp;Log"/>
-            </form>
-        </td>
-        <td>
-            {% set url = 'action=flow/flow/details' + '&process_name=' + job_entry.process_name + '&timeperiod=' + job_entry.timeperiod + '&unit_of_work_type=type_managed' %}
-            <form method="GET" onsubmit="window.open('/viewer/flow/?{{ url }}','Workflow',
-                 'toolbar=no,scrollbars=yes,resizable=yes,top=150,left=250,width=800,height=800'); return false;">
-                <input type="submit" class="action_button fa-input" title="Workflow" value="&#xf074;&nbsp;Workflow"/>
-            </form>
-        </td>
-    </tr>
-    {%- endfor -%}
+    <table class="table-entries context-menu synergy-datatable" id="dashboard_table">
+        <thead>
+            <tr class="table-entries-header">
+                <th scope="col">
+                    <input type="checkbox" name="select_all" onclick="toggleAllCheckboxes(this)" />
+                </th>
+                <th scope="col">Process Name</th>
+                <th scope="col">Timeperiod</th>
+                <th scope="col">State</th>
+                <th scope="col"></th> <!-- View Uow -->
+                <th scope="col"></th> <!-- Uow Log -->
+                <th scope="col"></th> <!-- Event Log -->
+                <th scope="col"></th> <!-- Workflow -->
+            </tr>
+        </thead>
+        <tbody>
 
-    </tbody>
-</table></div>
+            {%- for process_name, job_entry in details.managed.items() -%}
+            <tr class="{{ job_entry.state }}">
+                {% set value = "{ process_name: '" + job_entry.process_name + "', timeperiod: '" + job_entry.timeperiod + "' }" %}
+                <td><input type="checkbox" name="batch_processing" value="{{ value }}" /></td>
+                <td>{{ job_entry.process_name }}</td>
+                <td>{{ job_entry.timeperiod }}</td>
+                <td>{{ job_entry.state }}</td>
+                <td>
+                    {% set url = 'action=managed/uow' + '&process_name=' + job_entry.process_name + '&timeperiod=' + job_entry.timeperiod %}
+                    <form class="table-form" method="GET" onsubmit="window.open('/viewer/object/?{{ url }}','View Uow',
+                 'toolbar=no,scrollbars=yes,resizable=yes,top=${window.innerHeight * 0.15},left=${window.innerWidth * 0.15},width=${window.innerWidth / 2},height=${window.innerHeight * 0.85}'); return false;">
+                        <button type="submit" class="action_button btn-center" title="Workflow"><i class="fa">&#xf1c9;</i>
+                            <span>View Uow</span></button>
+                    </form>
+                </td>
+                <td>
+                    {% set url = 'action=managed/log/uow' + '&process_name=' + job_entry.process_name + '&timeperiod=' + job_entry.timeperiod %}
+                    <form class="table-form" method="GET" onsubmit="window.open('/viewer/object/?{{ url }}','Uow Log',
+                 'toolbar=no,scrollbars=yes,resizable=yes,top=${window.innerHeight * 0.15},left=${window.innerWidth * 0.15},width=${window.innerWidth / 2},height=${window.innerHeight * 0.85}'); return false;">
+                        <button type="submit" class="action_button btn-center" title="Workflow"><i class="fa">&#xf0f6;</i>
+                            <span>Uow Log</span></button>
+                    </form>
+                </td>
+                <td>
+                    {% set url = 'action=managed/log/event' + '&process_name=' + job_entry.process_name + '&timeperiod=' + job_entry.timeperiod %}
+                    <form class="table-form" method="GET" onsubmit="window.open('/viewer/object/?{{ url }}','Event Log',
+                 'toolbar=no,scrollbars=yes,resizable=yes,top=${window.innerHeight * 0.15},left=${window.innerWidth * 0.15},width=${window.innerWidth / 2},height=${window.innerHeight * 0.85}'); return false;">
+                        <button type="submit" class="action_button btn-center" title="Workflow"><i class="fa">&#xf00b;</i>
+                            <span>Event Log</span></button>
+                    </form>
+                </td>
+                <td>
+                    {% set url = 'action=flow/flow/details' + '&process_name=' + job_entry.process_name + '&timeperiod=' + job_entry.timeperiod + '&unit_of_work_type=type_managed' %}
+                    <form class="table-form" method="GET" onsubmit="window.open('/viewer/flow/?{{ url }}','Workflow',
+                 'toolbar=no,scrollbars=yes,resizable=yes,top=${window.innerHeight * 0.15},left=${window.innerWidth * 0.15},width=${window.innerWidth / 2},height=${window.innerHeight * 0.85}'); return false;">
+                        <button type="submit" class="action_button btn-center" title="Workflow"><i class="fa">&#xf074;</i>
+                            <span>Workflow</span></button>
+                    </form>
+                </td>
+            </tr>
+            {%- endfor -%}
 
-{% import 'block_context_menu.html' as context_menu %}
-{{ context_menu.job_menu() }}
+        </tbody>
+    </table>
+    {% import 'block_context_menu.html' as context_menu %}
+    {{ context_menu.job_menu() }}
+</div>
+
 
 {% endblock %}
