@@ -7,94 +7,54 @@
         <meta http-equiv="X-UA-Compatible" content="ie=edge">
         <link rel="icon" type="image/png" href="{{ url_for('static', file='images/sy_brown.png') }}">
         <link rel="stylesheet" type="text/css" href="{{ url_for('static', file='css/context_menu.css') }}">
-        <!-- <link rel="stylesheet" type="text/css" href="{{ url_for('static', file='css/skeleton.css') }}"> -->
-        <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/skeleton/2.0.4/skeleton.min.css">
-        <!-- <link rel="stylesheet" type="text/css" href="{{ url_for('static', file='css/normalize.css') }}"> -->
-        <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/3.0.2/normalize.min.css">
+        <link rel="stylesheet" type="text/css" href="{{ url_for('static', file='css/skeleton.css') }}">
+        <link rel="stylesheet" type="text/css" href="{{ url_for('static', file='css/normalize.css') }}">
         <link rel="stylesheet" type="text/css" href="{{ url_for('static', file='css/index.css') }}">
         <link rel="stylesheet" type="text/css" href="{{ url_for('static', file='css/font-awesome.css') }}">
         <link rel="stylesheet" type="text/css" href="{{ url_for('static', file='css/alertify.css') }}">
-        <link rel="stylesheet" type="text/css" href="//cdn.datatables.net/1.10.20/css/jquery.dataTables.min.css">
 
-        <!-- NOTE: adding scripts to end breaks for some reason -->
-        <!-- <script type="text/javascript" src="{{ url_for('static', file='js/jquery-3.4.1.min.js') }}"></script> -->
-        <script
-			  src="https://code.jquery.com/jquery-3.4.1.min.js"
-			  integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo="
-			  crossorigin="anonymous"></script>
-        <!-- <script type="text/javascript" src="{{ url_for('static', file='js/jquery.datatables-1.10.18.min.js') }}"></script> -->
-        <script type="text/javascript" src="//cdn.datatables.net/1.10.20/js/jquery.dataTables.min.js"></script>
+        <script type="text/javascript" src="{{ url_for('static', file='js/jquery-3.4.1.min.js') }}"></script>
+        <script type="text/javascript" src="{{ url_for('static', file='js/jquery.datatables-1.10.20.min.js') }}"></script>
         <script type="text/javascript" src="{{ url_for('static', file='js/alertify-0.3.17.trunk.js') }}"></script>
         <script type="text/javascript" src="{{ url_for('static', file='js/mx_utils.js') }}"></script>
 
         <title>Synergy Scheduler</title>
     </head>
 
+    <!-- TODO: figure out how to do this in javascript -->
     {# Jinja2 variable scope visibility workaround: declared as a list so it is available to inherited templates #}
     {% set active_mx_page = [] %}
-    <!-- TODO: figure out how to do this in javascript -->
-    {% macro render_td(endpoint, title) %}
-    {% set td_class = '' %}
-    {%- if endpoint in local.request.path -%}
-    <script type="text/javascript">
-        let active_mx_page = "{{ endpoint|lstrip_slash|safe }}";
-        console.log(active_mx_page)
-    </script>
-    {% do active_mx_page.append(endpoint|lstrip_slash|safe) %}
-    {% set td_class = 'class="active"' %}
-    {%- endif -%}
-
-    <td {{ td_class|safe }}>
-        <a href="{{ endpoint }}">{{ title }}</a>
-    </td>
-    {% endmacro %}
+    {%- for mx_rule, mx_page_name in mx_processing_context.items() %}
+        {% set endpoint = '/' + mx_rule %}
+        {%- if endpoint in local.request.path -%}
+            <script type="text/javascript">
+                let active_mx_page = "{{ endpoint|lstrip_slash|safe }}";
+                console.log(active_mx_page)
+            </script>
+            {% do active_mx_page.append(endpoint|lstrip_slash|safe) %}
+        {%- endif -%}
+    {%- endfor -%}
 
     <body>
-        <!-- FIXME: can't remove this without breaking, not sure why -->
-        <!-- <table class="header-table">
-            <thead>
-                <tr>
-                    <th colspan="2">Synergy Scheduler</th>
-                    {%- for mx_rule, mx_name in mx_processing_context.items() -%}
-                    <th></th>
-                    {%- endfor -%}
-                    <th></th>
-                    <th></th>
-                    <th></th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr>
-                    {{  render_td(url_for('dashboard_managed'), 'dashboard jobs') }}
-                    {{  render_td(url_for('dashboard_freeruns'), 'dashboard freeruns') }}
-                    {%- for mx_rule, mx_page_name in mx_processing_context.items() %}
-                    {{  render_td( '/' + mx_rule, mx_page_name) }}
-                    {%- endfor -%}
-                    {{  render_td(url_for('scheduler_managed_entries'), 'scheduler managed entries') }}
-                    {{  render_td(url_for('scheduler_freerun_entries'), 'scheduler freerun entries') }}
-                    {{  render_td(url_for('supervisor_entries'), 'supervisor') }}
-                </tr>
-            </tbody>
-        </table> -->
         <div class="nav">
             <div class="inline title">
                 <h3 class="inline">Synergy Scheduler</h3>
             </div>
+
             <div class="navbar" id="navbar">
                 <a class="nav-item" href="{{  url_for('dashboard_managed')}}">dashboard jobs</a>
 
-                <a class="nav-item" href="{{  url_for('dashboard_freeruns')}}">dashboard
-                    freeruns</a>
+                <a class="nav-item" href="{{  url_for('dashboard_freeruns')}}">dashboard freeruns</a>
+
                 {%- for mx_rule, mx_page_name in mx_processing_context.items() %}
                 <a class="nav-item" href="{{ '/' + mx_rule + '/' }}">{{ mx_page_name }}</a>
-
                 {%- endfor -%}
-                <a class="nav-item" href="{{  url_for('scheduler_managed_entries')}}">scheduler
-                    managed entries</a>
-                <a class="nav-item" href="{{  url_for('scheduler_freerun_entries')}}">scheduler
-                    freerun entries</a>
-                <a class="nav-item" href="{{  url_for('supervisor_entries')}}">supervisor</a>
 
+                <a class="nav-item" href="{{  url_for('scheduler_managed_entries')}}">scheduler managed entries</a>
+
+                <a class="nav-item" href="{{  url_for('scheduler_freerun_entries')}}">scheduler freerun entries</a>
+
+                <a class="nav-item" href="{{  url_for('supervisor_entries')}}">supervisor</a>
             </div>
         </div>
 
@@ -128,7 +88,5 @@
                 }
             }
         </script>
-
     </body>
-
 </html>
