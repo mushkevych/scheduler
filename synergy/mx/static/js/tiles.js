@@ -1,8 +1,5 @@
 /*! Tiles.js | http://thinkpixellab.com/tilesjs | 2013-05-18 */
 
-
-// FIXME: where is the resizing happening???
-
 // single namespace export
 var Tiles = {};
 
@@ -366,7 +363,7 @@ Tiles.UniformTemplates = {
         this.animationDuration = 500;
 
         // min width and height of a cell in the grid
-        this.cellSizeMin = 150;
+        this.cellSizeMin = 100;
 
         // the default set of factories used when creating templates
         this.templateFactory = Tiles.UniformTemplates;

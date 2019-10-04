@@ -17,22 +17,26 @@
 
 .grid-row-tree_site
   grid-template-columns min-content repeat(4, auto)
+  grid-template-rows min-content auto
 
 .grid-row-tree_client
-  grid-template-columns max-content repeat(3, auto)
+  grid-template-columns min-content repeat(3, auto)
+  grid-template-rows min-content auto
 
 .grid-row-tree_flow
   grid-template-columns min-content auto
+  grid-template-rows min-content auto
 
 .grid-row-tree_alert
   grid-template-columns min-content auto
+  grid-template-rows min-content auto
 
 .grid-header
   background-color $color-1
 
-.grid-header
-.grid-info
-  height 100%
+// .grid-header
+// .grid-info
+//   height 100%
 
 .grid-header > div
 .grid-info > div
@@ -85,6 +89,13 @@
 .btn-center
   text-align center !important
 
+.btn-container
+  max-width 100%
+  display grid
+  justify-content left
+  align-content space-between
+  grid-template-columns auto auto
+
 .flex-buttons
   width 100%
   display flex
@@ -93,7 +104,7 @@
   align-items flex-start
 
 .action_button
-  font-size 0.8rem
+  font-size $btn-font-size
   display inline-block
   min-width 86px
   padding 0px 6px
@@ -104,6 +115,7 @@
 
   i
     padding 0
+    font-size $btn-font-size
 
   &:hover
     border-color $color-6
@@ -157,6 +169,7 @@
 ul
   &.process-info
     margin-bottom 0
+    margin-right 1rem
 
     li
       margin-bottom 4px
@@ -233,6 +246,9 @@ div
 
 // HACK: shrink the buttons to icons for smaller screens
 @media (max-width:1290px)
+  .btn-container
+    grid-template-columns repeat(3, auto)
+    justify-content left
   .grid-row
     div
       .action_button
@@ -245,8 +261,12 @@ div
         border-color $color-5
         text-transform uppercase
         opacity 0.75
+        i
+          font-size: $btn-font-size-icons
         span
           display none
       &.tree_header_tile
         .action_button
           font-size $btn-font-size
+          span
+            display inline
