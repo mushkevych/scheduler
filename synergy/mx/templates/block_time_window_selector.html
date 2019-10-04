@@ -65,9 +65,9 @@
 <script type="text/javascript">
     $(function () {
         loadDataset('#form_time_window', 'form_initial_load', {{ sorted_columns| safe }});
-        $('#table-search').on('keyup change clear', function () {
-            $('.synergy-datatable').DataTable().search(this.value).draw()
-        })
+    $('#table-search').on('keyup change clear', function () {
+        $('.synergy-datatable').DataTable().search(this.value).draw()
+    })
     });
 
 </script>
