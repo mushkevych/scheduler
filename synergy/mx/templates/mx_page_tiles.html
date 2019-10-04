@@ -29,8 +29,6 @@
 
 <script type="text/javascript">
     var mx_trees = {{ details.mx_page_trees(active_mx_page[ 0 ]) | jsonify | safe }}
-    let treeSite = mx_trees.tree_site
-    let treeClient = mx_trees.tree_client
 </script>
 <script type="text/javascript" src="{{ url_for('static', file='js/tiles.js') }}"></script>
 <script type="text/javascript" src="{{ url_for('static', file='js/mx_page.js') }}"></script>

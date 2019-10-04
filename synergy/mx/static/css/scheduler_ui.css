@@ -10,6 +10,7 @@ html {
   -moz-box-sizing: border-box;
   box-sizing: border-box;
 }
+
 *, *:before, *:after {
   -webkit-box-sizing: inherit;
   -moz-box-sizing: inherit;
@@ -131,52 +132,6 @@ a.nav-item.active {
 
 .nav-item:last-of-type {
 	border: none;
-}
-
-/*
- * Table that host data rows on all pages
- */
-.one-column-emphasis {
-}
-
-
-
-.one-column-emphasis th {
-
-}
-
-.one-column-emphasis td {
-	/* padding: 10px 15px; */
-	color: #669;
-	border-top: 1px solid #e8edff;
-}
-
-.one-column-emphasis tr:hover td {
-	/* color: #339; */
-	background: #eff2ff;
-}
-
-.one-column-emphasis-first {
-	background: #d0dafd;
-}
-
-/*
- * Table that holds list of tabs on top of the page
- */
-/* .header-table {
-	width: 100%;
-	min-width: 1200px;
-	table-layout: fixed;
-	text-align: left;
-	border-collapse: collapse;
-	color: #ffffff;
-	background: #333333;
-}
-
-.header-table th {
-	font-size: 20px;
-	font-weight: bold;
-	padding: 12px 15px;
 }
 
 .header-table td {

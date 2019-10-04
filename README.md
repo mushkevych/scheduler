@@ -2,7 +2,7 @@ Synergy Scheduler
 =========
 
 [![PyPI version](https://img.shields.io/pypi/v/synergy_scheduler.svg)](https://pypi.python.org/pypi/synergy_scheduler)
-[![Build Status](https://travis-ci.org/mushkevych/scheduler.svg?branch=master)](https://travis-ci.org/mushkevych/scheduler)
+[![Build Status](https://img.shields.io/bitbucket/pipelines/mushkevych/scheduler/2.1.svg)](https://bitbucket.org/mushkevych/scheduler/addon/pipelines/home)
 
 Synergy Scheduler is a production-grade Job Scheduling System. It breaks time into intervals, 
 associates every interval with a job and makes sure that no job is missed and that each job is completed in the right order.  
@@ -65,5 +65,5 @@ Wiki Links
 Os-Level Dependencies
 ---------
 1. linux/unix  
-1. python 2.7+ / 3.4+
+1. python 3.7+
 1. mongo db, rabbit mq

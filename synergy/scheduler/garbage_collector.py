@@ -83,14 +83,12 @@ class GarbageCollector(object):
             except Exception as e:
                 self.logger.error(f'flow exception: {e}', exc_info=True)
 
-    def _flush_queue(self, q, ignore_priority=False):
+    def _flush_queue(self, q: PriorityQueue, ignore_priority=False):
         """
         :param q: PriorityQueue instance holding GarbageCollector entries
         :param ignore_priority: If True - all GarbageCollector entries should be resubmitted
                 If False - only those entries whose waiting time has expired will be resubmitted
         """
-        assert isinstance(q, PriorityQueue)
-
         current_timestamp = compute_release_time(lag_in_minutes=0)
         for _ in range(len(q)):
             entry = q.pop()

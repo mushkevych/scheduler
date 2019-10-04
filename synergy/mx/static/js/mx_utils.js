@@ -21,14 +21,14 @@ function debounce(func, wait, immediate) {
  * original source: http://joncom.be/code/realtypeof/
  */
 function realTypeOf(v) {
-  if (typeof(v) == "object") {
-    if (v === null) return "null";
-    if (v.constructor == (new Array).constructor) return "array";
-    if (v.constructor == (new Date).constructor) return "date";
-    if (v.constructor == (new RegExp).constructor) return "regex";
-    return "object";
-  }
-  return typeof(v);
+    if (typeof (v) == "object") {
+        if (v === null) return "null";
+        if (v.constructor == (new Array).constructor) return "array";
+        if (v.constructor == (new Date).constructor) return "date";
+        if (v.constructor == (new RegExp).constructor) return "regex";
+        return "object";
+    }
+    return typeof (v);
 }
 
 /**
@@ -51,7 +51,7 @@ function formatJSON(oData, sIndent) {
         sHTML = "[";
     } else {
         iCount = 0;
-        $.each(oData, function() {
+        $.each(oData, function () {
             iCount++;
         });
         if (iCount == 0) { // object is empty
@@ -62,7 +62,7 @@ function formatJSON(oData, sIndent) {
 
     // loop through items
     iCount = 0;
-    $.each(oData, function(sKey, vValue) {
+    $.each(oData, function (sKey, vValue) {
         if (iCount > 0) {
             sHTML += ",";
         }
@@ -89,7 +89,7 @@ function formatJSON(oData, sIndent) {
                 sHTML += ("\"" + vValue + "\"");
                 break;
             default:
-                sHTML += ("TYPEOF: " + typeof(vValue));
+                sHTML += ("TYPEOF: " + typeof (vValue));
         }
 
         // loop
@@ -148,7 +148,8 @@ function loadDataset(form_name, flag_name, table_sorting) {
     }
 
     // convert HTML table into JS dataTable
-    $('.synergy-datatable').dataTable({"bPaginate": true,
+    $('.synergy-datatable').dataTable({
+        "bPaginate": true,
         "bSort": true,
         "iDisplayLength": 36,
         "bLengthChange": false,
@@ -172,5 +173,7 @@ function range(start, end) {
 }
 
 function refreshWithDelay() {
-    setTimeout(function() { window.location.reload(); }, 250);
+    setTimeout(function () {
+        window.location.reload();
+    }, 250);
 }

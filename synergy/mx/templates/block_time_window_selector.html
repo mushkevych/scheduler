@@ -15,16 +15,8 @@
             <label for="filter">filter</label>
             <input type="search" id="table-search" />
         </div>
+
         <div class="time-window">
-
-            <!-- <label><input type="radio" name="time_window" id="days_1" value="1" {{ days_1_checked }} /><span class="label-body">today</span></label>
-            <label><input type="radio" name="time_window" id="days_7" value="7" {{ days_7_checked }} />
-                <span class="label-body">last 7 days</span>
-            </label>
-            <label><input type="radio" name="time_window" id="days_30" value="30" {{ days_30_checked }} />
-                <span class="label-body">last 30 days</span>
-            </label> -->
-
             <label for="time_window">time window</label>
             <select name="time_window" id="time_window">
                 <option value="1">today</option>
@@ -32,6 +24,7 @@
                 <option value="30">last 30 days</option>
             </select>
         </div>
+
         <div class="include">
             <label for="include">show</label>
             <div id="include" class="inline">
@@ -56,6 +49,7 @@
                 </label>
             </div>
         </div>
+
         <div class="refresh-button">
             <button type="submit" class="action_button btn-center" title="Refresh"><i class="fa fa-refresh"></i>
                 <span>Refresh</span></button>
@@ -69,7 +63,7 @@
 {%- endfor %}
 
 <script type="text/javascript">
-    $(function () {  // former $(document).ready(function () {...})
+    $(function () {
         loadDataset('#form_time_window', 'form_initial_load', {{ sorted_columns| safe }});
     $('#table-search').on('keyup change clear', function () {
         $('.synergy-datatable').DataTable().search(this.value).draw()
