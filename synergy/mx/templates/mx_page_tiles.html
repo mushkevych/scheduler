@@ -10,7 +10,6 @@
     {% set mx_trees = details.mx_page_trees(active_mx_page[0]) %}
     <!-- NOTE: data is requested from mx/views.py -->
     {%- for tree_name, tree_obj in mx_trees.items() %}
-    <h5>{{tree_name}}</h5>
     <div class="grid-row grid-row-{{ tree_name }}">
         <div id="grid-header-{{ tree_name }}" class="grid-header"></div>
         {% for process_name in tree_obj.sorted_process_names %}
@@ -28,7 +27,7 @@
 {{ context_menu.job_menu() }}
 
 <script type="text/javascript">
-    var mx_trees = {{ details.mx_page_trees(active_mx_page[0]) | jsonify | safe }};
+    var mx_trees = {{ details.mx_page_trees(active_mx_page[ 0 ]) | jsonify | safe }}
 </script>
 <script type="text/javascript" src="{{ url_for('static', file='js/tiles.js') }}"></script>
 <script type="text/javascript" src="{{ url_for('static', file='js/mx_page.js') }}"></script>

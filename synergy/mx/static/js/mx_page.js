@@ -5,7 +5,7 @@ var GRIDS = {}
 var GRID_HEADER_TEMPLATE = gridInfoTemplate(1)
 
 function parseDateString (t) {
-	return t.slice(0,4) + '-' + t.slice(4,6) + '-' + t.slice(6,8) + ':' + t.slice(8)
+	return t.slice(0, 4) + '-' + t.slice(4, 6) + '-' + t.slice(6, 8) + ':' + t.slice(8)
 }
 
 /**
@@ -46,7 +46,9 @@ function getGrid (grid_name) {
 
 function headerTreeTile (mx_tree, tile) {
 	var refresh_button = $(`<button class="action_button auto-width" id="refresh_button_${mx_tree.tree_name}">
-			<i class="fa fa-refresh"></i>&nbsp;Refresh</button>`).click(function (e) {
+			<i class="fa fa-refresh"></i><span>
+				Refresh
+			</span></button>`).click(function (e) {
 		clearTree(mx_tree.tree_name)
 		mx_trees[mx_tree.tree_name] = getTree(mx_tree.tree_name)
 		buildTree(mx_tree.tree_name)
@@ -62,6 +64,7 @@ function headerTreeTile (mx_tree, tile) {
 	tile.$el.attr('class', 'tree_header_tile')
 }
 
+// FIXME: where does xmlhttp.send() come from?
 function headerProcessTile (process_entry, tile) {
 	var flush_one_form = `
         <form class="process-form inline" method="GET" action="/gc/flush/one/" onsubmit="xmlhttp.send(); return false;">
@@ -80,13 +83,11 @@ function headerProcessTile (process_entry, tile) {
 				</div>`
 
 	var trigger_form =
-		'<form class="process-form inline" method="POST" action="/managed/entry/trigger/" onsubmit="xmlhttp.send(); return false;">' +
-		'<input type="hidden" name="process_name" value="' +
-		process_entry.process_name +
-		'" />' +
-		'<input type="hidden" name="timeperiod" value="NA" />' +
-		`<button class="inline fa" type="submit" value="&#f135" alt="trigger_${process_entry.process_name}"><i class="fa fa-bolt"></i></button>` +
-		'</form>'
+		`<form class="process-form inline" method="POST" action="/managed/entry/trigger/" onsubmit="xmlhttp.send(); return false;">
+			<input type="hidden" name="process_name" value="${process_entry.process_name}" />
+			<input type="hidden" name="timeperiod" value="NA" />
+			<button class="inline fa" type="submit" value="&#f135" alt="trigger_${process_entry.process_name}"><i class="fa fa-bolt"></i></button>
+		</form>`
 
 	var next_run_block = `<div class="table_layout">
             <div class="inline table_layout_element">
@@ -284,6 +285,7 @@ function infoJobTile (job_entry, tile, is_next_timeperiod, is_selected_timeperio
 			process_name: job_entry.process_name,
 			unit_of_work_type: 'type_managed'
 		}
+		// FIXME: the window that is opened has a dependency for /static/jquery-3.1.1.min.js
 		var viewer_url = '/viewer/flow/?' + $.param(params)
 		window.open(
 			viewer_url,
@@ -335,9 +337,7 @@ function infoJobTile (job_entry, tile, is_next_timeperiod, is_selected_timeperio
 	// ${flow_button}
 	// </div>`)
 	// 	)
-	tile.$el.append($('<div></div>').append(uow_button).append(skip_button))
-	tile.$el.append($('<div></div>').append(uow_log_button).append(reprocess_button))
-	tile.$el.append($('<div></div>').append(event_log_button).append(flow_button))
+	tile.$el.append($('<div class="btn-container"></div>').append(uow_button).append(skip_button).append(uow_log_button).append(reprocess_button).append(event_log_button).append(flow_button))
 }
 
 function buildHeaderGrid (grid_name, grid_template, builder_function, info_obj) {
