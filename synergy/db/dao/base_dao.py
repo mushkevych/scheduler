@@ -3,7 +3,6 @@ __author__ = 'Bohdan Mushkevych'
 from threading import RLock
 
 from bson import ObjectId
-from six import string_types
 
 from synergy.db.manager import ds_manager
 from synergy.system.decorator import thread_safe
@@ -11,7 +10,7 @@ from synergy.system.decorator import thread_safe
 
 def build_db_query(fields_names, field_values):
     """ method builds query dictionary by zipping together DB field names with the field values """
-    if isinstance(field_values, string_types):
+    if not isinstance(field_values, list):
         field_values = [field_values]
 
     if len(fields_names) != len(field_values):

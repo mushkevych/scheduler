@@ -26,12 +26,12 @@ setup(name='synergy_scheduler',
           'Intended Audience :: System Administrators',
           'License :: OSI Approved :: BSD License',
           'Operating System :: POSIX',
-          'Programming Language :: Python :: 3.6',
           'Programming Language :: Python :: 3.7',
+          'Programming Language :: Python :: 3.8',
           'Programming Language :: JavaScript',
           'Topic :: Office/Business :: Scheduling',
           'Topic :: Utilities',
       ],
-      requires=['werkzeug', 'jinja2', 'amqp', 'pymongo', 'psutil', 'setproctitle', 'synergy_odm', 'mock',
-                'xmlrunner', 'pylint', 'six', 'synergy_flow']
+      requires=['werkzeug', 'jinja2', 'amqp', 'pymongo', 'psutil', 'setproctitle', 'synergy_odm', 'synergy_flow',
+                'mock', 'xmlrunner', 'pylint']
       )

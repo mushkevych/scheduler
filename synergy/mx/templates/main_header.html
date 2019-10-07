@@ -15,7 +15,7 @@
 
         <!-- NOTE: adding scripts to end breaks for some reason -->
         <script type="text/javascript" src="{{ url_for('static', file='js/jquery-3.4.1.min.js') }}"></script>
-        <script type="text/javascript" src="{{ url_for('static', file='js/jquery.datatables-1.10.20.min.js') }}"></script>
+        <script type="text/javascript" src="{{ url_for('static', file='js/jquery.dataTables-1.10.20.min.js') }}"></script>
         <script type="text/javascript" src="{{ url_for('static', file='js/alertify-0.3.17.trunk.js') }}"></script>
         <script type="text/javascript" src="{{ url_for('static', file='js/mx_utils.js') }}"></script>
 
@@ -42,9 +42,9 @@
             </div>
 
             <div class="navbar" id="navbar">
-                <a class="nav-item" href="{{  url_for('dashboard_managed')}}">dashboard jobs</a>
+                <a class="nav-item" href="{{ url_for('dashboard_managed') }}">dashboard jobs</a>
 
-                <a class="nav-item" href="{{  url_for('dashboard_freeruns')}}">dashboard freeruns</a>
+                <a class="nav-item" href="{{ url_for('dashboard_freeruns') }}">dashboard freeruns</a>
 
                 {%- for mx_rule, mx_page_name in mx_processing_context.items() %}
                 <a class="nav-item" href="{{ '/' + mx_rule + '/' }}">{{ mx_page_name }}</a>
@@ -75,15 +75,15 @@
         <script type="text/javascript">
             // remove query parameters etc.
             function stripUrl(url) {
-                return url.split(/[?#]/)[ 0 ]
+                return url.split(/[?#]/)[ 0 ];
             }
 
-            let nav = document.getElementById('navbar')
-            let items = nav.getElementsByClassName('nav-item')
+            let nav = document.getElementById('navbar');
+            let items = nav.getElementsByClassName('nav-item');
             for (let i = 0; i < items.length; i++) {
-                let url = stripUrl(items[ i ].href)
+                let url = stripUrl(items[ i ].href);
                 if (url === stripUrl(window.location.href)) {
-                    items[ i ].className += " active"
+                    items[ i ].className += " active";
                 }
             }
         </script>
