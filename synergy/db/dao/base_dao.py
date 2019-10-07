@@ -10,7 +10,7 @@ from synergy.system.decorator import thread_safe
 
 def build_db_query(fields_names, field_values):
     """ method builds query dictionary by zipping together DB field names with the field values """
-    if not isinstance(field_values, list):
+    if not isinstance(field_values, (list, tuple)):
         field_values = [field_values]
 
     if len(fields_names) != len(field_values):
