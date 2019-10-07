@@ -5,8 +5,6 @@ import sys
 import gzip
 import hashlib
 
-from six import string_types
-
 from synergy.conf import settings
 from synergy.conf import context
 
@@ -45,7 +43,7 @@ def increment_family_property(key, family):
     if key is None:
         return
 
-    if not isinstance(key, string_types):
+    if not isinstance(key, str):
         key = str(key)
 
     if key in family:

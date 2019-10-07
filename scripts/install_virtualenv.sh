@@ -1,32 +1,5 @@
 #!/bin/bash
 
-# List of packages to install
-python2list=(
-    "linecache2-1.0.0.tar.gz"
-    "traceback2-1.4.0.tar.gz"
-    "six-1.12.0.tar.gz"
-    "virtualenv-15.1.0.tar.gz"
-    "setuptools-28.8.1.tar.gz"
-
-    "distribute-0.7.3.zip"
-    "unittest2-1.1.0.tar.gz"
-    "pbr-3.1.1.tar.gz"
-
-    # mock section
-    "funcsigs-1.0.2.tar.gz"
-    "mock-2.0.0.tar.gz"
-
-    # seems to be replaced by the Python3 libs
-    "pyrepl-0.8.4.tar.gz"
-    "fancycompleter-0.8.tar.gz"
-    "wmctrl-0.3.tar.gz"
-    "pdbpp-0.9.2.tar.gz"
-    "docutils-0.14.tar.gz"
-    "pysmell-0.7.3.zip"
-
-    "nose-1.3.7.tar.gz"
-)
-
 python3list=(
     "six-1.12.0.tar.gz"
 )
@@ -36,6 +9,7 @@ commonlist=(
     "ordereddict-1.1.tar.gz"
 
     # ipython
+    "more-itertools-7.2.0.tar.gz"
     "path.py-12.0.1.tar.gz"
     "ipython_genutils-0.1.0.tar.gz"
     "ptyprocess-0.6.0.tar.gz"
@@ -48,7 +22,7 @@ commonlist=(
     "backports.shutil_get_terminal_size-1.0.0.tar.gz"
     "wcwidth-0.1.7.tar.gz"
     "prompt_toolkit-1.0.7.tar.gz"
-    "Pygments-2.2.0.tar.gz"
+    "Pygments-2.4.2.tar.gz"
     "ipython-7.6.1.tar.gz"
 
     # pylint section start
@@ -67,10 +41,9 @@ commonlist=(
     "psutil-5.6.3.tar.gz"
 
     # Amqp
-    "vine-1.1.4.tar.gz"
+    "vine-1.3.0.tar.gz"
     "amqp-2.5.0.tar.gz"
 
-    "splunk-sdk-python-1.6.6.zip"
     "pymongo-3.8.0.tar.gz"
     "MarkupSafe-1.1.1.tar.gz"
     "Jinja2-2.10.1.tar.gz"
@@ -95,19 +68,17 @@ if [[ -z "$3" ]]; then
 fi
 
 if [[ $3 == 2* ]]; then
-    easy_install_bin="easy_install-$3"
-    packagelist=("${python2list[@]}" "${commonlist[@]}")
+    echo "Python version $3 is no longer supported"
+    exit 1
 elif [[ $3 == 3* ]]; then
-    export PYTHONPATH="$2/lib/python$3/site-packages/"
-    easy_install_bin="easy_install-$3 --prefix=$2"
+    pip_bin="pip3 install --prefix=$2"
     packagelist=("${python3list[@]}" "${commonlist[@]}")
 else
     echo "Python version $3 is not yet supported"
     exit 1
 fi
 
-echo "DEBUG: PYTHONPATH=${PYTHONPATH}"
-echo "DEBUG: easy_install_bin=${easy_install_bin}"
+echo "DEBUG: pip_bin=${pip_bin}"
 
 # ccache speeds up recompilation by caching previous compilations
 which ccache > /dev/null 2>&1
@@ -125,9 +96,6 @@ fi
 
 . $2/bin/activate
 
-vendor=$1/vendors
-cd ${vendor}
-
 for package in "${packagelist[@]}"; do   # The quotes are necessary here
-    ${easy_install_bin} ${vendor}/${package}
+    ${pip_bin} $1/vendors/${package}
 done

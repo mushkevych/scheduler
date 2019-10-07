@@ -10,7 +10,6 @@ import copy
 import importlib
 import operator
 import os
-import six
 
 from synergy.conf import global_context, global_settings
 
@@ -82,14 +81,9 @@ class LazyObject(object):
             return result
         return copy.deepcopy(self._wrapped, memo)
 
-    if six.PY3:
-        __bytes__ = new_method_proxy(bytes)
-        __str__ = new_method_proxy(str)
-        __bool__ = new_method_proxy(bool)
-    else:
-        __str__ = new_method_proxy(str)
-        __unicode__ = new_method_proxy(unicode)  # NOQA: unicode undefined on PY3
-        __nonzero__ = new_method_proxy(bool)
+    __bytes__ = new_method_proxy(bytes)
+    __str__ = new_method_proxy(str)
+    __bool__ = new_method_proxy(bool)
 
     # Introspection support
     __dir__ = new_method_proxy(dir)

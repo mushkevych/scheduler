@@ -139,7 +139,7 @@ def install_virtualenv_p2(root, python_version):
 def install_virtualenv_p3(root, python_version):
     """ Install virtual environment for Python 3.3+; removing the old one if it exists """
     import venv
-    builder = venv.EnvBuilder(system_site_packages=False, clear=True, symlinks=False, upgrade=False)
+    builder = venv.EnvBuilder(system_site_packages=False, clear=True, symlinks=False, upgrade=False, with_pip=True)
     builder.create(root)
     ret_code = subprocess.call([VE_SCRIPT, PROJECT_ROOT, root, python_version])
     sys.exit(ret_code)

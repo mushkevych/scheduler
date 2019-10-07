@@ -1,6 +1,5 @@
 __author__ = 'Bohdan Mushkevych'
 
-from six import string_types
 from datetime import datetime, timedelta
 
 from synergy.system.repeat_timer import RepeatTimer
@@ -112,7 +111,7 @@ class EventClock(object):
 
     def change_interval(self, value):
         """ :param value: list of strings in format 'Day_of_Week-HH:MM' """
-        assert not isinstance(value, string_types)
+        assert not isinstance(value, str)
         self.timestamps = []
 
         for timestamp in value:
