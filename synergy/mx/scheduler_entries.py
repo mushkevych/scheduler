@@ -2,9 +2,12 @@ __author__ = 'Bohdan Mushkevych'
 
 from werkzeug.utils import cached_property
 
+from synergy.scheduler.scheduler_constants import PROCESS_SCHEDULER, PROCESS_MX
 from synergy.mx.base_request_handler import BaseRequestHandler
 from synergy.mx.rest_model_factory import create_rest_managed_scheduler_entry, create_rest_freerun_scheduler_entry
 from synergy.system.performance_tracker import FootprintCalculator
+from synergy.system.system_logger import get_log_filename
+from synergy.system.utils import tail_file
 
 
 # Scheduler Entries Details tab
@@ -54,3 +57,11 @@ class SchedulerEntries(BaseRequestHandler):
     @cached_property
     def reprocess_uows(self):
         return self.scheduler.gc.reprocess_uows
+
+    def tail_scheduler_log(self):
+        fqfn = get_log_filename(PROCESS_SCHEDULER)
+        return tail_file(fqfn)
+
+    def tail_mx_log(self):
+        fqfn = get_log_filename(PROCESS_MX)
+        return tail_file(fqfn)
