@@ -4,10 +4,10 @@
  * original source: underscorejs.org
  */
 function debounce(func, wait, immediate) {
-    var timeout;
+    let timeout;
     return function () {
-        var context = this, args = arguments;
-        var later = function () {
+        const context = this, args = arguments;
+        const later = function () {
             timeout = null;
             if (!immediate) func.apply(context, args);
         };
@@ -23,9 +23,9 @@ function debounce(func, wait, immediate) {
 function realTypeOf(v) {
     if (typeof (v) == "object") {
         if (v === null) return "null";
-        if (v.constructor == (new Array).constructor) return "array";
-        if (v.constructor == (new Date).constructor) return "date";
-        if (v.constructor == (new RegExp).constructor) return "regex";
+        if (v.constructor === (new Array).constructor) return "array";
+        if (v.constructor === (new Date).constructor) return "date";
+        if (v.constructor === (new RegExp).constructor) return "regex";
         return "object";
     }
     return typeof (v);
@@ -38,14 +38,14 @@ function formatJSON(oData, sIndent) {
     if (arguments.length < 2) {
         sIndent = "";
     }
-    var sIndentStyle = "    ";
-    var sDataType = realTypeOf(oData);
-    var iCount = 0;
-    var sHTML;
+    const sIndentStyle = "    ";
+    const sDataType = realTypeOf(oData);
+    let iCount = 0;
+    let sHTML;
 
     // open object
-    if (sDataType == "array") {
-        if (oData.length == 0) {
+    if (sDataType === "array") {
+        if (oData.length === 0) {
             return "[]";
         }
         sHTML = "[";
@@ -54,7 +54,7 @@ function formatJSON(oData, sIndent) {
         $.each(oData, function () {
             iCount++;
         });
-        if (iCount == 0) { // object is empty
+        if (iCount === 0) { // object is empty
             return "{}";
         }
         sHTML = "{";
@@ -66,7 +66,7 @@ function formatJSON(oData, sIndent) {
         if (iCount > 0) {
             sHTML += ",";
         }
-        if (sDataType == "array") {
+        if (sDataType === "array") {
             sHTML += ("\n" + sIndent + sIndentStyle);
         } else {
             sHTML += ("\n" + sIndent + sIndentStyle + "\"" + sKey + "\"" + ": ");
@@ -97,7 +97,7 @@ function formatJSON(oData, sIndent) {
     });
 
     // close object
-    if (sDataType == "array") {
+    if (sDataType === "array") {
         sHTML += ("\n" + sIndent + "]");
     } else {
         sHTML += ("\n" + sIndent + "}");
@@ -108,8 +108,8 @@ function formatJSON(oData, sIndent) {
 
 
 function keysToList(dictionary, sorted) {
-    var keys = [];
-    for (var key in dictionary) {
+    const keys = [];
+    for (let key in dictionary) {
         if (dictionary.hasOwnProperty(key)) {
             keys.push(key);
         }
@@ -124,11 +124,11 @@ function keysToList(dictionary, sorted) {
 
 
 function getUrlParameter(sParam) {
-    var sPageURL = window.location.search.substring(1);
-    var sURLVariables = sPageURL.split('&');
-    for (var i = 0; i < sURLVariables.length; i++) {
-        var sParameterName = sURLVariables[i].split('=');
-        if (sParameterName[0] == sParam) {
+    const sPageURL = window.location.search.substring(1);
+    const sURLVariables = sPageURL.split('&');
+    for (let i = 0; i < sURLVariables.length; i++) {
+        const sParameterName = sURLVariables[i].split('=');
+        if (sParameterName[0] === sParam) {
             return sParameterName[1];
         }
     }
@@ -141,7 +141,7 @@ function getUrlParameter(sParam) {
  * and converts all tables with style *synergy-datatable* to JS DataTable
  */
 function loadDataset(form_name, flag_name, table_sorting) {
-    if ($(form_name).data(flag_name) == false) {
+    if ($(form_name).data(flag_name) === false) {
         $(function () {  // former $(document).ready(function () {...})
             $(form_name).submit();
         });
@@ -165,8 +165,8 @@ function loadDataset(form_name, flag_name, table_sorting) {
  * @returns {Array}
  */
 function range(start, end) {
-    var myArray = [];
-    for (var i = start; i <= end; i += 1) {
+    const myArray = [];
+    for (let i = start; i <= end; i += 1) {
         myArray.push(i);
     }
     return myArray;

@@ -25,8 +25,8 @@
 
             <script type="text/javascript">
                 $(function () {  // former $(document).ready(function () {...})
-                    var action = getUrlParameter('action');
-                    var url = '/' + action + '/?' + window.location.search.substring(1);
+                    let action = getUrlParameter('action');
+                    let url = '/' + action + '/?' + window.location.search.substring(1);
 
                     $.get(url, function (data) {
                         $("#json").text(formatJSON(data));
