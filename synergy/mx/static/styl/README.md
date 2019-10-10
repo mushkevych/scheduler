@@ -18,24 +18,24 @@ To compile the Stylus files as CSS to `./synergy/mx/static/css/`:
 ### Using `stylus.sh` script
 
 * To compile CSS:
-    From the project root directory, run
+    From the the `styl` directory, run
     ```bash
     ./stylus.sh
     ```
 * To compile CSS **and watch for changes**:
-    From the project root directory, run
+    From the `styl` directory, run
     ```bash
     ./stylus-watch.sh
     ```
 
 ### Manually
 * To compile CSS:
-    From the project root directory, run
+    From the **project root directory**, run
     ```bash
     stylus -w ./synergy/mx/static/styl/index.styl -o ./synergy/mx/static/css/index.css
     ```
 * To compile CSS **and watch for changes**:
-    From the project root directory, run
+    From the **project root directory**, run
     ```bash
     stylus ./synergy/mx/static/styl/index.styl -o ./synergy/mx/static/css/index.css
     ```

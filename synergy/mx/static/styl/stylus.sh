@@ -4,5 +4,5 @@ then
     echo "Please install it via npm"
     echo "\t npm install -g stylus"
 else
-	stylus -w ./synergy/mx/static/styl/index.styl -o ./synergy/mx/static/css/index.css	
+	stylus ./index.styl -o ../css/index.css
 fi
