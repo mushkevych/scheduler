@@ -4,6 +4,7 @@ import os
 import sys
 import gzip
 import hashlib
+from collections import deque
 
 from synergy.conf import settings
 from synergy.conf import context
@@ -28,10 +29,10 @@ def unicode_truncate(s, length, encoding='utf-8'):
     return encoded.decode(encoding, errors='ignore')
 
 
-def compute_gzip_md5(file_name):
+def compute_gzip_md5(fqfn):
     """ method traverses compressed file and calculates its MD5 checksum """
     md5 = hashlib.md5()
-    file_obj = gzip.open(file_name, 'rb')
+    file_obj = gzip.open(fqfn, 'rb')
     for chunk in iter(lambda: file_obj.read(8192), ''):
         md5.update(chunk)
 
@@ -105,3 +106,9 @@ def remove_pid_file(process_name):
         print(f'Removed pid file at: {pid_filename}', file=sys.stdout)
     except Exception as e:
         print(f'Unable to remove pid file at: {pid_filename}, because of: {e}', file=sys.stderr)
+
+
+def tail_file(fqfn, num_lines=128):
+    with open(fqfn) as log_file:
+        dq = deque(log_file, maxlen=num_lines)
+        return [l.replace('\n', '') for l in dq]

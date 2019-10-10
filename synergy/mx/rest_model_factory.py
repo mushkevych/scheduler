@@ -69,7 +69,6 @@ def create_rest_freerun_scheduler_entry(thread_handler):
     return rest_model
 
 
-# TODO: change sorted_process_names to ordered_process_names
 def create_rest_timetable_tree(timetable, tree_obj):
     rest_tree = RestTimetableTree(tree_name=tree_obj.tree_name,
                                   mx_page=tree_obj.mx_page,

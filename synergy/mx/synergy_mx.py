@@ -100,6 +100,7 @@ class MX(object):
 
     def stop(self):
         """ method stops currently running HTTP server, if any
+            :see: `werkzeug.serving.make_environ`
             http://flask.pocoo.org/snippets/67/ """
         func = jinja_env.get('werkzeug.server.shutdown')
         if func is None:

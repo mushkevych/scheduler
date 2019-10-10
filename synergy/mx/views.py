@@ -116,24 +116,28 @@ def freerun_cancel_uow(request, **values):
     return Response(status=NO_CONTENT)
 
 
+# TODO change to /managed/event/log/
 @expose('/managed/log/event/')
 def managed_event_log(request, **values):
     handler = ManagedActionHandler(request, **values)
     return Response(response=json.dumps(handler.get_event_log()), mimetype='application/json')
 
 
+# TODO change to /freerun/event/log/
 @expose('/freerun/log/event/')
 def freerun_event_log(request, **values):
     handler = FreerunActionHandler(request, **values)
     return Response(response=json.dumps(handler.get_event_log()), mimetype='application/json')
 
 
+# TODO change to /managed/uow/log/
 @expose('/managed/log/uow/')
 def managed_uow_log(request, **values):
     handler = ManagedActionHandler(request, **values)
     return Response(response=json.dumps(handler.get_uow_log()), mimetype='application/json')
 
 
+# TODO change to /freerun/uow/log/
 @expose('/freerun/log/uow/')
 def freerun_uow_log(request, **values):
     handler = FreerunActionHandler(request, **values)
@@ -215,6 +219,24 @@ def gc_refresh(request, **values):
     handler = GcActionHandler(request, **values)
     handler.refresh()
     return Response(status=NO_CONTENT)
+
+
+@expose('/system/gc/log/')
+def gc_log(request, **values):
+    handler = GcActionHandler(request, **values)
+    return Response(response=json.dumps(handler.tail_gc_log()), mimetype='application/json')
+
+
+@expose('/system/mx/log/')
+def mx_log(request, **values):
+    handler = SchedulerEntries(request, **values)
+    return Response(response=json.dumps(handler.tail_mx_log()), mimetype='application/json')
+
+
+@expose('/system/scheduler/log/')
+def scheduler_log(request, **values):
+    handler = SchedulerEntries(request, **values)
+    return Response(response=json.dumps(handler.tail_scheduler_log()), mimetype='application/json')
 
 
 @expose('/supervisor/entries/')

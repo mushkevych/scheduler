@@ -1,6 +1,9 @@
 __author__ = 'Bohdan Mushkevych'
 
+from synergy.system.utils import tail_file
+from synergy.system.system_logger import get_log_filename
 from synergy.mx.base_request_handler import BaseRequestHandler, valid_action_request
+from synergy.scheduler.scheduler_constants import PROCESS_GC
 
 
 class GcActionHandler(BaseRequestHandler):
@@ -30,3 +33,7 @@ class GcActionHandler(BaseRequestHandler):
         self.scheduler.gc.flush_one(process_name=self.process_name, ignore_priority=True)
         self.logger.info(f'MX: performed GC Flush for {self.process_name}')
         return self.reply_ok()
+
+    def tail_gc_log(self):
+        fqfn = get_log_filename(PROCESS_GC)
+        return tail_file(fqfn)

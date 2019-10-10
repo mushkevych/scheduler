@@ -128,7 +128,6 @@
         </tbody>
     </table>
 
-
     <table class="table-entries u-full-width">
         <thead>
             <tr class="table-entries-header">
@@ -154,6 +153,38 @@
             </tr>
 
         </tbody>
+    </table>
+
+    <table class="table-entries u-full-width">
+        <thead>
+        <tr class="table-entries-header">
+            <th scope="col" width="15%">Tail log</th>
+            <th scope="col">
+                <form class="table-form" method="GET" onsubmit="window.open('/viewer/object/?action=system/gc/log','GC Log',
+                        'toolbar=no,scrollbars=yes,resizable=yes,top=${window.innerHeight * 0.15},left=${window.innerWidth * 0.15},width=${window.innerWidth / 2},height=${window.innerHeight * 0.85}'); return false;">
+                    <button type="submit" class="action_button btn-center" title="GC"><i class="fa">&#xf0f6;</i>
+                        <span>GC</span>
+                    </button>
+                </form>
+            </th>
+            <th scope="col">
+                <form class="table-form" method="GET" onsubmit="window.open('/viewer/object/?action=system/mx/log','MX Log',
+                        'toolbar=no,scrollbars=yes,resizable=yes,top=${window.innerHeight * 0.15},left=${window.innerWidth * 0.15},width=${window.innerWidth / 2},height=${window.innerHeight * 0.85}'); return false;">
+                    <button type="submit" class="action_button btn-center" title="MX"><i class="fa">&#xf0f6;</i>
+                        <span>MX</span>
+                    </button>
+                </form>
+            </th>
+            <th scope="col">
+                <form class="table-form" method="GET" onsubmit="window.open('/viewer/object/?action=system/scheduler/log','Scheduler Log',
+                        'toolbar=no,scrollbars=yes,resizable=yes,top=${window.innerHeight * 0.15},left=${window.innerWidth * 0.15},width=${window.innerWidth / 2},height=${window.innerHeight * 0.85}'); return false;">
+                    <button type="submit" class="action_button btn-center" title="Scheduler"><i class="fa">&#xf0f6;</i>
+                        <span>Scheduler</span>
+                    </button>
+                </form>
+            </th>
+        </tr>
+        </thead>
     </table>
 
     {% import 'block_context_menu.html' as context_menu %}
