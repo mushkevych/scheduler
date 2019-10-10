@@ -99,6 +99,7 @@ function headerProcessTile (process_entry, tile) {
         </div>`;
 
 	let is_on;
+	// TODO: string interpolation
 	if (process_entry.is_on) {
 		is_on =
 			"<a onclick=\"processTrigger('managed/entry/deactivate', '" +

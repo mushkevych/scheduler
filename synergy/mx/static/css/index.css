@@ -378,25 +378,50 @@ a.nav-item.active {
   justify-content: left;
   margin: 1rem 0 3rem 0;
   padding: 1rem;
-  height: 90vh;
+  overflow-x: scroll;
+  overflow-y: hidden;
 }
 .grid-row .header {
   height: 100%;
 }
-.grid-row-tree_site {
-  grid-template-columns: repeat(5, min-content);
+.grid-columns-1 {
+  grid-template-columns: repeat(1, min-content);
   grid-template-rows: min-content auto;
 }
-.grid-row-tree_client {
+.grid-columns-2 {
+  grid-template-columns: repeat(2, min-content);
+  grid-template-rows: min-content auto;
+}
+.grid-columns-3 {
+  grid-template-columns: repeat(3, min-content);
+  grid-template-rows: min-content auto;
+}
+.grid-columns-4 {
   grid-template-columns: repeat(4, min-content);
   grid-template-rows: min-content auto;
 }
-.grid-row-tree_flow {
-  grid-template-columns: repeat(2, min-content);
+.grid-columns-5 {
+  grid-template-columns: repeat(5, min-content);
   grid-template-rows: min-content auto;
 }
-.grid-row-tree_alert {
-  grid-template-columns: repeat(2, min-content);
+.grid-columns-6 {
+  grid-template-columns: repeat(6, min-content);
+  grid-template-rows: min-content auto;
+}
+.grid-columns-7 {
+  grid-template-columns: repeat(7, min-content);
+  grid-template-rows: min-content auto;
+}
+.grid-columns-8 {
+  grid-template-columns: repeat(8, min-content);
+  grid-template-rows: min-content auto;
+}
+.grid-columns-9 {
+  grid-template-columns: repeat(9, min-content);
+  grid-template-rows: min-content auto;
+}
+.grid-columns-10 {
+  grid-template-columns: repeat(10, min-content);
   grid-template-rows: min-content auto;
 }
 .grid-header {
@@ -416,6 +441,9 @@ a.nav-item.active {
 }
 .grid-info >div:first-child {
   margin: 0;
+}
+.grid-info >div:last-child {
+  margin-bottom: 0;
 }
 .tile_component {
   width: 100%;
