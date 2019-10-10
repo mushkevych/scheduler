@@ -10,33 +10,21 @@
   justify-content left
   margin 1rem 0 3rem 0
   padding 1rem
-  height 90vh
+  overflow-x scroll
+  overflow-y hidden
 
   .header
     height 100%
 
-.grid-row-tree_site
-  grid-template-columns min-content repeat(4, auto)
-  grid-template-rows min-content auto
-
-.grid-row-tree_client
-  grid-template-columns min-content repeat(3, auto)
-  grid-template-rows min-content auto
-
-.grid-row-tree_flow
-  grid-template-columns min-content auto
-  grid-template-rows min-content auto
-
-.grid-row-tree_alert
-  grid-template-columns min-content auto
-  grid-template-rows min-content auto
+// grid column styles
+// generates up to 10 columns
+for i in 1..10
+  .grid-columns-{i}
+    grid-template-columns repeat(i, min-content)
+    grid-template-rows min-content auto
 
 .grid-header
   background-color $color-1
-
-// .grid-header
-// .grid-info
-//   height 100%
 
 .grid-header > div
 .grid-info > div
@@ -52,6 +40,8 @@
 
     &:first-child
       margin 0
+    &:last-child
+      margin-bottom 0
 
 .tile_component
   width: 100%

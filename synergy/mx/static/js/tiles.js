@@ -3,10 +3,8 @@
 // single namespace export
 var Tiles = {};
 
-(function($) {
-
-    var Tile = Tiles.Tile = function(tileId, element) {
-
+(function ($) {
+    var Tile = (Tiles.Tile = function (tileId, element) {
         this.id = tileId;
 
         // position and dimensions of tile inside the parent panel
@@ -17,37 +15,32 @@ var Tiles = {};
 
         // cache the tile container element
         this.$el = $(element || document.createElement('div'));
-    };
+    });
 
-    Tile.prototype.appendTo = function($parent, fadeIn, delay, duration) {
-        this.$el
-            .hide()
-            .appendTo($parent);
+    Tile.prototype.appendTo = function ($parent, fadeIn, delay, duration) {
+        this.$el.hide().appendTo($parent);
 
         if (fadeIn) {
             this.$el.delay(delay).fadeIn(duration);
-        }
-        else {
+        } else {
             this.$el.show();
         }
     };
 
-    Tile.prototype.remove = function(animate, duration) {
+    Tile.prototype.remove = function (animate, duration) {
         if (animate) {
             this.$el.fadeOut({
-                complete: function() {
+                complete: function () {
                     $(this).remove();
                 }
             });
-        }
-        else {
+        } else {
             this.$el.remove();
         }
     };
 
     // updates the tile layout with optional animation
-    Tile.prototype.resize = function(cellRect, pixelRect, animate, duration, onComplete) {
-
+    Tile.prototype.resize = function (cellRect, pixelRect, animate, duration, onComplete) {
         // store the list of needed changes
         var cssChanges = {},
             changed = false;
@@ -78,7 +71,7 @@ var Tiles = {};
         // in webkit. We'll validate upon completion of the animation and
         // set the properties again if they don't match the expected values.
         var tile = this,
-            validateChangesAndComplete = function() {
+            validateChangesAndComplete = function () {
                 // var el = tile.$el[0];
                 // if (tile.left !== el.offsetLeft) {
                 //     //console.log ('mismatch left:' + tile.left + ' actual:' + el.offsetLeft + ' id:' + tile.id);
@@ -93,7 +86,6 @@ var Tiles = {};
                     onComplete();
                 }
             };
-
 
         // make css changes with animation when requested
         // if (animate && changed) {
@@ -113,9 +105,7 @@ var Tiles = {};
         //     setTimeout(validateChangesAndComplete, duration);
         // }
     };
-
 })(jQuery);
-
 
 /*
     A grid template specifies the layout of variably sized tiles. A single
@@ -141,17 +131,19 @@ var Tiles = {};
     ];
 */
 
-(function($) {
-
+(function ($) {
     // remove whitespace and create 2d array
-    var parseCells = function(rows) {
+    var parseCells = function (rows) {
         var cells = [],
             numRows = rows.length,
-            x, y, row, rowLength, cell;
+            x,
+            y,
+            row,
+            rowLength,
+            cell;
 
         // parse each row
-        for(y = 0; y < numRows; y++) {
-
+        for (y = 0; y < numRows; y++) {
             row = rows[y];
             cells[y] = [];
 
@@ -169,25 +161,31 @@ var Tiles = {};
         return cells;
     };
 
-    function Rectangle(x, y, width, height) {
+    function Rectangle (x, y, width, height) {
         this.x = x;
         this.y = y;
         this.width = width;
         this.height = height;
     }
 
-    Rectangle.prototype.copy = function() {
+    Rectangle.prototype.copy = function () {
         return new Rectangle(this.x, this.y, this.width, this.height);
     };
 
     Tiles.Rectangle = Rectangle;
 
     // convert a 2d array of cell ids to a list of tile rects
-    var parseRects = function(cells) {
+    var parseRects = function (cells) {
         var rects = [],
             numRows = cells.length,
             numCols = numRows === 0 ? 0 : cells[0].length,
-            cell, height, width, x, y, rectX, rectY;
+            cell,
+            height,
+            width,
+            x,
+            y,
+            rectX,
+            rectY;
 
         // make a copy of the cells that we can modify
         cells = cells.slice();
@@ -197,7 +195,7 @@ var Tiles = {};
 
         // iterate through every cell and find rectangles
         for (y = 0; y < numRows; y++) {
-            for(x = 0; x < numCols; x++) {
+            for (x = 0; x < numCols; x++) {
                 cell = cells[y][x];
 
                 // skip cells that are null
@@ -209,23 +207,20 @@ var Tiles = {};
                 height = 1;
 
                 if (cell !== Tiles.Template.SINGLE_CELL) {
-
                     // find the width by going right until cell id no longer matches
-                    while(width + x < numCols &&
-                          cell === cells[y][x + width]) {
+                    while (width + x < numCols && cell === cells[y][x + width]) {
                         width++;
                     }
 
                     // now find height by going down
-                    while (height + y < numRows &&
-                           cell === cells[y + height][x]) {
+                    while (height + y < numRows && cell === cells[y + height][x]) {
                         height++;
                     }
                 }
 
                 // null out all cells for the rect
-                for(rectY = 0; rectY < height; rectY++) {
-                    for(rectX = 0; rectX < width; rectX++) {
+                for (rectY = 0; rectY < height; rectY++) {
+                    for (rectX = 0; rectX < width; rectX++) {
                         cells[y + rectY][x + rectX] = null;
                     }
                 }
@@ -238,17 +233,17 @@ var Tiles = {};
         return rects;
     };
 
-    Tiles.Template = function(rects, numCols, numRows) {
+    Tiles.Template = function (rects, numCols, numRows) {
         this.rects = rects;
         this.numTiles = this.rects.length;
         this.numRows = numRows;
         this.numCols = numCols;
     };
 
-    Tiles.Template.prototype.copy = function() {
-
+    Tiles.Template.prototype.copy = function () {
         var copyRects = [],
-            len, i;
+            len,
+            i;
         for (i = 0, len = this.rects.length; i < len; i++) {
             copyRects.push(this.rects[i].copy());
         }
@@ -257,44 +252,46 @@ var Tiles = {};
     };
 
     // appends another template (assumes both are full rectangular grids)
-    Tiles.Template.prototype.append = function(other) {
-
+    Tiles.Template.prototype.append = function (other) {
         if (this.numCols !== other.numCols) {
             throw 'Appended templates must have the same number of columns';
         }
 
         // new rects begin after the last current row
         var startY = this.numRows,
-            i, len, rect;
+            i,
+            len,
+            rect;
 
         // copy rects from the other template
         for (i = 0, len = other.rects.length; i < len; i++) {
             rect = other.rects[i];
-            this.rects.push(
-                new Rectangle(rect.x, startY + rect.y, rect.width, rect.height));
+            this.rects.push(new Rectangle(rect.x, startY + rect.y, rect.width, rect.height));
         }
 
         this.numRows += other.numRows;
         this.numTiles += other.numTiles;
     };
 
-    Tiles.Template.fromJSON = function(rows) {
+    Tiles.Template.fromJSON = function (rows) {
         // convert rows to cells and then to rects
         var cells = parseCells(rows),
             rects = parseRects(cells);
-        return new Tiles.Template(
-            rects,
-            cells.length > 0 ? cells[0].length : 0,
-            cells.length);
+        return new Tiles.Template(rects, cells.length > 0 ? cells[0].length : 0, cells.length);
     };
 
-    Tiles.Template.prototype.toJSON = function() {
+    Tiles.Template.prototype.toJSON = function () {
         // for now we'll assume 26 chars is enough (we don't solve graph coloring)
         var LABELS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ',
             NUM_LABELS = LABELS.length,
             labelIndex = 0,
             rows = [],
-            i, len, rect, x, y, label;
+            i,
+            len,
+            rect,
+            x,
+            y,
+            label;
 
         // fill in single tiles for each cell
         for (y = 0; y < this.numRows; y++) {
@@ -308,11 +305,10 @@ var Tiles = {};
         for (i = 0, len = this.rects.length; i < len; i++) {
             rect = this.rects[i];
             if (rect.width > 1 || rect.height > 1) {
-
                 // mark the tile position with a label
                 label = LABELS[labelIndex];
-                for(y = 0; y < rect.height; y++) {
-                    for(x = 0; x < rect.width; x++) {
+                for (y = 0; y < rect.height; y++) {
+                    for (x = 0; x < rect.width; x++) {
                         rows[rect.y + y][rect.x + x] = label;
                     }
                 }
@@ -332,16 +328,15 @@ var Tiles = {};
 
     // period used to designate a single 1x1 cell tile
     Tiles.Template.SINGLE_CELL = '.';
-
 })(jQuery);
-
 
 // template provider which returns simple templates with 1x1 tiles
 Tiles.UniformTemplates = {
-    get: function(numCols, targetTiles) {
+    get: function (numCols, targetTiles) {
         var numRows = Math.ceil(targetTiles / numCols),
             rects = [],
-            x, y;
+            x,
+            y;
 
         // create the rects for 1x1 tiles
         for (y = 0; y < numRows; y++) {
@@ -353,10 +348,8 @@ Tiles.UniformTemplates = {
         return new Tiles.Template(rects, numCols, numRows);
     }
 };
-(function($) {
-
-    var Grid = Tiles.Grid = function(element) {
-
+(function ($) {
+    var Grid = (Tiles.Grid = function (element) {
         this.$el = $(element);
 
         // animation lasts 500 ms by default
@@ -392,31 +385,28 @@ Tiles.UniformTemplates = {
         // and the render the grid independently.
         this.tilesAdded = [];
         this.tilesRemoved = [];
-    };
+    });
 
-    Grid.prototype.getContentWidth = function() {
+    Grid.prototype.getContentWidth = function () {
         // by default, the entire container width is used when drawing tiles
         return this.$el.width();
     };
 
     // gets the number of columns during a resize
-    Grid.prototype.resizeColumns = function() {
+    Grid.prototype.resizeColumns = function () {
         var panelWidth = this.getContentWidth();
 
         // ensure we have at least one column
-        return Math.max(1, Math.floor((panelWidth + this.cellPadding) /
-            (this.cellSizeMin + this.cellPadding)));
+        return Math.max(1, Math.floor((panelWidth + this.cellPadding) / (this.cellSizeMin + this.cellPadding)));
     };
 
     // gets the cell size during a grid resize
-    Grid.prototype.resizeCellSize = function() {
+    Grid.prototype.resizeCellSize = function () {
         var panelWidth = this.getContentWidth();
-        return Math.ceil((panelWidth + this.cellPadding) / this.numCols) -
-            this.cellPadding;
+        return Math.ceil((panelWidth + this.cellPadding) / this.numCols) - this.cellPadding;
     };
 
-    Grid.prototype.resize = function() {
-
+    Grid.prototype.resize = function () {
         var newCols = this.resizeColumns();
         if (this.numCols !== newCols && newCols > 0) {
             this.numCols = newCols;
@@ -431,14 +421,16 @@ Tiles.UniformTemplates = {
     };
 
     // refresh all tiles based on the current content
-    Grid.prototype.updateTiles = function(newTileIds) {
-
+    Grid.prototype.updateTiles = function (newTileIds) {
         // ensure we dont have duplicate ids
         newTileIds = uniques(newTileIds);
 
         var numTiles = newTileIds.length,
             newTiles = [],
-            i, tile, tileId, index;
+            i,
+            tile,
+            tileId,
+            index;
 
         // retain existing tiles and queue remaining tiles for removal
         for (i = this.tiles.length - 1; i >= 0; i--) {
@@ -447,8 +439,7 @@ Tiles.UniformTemplates = {
             if (index < 0) {
                 this.tilesRemoved.push(tile);
                 //console.log('Removing tile: ' + tile.id)
-            }
-            else {
+            } else {
                 newTiles[index] = tile;
             }
         }
@@ -458,15 +449,12 @@ Tiles.UniformTemplates = {
 
         // make sure we have tiles for new additions
         for (i = 0; i < numTiles; i++) {
-
             tile = newTiles[i];
             if (!tile) {
-
                 tileId = newTileIds[i];
 
                 // see if grid has a custom tile factory
                 if (this.createTile) {
-
                     tile = this.createTile(tileId);
 
                     // skip the tile if it couldn't be created
@@ -474,9 +462,7 @@ Tiles.UniformTemplates = {
                         //console.log('Tile element could not be created, id: ' + tileId);
                         continue;
                     }
-
                 } else {
-
                     tile = new Tiles.Tile(tileId);
                 }
 
@@ -490,10 +476,11 @@ Tiles.UniformTemplates = {
     };
 
     // helper to return unique items
-    function uniques(items) {
+    function uniques (items) {
         var results = [],
             numItems = items ? items.length : 0,
-            i, item;
+            i,
+            item;
 
         for (i = 0; i < numItems; i++) {
             item = items[i];
@@ -506,13 +493,12 @@ Tiles.UniformTemplates = {
     }
 
     // prepend new tiles
-    Grid.prototype.insertTiles = function(newTileIds) {
+    Grid.prototype.insertTiles = function (newTileIds) {
         this.addTiles(newTileIds, true);
     };
 
     // append new tiles
-    Grid.prototype.addTiles = function(newTileIds, prepend) {
-
+    Grid.prototype.addTiles = function (newTileIds, prepend) {
         if (!newTileIds || newTileIds.length === 0) {
             return;
         }
@@ -526,19 +512,19 @@ Tiles.UniformTemplates = {
             prevTileIds.push(this.tiles[i].id);
         }
 
-        var tileIds = prepend ? newTileIds.concat(prevTileIds)
-            : prevTileIds.concat(newTileIds);
+        var tileIds = prepend ? newTileIds.concat(prevTileIds) : prevTileIds.concat(newTileIds);
         this.updateTiles(tileIds);
     };
 
-    Grid.prototype.removeTiles = function(removeTileIds) {
-
+    Grid.prototype.removeTiles = function (removeTileIds) {
         if (!removeTileIds || removeTileIds.length === 0) {
             return;
         }
 
         var updateTileIds = [],
-            i, len, id;
+            i,
+            len,
+            id;
 
         // get the set of ids which have not been removed
         for (i = 0, len = this.tiles.length; i < len; i++) {
@@ -551,14 +537,12 @@ Tiles.UniformTemplates = {
         this.updateTiles(updateTileIds);
     };
 
-    Grid.prototype.createTemplate = function(numCols, targetTiles) {
-
+    Grid.prototype.createTemplate = function (numCols, targetTiles) {
         // ensure that we have at least one column
         numCols = Math.max(1, numCols);
 
         var template = this.templateFactory.get(numCols, targetTiles);
         if (!template) {
-
             // fallback in case the default factory can't generate a good template
             template = Tiles.UniformTemplates.get(numCols, targetTiles);
         }
@@ -567,29 +551,24 @@ Tiles.UniformTemplates = {
     };
 
     // ensures we have a good template for the specified numbef of tiles
-    Grid.prototype.ensureTemplate = function(numTiles) {
-
+    Grid.prototype.ensureTemplate = function (numTiles) {
         // verfiy that the current template is still valid
         if (!this.template || this.template.numCols !== this.numCols) {
             this.template = this.createTemplate(this.numCols, numTiles);
             this.isDirty = true;
         } else {
-
             // append another template if we don't have enough rects
             var missingRects = numTiles - this.template.rects.length;
             if (missingRects > 0) {
-                this.template.append(
-                    this.createTemplate(this.numCols, missingRects));
+                this.template.append(this.createTemplate(this.numCols, missingRects));
                 this.isDirty = true;
             }
-
         }
     };
 
     // helper that returns true if a tile was in the viewport or will be given
     // the new pixel rect coordinates and dimensions
-    function wasOrWillBeVisible(viewRect, tile, newRect) {
-
+    function wasOrWillBeVisible (viewRect, tile, newRect) {
         var viewMaxY = viewRect.y + viewRect.height,
             viewMaxX = viewRect.x + viewRect.width;
 
@@ -597,16 +576,28 @@ Tiles.UniformTemplates = {
 
         // was the tile visible?
         if (tile) {
-            if (!((tile.top > viewMaxY) || (tile.top + tile.height < viewRect.y) ||
-                (tile.left > viewMaxX) || (tile.left + tile.width < viewRect.x))) {
+            if (
+                !(
+                    tile.top > viewMaxY ||
+                    tile.top + tile.height < viewRect.y ||
+                    tile.left > viewMaxX ||
+                    tile.left + tile.width < viewRect.x
+                )
+            ) {
                 return true;
             }
         }
 
         if (newRect) {
             // will it be visible?
-            if (!((newRect.y > viewMaxY) || (newRect.y + newRect.height < viewRect.y) ||
-                (newRect.x > viewMaxX) || (newRect.x + newRect.width < viewRect.x))) {
+            if (
+                !(
+                    newRect.y > viewMaxY ||
+                    newRect.y + newRect.height < viewRect.y ||
+                    newRect.x > viewMaxX ||
+                    newRect.x + newRect.width < viewRect.x
+                )
+            ) {
                 return true;
             }
         }
@@ -614,8 +605,7 @@ Tiles.UniformTemplates = {
         return false;
     }
 
-    Grid.prototype.shouldRedraw = function() {
-
+    Grid.prototype.shouldRedraw = function () {
         // see if we need to calculate the cell size
         if (this.cellSize <= 0) {
             this.resize();
@@ -625,16 +615,13 @@ Tiles.UniformTemplates = {
         this.ensureTemplate(this.tiles.length);
 
         // only redraw when necessary
-        var shouldRedraw = (this.isDirty ||
-            this.tilesAdded.length > 0 ||
-            this.tilesRemoved.length > 0);
+        var shouldRedraw = this.isDirty || this.tilesAdded.length > 0 || this.tilesRemoved.length > 0;
 
         return shouldRedraw;
     };
 
     // redraws the grid after tile collection changes
-    Grid.prototype.redraw = function(animate, onComplete) {
-
+    Grid.prototype.redraw = function (animate, onComplete) {
         // see if we should redraw
         if (!this.shouldRedraw()) {
             if (onComplete) {
@@ -653,14 +640,22 @@ Tiles.UniformTemplates = {
                 this.$el.scrollLeft(),
                 this.$el.scrollTop(),
                 this.$el.width(),
-                this.$el.height()),
-            tile, added, pageRects, pageTiles, i, len, cellRect, pixelRect,
-            animateTile, priorityRects, priorityTiles;
-
+                this.$el.height()
+            ),
+            tile,
+            added,
+            pageRects,
+            pageTiles,
+            i,
+            len,
+            cellRect,
+            pixelRect,
+            animateTile,
+            priorityRects,
+            priorityTiles;
 
         // chunk tile layout by pages which are internally prioritized
         for (tileIndex = 0; tileIndex < numTiles; tileIndex += pageSize) {
-
             // get the next page of rects and tiles
             pageRects = this.template.rects.slice(tileIndex, tileIndex + pageSize);
             pageTiles = this.tiles.slice(tileIndex, tileIndex + pageSize);
@@ -683,23 +678,29 @@ Tiles.UniformTemplates = {
                 pixelRect = new Tiles.Rectangle(
                     cellRect.x * cellPlusPadding,
                     cellRect.y * cellPlusPadding,
-                    (cellRect.width * cellPlusPadding) - this.cellPadding,
-                    (cellRect.height * cellPlusPadding) - this.cellPadding);
+                    cellRect.width * cellPlusPadding - this.cellPadding,
+                    cellRect.height * cellPlusPadding - this.cellPadding
+                );
 
                 tile.resize(
                     cellRect,
                     pixelRect,
                     animate && !added && wasOrWillBeVisible(viewRect, tile, pixelRect),
-                    duration);
+                    duration
+                );
 
                 if (added) {
-
                     // decide whether to animate (fadeIn) and get the duration
                     animateTile = animate && wasOrWillBeVisible(viewRect, null, pixelRect);
                     if (animateTile && this.getAppendDelay) {
                         appendDelay = this.getAppendDelay(
-                            cellRect, pageRects, priorityRects,
-                            tile, pageTiles, priorityTiles);
+                            cellRect,
+                            pageRects,
+                            priorityRects,
+                            tile,
+                            pageTiles,
+                            priorityTiles
+                        );
                     } else {
                         appendDelay = 0;
                     }
@@ -722,8 +723,9 @@ Tiles.UniformTemplates = {
         this.isDirty = false;
 
         if (onComplete) {
-            setTimeout(function() { onComplete(true); }, duration + 10);
+            setTimeout(function () {
+                onComplete(true);
+            }, duration + 10);
         }
     };
-
 })(jQuery);

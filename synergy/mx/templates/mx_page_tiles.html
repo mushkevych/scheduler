@@ -6,11 +6,12 @@
 </div>
 
 <div class="grid-container u-max-full-width">
-    {# active_mx_page is declared in the main_header.html#}
+    {# active_mx_page is declared in the main_header.html #}
     {% set mx_trees = details.mx_page_trees(active_mx_page[0]) %}
-    <!-- NOTE: data is requested from mx/views.py -->
+
     {%- for tree_name, tree_obj in mx_trees.items() %}
-    <div class="grid-row grid-row-{{ tree_name }}">
+    {% set grid_cols = tree_obj.sorted_process_names|length %}
+    <div class="grid-row grid-row-{{ tree_name }} grid-columns-{{ grid_cols + 1 }}">
         <div id="grid-header-{{ tree_name }}" class="grid-header"></div>
         {% for process_name in tree_obj.sorted_process_names %}
         <div id="grid-header-{{ process_name }}" class="grid-header"></div>
@@ -31,5 +32,22 @@
 </script>
 <script type="text/javascript" src="{{ url_for('static', file='js/tiles.js') }}"></script>
 <script type="text/javascript" src="{{ url_for('static', file='js/mx_page.js') }}"></script>
+
+<script>
+    $(document).ready(function () {
+        let grids = $('.grid-row')
+        // set the height of each grid-row
+        grids.each(function () {
+            // get height of first column
+            let firstCol = $(this).children('.grid-info')[ 0 ].clientHeight
+            // get height of header
+            let headerRow = $(this).children('.grid-header')[ 0 ].clientHeight
+            let height = firstCol + headerRow
+            $(this).height(height + 50)
+            $(this).css(`max-height: ${height}`)
+        }
+        )
+    })
+</script>
 
 {% endblock %}
