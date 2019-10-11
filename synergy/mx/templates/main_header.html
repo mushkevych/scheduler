@@ -22,7 +22,6 @@
         <title>Synergy Scheduler</title>
     </head>
 
-    <!-- TODO: figure out how to do this in javascript -->
     {# Jinja2 variable scope visibility workaround: declared as a list so it is available to inherited templates #}
     {% set active_mx_page = [] %}
     {%- for mx_rule, mx_page_name in mx_processing_context.items() %}

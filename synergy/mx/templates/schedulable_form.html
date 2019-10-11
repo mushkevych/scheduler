@@ -20,8 +20,6 @@
             }
 
             function closeWindow() {
-                // QUESTION: is this necessary?
-                // maybe it has something to do with submitting the form?
                 setTimeout("window.close()", 750);
             }
         </script>
@@ -54,7 +52,7 @@
                     </tr>
                     <tr>
                         <td>Entry name</td>
-                        <td><input type="text" name="entry_name" class="text-align-left"
+                        <td><input type="text" name="entry_name" class="text-align-left" placeholder="entry name"
                                 value="{% if handler %}{{ handler.process_entry.entry_name }}{% endif %}"
                                 {% if handler %} readonly {% endif %}></td>
                         <td>Name of the schedulable item. Has to be unique.</td>
@@ -62,7 +60,7 @@
 
                     <tr>
                         <td>Description</td>
-                        <td><input type="text" name="description" class="text-align-left" value="{% if handler %}{{ handler.process_entry.description }}{% endif %}"></td>
+                        <td><input type="text" name="description" class="text-align-left" placeholder="description" value="{% if handler %}{{ handler.process_entry.description }}{% endif %}"></td>
                         <td>Human-readable description of the schedulable item</td>
                     </tr>
 
@@ -77,7 +75,7 @@
 
                     <tr>
                         <td>Trigger time</td>
-                        <td><input type="text" maxlength="32" name="trigger_frequency" class="text-align-left"
+                        <td><input type="text" maxlength="32" name="trigger_frequency" class="text-align-left" placeholder="every XXX"
                                 value="{%- if handler %}{{ handler.process_entry.trigger_frequency }}{%- endif %}" />
                         </td>
                         <td>
@@ -107,21 +105,17 @@
                         <td colspan="3">
                             <div id="buttons">
                                 {%- if not handler -%}
-                                <!-- <input type="submit" name="insert_button" value="Insert" onclick="closeWindow()" /> -->
                                 <button type="submit" name="insert_button" value="Insert"
                                     onclick="closeWindow()">Insert</button>
                                 <!-- formmethod="put" -->
                                 {%- else -%}
-                                <!-- <input type="submit" name="update_button" value="Update" onclick="closeWindow()" /> -->
                                 <button type="submit" name="update_button" value="Update"
                                     onclick="closeWindow()">Update</button>
                                 <!-- formmethod="post" -->
-                                <!-- <input type="submit" name="delete_button" value="Delete" onclick="closeWindow()" /> -->
                                 <button type="submit" name="delete_button" value="Delete"
                                     onclick="closeWindow()">Delete</button>
                                 <!-- formmethod="delete" -->
                                 {%- endif -%}
-                                <!-- <input type="submit" name="cancel_button" value="Cancel" onclick="closeWindow()" /> -->
                                 <button type="submit" name="cancel_button" value="Cancel"
                                     onclick="window.close()">Cancel</button>
                                 <!-- formmethod="head" -->
