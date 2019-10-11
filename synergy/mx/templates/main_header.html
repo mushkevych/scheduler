@@ -1,91 +1,91 @@
 <!DOCTYPE html>
 <html lang="en">
 
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <meta http-equiv="X-UA-Compatible" content="ie=edge">
-        <link rel="icon" type="image/png" href="{{ url_for('static', file='images/sy_brown.png') }}">
-        <link rel="stylesheet" type="text/css" href="{{ url_for('static', file='css/font-awesome.min.css') }}">
-        <link rel="stylesheet" type="text/css" href="{{ url_for('static', file='css/alertify.css') }}">
-        <link rel="stylesheet" type="text/css" href="{{ url_for('static', file='css/jquery.dataTables-1.10.20.min.css') }}">
-        <link rel="stylesheet" type="text/css" href="{{ url_for('static', file='css/skeleton-2.0.4.min.css') }}">
-        <link rel="stylesheet" type="text/css" href="{{ url_for('static', file='css/normalize-3.0.2.min.css') }}">
-        <link rel="stylesheet" type="text/css" href="{{ url_for('static', file='css/index.css') }}">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <link rel="icon" type="image/png" href="{{ url_for('static', file='images/sy_brown.png') }}">
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', file='css/font-awesome.min.css') }}">
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', file='css/alertify.css') }}">
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', file='css/jquery.dataTables-1.10.20.min.css') }}">
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', file='css/skeleton-2.0.4.min.css') }}">
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', file='css/normalize-3.0.2.min.css') }}">
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', file='css/index.css') }}">
 
-        <!-- NOTE: adding scripts to end breaks for some reason -->
-        <script type="text/javascript" src="{{ url_for('static', file='js/jquery-3.4.1.min.js') }}"></script>
-        <script type="text/javascript" src="{{ url_for('static', file='js/jquery.dataTables-1.10.20.min.js') }}"></script>
-        <script type="text/javascript" src="{{ url_for('static', file='js/alertify-0.3.17.trunk.js') }}"></script>
-        <script type="text/javascript" src="{{ url_for('static', file='js/mx_utils.js') }}"></script>
+    <!-- NOTE: adding scripts to end breaks for some reason -->
+    <script type="text/javascript" src="{{ url_for('static', file='js/jquery-3.4.1.min.js') }}"></script>
+    <script type="text/javascript" src="{{ url_for('static', file='js/jquery.dataTables-1.10.20.min.js') }}"></script>
+    <script type="text/javascript" src="{{ url_for('static', file='js/alertify-0.3.17.trunk.js') }}"></script>
+    <script type="text/javascript" src="{{ url_for('static', file='js/mx_utils.js') }}"></script>
 
-        <title>Synergy Scheduler</title>
-    </head>
+    <title>Synergy Scheduler</title>
+</head>
 
-    <!-- TODO: figure out how to do this in javascript -->
-    {# Jinja2 variable scope visibility workaround: declared as a list so it is available to inherited templates #}
-    {% set active_mx_page = [] %}
-    {%- for mx_rule, mx_page_name in mx_processing_context.items() %}
+<!-- TODO: figure out how to do this in javascript -->
+{# Jinja2 variable scope visibility workaround: declared as a list so it is available to inherited templates #}
+{% set active_mx_page = [] %}
+{%- for mx_rule, mx_page_name in mx_processing_context.items() %}
     {% set endpoint = '/' + mx_rule %}
     {%- if endpoint in local.request.path -%}
-    <script type="text/javascript">
-        let active_mx_page = "{{ endpoint|lstrip_slash|safe }}";
-    </script>
-    {% do active_mx_page.append(endpoint|lstrip_slash|safe) %}
+        <script type="text/javascript">
+            let active_mx_page = "{{ endpoint|lstrip_slash|safe }}";
+        </script>
+        {% do active_mx_page.append(endpoint|lstrip_slash|safe) %}
     {%- endif -%}
-    {%- endfor -%}
+{%- endfor -%}
 
-    <body>
-        <div class="nav">
-            <div class="inline title">
-                <h3 class="inline">Synergy Scheduler</h3>
-            </div>
+<body>
+<div class="nav">
+    <div class="inline title">
+        <h3 class="inline">Synergy Scheduler</h3>
+    </div>
 
-            <div class="navbar" id="navbar">
-                <a class="nav-item" href="{{ url_for('dashboard_managed') }}">dashboard jobs</a>
+    <div class="navbar" id="navbar">
+        <a class="nav-item" href="{{ url_for('dashboard_managed') }}">dashboard jobs</a>
 
-                <a class="nav-item" href="{{ url_for('dashboard_freeruns') }}">dashboard freeruns</a>
+        <a class="nav-item" href="{{ url_for('dashboard_freeruns') }}">dashboard freeruns</a>
 
-                {%- for mx_rule, mx_page_name in mx_processing_context.items() %}
-                <a class="nav-item" href="{{ '/' + mx_rule + '/' }}">{{ mx_page_name }}</a>
-                {%- endfor -%}
+        {%- for mx_rule, mx_page_name in mx_processing_context.items() %}
+            <a class="nav-item" href="{{ '/' + mx_rule + '/' }}">{{ mx_page_name }}</a>
+        {%- endfor -%}
 
-                <a class="nav-item" href="{{  url_for('scheduler_managed_entries')}}">scheduler managed entries</a>
+        <a class="nav-item" href="{{ url_for('scheduler_managed_entries') }}">scheduler managed entries</a>
 
-                <a class="nav-item" href="{{  url_for('scheduler_freerun_entries')}}">scheduler freerun entries</a>
-                <a class="nav-item" href="{{  url_for('supervisor_entries')}}">supervisor</a>
-            </div>
-        </div>
+        <a class="nav-item" href="{{ url_for('scheduler_freerun_entries') }}">scheduler freerun entries</a>
+        <a class="nav-item" href="{{ url_for('supervisor_entries') }}">supervisor</a>
+    </div>
+</div>
 
-        <div class="container-fluid">
+<div class="container-fluid">
 
-            {% block body %}
-            {% endblock %}
-        </div>
+    {% block body %}
+    {% endblock %}
+</div>
 
-        <div class="footer">
+<div class="footer">
             <span class="footer-time">
                 page rendered: {{ get_current_time() }}
             </span>
-            <span class="footer-contact">
+    <span class="footer-contact">
                 <a href="mailto:scheduler.feedback@gmail.com?subject=Comments to Scheduler MX page">Feedback</a>
             </span>
-        </div>
+</div>
 
-        <script type="text/javascript">
-            // remove query parameters etc.
-            function stripUrl(url) {
-                return url.split(/[?#]/)[ 0 ];
-            }
+<script type="text/javascript">
+    // remove query parameters etc.
+    function stripUrl(url) {
+        return url.split(/[?#]/)[0];
+    }
 
-            let nav = document.getElementById('navbar');
-            let items = nav.getElementsByClassName('nav-item');
-            for (let i = 0; i < items.length; i++) {
-                let url = stripUrl(items[ i ].href);
-                if (url === stripUrl(window.location.href)) {
-                    items[ i ].className += " active";
-                }
-            }
-        </script>
-    </body>
+    let nav = document.getElementById('navbar');
+    let items = nav.getElementsByClassName('nav-item');
+    for (let i = 0; i < items.length; i++) {
+        let url = stripUrl(items[i].href);
+        if (url === stripUrl(window.location.href)) {
+            items[i].className += " active";
+        }
+    }
+</script>
+</body>
 </html>

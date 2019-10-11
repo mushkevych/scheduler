@@ -4,7 +4,7 @@ const GRIDS = {};
 
 const GRID_HEADER_TEMPLATE = gridInfoTemplate(1);
 
-function parseTimeperiod (t) {
+function parseTimeperiod(t) {
     return t.slice(0, 4) + '-' + t.slice(4, 6) + '-' + t.slice(6, 8) + 'T' + t.slice(8);
 }
 
@@ -13,7 +13,7 @@ function parseTimeperiod (t) {
  * template contains tiles_number of tiles
  * each tile has proportion 4x3 (wider than taller)
  */
-function gridInfoTemplate (tiles_number) {
+function gridInfoTemplate(tiles_number) {
     const arr = [];
     for (let i = 0; i < tiles_number; i++) {
         if (i % 2 === 0) {
@@ -31,7 +31,7 @@ function gridInfoTemplate (tiles_number) {
     return arr;
 }
 
-function getGrid (grid_name) {
+function getGrid(grid_name) {
     let grid;
     let el;
     if (grid_name in GRIDS) {
@@ -44,7 +44,7 @@ function getGrid (grid_name) {
     return grid;
 }
 
-function headerTreeTile (mx_tree, tile) {
+function headerTreeTile(mx_tree, tile) {
     const refresh_button = $(`<button class="action_button auto-width" id="refresh_button_${mx_tree.tree_name}">
 			<i class="fa fa-refresh"></i><span>
 				Refresh
@@ -53,19 +53,19 @@ function headerTreeTile (mx_tree, tile) {
         mx_trees[mx_tree.tree_name] = getTree(mx_tree.tree_name);
         buildTree(mx_tree.tree_name);
     });
-    let treeHeader = `<ul class="fa-ul header-tile-info process-info">
-	<li title="Tree Name"><i class="fa-li fa fa-pagelines"></i>${mx_tree.tree_name}</li><li title="Dependent On"><i class="fa-li fa fa-sitemap fa-rotate-180"></i>${formatJSON(
-        mx_tree.dependent_on
-    )}</li><li title="Dependant Trees"><i class="fa-li fa fa-sitemap"></i>${formatJSON(
-        mx_tree.dependant_trees
-    )}</li></ul>`;
+    let treeHeader = `
+        <ul class="fa-ul header-tile-info process-info">
+            <li title="Tree Name"><i class="fa-li fa fa-pagelines"></i>${mx_tree.tree_name}</li>
+            <li title="Dependent On"><i class="fa-li fa fa-sitemap fa-rotate-180"></i>${formatJSON(mx_tree.dependent_on)}</li>
+            <li title="Dependant Trees"><i class="fa-li fa fa-sitemap"></i>${formatJSON(mx_tree.dependant_trees)}</li>
+        </ul>`;
     tile.$el.append(treeHeader);
     tile.$el.append(refresh_button);
     tile.$el.attr('class', 'tree_header_tile');
 }
 
 // xmlhttp object is declared in the .send() come from?
-function headerProcessTile (process_entry, tile) {
+function headerProcessTile(process_entry, tile) {
     const flush_one_form = `
         <form class="process-form inline" method="GET" action="/gc/flush/one/" onsubmit="xmlhttp.send(); return false;">
             <input type="hidden" name="process_name" value=${process_entry.process_name} />
@@ -73,25 +73,24 @@ function headerProcessTile (process_entry, tile) {
             </button>
         </form>`;
 
-    const reprocessing_block = `<div class="table_layout">
-        <div class="inline table_layout_element">
-						${flush_one_form}
-				</div>
-				<span class="inline table_layout_element">
-				${process_entry.reprocessing_queue.toString() || '<em>--</em>'}
-				</span>
-				</div>`;
+    const reprocessing_block = `
+        <div class="table_layout">
+            <div class="inline table_layout_element"> ${flush_one_form} </div>
+            <span class="inline table_layout_element">
+            ${process_entry.reprocessing_queue.toString() || '<em>--</em>'}
+            </span>
+        </div>`;
 
-    const trigger_form = `<form class="process-form inline" method="POST" action="/managed/entry/trigger/" onsubmit="xmlhttp.send(); return false;">
+    const trigger_form = `
+        <form class="process-form inline" method="POST" action="/managed/entry/trigger/" onsubmit="xmlhttp.send(); return false;">
 			<input type="hidden" name="process_name" value="${process_entry.process_name}" />
 			<input type="hidden" name="timeperiod" value="NA" />
 			<button class="inline fa" type="submit" value="&#f135" alt="trigger_${process_entry.process_name}"><i class="fa fa-bolt"></i></button>
 		</form>`;
 
-    const next_run_block = `<div class="table_layout">
-            <div class="inline table_layout_element">
-                ${trigger_form}
-            </div>
+    const next_run_block = `
+        <div class="table_layout">
+            <div class="inline table_layout_element"> ${trigger_form} </div>
             <span class="inline table_layout_element">
             ${process_entry.next_run_in || '<em>--</em>'}
             </span>
@@ -101,15 +100,11 @@ function headerProcessTile (process_entry, tile) {
     // TODO: string interpolation
     if (process_entry.is_on) {
         is_on =
-            "<a onclick=\"processTrigger('managed/entry/deactivate', '" +
-            process_entry.process_name +
-            "', 'NA', null, true)\">" +
+            "<a onclick=\"processTrigger('managed/entry/deactivate', '" + process_entry.process_name + "', 'NA', null, true)\">" +
             '<i class="fa fa-toggle-on action_toogle" title="is ON"></i></a>';
     } else {
         is_on =
-            "<a onclick=\"processTrigger('managed/entry/activate', '" +
-            process_entry.process_name +
-            "', 'NA', null, true)\">" +
+            "<a onclick=\"processTrigger('managed/entry/activate', '" + process_entry.process_name + "', 'NA', null, true)\">" +
             '<i class="fa fa-toggle-off action_toogle" title="is OFF"></i></a>';
     }
 
@@ -146,17 +141,19 @@ function headerProcessTile (process_entry, tile) {
 		`);
 }
 
-function infoProcessTile (process_entry, tile) {
-    const change_interval_form = `<form class="process-form" method="POST" action="/freerun/entry/interval/" onsubmit="xmlhttp.send(); return false;">
-		<input type="hidden" name="process_name" value="${process_entry.process_name}" />
-		<input type="hidden" name="timeperiod" value="NA" />
-		<input type="text" size="8" maxlength="32" name="interval" value="${process_entry.trigger_frequency}" />
-		<button type="submit" title="Apply" class="fa"><i class="fa fa-check"></i></button>
+function infoProcessTile(process_entry, tile) {
+    const change_interval_form = `
+        <form class="process-form" method="POST" action="/freerun/entry/interval/" onsubmit="xmlhttp.send(); return false;">
+            <input type="hidden" name="process_name" value="${process_entry.process_name}" />
+            <input type="hidden" name="timeperiod" value="NA" />
+            <input type="text" size="8" maxlength="32" name="interval" value="${process_entry.trigger_frequency}" />
+            <button type="submit" title="Apply" class="fa"><i class="fa fa-check"></i></button>
 		</form>`;
 
     tile.process_name = process_entry.process_name;
+
+    // TODO: icons are not vertically aligned with the text
     tile.$el.append(
-        // TODO: figure out why the icons are not vertically aligned with the text!
         `<ul class="header-tile-info fa-ul"><li title="Process Name"><i class="fa-li fa fa-terminal"></i>
 			<span>${process_entry.process_name}</span>
 			</li><li title="Time Qualifier"><i class="fa-li fa fa-calendar"></i>
@@ -170,12 +167,12 @@ function infoProcessTile (process_entry, tile) {
 			</li><li title="Trigger Frequency"><i class="fa-li fa fa-heartbeat"></i>
 			<span>${change_interval_form}</span>
 			</li>
-			</ul>`
+        </ul>`
     );
     tile.$el.attr('class', 'process_info_tile');
 }
 
-function infoJobTile (job_entry, tile, is_next_timeperiod, is_selected_timeperiod) {
+function infoJobTile(job_entry, tile, is_next_timeperiod, is_selected_timeperiod) {
     const checkbox_value =
         "{ process_name: '" + job_entry.process_name + "', timeperiod: '" + job_entry.timeperiod + "' }";
     const checkbox_div = `
@@ -249,9 +246,9 @@ function infoJobTile (job_entry, tile, is_next_timeperiod, is_selected_timeperio
     });
     const reprocess_button = $(
         `<button title="Reprocess" aria-lable="Reprocess" class="action_button">
-		<i class="fa fa-repeat"></i>
+            <i class="fa fa-repeat"></i>
 			<span> Reprocess </span>
-			</button>`
+		</button>`
     ).click(function (e) {
         processJob('tree/node/reprocess', tile.tree_name, tile.process_name, tile.timeperiod, null, null);
     });
@@ -292,16 +289,11 @@ function infoJobTile (job_entry, tile, is_next_timeperiod, is_selected_timeperio
         tile.$el.attr('class', job_entry.state + ' is_selected_timeperiod');
     }
 
-    // tile.$el.append($(`<div class="checkbox">${checkbox_div}</div>`))
     tile.$el.append(
         $(`<div class="tile_component">
 				<ul class="fa-ul process-info">
-					<li title="Timeperiod"><i class="fa-li fa fa-clock-o"></i>
-					${parseTimeperiod(job_entry.timeperiod)}
-					</li>
-					<li title="State"><i class="fa-li fa fa-flag-o"></i>
-					${job_entry.state}
-					</li>
+					<li title="Timeperiod"><i class="fa-li fa fa-clock-o"></i> ${parseTimeperiod(job_entry.timeperiod)} </li>
+					<li title="State"><i class="fa-li fa fa-flag-o"></i> ${job_entry.state} </li>
 					<li title="# of fails"><i class="fa-li fa fa-exclamation-triangle"></i>
 					${job_entry.number_of_failures}
 					</li>
@@ -310,15 +302,6 @@ function infoJobTile (job_entry, tile, is_next_timeperiod, is_selected_timeperio
 			</div>`)
     );
     tile.$el.append('<div class="clear"></div>');
-    // tile.$el.append($(`<div class="flex-buttons">
-    // ${uow_button}
-    // ${skip_button}
-    // ${uow_log_button}
-    // ${reprocess_button}
-    // ${event_log_button}
-    // ${flow_button}
-    // </div>`)
-    // 	)
     tile.$el.append(
         $('<div class="btn-container"></div>')
             .append(uow_button)
@@ -330,7 +313,7 @@ function infoJobTile (job_entry, tile, is_next_timeperiod, is_selected_timeperio
     );
 }
 
-function buildHeaderGrid (grid_name, grid_template, builder_function, info_obj) {
+function buildHeaderGrid(grid_name, grid_template, builder_function, info_obj) {
     const grid = getGrid(grid_name);
 
     // by default, each tile is an empty div, we'll override creation
@@ -345,7 +328,7 @@ function buildHeaderGrid (grid_name, grid_template, builder_function, info_obj) 
     gridPostConstructor(grid, grid_template);
 }
 
-function buildProcessGrid (grid_name, tree_obj) {
+function buildProcessGrid(grid_name, tree_obj) {
     const grid = getGrid(grid_name);
 
     // by default, each tile is an empty div, we'll override creation
@@ -366,7 +349,7 @@ function buildProcessGrid (grid_name, tree_obj) {
     gridPostConstructor(grid, template);
 }
 
-function buildJobGrid (grid_name, tree_level, next_timeperiod, selected_timeperiod, tree_obj) {
+function buildJobGrid(grid_name, tree_level, next_timeperiod, selected_timeperiod, tree_obj) {
     const grid = getGrid(grid_name);
     const timeperiods = keysToList(tree_level.children, true);
 
@@ -396,7 +379,7 @@ function buildJobGrid (grid_name, tree_level, next_timeperiod, selected_timeperi
     gridPostConstructor(grid, template);
 }
 
-function gridPostConstructor (grid, template) {
+function gridPostConstructor(grid, template) {
     grid.template = Tiles.Template.fromJSON(template);
 
     // return the number of columns from original template
@@ -415,7 +398,7 @@ function gridPostConstructor (grid, template) {
     // wait until users finishes resizing the browser
     const debounced_resize = debounce(function () {
         grid.resize();
-        // HACK: turn of bad animation
+        // FIXME: turn off bad animation
         grid.redraw(false);
     }, 200);
 
@@ -423,9 +406,9 @@ function gridPostConstructor (grid, template) {
     $(window).resize(debounced_resize);
 }
 
-function getTreeNodes (process_name, timeperiod) {
+function getTreeNodes(process_name, timeperiod) {
     const response_text = $.ajax({
-        data: { process_name: process_name, timeperiod: timeperiod },
+        data: {process_name: process_name, timeperiod: timeperiod},
         dataType: 'json',
         type: 'GET',
         url: '/tree/nodes/',
@@ -435,9 +418,9 @@ function getTreeNodes (process_name, timeperiod) {
     return JSON.parse(response_text);
 }
 
-function getTree (tree_name) {
+function getTree(tree_name) {
     const response_text = $.ajax({
-        data: { tree_name: tree_name },
+        data: {tree_name: tree_name},
         dataType: 'json',
         type: 'GET',
         url: '/tree/',
@@ -447,7 +430,7 @@ function getTree (tree_name) {
     return JSON.parse(response_text);
 }
 
-function selectTile (tile) {
+function selectTile(tile) {
     // step 1: check if the tile is already selected
     if (tile.$el.attr('class').indexOf('is_selected_timeperiod') > -1) {
         // this tile is already selected
@@ -521,12 +504,12 @@ function selectTile (tile) {
     }
 }
 
-function clearGrid (grid_name) {
+function clearGrid(grid_name) {
     const grid = getGrid(grid_name);
     grid.removeTiles(range(1, grid.tiles.length));
 }
 
-function clearTree (tree_name) {
+function clearTree(tree_name) {
     const tree_obj = mx_trees[tree_name];
     const process_number = tree_obj.sorted_process_names.length;
     let process_name = null;
@@ -538,7 +521,7 @@ function clearTree (tree_name) {
     }
 }
 
-function buildTree (tree_name) {
+function buildTree(tree_name) {
     let i;
     let process_obj = null;
     let process_name = null;

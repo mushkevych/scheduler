@@ -491,7 +491,7 @@ input[type="button"] {
   align-items: flex-start;
 }
 .action_button {
-  font-size: 0.8rem;
+  font-size: 0.9rem;
   display: inline-block;
   min-width: 86px;
   padding: 0px 6px;
@@ -502,7 +502,7 @@ input[type="button"] {
 }
 .action_button i {
   padding: 0;
-  font-size: 0.8rem;
+  font-size: 0.9rem;
 }
 .action_button:hover {
   border-color: #0e0e0e;
@@ -646,7 +646,7 @@ div.state_inactive {
     display: none;
   }
   .grid-row div.tree_header_tile .action_button {
-    font-size: 0.8rem;
+    font-size: 0.9rem;
   }
   .grid-row div.tree_header_tile .action_button span {
     display: inline;
