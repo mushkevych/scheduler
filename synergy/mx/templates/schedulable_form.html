@@ -5,10 +5,11 @@
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <meta http-equiv="X-UA-Compatible" content="ie=edge">
-        <link rel="stylesheet" type="text/css" href="{{ url_for('static', file='css/skeleton.css') }}">
-        <link rel="stylesheet" type="text/css" href="{{ url_for('static', file='css/normalize.css') }}">
+        <link rel="stylesheet" type="text/css" href="{{ url_for('static', file='css/font-awesome.min.css') }}">
+        <link rel="stylesheet" type="text/css" href="{{ url_for('static', file='css/skeleton-2.0.4.min.css') }}">
+        <link rel="stylesheet" type="text/css" href="{{ url_for('static', file='css/normalize-3.0.2.min.css') }}">
         <link rel="stylesheet" type="text/css" href="{{ url_for('static', file='css/index.css') }}">
-        <link rel="stylesheet" type="text/css" href="{{ url_for('static', file='css/font-awesome.css') }}">
+
         <script type="text/javascript" src="{{ url_for('static', file='js/jquery-3.4.1.min.js') }}"></script>
         <script type="text/javascript" src="{{ url_for('static', file='js/mx_utils.js') }}"></script>
 
@@ -30,7 +31,7 @@
 
     <body>
         <div class="container">
-            <pre id="json"></pre>
+            <pre id="json" class="mx-2"></pre>
 
             <form method="POST" action="/freerun/entry/">
                 <table class="popup-form">
@@ -45,7 +46,7 @@
                                 {%- endfor -%}
                             </select>
                             {%- else -%}
-                            <input type="text" name="process_name" style="text-align: left"
+                            <input type="text" name="process_name" class="text-align-left"
                                 value="{{ handler.process_entry.process_name }}" readonly>
                             {%- endif -%}
                         </td>
@@ -53,7 +54,7 @@
                     </tr>
                     <tr>
                         <td>Entry name</td>
-                        <td><input type="text" name="entry_name" style="text-align: left"
+                        <td><input type="text" name="entry_name" class="text-align-left"
                                 value="{% if handler %}{{ handler.process_entry.entry_name }}{% endif %}"
                                 {% if handler %} readonly {% endif %}></td>
                         <td>Name of the schedulable item. Has to be unique.</td>
@@ -61,8 +62,7 @@
 
                     <tr>
                         <td>Description</td>
-                        <td><input type="text" name="description" style="text-align: left"
-                                value="{% if handler %}{{ handler.process_entry.description }}{% endif %}"></td>
+                        <td><input type="text" name="description" class="text-align-left" value="{% if handler %}{{ handler.process_entry.description }}{% endif %}"></td>
                         <td>Human-readable description of the schedulable item</td>
                     </tr>
 
@@ -77,17 +77,19 @@
 
                     <tr>
                         <td>Trigger time</td>
-                        <td><input type="text" maxlength="32" name="trigger_frequency" style="text-align: left"
+                        <td><input type="text" maxlength="32" name="trigger_frequency" class="text-align-left"
                                 value="{%- if handler %}{{ handler.process_entry.trigger_frequency }}{%- endif %}" />
                         </td>
                         <td>
-                            - <strong>every XXX</strong><br /> where XXX stands for seconds;<br />For instance: "every
-                            60"
+                            - <strong>every XXX</strong><br /> where XXX stands for seconds;<br />For instance: <code>
+                                every
+                                60
+                            </code>
                             <br /><br />
                             - <strong>at DoW-HH:MM, ..., DoW-HH:MM</strong><br /> where DoW is numerical Day Of Week
                             (Mon-0, Sun-6, *-every day);
-                            <br />For instance:<br />"at 2-15:00" - specifies Wed, 15:00 UTC
-                            <br />"at *-12:00, 3-09:09" specifies everyday at 12:00 UTC and Thu at 15:00 UTC
+                            <br />For instance:<br /><code>at 2-15:00</code> - specifies Wed, 15:00 UTC
+                            <br /><code>at *-12:00, 3-09:09</code> specifies everyday at 12:00 UTC and Thu at 15:00 UTC
                         </td>
                     </tr>
                     <tr>
@@ -106,18 +108,22 @@
                             <div id="buttons">
                                 {%- if not handler -%}
                                 <!-- <input type="submit" name="insert_button" value="Insert" onclick="closeWindow()" /> -->
-                                <button type="submit" name="insert_button" value="Insert" onclick="closeWindow()">Insert</button>
+                                <button type="submit" name="insert_button" value="Insert"
+                                    onclick="closeWindow()">Insert</button>
                                 <!-- formmethod="put" -->
                                 {%- else -%}
                                 <!-- <input type="submit" name="update_button" value="Update" onclick="closeWindow()" /> -->
-                                <button type="submit" name="update_button" value="Update" onclick="closeWindow()">Update</button>
+                                <button type="submit" name="update_button" value="Update"
+                                    onclick="closeWindow()">Update</button>
                                 <!-- formmethod="post" -->
                                 <!-- <input type="submit" name="delete_button" value="Delete" onclick="closeWindow()" /> -->
-                                <button type="submit" name="delete_button" value="Delete" onclick="closeWindow()">Delete</button>
+                                <button type="submit" name="delete_button" value="Delete"
+                                    onclick="closeWindow()">Delete</button>
                                 <!-- formmethod="delete" -->
                                 {%- endif -%}
                                 <!-- <input type="submit" name="cancel_button" value="Cancel" onclick="closeWindow()" /> -->
-                                <button type="submit" name="cancel_button" value="Cancel" onclick="closeWindow()">Cancel</button>
+                                <button type="submit" name="cancel_button" value="Cancel"
+                                    onclick="window.close()">Cancel</button>
                                 <!-- formmethod="head" -->
 
                                 <!-- trailing <div style="clear:both"> is needed to keep the above buttons inside div#buttons -->
@@ -129,4 +135,5 @@
             </form>
         </div>
     </body>
+
 </html>

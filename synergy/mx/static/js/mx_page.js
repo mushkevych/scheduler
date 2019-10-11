@@ -45,7 +45,7 @@ function getGrid (grid_name) {
 }
 
 function headerTreeTile (mx_tree, tile) {
-    const refresh_button = $(`<button class="action_button auto-width" id="refresh_button_${mx_tree.tree_name}">
+    const refresh_button = $(`<button class="action_button auto-width mt-1" id="refresh_button_${mx_tree.tree_name}">
 			<i class="fa fa-refresh"></i><span>
 				Refresh
 			</span></button>`).click(function (e) {
@@ -147,28 +147,28 @@ function headerProcessTile (process_entry, tile) {
 }
 
 function infoProcessTile (process_entry, tile) {
-    const change_interval_form = `<form class="process-form" method="POST" action="/freerun/entry/interval/" onsubmit="xmlhttp.send(); return false;">
+    const change_interval_form = `<form class="process-form justify" method="POST" action="/freerun/entry/interval/" onsubmit="xmlhttp.send(); return false;">
 		<input type="hidden" name="process_name" value="${process_entry.process_name}" />
 		<input type="hidden" name="timeperiod" value="NA" />
 		<input type="text" size="8" maxlength="32" name="interval" value="${process_entry.trigger_frequency}" />
-		<button type="submit" title="Apply" class="fa"><i class="fa fa-check"></i></button>
+		<button type="submit" title="Apply" class="auto-width fa"><i class="fa fa-check"></i></button>
 		</form>`;
 
     tile.process_name = process_entry.process_name;
     tile.$el.append(
         // TODO: figure out why the icons are not vertically aligned with the text!
         `<ul class="header-tile-info fa-ul"><li title="Process Name"><i class="fa-li fa fa-terminal"></i>
-			<span>${process_entry.process_name}</span>
+			<span class="justify">${process_entry.process_name}</span>
 			</li><li title="Time Qualifier"><i class="fa-li fa fa-calendar"></i>
-			<span>${process_entry.time_qualifier}</span>
+			<span class="justify">${process_entry.time_qualifier}</span>
 			</li><li title="Time Grouping"><i class="fa-li fa fa-cubes"></i>
-			<span>${process_entry.time_grouping}</span>
+			<span class="justify">${process_entry.time_grouping}</span>
 			</li><li title="State Machine"><i class="fa-li fa fa-puzzle-piece"></i>
-			<span>${process_entry.state_machine_name}</span>
+			<span class="justify">${process_entry.state_machine_name}</span>
 			</li><li title="Blocking Type"><i class="fa-li fa fa-anchor"></i>
-			<span>${process_entry.blocking_type}</span>
+			<span class="justify">${process_entry.blocking_type}</span>
 			</li><li title="Trigger Frequency"><i class="fa-li fa fa-heartbeat"></i>
-			<span>${change_interval_form}</span>
+			<span class="justify">${change_interval_form}</span>
 			</li>
 			</ul>`
     );
@@ -199,7 +199,7 @@ function infoJobTile (job_entry, tile, is_next_timeperiod, is_selected_timeperio
         window.open(
             viewer_url,
             'Object Viewer',
-            `width=${window.innerWidth / 2},height=${window.innerHeight * 0.85},scrollbars=1`
+            `width=${window.innerWidth * 2/3},height=${window.innerHeight * 0.85},scrollbars=1`
         );
     });
     const uow_log_button = $(
@@ -218,7 +218,7 @@ function infoJobTile (job_entry, tile, is_next_timeperiod, is_selected_timeperio
         window.open(
             viewer_url,
             'Object Viewer',
-            `width=${window.innerWidth / 2},height=${window.innerHeight * 0.85},scrollbars=1`
+            `width=${window.innerWidth * 2/3},height=${window.innerHeight * 0.85},scrollbars=1`
         );
     });
     const event_log_button = $(
@@ -236,7 +236,7 @@ function infoJobTile (job_entry, tile, is_next_timeperiod, is_selected_timeperio
         window.open(
             viewer_url,
             'Object Viewer',
-            `width=${window.innerWidth / 2},height=${window.innerHeight * 0.85},scrollbars=1`
+            `width=${window.innerWidth * 2/3},height=${window.innerHeight * 0.85},scrollbars=1`
         );
     });
     const skip_button = $(
@@ -272,7 +272,7 @@ function infoJobTile (job_entry, tile, is_next_timeperiod, is_selected_timeperio
         window.open(
             viewer_url,
             'Flow Viewer',
-            `width=${window.innerWidth / 2},height=${window.innerHeight * 0.85},scrollbars=1`
+            `width=${window.innerWidth * 2/3},height=${window.innerHeight * 0.85},scrollbars=1`
         );
     });
 

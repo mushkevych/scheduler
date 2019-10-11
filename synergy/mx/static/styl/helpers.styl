@@ -1,55 +1,79 @@
 // helper classes
 .inline
-  display inline
+  display inline !important
 
 .inline-flex
-  display inline-flex
+  display inline-flex !important
 
+.fixed-bottom
+  position fixed !important
+  bottom 0 !important
+  align-content center
+  margin-bottom 0 !important
+
+.bg-white
+  background-color white !important
+
+.justify
+  display flex
+  justify-content space-between !important
+  width 100% !important
+
+.auto-width
+  width minmax(auto, max-content) !important
+  min-width auto !important
+  max-width auto !important
+
+for pos in left right center justify
+  .text-align-{pos}
+    text-align pos !important
+
+// relative padding and margin classes
 $pad = 1rem
 $margin = 1rem
 for i in 0..4
   .p-{i}
-    padding $pad * i
+    padding $pad * i !important
 
   .px-{i}
-    padding-left $pad * i
-    padding-right $pad * i
+    padding-left $pad * i !important
+    padding-right $pad * i !important
 
   .py-{i}
-    padding-top $pad * i
-    padding-bottom $pad * i
+    padding-top $pad * i !important
+    padding-bottom $pad * i !important
 
   .pl-{i}
-    padding-left $pad * i
+    padding-left $pad * i !important
 
   .pr-{i}
-    padding-right $pad * i
+    padding-right $pad * i !important
 
   .pt-{i}
-    padding-top $pad * i
+    padding-top $pad * i !important
 
   .pb-{i}
-    padding-bottom $pad * i
+    padding-bottom $pad * i !important
 
   .m-{i}
-    margin $margin * i
+    margin $margin * i !important
 
   .mx-{i}
-    margin-left $margin * i
-    margin-right $margin * i
+    margin-left $margin * i !important
+    margin-right $margin * i !important
 
   .my-{i}
-    margin-top $margin * i
-    margin-bottom $margin * i
+    margin-top $margin * i !important
+    margin-bottom $margin * i !important
 
   .ml-{i}
-    margin-left $margin * i
+    margin-left $margin * i !important
 
   .mr-{i}
-    margin-right $margin * i
+    margin-right $margin * i !important
 
   .mt-{i}
-    margin-top $margin * i
+    margin-top $margin * i !important
 
   .mb-{i}
-    margin-bottom $margin * i
+    margin-bottom $margin * i !important

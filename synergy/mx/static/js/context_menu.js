@@ -60,7 +60,53 @@ function assignContextMenu () {
             );
         });
     }
+
+    // const $els = $('.context-menu');
+    // console.log($els)
+    // if ($els) {
+    //     $.each($els, function ($el) {
+    //         $el.on('click', function (event) {
+    //           console.log(event)
+    //             event.preventDefault();
+    //             const y = mouse_y(event) - 2; // subtract 2px to position pointer within the menu frame
+    //             const x = mouse_x(event) - 2; // subtract 2px to position pointer within the menu frame
+    //             let $menu = $('#rmenu');
+    //             $menu.css(`top: ${x}, left: ${y}`);
+    //             const evt = event || window.event;
+    //             evt.returnValue = false;
+    //         });
+    //     });
+    // }
 }
+
+// jquery context menu
+// $(function () {
+//     $.contextMenu({
+//         selector: '.context_menu',
+//         callback: function (key, options) {
+//             var m = 'clicked: ' + key;
+//             (window.console && console.log(m)) || alert(m);
+//         },
+//         items: {
+//             edit: { name: 'Edit', icon: 'edit' },
+//             cut: { name: 'Cut', icon: 'cut' },
+//             copy: { name: 'Copy', icon: 'copy' },
+//             paste: { name: 'Paste', icon: 'paste' },
+//             delete: { name: 'Delete', icon: 'delete' },
+//             sep1: '---------',
+//             quit: {
+//                 name: 'Quit',
+//                 icon: function () {
+//                     return 'context-menu-icon context-menu-icon-quit';
+//                 }
+//             }
+//         }
+//     });
+
+//     $('.context-menu-one').on('click', function (e) {
+//         console.log('clicked', this);
+//     });
+// });
 
 // event call-back for "window.load" event
 $(window).on('load', assignContextMenu);
