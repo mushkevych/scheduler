@@ -12,6 +12,7 @@ function toggleAllCheckboxes (source) {
 // function allows to identify X coordinate to rendering context menu
 function mouse_x (event) {
     if (event.pageX) {
+        console.log(event.pageX);
         return event.pageX;
     } else if (event.clientX) {
         return (
@@ -29,7 +30,7 @@ function mouse_y (event) {
         return event.pageY;
     } else if (event.clientY) {
         return (
-            event.clientY +
+            event.clientY -
             (document.documentElement.scrollTop ? document.documentElement.scrollTop : document.body.scrollTop)
         );
     } else {

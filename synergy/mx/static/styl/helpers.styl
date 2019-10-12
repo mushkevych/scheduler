@@ -5,11 +5,39 @@
 .inline-flex
   display inline-flex !important
 
+.flex-top
+  flex 1 0 auto
+
+.flex-bottom
+  flex-shrink 0
+
+.contain
+  max-height 85vh
+  max-width 100vw
+
+.scroll-x
+  overflow-x scroll
+
+.scroll-y
+  overflow-y scroll
+
+// fix an element to the bottom of the window
 .fixed-bottom
   position fixed !important
   bottom 0 !important
-  align-content center
-  margin-bottom 0 !important
+
+// center an element within its container
+.center-x
+  margin-left auto
+  margin-right auto
+  left 50%
+  transform translateX(-50%)
+
+.center-y
+  margin-top auto
+  margin-bottom auto
+  top 50%
+  transform translateY(50%)
 
 .bg-white
   background-color white !important

@@ -2,6 +2,7 @@ html
 body
   margin 0
   padding 0
+  height 100%
 
 html
   box-sizing border-box
@@ -14,20 +15,29 @@ html
 body
   color $ui-color-1
   font-size $body-font-size
+  display flex
+  flex-direction column
 
+.container-fluid
+  width 100%
+  flex 1 0 auto
 
 // footer styles
 .footer
+  flex-shrink 0
   width 100%
   bottom 0
   right 0
   left 0
-  margin 0
+  margin-top auto
+  margin-bottom 0
+  margin-left 0
+  margin-right 0
   padding 1rem
   clear both
   background-color $ui-color-2
   color white
-  display inline-flex
+  display flex
   justify-content space-between
 
   a
@@ -35,14 +45,13 @@ body
 
 // nav styles
 .nav
-  display inline-flex
+  display flex
   justify-content space-between
   width 100%
   margin 0
   padding 2rem 1rem
   background-color $ui-color-2
   color white
-  vertical-align middle
   align-items center
 
   .navbar
@@ -52,8 +61,10 @@ body
 
 .nav-item
   display inline-flex
+  align-items center
   border-right 2px solid white
   color whitesmoke
+  box-sizing border-box
   padding 0 1.5rem
   height 100%
 
@@ -67,7 +78,6 @@ a
   &.nav-item
     color whitesmoke
     text-decoration none
-    box-sizing border-box
     height 100%
     white-space nowrap
 
@@ -141,3 +151,21 @@ a
     &:hover
       border-color $color-6
       opacity 1
+
+// jquery datatables overrides
+.dataTables_wrapper
+  .dataTables_paginate
+    .paginate_button
+      &.disabled
+        color lighten($ui-color-10, 80%)
+      &.current
+        background $ui-color-10
+        border 1px solid transparent
+        &:hover
+          // color $ui-color-1 !important
+          background darken($ui-color-10, 10%)
+          border 1px solid transparent
+      &:hover
+        color $color-5 !important
+        background $ui-color-6
+        border 1px solid transparent
