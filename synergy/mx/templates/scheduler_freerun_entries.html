@@ -48,7 +48,7 @@
                         <input type="text" size="8" maxlength="32" name="interval"
                             value="{{ row.trigger_frequency }}" />
                         <button type="submit" class="action_button btn-icons btn-center" title="Apply"><i
-                                class="fa">&#xf00c;</i></button>
+                                class="fa fa-check"></i></button>
                     </form>
                 </td>
                 <td>
@@ -68,7 +68,7 @@
                         onsubmit="window.open('/viewer/object/?{{ url }}','View Uow',
                     `toolbar=no,scrollbars=yes,resizable=yes,top=${window.innerHeight * 0.15},left=${window.innerWidth * 0.15},width=${window.innerWidth / 2},height=${window.innerHeight * 0.85}`); return false;">
                         <button type="submit" class="action_button btn-icons btn-center" title="View Uow"><i
-                                class="fa">&#xf1c9;</i><span>Uow</span></button>
+                                class="fa fa-file-code-o"></i><span>Uow</span></button>
                     </form>
 
                     {% set url = 'action=freerun/log/uow' + '&process_name=' + row.process_name + '&entry_name=' + row.entry_name %}
@@ -76,7 +76,7 @@
                         onsubmit="window.open('/viewer/object/?{{ url }}','Uow Log',
                     `toolbar=no,scrollbars=yes,resizable=yes,top=${window.innerHeight * 0.15},left=${window.innerWidth * 0.15},width=${window.innerWidth / 2},height=${window.innerHeight * 0.85}`); return false;">
                         <button type="submit" class="action_button btn-icons btn-center" title="Log Uow"><i
-                                class="fa">&#xf0f6;</i><span>Log Uow</span></button>
+                                class="fa fa-file-text-o"></i><span>Log Uow</span></button>
                     </form>
 
                     {% set url = 'action=freerun/log/event' + '&process_name=' + row.process_name + '&entry_name=' + row.entry_name %}
@@ -84,7 +84,7 @@
                         onsubmit="window.open('/viewer/object/?{{ url }}','Event Log',
                     `toolbar=no,scrollbars=yes,resizable=yes,top=${window.innerHeight * 0.15},left=${window.innerWidth * 0.15},width=${window.innerWidth * 2/3},height=${window.innerHeight * 0.85}`); return false;">
                         <button type="submit" class="action_button btn-icons btn-center" title="Event Uow"><i
-                                class="fa">&#xf00b;</i><span>Event Log</span></button>
+                                class="fa fa-th-list"></i><span>Event Log</span></button>
                     </form>
                 </td>
                 <td class="button-col">
@@ -92,7 +92,7 @@
                         <input type="hidden" name="process_name" value="{{ row.process_name }}" />
                         <input type="hidden" name="entry_name" value="{{ row.entry_name }}" />
                         <button type="submit" class="action_button btn-icons btn-center" title="Cancel Uow"><i
-                                class="fa">&#xf00d;</i><span>Cancel</span></button>
+                                class="fa fa-remove"></i><span>Cancel</span></button>
                     </form>
 
                     {% set url = '/viewer/schedulable/?process_name=' + row.process_name + '&entry_name=' + row.entry_name + '&is_new_entry=False'%}
@@ -100,7 +100,7 @@
                         onsubmit="window.open('{{ url }}','Edit Freerun Trigger',
                     `toolbar=no,scrollbars=yes,resizable=yes,left=${window.innerWidth * 0.15},width=${window.innerWidth * 2/3},height=${window.innerHeight * 0.85}`); return false;">
                         <button type="submit" class="action_button btn-icons btn-center" title="Edit"><i
-                                class="fa">&#xf044;</i><span>Edit</span></button>
+                                class="fa fa-edit"></i><span>Edit</span></button>
                     </form>
                 </td>
             </tr>
