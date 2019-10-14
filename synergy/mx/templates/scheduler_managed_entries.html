@@ -11,7 +11,7 @@
     <table class="table-entries u-full-width context-menu">
         <thead>
             <tr class="table-entries-header">
-                <th scope="col"><input type="checkbox" name="select_all" onclick="toggleAllCheckboxes(this)" /> </th>
+                <th scope="col"><input type="checkbox" name="select_all" onclick="toggleAllCheckboxes(this)"/></th>
                 <th scope="col">Trigger On/Alive</th>
                 <th scope="col">Process Name</th>
                 <th scope="col">Trigger Frequency</th>
@@ -32,26 +32,26 @@
             <tr class="{{ tr_class }}">
                 <td>
                     {% set value = "{ process_name: '" + row.process_name + "', timeperiod: 'NA' }" %}
-                    <input type="checkbox" name="batch_processing" value="{{ value }}" />
+                        <input type="checkbox" name="batch_processing" value="{{ value }}"/>
                 </td>
                 <td>{{ row.is_on }} / {{ row.is_alive }}</td>
                 <td>{{ row.process_name }}</td>
                 <td>
                     <form class="table-form" method="POST" action="/managed/entry/interval/">
-                        <input type="hidden" name="process_name" value="{{ row.process_name }}" />
-                        <input type="hidden" name="timeperiod" value="NA" />
+                            <input type="hidden" name="process_name" value="{{ row.process_name }}"/>
+                            <input type="hidden" name="timeperiod" value="NA"/>
                         <input type="text" size="8" maxlength="32" name="interval"
-                            value="{{ row.trigger_frequency }}" />
-                        <button type="submit" title="Apply" class="action_button btn-center"><i
-                                class="fa fa-check"></i><span>Apply</span></button>
+                                   value="{{ row.trigger_frequency }}"/>
+                            <button type="submit" title="Apply" class="action_button btn-icons btn-center">
+                                <i class="fa fa-check"></i></button>
                     </form>
                 </td>
                 <td>
                     <form class="table-form" method="POST" action="/managed/entry/trigger/">
-                        <input type="hidden" name="process_name" value="{{ row.process_name }}" />
-                        <input type="hidden" name="timeperiod" value="NA" />
-                        <button type="submit" class="action_button btn-center" title="Trigger"><i
-                                class="fa fa-bolt"></i><span>Trigger</span></button>
+                            <input type="hidden" name="process_name" value="{{ row.process_name }}"/>
+                            <input type="hidden" name="timeperiod" value="NA"/>
+                            <button type="submit" class="action_button btn-center" title="Trigger">
+                                <i class="fa fa-bolt"></i><span>Trigger</span></button>
                     </form>
                 </td>
                 <td>{{ row.next_run_in }}</td>
@@ -71,15 +71,15 @@
                     <form class="table-form inline" method="GET" action="/gc/flush/all/"
                           onsubmit="refreshWithDelay()">
                         <span class="inline u-pull-right">
-                            <button type="submit" class="action_button btn-center inline" title="Flush All"><i
-                                    class="fa fa-recycle"></i><span>Flush All</span></button>
+                            <button type="submit" class="action_button btn-center inline" title="Flush All">
+                                <i class="fa fa-recycle"></i><span>Flush All</span></button>
                         </span>
                     </form>
                     <form class="table-form inline" method="GET" action="/gc/refresh/"
                           onsubmit="refreshWithDelay()">
                         <span class="inline u-pull-right">
-                            <button type="submit" class="action_button btn-center inline" title="Refresh"><i
-                                    class="fa fa-refresh"></i><span>Refresh</span></button>
+                            <button type="submit" class="action_button btn-center inline" title="Refresh">
+                                <i class="fa fa-refresh"></i><span>Refresh</span></button>
                         </span>
                     </form>
                 </th>
@@ -105,9 +105,9 @@
                 <td>
                     <form class="table-form u-pull-right" method="GET" action="/gc/flush/one/"
                         onsubmit="refreshWithDelay()">
-                        <input type="hidden" name="process_name" value="{{ process_name }}" />
-                        <button type="submit" class="action_button btn-center u-pull-right" title="Flush"><i
-                                class="fa fa-recycle"></i><span>Flush</span></button>
+                                <input type="hidden" name="process_name" value="{{ process_name }}"/>
+                                <button type="submit" class="action_button btn-center u-pull-right" title="Flush">
+                                    <i class="fa fa-recycle"></i><span>Flush</span></button>
                     </form>
                 </td>
             </tr>
@@ -119,8 +119,8 @@
                 <td>Empty</td>
                 <td>Empty</td>
                 <td>
-                    <button type="submit" disabled class="action_button btn-center disabled u-pull-right"
-                        title="Flush"><i class="fa fa-recycle"></i><span>Flush</span></button>
+                        <button type="submit" disabled class="action_button btn-center disabled u-pull-right" title="Flush">
+                            <i class="fa fa-recycle"></i><span>Flush</span></button>
                 </td>
             </tr>
             {%- endif -%}
@@ -158,7 +158,6 @@
     <table class="table-entries u-full-width">
         <thead>
         <tr class="table-entries-header">
-            <th scope="col" width="15%">Tail log</th>
             <th scope="col">
                 <form class="table-form" method="GET" onsubmit="window.open(`/viewer/object/?action=system/gc/log`,`GC Log`,`toolbar=no,scrollbars=yes,resizable=yes,top=${window.innerHeight * 0.15},left=${window.innerWidth * 0.15},width=${window.innerWidth * 2/3},height=${window.innerHeight * 0.85}`); return false;">
                     <button type="submit" class="action_button btn-center" title="GC"><i class="fa fa-file-text-o"></i>
@@ -169,7 +168,7 @@
             <th scope="col">
                 <form class="table-form" method="GET" onsubmit="window.open('/viewer/object/?action=system/mx/log','MX Log',
                         `toolbar=no,scrollbars=yes,resizable=yes,top=${window.innerHeight * 0.15},left=${window.innerWidth * 0.15},width=${window.innerWidth * 2/3},height=${window.innerHeight * 0.85}`); return false;">
-                    <button type="submit" class="action_button btn-center" title="MX"><i class="fa fa-file-text-o"></i>
+                    <button type="submit" class="action_button btn-center" title="MX Log"><i class="fa fa-file-text-o"></i>
                         <span>MX Log</span>
                     </button>
                 </form>
@@ -177,7 +176,7 @@
             <th scope="col">
                 <form class="table-form" method="GET" onsubmit="window.open('/viewer/object/?action=system/scheduler/log','Scheduler Log',
                         `toolbar=no,scrollbars=yes,resizable=yes,top=${window.innerHeight * 0.15},left=${window.innerWidth * 0.15},width=${window.innerWidth * 2/3},height=${window.innerHeight * 0.85}`); return false;">
-                    <button type="submit" class="action_button btn-center" title="Scheduler"><i class="fa fa-file-text-o"></i>
+                    <button type="submit" class="action_button btn-center" title="Scheduler Log"><i class="fa fa-file-text-o"></i>
                         <span>Scheduler Log</span>
                     </button>
                 </form>

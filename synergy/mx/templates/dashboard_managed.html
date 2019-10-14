@@ -14,7 +14,7 @@
         <thead>
             <tr class="table-entries-header">
                 <th scope="col">
-                    <input type="checkbox" name="select_all" onclick="toggleAllCheckboxes(this)" />
+                    <input type="checkbox" name="select_all" onclick="toggleAllCheckboxes(this)"/>
                 </th>
                 <th scope="col">Process Name</th>
                 <th scope="col">Timeperiod</th>
@@ -30,7 +30,7 @@
             {%- for process_name, job_entry in details.managed.items() -%}
             <tr class="{{ job_entry.state }}">
                 {% set value = "{ process_name: '" + job_entry.process_name + "', timeperiod: '" + job_entry.timeperiod + "' }" %}
-                <td><input type="checkbox" name="batch_processing" value="{{ value }}" /></td>
+                    <td><input type="checkbox" name="batch_processing" value="{{ value }}"/></td>
                 <td>{{ job_entry.process_name }}</td>
                 <td>{{ job_entry.timeperiod }}</td>
                 <td>{{ job_entry.state }}</td>
