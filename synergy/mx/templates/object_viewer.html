@@ -1,39 +1,40 @@
 <!DOCTYPE html>
 <html lang="en">
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <link rel="stylesheet" type="text/css" href="{{ url_for('static', file='css/font-awesome.min.css') }}">
-    <link rel="stylesheet" type="text/css" href="{{ url_for('static', file='css/skeleton-2.0.4.min.css') }}">
-    <link rel="stylesheet" type="text/css" href="{{ url_for('static', file='css/normalize-3.0.2.min.css') }}">
-    <link rel="stylesheet" type="text/css" href="{{ url_for('static', file='css/index.css') }}">
-    <script type="text/javascript" src="{{ url_for('static', file='js/jquery-3.4.1.min.js') }}"></script>
-    <script type="text/javascript" src="{{ url_for('static', file='js/mx_utils.js') }}"></script>
-    <title>Object Viewer</title>
-</head>
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta http-equiv="X-UA-Compatible" content="ie=edge">
+        <link rel="stylesheet" type="text/css" href="{{ url_for('static', file='css/font-awesome.min.css') }}">
+        <link rel="stylesheet" type="text/css" href="{{ url_for('static', file='css/skeleton-2.0.4.min.css') }}">
+        <link rel="stylesheet" type="text/css" href="{{ url_for('static', file='css/normalize-3.0.2.min.css') }}">
+        <link rel="stylesheet" type="text/css" href="{{ url_for('static', file='css/index.css') }}">
+        <script type="text/javascript" src="{{ url_for('static', file='js/jquery-3.4.1.min.js') }}"></script>
+        <script type="text/javascript" src="{{ url_for('static', file='js/mx_utils.js') }}"></script>
+        <title>Object Viewer</title>
+    </head>
 
-<body>
-<div class="container">
-    <pre id="json"></pre>
+    <body>
+        <div class="container-fluid">
+            <pre id="json" class="container-scroll"></pre>
+        </div>
+        <div class="flex-bottom container-close justify-center">
+            <form class="justify-space-around">
+                <button type="button" class="action_button btn-center" onclick="window.close()">
+                    <i class="fa fa-remove"></i><span>Close</span></button>
+            </form>
+        </div>
 
-    <form style="text-align: center">
-        <button type="button" class="action_button btn-center" onclick="window.close()"><i
-                class="fa fa-remove"></i><span>Close</span></button>
-    </form>
+        <script type="text/javascript">
+            $(function () {  // former $(document).ready(function () {...})
+                let action = getUrlParameter('action');
+                let url = '/' + action + '/?' + window.location.search.substring(1);
 
-    <script type="text/javascript">
-        $(function () {  // former $(document).ready(function () {...})
-            let action = getUrlParameter('action');
-            let url = '/' + action + '/?' + window.location.search.substring(1);
-
-            $.get(url, function (data) {
-                $("#json").text(formatJSON(data));
+                $.get(url, function (data) {
+                    $("#json").text(formatJSON(data));
+                });
             });
-        });
-    </script>
-</div>
-</body>
+        </script>
+    </body>
 
 </html>

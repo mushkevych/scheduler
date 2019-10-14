@@ -1,9 +1,26 @@
+// container classes
+
+// @mixin to create container styles
+make-container($padding-x = $container-fluid-padding-x)
+  width 100%
+  padding-right $padding-x
+  padding-left $padding-x
+  margin-right auto
+  margin-left auto
+
+// .container-fluid has no padding or margin
+.container-fluid
+  make-container(0)
+
 // helper classes
 .inline
   display inline !important
 
 .inline-flex
   display inline-flex !important
+
+.flex
+  display flex !important
 
 .flex-top
   flex 1 0 auto
@@ -42,10 +59,15 @@
 .bg-white
   background-color white !important
 
+for j in center left right space-between space-around
+  .justify-{j}
+    display flex
+    justify-content j !important
+    width 100% !important
+
+// shorthand to justify left & right
 .justify
-  display flex
-  justify-content space-between !important
-  width 100% !important
+  @extends .justify-space-between
 
 .auto-width
   width minmax(auto, max-content) !important
