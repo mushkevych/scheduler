@@ -36,15 +36,15 @@
     <script>
         $(document).ready(function () {
             let grids = $('.grid-row');
-            // set the height of each grid-row
+            // set the height of each grid-row to the height of 5 tiles
             grids.each(function () {
                     // get height of first column
-                    let firstCol = $(this).children('.grid-info')[0].clientHeight;
+                    let divHeight = $(this).children('.grid-info')[0].children[0].clientHeight;
                     // get height of header
-                    let headerRow = $(this).children('.grid-header')[0].clientHeight;
-                    let height = firstCol + headerRow;
-                    $(this).height(height + 50);
-                    $(this).css(`max-height: ${height}`);
+                    let headerRowHeight = $(this).children('.grid-header')[0].clientHeight;
+                    let totalHeight = divHeight * 5 + headerRowHeight;
+                    $(this).height(totalHeight);
+                    $(this).css(`height: ${totalHeight}`);
                 }
             )
         })
