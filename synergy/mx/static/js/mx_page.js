@@ -44,7 +44,7 @@ function getGrid(grid_name) {
     return grid;
 }
 
-function headerTreeTile (mx_tree, tile) {
+function headerTreeTile(mx_tree, tile) {
     const refresh_button = $(`<button class="action_button auto-width mt-1" id="refresh_button_${mx_tree.tree_name}">
 			<i class="fa fa-refresh"></i><span>
 				Refresh
@@ -194,7 +194,7 @@ function infoJobTile(job_entry, tile, is_next_timeperiod, is_selected_timeperiod
         window.open(
             viewer_url,
             'Object Viewer',
-            `width=${window.innerWidth * 2/3},height=${window.innerHeight * 0.85},scrollbars=1`
+            `width=${window.innerWidth * 2 / 3},height=${window.innerHeight * 0.85},scrollbars=1`
         );
     });
     const uow_log_button = $(
@@ -213,7 +213,7 @@ function infoJobTile(job_entry, tile, is_next_timeperiod, is_selected_timeperiod
         window.open(
             viewer_url,
             'Object Viewer',
-            `width=${window.innerWidth * 2/3},height=${window.innerHeight * 0.85},scrollbars=1`
+            `width=${window.innerWidth * 2 / 3},height=${window.innerHeight * 0.85},scrollbars=1`
         );
     });
     const event_log_button = $(
@@ -231,7 +231,7 @@ function infoJobTile(job_entry, tile, is_next_timeperiod, is_selected_timeperiod
         window.open(
             viewer_url,
             'Object Viewer',
-            `width=${window.innerWidth * 2/3},height=${window.innerHeight * 0.85},scrollbars=1`
+            `width=${window.innerWidth * 2 / 3},height=${window.innerHeight * 0.85},scrollbars=1`
         );
     });
     const skip_button = $(
@@ -244,9 +244,9 @@ function infoJobTile(job_entry, tile, is_next_timeperiod, is_selected_timeperiod
     });
     const reprocess_button = $(
         `<button title="Reprocess" aria-lable="Reprocess" class="action_button">
-		<i class="fa fa-repeat"></i>
+		    <i class="fa fa-repeat"></i>
 			<span> Reprocess </span>
-			</button>`
+		</button>`
     ).click(function (e) {
         processJob('tree/node/reprocess', tile.tree_name, tile.process_name, tile.timeperiod, null, null);
     });
@@ -267,7 +267,7 @@ function infoJobTile(job_entry, tile, is_next_timeperiod, is_selected_timeperiod
         window.open(
             viewer_url,
             'Flow Viewer',
-            `width=${window.innerWidth * 2/3},height=${window.innerHeight * 0.85},scrollbars=1`
+            `width=${window.innerWidth * 2 / 3},height=${window.innerHeight * 0.85},scrollbars=1`
         );
     });
 

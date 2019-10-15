@@ -2,7 +2,7 @@
 
 // function iterates over all checkboxes with name "batch_processing"
 // and marks/unmarks them accordingly to the state of the "source" checkbox
-function toggleAllCheckboxes (source) {
+function toggleAllCheckboxes(source) {
     const checkboxes = document.getElementsByName('batch_processing');
     for (let i = 0, n = checkboxes.length; i < n; i++) {
         checkboxes[i].checked = source.checked;
@@ -10,9 +10,8 @@ function toggleAllCheckboxes (source) {
 }
 
 // function allows to identify X coordinate to rendering context menu
-function mouse_x (event) {
+function mouse_x(event) {
     if (event.pageX) {
-        console.log(event.pageX);
         return event.pageX;
     } else if (event.clientX) {
         return (
@@ -25,7 +24,7 @@ function mouse_x (event) {
 }
 
 // function allows to identify Y coordinate to rendering context menu
-function mouse_y (event) {
+function mouse_y(event) {
     if (event.pageY) {
         return event.pageY;
     } else if (event.clientY) {
@@ -39,7 +38,7 @@ function mouse_y (event) {
 }
 
 // function replaces standard right-mouse-click menu with the custom one
-function assignContextMenu () {
+function assignContextMenu() {
     const els = document.getElementsByClassName('context-menu');
     if (els) {
         Array.prototype.forEach.call(els, function (el) {
@@ -74,7 +73,7 @@ $(document).on('click', function (event) {
 });
 
 // function iterates over all checkboxes in the document and selects checked ones
-function getCheckedBoxes (checkbox_name) {
+function getCheckedBoxes(checkbox_name) {
     const checkboxes = document.getElementsByName(checkbox_name);
     const selected_checkboxes = [];
 
@@ -88,7 +87,7 @@ function getCheckedBoxes (checkbox_name) {
 }
 
 // function applies given "action" to all records with selected checkboxes
-function processBatch (action) {
+function processBatch(action) {
     const selected = getCheckedBoxes('batch_processing');
     const msg = 'You are about to ' + action + ' all selected';
     let i;
@@ -127,11 +126,11 @@ function processBatch (action) {
 }
 
 // function applies given "action" to the job record identified by "process_name+timeperiod"
-function processJob (action, tree_name, process_name, timeperiod, flow_name, step_name) {
+function processJob(action, tree_name, process_name, timeperiod, flow_name, step_name) {
     /**
      * function do_the_call performs communication with the server and parses response
      */
-    function do_the_call () {
+    function do_the_call() {
         const params = {
             process_name: process_name,
             timeperiod: timeperiod,
@@ -168,8 +167,8 @@ function processJob (action, tree_name, process_name, timeperiod, flow_name, ste
 }
 
 // function applies given "action" to the SchedulerThreadHandler entry
-function processTrigger (action, process_name, timeperiod, entry_name, reload_afterwards) {
-    const params = { process_name: process_name, timeperiod: timeperiod, entry_name: entry_name };
+function processTrigger(action, process_name, timeperiod, entry_name, reload_afterwards) {
+    const params = {process_name: process_name, timeperiod: timeperiod, entry_name: entry_name};
     $.get('/' + action + '/', params, function (response) {
         // once the response arrives - reload the page
         if (reload_afterwards) {

@@ -27,11 +27,11 @@
     {% import 'block_context_menu.html' as context_menu %}
     {{ context_menu.job_menu() }}
 
-<script type="text/javascript">
-    let mx_trees = {{ details.mx_page_trees(active_mx_page[ 0 ]) | jsonify | safe }};
-</script>
-<script type="text/javascript" src="{{ url_for('static', file='js/tiles.js') }}"></script>
-<script type="text/javascript" src="{{ url_for('static', file='js/mx_page.js') }}"></script>
+    <script type="text/javascript">
+        let mx_trees = {{ details.mx_page_trees(active_mx_page[ 0 ]) | jsonify | safe }};
+    </script>
+    <script type="text/javascript" src="{{ url_for('static', file='js/tiles.js') }}"></script>
+    <script type="text/javascript" src="{{ url_for('static', file='js/mx_page.js') }}"></script>
 
     <script>
         $(document).ready(function () {
