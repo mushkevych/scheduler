@@ -1,128 +1,128 @@
 <!DOCTYPE html>
 <html lang="en">
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <link rel="stylesheet" type="text/css" href="{{ url_for('static', file='css/skeleton.css') }}">
-    <link rel="stylesheet" type="text/css" href="{{ url_for('static', file='css/normalize.css') }}">
-    <link rel="stylesheet" type="text/css" href="{{ url_for('static', file='css/index.css') }}">
-    <link rel="stylesheet" type="text/css" href="{{ url_for('static', file='css/font-awesome.css') }}">
-    <script type="text/javascript" src="{{ url_for('static', file='js/jquery-3.4.1.min.js') }}"></script>
-    <script type="text/javascript" src="{{ url_for('static', file='js/mx_utils.js') }}"></script>
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta http-equiv="X-UA-Compatible" content="ie=edge">
+        <link rel="stylesheet" type="text/css" href="{{ url_for('static', file='css/font-awesome.min.css') }}">
+        <link rel="stylesheet" type="text/css" href="{{ url_for('static', file='css/skeleton-2.0.4.min.css') }}">
+        <link rel="stylesheet" type="text/css" href="{{ url_for('static', file='css/normalize-3.0.2.min.css') }}">
+        <link rel="stylesheet" type="text/css" href="{{ url_for('static', file='css/index.css') }}">
 
-    <script type="text/javascript">
-        window.onunload = refreshParent;
+        <script type="text/javascript" src="{{ url_for('static', file='js/jquery-3.4.1.min.js') }}"></script>
+        <script type="text/javascript" src="{{ url_for('static', file='js/mx_utils.js') }}"></script>
 
-        function refreshParent() {
-            window.opener.location.reload();
-        }
+        <script type="text/javascript">
+            window.onunload = refreshParent;
 
-        function closeWindow() {
-            // QUESTION: is this necessary?
-            // maybe it has something to do with submitting the form?
-            setTimeout("window.close()", 750);
-        }
-    </script>
+            function refreshParent() {
+                window.opener.location.reload();
+            }
 
-    <title>Scheduler Freerun Trigger</title>
-</head>
+            function closeWindow() {
+                setTimeout("window.close()", 750);
+            }
+        </script>
 
-<body>
-<div class="container">
-    <pre id="json"></pre>
+        <title>Scheduler Freerun Trigger</title>
+    </head>
 
-    <form method="POST" action="/freerun/entry/">
-        <table class="popup-form">
-            <tr>
-                <td>Process name</td>
-                <td>
-                    {%- if not handler -%}
-                        <select name="process_name" style="width: 236px">
-                            {%- for process_name, process_entry in synergy_process_context.items() -%}
+    <body>
+        <div class="container">
+            <pre id="json" class="mx-2"></pre>
+
+            <form method="POST" action="/freerun/entry/">
+                <table class="popup-form">
+                    <tr>
+                        <td>Process name</td>
+                        <td>
+                            {%- if not handler -%}
+                            <select name="process_name" style="width: 236px">
+                                {%- for process_name, process_entry in synergy_process_context.items() -%}
                                 <option value="{{ process_name }}" {%- if process_name == 'BashDriver' -%} selected
-                                {%- endif -%}>{{ process_name }}</option>
-                            {%- endfor -%}
-                        </select>
-                    {%- else -%}
-                        <input type="text" name="process_name" style="text-align: left"
-                               value="{{ handler.process_entry.process_name }}" readonly>
-                    {%- endif -%}
-                </td>
-                <td></td>
-            </tr>
-            <tr>
-                <td>Entry name</td>
-                <td><input type="text" name="entry_name" style="text-align: left"
-                           value="{% if handler %}{{ handler.process_entry.entry_name }}{% endif %}"
-                        {% if handler %} readonly {% endif %}></td>
-                <td>Name of the schedulable item. Has to be unique.</td>
-            </tr>
+                                    {%- endif -%}>{{ process_name }}</option>
+                                {%- endfor -%}
+                            </select>
+                            {%- else -%}
+                            <input type="text" name="process_name" class="text-align-left"
+                                value="{{ handler.process_entry.process_name }}" readonly>
+                            {%- endif -%}
+                        </td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td>Entry name</td>
+                        <td><input type="text" name="entry_name" class="text-align-left" placeholder="entry name"
+                                value="{% if handler %}{{ handler.process_entry.entry_name }}{% endif %}"
+                                {% if handler %} readonly {% endif %}></td>
+                        <td>Name of the schedulable item. Has to be unique.</td>
+                    </tr>
 
-            <tr>
-                <td>Description</td>
-                <td><input type="text" name="description" style="text-align: left"
-                           value="{% if handler %}{{ handler.process_entry.description }}{% endif %}"></td>
-                <td>Human-readable description of the schedulable item</td>
-            </tr>
+                    <tr>
+                        <td>Description</td>
+                        <td><input type="text" name="description" class="text-align-left" placeholder="description" value="{% if handler %}{{ handler.process_entry.description }}{% endif %}"></td>
+                        <td>Human-readable description of the schedulable item</td>
+                    </tr>
 
-            <tr>
-                <td>Is Active</td>
-                <td>
-                    <label><input type="checkbox" name="is_on" id="is_on"
-                            {% if handler and handler.process_entry.is_on %} checked {% endif %} /></label>
-                </td>
-                <td>Defines whether the schedulable is active and running OR deactivated and idle</td>
-            </tr>
+                    <tr>
+                        <td>Is Active</td>
+                        <td>
+                            <label><input type="checkbox" name="is_on" id="is_on"
+                                    {% if handler and handler.process_entry.is_on %} checked {% endif %} /></label>
+                        </td>
+                        <td>Defines whether the schedulable is active and running OR deactivated and idle</td>
+                    </tr>
 
-            <tr>
-                <td>Trigger time</td>
-                <td><input type="text" maxlength="32" name="trigger_frequency" style="text-align: left"
-                           value="{%- if handler %}{{ handler.process_entry.trigger_frequency }}{%- endif %}"/>
-                </td>
-                <td>
-                    - <strong>every XXX</strong><br/> where XXX stands for seconds;<br/>For instance: "every
-                    60"
-                    <br/><br/>
-                    - <strong>at DoW-HH:MM, ..., DoW-HH:MM</strong><br/> where DoW is numerical Day Of Week
-                    (Mon-0, Sun-6, *-every day);
-                    <br/>For instance:<br/>"at 2-15:00" - specifies Wed, 15:00 UTC
-                    <br/>"at *-12:00, 3-09:09" specifies everyday at 12:00 UTC and Thu at 15:00 UTC
-                </td>
-            </tr>
-            <tr>
-                <td>Arguments</td>
-                <td><textarea rows="10" cols="30" name="arguments">
-                        {%- if handler -%}
-                            {{ handler.process_entry.arguments|jsonify }}
-                        {%- else -%}
-                            {"cmd_path": "", "cmd_file": "", "cmd_args": "", "cmd_host": "" }
-                        {%- endif -%}</textarea></td>
-                <td>This is process-specific set of arguments that are used to construct and run an actual job
-                </td>
-            </tr>
-            <tr>
-                <td colspan="3">
-                    <div id="buttons">
-                        {%- if not handler -%}
+                    <tr>
+                        <td>Trigger time</td>
+                        <td><input type="text" maxlength="32" name="trigger_frequency" class="text-align-left" placeholder="every XXX"
+                                value="{%- if handler %}{{ handler.process_entry.trigger_frequency }}{%- endif %}" />
+                        </td>
+                        <td>
+                            - <strong>every XXX</strong><br /> where XXX stands for seconds;<br />For instance: <code>
+                                every
+                                60
+                            </code>
+                            <br /><br />
+                            - <strong>at DoW-HH:MM, ..., DoW-HH:MM</strong><br /> where DoW is numerical Day Of Week
+                            (Mon-0, Sun-6, *-every day);
+                            <br />For instance:<br /><code>at 2-15:00</code> - specifies Wed, 15:00 UTC
+                            <br /><code>at *-12:00, 3-09:09</code> specifies everyday at 12:00 UTC and Thu at 15:00 UTC
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>Arguments</td>
+                        <td><textarea rows="10" cols="30" name="arguments">
+                {%- if handler -%}
+                    {{ handler.process_entry.arguments|jsonify }}
+                {%- else -%}
+                    {"cmd_path": "", "cmd_file": "", "cmd_args": "", "cmd_host": "" }
+                {%- endif -%}</textarea></td>
+                        <td>This is process-specific set of arguments that are used to construct and run an actual job
+                        </td>
+                    </tr>
+                    <tr>
+                        <td colspan="3">
+                            <div id="buttons">
+                                {%- if not handler -%}
                             <button type="submit" name="insert_button" value="Insert" onclick="closeWindow()">Insert
                             </button>
-                        {%- else -%}
+                                {%- else -%}
                             <button type="submit" name="update_button" value="Update" onclick="closeWindow()">Update
                             </button>
                             <button type="submit" name="delete_button" value="Delete" onclick="closeWindow()">Delete
                             </button>
-                        {%- endif -%}
+                                {%- endif -%}
 
                         <button type="submit" name="cancel_button" value="Cancel" onclick="closeWindow()">Cancel
                         </button>
-                        <div style="clear:both"></div>
-                    </div>
-                </td>
-            </tr>
-        </table>
-    </form>
-</div>
-</body>
+                                <div style="clear:both"></div>
+                            </div>
+                        </td>
+                    </tr>
+                </table>
+            </form>
+        </div>
+    </body>
 </html>
