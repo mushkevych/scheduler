@@ -1,8 +1,18 @@
+.container-fluid {
+  width: 100%;
+  padding-right: 0;
+  padding-left: 0;
+  margin-right: auto;
+  margin-left: auto;
+}
 .inline {
   display: inline !important;
 }
 .inline-flex {
   display: inline-flex !important;
+}
+.flex {
+  display: flex !important;
 }
 .flex-top {
   flex: 1 0 auto;
@@ -39,9 +49,30 @@
 .bg-white {
   background-color: #fff !important;
 }
+.justify-center {
+  display: flex;
+  justify-content: center !important;
+  width: 100% !important;
+}
+.justify-left {
+  display: flex;
+  justify-content: left !important;
+  width: 100% !important;
+}
+.justify-right {
+  display: flex;
+  justify-content: right !important;
+  width: 100% !important;
+}
+.justify-space-between,
 .justify {
   display: flex;
   justify-content: space-between !important;
+  width: 100% !important;
+}
+.justify-space-around {
+  display: flex;
+  justify-content: space-around !important;
   width: 100% !important;
 }
 .auto-width {
@@ -980,4 +1011,27 @@ input:focus +.slider {
 }
 .context_menu_hide {
   display: none;
+}
+.container-scroll {
+  overflow: scroll;
+  height: 90vh !important;
+  margin: 1rem 1rem 0 1rem;
+  transition: outline 1s;
+}
+.container-scroll:hover {
+  outline: 1px solid #dde1e4;
+}
+.container-close {
+  width: 100%;
+  background-color: #fff;
+  z-index: 1000;
+  bottom: 0;
+  left: 0;
+  margin: 0;
+  padding: 2rem;
+  display: flex;
+  justify-content: center;
+}
+.container-close form {
+  margin: 0;
 }
