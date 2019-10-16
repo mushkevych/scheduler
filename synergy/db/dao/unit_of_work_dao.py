@@ -132,7 +132,7 @@ class UnitOfWorkDao(object):
             return collection.insert_one(instance.document).inserted_id
         except MongoDuplicateKeyError as e:
             exc = DuplicateKeyError(instance.process_name,
-                                    instance.start_timeperiod,
+                                    instance.timeperiod,
                                     instance.start_id,
                                     instance.end_id,
                                     e)

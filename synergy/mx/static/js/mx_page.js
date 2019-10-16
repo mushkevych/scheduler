@@ -143,11 +143,11 @@ function headerProcessTile(process_entry, tile) {
 
 function infoProcessTile(process_entry, tile) {
     const change_interval_form = `
-        <form class="process-form" method="POST" action="/freerun/entry/interval/" onsubmit="xmlhttp.send(); return false;">
-		<input type="hidden" name="process_name" value="${process_entry.process_name}" />
-		<input type="hidden" name="timeperiod" value="NA" />
-		<input type="text" size="8" maxlength="32" name="interval" value="${process_entry.trigger_frequency}" />
-		<button type="submit" title="Apply" class="auto-width fa"><i class="fa fa-check"></i></button>
+        <form class="process-form" method="POST" action="/managed/entry/interval/" onsubmit="xmlhttp.send(); return false;">
+            <input type="hidden" name="process_name" value="${process_entry.process_name}" />
+            <input type="hidden" name="timeperiod" value="NA" />
+            <input type="text" size="8" maxlength="32" name="interval" value="${process_entry.trigger_frequency}" />
+            <button type="submit" title="Apply" class="auto-width fa"><i class="fa fa-check"></i></button>
 		</form>`;
 
     tile.process_name = process_entry.process_name;
@@ -165,7 +165,7 @@ function infoProcessTile(process_entry, tile) {
 			</li><li title="Trigger Frequency"><i class="fa-li fa fa-heartbeat"></i>
 			<span class="justify">${change_interval_form}</span>
 			</li>
-			</ul>`
+        </ul>`
     );
     tile.$el.attr('class', 'process_info_tile');
 }

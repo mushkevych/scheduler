@@ -61,14 +61,16 @@ class AbstractStateMachine(object):
         uow.arguments = context.process_context[process_name].arguments
         uow.db_id = self.uow_dao.insert(uow)
 
-        msg = 'Created: UOW {0} for {1}@{2}.'.format(uow.db_id, process_name, start_timeperiod)
-        self._log_message(INFO, process_name, start_timeperiod, msg)
+        msg = 'Created: UOW {0} for {1}@{2} over [{3}:{4}).'\
+            .format(uow.db_id, process_name, timeperiod, start_timeperiod, end_timeperiod)
+        self._log_message(INFO, process_name, timeperiod, msg)
         return uow
 
     def _publish_uow(self, uow):
         self.mq_transmitter.publish_managed_uow(uow)
-        msg = 'Published: UOW {0} for {1}@{2}.'.format(uow.db_id, uow.process_name, uow.start_timeperiod)
-        self._log_message(INFO, uow.process_name, uow.start_timeperiod, msg)
+        msg = 'Published: UOW {0} for {1}@{2} over [{3}:{4}).'\
+            .format(uow.db_id, uow.process_name, uow.timeperiod, uow.start_timeperiod, uow.end_timeperiod)
+        self._log_message(INFO, uow.process_name, uow.timeperiod, msg)
 
     def insert_and_publish_uow(self, job_record, start_id, end_id):
         """ method creates and publishes a unit_of_work. it also handles DuplicateKeyError and attempts recovery
@@ -85,15 +87,15 @@ class AbstractStateMachine(object):
             uow = self._insert_uow(process_name, timeperiod, start_timeperiod, end_timeperiod, start_id, end_id)
         except DuplicateKeyError as e:
             is_duplicate = True
-            msg = 'Catching up with latest UOW {0}@{1}, because of: {2}' \
-                  .format(process_name, start_timeperiod, e)
-            self._log_message(WARNING, process_name, start_timeperiod, msg)
+            msg = 'Catching up with latest UOW {0}@{1} over [{2}:{3}), because of: {4}' \
+                  .format(process_name, timeperiod, start_timeperiod, end_timeperiod, e)
+            self._log_message(WARNING, process_name, timeperiod, msg)
             uow = self.uow_dao.recover_from_duplicatekeyerror(e)
 
         if not uow:
-            msg = 'PERSISTENT TIER ERROR! Unable to locate UOW for {0}@{1}' \
-                  .format(process_name, start_timeperiod)
-            self._log_message(WARNING, process_name, start_timeperiod, msg)
+            msg = 'PERSISTENT TIER ERROR! Unable to locate UOW for {0}@{1} over [{2}:{3})' \
+                  .format(process_name, timeperiod, start_timeperiod, end_timeperiod)
+            self._log_message(WARNING, process_name, timeperiod, msg)
             raise UserWarning(msg)
 
         if uow.is_canceled:
