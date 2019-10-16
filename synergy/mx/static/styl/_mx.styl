@@ -1,263 +1,272 @@
 // grid styles
 .grid-container
-  margin 2rem 4rem
+    margin 2rem 4rem
+    display flex
+    flex-wrap wrap
+    justify-content left
 
 .grid-row
-  background-color whitesmoke
-  background-size 100%
-  display grid
-  grid-gap 1rem
-  justify-content left
-  margin 1rem 0 3rem 0
-  padding 1rem
-  overflow-x scroll
-  overflow-y hidden
+    background-color whitesmoke
+    background-size 100%
+    display grid
+    grid-gap 1rem
+    justify-content left
+    margin 1rem 2rem 3rem 2rem
+    padding 1.5rem
+    overflow-x scroll
+    overflow-y hidden
+    width max-content
 
-  .header
-    height 100%
+    .header
+        height 100%
+
+// grid adjusts for small screens
+@media (max-width:960px)
+    .grid-container
+        justify-content space-between
+    .grid-row
+        margin 1rem 1rem 3rem 1rem
+
+@media (max-width:1290px)
+    .grid-container
+        justify-content space-evenly
+    .grid-row
+        margin 1rem 2rem 3rem 2rem
 
 // grid column styles
 // generates up to 10 columns
 for i in 1..10
-  .grid-columns-{i}
-    grid-template-columns repeat(i, min-content)
-    grid-template-rows min-content auto
+    .grid-columns-{i}
+        grid-template-columns repeat(i, min-content)
+        grid-template-rows min-content auto
 
 .grid-header
-  background-color $color-1
+    background-color $color-1
 
 .grid-header > div
 .grid-info > div
-  padding 2rem
+    padding 2rem
 
 .grid-info
-  height 100%
-  overflow-y scroll
+    height 100%
+    overflow-y scroll
 
-  >div
-    margin 1rem 0
-    border 4px solid transparent
+    >div
+        margin 1rem 0
+        border 4px solid transparent
 
-    &:first-child
-      margin 0
-    &:last-child
-      margin-bottom 0
+        &:first-child
+            margin 0
+        &:last-child
+            margin-bottom 0
 
 .tile_component
-  width: 100%
-  display: inline-flex
-  justify-content: space-between
+    width: 100%
+    display: inline-flex
+    justify-content: space-between
 
-  .checkbox
-    align-self: right
+    .checkbox
+        align-self: right
 
 // button styles
 
 .button, button, input[type="submit"], input[type="reset"], input[type="button"]
-  display: inline-block;
-  height: 38px;
-  padding: 0 30px;
-  // color: #555;
-  text-align: center;
-  // font-size: 11px;
-  font-weight: 600;
-  line-height: 38px;
-  letter-spacing: .1rem;
-  text-transform: uppercase;
-  text-decoration: none;
-  white-space: nowrap;
-  background-color: transparent;
-  border-radius: 4px;
-  // border: 1px solid #bbb;
-  // border-top-color: rgb(187, 187, 187);
-  // border-right-color: rgb(187, 187, 187);
-  // border-bottom-color: rgb(187, 187, 187);
-  // border-left-color: rgb(187, 187, 187);
-  cursor: pointer;
-  box-sizing: border-box;
+    display: inline-block;
+    height: 38px;
+    padding: 0 30px;
+    text-align: center;
+    font-weight: 600;
+    line-height: 38px;
+    letter-spacing: .1rem;
+    text-transform: uppercase;
+    text-decoration: none;
+    white-space: nowrap;
+    background-color: transparent;
+    border-radius: 4px;
+    cursor: pointer;
+    box-sizing: border-box;
 
 .btn-center
-  text-align center !important
+    text-align center !important
 
 .btn-container
-  max-width 100%
-  display grid
-  justify-content left
-  align-content space-between
-  grid-template-columns auto auto
+    max-width 100%
+    display grid
+    justify-content left
+    align-content space-between
+    grid-template-columns auto auto
 
 .flex-buttons
-  width 100%
-  display flex
-  flex-wrap wrap
-  justify-content space-between
-  align-items flex-start
+    width 100%
+    display flex
+    flex-wrap wrap
+    justify-content space-between
+    align-items flex-start
 
 .action_button
-  font-size $btn-font-size
-  display inline-block
-  // min-width $btn-min-width
-  width $btn-width
-  padding 0px 6px
-  margin 2px
-  border-color $color-5
-  text-transform uppercase
-  opacity 0.75
-
-  i
-    padding 0
     font-size $btn-font-size
-
-  &:hover
-    border-color $color-6
-    opacity 1
-
-  &.auto-width
-    min-width 20px
-
-  span
-    margin-left 4px
-
-  &.btn-icons
-    font-size $btn-font-size-icons
-    min-width 38px
-    text-align center
+    display inline-block
+    width $btn-width
+    padding 0px 6px
+    margin 2px
+    border-color $color-5
     text-transform uppercase
+    opacity 0.75
+
+    i
+        padding 0
+        font-size $btn-font-size
+
+    &:hover
+        border-color $color-6
+        opacity 1
+
+    &.auto-width
+        min-width 20px
+
     span
-      display none
+        margin-left 4px
+
+    &.btn-icons
+        font-size $btn-font-size-icons
+        min-width 38px
+        text-align center
+        text-transform uppercase
+        span
+            display none
 
 
 .grid-info
-  .action_button
-    text-align left
-    span
-      margin 0
+    .action_button
+        text-align left
+        span
+            margin 0
 
 .action_toogle
-  &:hover
-    color $color-2
+    &:hover
+        color $color-2
 
 .clear
-  clear both
+    clear both
 
 // tile styles
 .header-tile-icons
-  display flex
-  justify-content flex-start
-  margin 4px 0.3rem
+    display flex
+    justify-content flex-start
+    margin 4px 0.3rem
 
-  span
-    vertical-align middle
-    margin 0 0.25rem 0 0
+    span
+        vertical-align middle
+        margin 0 0.25rem 0 0
 
-    i
-      margin 0 0.42rem
+        i
+            margin 0 0.42rem
 
-  .state-warning
-    color #BF360C
+    .state-warning
+        color #BF360C
 
 
 ul
-  &.process-info
-    margin-bottom 0
-    margin-right 1rem
+    &.process-info
+        margin-bottom 0
+        margin-right 1rem
 
-    li
-      margin-bottom 4px
+        li
+            margin-bottom 4px
 
-  &.header-tile-info
-    margin-bottom 0
+    &.header-tile-info
+        margin-bottom 0
 
-    li
-      display flex
-      margin-bottom 4px
-      align-items center
-      justify-content left
-      i
-        padding 0
-        top 4px
+        li
+            display flex
+            margin-bottom 4px
+            align-items center
+            justify-content left
+            i
+                padding 0
+                top 4px
 
 
 div
-  &.process_header_tile_off
-    background-color lightgray
-    height 100%
+    &.process_header_tile_off
+        background-color lightgray
+        height 100%
 
-  &.process_header_tile_on
-    background-color $color-4
-    height 100%
+    &.process_header_tile_on
+        background-color $color-4
+        height 100%
 
-  &.process_info_tile
-    background $color-7
-    overflow-x scroll
-    width 100%
+    &.process_info_tile
+        background $color-7
+        overflow-x scroll
+        width 100%
 
-  &.table_layout
-    display block
-    margin-bottom 0.5rem
+    &.table_layout
+        display block
+        margin-bottom 0.5rem
 
-  &.table_layout_element
-    &:first-child
-      margin-right 8px
+    &.table_layout_element
+        &:first-child
+            margin-right 8px
 
 
-  &.is_selected_timeperiod
-    border 4px solid $color-8
-    // box-sizing content-box
+    &.is_selected_timeperiod
+        border 4px solid $color-8
+        // box-sizing content-box
 
-  &.is_next_timeperiod
-    border 4px solid $color-9
+    &.is_next_timeperiod
+        border 4px solid $color-9
 
-  &.state_embryo
-    background-color $color-10
+    &.state_embryo
+        background-color $color-10
 
-  &.state_in_progress
-    background-color $color-12
+    &.state_in_progress
+        background-color $color-12
 
-  &.state_processed
-    background-color $color-13
+    &.state_processed
+        background-color $color-13
 
-  &.state_final_run
-    background-color $color-14
+    &.state_final_run
+        background-color $color-14
 
-  &.state_skipped
-    background-color $color-15
+    &.state_skipped
+        background-color $color-15
 
-    .action_button
-      border-color $color-6
+        .action_button
+            border-color $color-6
 
-  &.state_noop
-    background-color $color-16
+    &.state_noop
+        background-color $color-16
 
-  &.state_inconsistent
-    background-color $color-17
+    &.state_inconsistent
+        background-color $color-17
 
-  &.state_inactive
-    background-color lightgray
+    &.state_inactive
+        background-color lightgray
 
 // shrink the buttons to icons for smaller screens
 @media (max-width:1290px)
-  .btn-container
-    grid-template-columns repeat(3, auto)
-    justify-content left
-  .grid-row
-    div
-      .action_button
-        font-size $btn-font-size-icons
-        min-width 40px
-        display inline-block
-        padding 0px 6px
-        text-align center
-        margin 2px
-        border-color $color-5
-        text-transform uppercase
-        opacity 0.75
-        i
-          font-size: $btn-font-size-icons
-        span
-          display none
-      &.tree_header_tile
-        .action_button
-          font-size $btn-font-size
-          span
-            display inline
+    .btn-container
+        grid-template-columns repeat(3, auto)
+        justify-content left
+    .grid-row
+        div
+            .action_button
+                font-size $btn-font-size-icons
+                min-width 40px
+                display inline-block
+                padding 0px 6px
+                text-align center
+                margin 2px
+                border-color $color-5
+                text-transform uppercase
+                opacity 0.75
+                i
+                    font-size: $btn-font-size-icons
+                span
+                    display none
+            &.tree_header_tile
+                .action_button
+                    font-size $btn-font-size
+                    span
+                        display inline

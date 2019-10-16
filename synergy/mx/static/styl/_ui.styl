@@ -1,171 +1,183 @@
 html
 body
-  margin 0
-  padding 0
-  height 100%
+    margin 0
+    padding 0
+    height 100%
 
 html
-  box-sizing border-box
+    box-sizing border-box
 
 *
 *:before
 *:after
-  box-sizing inherit
+    box-sizing inherit
 
 body
-  color $ui-color-1
-  font-size $body-font-size
-  display flex
-  flex-direction column
+    color $ui-color-1
+    font-size $body-font-size
+    display flex
+    flex-direction column
 
 .container-fluid
-  width 100%
-  flex 1 0 auto
+    width 100%
+    flex 1 0 auto
 
 // footer styles
 .footer
-  flex-shrink 0
-  width 100%
-  bottom 0
-  right 0
-  left 0
-  margin-top auto
-  margin-bottom 0
-  margin-left 0
-  margin-right 0
-  padding 1rem
-  clear both
-  background-color $ui-color-2
-  color white
-  display flex
-  justify-content space-between
-
-  a
+    flex-shrink 0
+    width 100%
+    bottom 0
+    right 0
+    left 0
+    margin-top auto
+    margin-bottom 0
+    margin-left 0
+    margin-right 0
+    padding 1rem
+    clear both
+    background-color $ui-color-2
     color white
+    display flex
+    justify-content space-between
+
+    a
+        color white
 
 // nav styles
 .nav
-  display flex
-  justify-content space-between
-  width 100%
-  margin 0
-  padding 2rem 1rem
-  background-color $ui-color-2
-  color white
-  align-items center
-
-  .navbar
+    display flex
+    justify-content space-between
+    width 100%
     margin 0
-    display inline-flex
-    height 100%
-
-.nav-item
-  display inline-flex
-  align-items center
-  border-right 2px solid white
-  color whitesmoke
-  box-sizing border-box
-  padding 0 1.5rem
-  height 100%
-
-  &:hover
+    padding 2rem 1rem
+    background-color $ui-color-2
     color white
+    align-items center
 
-  &:last-of-type
-    border none
+    .navbar
+        margin 0
+        display inline-flex
+        flex-wrap wrap
+        justify-content right
+        align-items center
+        height 100%
 
-a
-  &.nav-item
-    color whitesmoke
-    text-decoration none
-    height 100%
-    white-space nowrap
+        .nav-group
+            display inline-flex
+            margin 0
+            padding 0
 
-    &.active
-      color white
-      background-color $ui-color-3
+            .nav-item
+                display inline-flex
+                align-items center
+                text-align right
+                border-right 2px solid white
+                color whitesmoke
+                box-sizing border-box
+                padding 0 1.5rem
+
+                &:hover
+                    color white
+
+            a.nav-item
+                color whitesmoke
+                text-decoration none
+
+                &.active
+                    color white
+                    background-color $ui-color-3
+
+@media (max-width:1290px)
+    .nav
+        .navbar
+            height auto
+            .nav-item
+                margin-top 0.5rem
+                margin-bottom 0.5rem
+        .title h3
+            font-size 2.7rem
 
 .page-title-bar
-  padding 1rem 2rem
-  display flex
-  justify-content right
+    padding 1rem 2rem
+    display flex
+    justify-content right
 
-  h2
-    display inline-flex
-    margin-bottom 0
+    h2
+        display inline-flex
+        margin-bottom 0
 
-  .side-tool-bar
-    display inline-flex
-    vertical-align middle
-    align-self flex-end
-    align-items flex-end
+    .side-tool-bar
+        display inline-flex
+        vertical-align middle
+        align-self flex-end
+        align-items flex-end
 
 
 // sidebar styles
 .side-tool-bar
-  margin 0.5rem 0
-  display flex
-  justify-content flex-end
-  vertical-align center
+    margin 0.5rem 0
+    display flex
+    justify-content flex-end
+    vertical-align center
 
 // form styles
 
 .popup-form
-  tr
-    &:last-child
-      td
-        padding 2rem 1rem
-        text-align: right
-      &:hover
-        background-color transparent
-    td
-      &:first-child
-        font-weight bold
-        text-transform uppercase
-        white-space nowrap
-        font-size 1.2rem
-      padding-left 1rem
-      padding-right 1rem
+    tr
+        &:last-child
+            td
+                padding 2rem 1rem
+                text-align: right
+            &:hover
+                background-color transparent
+        td
+            &:first-child
+                font-weight bold
+                text-transform uppercase
+                white-space nowrap
+                font-size 1.2rem
+            padding-left 1rem
+            padding-right 1rem
 
 .process-form
-  margin-bottom 0
+    margin-bottom 0
 
-  input[type="text"]
-    height 2.5rem
-    padding 2px 5px
-    margin-right 0.5rem
-    flex-grow 1
+    input[type="text"]
+        height 2.5rem
+        padding 2px 5px
+        margin-right 0.5rem
+        flex-grow 1
 
-  button
-    height 2.5rem
-    border-color $color-5
-    opacity 0.75
-    padding 0 6px
-    min-width 4rem
-    width minmax(auto, max-content)
-    flex-shrink 0
+    button
+        height 2.5rem
+        border-color $color-5
+        opacity 0.75
+        padding 0 6px
+        min-width 4rem
+        width minmax(auto, max-content)
+        flex-shrink 0
 
-    i
-      opacity 0.8
+        i
+            opacity 0.8
 
-    &:hover
-      border-color $color-6
-      opacity 1
+        &:hover
+            border-color $color-6
+            opacity 1
 
 // jquery datatables overrides
 .dataTables_wrapper
-  .dataTables_paginate
-    .paginate_button
-      &.disabled
-        color lighten($ui-color-10, 80%)
-      &.current
-        background $ui-color-10
-        border 1px solid transparent
-        &:hover
-          // color $ui-color-1 !important
-          background darken($ui-color-10, 10%)
-          border 1px solid transparent
-      &:hover
-        color $color-5 !important
-        background $ui-color-6
-        border 1px solid transparent
+    .dataTables_paginate
+        .paginate_button
+            &.disabled
+                color lighten($ui-color-10, 80%)
+            &.current
+                background $ui-color-10
+                border 1px solid transparent
+                &:hover
+                    // color $ui-color-1 !important
+                    background darken($ui-color-10, 10%)
+                    border 1px solid transparent
+            &:hover
+                color $color-5 !important
+                background $ui-color-6
+                border 1px solid transparent
