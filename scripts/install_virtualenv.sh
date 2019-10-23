@@ -49,7 +49,11 @@ commonlist=(
     "Jinja2-2.10.1.tar.gz"
     "Werkzeug-0.15.4.tar.gz"
     "synergy_odm-0.9.tar.gz"
-    "synergy_flow-0.9.tar.gz"
+    "synergy_flow-0.11.tar.gz"
+
+    # fabric
+    "fabric-2.5.0.tar.gz"
+    "invoke-1.3.0.tar.gz"
 )
 
 if [[ -z "$1" ]]; then

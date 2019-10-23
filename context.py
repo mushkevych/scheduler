@@ -164,7 +164,7 @@ process_context = {
 
     PROCESS_BASH_DRIVER: daemon_context_entry(
         process_name=PROCESS_BASH_DRIVER,
-        classname='workers.bash_driver.BashDriver.start',
+        classname='synergy.workers.bash_driver.BashDriver.start',
         token=TOKEN_BASH_DRIVER,
         exchange=EXCHANGE_FREERUN_WORKER,
         present_on_boxes=['dev.*']),

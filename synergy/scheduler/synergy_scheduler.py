@@ -183,6 +183,7 @@ class Scheduler(SynergyProcess):
 
             job_record = _fire_worker(thread_handler_header.process_entry, None)
             while job_record and job_record.is_finished:
+                # if applicable, process next timeperiod
                 job_record = _fire_worker(thread_handler_header.process_entry, job_record)
 
         except Exception as e:

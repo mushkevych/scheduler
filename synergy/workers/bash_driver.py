@@ -3,7 +3,8 @@ __author__ = 'Bohdan Mushkevych'
 import os
 import time
 import threading
-import fabric.operations
+from invoke import Context
+from fabric2 import Connection
 from datetime import datetime
 
 from synergy.conf import settings
@@ -54,16 +55,23 @@ class BashRunnable(threading.Thread):
             uow.started_at = datetime.utcnow()
             self.uow_dao.update(uow)
 
-            fabric.operations.env.warn_only = True
-            fabric.operations.env.abort_on_prompts = True
-            fabric.operations.env.use_ssh_config = True
-            fabric.operations.env.host_string = uow.arguments[ARGUMENT_CMD_HOST]
-
             command = os.path.join(uow.arguments[ARGUMENT_CMD_PATH],
                                    uow.arguments[ARGUMENT_CMD_FILE])
             command += ' {0}'.format(uow.arguments[ARGUMENT_CMD_ARGS])
 
-            run_result = fabric.operations.run(command, pty=False)
+            # Fabric1
+            # fabric.operations.env.warn_only = True
+            # fabric.operations.env.abort_on_prompts = True   # removed
+            # fabric.operations.env.use_ssh_config = True     # True by default
+            # fabric.operations.env.host_string = uow.arguments[ARGUMENT_CMD_HOST]
+            # run_result = fabric.operations.run(command, pty=False)
+
+            if uow.arguments[ARGUMENT_CMD_HOST]:
+                runner = Connection(host=uow.arguments[ARGUMENT_CMD_HOST])
+            else:
+                runner = Context()
+
+            run_result = runner.run(command, warn=True, pty=False)
             if run_result.succeeded:
                 self.return_code = 0
 

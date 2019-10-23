@@ -4,10 +4,8 @@
 
 """ 
     @author Bohdan Mushkevych
-    @author Shawn MacIntyre
 """
 import sys
-import shutil
 import traceback
 import subprocess
 import argparse
@@ -17,9 +15,6 @@ from os import path
 
 PROCESS_STARTER = 'process_starter.py'
 PROJECT_ROOT = path.abspath(path.dirname(__file__))
-
-# script is run to install virtual environment library into the global interpreter
-VE_GLOBAL_SCRIPT = path.join(PROJECT_ROOT, 'scripts', 'install_ve_globally.sh')
 
 # script creates virtual environment for the project
 VE_SCRIPT = path.join(PROJECT_ROOT, 'scripts', 'install_virtualenv.sh')
@@ -118,41 +113,19 @@ def go_to_ve():
         pass
 
 
-def install_virtualenv_p2(root, python_version):
-    """ Install virtual environment for Python 2.7+; removing the old one if it exists """
-    try:
-        import virtualenv
-    except ImportError:
-        sys.stdout.write('Installing virtualenv into global interpreter \n')
-        ret_code = subprocess.call([VE_GLOBAL_SCRIPT, PROJECT_ROOT])
-        sys.stdout.write(f'Installation finished with code {ret_code}. Re-run ./launch.py install \n')
-        sys.exit(ret_code)
-
-    if path.exists(root):
-        shutil.rmtree(root)
-    virtualenv.logger = virtualenv.Logger(consumers=[])
-    virtualenv.create_environment(root, site_packages=False)
-    ret_code = subprocess.call([VE_SCRIPT, PROJECT_ROOT, root, python_version])
-    sys.exit(ret_code)
-
-
-def install_virtualenv_p3(root, python_version):
-    """ Install virtual environment for Python 3.3+; removing the old one if it exists """
-    import venv
-    builder = venv.EnvBuilder(system_site_packages=False, clear=True, symlinks=False, upgrade=False, with_pip=True)
-    builder.create(root)
-    ret_code = subprocess.call([VE_SCRIPT, PROJECT_ROOT, root, python_version])
-    sys.exit(ret_code)
-
-
 def install_virtualenv(parser_args):
     """ Installs virtual environment """
     python_version = '.'.join(str(v) for v in sys.version_info[:2])
     sys.stdout.write(f'Installing Python {python_version} virtualenv into {VE_ROOT} \n')
-    if sys.version_info < (3, 3):
-        install_virtualenv_p2(VE_ROOT, python_version)
-    else:
-        install_virtualenv_p3(VE_ROOT, python_version)
+    if sys.version_info < (3, 7):
+        raise NotImplementedError('Scheduler requires Python 3.7+')
+
+    # Install virtual environment for Python 3.7+; removing the old one if it exists
+    import venv
+    builder = venv.EnvBuilder(system_site_packages=False, clear=True, symlinks=False, upgrade=False, with_pip=True)
+    builder.create(VE_ROOT)
+    ret_code = subprocess.call([VE_SCRIPT, PROJECT_ROOT, VE_ROOT, python_version])
+    sys.exit(ret_code)
 
 
 def query_configuration(parser_args):

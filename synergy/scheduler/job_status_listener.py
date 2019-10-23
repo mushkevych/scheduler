@@ -51,6 +51,7 @@ class JobStatusListener(object):
                 state_machine = self.scheduler.state_machine_for(node.process_name)
                 if state_machine.run_on_active_timeperiod:
                     # ignore dependant processes whose state machine can run on an active timeperiod
+                    # to avoid "over-triggering" them
                     continue
                 handlers_to_trigger.add(self.scheduler.managed_handlers[node.process_name])
 

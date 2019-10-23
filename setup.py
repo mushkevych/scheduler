@@ -32,6 +32,9 @@ setup(name='synergy_scheduler',
           'Topic :: Office/Business :: Scheduling',
           'Topic :: Utilities',
       ],
-      requires=['werkzeug', 'jinja2', 'amqp', 'pymongo', 'psutil', 'setproctitle', 'synergy_odm', 'synergy_flow',
-                'mock', 'xmlrunner', 'pylint']
-      )
+      install_requires=['werkzeug', 'jinja2', 'amqp', 'pymongo', 'psutil', 'setproctitle', 'synergy_odm',
+                        'synergy_flow'],
+      extras_require={'testing': ['mock', 'xmlrunner', 'pylint'],
+                      'bash_driver': ['fabric2'],
+                      }
+      ),
