@@ -54,7 +54,7 @@ def start_process(process_name, *args):
                          stdin=PIPE,
                          stdout=PIPE,
                          stderr=PIPE)
-        sys.stdout.write(f'Started {process_name} with pid = {e} \n')
+        sys.stdout.write(f'Started {process_name} with pid = {p.pid} \n')
     except Exception as e:
         sys.stderr.write(f'Exception on starting {process_name} : {e} \n')
     finally:

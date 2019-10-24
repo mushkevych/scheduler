@@ -25,7 +25,7 @@ def set_box_id(logger, box_id):
         with open(config_file_name, mode='w') as config_file:
             config_file.write(CONFIG_FILE_TEMPLATE.format(box_id))
     except Exception as e:
-        logger.info('Unable to create BOX_ID file at: {0}, due to: {1}'.format(config_file_name, e))
+        logger.info(f'Unable to create BOX_ID file at: {config_file_name}, due to: {e}')
 
 
 def get_box_id(logger):
