@@ -582,7 +582,7 @@ body {
 }
 .grid-header > div,
 .grid-info > div {
-  padding: 2rem;
+  padding: 0.85rem;
 }
 .grid-info {
   height: 100%;
