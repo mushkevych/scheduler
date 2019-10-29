@@ -1,7 +1,7 @@
 __author__ = 'Bohdan Mushkevych'
 
 from threading import Lock
-from subprocess import PIPE
+from subprocess import DEVNULL
 
 import psutil
 from psutil import TimeoutExpired
@@ -62,9 +62,9 @@ class Supervisor(SynergyProcess):
             p = psutil.Popen([get_python(), PROJECT_ROOT + '/' + PROCESS_STARTER, box_config.process_name],
                              close_fds=True,
                              cwd=settings.settings['process_cwd'],
-                             stdin=PIPE,
-                             stdout=PIPE,
-                             stderr=PIPE)
+                             stdin=DEVNULL,
+                             stdout=DEVNULL,
+                             stderr=DEVNULL)
             box_config.pid = p.pid
             self.logger.info(f'Started {box_config.process_name} with pid = {p.pid}')
         except Exception:
