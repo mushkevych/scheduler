@@ -872,6 +872,10 @@ form.table-form {
 .table-filter-form .table-filter-container .filter input[type="search"] {
   height: auto;
 }
+.table-filter-form .table-filter-container .include {
+  align-content: center;
+  align-self: flex-end;
+}
 .table-filter-form .table-filter-container .refresh-button {
   align-content: right;
   align-self: flex-end;

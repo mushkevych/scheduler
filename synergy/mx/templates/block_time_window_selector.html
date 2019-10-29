@@ -12,12 +12,10 @@
     method="get" id="form_time_window">
     <div class="table-filter-container">
         <div class="filter">
-            <label for="table-search">filter</label>
-            <input type="search" id="table-search" />
+            <input type="search" id="table-search" placeholder="search process name" />
         </div>
 
         <div class="time-window">
-            <label for="time_window">time window</label>
             <select name="time_window" id="time_window">
                 <option value="1">today</option>
                 <option value="7">last 7 days</option>
@@ -26,8 +24,7 @@
         </div>
 
         <div class="include">
-            <label for="include">show</label>
-            <div id="include" class="inline">
+            <div id="include" class="inline" align="middle">
                 <label class="inline"><input type="checkbox" name="include_running" id="include_running" {{ running_checked }} />
                     <span class="label-body">running</span>
                 </label>
