@@ -41,9 +41,10 @@
 // table filter
 .table-filter-form
     .table-filter-container
-        display inline-flex
+        display flex
         width 100%
         justify-content space-between
+        align-items center
         flex-wrap auto
 
         for item in 1 2 3
@@ -51,17 +52,15 @@
                 margin-right 1rem
 
         .filter
-            flex 1 1 auto
+            // flex 1 1 auto
             input[type="search"]
-                height auto
+                height 24px
+                width auto
         .time-window
             // flex 2 1 auto
         .include
-            align-content center
-            align-self flex-end
+            // align-self center
         .refresh-button
-            align-content right
-            align-self flex-end
             text-align right
             // flex 0 1 auto
 
