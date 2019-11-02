@@ -209,11 +209,10 @@ function infoJobTile(job_entry, tile, is_next_timeperiod, is_selected_timeperiod
             process_name: job_entry.process_name
         };
         const viewer_url = '/viewer/object/?' + $.param(params);
-        // HACK: see web.jpng.info
         window.open(
             viewer_url,
             'Object Viewer',
-            `width=${window.innerWidth * 2 / 3},height=${window.innerHeight * 0.85},scrollbars=1`
+            `width=${window.innerWidth * 0.95},height=${window.innerHeight * 0.85},scrollbars=1`
         );
     });
     const event_log_button = $(
@@ -231,7 +230,7 @@ function infoJobTile(job_entry, tile, is_next_timeperiod, is_selected_timeperiod
         window.open(
             viewer_url,
             'Object Viewer',
-            `width=${window.innerWidth * 2 / 3},height=${window.innerHeight * 0.85},scrollbars=1`
+            `width=${window.innerWidth * 0.95},height=${window.innerHeight * 0.85},scrollbars=1`
         );
     });
     const skip_button = $(
@@ -262,12 +261,11 @@ function infoJobTile(job_entry, tile, is_next_timeperiod, is_selected_timeperiod
             process_name: job_entry.process_name,
             unit_of_work_type: 'type_managed'
         };
-        // FIXME: the window that is opened has a dependency for /static/jquery-3.1.1.min.js
         const viewer_url = '/viewer/flow/?' + $.param(params);
         window.open(
             viewer_url,
             'Flow Viewer',
-            `width=${window.innerWidth * 2 / 3},height=${window.innerHeight * 0.85},scrollbars=1`
+            `width=${window.innerWidth * 0.95},height=${window.innerHeight * 0.85},scrollbars=1`
         );
     });
 

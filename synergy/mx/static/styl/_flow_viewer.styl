@@ -1,0 +1,171 @@
+$color-1 = #fff
+$color-2 = #ff0000
+$color-3 = #00ff00
+$color-4 = #7f7
+$color-5 = #747cff
+$color-6 = #d5f5ff
+$color-7 = #c3fdb8
+$color-8 = #15c200
+$color-9 = #f77
+$color-10 = #ff4500
+$color-11 = #ffffaa
+$color-12 = #60b1fc
+$color-13 = #ccc
+$color-14 = #f1f1f1
+$color-15 = #ddd
+
+svg
+    width 100%
+    // height 100%
+    // min-width 640px
+    // min-height 480px
+    overflow hidden
+
+.live
+    &.map
+        width 100%
+        // height 100%
+
+        text
+            font-weight 300
+            font-size 14px
+
+        .node
+            rect
+                stroke-width 2px
+                stroke #bbb
+                fill #666
+
+            g
+                div
+                    width 220px
+                    height 75px
+                    color $color-1
+
+        .action_status
+            width 15px
+            height 100%
+            display block
+            float left
+            margin-right 2px
+
+        .pre_actions
+            border-top-left-radius 5px
+            border-bottom-left-radius 5px
+
+        .edgeLabel
+            text
+                width 50px
+                fill #fff
+
+        .edgePath
+            path
+                stroke #999
+                stroke-width 2px
+                fill #999
+
+.step_container
+    display inline
+
+.step_section
+    height 100%
+    float left
+    display block
+
+.step_detail
+    height 30% !important
+
+.width_30pct
+    width 30% !important
+
+.width_70pct
+    width 70% !important
+
+.right_margin
+    margin-left 10px
+
+.actionset_failed
+    background-color $color-2
+
+.actionset_complete
+    background-color $color-3
+
+.actionset_running
+    background-color $color-4
+
+.actionset_pending
+    background-color $color-5
+
+.state_embryo
+    background-color $color-6
+
+.state_in_progress
+    background-color $color-7
+
+.state_processed
+    background-color $color-8
+
+.state_canceled
+    background-color $color-9
+
+.state_invalid
+    background-color $color-10
+
+.state_noop
+    background-color $color-11
+
+.action_mini_button
+    display inline-block
+    width 30px
+    padding 1px
+
+.user_message
+    display none
+    margin-top 3rem
+    text-align center
+
+.tipsy
+    .name
+        font-size 1.2em
+        font-weight bold
+        color $color-12
+        margin 0
+
+    .description
+        font-size 1.2em
+
+.header_layout
+    display table
+
+.header_layout_element
+    display table-cell
+    vertical-align middle
+
+div
+    &.tab
+        display flex
+        overflow hidden
+        border 1px solid $color-13
+        background-color $color-14
+        padding 4px
+        justify-content left
+
+        button
+            background-color inherit
+            border none
+            outline none
+            cursor pointer
+            //padding 14px 16px
+            transition .3s
+
+            &:hover
+                background-color $color-15
+
+            &.active
+                background-color $color-13
+
+.tabcontent
+    display none
+    padding 1rem
+    border 1px solid $color-13
+    border-top none
