@@ -100,12 +100,12 @@ function headerProcessTile(process_entry, tile) {
     // TODO: string interpolation
     if (process_entry.is_on) {
         is_on =
-            "<a onclick=\"processTrigger('managed/entry/deactivate', '" + process_entry.process_name + "', 'NA', null, true)\">" +
-            '<i class="fa fa-toggle-on action_toogle" title="is ON"></i></a>';
+            `<a onclick="processTrigger('managed/entry/deactivate', '${process_entry.process_name}', 'NA', null, true)">
+            <i class="fa fa-toggle-on action_toogle" title="is ON"></i></a>`;
     } else {
         is_on =
-            "<a onclick=\"processTrigger('managed/entry/activate', '" + process_entry.process_name + "', 'NA', null, true)\">" +
-            '<i class="fa fa-toggle-off action_toogle" title="is OFF"></i></a>';
+            `<a onclick="processTrigger('managed/entry/activate', '${process_entry.process_name}', 'NA', null, true)">
+            <i class="fa fa-toggle-off action_toogle" title="is OFF"></i></a>`;
     }
 
     if (process_entry.is_alive) {
@@ -116,7 +116,7 @@ function headerProcessTile(process_entry, tile) {
 
     let stateWarning =
         process_entry.is_on !== process_entry.is_alive
-            ? '<i class="fa fa-exclamation state-warning" title="State inconsistent" aria-label="State inconsistent"></i>'
+            ? `<i class="fa fa-exclamation state-warning" title="State inconsistent" aria-label="State inconsistent"></i>`
             : '';
     tile.$el.append(`
 		<div class="header-tile-icons">
@@ -171,8 +171,7 @@ function infoProcessTile(process_entry, tile) {
 }
 
 function infoJobTile(job_entry, tile, is_next_timeperiod, is_selected_timeperiod) {
-    const checkbox_value =
-        "{ process_name: '" + job_entry.process_name + "', timeperiod: '" + job_entry.timeperiod + "' }";
+    const checkbox_value =`{ process_name: '${job_entry.process_name}', timeperiod: '${job_entry.timeperiod}' }`;
     const checkbox_div = `
 		<div class="checkbox">
 			<input type="checkbox" name="batch_processing" value="${checkbox_value}" />
@@ -394,7 +393,6 @@ function gridPostConstructor(grid, template) {
     // wait until users finishes resizing the browser
     const debounced_resize = debounce(function () {
         grid.resize();
-        // FIXME: turn off bad animation
         grid.redraw(false);
     }, 200);
 
