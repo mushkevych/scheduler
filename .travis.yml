@@ -1,0 +1,57 @@
+language: python
+
+# Ubuntu 18.04 (Bionic Beaver)
+dist: bionic
+
+# use container-based travis-ci infrastructure
+#sudo: false
+
+# use legacy infrastructure
+#sudo: required
+
+matrix:
+  include:
+    - python: "3.7"
+      env: PYTHON_BINARY="python3.7"
+      addons:
+        hosts:
+          # hostnames will be enlisted in /etc/hosts and resolved to 127.0.0.1
+          - syn-rabbitmq
+          - syn-mongodb
+        apt:
+          packages:
+          - python3.7
+          - python3.7-dev
+          - python3.7-venv
+          - python3-setuptools
+
+services:
+  - docker
+
+before_install:
+  # deactivate Travis-CI Python3 VirtualEnv, as it conflicts with the launch.py one
+  - deactivate
+
+install:
+  # mongodb section
+  - docker pull mongo:3
+  - docker run -d --name syn-mongodb -p 27017:27017 mongo:3
+
+  # rabbit mq section
+  - docker pull rabbitmq:3
+  - docker run -d --hostname syn-rabbitmq --name syn-rabbitmq -p 5672:5672 -p 15672:15672 rabbitmq:3-management
+  - scripts/rabbitmq_config.sh
+
+before_script:
+  - sudo mkdir --mode=777 -p /var/log/synergy-scheduler
+  - ${PYTHON_BINARY} launch.py install
+  - ${PYTHON_BINARY} launch.py db --reset
+
+script:
+  - python3 launch.py test
+
+branches:
+  only:
+    - master
+    - 2.1
+    - 2.2
