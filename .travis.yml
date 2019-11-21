@@ -3,12 +3,6 @@ language: python
 # Ubuntu 18.04 (Bionic Beaver)
 dist: bionic
 
-# use container-based travis-ci infrastructure
-#sudo: false
-
-# use legacy infrastructure
-#sudo: required
-
 matrix:
   include:
     - python: "3.7"
