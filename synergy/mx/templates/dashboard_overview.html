@@ -1,0 +1,71 @@
+{% extends 'main_header.html' %}
+{% block body %}
+
+<div class="page-title-bar">
+    {% import 'block_enable_auto_refresh.html' as block_enable_refresh %}
+    {{ block_enable_refresh.enable_auto_refresh() }}
+</div>
+
+
+
+<div class="container">
+    {% import 'block_time_window_selector.html' as block_time_window %}
+    {{ block_time_window.time_window_selector(details, 3) }}
+    <table class="table-entries context-menu synergy-datatable" id="dashboard_table">
+
+        <thead>
+            <tr class="table-entries-header">
+                <th scope="col">Process Name</th>
+                <th scope="col">Entry Name</th>
+                <th scope="col">Timeperiod</th>
+                <th scope="col">State</th>
+                <th scope="col"></th> <!-- View Uow -->
+                <th scope="col"></th> <!-- Uow Log -->
+                <th scope="col"></th> <!-- Workflow -->
+            </tr>
+        </thead>
+        <tbody>
+
+            {%- for uow_key, uow_entry in details.freeruns.items() -%}
+            <tr class="{{ uow_entry.state }}">
+                <td>{{ uow_entry.process_name }}</td>
+                <td>{{ uow_entry.entry_name }}</td>
+                <td>{{ uow_entry.timeperiod }}</td>
+                <td>{{ uow_entry.state }}</td>
+                <td>
+                    {% set url = 'action=freerun/uow' + '&process_name=' + uow_entry.process_name + '&entry_name=' + uow_entry.entry_name %}
+                        <form class="table-form" method="GET"
+                              onsubmit="window.open('/viewer/object/?{{ url }}','View Uow',
+                    `toolbar=no,scrollbars=yes,resizable=yes,top=${window.innerHeight * 0.15},left=${window.innerWidth * 0.15},width=${window.innerWidth / 2},height=${window.innerHeight * 0.85}`); return false;">
+                            <button type="submit" class="action_button fa-input" title="ViewUow">
+                                <i class="fa fa-file-code-o"></i>
+                            <span>View Uow</span></button>
+                    </form>
+                </td>
+                <td>
+                    {% set url = 'action=freerun/log/uow' + '&process_name=' + uow_entry.process_name + '&entry_name=' + uow_entry.entry_name %}
+                        <form class="table-form" method="GET"
+                              onsubmit="window.open('/viewer/object/?{{ url }}','Uow Log',
+                    `toolbar=no,scrollbars=yes,resizable=yes,top=${window.innerHeight * 0.15},left=${window.innerWidth * 0.15},width=${window.innerWidth / 2},height=${window.innerHeight * 0.85}`); return false;">
+                            <button type="submit" class="action_button fa-input" title="UowLog">
+                                <i class="fa fa-file-text-o"></i><span>Uow Log</span></button>
+                    </form>
+                </td>
+                <td>
+                    {% set url = 'action=flow/flow/details' + '&process_name=' + job_entry.process_name + '&timeperiod=' + job_entry.timeperiod + '&unit_of_work_type=type_freerun' %}
+                        <form class="table-form" method="GET"
+                              onsubmit="window.open('/viewer/flow/?{{ url }}','Workflow',
+                    `toolbar=no,scrollbars=yes,resizable=yes,top=${window.innerHeight * 0.15},left=${window.innerWidth * 0.15},width=${window.innerWidth / 2},height=${window.innerHeight * 0.85}`); return false;">
+                            <input type="submit" class="action_button fa-input fa-random" title="Workflow" value="Workflow"/>
+                            <button type="submit" class="action_button fa-input" title="Workflow">
+                                <i class="fa fa-random"></i><span>Workflow</span></button>
+                    </form>
+                </td>
+            </tr>
+            {%- endfor -%}
+
+        </tbody>
+    </table>
+</div>
+
+{% endblock %}

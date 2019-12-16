@@ -279,6 +279,12 @@ def mx_page_tiles(request, **values):
     return render_template('mx_page_tiles.html', details=details)
 
 
+@expose('/calendar/')
+def mx_page_tiles(request, **values):
+    # details = TreeDetails(request, **values)
+    return render_template('calendar.html')  # , details=details)
+
+
 # referenced from mx.synergy_mx.py module
 def not_found(request, **values):
     return render_template('not_found.html')
