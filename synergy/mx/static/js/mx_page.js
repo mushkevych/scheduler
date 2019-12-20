@@ -428,6 +428,18 @@ function getTree(tree_name) {
     return JSON.parse(response_text);
 }
 
+function getTrees(mx_page) {
+    const response_text = $.ajax({
+        data: {mx_page: mx_page},
+        dataType: 'json',
+        type: 'GET',
+        url: '/trees/',
+        cache: false,
+        async: false
+    }).responseText;
+    return JSON.parse(response_text);
+}
+
 function selectTile(tile) {
     // step 1: check if the tile is already selected
     if (tile.$el.attr('class').indexOf('is_selected_timeperiod') > -1) {
@@ -448,7 +460,6 @@ function selectTile(tile) {
     // step 3: assign is_selected_timeperiod to the given tile
     tile.$el.attr('class', tile.$el.attr('class') + ' is_selected_timeperiod');
 
-    // FIXME: it would be better to replace the content, not the DOM element
     // step 4: iterate over grids and rebuild them
     const tree_obj = tile.grid.tree_obj;
     const process_number = tree_obj.sorted_process_names.length;
@@ -563,11 +574,10 @@ function buildTree(tree_name) {
 /**
  * main method for the MX PAGE script
  * iterates over the @mx_trees map and commands building of the MX trees
- * NOTICE: variable @mx_trees is in the format {tree_name: tree_obj}
- *         and is set in mx_page_tiles.html by the templating engine
+ * NOTICE: variable @mx_trees is in the format {tree_name: tree_obj} and is declared as global variable
  */
+const mx_trees = getTrees(active_mx_page);
 $(function () {
-    // former $(document).ready(function () {...})
     for (let tree_name in mx_trees) {
         if (!mx_trees.hasOwnProperty(tree_name)) {
             continue;

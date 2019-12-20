@@ -7,7 +7,7 @@
 
     <div class="grid-container">
         {# active_mx_page is declared in the main_header.html #}
-        {% set mx_trees = details.mx_page_trees(active_mx_page[0]) %}
+        {% set mx_trees = details._mx_page_trees(active_mx_page[0]) %}
 
         {%- for tree_name, tree_obj in mx_trees.items() %}
             {% set grid_cols = tree_obj.sorted_process_names|length %}
@@ -27,9 +27,6 @@
     {% import 'block_context_menu.html' as context_menu %}
     {{ context_menu.job_menu() }}
 
-    <script type="text/javascript">
-        let mx_trees = {{ details.mx_page_trees(active_mx_page[ 0 ]) | jsonify | safe }};
-    </script>
     <script type="text/javascript" src="{{ url_for('static', file='js/tiles.js') }}"></script>
     <script type="text/javascript" src="{{ url_for('static', file='js/mx_page.js') }}"></script>
 
@@ -38,15 +35,14 @@
             let grids = $('.grid-row');
             // set the height of each grid-row to the height of 5 tiles
             grids.each(function () {
-                    // get height of first column
-                    let divHeight = $(this).children('.grid-info')[0].children[0].clientHeight;
-                    // get height of header
-                    let headerRowHeight = $(this).children('.grid-header')[0].clientHeight;
-                    let totalHeight = divHeight * 3.5 + headerRowHeight;
-                    $(this).height(totalHeight);
-                    $(this).css(`height: ${totalHeight}`);
-                }
-            )
+                // get height of first column
+                let divHeight = $(this).children('.grid-info')[0].children[0].clientHeight;
+                // get height of header
+                let headerRowHeight = $(this).children('.grid-header')[0].clientHeight;
+                let totalHeight = divHeight * 3.5 + headerRowHeight;
+                $(this).height(totalHeight);
+                $(this).css(`height: ${totalHeight}`);
+            })
         })
     </script>
 

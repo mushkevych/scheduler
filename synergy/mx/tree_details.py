@@ -21,6 +21,25 @@ class TreeDetails(BaseRequestHandler):
             rest_tree.processes[process_name] = rest_process.document
         return rest_tree
 
+    def _all_trees(self):
+        resp = dict()
+        for tree_name in self.scheduler.timetable.trees:
+            resp[tree_name] = self._get_tree_details(tree_name).document
+        return resp
+
+    def _mx_page_trees(self, mx_page):
+        """ return trees assigned to given MX Page """
+        resp = dict()
+        for tree_name, tree in self.scheduler.timetable.trees.items():
+            if tree.mx_page == mx_page:
+                resp[tree_name] = self._get_tree_details(tree_name).document
+        return resp
+
+    @property
+    def trees(self):
+        mx_page = self.request_arguments.get('mx_page')
+        return self._mx_page_trees(mx_page) if mx_page else self._all_trees()
+
     @cached_property
     def tree_details(self):
         tree_name = self.request.args.get('tree_name')
@@ -28,13 +47,3 @@ class TreeDetails(BaseRequestHandler):
             return self._get_tree_details(tree_name).document
         else:
             return dict()
-
-    # @cached_property
-    def mx_page_trees(self, mx_page):
-        """ return trees assigned to given MX Page """
-        resp = dict()
-        for tree_name, tree in self.scheduler.timetable.trees.items():
-            if tree.mx_page == mx_page:
-                rest_tree = self._get_tree_details(tree_name)
-                resp[tree.tree_name] = rest_tree.document
-        return resp

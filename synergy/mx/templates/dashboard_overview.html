@@ -1,71 +1,69 @@
 {% extends 'main_header.html' %}
 {% block body %}
 
+<script type="text/javascript" src="{{ url_for('static', file='js/d3-5.14.2.js') }}"></script>
+<script type="text/javascript" src="{{ url_for('static', file='js/d3-scale.v2.2.2.js') }}"></script>
+<script type="text/javascript" src="{{ url_for('flow/static', file='js/dagre-d3-0.6.3.min.js') }}"></script>
+<script type="text/javascript" src="{{ url_for('flow/static', file='js/flow_viewer.js') }}"></script>
+
+<link rel="stylesheet" type="text/css" href="{{ url_for('static', file='css/composite-processing-chart.css') }}">
+<script type="text/javascript" src="{{ url_for('static', file='js/composite-processing-data.js') }}"></script>
+<script type="text/javascript" src="{{ url_for('static', file='js/composite-processing-chart.js') }}"></script>
+
 <div class="page-title-bar">
     {% import 'block_enable_auto_refresh.html' as block_enable_refresh %}
     {{ block_enable_refresh.enable_auto_refresh() }}
 </div>
 
-
-
 <div class="container">
     {% import 'block_time_window_selector.html' as block_time_window %}
     {{ block_time_window.time_window_selector(details, 3) }}
-    <table class="table-entries context-menu synergy-datatable" id="dashboard_table">
-
-        <thead>
-            <tr class="table-entries-header">
-                <th scope="col">Process Name</th>
-                <th scope="col">Entry Name</th>
-                <th scope="col">Timeperiod</th>
-                <th scope="col">State</th>
-                <th scope="col"></th> <!-- View Uow -->
-                <th scope="col"></th> <!-- Uow Log -->
-                <th scope="col"></th> <!-- Workflow -->
-            </tr>
-        </thead>
-        <tbody>
-
-            {%- for uow_key, uow_entry in details.freeruns.items() -%}
-            <tr class="{{ uow_entry.state }}">
-                <td>{{ uow_entry.process_name }}</td>
-                <td>{{ uow_entry.entry_name }}</td>
-                <td>{{ uow_entry.timeperiod }}</td>
-                <td>{{ uow_entry.state }}</td>
-                <td>
-                    {% set url = 'action=freerun/uow' + '&process_name=' + uow_entry.process_name + '&entry_name=' + uow_entry.entry_name %}
-                        <form class="table-form" method="GET"
-                              onsubmit="window.open('/viewer/object/?{{ url }}','View Uow',
-                    `toolbar=no,scrollbars=yes,resizable=yes,top=${window.innerHeight * 0.15},left=${window.innerWidth * 0.15},width=${window.innerWidth / 2},height=${window.innerHeight * 0.85}`); return false;">
-                            <button type="submit" class="action_button fa-input" title="ViewUow">
-                                <i class="fa fa-file-code-o"></i>
-                            <span>View Uow</span></button>
-                    </form>
-                </td>
-                <td>
-                    {% set url = 'action=freerun/log/uow' + '&process_name=' + uow_entry.process_name + '&entry_name=' + uow_entry.entry_name %}
-                        <form class="table-form" method="GET"
-                              onsubmit="window.open('/viewer/object/?{{ url }}','Uow Log',
-                    `toolbar=no,scrollbars=yes,resizable=yes,top=${window.innerHeight * 0.15},left=${window.innerWidth * 0.15},width=${window.innerWidth / 2},height=${window.innerHeight * 0.85}`); return false;">
-                            <button type="submit" class="action_button fa-input" title="UowLog">
-                                <i class="fa fa-file-text-o"></i><span>Uow Log</span></button>
-                    </form>
-                </td>
-                <td>
-                    {% set url = 'action=flow/flow/details' + '&process_name=' + job_entry.process_name + '&timeperiod=' + job_entry.timeperiod + '&unit_of_work_type=type_freerun' %}
-                        <form class="table-form" method="GET"
-                              onsubmit="window.open('/viewer/flow/?{{ url }}','Workflow',
-                    `toolbar=no,scrollbars=yes,resizable=yes,top=${window.innerHeight * 0.15},left=${window.innerWidth * 0.15},width=${window.innerWidth / 2},height=${window.innerHeight * 0.85}`); return false;">
-                            <input type="submit" class="action_button fa-input fa-random" title="Workflow" value="Workflow"/>
-                            <button type="submit" class="action_button fa-input" title="Workflow">
-                                <i class="fa fa-random"></i><span>Workflow</span></button>
-                    </form>
-                </td>
-            </tr>
-            {%- endfor -%}
-
-        </tbody>
-    </table>
 </div>
+
+<script type="text/javascript">
+    {#const mx_trees = {{ details.trees|jsonify|safe }};#}
+    {##}
+    {#// format <timeperiod: {process_name: [{job_details} ... {}], }>#}
+    {#const job_matrix = {{ details.job_matrix|jsonify|safe }};#}
+    {##}
+    {#// format <timeperiod: {process_name: [{uow_details} ... {}], }>#}
+    {#// both managed and freerun UOW are present#}
+    {#const uow_matrix = {{ details.uow_matrix|jsonify|safe }};#}
+
+    $(function () {
+        {#function getJobs() {#}
+        {#    const response_text = $.ajax({#}
+        {#        dataType: 'json',#}
+        {#        type: 'GET',#}
+        {#        url: '/jobs/',#}
+        {#        cache: false,#}
+        {#        async: false#}
+        {#    }).responseText;#}
+        {#    return JSON.parse(response_text);#}
+        {# } #}
+        {#let jobs = getJobs();#}
+
+        function getTrees() {
+            const response_text = $.ajax({
+                data: {mx_page: null},
+                dataType: 'json',
+                type: 'GET',
+                url: '/trees/',
+                cache: false,
+                async: false
+            }).responseText;
+            return JSON.parse(response_text);
+        }
+
+
+        const e = document.getElementById("time_window");
+        const num_days = e.options[e.selectedIndex].value;
+
+        const jobs = {{ details.jobs|jsonify|safe }};
+        const mx_trees = getTrees();
+        renderCompositeProcessingChart(miserables, mx_trees, jobs, num_days);
+        {#renderCompositeProcessingChart(mx_trees, job_matrix, uow_matrix);#}
+    });
+</script>
 
 {% endblock %}

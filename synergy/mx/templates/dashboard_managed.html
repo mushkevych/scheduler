@@ -27,7 +27,7 @@
             </thead>
             <tbody>
 
-            {%- for process_name, job_entry in details.managed.items() -%}
+            {%- for primary_key, job_entry in details.managed.items() -%}
                 <tr class="{{ job_entry.state }}">
                     {% set value = "{ process_name: '" + job_entry.process_name + "', timeperiod: '" + job_entry.timeperiod + "' }" %}
                     <td><input type="checkbox" name="batch_processing" value="{{ value }}"/></td>

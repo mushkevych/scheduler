@@ -1,6 +1,6 @@
 __author__ = 'Bohdan Mushkevych'
 
-from collections import OrderedDict
+from collections import OrderedDict, defaultdict
 from threading import RLock
 
 from werkzeug.utils import cached_property
@@ -43,6 +43,14 @@ class DashboardHandler(BaseRequestHandler):
                                                self.is_include_processed, self.is_include_noop, self.is_include_failed,
                                                self.is_include_disabled)
         return OrderedDict(sorted(selection.items()))
+
+    @cached_property
+    @valid_action_request
+    def jobs(self):
+        resp = defaultdict(list)
+        for job_primary_key, job_document in self.managed.items():
+            resp[job_primary_key[0]].append(job_document)
+        return dict(resp)
 
     @cached_property
     @valid_action_request

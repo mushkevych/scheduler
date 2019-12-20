@@ -37,6 +37,12 @@ def landing_page(request, **values):
     return redirect('/managed/dashboard/')
 
 
+@expose('/overview/dashboard/')
+def dashboard_overview(request, **values):
+    details = DashboardHandler(request, **values)
+    return render_template('dashboard_overview.html', details=details)
+
+
 @expose('/managed/dashboard/')
 def dashboard_managed(request, **values):
     details = DashboardHandler(request, **values)
@@ -49,10 +55,16 @@ def dashboard_freeruns(request, **values):
     return render_template('dashboard_freeruns.html', details=details)
 
 
+@expose('/jobs/')
+def jobs(request, **values):
+    details = DashboardHandler(request, **values)
+    return Response(response=json.dumps(details.managed), mimetype='application/json')
+
+
 @expose('/trees/')
 def details_trees(request, **values):
     details = TreeDetails(request, **values)
-    return Response(response=json.dumps(details.mx_page_trees), mimetype='application/json')
+    return Response(response=json.dumps(details.trees), mimetype='application/json')
 
 
 @expose('/tree/')
@@ -277,12 +289,6 @@ def schedulable_viewer(request, **values):
 def mx_page_tiles(request, **values):
     details = TreeDetails(request, **values)
     return render_template('mx_page_tiles.html', details=details)
-
-
-@expose('/calendar/')
-def mx_page_tiles(request, **values):
-    # details = TreeDetails(request, **values)
-    return render_template('calendar.html')  # , details=details)
 
 
 # referenced from mx.synergy_mx.py module
