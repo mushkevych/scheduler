@@ -57,7 +57,7 @@
 
 
         const e = document.getElementById("time_window");
-        const num_days = e.options[e.selectedIndex].value;
+        const num_days = parseInt(e.options[e.selectedIndex].value);
 
         const jobs = {{ details.jobs|jsonify|safe }};
         const mx_trees = getTrees();

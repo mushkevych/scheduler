@@ -177,3 +177,14 @@ function refreshWithDelay() {
         window.location.reload();
     }, 250);
 }
+
+function dateToTimeperiod(datetime) {
+    const timeperiod = [
+        datetime.getUTCFullYear(),
+        ('0' + (datetime.getUTCMonth() + 1)).slice(-2),
+        ('0' + datetime.getUTCDate()).slice(-2),
+        ('0' + datetime.getUTCHours()).slice(-2),
+    ].join('');
+
+    return timeperiod;
+}

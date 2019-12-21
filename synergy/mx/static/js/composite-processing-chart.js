@@ -1,62 +1,70 @@
-const margin = {top: 80, right: 40, bottom: 40, left: 80};
-const width = 1024;
+const margin = {top: 100, right: 40, bottom: 40, left: 100};
+const width = 1440;
 const height = 720;
 
 const x = d3.scaleBand().range([0, width]);
-const z = d3.scaleLinear().domain([0, 4]).clamp(true);
+const y = d3.scaleBand().range([0, height]);
+const z = d3.scaleLinear().domain([0, 16]).clamp(true);
 const c = d3.scaleOrdinal(d3.schemeCategory10).domain(d3.range(10));
 
 const svg = d3.select("body").append("svg")
-    .attr("width", width + margin.left + margin.right)
-    .attr("height", height + margin.top + margin.bottom)
+    .attr("width", document.body.clientWidth)
+    .attr("height", document.body.clientHeight)
     .style("margin-left", margin.left + "px")
     .append("g")
+    .attr("width", document.body.clientWidth)
+    .attr("height", document.body.clientHeight)
     .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
 
 function renderCompositeProcessingChart(miserables, mx_trees, jobs, num_days) {  // mx_trees, job_matrix, uow_matrix) {
-    let process_names = [];
-    let timeperiods = num_days * 24;
-    // const n = timeperiods;
+    const datetimeUtcNow = new Date();
+    let processNames = [];
+    const n = (num_days + 1) * 24;
+    let timeperiods = d3.range(n).map(function (i) {
+        const datetime = new Date(datetimeUtcNow.getTime());
+        datetime.setUTCHours(datetime.getUTCHours() - i);
+        return dateToTimeperiod(datetime);
+    });
+    timeperiods = timeperiods.reverse();
 
-    // matrix[process_name][timeperiod] = job_details
+    // matrix[timeperiod][process_name] = {job_details}
     const matrix = [];
-    const nodes = miserables.nodes;
-    const n = nodes.length;
 
     // Compile list of process names
     for (const [mx_tree_name, tree_obj] of Object.entries(mx_trees)) {
-        process_names = process_names.concat(tree_obj.sorted_process_names);
+        processNames = processNames.concat(tree_obj.sorted_process_names);
     }
 
-    // Compute index per node.
-    nodes.forEach(
-        function (node, i) {
-            node.index = i;
-            node.count = 0;
-            matrix[i] = d3.range(n).map(function (j) {
-                return {x: j, y: i, z: 0};
-            });
+    // build matrix with dimensions <timeperiods * process_names>
+    for (let i = 0; i < n; i++) {
+        matrix[i] = d3.range(processNames.length).map(
+            function (j) {
+                return {x: i, y: j, z: 0, timeperiod: timeperiods[i], process_name: processNames[j], state: null};
+            }
+        );
+    }
+
+    // Assign job properties
+    for (const [process_name, job_objects] of Object.entries(jobs)) {
+        let process_index = processNames.indexOf(process_name);
+
+        for (let j = 0; j < job_objects.length; j++) {
+            const job_obj = job_objects[j];
+            const timeperiod_index = timeperiods.indexOf(job_obj.timeperiod);
+            if (timeperiod_index === -1) {
+                continue;
+            }
+            // matrix[timeperiod_index][process_index].process_name = job_obj.process_name;
+            // matrix[timeperiod_index][process_index].timeperiod = job_obj.timeperiod;
+            matrix[timeperiod_index][process_index].state = job_obj.state;
+            matrix[timeperiod_index][process_index].z += job_obj.state.length;
         }
-    );
+    }
 
-    // Convert links to matrix; count character occurrences.
-    miserables.links.forEach(function (link) {
-        matrix[link.source][link.target].z += link.value;
-        matrix[link.target][link.source].z += link.value;
-        matrix[link.source][link.source].z += link.value;
-        matrix[link.target][link.target].z += link.value;
-    });
-
-    // Precompute the order.
-    const orders = {
-        name: d3.range(n).sort(function (a, b) {
-            return d3.ascending(nodes[a].name, nodes[b].name);
-        })
-    };
-
-    // The default sort order.
-    x.domain(orders.name);
+    // initialize X and Y axis with domain of possible values
+    x.domain(timeperiods);
+    y.domain(processNames);
 
     svg.append("rect")
         .attr("class", "background")
@@ -64,63 +72,72 @@ function renderCompositeProcessingChart(miserables, mx_trees, jobs, num_days) { 
         .attr("height", height);
 
     const row = svg.selectAll(".row")
-        .data(matrix)
-        .enter().append("g")
+        .data(matrix).enter()
+        .append("g")
         .attr("class", "row")
         .attr("transform", function (d, i) {
-            return "translate(0," + x(i) + ")";
-        })
-        .each(build_row);
+            const process_name = processNames[i];
+            return "translate(0, " + y(process_name) + ")";
+        });
 
     row.append("line")
-        .attr("x2", width);
+        .attr("x2", width); //horizontal line
 
     row.append("text")
         .attr("x", -6)
-        .attr("y", x.bandwidth() / 2)
+        .attr("y", y.bandwidth() / 2)
         .attr("dy", ".32em")
         .attr("text-anchor", "end")
         .text(function (d, i) {
-            return nodes[i].name;
+            return processNames[i];
         });
 
     const column = svg.selectAll(".column")
-        .data(matrix)
-        .enter().append("g")
+        .data(matrix).enter()
+        .append("g")
         .attr("class", "column")
         .attr("transform", function (d, i) {
-            return "translate(" + x(i) + ")rotate(-90)";
-        });
+            const timeperiod = timeperiods[i];
+            return "translate(" + x(timeperiod) + ", 0)";
+        })
+        .each(build_column);
 
-    column.append("line")
-        .attr("x1", -width);
+    column
+        .append("line")
+        .attr("x1", -height); //vertical line
 
-    column.append("text")
+    column.append("g")
+        .append("text")
         .attr("x", 6)
-        .attr("y", x.bandwidth() / 2)
+        .attr("y", y.bandwidth() / 2)
         .attr("dy", ".32em")
         .attr("text-anchor", "start")
         .text(function (d, i) {
-            return nodes[i].name;
-        });
+            return timeperiods[i];
+        })
+        .attr("transform", "rotate(-90)");
 
-    function build_row(row) {
+    function build_column(column) {
         const cell = d3.select(this).selectAll(".cell")
-            .data(row.filter(function (d) {
-                return d.z;
-            }))
+            .data(column)
             .enter().append("rect")
             .attr("class", "cell")
             .attr("x", function (d) {
-                return x(d.x);
+                const timeperiod = timeperiods[d.x];
+                return x(timeperiod);
+            })
+            .attr("y", function (d) {
+                const process_name = processNames[d.y];
+                return y(process_name);
             })
             .attr("width", x.bandwidth())
-            .attr("height", x.bandwidth())
+            .attr("height", y.bandwidth())
             .style("fill-opacity", function (d) {
                 return z(d.z);
             })
             .style("fill", function (d) {
-                return nodes[d.x].group === nodes[d.y].group ? c(nodes[d.x].group) : null;
+                return matrix[d.x][d.y].z ? c(matrix[d.x][d.y].z) : null;
+                // return matrix[d.x][d.y].state === "state_embryo" ? c(matrix[d.x][d.y].z) : null;
             })
             .on("mouseover", mouseover)
             .on("mouseout", mouseout);
