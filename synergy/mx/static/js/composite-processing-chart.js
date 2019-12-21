@@ -114,7 +114,7 @@ function renderCompositeProcessingChart(miserables, mx_trees, jobs, num_days) { 
         .append("text")
         .attr("x", 6)
         .attr("y", y.bandwidth() / 2)
-        .attr("dy", ".32em")
+        .attr("dy", -y.bandwidth() / 4)
         .attr("text-anchor", "start")
         .text(function (d, i) {
             return timeperiods[i];
@@ -138,7 +138,7 @@ function renderCompositeProcessingChart(miserables, mx_trees, jobs, num_days) { 
             .attr("width", x.bandwidth())
             .attr("height", y.bandwidth())
             .style("fill-opacity", function (d) {
-                return z(d.z);
+                // return z(d.z);
             })
             .style("fill", function (d) {
                 return matrix[d.x][d.y].z ? c(matrix[d.x][d.y].z) : null;
