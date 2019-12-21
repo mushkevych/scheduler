@@ -66,7 +66,8 @@ function renderCompositeProcessingChart(miserables, mx_trees, jobs, num_days) { 
     x.domain(timeperiods);
     y.domain(processNames);
 
-    svg.append("rect")
+    svg.append("g")
+        .append("rect")
         .attr("class", "background")
         .attr("width", width)
         .attr("height", height);
@@ -80,10 +81,12 @@ function renderCompositeProcessingChart(miserables, mx_trees, jobs, num_days) { 
             return "translate(0, " + y(process_name) + ")";
         });
 
-    row.append("line")
+    row.append("g")
+        .append("line")
         .attr("x2", width); //horizontal line
 
-    row.append("text")
+    row.append("g")
+        .append("text")
         .attr("x", -6)
         .attr("y", y.bandwidth() / 2)
         .attr("dy", ".32em")
@@ -102,9 +105,10 @@ function renderCompositeProcessingChart(miserables, mx_trees, jobs, num_days) { 
         })
         .each(build_column);
 
-    column
+    column.append("g")
         .append("line")
-        .attr("x1", -height); //vertical line
+        .attr("x1", -height)
+        .attr("transform", "rotate(-90)"); //vertical line
 
     column.append("g")
         .append("text")
@@ -119,8 +123,9 @@ function renderCompositeProcessingChart(miserables, mx_trees, jobs, num_days) { 
 
     function build_column(column) {
         const cell = d3.select(this).selectAll(".cell")
-            .data(column)
-            .enter().append("rect")
+            .data(column).enter()
+            .append("g")
+            .append("rect")
             .attr("class", "cell")
             .attr("x", function (d) {
                 const timeperiod = timeperiods[d.x];
