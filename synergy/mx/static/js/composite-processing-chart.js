@@ -28,7 +28,7 @@ function renderCompositeProcessingChart(miserables, mx_trees, jobs, num_days) { 
     });
     timeperiods = timeperiods.reverse();
 
-    // matrix[timeperiod][process_name] = {job_details}
+    // matrix[process_name][timeperiod] = {job_details}
     const matrix = [];
 
     // Compile list of process names
@@ -36,13 +36,12 @@ function renderCompositeProcessingChart(miserables, mx_trees, jobs, num_days) { 
         processNames = processNames.concat(tree_obj.sorted_process_names);
     }
 
-    // build matrix with dimensions <timeperiods * process_names>
-    for (let i = 0; i < n; i++) {
-        matrix[i] = d3.range(processNames.length).map(
-            function (j) {
-                return {x: i, y: j, z: 0, timeperiod: timeperiods[i], process_name: processNames[j], state: null};
-            }
-        );
+    // build matrix with dimensions <process_names * timeperiods>
+    for (let i = 0; i < processNames.length; i++) {
+        matrix[i] = [];
+        for (let j = 0; j < timeperiods.length; j++) {
+            matrix[i][j] = {x: j, y: i, z: 0, timeperiod: timeperiods[j], process_name: processNames[i], state: null};
+        }
     }
 
     // Assign job properties
@@ -55,10 +54,8 @@ function renderCompositeProcessingChart(miserables, mx_trees, jobs, num_days) { 
             if (timeperiod_index === -1) {
                 continue;
             }
-            // matrix[timeperiod_index][process_index].process_name = job_obj.process_name;
-            // matrix[timeperiod_index][process_index].timeperiod = job_obj.timeperiod;
-            matrix[timeperiod_index][process_index].state = job_obj.state;
-            matrix[timeperiod_index][process_index].z += job_obj.state.length;
+            matrix[process_index][timeperiod_index].state = job_obj.state;
+            matrix[process_index][timeperiod_index].z += job_obj.state.length;
         }
     }
 
@@ -79,7 +76,9 @@ function renderCompositeProcessingChart(miserables, mx_trees, jobs, num_days) { 
         .attr("transform", function (d, i) {
             const process_name = processNames[i];
             return "translate(0, " + y(process_name) + ")";
-        });
+        })
+        .each(build_row)
+    ;
 
     row.append("g")
         .append("line")
@@ -96,14 +95,13 @@ function renderCompositeProcessingChart(miserables, mx_trees, jobs, num_days) { 
         });
 
     const column = svg.selectAll(".column")
-        .data(matrix).enter()
+        .data(timeperiods).enter()
         .append("g")
         .attr("class", "column")
         .attr("transform", function (d, i) {
             const timeperiod = timeperiods[i];
             return "translate(" + x(timeperiod) + ", 0)";
-        })
-        .each(build_column);
+        });
 
     column.append("g")
         .append("line")
@@ -121,9 +119,9 @@ function renderCompositeProcessingChart(miserables, mx_trees, jobs, num_days) { 
         })
         .attr("transform", "rotate(-90)");
 
-    function build_column(column) {
+    function build_row(row) {
         const cell = d3.select(this).selectAll(".cell")
-            .data(column).enter()
+            .data(row).enter()
             .append("g")
             .append("rect")
             .attr("class", "cell")
@@ -132,16 +130,17 @@ function renderCompositeProcessingChart(miserables, mx_trees, jobs, num_days) { 
                 return x(timeperiod);
             })
             .attr("y", function (d) {
-                const process_name = processNames[d.y];
-                return y(process_name);
+                // each row is build on top of horizontal line,
+                // and such - there is no need to put additional horizontal spacer
+                return 0;
             })
             .attr("width", x.bandwidth())
             .attr("height", y.bandwidth())
             .style("fill-opacity", function (d) {
-                // return z(d.z);
+                return z(d.z);
             })
             .style("fill", function (d) {
-                return matrix[d.x][d.y].z ? c(matrix[d.x][d.y].z) : null;
+                return matrix[d.y][d.x].z ? c(matrix[d.y][d.x].z) : null;
                 // return matrix[d.x][d.y].state === "state_embryo" ? c(matrix[d.x][d.y].z) : null;
             })
             .on("mouseover", mouseover)
