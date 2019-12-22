@@ -42,9 +42,11 @@
 
     <div class="navbar" id="navbar">
         <span class="nav-group">
-            <a class="nav-item" href="{{ url_for('dashboard_managed') }}">dashboard jobs</a>
+            <a class="nav-item" href="{{ url_for('dashboard_overview') }}">dashboard</a>
 
-            <a class="nav-item" href="{{ url_for('dashboard_freeruns') }}">dashboard freeruns</a>
+            <a class="nav-item" href="{{ url_for('dashboard_managed') }}">jobs</a>
+
+            <a class="nav-item" href="{{ url_for('dashboard_freeruns') }}">freeruns</a>
         </span>
 
         <span class="nav-group">

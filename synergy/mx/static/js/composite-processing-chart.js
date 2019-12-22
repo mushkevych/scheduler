@@ -4,8 +4,11 @@ const height = 720;
 
 const x = d3.scaleBand().range([0, width]);
 const y = d3.scaleBand().range([0, height]);
-const z = d3.scaleLinear().domain([0, 16]).clamp(true);
-const c = d3.scaleOrdinal(d3.schemeCategory10).domain(d3.range(10));
+const c = d3.scaleOrdinal()
+    .domain(["state_embryo", "state_in_progress", "state_processed", "state_final_run",
+        "state_skipped", "state_noop", "state_inconsistent", "state_inactive"])
+    .range(["#d5f5ff", "#c3fdb8", "#15c200", "#adff2f", "#ff8a65", "#0e0e0e", "#ffa", "#d28aff", "#d3d3d3", ])
+    .unknown("black");
 
 const svg = d3.select("body").append("svg")
     .attr("width", document.body.clientWidth)
@@ -17,7 +20,13 @@ const svg = d3.select("body").append("svg")
     .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
 
-function renderCompositeProcessingChart(miserables, mx_trees, jobs, num_days) {  // mx_trees, job_matrix, uow_matrix) {
+function renderCompositeProcessingChart(mx_trees, jobs, num_days) {
+
+    // Define the div for the tooltip
+    const divTooltip = d3.select("body").append("div")
+        .attr("class", "tooltip")
+        .style("opacity", 0);
+
     const datetimeUtcNow = new Date();
     let processNames = [];
     const n = (num_days + 1) * 24;
@@ -55,7 +64,6 @@ function renderCompositeProcessingChart(miserables, mx_trees, jobs, num_days) { 
                 continue;
             }
             matrix[process_index][timeperiod_index].state = job_obj.state;
-            matrix[process_index][timeperiod_index].z += job_obj.state.length;
         }
     }
 
@@ -125,6 +133,10 @@ function renderCompositeProcessingChart(miserables, mx_trees, jobs, num_days) { 
             .append("g")
             .append("rect")
             .attr("class", "cell")
+            .attr("class", function (d) {
+                // instead of CSS coloring is performed via d3.scaleOrdinal
+                // return matrix[d.y][d.x].state;
+            })
             .attr("x", function (d) {
                 const timeperiod = timeperiods[d.x];
                 return x(timeperiod);
@@ -137,26 +149,40 @@ function renderCompositeProcessingChart(miserables, mx_trees, jobs, num_days) { 
             .attr("width", x.bandwidth())
             .attr("height", y.bandwidth())
             .style("fill-opacity", function (d) {
-                return z(d.z);
+                return matrix[d.y][d.x].state ? 100 : 0;
             })
             .style("fill", function (d) {
-                return matrix[d.y][d.x].z ? c(matrix[d.y][d.x].z) : null;
-                // return matrix[d.x][d.y].state === "state_embryo" ? c(matrix[d.x][d.y].z) : null;
+                return c(matrix[d.y][d.x].state);
             })
             .on("mouseover", mouseover)
             .on("mouseout", mouseout);
     }
 
     function mouseover(p) {
+        // highlight process_name and timeperiod
         d3.selectAll(".row text").classed("active", function (d, i) {
             return i === p.y;
         });
         d3.selectAll(".column text").classed("active", function (d, i) {
             return i === p.x;
         });
+
+        // show tooltip
+        divTooltip.transition()
+            .duration(200)
+            .style("opacity", .9);
+        divTooltip.html(p.process_name + "<br/>" + p.timeperiod + "<br/>" + p.state)
+            .style("left", (d3.event.pageX) + "px")
+            .style("top", (d3.event.pageY - 28) + "px");
     }
 
     function mouseout() {
+        // de-highlight process_name and timeperiod
         d3.selectAll("text").classed("active", false);
+
+        // hide tooltip
+        divTooltip.transition()
+            .duration(500)
+            .style("opacity", 0);
     }
 }

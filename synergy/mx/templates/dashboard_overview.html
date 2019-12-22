@@ -7,7 +7,6 @@
 <script type="text/javascript" src="{{ url_for('flow/static', file='js/flow_viewer.js') }}"></script>
 
 <link rel="stylesheet" type="text/css" href="{{ url_for('static', file='css/composite-processing-chart.css') }}">
-<script type="text/javascript" src="{{ url_for('static', file='js/composite-processing-data.js') }}"></script>
 <script type="text/javascript" src="{{ url_for('static', file='js/composite-processing-chart.js') }}"></script>
 
 <div class="page-title-bar">
@@ -21,15 +20,6 @@
 </div>
 
 <script type="text/javascript">
-    {#const mx_trees = {{ details.trees|jsonify|safe }};#}
-    {##}
-    {#// format <timeperiod: {process_name: [{job_details} ... {}], }>#}
-    {#const job_matrix = {{ details.job_matrix|jsonify|safe }};#}
-    {##}
-    {#// format <timeperiod: {process_name: [{uow_details} ... {}], }>#}
-    {#// both managed and freerun UOW are present#}
-    {#const uow_matrix = {{ details.uow_matrix|jsonify|safe }};#}
-
     $(function () {
         {#function getJobs() {#}
         {#    const response_text = $.ajax({#}
@@ -55,14 +45,12 @@
             return JSON.parse(response_text);
         }
 
-
         const e = document.getElementById("time_window");
         const num_days = parseInt(e.options[e.selectedIndex].value);
 
         const jobs = {{ details.jobs|jsonify|safe }};
         const mx_trees = getTrees();
-        renderCompositeProcessingChart(miserables, mx_trees, jobs, num_days);
-        {#renderCompositeProcessingChart(mx_trees, job_matrix, uow_matrix);#}
+        renderCompositeProcessingChart(mx_trees, jobs, num_days);
     });
 </script>
 
