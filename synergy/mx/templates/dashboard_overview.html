@@ -50,7 +50,28 @@
 
         const jobs = {{ details.jobs|jsonify|safe }};
         const mx_trees = getTrees();
-        renderCompositeProcessingChart(mx_trees, jobs, num_days);
+
+        // compute number of timperiods
+        let datetimeUtcNow = new Date();
+        let datetimeUtcStart = new Date(datetimeUtcNow);
+        datetimeUtcStart.setUTCHours(-24);            // winding time back by 24 hours
+        datetimeUtcStart.setUTCHours(0, 0, 0, 0);   // setting time to midnight
+        const num_timeperiods = Math.abs(datetimeUtcNow.getTime() - datetimeUtcStart.getTime()) / 3600000;
+
+        let timeperiods = d3.range(num_timeperiods).map(function (i) {
+            const datetime = new Date(datetimeUtcStart.getTime());
+            datetime.setUTCHours(datetime.getUTCHours() + i);
+            return dateToTimeperiod(datetime);
+        });
+
+        // Compile list of process names
+        let processNames = [];
+        for (const [mx_tree_name, tree_obj] of Object.entries(mx_trees)) {
+            processNames = processNames.concat(tree_obj.sorted_process_names);
+        }
+
+        initChartDimensions(timeperiods.length, processNames.length);
+        renderCompositeProcessingChart(processNames, timeperiods, jobs);
     });
 </script>
 

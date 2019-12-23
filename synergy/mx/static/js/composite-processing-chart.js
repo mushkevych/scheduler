@@ -1,13 +1,15 @@
-const margin = {top: 100, right: 40, bottom: 40, left: 100};
-const width = 1440;
-const height = 720;
+const MIN_RECT_SIDE_SIZE = 28;
+const margin = {top: 100, right: 40, bottom: 40, left: 120};
+let width;
+let height;
 
-const x = d3.scaleBand().range([0, width]);
-const y = d3.scaleBand().range([0, height]);
+// scales: https://www.d3indepth.com/scales
+let x;
+let y;
 const c = d3.scaleOrdinal()
     .domain(["state_embryo", "state_in_progress", "state_processed", "state_final_run",
         "state_skipped", "state_noop", "state_inconsistent", "state_inactive"])
-    .range(["#d5f5ff", "#c3fdb8", "#15c200", "#adff2f", "#ff8a65", "#0e0e0e", "#ffa", "#d28aff", "#d3d3d3", ])
+    .range(["#d5f5ff", "#c3fdb8", "#15c200", "#adff2f", "#ff8a65", "#0e0e0e", "#ffa", "#d28aff", "#d3d3d3"])
     .unknown("black");
 
 const svg = d3.select("body").append("svg")
@@ -19,33 +21,31 @@ const svg = d3.select("body").append("svg")
     .attr("height", document.body.clientHeight)
     .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
+// Set up zoom support
+const zoom = d3.zoom().on('zoom', function () {
+    inner.attr("transform", d3.event.transform);
+});
+svg.call(zoom);
 
-function renderCompositeProcessingChart(mx_trees, jobs, num_days) {
+// div for the tooltip
+const divTooltip = d3.select("body").append("div")
+    .attr("class", "tooltip")
+    .style("opacity", 0);
 
-    // Define the div for the tooltip
-    const divTooltip = d3.select("body").append("div")
-        .attr("class", "tooltip")
-        .style("opacity", 0);
 
-    const datetimeUtcNow = new Date();
-    let processNames = [];
-    const n = (num_days + 1) * 24;
-    let timeperiods = d3.range(n).map(function (i) {
-        const datetime = new Date(datetimeUtcNow.getTime());
-        datetime.setUTCHours(datetime.getUTCHours() - i);
-        return dateToTimeperiod(datetime);
-    });
-    timeperiods = timeperiods.reverse();
+function initChartDimensions(num_timeperiods, num_processes) {
+    width = num_timeperiods * MIN_RECT_SIDE_SIZE;
+    height = num_processes * MIN_RECT_SIDE_SIZE;
 
+    x = d3.scaleBand().range([0, width]);
+    y = d3.scaleBand().range([0, height]);
+}
+
+
+function renderCompositeProcessingChart(processNames, timeperiods, jobs) {
+    // build matrix with dimensions <process_names * timeperiods>
     // matrix[process_name][timeperiod] = {job_details}
     const matrix = [];
-
-    // Compile list of process names
-    for (const [mx_tree_name, tree_obj] of Object.entries(mx_trees)) {
-        processNames = processNames.concat(tree_obj.sorted_process_names);
-    }
-
-    // build matrix with dimensions <process_names * timeperiods>
     for (let i = 0; i < processNames.length; i++) {
         matrix[i] = [];
         for (let j = 0; j < timeperiods.length; j++) {
@@ -85,8 +85,7 @@ function renderCompositeProcessingChart(mx_trees, jobs, num_days) {
             const process_name = processNames[i];
             return "translate(0, " + y(process_name) + ")";
         })
-        .each(build_row)
-    ;
+        .each(build_row);
 
     row.append("g")
         .append("line")
@@ -120,7 +119,7 @@ function renderCompositeProcessingChart(mx_trees, jobs, num_days) {
         .append("text")
         .attr("x", 6)
         .attr("y", y.bandwidth() / 2)
-        .attr("dy", -y.bandwidth() / 4)
+        .attr("dy", y.bandwidth() / 8)
         .attr("text-anchor", "start")
         .text(function (d, i) {
             return timeperiods[i];
