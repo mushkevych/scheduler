@@ -13,6 +13,7 @@ const c = d3.scaleOrdinal()
     .unknown("black");
 
 const svg = d3.select("body").append("svg")
+    .attr("class", "composite-chart")
     .attr("width", document.body.clientWidth)
     .attr("height", document.body.clientHeight)
     .style("margin-left", margin.left + "px")
@@ -112,7 +113,21 @@ function renderCompositeProcessingChart(processNames, timeperiods, jobs) {
 
     column.append("g")
         .append("line")
+        // .attr("class", "line")
         .attr("x1", -height)
+
+        .attr("stroke", function (d) {
+            // divide days with a colored line
+            return d.endsWith("00") ? "red" : "";
+        })
+        .attr("stroke-width", function (d) {
+            // divide days with a thicker line
+            return d.endsWith("00") ? 2 : 1;
+        })
+        .attr("fill", function (d) {
+            // divide days with a colored line
+            return d.endsWith("00") ? "purple" : "none";
+        })
         .attr("transform", "rotate(-90)"); //vertical line
 
     column.append("g")

@@ -1,7 +1,7 @@
 {% macro time_window_selector(details, number_sorted_columns) -%}
-{% set days_1_checked = 'checked' if not details.is_request_valid or details.time_window == '1' else '' %}
-{% set days_7_checked = 'checked' if details.time_window == '7' else '' %}
-{% set days_30_checked = 'checked' if details.time_window == '30' else '' %}
+{% set days_1_selected = 'selected' if not details.is_request_valid or details.time_window == '1' else '' %}
+{% set days_7_selected = 'selected' if details.time_window == '7' else '' %}
+{% set days_30_selected = 'selected' if details.time_window == '30' else '' %}
 {% set running_checked = 'checked' if not details.is_request_valid or details.is_include_running == True else '' %}
 {% set processed_checked = 'checked' if details.is_include_processed == True else '' %}
 {% set noop_checked = 'checked' if details.is_include_noop == True else '' %}
@@ -17,9 +17,9 @@
 
         <div class="time-window">
             <select name="time_window" id="time_window">
-                <option value="1">today</option>
-                <option value="7">last 7 days</option>
-                <option value="30">last 30 days</option>
+                <option value="1" {{ days_1_selected }}>today</option>
+                <option value="7" {{ days_7_selected }}>last 7 days</option>
+                <option value="30" {{ days_30_selected }}>last 30 days</option>
             </select>
         </div>
 
@@ -50,18 +50,21 @@
     </div>
 </form>
 
-{% set sorted_columns = [] %}
-{%- for i in range(number_sorted_columns) %}
-{% do sorted_columns.append([i + 1, "asc"]) %}
-{%- endfor %}
+{%- if number_sorted_columns != 0 -%}
+    {% set sorted_columns = [] %}
+    {%- for i in range(number_sorted_columns) %}
+        {% do sorted_columns.append([i + 1, "asc"]) %}
+    {%- endfor %}
 
-<script type="text/javascript">
-    $(function () {
-        loadDataset('#form_time_window', 'form_initial_load', {{ sorted_columns| safe }});
-    $('#table-search').on('keyup change clear', function () {
-        $('.synergy-datatable').DataTable().search(this.value).draw()
-    })
-    });
+    <script type="text/javascript">
+        $(function () {
+            loadDataset('#form_time_window', 'form_initial_load', {{ sorted_columns| safe }});
+            $('#table-search').on('keyup change clear', function () {
+                $('.synergy-datatable').DataTable().search(this.value).draw()
+            })
+        });
+    </script>
 
-</script>
+{%- endif -%}
+
 {%- endmacro %}

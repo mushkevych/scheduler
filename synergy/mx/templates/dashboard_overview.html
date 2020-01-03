@@ -14,24 +14,23 @@
     {{ block_enable_refresh.enable_auto_refresh() }}
 </div>
 
-<div class="container">
+<div class="container" >
     {% import 'block_time_window_selector.html' as block_time_window %}
-    {{ block_time_window.time_window_selector(details, 3) }}
+    {{ block_time_window.time_window_selector(details, 0) }}
 </div>
 
 <script type="text/javascript">
     $(function () {
-        {#function getJobs() {#}
-        {#    const response_text = $.ajax({#}
-        {#        dataType: 'json',#}
-        {#        type: 'GET',#}
-        {#        url: '/jobs/',#}
-        {#        cache: false,#}
-        {#        async: false#}
-        {#    }).responseText;#}
-        {#    return JSON.parse(response_text);#}
-        {# } #}
-        {#let jobs = getJobs();#}
+        function getJobs() {
+            const response_text = $.ajax({
+                dataType: 'json',
+                type: 'GET',
+                url: '/jobs/',
+                cache: false,
+                async: false
+            }).responseText;
+            return JSON.parse(response_text);
+         }
 
         function getTrees() {
             const response_text = $.ajax({
@@ -48,14 +47,15 @@
         const e = document.getElementById("time_window");
         const num_days = parseInt(e.options[e.selectedIndex].value);
 
-        const jobs = {{ details.jobs|jsonify|safe }};
+        {#const jobs = {{ details.jobs|jsonify|safe }};#}
+        const jobs = getJobs();
         const mx_trees = getTrees();
 
         // compute number of timperiods
         let datetimeUtcNow = new Date();
         let datetimeUtcStart = new Date(datetimeUtcNow);
-        datetimeUtcStart.setUTCHours(-24);            // winding time back by 24 hours
-        datetimeUtcStart.setUTCHours(0, 0, 0, 0);   // setting time to midnight
+        datetimeUtcStart.setUTCHours(-24 * num_days);   // winding time back by number of selected days
+        datetimeUtcStart.setUTCHours(0, 0, 0, 0);       // setting time to midnight
         const num_timeperiods = Math.abs(datetimeUtcNow.getTime() - datetimeUtcStart.getTime()) / 3600000;
 
         let timeperiods = d3.range(num_timeperiods).map(function (i) {

@@ -6,6 +6,19 @@ line {
     stroke: #fff;
 }
 
+.composite-chart {
+    width: 100%;
+    height: 70%;
+    min-width: 1440px;
+    min-height: 480px;
+    overflow-x: scroll;
+    overflow-y: scroll;
+}
+
+.dayline {
+    stroke: #9370db;
+}
+
 text.active {
     fill: red;
 }

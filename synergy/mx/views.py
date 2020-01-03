@@ -34,7 +34,7 @@ def scheduler_freerun_entries(request, **values):
 
 @expose('/')
 def landing_page(request, **values):
-    return redirect('/managed/dashboard/')
+    return redirect('/overview/dashboard/')
 
 
 @expose('/overview/dashboard/')
@@ -58,7 +58,7 @@ def dashboard_freeruns(request, **values):
 @expose('/jobs/')
 def jobs(request, **values):
     details = DashboardHandler(request, **values)
-    return Response(response=json.dumps(details.managed), mimetype='application/json')
+    return Response(response=json.dumps(details.jobs), mimetype='application/json')
 
 
 @expose('/trees/')
