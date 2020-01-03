@@ -16,7 +16,8 @@ const svg = d3.select("body").append("svg")
     .attr("class", "composite-chart")
     .attr("width", document.body.clientWidth)
     .attr("height", document.body.clientHeight)
-    .style("margin-left", margin.left + "px");
+    .style("margin-left", "10px")
+    .style("margin-right", "10px");
 
 const inner = svg.append("g")
     .attr("width", document.body.clientWidth)
