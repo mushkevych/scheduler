@@ -46,9 +46,7 @@ function initChartDimensions(num_timeperiods, num_processes) {
 
 function findJob(process_name, timeperiod, jobs) {
     let resp = {};
-    const jobsList = jobs[process_name];
-    for (let i = 0; i < jobsList.length; i++) {
-        const jobObj = jobsList[i];
+    for (const jobObj of jobs[process_name]) {
         if (jobObj.timeperiod !== timeperiod) {
             continue;
         }
@@ -58,7 +56,21 @@ function findJob(process_name, timeperiod, jobs) {
     return resp;
 }
 
-function renderCompositeProcessingChart(processNames, timeperiods, jobs) {
+
+function findTree(process_name, mx_trees) {
+    let resp = {};
+    for (const [mx_tree_name, treeObj] of Object.entries(mx_trees)) {
+        if (!treeObj.sorted_process_names.includes(process_name)) {
+            continue;
+        }
+        resp = treeObj;
+        break;
+    }
+    return resp;
+}
+
+
+function renderCompositeProcessingChart(processNames, timeperiods, jobs, mx_trees) {
     // build matrix with dimensions <process_names * timeperiods>
     // matrix[process_name][timeperiod] = {job_details}
     const matrix = [];
@@ -66,11 +78,14 @@ function renderCompositeProcessingChart(processNames, timeperiods, jobs) {
         matrix[i] = [];
         for (let j = 0; j < timeperiods.length; j++) {
             const jobObj = findJob(processNames[i], timeperiods[j], jobs);
+            const treeObj = findTree(processNames[i], mx_trees);
             matrix[i][j] = {
                 x: j, y: i, z: 0,
                 timeperiod: timeperiods[j],
                 process_name: processNames[i],
-                state: jobObj.state
+                state: jobObj.state,
+                mx_page: treeObj.mx_page,
+                tree_name: treeObj.tree_name,
             };
         }
     }
@@ -186,7 +201,7 @@ function renderCompositeProcessingChart(processNames, timeperiods, jobs) {
         divTooltip.transition()
             .duration(200)
             .style("opacity", .9);
-        divTooltip.html(p.process_name + "<br/>" + p.timeperiod + "<br/>" + p.state)
+        divTooltip.html(p.process_name + "<br/>" + p.timeperiod + "<br/>" + p.state +"<br/>" + p.mx_page)
             .style("left", (d3.event.pageX) + "px")
             .style("top", (d3.event.pageY - 28) + "px");
     }

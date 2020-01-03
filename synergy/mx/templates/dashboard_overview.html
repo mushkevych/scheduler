@@ -21,16 +21,16 @@
 
 <script type="text/javascript">
     $(function () {
-        function getJobs() {
-            const response_text = $.ajax({
-                dataType: 'json',
-                type: 'GET',
-                url: '/jobs/',
-                cache: false,
-                async: false
-            }).responseText;
-            return JSON.parse(response_text);
-         }
+        {#function getJobs() {#}
+        {#    const response_text = $.ajax({#}
+        {#        dataType: 'json',#}
+        {#        type: 'GET',#}
+        {#        url: '/jobs/',#}
+        {#        cache: false,#}
+        {#        async: false#}
+        {#    }).responseText;#}
+        {#    return JSON.parse(response_text);#}
+        {# }#}
 
         function getTrees() {
             const response_text = $.ajax({
@@ -44,25 +44,19 @@
             return JSON.parse(response_text);
         }
 
-        const e = document.getElementById("time_window");
-        const num_days = parseInt(e.options[e.selectedIndex].value);
-
         const jobs = {{ details.jobs|jsonify|safe }};
         {#const jobs = getJobs();#}
         const mx_trees = getTrees();
 
         // compute number of timperiods
-        let datetimeUtcNow = new Date();
-        let datetimeUtcStart = new Date(datetimeUtcNow);
-        datetimeUtcStart.setUTCHours(-24 * num_days);   // winding time back by number of selected days
-        datetimeUtcStart.setUTCHours(0, 0, 0, 0);       // setting time to midnight
-        const num_timeperiods = Math.abs(datetimeUtcNow.getTime() - datetimeUtcStart.getTime()) / 3600000;
-
-        let timeperiods = d3.range(num_timeperiods).map(function (i) {
-            const datetime = new Date(datetimeUtcStart.getTime());
-            datetime.setUTCHours(datetime.getUTCHours() + i);
-            return dateToTimeperiod(datetime);
-        });
+        const timeperiodsSet = new Set();
+        for (const [process_name, jobList] of Object.entries(jobs)) {
+            for (const jobObj of jobList) {
+                timeperiodsSet.add(jobObj.timeperiod);
+            }
+        }
+        const timeperiods = Array.from(timeperiodsSet);
+        timeperiods.sort();
 
         // Compile list of process names
         let processNames = [];
@@ -71,7 +65,7 @@
         }
 
         initChartDimensions(timeperiods.length, processNames.length);
-        renderCompositeProcessingChart(processNames, timeperiods, jobs);
+        renderCompositeProcessingChart(processNames, timeperiods, jobs, mx_trees);
     });
 </script>
 
