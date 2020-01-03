@@ -2,11 +2,20 @@
 {% set days_1_selected = 'selected' if not details.is_request_valid or details.time_window == '1' else '' %}
 {% set days_7_selected = 'selected' if details.time_window == '7' else '' %}
 {% set days_30_selected = 'selected' if details.time_window == '30' else '' %}
-{% set running_checked = 'checked' if not details.is_request_valid or details.is_include_running == True else '' %}
-{% set processed_checked = 'checked' if details.is_include_processed == True else '' %}
-{% set noop_checked = 'checked' if details.is_include_noop == True else '' %}
-{% set failed_checked = 'checked' if not details.is_request_valid or details.is_include_failed == True else '' %}
-{% set disabled_checked = 'checked' if details.is_include_disabled == True else '' %}
+
+{%- if number_sorted_columns -%}
+    {% set running_checked = 'checked' if details.is_request_valid and details.is_include_running == True else 'checked' if not details.is_request_valid else '' %}
+    {% set processed_checked = 'checked' if details.is_include_processed == True else '' %}
+    {% set noop_checked = 'checked' if details.is_include_noop == True else '' %}
+    {% set failed_checked = 'checked' if details.is_request_valid or details.is_include_failed == True else 'checked' if not details.is_include_failed else '' %}
+    {% set disabled_checked = 'checked' if selected_by_default or details.is_include_disabled == True else '' %}
+{% else %}
+    {% set running_checked = 'checked' %}
+    {% set processed_checked = 'checked' %}
+    {% set noop_checked = 'checked' %}
+    {% set failed_checked = 'checked' %}
+    {% set disabled_checked = 'checked' %}
+{% endif %}
 
 <form class="table-filter-form" data-form_initial_load="{{ 'true' if details.is_request_valid else 'false' }}"
     method="get" id="form_time_window">
@@ -24,7 +33,7 @@
         </div>
 
         <div class="include">
-            <div id="include" class="inline" align="middle">
+            <div id="include" class="inline" align="middle" style={{ "display: none" if number_sorted_columns else "" }}>
                 <label class="inline"><input type="checkbox" name="include_running" id="include_running" {{ running_checked }} />
                     <span class="label-body">running</span>
                 </label>
@@ -50,7 +59,7 @@
     </div>
 </form>
 
-{%- if number_sorted_columns != 0 -%}
+{%- if number_sorted_columns -%}
     {% set sorted_columns = [] %}
     {%- for i in range(number_sorted_columns) %}
         {% do sorted_columns.append([i + 1, "asc"]) %}
@@ -64,7 +73,6 @@
             })
         });
     </script>
-
 {%- endif -%}
 
 {%- endmacro %}

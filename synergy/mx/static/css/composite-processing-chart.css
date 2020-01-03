@@ -15,8 +15,8 @@ line {
     overflow-y: scroll;
 }
 
-.dayline {
-    stroke: #9370db;
+.midnight {
+    stroke: mediumpurple;
 }
 
 text.active {

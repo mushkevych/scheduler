@@ -16,7 +16,7 @@
 
 <div class="container" >
     {% import 'block_time_window_selector.html' as block_time_window %}
-    {{ block_time_window.time_window_selector(details, 0) }}
+    {{ block_time_window.time_window_selector(details, null) }}
 </div>
 
 <script type="text/javascript">
@@ -47,8 +47,8 @@
         const e = document.getElementById("time_window");
         const num_days = parseInt(e.options[e.selectedIndex].value);
 
-        {#const jobs = {{ details.jobs|jsonify|safe }};#}
-        const jobs = getJobs();
+        const jobs = {{ details.jobs|jsonify|safe }};
+        {#const jobs = getJobs();#}
         const mx_trees = getTrees();
 
         // compute number of timperiods

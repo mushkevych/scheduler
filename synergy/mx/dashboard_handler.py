@@ -47,6 +47,9 @@ class DashboardHandler(BaseRequestHandler):
     @cached_property
     @valid_action_request
     def jobs(self):
+        """
+        :return: dict in format <process_name: [job, ..., job]>
+        """
         resp = defaultdict(list)
         for job_primary_key, job_document in self.managed.items():
             resp[job_primary_key[0]].append(job_document)

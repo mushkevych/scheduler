@@ -16,8 +16,9 @@ const svg = d3.select("body").append("svg")
     .attr("class", "composite-chart")
     .attr("width", document.body.clientWidth)
     .attr("height", document.body.clientHeight)
-    .style("margin-left", margin.left + "px")
-    .append("g")
+    .style("margin-left", margin.left + "px");
+
+const inner = svg.append("g")
     .attr("width", document.body.clientWidth)
     .attr("height", document.body.clientHeight)
     .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
@@ -43,6 +44,20 @@ function initChartDimensions(num_timeperiods, num_processes) {
 }
 
 
+function findJob(process_name, timeperiod, jobs) {
+    let resp = {};
+    const jobsList = jobs[process_name];
+    for (let i = 0; i < jobsList.length; i++) {
+        const jobObj = jobsList[i];
+        if (jobObj.timeperiod !== timeperiod) {
+            continue;
+        }
+        resp = jobObj;
+        break;
+    }
+    return resp;
+}
+
 function renderCompositeProcessingChart(processNames, timeperiods, jobs) {
     // build matrix with dimensions <process_names * timeperiods>
     // matrix[process_name][timeperiod] = {job_details}
@@ -50,21 +65,13 @@ function renderCompositeProcessingChart(processNames, timeperiods, jobs) {
     for (let i = 0; i < processNames.length; i++) {
         matrix[i] = [];
         for (let j = 0; j < timeperiods.length; j++) {
-            matrix[i][j] = {x: j, y: i, z: 0, timeperiod: timeperiods[j], process_name: processNames[i], state: null};
-        }
-    }
-
-    // Assign job properties
-    for (const [process_name, job_objects] of Object.entries(jobs)) {
-        let process_index = processNames.indexOf(process_name);
-
-        for (let j = 0; j < job_objects.length; j++) {
-            const job_obj = job_objects[j];
-            const timeperiod_index = timeperiods.indexOf(job_obj.timeperiod);
-            if (timeperiod_index === -1) {
-                continue;
-            }
-            matrix[process_index][timeperiod_index].state = job_obj.state;
+            const jobObj = findJob(processNames[i], timeperiods[j], jobs);
+            matrix[i][j] = {
+                x: j, y: i, z: 0,
+                timeperiod: timeperiods[j],
+                process_name: processNames[i],
+                state: jobObj.state
+            };
         }
     }
 
@@ -72,13 +79,13 @@ function renderCompositeProcessingChart(processNames, timeperiods, jobs) {
     x.domain(timeperiods);
     y.domain(processNames);
 
-    svg.append("g")
+    inner.append("g")
         .append("rect")
         .attr("class", "background")
         .attr("width", width)
         .attr("height", height);
 
-    const row = svg.selectAll(".row")
+    const row = inner.selectAll(".row")
         .data(matrix).enter()
         .append("g")
         .attr("class", "row")
@@ -102,7 +109,7 @@ function renderCompositeProcessingChart(processNames, timeperiods, jobs) {
             return processNames[i];
         });
 
-    const column = svg.selectAll(".column")
+    const column = inner.selectAll(".column")
         .data(timeperiods).enter()
         .append("g")
         .attr("class", "column")
@@ -113,20 +120,14 @@ function renderCompositeProcessingChart(processNames, timeperiods, jobs) {
 
     column.append("g")
         .append("line")
-        // .attr("class", "line")
         .attr("x1", -height)
-
-        .attr("stroke", function (d) {
-            // divide days with a colored line
-            return d.endsWith("00") ? "red" : "";
-        })
         .attr("stroke-width", function (d) {
             // divide days with a thicker line
             return d.endsWith("00") ? 2 : 1;
         })
-        .attr("fill", function (d) {
+        .attr("class", function (d) {
             // divide days with a colored line
-            return d.endsWith("00") ? "purple" : "none";
+            return d.endsWith("00") ? "midnight" : "";
         })
         .attr("transform", "rotate(-90)"); //vertical line
 
@@ -157,7 +158,7 @@ function renderCompositeProcessingChart(processNames, timeperiods, jobs) {
             })
             .attr("y", function (d) {
                 // each row is build on top of horizontal line,
-                // and such - there is no need to put additional horizontal spacer
+                // as such - there is no need to put additional horizontal spacer
                 return 0;
             })
             .attr("width", x.bandwidth())
