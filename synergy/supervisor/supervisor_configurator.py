@@ -124,14 +124,17 @@ class SupervisorConfigurator(object):
 
     def reset_db(self):
         self.logger.info('Starting *synergy.box_configuration* table reset')
-
         ds = ds_manager.ds_factory(self.logger)
         ds._db.drop_collection(COLLECTION_BOX_CONFIGURATION)
         self.logger.info('*synergy.box_configuration* table has been dropped')
 
         connection = ds.connection(COLLECTION_BOX_CONFIGURATION)
         connection.create_index([(BOX_ID, pymongo.ASCENDING), (PROCESS_NAME, pymongo.ASCENDING)], unique=True)
+        self.logger.info('*synergy.box_configuration* db has been recreated')
+        self.update_db()
 
+    def update_db(self):
+        self.logger.info(f'Starting *synergy.box_configuration* table update for {self.box_id}')
         for process_name, supervisor_entry in self.process_map.items():
             if supervisor_entry.is_present_on(self.box_id):
                 box_config = BoxConfiguration(box_id=self.box_id,
@@ -139,7 +142,7 @@ class SupervisorConfigurator(object):
                                               is_on=True)
                 self.bc_dao.update(box_config)
 
-        self.logger.info('*synergy.box_configuration* db has been recreated')
+        self.logger.info('*synergy.box_configuration* db has been updated')
 
     def query(self):
         self.logger.info(f'\nSupervisor Snapshot for BOX_ID={self.box_id}:\n')
