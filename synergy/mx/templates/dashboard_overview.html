@@ -21,16 +21,26 @@
 
 <script type="text/javascript">
     $(function () {
-        {#function getJobs() {#}
-        {#    const response_text = $.ajax({#}
-        {#        dataType: 'json',#}
-        {#        type: 'GET',#}
-        {#        url: '/jobs/',#}
-        {#        cache: false,#}
-        {#        async: false#}
-        {#    }).responseText;#}
-        {#    return JSON.parse(response_text);#}
-        {# }#}
+        if ('{{ details.is_request_valid }}' === 'False') {
+            // simulate "click" on the Refresh button, should the page be rendered for the first time
+            document.getElementById('refresh_button_selector_panel').click();
+            return;
+        }
+
+        let formData = new FormData(document.getElementById('form_time_window'));
+        function getJobs() {
+            const response_text = $.ajax({
+                processData: false,
+                contentType: false,
+                dataType: 'json',
+                data: formData,
+                type: 'POST',
+                url: '/jobs/',
+                cache: false,
+                async: false
+            }).responseText;
+            return JSON.parse(response_text);
+         }
 
         function getTrees() {
             const response_text = $.ajax({
@@ -44,11 +54,11 @@
             return JSON.parse(response_text);
         }
 
-        const jobs = {{ details.jobs|jsonify|safe }};
-        {#const jobs = getJobs();#}
+        {#const jobs = {{ details.jobs|jsonify|safe }};#}
+        const jobs = getJobs();
         const mx_trees = getTrees();
 
-        // compute number of timperiods
+        // collect timeperiods
         const timeperiodsSet = new Set();
         for (const [process_name, jobList] of Object.entries(jobs)) {
             for (const jobObj of jobList) {

@@ -9,8 +9,9 @@ let y;
 const c = d3.scaleOrdinal()
     .domain(["state_embryo", "state_in_progress", "state_processed", "state_final_run",
         "state_skipped", "state_noop", "state_inconsistent", "state_inactive"])
-    .range(["#d5f5ff", "#c3fdb8", "#15c200", "#adff2f", "#ff8a65", "#0e0e0e", "#ffa", "#d28aff", "#d3d3d3"])
-    .unknown("black");
+    .range(["#d5f5ff", "#c3fdb8", "#15c200", "#adff2f",
+        "#ff8a65", "#ffa", "#d28aff", "#d3d3d3"])
+    .unknown("pink");
 
 const svg = d3.select("body").append("svg")
     .attr("class", "composite-chart")
@@ -137,13 +138,17 @@ function renderCompositeProcessingChart(processNames, timeperiods, jobs, mx_tree
     column.append("g")
         .append("line")
         .attr("x1", -height)
-        .attr("stroke-width", function (d) {
-            // divide days with a thicker line
-            return d.endsWith("00") ? 2 : 1;
-        })
         .attr("class", function (d) {
-            // divide days with a colored line
-            return d.endsWith("00") ? "midnight" : "";
+            // assign styles to lines dividing days, months and years
+            if (d.endsWith("000000")) {
+                return "yearly-timeperiod";
+            } else if (d.endsWith("0000")) {
+                return "monthly-timeperiod";
+            } else if (d.endsWith("00")) {
+                return "midnight";
+            } else {
+                return "";
+            }
         })
         .attr("transform", "rotate(-90)"); //vertical line
 

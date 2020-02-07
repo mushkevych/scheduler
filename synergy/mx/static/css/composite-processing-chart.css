@@ -16,7 +16,18 @@ line {
 }
 
 .midnight {
+    stroke: rebeccapurple;
+    stroke-width: 2;
+}
+
+.monthly-timeperiod {
     stroke: mediumpurple;
+    stroke-width: 3;
+}
+
+.yearly-timeperiod {
+    stroke: magenta;
+    stroke-width: 3;
 }
 
 text.active {
@@ -31,7 +42,7 @@ div.tooltip {
     padding: 2px;
     font: 12px sans-serif;
     background: lightsteelblue;
-    border: 0px;
+    border: 0;
     border-radius: 2px;
     pointer-events: none;
 }

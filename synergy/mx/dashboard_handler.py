@@ -22,12 +22,12 @@ class DashboardHandler(BaseRequestHandler):
     def __init__(self, request, **values):
         super(DashboardHandler, self).__init__(request, **values)
 
-        self.time_window = self.request.args.get('time_window')
-        self.is_include_running = self.request.args.get('include_running') == 'on'
-        self.is_include_processed = self.request.args.get('include_processed') == 'on'
-        self.is_include_noop = self.request.args.get('include_noop') == 'on'
-        self.is_include_failed = self.request.args.get('include_failed') == 'on'
-        self.is_include_disabled = self.request.args.get('include_disabled') == 'on'
+        self.time_window = self.request_arguments.get('time_window')
+        self.is_include_running = self.request_arguments.get('include_running') == 'on'
+        self.is_include_processed = self.request_arguments.get('include_processed') == 'on'
+        self.is_include_noop = self.request_arguments.get('include_noop') == 'on'
+        self.is_include_failed = self.request_arguments.get('include_failed') == 'on'
+        self.is_include_disabled = self.request_arguments.get('include_disabled') == 'on'
         self.is_request_valid = bool(self.time_window)
 
         if self.is_request_valid:

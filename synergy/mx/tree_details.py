@@ -42,7 +42,7 @@ class TreeDetails(BaseRequestHandler):
 
     @cached_property
     def tree_details(self):
-        tree_name = self.request.args.get('tree_name')
+        tree_name = self.request_arguments.get('tree_name')
         if tree_name:
             return self._get_tree_details(tree_name).document
         else:
