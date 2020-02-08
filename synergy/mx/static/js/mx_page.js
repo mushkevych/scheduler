@@ -44,20 +44,31 @@ function getGrid(grid_name) {
     return grid;
 }
 
+function buildHrefs(mx_tree_names) {
+    let htmlString = "<span>[";
+    for (const mx_tree_name of mx_tree_names) {
+        if (htmlString.length > 1) {
+            htmlString += " ";
+        }
+        htmlString += '<span><a href="&#35;' + mx_tree_name + '">' + mx_tree_name + '</a></span>';
+    }
+    return htmlString + " ]</span>";
+}
+
 function headerTreeTile(mx_tree, tile) {
     const refresh_button = $(`<button class="action_button auto-width mt-1" id="refresh_button_${mx_tree.tree_name}">
-			<i class="fa fa-refresh"></i><span>
-				Refresh
-			</span></button>`).click(function (e) {
+			<i class="fa fa-refresh"></i><span>Refresh</span></button>`).
+    click(function (e) {
         clearTree(mx_tree.tree_name);
         mx_trees[mx_tree.tree_name] = getTree(mx_tree.tree_name);
         buildTree(mx_tree.tree_name);
     });
     let treeHeader = `
+   		<a name="${mx_tree.tree_name}"></a>
         <ul class="fa-ul header-tile-info process-info">
             <li title="Tree Name"><i class="fa-li fa fa-pagelines"></i>${mx_tree.tree_name}</li>
-            <li title="Dependent On"><i class="fa-li fa fa-sitemap fa-rotate-180"></i>${formatJSON(mx_tree.dependent_on)}</li>
-            <li title="Dependant Trees"><i class="fa-li fa fa-sitemap"></i>${formatJSON(mx_tree.dependant_trees)}</li>
+            <li title="Dependent On"><i class="fa-li fa fa-sitemap fa-rotate-180"></i>${buildHrefs(mx_tree.dependent_on)}</li>
+            <li title="Dependant Trees"><i class="fa-li fa fa-sitemap"></i>${buildHrefs(mx_tree.dependant_trees)}</li>
         </ul>`;
     tile.$el.append(treeHeader);
     tile.$el.append(refresh_button);
@@ -97,7 +108,6 @@ function headerProcessTile(process_entry, tile) {
         </div>`;
 
     let is_on;
-    // TODO: string interpolation
     if (process_entry.is_on) {
         is_on =
             "<a onclick=\"processTrigger('managed/entry/deactivate', '" + process_entry.process_name + "', 'NA', null, true)\">" +

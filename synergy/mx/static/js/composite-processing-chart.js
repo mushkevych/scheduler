@@ -81,6 +81,7 @@ function renderCompositeProcessingChart(processNames, timeperiods, jobs, mx_tree
         for (let j = 0; j < timeperiods.length; j++) {
             const jobObj = findJob(processNames[i], timeperiods[j], jobs);
             const treeObj = findTree(processNames[i], mx_trees);
+            const processObj = treeObj.processes[processNames[i]];
             matrix[i][j] = {
                 x: j, y: i, z: 0,
                 timeperiod: timeperiods[j],
@@ -88,6 +89,8 @@ function renderCompositeProcessingChart(processNames, timeperiods, jobs, mx_tree
                 state: jobObj.state,
                 mx_page: treeObj.mx_page,
                 tree_name: treeObj.tree_name,
+                time_qualifier: processObj.time_qualifier,
+                time_grouping: processObj.time_grouping,
             };
         }
     }
@@ -139,13 +142,13 @@ function renderCompositeProcessingChart(processNames, timeperiods, jobs, mx_tree
         .append("line")
         .attr("x1", -height)
         .attr("class", function (d) {
-            // assign styles to lines dividing days, months and years
+            // assign styles from composite-processing-chart.css to lines dividing days, months and years
             if (d.endsWith("000000")) {
                 return "yearly-timeperiod";
             } else if (d.endsWith("0000")) {
                 return "monthly-timeperiod";
             } else if (d.endsWith("00")) {
-                return "midnight";
+                return "daily-timeperiod";
             } else {
                 return "";
             }
@@ -207,8 +210,11 @@ function renderCompositeProcessingChart(processNames, timeperiods, jobs, mx_tree
         divTooltip.transition()
             .duration(200)
             .style("opacity", .9);
-        divTooltip.html(p.process_name + "<br/>" + p.timeperiod + "<br/>" + p.state +"<br/>" + p.mx_page)
-            .style("left", (d3.event.pageX) + "px")
+
+        const treeHref = '<a href="/' + p.mx_page + '&#35;' + p.tree_name + '">' + p.tree_name + '</a>';
+        divTooltip.html(p.process_name + "<br/>" + p.timeperiod + "<br/>" + p.state
+            + "<br/>url: " + treeHref + "<br/>qualifier: " + p.time_qualifier + "<br/>grouping: " + p.time_grouping)
+            .style("left", (d3.event.pageX + 5) + "px")
             .style("top", (d3.event.pageY - 28) + "px");
     }
 
