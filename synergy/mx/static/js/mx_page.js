@@ -4,27 +4,16 @@ const GRIDS = {};
 
 const GRID_HEADER_TEMPLATE = gridInfoTemplate(1);
 
-function parseTimeperiod(t) {
-    return t.slice(0, 4) + '-' + t.slice(4, 6) + '-' + t.slice(6, 8) + 'T' + t.slice(8);
-}
-
 /**
  * function returns a Tiles.js template for job records
  * template contains tiles_number of tiles
- * each tile has proportion 4x3 (wider than taller)
  */
 function gridInfoTemplate(tiles_number) {
     const arr = [];
     for (let i = 0; i < tiles_number; i++) {
         if (i % 2 === 0) {
-            // arr.push(" A A A A ");
-            // arr.push(" A A A A ");
-            // arr.push(" A A A A ");
             arr.push(' A ');
         } else {
-            // arr.push(" B B B B ");
-            // arr.push(" B B B B ");
-            // arr.push(" B B B B ");
             arr.push(' B ');
         }
     }
@@ -42,6 +31,17 @@ function getGrid(grid_name) {
         GRIDS[grid_name] = grid;
     }
     return grid;
+}
+
+function parseTimeperiod(t) {
+    return t.slice(0, 4) + '-' + t.slice(4, 6) + '-' + t.slice(6, 8) + 'T' + t.slice(8);
+}
+
+function submitForm(form) {
+    let xhr = new XMLHttpRequest();
+    xhr.open(form.method, form.action);
+    xhr.send(new FormData(form));
+    return false;
 }
 
 function buildHrefs(mx_tree_names) {
@@ -75,28 +75,27 @@ function headerTreeTile(mx_tree, tile) {
     tile.$el.attr('class', 'tree_header_tile');
 }
 
-// xmlhttp object is declared in the .send() come from?
 function headerProcessTile(process_entry, tile) {
     const flush_one_form = `
-        <form class="process-form inline" method="GET" action="/gc/flush/one/" onsubmit="xmlhttp.send(); return false;">
+        <form class="process-form inline" method="GET" action="/scheduler/gc/flush/one/" onsubmit="submitForm(this)">
             <input type="hidden" name="process_name" value=${process_entry.process_name} />
-            <button type="submit" alt="Flush" title="flush_${process_entry.process_name}" class="inline fa"><i class="fa fa-recycle"></i>
+            <button type="submit" title="flush_${process_entry.process_name}" class="inline fa"><i class="fa fa-recycle"></i>
             </button>
         </form>`;
 
     const reprocessing_block = `
         <div class="table_layout">
             <div class="inline table_layout_element"> ${flush_one_form} </div>
-				<span class="inline table_layout_element">
-				${process_entry.reprocessing_queue.toString() || '<em>--</em>'}
-				</span>
-				</div>`;
+            <span class="inline table_layout_element">
+            ${process_entry.reprocessing_queue.toString() || '<em>--</em>'}
+            </span>
+        </div>`;
 
     const trigger_form = `
-        <form class="process-form inline" method="POST" action="/managed/entry/trigger/" onsubmit="xmlhttp.send(); return false;">
+        <form class="process-form inline" method="POST" action="/scheduler/managed/entry/trigger/" onsubmit="submitForm(this)">
 			<input type="hidden" name="process_name" value="${process_entry.process_name}" />
 			<input type="hidden" name="timeperiod" value="NA" />
-			<button class="inline fa" type="submit" value="&#f135" alt="trigger_${process_entry.process_name}"><i class="fa fa-bolt"></i></button>
+			<button class="inline fa" type="submit" value="&#f135" title="trigger_${process_entry.process_name}"><i class="fa fa-bolt"></i></button>
 		</form>`;
 
     const next_run_block = `
@@ -110,11 +109,11 @@ function headerProcessTile(process_entry, tile) {
     let is_on;
     if (process_entry.is_on) {
         is_on =
-            "<a onclick=\"processTrigger('managed/entry/deactivate', '" + process_entry.process_name + "', 'NA', null, true)\">" +
+            "<a onclick=\"processTrigger('scheduler/managed/entry/deactivate', '" + process_entry.process_name + "', 'NA', null, true)\">" +
             '<i class="fa fa-toggle-on action_toogle" title="is ON"></i></a>';
     } else {
         is_on =
-            "<a onclick=\"processTrigger('managed/entry/activate', '" + process_entry.process_name + "', 'NA', null, true)\">" +
+            "<a onclick=\"processTrigger('scheduler/managed/entry/activate', '" + process_entry.process_name + "', 'NA', null, true)\">" +
             '<i class="fa fa-toggle-off action_toogle" title="is OFF"></i></a>';
     }
 
@@ -153,7 +152,7 @@ function headerProcessTile(process_entry, tile) {
 
 function infoProcessTile(process_entry, tile) {
     const change_interval_form = `
-        <form class="process-form" method="POST" action="/managed/entry/interval/" onsubmit="xmlhttp.send(); return false;">
+        <form class="process-form" method="POST" action="/scheduler/managed/entry/interval/" onsubmit="submitForm(this)">
             <input type="hidden" name="process_name" value="${process_entry.process_name}" />
             <input type="hidden" name="timeperiod" value="NA" />
             <input type="text" size="8" maxlength="32" name="interval" value="${process_entry.trigger_frequency}" />
@@ -187,20 +186,19 @@ function infoJobTile(job_entry, tile, is_next_timeperiod, is_selected_timeperiod
 		<div class="checkbox">
 			<input type="checkbox" name="batch_processing" value="${checkbox_value}" />
 			<label></label>
-		</div>
-		`;
+		</div>`;
     const uow_button = $(
-        `<button title="Uow" aria-lable="Uow" class="action_button">
+        `<button title="Uow" aria-label="Uow" class="action_button">
 			<i class="fa fa-file-code-o"></i>
-			<span> Uow </span>
+			<span>Uow</span>
 		</button>`
     ).click(function (e) {
         const params = {
-            action: 'managed/uow',
+            action: 'scheduler/managed/uow',
             timeperiod: job_entry.timeperiod,
             process_name: job_entry.process_name
         };
-        const viewer_url = '/viewer/object/?' + $.param(params);
+        const viewer_url = '/scheduler/viewer/object/?' + $.param(params);
         window.open(
             viewer_url,
             'Object Viewer',
@@ -208,17 +206,17 @@ function infoJobTile(job_entry, tile, is_next_timeperiod, is_selected_timeperiod
         );
     });
     const uow_log_button = $(
-        `<button title="Uow Log" aria-lable="Uow Log" class="action_button">
+        `<button title="Uow Log" aria-label="Uow Log" class="action_button">
 			<i class="fa fa-file-text-o"></i>
-			<span> Uow Log </span>
+			<span>Uow Log</span>
 		</button>`
     ).click(function (e) {
         const params = {
-            action: 'managed/log/uow',
+            action: 'scheduler/managed/uow/log',
             timeperiod: job_entry.timeperiod,
             process_name: job_entry.process_name
         };
-        const viewer_url = '/viewer/object/?' + $.param(params);
+        const viewer_url = '/scheduler/viewer/object/?' + $.param(params);
         // HACK: see web.jpng.info
         window.open(
             viewer_url,
@@ -227,17 +225,17 @@ function infoJobTile(job_entry, tile, is_next_timeperiod, is_selected_timeperiod
         );
     });
     const event_log_button = $(
-        `<button title="Event Log" aria-lable="Event Log" class="action_button">
-			<i class="fa fa-th-list"></i>
-			<span> Event Log </span>
+        `<button title="Timeline" aria-label="Timeline" class="action_button">
+			<i class="fa fa-history"></i>
+			<span>Timeline</span>
 		</button>`
     ).click(function (e) {
         const params = {
-            action: 'managed/log/event',
+            action: 'scheduler/managed/timeline',
             timeperiod: job_entry.timeperiod,
             process_name: job_entry.process_name
         };
-        const viewer_url = '/viewer/object/?' + $.param(params);
+        const viewer_url = '/scheduler/viewer/object/?' + $.param(params);
         window.open(
             viewer_url,
             'Object Viewer',
@@ -245,25 +243,25 @@ function infoJobTile(job_entry, tile, is_next_timeperiod, is_selected_timeperiod
         );
     });
     const skip_button = $(
-        `<button title="Skip" aria-lable="Skip" class="action_button">
+        `<button title="Skip" aria-label="Skip" class="action_button">
 			<i class="fa fa-step-forward"></i>
-			<span> Skip </span>
+			<span>Skip</span>
 		</button>`
     ).click(function (e) {
-        processJob('tree/node/skip', tile.tree_name, tile.process_name, tile.timeperiod, null, null);
+        processJob('scheduler/tree/node/skip', tile.tree_name, tile.process_name, tile.timeperiod, null, null);
     });
     const reprocess_button = $(
-        `<button title="Reprocess" aria-lable="Reprocess" class="action_button">
+        `<button title="Reprocess" aria-label="Reprocess" class="action_button">
 		    <i class="fa fa-repeat"></i>
-			<span> Reprocess </span>
+			<span>Reprocess</span>
 		</button>`
     ).click(function (e) {
-        processJob('tree/node/reprocess', tile.tree_name, tile.process_name, tile.timeperiod, null, null);
+        processJob('scheduler/tree/node/reprocess', tile.tree_name, tile.process_name, tile.timeperiod, null, null);
     });
     const flow_button = $(
-        `<button title="Workflow" aria-lable="Workflow" class="action_button">
+        `<button title="Workflow" aria-label="Workflow" class="action_button">
 			<i class="fa fa-random"></i>
-			<span> Workflow </span>
+			<span>Workflow</span>
 		</button>`
     ).click(function (e) {
         const params = {
@@ -272,8 +270,7 @@ function infoJobTile(job_entry, tile, is_next_timeperiod, is_selected_timeperiod
             process_name: job_entry.process_name,
             unit_of_work_type: 'type_managed'
         };
-        // FIXME: the window that is opened has a dependency for /static/jquery-3.1.1.min.js
-        const viewer_url = '/viewer/flow/?' + $.param(params);
+        const viewer_url = '/flow/viewer/?' + $.param(params);
         window.open(
             viewer_url,
             'Flow Viewer',
@@ -419,7 +416,7 @@ function getTreeNodes(process_name, timeperiod) {
         data: {process_name: process_name, timeperiod: timeperiod},
         dataType: 'json',
         type: 'GET',
-        url: '/tree/nodes/',
+        url: '/scheduler/tree/nodes/',
         cache: false,
         async: false
     }).responseText;
@@ -431,7 +428,7 @@ function getTree(tree_name) {
         data: {tree_name: tree_name},
         dataType: 'json',
         type: 'GET',
-        url: '/tree/',
+        url: '/scheduler/tree/',
         cache: false,
         async: false
     }).responseText;
@@ -443,7 +440,7 @@ function getTrees(mx_page) {
         data: {mx_page: mx_page},
         dataType: 'json',
         type: 'GET',
-        url: '/trees/',
+        url: '/scheduler/trees/',
         cache: false,
         async: false
     }).responseText;
@@ -586,7 +583,12 @@ function buildTree(tree_name) {
  * iterates over the @mx_trees map and commands building of the MX trees
  * NOTICE: variable @mx_trees is in the format {tree_name: tree_obj} and is declared as global variable
  */
-const mx_trees = getTrees(active_mx_page);
+
+let mx_trees = [];
+if (typeof active_mx_page !== 'undefined') {
+    mx_trees = getTrees(active_mx_page);
+}
+
 $(function () {
     for (let tree_name in mx_trees) {
         if (!mx_trees.hasOwnProperty(tree_name)) {

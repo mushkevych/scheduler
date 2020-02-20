@@ -28,8 +28,8 @@ class MX(object):
         jinja_env.globals['mbean'] = mbean
 
         self.dispatch = SharedDataMiddleware(self.dispatch, {
-            '/static': STATIC_PATH,
-            '/{0}'.format(STATIC_FLOW_ENDPOINT): STATIC_FLOW_PATH,
+            f'/scheduler/static': STATIC_PATH,
+            f'/{STATIC_FLOW_ENDPOINT}': STATIC_FLOW_PATH,
         })
 
         # during the get_logger call a 'werkzeug' logger will be created

@@ -1,13 +1,16 @@
 {% extends 'main_header.html' %}
 {% block body %}
 
-<script type="text/javascript" src="{{ url_for('static', file='js/d3-5.14.2.js') }}"></script>
-<script type="text/javascript" src="{{ url_for('static', file='js/d3-scale.v2.2.2.js') }}"></script>
+<script type="text/javascript" src="{{ url_for('scheduler/static', file='js/d3-5.14.2.js') }}"></script>
+<script type="text/javascript" src="{{ url_for('scheduler/static', file='js/d3-scale.v2.2.2.js') }}"></script>
 <script type="text/javascript" src="{{ url_for('flow/static', file='js/dagre-d3-0.6.3.min.js') }}"></script>
 <script type="text/javascript" src="{{ url_for('flow/static', file='js/flow_viewer.js') }}"></script>
 
-<link rel="stylesheet" type="text/css" href="{{ url_for('static', file='css/composite-processing-chart.css') }}">
-<script type="text/javascript" src="{{ url_for('static', file='js/composite-processing-chart.js') }}"></script>
+{#<script type="text/javascript" src="{{ url_for('scheduler/static', file='js/tiles.js') }}"></script>#}
+{#<script type="text/javascript" src="{{ url_for('scheduler/static', file='js/mx_page.js') }}"></script>#}
+
+<link rel="stylesheet" type="text/css" href="{{ url_for('scheduler/static', file='css/composite-processing-chart.css') }}">
+<script type="text/javascript" src="{{ url_for('scheduler/static', file='js/composite-processing-chart.js') }}"></script>
 
 <div class="page-title-bar">
     {% import 'block_enable_auto_refresh.html' as block_enable_refresh %}
@@ -35,7 +38,7 @@
                 dataType: 'json',
                 data: formData,
                 type: 'POST',
-                url: '/jobs/',
+                url: '/scheduler/jobs/',
                 cache: false,
                 async: false
             }).responseText;
@@ -47,7 +50,7 @@
                 data: {mx_page: null},
                 dataType: 'json',
                 type: 'GET',
-                url: '/trees/',
+                url: '/scheduler/trees/',
                 cache: false,
                 async: false
             }).responseText;

@@ -5,19 +5,19 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <link rel="icon" type="image/png" href="{{ url_for('static', file='images/sy_brown.png') }}">
-    <link rel="stylesheet" type="text/css" href="{{ url_for('static', file='css/font-awesome.min.css') }}">
-    <link rel="stylesheet" type="text/css" href="{{ url_for('static', file='css/alertify.css') }}">
-    <link rel="stylesheet" type="text/css" href="{{ url_for('static', file='css/jquery.dataTables-1.10.20.min.css') }}">
-    <link rel="stylesheet" type="text/css" href="{{ url_for('static', file='css/skeleton-2.0.4.min.css') }}">
-    <link rel="stylesheet" type="text/css" href="{{ url_for('static', file='css/normalize-3.0.2.min.css') }}">
-    <link rel="stylesheet" type="text/css" href="{{ url_for('static', file='css/index.css') }}">
+    <link rel="icon" type="image/png" href="{{ url_for('scheduler/static', file='images/sy_brown.png') }}">
+    <link rel="stylesheet" type="text/css" href="{{ url_for('scheduler/static', file='css/font-awesome.min.css') }}">
+    <link rel="stylesheet" type="text/css" href="{{ url_for('scheduler/static', file='css/alertify.css') }}">
+    <link rel="stylesheet" type="text/css" href="{{ url_for('scheduler/static', file='css/jquery.dataTables-1.10.20.min.css') }}">
+    <link rel="stylesheet" type="text/css" href="{{ url_for('scheduler/static', file='css/skeleton-2.0.4.min.css') }}">
+    <link rel="stylesheet" type="text/css" href="{{ url_for('scheduler/static', file='css/normalize-3.0.2.min.css') }}">
+    <link rel="stylesheet" type="text/css" href="{{ url_for('scheduler/static', file='css/index.css') }}">
 
     <!-- NOTE: adding scripts to end breaks for some reason -->
-    <script type="text/javascript" src="{{ url_for('static', file='js/jquery-3.4.1.min.js') }}"></script>
-    <script type="text/javascript" src="{{ url_for('static', file='js/jquery.dataTables-1.10.20.min.js') }}"></script>
-    <script type="text/javascript" src="{{ url_for('static', file='js/alertify-0.3.17.trunk.js') }}"></script>
-    <script type="text/javascript" src="{{ url_for('static', file='js/mx_utils.js') }}"></script>
+    <script type="text/javascript" src="{{ url_for('scheduler/static', file='js/jquery-3.4.1.min.js') }}"></script>
+    <script type="text/javascript" src="{{ url_for('scheduler/static', file='js/jquery.dataTables-1.10.20.min.js') }}"></script>
+    <script type="text/javascript" src="{{ url_for('scheduler/static', file='js/alertify-0.3.17.trunk.js') }}"></script>
+    <script type="text/javascript" src="{{ url_for('scheduler/static', file='js/mx_utils.js') }}"></script>
 
     <title>Synergy Scheduler</title>
 </head>
@@ -49,7 +49,7 @@
 
         <span class="nav-group">
             {%- for mx_rule, mx_page_name in mx_processing_context.items() %}
-                <a class="nav-item" href="{{ '/' + mx_rule + '/' }}">{{ mx_page_name }}</a>
+                <a class="nav-item" href="{{ '/scheduler/' + mx_rule + '/' }}">{{ mx_page_name }}</a>
             {%- endfor -%}
         </span>
 

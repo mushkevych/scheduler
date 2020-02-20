@@ -142,7 +142,7 @@ function getUrlParameter(sParam) {
  */
 function loadDataset(form_name, flag_name, table_sorting) {
     if ($(form_name).data(flag_name) === false) {
-        $(function () {  // former $(document).ready(function () {...})
+        $(function () {
             $(form_name).submit();
         });
     }
@@ -161,7 +161,7 @@ function loadDataset(form_name, flag_name, table_sorting) {
 /**
  * creates an array of integers between two numbers, inclusive
  * @param start first value, inclusive
- * @param end last value, invclusive
+ * @param end last value, inclusive
  * @returns {Array}
  */
 function range(start, end) {

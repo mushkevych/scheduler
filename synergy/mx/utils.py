@@ -22,8 +22,8 @@ local_manager = LocalManager([local])
 
 # Synergy MX map of URL routing
 url_map = Map()
-url_map.add(Rule('/static/<file>', endpoint='static', build_only=True))
-url_map.add(Rule('/{0}/<file>'.format(STATIC_FLOW_ENDPOINT), endpoint=STATIC_FLOW_ENDPOINT, build_only=True))
+url_map.add(Rule('/scheduler/static/<file>', endpoint='scheduler/static', build_only=True))
+url_map.add(Rule(f'/{STATIC_FLOW_ENDPOINT}/<file>', endpoint=STATIC_FLOW_ENDPOINT, build_only=True))
 
 # tree/group of trees will be shown on a separate page defined by tree property MX_PAGE
 # mx_page_context is a dictionary in format: {MX_PAGE: MX PAGE}
@@ -35,7 +35,7 @@ mx_page_context = {tree_entry.mx_page: tree_entry.mx_page.replace('_', ' ')
 # NOTICE: given approach renders template snippet {{ url_for ('function_name') }} invalid,
 # since all mx_page are processed by the single function 'mx_page_tiles'
 for rule in mx_page_context:
-    url_map.add(Rule('/{0}/'.format(rule), endpoint='mx_page_tiles'))
+    url_map.add(Rule(f'/scheduler/{rule}/', endpoint='mx_page_tiles'))
 
 
 def expose(rule, methods=None, **kw):

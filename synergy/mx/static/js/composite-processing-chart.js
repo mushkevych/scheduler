@@ -36,6 +36,41 @@ const divTooltip = d3.select("body").append("div")
     .attr("class", "tooltip")
     .style("opacity", 0);
 
+// div for the Job tile
+const divJobTile = d3.select("body").append("div")
+    .style("opacity", 0);
+
+let isJobTileShown = false;
+
+
+function hideDivTile() {
+    divJobTile.transition().
+        duration(200).
+        style("opacity", 0).
+        style("pointer-events", "none");
+
+    isJobTileShown = false;
+}
+
+
+function showDivTile(p) {
+    divJobTile.transition()
+        .duration(200)
+        .style("opacity", 1)
+        .style("pointer-events", "all")
+        .attr("class", p.state + " job-tile");
+
+    const treeHref = '<a href="/scheduler/' + p.mx_page + '&#35;' + p.tree_name + '">' + p.tree_name + '</a>';
+    divJobTile.html(
+        "<a class='close-button' onclick='hideDivTile()'></a>"
+        + p.process_name + "<br/>" + p.timeperiod + "<br/>" + p.state
+        + "<br/>url: " + treeHref + "<br/>qualifier: " + p.time_qualifier + "<br/>grouping: " + p.time_grouping)
+        .style("left", (d3.event.pageX + 5) + "px")
+        .style("top", (d3.event.pageY - 28) + "px");
+
+    infoJobTile(p, divJobTile, false, false);
+}
+
 
 function initChartDimensions(num_timeperiods, num_processes) {
     width = num_timeperiods * MIN_RECT_SIDE_SIZE;
@@ -194,7 +229,8 @@ function renderCompositeProcessingChart(processNames, timeperiods, jobs, mx_tree
                 return c(matrix[d.y][d.x].state);
             })
             .on("mouseover", mouseover)
-            .on("mouseout", mouseout);
+            .on("mouseout", mouseout)
+            .on("click", mouseclick);
     }
 
     function mouseover(p) {
@@ -205,6 +241,11 @@ function renderCompositeProcessingChart(processNames, timeperiods, jobs, mx_tree
         d3.selectAll(".column text").classed("active", function (d, i) {
             return i === p.x;
         });
+
+        if (isJobTileShown) {
+            // do not show tooltip if the Job Tile is shown
+            return;
+        }
 
         // show tooltip
         divTooltip.transition()
@@ -219,12 +260,23 @@ function renderCompositeProcessingChart(processNames, timeperiods, jobs, mx_tree
     }
 
     function mouseout() {
-        // de-highlight process_name and timeperiod
-        d3.selectAll("text").classed("active", false);
+        if (!isJobTileShown) {
+            // de-highlight process_name and timeperiod
+            d3.selectAll("text").classed("active", false);
+        }
 
         // hide tooltip
         divTooltip.transition()
-            .duration(500)
+            .duration(200)
             .style("opacity", 0);
+    }
+
+    function mouseclick(p) {
+        // do not show any new tooltip until Job Tile is shown and ...
+        isJobTileShown = true;
+        // ... hide existing tooltip
+        mouseout();
+
+        showDivTile(p);
     }
 }

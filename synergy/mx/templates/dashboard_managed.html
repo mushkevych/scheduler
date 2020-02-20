@@ -21,7 +21,7 @@
                 <th scope="col">State</th>
                 <th scope="col"></th> <!-- View Uow -->
                 <th scope="col"></th> <!-- Uow Log -->
-                <th scope="col"></th> <!-- Event Log -->
+                <th scope="col"></th> <!-- Timeline -->
                 <th scope="col"></th> <!-- Workflow -->
             </tr>
             </thead>
@@ -35,9 +35,9 @@
                     <td>{{ job_entry.timeperiod }}</td>
                     <td>{{ job_entry.state }}</td>
                     <td>
-                        {% set url = 'action=managed/uow' + '&process_name=' + job_entry.process_name + '&timeperiod=' + job_entry.timeperiod %}
+                        {% set url = 'action=scheduler/managed/uow' + '&process_name=' + job_entry.process_name + '&timeperiod=' + job_entry.timeperiod %}
                         <form class="table-form" method="GET"
-                              onsubmit="window.open('/viewer/object/?{{ url }}','View Uow',
+                              onsubmit="window.open('/scheduler/viewer/object/?{{ url }}','View Uow',
                                       `toolbar=no,scrollbars=yes,resizable=yes,top=${window.innerHeight * 0.15},left=${window.innerWidth * 0.15},width=${window.innerWidth * 2/3},height=${window.innerHeight * 0.85}`); return false;">
                             <button type="submit" class="action_button btn-center" title="ViewUow">
                                 <i class="fa fa-file-code-o"></i>
@@ -45,9 +45,9 @@
                         </form>
                     </td>
                     <td>
-                        {% set url = 'action=managed/log/uow' + '&process_name=' + job_entry.process_name + '&timeperiod=' + job_entry.timeperiod %}
+                        {% set url = 'action=scheduler/managed/uow/log' + '&process_name=' + job_entry.process_name + '&timeperiod=' + job_entry.timeperiod %}
                         <form class="table-form" method="GET"
-                              onsubmit="window.open('/viewer/object/?{{ url }}','Uow Log',
+                              onsubmit="window.open('/scheduler/viewer/object/?{{ url }}','Uow Log',
                                       `toolbar=no,scrollbars=yes,resizable=yes,top=${window.innerHeight * 0.15},left=${window.innerWidth * 0.15},width=${window.innerWidth * 2/3},height=${window.innerHeight * 0.85}`); return false;">
                             <button type="submit" class="action_button btn-center" title="UowLog">
                                 <i class="fa fa-file-text-o"></i>
@@ -55,19 +55,19 @@
                         </form>
                     </td>
                     <td>
-                        {% set url = 'action=managed/log/event' + '&process_name=' + job_entry.process_name + '&timeperiod=' + job_entry.timeperiod %}
+                        {% set url = 'action=scheduler/managed/timeline' + '&process_name=' + job_entry.process_name + '&timeperiod=' + job_entry.timeperiod %}
                         <form class="table-form" method="GET"
-                              onsubmit="window.open('/viewer/object/?{{ url }}','Event Log',
+                              onsubmit="window.open('/scheduler/viewer/object/?{{ url }}','Job Timeline',
                                       `toolbar=no,scrollbars=yes,resizable=yes,top=${window.innerHeight * 0.15},left=${window.innerWidth * 0.15},width=${window.innerWidth * 2/3},height=${window.innerHeight * 0.85}`); return false;">
-                            <button type="submit" class="action_button btn-center" title="EventLog">
-                                <i class="fa fa-th-list"></i>
-                                <span>Event Log</span></button>
+                            <button type="submit" class="action_button btn-center" title="Timeline">
+                                <i class="fa fa-history"></i>
+                                <span>Timeline</span></button>
                         </form>
                     </td>
                     <td>
                         {% set url = 'action=flow/flow/details' + '&process_name=' + job_entry.process_name + '&timeperiod=' + job_entry.timeperiod + '&unit_of_work_type=type_managed' %}
                         <form class="table-form" method="GET"
-                              onsubmit="window.open('/viewer/flow/?{{ url }}','Workflow',
+                              onsubmit="window.open('/flow/viewer/?{{ url }}','Workflow',
                                       `toolbar=no,scrollbars=yes,resizable=yes,top=${window.innerHeight * 0.15},left=${window.innerWidth * 0.15},width=${window.innerWidth * 2/3},height=${window.innerHeight * 0.85}`); return false;">
                             <button type="submit" class="action_button btn-center" title="Workflow">
                                 <i class="fa fa-random"></i>

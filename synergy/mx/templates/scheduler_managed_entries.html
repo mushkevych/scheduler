@@ -37,7 +37,7 @@
                     <td>{{ row.is_on }} / {{ row.is_alive }}</td>
                     <td>{{ row.process_name }}</td>
                     <td>
-                        <form class="table-form" method="POST" action="/managed/entry/interval/">
+                        <form class="table-form" method="POST" action="/scheduler/managed/entry/interval/">
                             <input type="hidden" name="process_name" value="{{ row.process_name }}"/>
                             <input type="hidden" name="timeperiod" value="NA"/>
                             <input type="text" size="8" maxlength="32" name="interval" value="{{ row.trigger_frequency }}"/>
@@ -46,7 +46,7 @@
                         </form>
                     </td>
                     <td>
-                        <form class="table-form" method="POST" action="/managed/entry/trigger/">
+                        <form class="table-form" method="POST" action="/scheduler/managed/entry/trigger/">
                             <input type="hidden" name="process_name" value="{{ row.process_name }}"/>
                             <input type="hidden" name="timeperiod" value="NA"/>
                             <button type="submit" class="action_button btn-center" title="Trigger">
@@ -67,13 +67,13 @@
                 <th scope="col" width="15%">Process Name</th>
                 <th scope="col">Units Of Work</th>
                 <th scope="col">
-                    <form class="table-form inline" method="GET" action="/gc/flush/all/" onsubmit="refreshWithDelay()">
+                    <form class="table-form inline" method="GET" action="/scheduler/gc/flush/all/" onsubmit="refreshWithDelay()">
                         <span class="inline u-pull-right">
                             <button type="submit" class="action_button btn-center inline" title="Flush All">
                                 <i class="fa fa-recycle"></i><span>Flush All</span></button>
                         </span>
                     </form>
-                    <form class="table-form inline" method="GET" action="/gc/refresh/" onsubmit="refreshWithDelay()">
+                    <form class="table-form inline" method="GET" action="/scheduler/gc/refresh/" onsubmit="refreshWithDelay()">
                         <span class="inline u-pull-right">
                             <button type="submit" class="action_button btn-center inline" title="Refresh">
                                 <i class="fa fa-refresh"></i><span>Refresh</span></button>
@@ -100,7 +100,7 @@
                             {%- endfor -%}
                         </td>
                         <td>
-                            <form class="table-form u-pull-right" method="GET" action="/gc/flush/one/" onsubmit="refreshWithDelay()">
+                            <form class="table-form u-pull-right" method="GET" action="/scheduler/gc/flush/one/" onsubmit="refreshWithDelay()">
                                 <input type="hidden" name="process_name" value="{{ process_name }}"/>
                                 <button type="submit" class="action_button btn-center u-pull-right" title="Flush">
                                     <i class="fa fa-recycle"></i><span>Flush</span></button>
@@ -156,7 +156,8 @@
             <tr class="table-entries-header">
                 <th scope="col">
                     <form class="table-form" method="GET"
-                          onsubmit="window.open(`/viewer/object/?action=system/gc/log`,`GC Log`,`toolbar=no,scrollbars=yes,resizable=yes,top=${window.innerHeight * 0.15},left=${window.innerWidth * 0.15},width=${window.innerWidth * 2/3},height=${window.innerHeight * 0.85}`); return false;">
+                          onsubmit="window.open(`/scheduler/viewer/object/?action=scheduler/gc/log`,`GC Log`,
+                                   `toolbar=no,scrollbars=yes,resizable=yes,top=${window.innerHeight * 0.15},left=${window.innerWidth * 0.15},width=${window.innerWidth * 2/3},height=${window.innerHeight * 0.85}`); return false;">
                         <button type="submit" class="action_button btn-center" title="GC"><i
                                 class="fa fa-file-text-o"></i>
                             <span>GC Log</span>
@@ -164,8 +165,9 @@
                     </form>
                 </th>
                 <th scope="col">
-                    <form class="table-form" method="GET" onsubmit="window.open('/viewer/object/?action=system/mx/log','MX Log',
-                        `toolbar=no,scrollbars=yes,resizable=yes,top=${window.innerHeight * 0.15},left=${window.innerWidth * 0.15},width=${window.innerWidth * 2/3},height=${window.innerHeight * 0.85}`); return false;">
+                    <form class="table-form" method="GET"
+                          onsubmit="window.open('/scheduler/viewer/object/?action=scheduler/mx/log','MX Log',
+                                   `toolbar=no,scrollbars=yes,resizable=yes,top=${window.innerHeight * 0.15},left=${window.innerWidth * 0.15},width=${window.innerWidth * 2/3},height=${window.innerHeight * 0.85}`); return false;">
                         <button type="submit" class="action_button btn-center" title="MX Log"><i
                                 class="fa fa-file-text-o"></i>
                             <span>MX Log</span>
@@ -173,8 +175,9 @@
                     </form>
                 </th>
                 <th scope="col">
-                    <form class="table-form" method="GET" onsubmit="window.open('/viewer/object/?action=system/scheduler/log','Scheduler Log',
-                        `toolbar=no,scrollbars=yes,resizable=yes,top=${window.innerHeight * 0.15},left=${window.innerWidth * 0.15},width=${window.innerWidth * 2/3},height=${window.innerHeight * 0.85}`); return false;">
+                    <form class="table-form" method="GET"
+                          onsubmit="window.open('/scheduler/viewer/object/?action=scheduler/scheduler/log','Scheduler Log',
+                                   `toolbar=no,scrollbars=yes,resizable=yes,top=${window.innerHeight * 0.15},left=${window.innerWidth * 0.15},width=${window.innerWidth * 2/3},height=${window.innerHeight * 0.85}`); return false;">
                         <button type="submit" class="action_button btn-center" title="Scheduler Log"><i
                                 class="fa fa-file-text-o"></i>
                             <span>Scheduler Log</span>

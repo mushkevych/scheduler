@@ -5,13 +5,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <link rel="stylesheet" type="text/css" href="{{ url_for('static', file='css/font-awesome.min.css') }}">
-    <link rel="stylesheet" type="text/css" href="{{ url_for('static', file='css/skeleton-2.0.4.min.css') }}">
-    <link rel="stylesheet" type="text/css" href="{{ url_for('static', file='css/normalize-3.0.2.min.css') }}">
-    <link rel="stylesheet" type="text/css" href="{{ url_for('static', file='css/index.css') }}">
+    <link rel="stylesheet" type="text/css" href="{{ url_for('scheduler/static', file='css/font-awesome.min.css') }}">
+    <link rel="stylesheet" type="text/css" href="{{ url_for('scheduler/static', file='css/skeleton-2.0.4.min.css') }}">
+    <link rel="stylesheet" type="text/css" href="{{ url_for('scheduler/static', file='css/normalize-3.0.2.min.css') }}">
+    <link rel="stylesheet" type="text/css" href="{{ url_for('scheduler/static', file='css/index.css') }}">
 
-    <script type="text/javascript" src="{{ url_for('static', file='js/jquery-3.4.1.min.js') }}"></script>
-    <script type="text/javascript" src="{{ url_for('static', file='js/mx_utils.js') }}"></script>
+    <script type="text/javascript" src="{{ url_for('scheduler/static', file='js/jquery-3.4.1.min.js') }}"></script>
+    <script type="text/javascript" src="{{ url_for('scheduler/static', file='js/mx_utils.js') }}"></script>
 
     <script type="text/javascript">
         window.onunload = refreshParent;
@@ -32,7 +32,7 @@
 <div class="container">
     <pre id="json" class="mx-2"></pre>
 
-    <form method="POST" action="/freerun/entry/">
+    <form method="POST" action="/scheduler/freerun/entry/">
         <table class="popup-form">
             <tr>
                 <td>Process name</td>
@@ -40,8 +40,7 @@
                     {%- if not handler -%}
                         <select name="process_name" style="width: 236px">
                             {%- for process_name, process_entry in synergy_process_context.items() -%}
-                                <option value="{{ process_name }}" {%- if process_name == 'BashDriver' -%} selected
-                                {%- endif -%}>{{ process_name }}</option>
+                                <option value="{{ process_name }}" {%- if process_name == 'BashDriver' -%} selected {%- endif -%}>{{ process_name }}</option>
                             {%- endfor -%}
                         </select>
                     {%- else -%}
@@ -53,9 +52,10 @@
             </tr>
             <tr>
                 <td>Entry name</td>
-                <td><input type="text" name="entry_name" class="text-align-left" placeholder="entry name"
-                           value="{% if handler %}{{ handler.process_entry.entry_name }}{% endif %}"
-                        {% if handler %} readonly {% endif %}></td>
+                <td>
+                    <input type="text" name="entry_name" class="text-align-left" placeholder="entry name"
+                           value="{% if handler %}{{ handler.process_entry.entry_name }}{% endif %}" {% if handler %} readonly {% endif %}>
+                </td>
                 <td>Name of the schedulable item. Has to be unique.</td>
             </tr>
 
@@ -98,24 +98,19 @@
                 {%- else -%}
                     {"cmd_path": "", "cmd_file": "", "cmd_args": "", "cmd_host": "" }
                 {%- endif -%}</textarea></td>
-                <td>This is process-specific set of arguments that are used to construct and run an actual job
-                </td>
+                <td>This is process-specific set of arguments that are used to construct and run an actual job</td>
             </tr>
             <tr>
                 <td colspan="3">
                     <div id="buttons">
                         {%- if not handler -%}
-                            <button type="submit" name="insert_button" value="Insert" onclick="closeWindow()">Insert
-                            </button>
+                            <button type="submit" name="insert_button" value="Insert" onclick="closeWindow()">Insert</button>
                         {%- else -%}
-                            <button type="submit" name="update_button" value="Update" onclick="closeWindow()">Update
-                            </button>
-                            <button type="submit" name="delete_button" value="Delete" onclick="closeWindow()">Delete
-                            </button>
+                            <button type="submit" name="update_button" value="Update" onclick="closeWindow()">Update</button>
+                            <button type="submit" name="delete_button" value="Delete" onclick="closeWindow()">Delete</button>
                         {%- endif -%}
 
-                        <button type="submit" name="cancel_button" value="Cancel" onclick="closeWindow()">Cancel
-                        </button>
+                        <button type="submit" name="cancel_button" value="Cancel" onclick="closeWindow()">Cancel</button>
                         <div style="clear:both"></div>
                     </div>
                 </td>

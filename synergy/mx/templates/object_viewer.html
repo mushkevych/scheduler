@@ -5,12 +5,12 @@
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <meta http-equiv="X-UA-Compatible" content="ie=edge">
-        <link rel="stylesheet" type="text/css" href="{{ url_for('static', file='css/font-awesome.min.css') }}">
-        <link rel="stylesheet" type="text/css" href="{{ url_for('static', file='css/skeleton-2.0.4.min.css') }}">
-        <link rel="stylesheet" type="text/css" href="{{ url_for('static', file='css/normalize-3.0.2.min.css') }}">
-        <link rel="stylesheet" type="text/css" href="{{ url_for('static', file='css/index.css') }}">
-        <script type="text/javascript" src="{{ url_for('static', file='js/jquery-3.4.1.min.js') }}"></script>
-        <script type="text/javascript" src="{{ url_for('static', file='js/mx_utils.js') }}"></script>
+        <link rel="stylesheet" type="text/css" href="{{ url_for('scheduler/static', file='css/font-awesome.min.css') }}">
+        <link rel="stylesheet" type="text/css" href="{{ url_for('scheduler/static', file='css/skeleton-2.0.4.min.css') }}">
+        <link rel="stylesheet" type="text/css" href="{{ url_for('scheduler/static', file='css/normalize-3.0.2.min.css') }}">
+        <link rel="stylesheet" type="text/css" href="{{ url_for('scheduler/static', file='css/index.css') }}">
+        <script type="text/javascript" src="{{ url_for('scheduler/static', file='js/jquery-3.4.1.min.js') }}"></script>
+        <script type="text/javascript" src="{{ url_for('scheduler/static', file='js/mx_utils.js') }}"></script>
         <title>Object Viewer</title>
     </head>
 
@@ -28,7 +28,7 @@
         </div>
 
         <script type="text/javascript">
-            $(function () {  // former $(document).ready(function () {...})
+            $(function () {
                 let action = getUrlParameter('action');
                 let url = '/' + action + '/?' + window.location.search.substring(1);
 
