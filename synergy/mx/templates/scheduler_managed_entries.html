@@ -156,30 +156,27 @@
             <tr class="table-entries-header">
                 <th scope="col">
                     <form class="table-form" method="GET"
-                          onsubmit="window.open(`/scheduler/viewer/object/?action=scheduler/gc/log`,`GC Log`,
-                                   `toolbar=no,scrollbars=yes,resizable=yes,top=${window.innerHeight * 0.15},left=${window.innerWidth * 0.15},width=${window.innerWidth * 2/3},height=${window.innerHeight * 0.85}`); return false;">
-                        <button type="submit" class="action_button btn-center" title="GC"><i
-                                class="fa fa-file-text-o"></i>
+                          onsubmit="openViewerWindow(`/scheduler/viewer/object/?action=scheduler/gc/log`, `GC Log`); return false;">
+                        <button type="submit" class="action_button btn-center" title="GC">
+                            <i class="fa fa-file-text-o"></i>
                             <span>GC Log</span>
                         </button>
                     </form>
                 </th>
                 <th scope="col">
                     <form class="table-form" method="GET"
-                          onsubmit="window.open('/scheduler/viewer/object/?action=scheduler/mx/log','MX Log',
-                                   `toolbar=no,scrollbars=yes,resizable=yes,top=${window.innerHeight * 0.15},left=${window.innerWidth * 0.15},width=${window.innerWidth * 2/3},height=${window.innerHeight * 0.85}`); return false;">
-                        <button type="submit" class="action_button btn-center" title="MX Log"><i
-                                class="fa fa-file-text-o"></i>
+                          onsubmit="openViewerWindow('/scheduler/viewer/object/?action=scheduler/mx/log', 'MX Log'); return false;">
+                        <button type="submit" class="action_button btn-center" title="MX Log">
+                            <i class="fa fa-file-text-o"></i>
                             <span>MX Log</span>
                         </button>
                     </form>
                 </th>
                 <th scope="col">
                     <form class="table-form" method="GET"
-                          onsubmit="window.open('/scheduler/viewer/object/?action=scheduler/scheduler/log','Scheduler Log',
-                                   `toolbar=no,scrollbars=yes,resizable=yes,top=${window.innerHeight * 0.15},left=${window.innerWidth * 0.15},width=${window.innerWidth * 2/3},height=${window.innerHeight * 0.85}`); return false;">
-                        <button type="submit" class="action_button btn-center" title="Scheduler Log"><i
-                                class="fa fa-file-text-o"></i>
+                          onsubmit="openViewerWindow('/scheduler/viewer/object/?action=scheduler/scheduler/log', 'Scheduler Log'); return false;">
+                        <button type="submit" class="action_button btn-center" title="Scheduler Log">
+                            <i class="fa fa-file-text-o"></i>
                             <span>Scheduler Log</span>
                         </button>
                     </form>

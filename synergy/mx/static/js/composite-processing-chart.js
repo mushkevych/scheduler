@@ -23,7 +23,7 @@ const svg = d3.select("body").append("svg")
 const inner = svg.append("g")
     .attr("width", document.body.clientWidth)
     .attr("height", document.body.clientHeight)
-    .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+    .attr("transform", `translate(${margin.left}, ${margin.top})`);
 
 // Set up zoom support
 const zoom = d3.zoom().on('zoom', function () {
@@ -58,17 +58,22 @@ function showDivTile(p) {
         .duration(200)
         .style("opacity", 1)
         .style("pointer-events", "all")
-        .attr("class", p.state + " job-tile");
+        .attr("class", `${p.state} job-tile`);
 
-    const treeHref = '<a href="/scheduler/' + p.mx_page + '&#35;' + p.tree_name + '">' + p.tree_name + '</a>';
-    divJobTile.html(
-        "<a class='close-button' onclick='hideDivTile()'></a>"
-        + p.process_name + "<br/>" + p.timeperiod + "<br/>" + p.state
-        + "<br/>url: " + treeHref + "<br/>qualifier: " + p.time_qualifier + "<br/>grouping: " + p.time_grouping)
-        .style("left", (d3.event.pageX + 5) + "px")
-        .style("top", (d3.event.pageY - 28) + "px");
+    const treeHref = `<a href="/scheduler/${p.mx_page}&#35;${p.tree_name}">${p.tree_name}</a>`;
+    divJobTile.html(`
+        <a class='close-button' onclick='hideDivTile()'></a>
+        ${p.process_name}<br/>
+        ${p.timeperiod}<br/>
+        ${p.state}<br/>
+        url: ${treeHref}<br/>
+        qualifier: ${p.time_qualifier}<br/>
+        grouping: ${p.time_grouping}`)
+            .style("left", (d3.event.pageX + 5) + "px")
+            .style("top", (d3.event.pageY - 28) + "px");
 
-    infoJobTile(p, divJobTile, false, false);
+    // TODO: reuse mx_page::infoJobTile to build Job Tile
+    // infoJobTile(p, divJobTile, false, false);
 }
 
 
@@ -146,7 +151,7 @@ function renderCompositeProcessingChart(processNames, timeperiods, jobs, mx_tree
         .attr("class", "row")
         .attr("transform", function (d, i) {
             const process_name = processNames[i];
-            return "translate(0, " + y(process_name) + ")";
+            return `translate(0, ${y(process_name)})`;
         })
         .each(build_row);
 
@@ -170,7 +175,7 @@ function renderCompositeProcessingChart(processNames, timeperiods, jobs, mx_tree
         .attr("class", "column")
         .attr("transform", function (d, i) {
             const timeperiod = timeperiods[i];
-            return "translate(" + x(timeperiod) + ", 0)";
+            return `translate(${x(timeperiod)}, 0)`;
         });
 
     column.append("g")
@@ -251,12 +256,16 @@ function renderCompositeProcessingChart(processNames, timeperiods, jobs, mx_tree
         divTooltip.transition()
             .duration(200)
             .style("opacity", .9);
-
-        const treeHref = '<a href="/' + p.mx_page + '&#35;' + p.tree_name + '">' + p.tree_name + '</a>';
-        divTooltip.html(p.process_name + "<br/>" + p.timeperiod + "<br/>" + p.state
-            + "<br/>url: " + treeHref + "<br/>qualifier: " + p.time_qualifier + "<br/>grouping: " + p.time_grouping)
-            .style("left", (d3.event.pageX + 5) + "px")
-            .style("top", (d3.event.pageY - 28) + "px");
+        const treeHref = `<a href="/scheduler/${p.mx_page}&#35;${p.tree_name}">${p.tree_name}</a>`;
+        divTooltip.html(`
+            ${p.process_name}<br/>
+            ${p.timeperiod}<br/>
+            ${p.state}<br/>
+            url: ${treeHref}<br/>
+            qualifier: ${p.time_qualifier}<br/>
+            grouping: ${p.time_grouping}`)
+                .style("left", (d3.event.pageX + 5) + "px")
+                .style("top", (d3.event.pageY - 28) + "px");
     }
 
     function mouseout() {

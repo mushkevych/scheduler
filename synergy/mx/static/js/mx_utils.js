@@ -188,3 +188,12 @@ function dateToTimeperiod(datetime) {
 
     return timeperiod;
 }
+
+function openViewerWindow(url, name) {
+    const features =
+        `toolbar=no, scrollbars=yes, resizable=yes,` +
+        `top=${window.innerHeight * 0.15}, left=${window.innerWidth * 0.15},` +
+        `width=${window.innerWidth / 2}, height=${window.innerHeight * 0.85}`;
+    window.open(url, name, features);
+    return false;
+}

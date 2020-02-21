@@ -34,13 +34,13 @@ function getGrid(grid_name) {
 }
 
 function parseTimeperiod(t) {
-    return t.slice(0, 4) + '-' + t.slice(4, 6) + '-' + t.slice(6, 8) + 'T' + t.slice(8);
+    return `${t.slice(0, 4)}-${t.slice(4, 6)}-${t.slice(6, 8)}T${t.slice(8)}`;
 }
 
-function submitForm(form) {
+function submitHtmlForm(htmlForm) {
     let xhr = new XMLHttpRequest();
-    xhr.open(form.method, form.action);
-    xhr.send(new FormData(form));
+    xhr.open(htmlForm.method, htmlForm.action);
+    xhr.send(new FormData(htmlForm));
     return false;
 }
 
@@ -50,7 +50,7 @@ function buildHrefs(mx_tree_names) {
         if (htmlString.length > 1) {
             htmlString += " ";
         }
-        htmlString += '<span><a href="&#35;' + mx_tree_name + '">' + mx_tree_name + '</a></span>';
+        htmlString += `<span><a href="&#35;${mx_tree_name}">${mx_tree_name}</a></span>`;
     }
     return htmlString + " ]</span>";
 }
@@ -77,7 +77,7 @@ function headerTreeTile(mx_tree, tile) {
 
 function headerProcessTile(process_entry, tile) {
     const flush_one_form = `
-        <form class="process-form inline" method="GET" action="/scheduler/gc/flush/one/" onsubmit="submitForm(this)">
+        <form class="process-form inline" method="GET" action="/scheduler/gc/flush/one/" onsubmit="submitHtmlForm(this)">
             <input type="hidden" name="process_name" value=${process_entry.process_name} />
             <button type="submit" title="flush_${process_entry.process_name}" class="inline fa"><i class="fa fa-recycle"></i>
             </button>
@@ -92,7 +92,7 @@ function headerProcessTile(process_entry, tile) {
         </div>`;
 
     const trigger_form = `
-        <form class="process-form inline" method="POST" action="/scheduler/managed/entry/trigger/" onsubmit="submitForm(this)">
+        <form class="process-form inline" method="POST" action="/scheduler/managed/entry/trigger/" onsubmit="submitHtmlForm(this)">
 			<input type="hidden" name="process_name" value="${process_entry.process_name}" />
 			<input type="hidden" name="timeperiod" value="NA" />
 			<button class="inline fa" type="submit" value="&#f135" title="trigger_${process_entry.process_name}"><i class="fa fa-bolt"></i></button>
@@ -109,12 +109,12 @@ function headerProcessTile(process_entry, tile) {
     let is_on;
     if (process_entry.is_on) {
         is_on =
-            "<a onclick=\"processTrigger('scheduler/managed/entry/deactivate', '" + process_entry.process_name + "', 'NA', null, true)\">" +
-            '<i class="fa fa-toggle-on action_toogle" title="is ON"></i></a>';
+            `<a onclick="processTrigger('scheduler/managed/entry/deactivate', '${process_entry.process_name}', 'NA', null, true)">` +
+            `<i class="fa fa-toggle-on action_toogle" title="is ON"></i></a>`;
     } else {
         is_on =
-            "<a onclick=\"processTrigger('scheduler/managed/entry/activate', '" + process_entry.process_name + "', 'NA', null, true)\">" +
-            '<i class="fa fa-toggle-off action_toogle" title="is OFF"></i></a>';
+            `<a onclick="processTrigger('scheduler/managed/entry/activate', '${process_entry.process_name}', 'NA', null, true)">` +
+            `<i class="fa fa-toggle-off action_toogle" title="is OFF"></i></a>`;
     }
 
     if (process_entry.is_alive) {
@@ -152,7 +152,7 @@ function headerProcessTile(process_entry, tile) {
 
 function infoProcessTile(process_entry, tile) {
     const change_interval_form = `
-        <form class="process-form" method="POST" action="/scheduler/managed/entry/interval/" onsubmit="submitForm(this)">
+        <form class="process-form" method="POST" action="/scheduler/managed/entry/interval/" onsubmit="submitHtmlForm(this)">
             <input type="hidden" name="process_name" value="${process_entry.process_name}" />
             <input type="hidden" name="timeperiod" value="NA" />
             <input type="text" size="8" maxlength="32" name="interval" value="${process_entry.trigger_frequency}" />
@@ -181,7 +181,7 @@ function infoProcessTile(process_entry, tile) {
 
 function infoJobTile(job_entry, tile, is_next_timeperiod, is_selected_timeperiod) {
     const checkbox_value =
-        "{ process_name: '" + job_entry.process_name + "', timeperiod: '" + job_entry.timeperiod + "' }";
+        `{ process_name: "${job_entry.process_name}", timeperiod: "${job_entry.timeperiod}" }`;
     const checkbox_div = `
 		<div class="checkbox">
 			<input type="checkbox" name="batch_processing" value="${checkbox_value}" />
@@ -198,12 +198,8 @@ function infoJobTile(job_entry, tile, is_next_timeperiod, is_selected_timeperiod
             timeperiod: job_entry.timeperiod,
             process_name: job_entry.process_name
         };
-        const viewer_url = '/scheduler/viewer/object/?' + $.param(params);
-        window.open(
-            viewer_url,
-            'Object Viewer',
-            `width=${window.innerWidth * 2 / 3},height=${window.innerHeight * 0.85},scrollbars=1`
-        );
+        const url = `/scheduler/viewer/object/?${$.param(params)}`;
+        openViewerWindow(url, 'View Uow');
     });
     const uow_log_button = $(
         `<button title="Uow Log" aria-label="Uow Log" class="action_button">
@@ -216,13 +212,8 @@ function infoJobTile(job_entry, tile, is_next_timeperiod, is_selected_timeperiod
             timeperiod: job_entry.timeperiod,
             process_name: job_entry.process_name
         };
-        const viewer_url = '/scheduler/viewer/object/?' + $.param(params);
-        // HACK: see web.jpng.info
-        window.open(
-            viewer_url,
-            'Object Viewer',
-            `width=${window.innerWidth * 2 / 3},height=${window.innerHeight * 0.85},scrollbars=1`
-        );
+        const url = `/scheduler/viewer/object/?${$.param(params)}`;
+        openViewerWindow(url, 'Uow Log');
     });
     const event_log_button = $(
         `<button title="Timeline" aria-label="Timeline" class="action_button">
@@ -235,12 +226,8 @@ function infoJobTile(job_entry, tile, is_next_timeperiod, is_selected_timeperiod
             timeperiod: job_entry.timeperiod,
             process_name: job_entry.process_name
         };
-        const viewer_url = '/scheduler/viewer/object/?' + $.param(params);
-        window.open(
-            viewer_url,
-            'Object Viewer',
-            `width=${window.innerWidth * 2 / 3},height=${window.innerHeight * 0.85},scrollbars=1`
-        );
+        const url = `/scheduler/viewer/object/?${$.param(params)}`;
+        openViewerWindow(url, 'Job Timeline');
     });
     const skip_button = $(
         `<button title="Skip" aria-label="Skip" class="action_button">
@@ -270,12 +257,8 @@ function infoJobTile(job_entry, tile, is_next_timeperiod, is_selected_timeperiod
             process_name: job_entry.process_name,
             unit_of_work_type: 'type_managed'
         };
-        const viewer_url = '/flow/viewer/?' + $.param(params);
-        window.open(
-            viewer_url,
-            'Flow Viewer',
-            `width=${window.innerWidth * 2 / 3},height=${window.innerHeight * 0.85},scrollbars=1`
-        );
+        const url = `/flow/viewer/?${$.param(params)}`;
+        openViewerWindow(url, "Workflow");
     });
 
     tile.process_name = job_entry.process_name;
@@ -285,13 +268,13 @@ function infoJobTile(job_entry, tile, is_next_timeperiod, is_selected_timeperiod
     });
 
     if (is_next_timeperiod) {
-        tile.$el.attr('class', job_entry.state + ' is_next_timeperiod');
+        tile.$el.attr('class', `${job_entry.state} is_next_timeperiod`);
     } else {
         tile.$el.attr('class', job_entry.state);
     }
 
     if (is_selected_timeperiod) {
-        tile.$el.attr('class', job_entry.state + ' is_selected_timeperiod');
+        tile.$el.attr('class', `${job_entry.state} is_selected_timeperiod`);
     }
 
     tile.$el.append(
@@ -397,7 +380,7 @@ function gridPostConstructor(grid, template) {
     const ids = range(1, grid.template.rects.length);
     grid.updateTiles(ids);
     grid.resize();
-    // HACK: turn of bad animation
+    // FIXME: turn of bad animation
     grid.redraw(false);
 
     // wait until users finishes resizing the browser
@@ -465,7 +448,7 @@ function selectTile(tile) {
     }
 
     // step 3: assign is_selected_timeperiod to the given tile
-    tile.$el.attr('class', tile.$el.attr('class') + ' is_selected_timeperiod');
+    tile.$el.attr('class', `${tile.$el.attr('class')} is_selected_timeperiod`);
 
     // step 4: iterate over grids and rebuild them
     const tree_obj = tile.grid.tree_obj;
@@ -504,14 +487,14 @@ function selectTile(tile) {
         }
 
         // refresh job tiles: empty the grid-info
-        let grid_name = 'grid-info-' + i_process_name;
+        let grid_name = `grid-info-${i_process_name}`;
         clearGrid(grid_name);
 
         // refresh job tiles: reconstruct the grid-info
         buildJobGrid(grid_name, tree_level, process_obj.next_timeperiod, selected_timeperiod, tree_obj);
 
         // refresh process tiles: empty the grid-header
-        grid_name = 'grid-header-' + i_process_name;
+        grid_name = `grid-header-${i_process_name}`;
         clearGrid(grid_name);
 
         // refresh process tiles: reconstruct the grid-header
@@ -532,8 +515,8 @@ function clearTree(tree_name) {
 
     for (let i = 0; i < process_number; i++) {
         process_name = tree_obj.sorted_process_names[i];
-        clearGrid('grid-header-' + process_name);
-        clearGrid('grid-info-' + process_name);
+        clearGrid(`grid-header-${process_name}`);
+        clearGrid(`grid-info-${process_name}`);
     }
 }
 
@@ -547,16 +530,16 @@ function buildTree(tree_name) {
     const process_number = tree_obj.sorted_process_names.length;
 
     // *** HEADER ***
-    buildHeaderGrid('grid-header-' + tree_obj.tree_name, GRID_HEADER_TEMPLATE, headerTreeTile, tree_obj);
+    buildHeaderGrid(`grid-header-${tree_obj.tree_name}`, GRID_HEADER_TEMPLATE, headerTreeTile, tree_obj);
 
     for (i = 0; i < process_number; i++) {
         process_name = tree_obj.sorted_process_names[i];
         process_obj = tree_obj.processes[process_name];
-        buildHeaderGrid('grid-header-' + process_name, GRID_HEADER_TEMPLATE, headerProcessTile, process_obj);
+        buildHeaderGrid(`grid-header-${process_name}`, GRID_HEADER_TEMPLATE, headerProcessTile, process_obj);
     }
 
     // *** INFO ***
-    buildProcessGrid('grid-info-' + tree_obj.tree_name, tree_obj);
+    buildProcessGrid(`grid-info-${tree_obj.tree_name}`, tree_obj);
 
     let higher_next_timeperiod = null;
     let higher_process_name = null;
@@ -574,7 +557,7 @@ function buildTree(tree_name) {
         higher_process_name = process_name;
         higher_next_timeperiod = process_obj.next_timeperiod;
 
-        buildJobGrid('grid-info-' + process_name, tree_level, process_obj.next_timeperiod, undefined, tree_obj);
+        buildJobGrid(`grid-info-${process_name}`, tree_level, process_obj.next_timeperiod, undefined, tree_obj);
     }
 }
 

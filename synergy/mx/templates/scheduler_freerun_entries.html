@@ -64,24 +64,21 @@
                 <td class="button-col">
                     {% set url = 'action=scheduler/freerun/uow' + '&process_name=' + row.process_name + '&entry_name=' + row.entry_name %}
                     <form class="table-form inline" method="GET"
-                          onsubmit="window.open('/scheduler/viewer/object/?{{ url }}','View Uow',
-                                   `toolbar=no,scrollbars=yes,resizable=yes,top=${window.innerHeight * 0.15},left=${window.innerWidth * 0.15},width=${window.innerWidth / 2},height=${window.innerHeight * 0.85}`); return false;">
+                          onsubmit="openViewerWindow('/scheduler/viewer/object/?{{ url }}', 'View Uow'); return false;">
                         <button type="submit" class="action_button btn-icons btn-center" title="View Uow">
                             <i class="fa fa-file-code-o"></i><span>Uow</span></button>
                     </form>
 
                     {% set url = 'action=scheduler/freerun/uow/log' + '&process_name=' + row.process_name + '&entry_name=' + row.entry_name %}
                     <form class="table-form inline" method="GET"
-                          onsubmit="window.open('/scheduler/viewer/object/?{{ url }}','Uow Log',
-                                   `toolbar=no,scrollbars=yes,resizable=yes,top=${window.innerHeight * 0.15},left=${window.innerWidth * 0.15},width=${window.innerWidth / 2},height=${window.innerHeight * 0.85}`); return false;">
+                          onsubmit="openViewerWindow('/scheduler/viewer/object/?{{ url }}', 'Uow Log'); return false;">
                         <button type="submit" class="action_button btn-icons btn-center" title="Log Uow">
                             <i class="fa fa-file-text-o"></i><span>Log Uow</span></button>
                     </form>
 
                     {% set url = 'action=scheduler/freerun/timeline' + '&process_name=' + row.process_name + '&entry_name=' + row.entry_name %}
                     <form class="table-form inline" method="GET"
-                          onsubmit="window.open('/scheduler/viewer/object/?{{ url }}','Timeline',
-                                   `toolbar=no,scrollbars=yes,resizable=yes,top=${window.innerHeight * 0.15},left=${window.innerWidth * 0.15},width=${window.innerWidth * 2/3},height=${window.innerHeight * 0.85}`); return false;">
+                          onsubmit="openViewerWindow('/scheduler/viewer/object/?{{ url }}', 'Job Timeline'); return false;">
                         <button type="submit" class="action_button btn-icons btn-center" title="Timeline">
                             <i class="fa fa-history"></i><span>Timeline</span></button>
                     </form>
@@ -96,8 +93,7 @@
 
                     {% set url = '/scheduler/viewer/schedulable/?process_name=' + row.process_name + '&entry_name=' + row.entry_name + '&is_new_entry=False' %}
                     <form class="table-form inline" method="GET"
-                          onsubmit="window.open('{{ url }}','Edit Freerun Trigger',
-                                   `toolbar=no,scrollbars=yes,resizable=yes,left=${window.innerWidth * 0.15},width=${window.innerWidth * 2/3},height=${window.innerHeight * 0.85}`); return false;">
+                          onsubmit="openViewerWindow('{{ url }}', 'Edit Freerun Trigger'); return false;">
                         <button type="submit" class="action_button btn-icons btn-center" title="Edit">
                             <i class="fa fa-edit"></i><span>Edit</span></button>
                     </form>
@@ -109,8 +105,7 @@
                 <td colspan="13" style="text-align: right">
                     {% set url = '/scheduler/viewer/schedulable/?is_new_entry=True' %}
                     <a href="#"
-                        onclick="window.open('{{ url }}','New Freerun Trigger',
-                                `toolbar=no,scrollbars=yes,resizable=yes,top=${window.innerHeight * 0.15},left=${window.innerWidth * 0.15},width=${window.innerWidth * 2/3},height=${window.innerHeight * 0.85}`); return false;">
+                        onclick="openViewerWindow('{{ url }}', 'New Freerun Trigger'); return false;">
                         <i class="fa fa-plus"></i><span>&nbsp;Add New Freerun Trigger</span>
                     </a>
                 </td>
