@@ -197,3 +197,11 @@ function openViewerWindow(url, name) {
     window.open(url, name, features);
     return false;
 }
+
+// also used by the synergy_flow
+function submitHtmlForm(htmlForm) {
+    let xhr = new XMLHttpRequest();
+    xhr.open(htmlForm.method, htmlForm.action);
+    xhr.send(new FormData(htmlForm));
+    return false;
+}

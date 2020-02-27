@@ -89,7 +89,7 @@ function getCheckedBoxes(checkbox_name) {
 // function applies given "action" to all records with selected checkboxes
 function processBatch(action) {
     const selected = getCheckedBoxes('batch_processing');
-    const msg = 'You are about to ' + action + ' all selected';
+    const msg = `You are about to ${action} all selected`;
     let i;
     let process_name;
     let timeperiod;
@@ -103,24 +103,24 @@ function processBatch(action) {
 
         if (action.indexOf('skip') > -1 || action.indexOf('reprocess') > -1) {
             for (i = 0; i < selected.length; i++) {
-                json = eval('(' + selected[i].value + ')');
+                json = eval(`(${selected[i].value})`);
                 process_name = json['process_name'];
                 timeperiod = json['timeperiod'];
-                processTrigger(action, process_name, timeperiod, null, i == selected.length - 1);
+                processTrigger(action, process_name, timeperiod, null, i === selected.length - 1);
                 selected[i].checked = false;
             }
         } else if (action.indexOf('activate') > -1 || action.indexOf('deactivate') > -1) {
             for (i = 0; i < selected.length; i++) {
-                json = eval('(' + selected[i].value + ')');
+                json = eval(`(${selected[i].value})`);
                 process_name = json['process_name'];
                 timeperiod = 'timeperiod' in json ? json['timeperiod'] : null;
                 entry_name = 'entry_name' in json ? json['entry_name'] : null;
 
-                processTrigger(action, process_name, timeperiod, entry_name, i == selected.length - 1);
+                processTrigger(action, process_name, timeperiod, entry_name, i === selected.length - 1);
                 selected[i].checked = false;
             }
         } else {
-            Alertify.error('Action ' + action + ' is not supported by Synergy Scheduler MX JavaScript library.');
+            Alertify.error(`Action ${action} is not supported by Synergy Scheduler MX JavaScript library.`);
         }
     });
 }
@@ -138,25 +138,25 @@ function processJob(action, tree_name, process_name, timeperiod, flow_name, step
             step_name: step_name
         };
 
-        $.get('/' + action + '/', params, function (response) {
+        $.get(`/${action}/`, params, function (response) {
             if (response !== undefined && response !== null) {
-                Alertify.log('response: ' + response.responseText, null, 1500, null);
+                Alertify.log(`response: ${response.responseText}`, null, 1500, null);
             }
 
             if (tree_name) {
                 Alertify.log('tree view is being refreshed', null, 1500, null);
-                const tree_refresh_button = document.getElementById('refresh_button_' + tree_name);
+                const tree_refresh_button = document.getElementById(`refresh_button_${tree_name}`);
                 tree_refresh_button.click();
             }
         });
     }
 
-    let msg = 'You are about to ' + action + ' ' + ' for ' + process_name + '@' + timeperiod;
+    let msg = `You are about to ${action} for ${process_name}@${timeperiod}`;
     if (flow_name) {
-        msg += ' ->  ' + flow_name;
+        msg += ` ~> ${flow_name}`;
     }
     if (step_name) {
-        msg += '::' + step_name;
+        msg += `::${step_name}`;
     }
     Alertify.confirm(msg, function (e) {
         if (!e) {
@@ -169,7 +169,7 @@ function processJob(action, tree_name, process_name, timeperiod, flow_name, step
 // function applies given "action" to the SchedulerThreadHandler entry
 function processTrigger(action, process_name, timeperiod, entry_name, reload_afterwards) {
     const params = {process_name: process_name, timeperiod: timeperiod, entry_name: entry_name};
-    $.get('/' + action + '/', params, function (response) {
+    $.get(`/${action}/`, params, function (response) {
         // once the response arrives - reload the page
         if (reload_afterwards) {
             location.reload(true);

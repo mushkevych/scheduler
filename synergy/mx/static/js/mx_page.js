@@ -37,13 +37,6 @@ function parseTimeperiod(t) {
     return `${t.slice(0, 4)}-${t.slice(4, 6)}-${t.slice(6, 8)}T${t.slice(8)}`;
 }
 
-function submitHtmlForm(htmlForm) {
-    let xhr = new XMLHttpRequest();
-    xhr.open(htmlForm.method, htmlForm.action);
-    xhr.send(new FormData(htmlForm));
-    return false;
-}
-
 function buildHrefs(mx_tree_names) {
     let htmlString = "<span>[";
     for (const mx_tree_name of mx_tree_names) {
@@ -181,7 +174,7 @@ function infoProcessTile(process_entry, tile) {
 
 function infoJobTile(job_entry, tile, is_next_timeperiod, is_selected_timeperiod) {
     const checkbox_value =
-        `{ process_name: "${job_entry.process_name}", timeperiod: "${job_entry.timeperiod}" }`;
+        `{ 'process_name': '${job_entry.process_name}', 'timeperiod': '${job_entry.timeperiod}' }`;
     const checkbox_div = `
 		<div class="checkbox">
 			<input type="checkbox" name="batch_processing" value="${checkbox_value}" />

@@ -307,13 +307,17 @@ if __name__ == '__main__':
     parser_namespace, extra_parameters = parser.parse_known_args()
     parser_namespace.extra_parameters = extra_parameters
 
+    if 'func' not in parser_namespace:
+        parser.print_help()
+        sys.exit(1)
+
     if parser_namespace.func != install_virtualenv:
         # before calling any sub-commands, switch to virtual environment
         if path.exists(VE_ROOT):
             go_to_ve()
         else:
             sys.stdout.write('No virtual environment detected. Run ./launch.py install \n')
-            sys.exit(1)
+            sys.exit(2)
 
     # calling a function associated with the sub-command in *parser.set_defaults(func=...)*
     parser_namespace.func(parser_namespace)
