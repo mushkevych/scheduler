@@ -13,6 +13,7 @@ settings = dict(
 
     mx_host='0.0.0.0',           # management extension host (0.0.0.0 opens all interfaces)
     mx_port=5000,                # management extension port
+    mx_title='Synergy Scheduler',   # name of the Scheduler, displayed in the top left corner of the UI
     mx_children_limit=168,       # maximum number of children at any given level returned by MX
     perf_ticker_interval=60,     # seconds between performance ticker messages
 )

@@ -69,6 +69,7 @@ jinja_env.globals['get_current_time'] = lambda: datetime.utcnow().strftime('%Y-%
 jinja_env.globals['scheduler_version'] = lambda: settings.settings['version']
 jinja_env.globals['scheduler_uptime'] = scheduler_uptime
 jinja_env.globals['mx_processing_context'] = mx_page_context
+jinja_env.globals['mx_title'] = settings.settings['mx_title']
 jinja_env.globals['synergy_process_context'] = context.process_context
 jinja_env.filters['jsonify'] = json.dumps
 jinja_env.filters['lstrip_slash'] = lambda x: x.lstrip('/')

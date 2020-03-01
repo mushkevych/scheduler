@@ -19,7 +19,7 @@
     <script type="text/javascript" src="{{ url_for('scheduler/static', file='js/alertify-0.3.17.trunk.js') }}"></script>
     <script type="text/javascript" src="{{ url_for('scheduler/static', file='js/mx_utils.js') }}"></script>
 
-    <title>Synergy Scheduler</title>
+    <title>{{ mx_title }}</title>
 </head>
 
 {# Jinja2 variable scope visibility workaround: declared as a list so it is available to inherited templates #}
@@ -37,7 +37,7 @@
 <body>
 <div class="nav">
     <div class="inline title">
-        <h3 class="inline">Synergy Scheduler</h3>
+        <h3 class="inline">{{ mx_title }}</h3>
     </div>
 
     <div class="navbar" id="navbar">
