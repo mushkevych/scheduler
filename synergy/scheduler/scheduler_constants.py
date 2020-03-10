@@ -4,10 +4,12 @@ LAG_5_MINUTES = 5  # lag in minutes between finish of the timeperiod and beginni
 PROCESS_SCHEDULER = 'Scheduler'
 PROCESS_GC = 'GarbageCollector'
 PROCESS_MX = 'MX'
+PROCESS_LAUNCH_PY = 'LaunchPy'  # process provides <process context> to the launch.py script
 
 TOKEN_SCHEDULER = 'scheduler'
 TOKEN_GC = 'gc'
 TOKEN_WERKZEUG = 'werkzeug'
+TOKEN_LAUNCH_PY = 'launch_py'
 
 # Job is run once per timeperiod, after the period is complete
 STATE_MACHINE_DISCRETE = 'discrete'
@@ -35,6 +37,9 @@ BLOCKING_CHILDREN = 'blocking_children'
 EXCHANGE_MANAGED_WORKER = 'ex_managed_worker'
 EXCHANGE_FREERUN_WORKER = 'ex_freerun_worker'
 EXCHANGE_UTILS = 'ex_utils'
+
+# routing to processes that have no MQ capability, such as Lunch.py
+ROUTING_IRRELEVANT = 'routing_irrelevant'
 
 # DB Collection/Table names
 COLLECTION_MANAGED_PROCESS = 'managed_process'

@@ -19,13 +19,6 @@ mq_queue_context = {
 # NOTICE: remember to update db image after changing the context.py:
 # ./launch.py db --update
 process_context = {
-    PROCESS_LAUNCH_PY: daemon_context_entry(
-        process_name=PROCESS_LAUNCH_PY,
-        classname='',
-        token=TOKEN_LAUNCH_PY,
-        routing=ROUTING_IRRELEVANT,
-        exchange=EXCHANGE_UTILS),
-
     PROCESS_SCHEDULER: daemon_context_entry(
         process_name=PROCESS_SCHEDULER,
         classname='synergy.scheduler.synergy_scheduler.Scheduler.start',

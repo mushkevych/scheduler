@@ -1,10 +1,18 @@
 from synergy.db.model.queue_context_entry import queue_context_entry
 from synergy.scheduler.scheduler_constants import PROCESS_GC, TOKEN_GC, PROCESS_MX, TOKEN_WERKZEUG, EXCHANGE_UTILS, \
-    PROCESS_SCHEDULER, TOKEN_SCHEDULER, QUEUE_UOW_STATUS, QUEUE_JOB_STATUS
+    PROCESS_SCHEDULER, TOKEN_SCHEDULER, QUEUE_UOW_STATUS, QUEUE_JOB_STATUS, PROCESS_LAUNCH_PY, TOKEN_LAUNCH_PY, \
+    ROUTING_IRRELEVANT
 from synergy.supervisor.supervisor_constants import PROCESS_SUPERVISOR, TOKEN_SUPERVISOR
 from synergy.db.model.daemon_process_entry import daemon_context_entry
 
 process_context = {
+    PROCESS_LAUNCH_PY: daemon_context_entry(
+        process_name=PROCESS_LAUNCH_PY,
+        classname='',
+        token=TOKEN_LAUNCH_PY,
+        routing=ROUTING_IRRELEVANT,
+        exchange=EXCHANGE_UTILS),
+
     PROCESS_MX: daemon_context_entry(
         process_name=PROCESS_MX,
         token=TOKEN_WERKZEUG,
@@ -18,7 +26,10 @@ process_context = {
     PROCESS_SCHEDULER: daemon_context_entry(
         process_name=PROCESS_SCHEDULER,
         classname='synergy.scheduler.synergy_scheduler.Scheduler.start',
-        token=TOKEN_SCHEDULER),
+        token=TOKEN_SCHEDULER,
+        queue='',
+        routing='',
+        exchange=''),
 
     PROCESS_SUPERVISOR: daemon_context_entry(
         process_name=PROCESS_SUPERVISOR,

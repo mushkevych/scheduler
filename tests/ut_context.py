@@ -1,7 +1,7 @@
 __author__ = 'Bohdan Mushkevych'
 
-from context import ROUTING_IRRELEVANT, EXCHANGE_UTILS
 from synergy.conf import context
+from synergy.scheduler.scheduler_constants import ROUTING_IRRELEVANT, EXCHANGE_UTILS
 from synergy.db.model.daemon_process_entry import daemon_context_entry
 
 # User fields

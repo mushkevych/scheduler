@@ -2,7 +2,6 @@ __author__ = 'Bohdan Mushkevych'
 
 
 # List of Processes
-PROCESS_LAUNCH_PY = 'LaunchPy'      # process provides <process context> to the launch.py script
 PROCESS_STREAM_GEN = 'EventStreamGenerator'
 PROCESS_SESSION_WORKER_00 = 'SingleSessionWorker_00'
 PROCESS_SESSION_WORKER_01 = 'SingleSessionWorker_01'
@@ -27,7 +26,6 @@ TREE_ALERT = 'tree_alert'
 TREE_FLOW = 'tree_flow'
 
 # Process tokens. There should be one token per one Timetable tree or stand-alone process
-TOKEN_LAUNCH_PY = 'launch_py'
 TOKEN_STREAM = 'stream'
 TOKEN_SESSION = 'session'
 TOKEN_SITE = 'site'
@@ -39,12 +37,8 @@ TOKEN_FLOW = 'simple_flow'
 SIMPLE_FLOW_NAME = 'simple_flow'
 
 # *** MQ Constants ***
-PREFIX_ROUTING = 'routing_'
-PREFIX_QUEUE = 'queue_'
-
 QUEUE_RAW_DATA = 'q_raw_data'
 EXCHANGE_RAW_DATA = 'ex_raw_data'
-ROUTING_IRRELEVANT = 'routing_irrelevant'
 
 # *** DB Collection/Table names ***
 COLLECTION_SINGLE_SESSION = 'single_session'
