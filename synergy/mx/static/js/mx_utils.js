@@ -123,6 +123,12 @@ function keysToList(dictionary, sorted) {
 }
 
 
+/**
+ * parses url string of the browser window, where this script is running
+ * and returns value of the parameter identified as <sParam>
+ * @param sParam value of the parameter to return
+ * @returns null if no parameter with given name found or its value otherwise
+ */
 function getUrlParameter(sParam) {
     const sPageURL = window.location.search.substring(1);
     const sURLVariables = sPageURL.split('&');

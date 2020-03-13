@@ -30,7 +30,8 @@
         <script type="text/javascript">
             $(function () {
                 let action = getUrlParameter('action');
-                let url = `/${action}/?${window.location.search.substring(1)}`;
+                let params = window.location.search.substring(1);
+                let url = decodeURIComponent(`/${action}/?${params}`);
 
                 $.get(url, function (data) {
                     $("#json").text(formatJSON(data));
