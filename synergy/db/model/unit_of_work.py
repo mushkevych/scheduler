@@ -3,26 +3,7 @@ __author__ = 'Bohdan Mushkevych'
 from odm.document import BaseDocument
 from odm.fields import StringField, ObjectIdField, IntegerField, DictField, DateTimeField
 
-TIMEPERIOD = 'timeperiod'
-START_TIMEPERIOD = 'start_timeperiod'  # lower boundary (as Synergy date) of the period that needs to be processed
-END_TIMEPERIOD = 'end_timeperiod'      # upper boundary (as Synergy date) of the period that needs to be processed
-START_ID = 'start_obj_id'              # lower boundary (as DB _id) of the period that needs to be processed
-END_ID = 'end_obj_id'                  # upper boundary (as DB _id) of the period that needs to be processed
-STATE = 'state'
-CREATED_AT = 'created_at'
-SUBMITTED_AT = 'submitted_at'
-STARTED_AT = 'started_at'
-FINISHED_AT = 'finished_at'
-NUMBER_OF_AGGREGATED_DOCUMENTS = 'number_of_aggregated_documents'
-NUMBER_OF_PROCESSED_DOCUMENTS = 'number_of_processed_documents'
-NUMBER_OF_RETRIES = 'number_of_retries'
 
-PROCESS_NAME = 'process_name'          # process name of the aggregator/alarm/etc that processed the range
-SOURCE = 'source'                      # defines source of data for the computation
-SINK = 'sink'                          # defines sink where the aggregated data will be inserted
-ARGUMENTS = 'arguments'                # task-level arguments that could supplement or override process-level ones
-
-UNIT_OF_WORK_TYPE = 'unit_of_work_type'     # whether the unit_of_work is TYPE_MANAGED or TYPE_FREERUN
 TYPE_MANAGED = 'type_managed'               # identifies UOW created by Abstract State Machine child for Managed Process
 TYPE_FREERUN = 'type_freerun'               # identifies UOW created by FreerunStateMachine for ad-hock processing
 
@@ -55,31 +36,34 @@ class UnitOfWork(BaseDocument):
     """ Module represents persistent Model for atomic unit of work performed by the system.
     UnitOfWork Instances are stored in the <unit_of_work> collection """
 
-    db_id = ObjectIdField('_id', null=True)
-    process_name = StringField(PROCESS_NAME)
-    timeperiod = StringField(TIMEPERIOD, null=True)
-    start_timeperiod = StringField(START_TIMEPERIOD, null=True)
-    end_timeperiod = StringField(END_TIMEPERIOD, null=True)
-    start_id = ObjectIdField(START_ID)
-    end_id = ObjectIdField(END_ID)
-    source = StringField(SOURCE, null=True)
-    sink = StringField(SINK, null=True)
-    arguments = DictField(ARGUMENTS)
-    state = StringField(STATE, choices=[STATE_INVALID, STATE_REQUESTED, STATE_IN_PROGRESS,
-                                        STATE_PROCESSED, STATE_CANCELED, STATE_NOOP])
-    created_at = DateTimeField(CREATED_AT)
-    submitted_at = DateTimeField(SUBMITTED_AT)
-    started_at = DateTimeField(STARTED_AT)
-    finished_at = DateTimeField(FINISHED_AT)
+    db_id = ObjectIdField(name='_id', null=True)
+    process_name = StringField()
+    timeperiod = StringField(null=True)
+    start_timeperiod = StringField(null=True)   # [synergy date] lower boundary of the period that needs to be processed
+    end_timeperiod = StringField(null=True)     # [synergy date] upper boundary of the period that needs to be processed
+    start_id = ObjectIdField(name='start_obj_id')   # [DB _id] lower boundary of the period that needs to be processed
+    end_id = ObjectIdField(name='end_obj_id')       # [DB _id] upper boundary of the period that needs to be processed
+    source = StringField(null=True)     # defines source of data for the computation
+    sink = StringField(null=True)       # defines sink where the aggregated data will be saved
+    arguments = DictField()             # task-level arguments that could supplement or override process-level ones
+    state = StringField(choices=[STATE_INVALID, STATE_REQUESTED, STATE_IN_PROGRESS,
+                                 STATE_PROCESSED, STATE_CANCELED, STATE_NOOP])
+    created_at = DateTimeField()
+    submitted_at = DateTimeField()
+    started_at = DateTimeField()
+    finished_at = DateTimeField()
 
-    number_of_aggregated_documents = IntegerField(NUMBER_OF_AGGREGATED_DOCUMENTS)
-    number_of_processed_documents = IntegerField(NUMBER_OF_PROCESSED_DOCUMENTS)
-    number_of_retries = IntegerField(NUMBER_OF_RETRIES, default=0)
-    unit_of_work_type = StringField(UNIT_OF_WORK_TYPE, choices=[TYPE_MANAGED, TYPE_FREERUN])
+    number_of_aggregated_documents = IntegerField()
+    number_of_processed_documents = IntegerField()
+    number_of_retries = IntegerField(default=0)
+    unit_of_work_type = StringField(choices=[TYPE_MANAGED, TYPE_FREERUN])
 
-    @property
-    def key(self):
-        return self.process_name, self.timeperiod, self.start_id, self.end_id
+    @classmethod
+    def key_fields(cls):
+        return (cls.process_name.name,
+                cls.timeperiod.name,
+                cls.start_id.name,
+                cls.end_id.name)
 
     @property
     def is_active(self):
@@ -112,3 +96,13 @@ class UnitOfWork(BaseDocument):
     @property
     def is_in_progress(self):
         return self.state == STATE_IN_PROGRESS
+
+
+PROCESS_NAME = UnitOfWork.process_name.name
+TIMEPERIOD = UnitOfWork.timeperiod.name
+START_TIMEPERIOD = UnitOfWork.start_timeperiod.name
+END_TIMEPERIOD = UnitOfWork.end_timeperiod.name
+START_ID = UnitOfWork.start_id.name
+END_ID = UnitOfWork.end_id.name
+STATE = UnitOfWork.state.name
+UNIT_OF_WORK_TYPE = UnitOfWork.unit_of_work_type.name

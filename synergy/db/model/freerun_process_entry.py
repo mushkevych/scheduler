@@ -4,19 +4,8 @@ from synergy.scheduler.scheduler_constants import STATE_MACHINE_FREERUN, EXCHANG
 from synergy.db.model.daemon_process_entry import DaemonProcessEntry
 from odm.fields import StringField, ListField, ObjectIdField, BooleanField
 
-PROCESS_NAME = 'process_name'           # name of the process to handle the schedulables
-ENTRY_NAME = 'entry_name'               # name of the schedulable
-DESCRIPTION = 'description'             # description of the schedulable
-IS_ON = 'is_on'                         # defines if the schedulable is active or off
-TRIGGER_FREQUENCY = 'trigger_frequency'  # either 'at DoW-HH:MM' or 'every XXX'
-STATE_MACHINE_NAME = 'state_machine_name'
-SOURCE = 'source'
-SINK = 'sink'
-
-# contains list of last MAX_NUMBER_OF_EVENTS job events, such as emission of the UOW
-EVENT_LOG = 'event_log'
+# contains list of last EVENT_LOG_MAX_SIZE job events, such as emission of the UOW
 MAX_NUMBER_OF_EVENTS = 128
-RELATED_UNIT_OF_WORK = 'related_unit_of_work'
 
 
 def split_schedulable_name(name):
@@ -30,26 +19,21 @@ def build_schedulable_name(prefix, suffix):
 class FreerunProcessEntry(DaemonProcessEntry):
     """ Class presents single configuration entry for the freerun process/bash_driver """
 
-    db_id = ObjectIdField('_id', null=True)
-    source = StringField(SOURCE, null=True)
-    sink = StringField(SINK, null=True)
-    trigger_frequency = StringField(TRIGGER_FREQUENCY)
-    is_on = BooleanField(IS_ON, default=False)
-    state_machine_name = StringField(STATE_MACHINE_NAME)
+    db_id = ObjectIdField(name='_id', null=True)
+    source = StringField(null=True)
+    sink = StringField(null=True)
+    trigger_frequency = StringField()       # either 'at DoW-HH:MM' or 'every XXX'
+    is_on = BooleanField(default=False)     # defines if the schedulable is active or off
+    state_machine_name = StringField()
 
-    entry_name = StringField(ENTRY_NAME)
-    description = StringField(DESCRIPTION)
-    event_log = ListField(EVENT_LOG)
-    related_unit_of_work = ObjectIdField(RELATED_UNIT_OF_WORK)
+    entry_name = StringField()              # name of the schedulable
+    description = StringField()             # description of the schedulable
+    event_log = ListField()
+    related_unit_of_work = ObjectIdField()
 
     @property
-    def key(self):
-        return self.process_name, self.entry_name
-
-    @key.setter
-    def key(self, value):
-        self.process_name = value[0]
-        self.entry_name = value[1]
+    def key_fields(self):
+        return FreerunProcessEntry.process_name.name, FreerunProcessEntry.entry_name.name
 
     @property
     def schedulable_name(self):
@@ -95,3 +79,6 @@ def freerun_context_entry(process_name,
         log_filename=log_file if log_file is not None else token + _SUFFIX + '.log',
         pid_filename=pid_file if pid_file is not None else token + _SUFFIX + '.pid')
     return process_entry
+
+
+ENTRY_NAME = FreerunProcessEntry.entry_name.name

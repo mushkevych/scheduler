@@ -3,25 +3,19 @@ __author__ = 'Bohdan Mushkevych'
 from odm.document import BaseDocument
 from odm.fields import StringField, ObjectIdField, IntegerField, BooleanField
 
-BOX_ID = 'box_id'
-PROCESS_NAME = 'process_name'
-PID = 'pid'
-IS_ON = 'is_on'
-
 
 class BoxConfiguration(BaseDocument):
     """ Persistent model: identifies the machine name and the process where it should be executing """
-    db_id = ObjectIdField('_id', null=True)
-    box_id = StringField(BOX_ID)
-    process_name = StringField(PROCESS_NAME)
-    is_on = BooleanField(IS_ON, default=False)
-    pid = IntegerField(PID, null=True)
+    db_id = ObjectIdField(name='_id', null=True)
+    box_id = StringField()
+    process_name = StringField()
+    is_on = BooleanField(default=False)
+    pid = IntegerField(null=True)
 
-    @BaseDocument.key.getter
-    def key(self):
-        return self.box_id, self.process_name
+    @classmethod
+    def key_fields(cls):
+        return cls.box_id.name, cls.process_name.name
 
-    @key.setter
-    def key(self, value):
-        """ :param value: tuple holding (box_id, process_name) """
-        self.box_id, self.process_name = value
+
+BOX_ID = BoxConfiguration.box_id.name
+PROCESS_NAME = BoxConfiguration.process_name.name

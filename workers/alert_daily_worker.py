@@ -1,9 +1,8 @@
 __author__ = 'Bohdan Mushkevych'
 
 from constants import COLLECTION_SITE_DAILY
-from db.model.raw_data import DOMAIN_NAME, TIMEPERIOD
 from db.model.site_statistics import SiteStatistics
-from db.model.alert import Alert
+from db.model.alert import Alert, DOMAIN_NAME, TIMEPERIOD
 from db.dao.site_dao import SiteDao
 from workers.abstract_mongo_worker import AbstractMongoWorker
 from synergy.system import time_helper

@@ -3,15 +3,8 @@ __author__ = 'Bohdan Mushkevych'
 from odm.document import BaseDocument
 from odm.fields import StringField, ObjectIdField, ListField, IntegerField
 
-MAX_NUMBER_OF_EVENTS = 128
-TIMEPERIOD = 'timeperiod'
-PROCESS_NAME = 'process_name'
-STATE = 'state'
-RELATED_UNIT_OF_WORK = 'related_unit_of_work'
-NUMBER_OF_FAILURES = 'number_of_failures'
-
-# contains list of last MAX_NUMBER_OF_EVENTS job events, such as emission of the UOW
-EVENT_LOG = 'event_log'
+# number of job events to be stored in Job.event_log, such as emission of the UOW
+EVENT_LOG_MAX_SIZE = 128
 
 # given Job was _not_ processed by aggregator because of multiple errors/missing data
 # this state allows to mute current Job abd allow other timeperiods/Jobs to be processed
@@ -43,24 +36,19 @@ STATE_EMBRYO = 'state_embryo'
 class Job(BaseDocument):
     """ class presents status for the time-period, and indicates whether data was process by particular process"""
 
-    db_id = ObjectIdField('_id', null=True)
-    process_name = StringField(PROCESS_NAME)
-    timeperiod = StringField(TIMEPERIOD)
-    state = StringField(STATE, choices=[STATE_IN_PROGRESS, STATE_PROCESSED, STATE_FINAL_RUN,
-                                        STATE_EMBRYO, STATE_SKIPPED, STATE_NOOP])
-    related_unit_of_work = ObjectIdField(RELATED_UNIT_OF_WORK)
-    event_log = ListField(EVENT_LOG)
-    number_of_failures = IntegerField(NUMBER_OF_FAILURES, default=0)
+    db_id = ObjectIdField(name='_id', null=True)
+    process_name = StringField()
+    timeperiod = StringField()
+    state = StringField(choices=[STATE_IN_PROGRESS, STATE_PROCESSED, STATE_FINAL_RUN,
+                                 STATE_EMBRYO, STATE_SKIPPED, STATE_NOOP])
+    related_unit_of_work = ObjectIdField()
 
-    @BaseDocument.key.getter
-    def key(self):
-        return self.process_name, self.timeperiod
+    event_log = ListField()
+    number_of_failures = IntegerField(default=0)
 
-    @key.setter
-    def key(self, value):
-        """ :param value: tuple (name of the process, timeperiod as string in Synergy Data format) """
-        self.process_name = value[0]
-        self.timeperiod = value[1]
+    @classmethod
+    def key_fields(cls):
+        return cls.process_name.name, cls.timeperiod.name
 
     @property
     def is_active(self):
@@ -93,3 +81,8 @@ class Job(BaseDocument):
     @property
     def is_final_run(self):
         return self.state == STATE_FINAL_RUN
+
+
+TIMEPERIOD = Job.timeperiod.name
+PROCESS_NAME = Job.process_name.name
+STATE = Job.state.name

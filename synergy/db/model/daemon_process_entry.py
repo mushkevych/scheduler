@@ -6,41 +6,23 @@ from odm.fields import StringField, DictField, ListField
 from synergy.scheduler.scheduler_constants import EXCHANGE_UTILS
 
 
-PROCESS_NAME = 'process_name'
-CLASSNAME = 'classname'
-MQ_QUEUE = 'mq_queue'
-MQ_EXCHANGE = 'mq_exchange'
-MQ_ROUTING_KEY = 'mq_routing_key'
-ARGUMENTS = 'arguments'
-TOKEN = 'token'
-LOG_FILENAME = 'log_filename'
-LOG_TAG = 'log_tag'
-PID_FILENAME = 'pid_filename'
-PRESENT_ON_BOXES = 'present_on_boxes'     # list of boxes where this process is monitored by the Supervisor
-
-
 class DaemonProcessEntry(BaseDocument):
     """ Non-persistent model. This class presents Process Context Entry record """
 
-    process_name = StringField(PROCESS_NAME)
-    classname = StringField(CLASSNAME)
-    token = StringField(TOKEN)
-    mq_queue = StringField(MQ_QUEUE)
-    mq_exchange = StringField(MQ_EXCHANGE)
-    mq_routing_key = StringField(MQ_ROUTING_KEY)
-    arguments = DictField(ARGUMENTS)
-    present_on_boxes = ListField(PRESENT_ON_BOXES, null=True)
-    pid_filename = StringField(PID_FILENAME)
-    log_filename = StringField(LOG_FILENAME)
+    process_name = StringField()
+    classname = StringField()
+    token = StringField()
+    mq_queue = StringField()
+    mq_exchange = StringField()
+    mq_routing_key = StringField()
+    arguments = DictField()
+    present_on_boxes = ListField(null=True)  # list of boxes where this process is monitored by the Supervisor
+    pid_filename = StringField()
+    log_filename = StringField()
 
-    @BaseDocument.key.getter
-    def key(self):
-        return self.process_name
-
-    @key.setter
-    def key(self, value):
-        """ :param value: name of the process """
-        self.process_name = value
+    @classmethod
+    def key_fields(cls):
+        return cls.process_name.name
 
 
 def daemon_context_entry(process_name,

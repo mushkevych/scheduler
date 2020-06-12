@@ -3,26 +3,17 @@ __author__ = 'Bohdan Mushkevych'
 from odm.document import BaseDocument
 from odm.fields import StringField
 
-MQ_QUEUE = 'mq_queue'
-MQ_EXCHANGE = 'mq_exchange'
-MQ_ROUTING_KEY = 'mq_routing_key'
-
 
 class QueueContextEntry(BaseDocument):
     """ Non-persistent model. This class presents Queue Context Entry record """
 
-    mq_queue = StringField(MQ_QUEUE)
-    mq_exchange = StringField(MQ_EXCHANGE)
-    mq_routing_key = StringField(MQ_ROUTING_KEY)
+    mq_queue = StringField()
+    mq_exchange = StringField()
+    mq_routing_key = StringField()
 
-    @BaseDocument.key.getter
-    def key(self):
-        return self.mq_queue
-
-    @key.setter
-    def key(self, value):
-        """ :param value: name of the mq queue """
-        self.mq_queue = value
+    @classmethod
+    def key_fields(cls):
+        return cls.mq_queue.name
 
 
 def queue_context_entry(exchange,

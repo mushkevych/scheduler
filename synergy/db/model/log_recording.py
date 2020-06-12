@@ -3,25 +3,21 @@ __author__ = 'Bohdan Mushkevych'
 from odm.document import BaseDocument
 from odm.fields import ObjectIdField, DictField, ListField, DateTimeField
 
-PARENT_OBJECT_ID = 'parent_object_id'
-LOG = 'log'
-DETAILS = 'details'
-CREATED_AT = 'created_at'
-
 
 class LogRecording(BaseDocument):
     """ Persistent model: represents log/processing details from some activity,
         such as the Unit Of Work execution """
-    db_id = ObjectIdField('_id', null=True)
-    parent_object_id = ObjectIdField(PARENT_OBJECT_ID)
-    log = ListField(LOG)
-    details = DictField(DETAILS)
-    created_at = DateTimeField(CREATED_AT)  # Field used by TTL mechanism
+    db_id = ObjectIdField(name='_id', null=True)
+    parent_object_id = ObjectIdField()
+    log = ListField()
+    details = DictField()
+    created_at = DateTimeField()  # Field used by TTL mechanism
 
-    @BaseDocument.key.getter
-    def key(self):
-        return self.parent_object_id
+    @classmethod
+    def key_fields(cls):
+        return cls.parent_object_id.name
 
-    @key.setter
-    def key(self, value):
-        self.parent_object_id = value
+
+PARENT_OBJECT_ID = LogRecording.parent_object_id.name
+LOG = LogRecording.log.name
+CREATED_AT = LogRecording.created_at.name

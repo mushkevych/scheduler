@@ -230,12 +230,12 @@ class Timetable(object):
             tree.validate()
 
     @thread_safe
-    def dependent_on_composite_state(self, job_record):
-        """ :return instance of <NodesCompositeState> """
+    def dependent_on_summary(self, job_record):
+        """ :return instance of <tree_node.DependencySummary> """
         assert isinstance(job_record, Job)
         tree = self.get_tree(job_record.process_name)
         node = tree.get_node(job_record.process_name, job_record.timeperiod)
-        return node.dependent_on_composite_state()
+        return node.dependent_on_summary()
 
     # *** Job manipulation methods ***
     @thread_safe
@@ -267,7 +267,7 @@ class Timetable(object):
 
     @thread_safe
     def add_log_entry(self, process_name, timeperiod, msg):
-        """ adds a non-persistent log entry to the tree node """
+        """ adds a log entry to the job{process_name@timeperiod}.event_log """
         tree = self.get_tree(process_name)
         node = tree.get_node(process_name, timeperiod)
         node.add_log_entry([datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S'), msg])

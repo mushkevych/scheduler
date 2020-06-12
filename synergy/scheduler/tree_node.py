@@ -1,39 +1,84 @@
 __author__ = 'Bohdan Mushkevych'
 
+from logging import INFO
+
 from synergy.db.model import job
 from synergy.system import time_helper
 from synergy.system.immutable_dict import ImmutableDict
 from synergy.conf import context
 
 
-class NodesCompositeState(object):
-    """ Instance of this structure represents composite state of TreeNodes """
+class DependentOnSummary(object):
+    """ This structure is compiled to represent a composite state of dependent_on TreeNodes """
 
-    def __init__(self):
-        super(NodesCompositeState, self).__init__()
+    def __init__(self, tree_node):
+        self.tree_node = tree_node
 
-        # True if all dependent_on Jobs are finished
-        self.all_finished = True
+        # contains TreeNodes whose Job are not in finished state
+        self.unfinished = []
 
-        # True if all dependent_on Jobs are in [STATE_PROCESSED, STATE_NOOP]
-        self.all_processed = True
+        # contains TreeNodes whose Job are not in [STATE_PROCESSED, STATE_NOOP]
+        self.unprocessed = []
 
-        # True if all dependent_on Jobs are either active or in [STATE_PROCESSED, STATE_NOOP]
-        self.all_healthy = True
+        # contains TreeNodes whose Job neither active nor in [STATE_PROCESSED, STATE_NOOP]
+        self.unhealthy = []
 
-        # True if among dependent_on periods are some in STATE_SKIPPED
-        self.skipped_present = False
+        # contains TreeNodes whose Job are in STATE_SKIPPED
+        self.skipped = []
 
     def enlist(self, tree_node):
         assert isinstance(tree_node, TreeNode)
         if not tree_node.job_record.is_finished:
-            self.all_finished = False
+            self.unfinished.append(tree_node)
         if not (tree_node.job_record.is_processed or tree_node.job_record.is_noop):
-            self.all_processed = False
+            self.unprocessed.append(tree_node)
         if not (tree_node.job_record.is_active or tree_node.job_record.is_processed or tree_node.job_record.is_noop):
-            self.all_healthy = False
+            self.unhealthy.append(tree_node)
         if tree_node.job_record.is_skipped:
-            self.skipped_present = True
+            self.skipped.append(tree_node)
+
+    @property
+    def all_finished(self):
+        # True if all dependent_on Jobs are finished
+        return len(self.unfinished) == 0
+
+    @property
+    def all_processed(self):
+        # True if all dependent_on Jobs are in [STATE_PROCESSED, STATE_NOOP]
+        return len(self.unprocessed) == 0
+
+    @property
+    def all_healthy(self):
+        # True if all dependent_on Jobs are either active or in [STATE_PROCESSED, STATE_NOOP]
+        return len(self.unhealthy) == 0
+
+    @property
+    def skipped_present(self):
+        # True if among dependent_on periods are some in STATE_SKIPPED
+        return len(self.skipped) != 0
+
+    def _write_log(self, level:int, msg:str):
+        from synergy.system.system_logger import get_logger
+        from synergy.scheduler.scheduler_constants import PROCESS_SCHEDULER
+        logger = get_logger(PROCESS_SCHEDULER)
+        logger.log(level, msg)
+        self.tree_node.add_log_entry(msg)
+
+    def _build_str(self, collection:list, description:str):
+        blockers = ','.join([str(e) for e in collection])
+        return f'TreeNode {self.tree_node} {description}: {blockers}'
+
+    def log_unfinished(self, level:int):
+        _summary = self._build_str(self.unfinished, 'is blocked by unfinished:')
+        self._write_log(level, _summary)
+
+    def log_unprocessed(self, level:int):
+        _summary = self._build_str(self.unprocessed, 'is blocked by unprocessed:')
+        self._write_log(level, _summary)
+
+    def log_skipped(self, level:int):
+        _summary = self._build_str(self.skipped, 'has skipped among its dependent_on:')
+        self._write_log(level, _summary)
 
 
 class AbstractTreeNode(object):
@@ -54,8 +99,9 @@ class AbstractTreeNode(object):
          - all direct children of the node are finished
          - the node itself is in active state"""
 
-        composite_state = self.dependent_on_composite_state()
-        if not composite_state.all_finished:
+        depon_summary = self.dependent_on_summary()
+        if not depon_summary.all_finished:
+            depon_summary.log_unfinished(INFO)
             return False
 
         if self.job_record is None:
@@ -112,7 +158,7 @@ class AbstractTreeNode(object):
         """ :db.model.job record holds event log, that can be accessed by MX
             this method adds a record and removes oldest one if necessary """
         event_log = self.job_record.event_log
-        if len(event_log) > job.MAX_NUMBER_OF_EVENTS:
+        if len(event_log) > job.EVENT_LOG_MAX_SIZE:
             del event_log[-1]
         event_log.insert(0, entry)
 
@@ -137,12 +183,12 @@ class AbstractTreeNode(object):
 
         return node_b
 
-    def dependent_on_composite_state(self):
+    def dependent_on_summary(self):
         """ method iterates over all nodes that provide dependency to the current node,
             and compile composite state of them all
-            :return instance of <NodesCompositeState>
+            :return instance of <tree_node.DependencySummary>
         """
-        composite_state = NodesCompositeState()
+        dependency_summary = DependentOnSummary(self)
 
         for dependent_on in self.tree.dependent_on:
             node_b = self.find_counterpart_in(dependent_on)
@@ -150,12 +196,12 @@ class AbstractTreeNode(object):
             if node_b is None:
                 # special case when counterpart tree has no process with corresponding time_qualifier
                 # for example Financial Monthly has no counterpart in Third-party Daily Report -
-                # so we assume that its not blocked
+                # so we assume that it's not blocked
                 continue
 
-            composite_state.enlist(node_b)
+            dependency_summary.enlist(node_b)
 
-        return composite_state
+        return dependency_summary
 
 
 class TreeNode(AbstractTreeNode):
@@ -171,9 +217,16 @@ class TreeNode(AbstractTreeNode):
             children = ImmutableDict({})
         self.children = children
 
+    def __str__(self) -> str:
+        state = self.job_record.state if self.job_record else 'unknown'
+        return f'{self.tree.tree_name}.{self.process_name}@{self.timeperiod}({state})'
+
 
 class RootNode(AbstractTreeNode):
     def __init__(self, tree):
         super(RootNode, self).__init__(tree, None, None, None, None)
         self.time_qualifier = None
         self.children = dict()
+
+    def __str__(self) -> str:
+        return f'{self.tree.tree_name}.root'

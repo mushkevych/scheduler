@@ -5,14 +5,14 @@ from db.model.raw_data import *
 
 
 class NestedStat(BaseDocument):
-    number_of_pageviews = IntegerField(NUMBER_OF_PAGEVIEWS, default=0)
-    total_duration = IntegerField(TOTAL_DURATION, default=0)
-    number_of_visits = IntegerField(NUMBER_OF_VISITS, default=0)
-    os = DictField(FAMILY_OS)
-    browsers = DictField(FAMILY_BROWSERS)
-    screen_res = DictField(FAMILY_SCREEN_RESOLUTIONS)
-    languages = DictField(FAMILY_LANGUAGES)
-    countries = DictField(FAMILY_COUNTRIES)
+    number_of_pageviews = IntegerField(default=0)
+    total_duration = IntegerField(default=0)
+    number_of_visits = IntegerField(default=0)
+    os = DictField()
+    browser = DictField()
+    screen_resolution = DictField()
+    language = DictField()
+    country = DictField()
 
 
 class SiteStatistics(BaseDocument):
@@ -20,16 +20,15 @@ class SiteStatistics(BaseDocument):
     class presents site statistics, such as number of visits per defined period or list of search keywords
     """
 
-    db_id = ObjectIdField('_id', null=True)
-    domain_name = StringField(DOMAIN_NAME)
-    timeperiod = StringField(TIMEPERIOD)
-    stat = NestedDocumentField(FAMILY_STAT, NestedStat)
+    db_id = ObjectIdField(name='_id', null=True)
+    domain_name = StringField(name='domain')
+    timeperiod = StringField()
+    stat = NestedDocumentField(NestedStat)
 
-    @BaseDocument.key.getter
-    def key(self):
-        return self.domain_name, self.timeperiod
+    @classmethod
+    def key_fields(cls):
+        return cls.domain_name.name, cls.timeperiod.name
 
-    @key.setter
-    def key(self, value):
-        self.domain_name = value[0]
-        self.timeperiod = value[1]
+
+TIMEPERIOD = SiteStatistics.timeperiod.name
+DOMAIN_NAME = SiteStatistics.domain_name.name

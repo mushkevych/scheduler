@@ -5,13 +5,13 @@ from db.model.raw_data import *
 
 
 class NestedUserProfile(BaseDocument):
-    ip = StringField(IP)
-    os = StringField(OS)
-    browser = StringField(BROWSER)
-    language = StringField(LANGUAGE)
-    country = StringField(COUNTRY)
-    screen_x = IntegerField(SCREEN_X)
-    screen_y = IntegerField(SCREEN_Y)
+    ip = StringField()
+    os = StringField()
+    browser = StringField()
+    language = StringField()
+    country = StringField()
+    screen_x = IntegerField()
+    screen_y = IntegerField()
 
     @property
     def screen_res(self):
@@ -24,10 +24,10 @@ class NestedUserProfile(BaseDocument):
 
 
 class NestedBrowsingHistory(BaseDocument):
-    total_duration = IntegerField(TOTAL_DURATION, default=0)
-    number_of_pageviews = IntegerField(NUMBER_OF_PAGEVIEWS, default=0)
-    number_of_entries = IntegerField(NUMBER_OF_ENTRIES, default=0)
-    entries_timestamps = DictField(FAMILY_ENTRIES)
+    total_duration = IntegerField(default=0)
+    number_of_pageviews = IntegerField(default=0)
+    number_of_entries = IntegerField(default=0)
+    entries_timestamps = DictField()
 
     def set_entry_timestamp(self, entry_id, value):
         if not isinstance(entry_id, str):
@@ -45,19 +45,18 @@ class SingleSession(BaseDocument):
     class presents statistics, gathered during the life of the session
     """
 
-    db_id = ObjectIdField('_id', null=True)
-    domain_name = StringField(DOMAIN_NAME)
-    timeperiod = StringField(TIMEPERIOD)
-    session_id = StringField(SESSION_ID)
-    user_profile = NestedDocumentField(FAMILY_USER_PROFILE, NestedUserProfile)
-    browsing_history = NestedDocumentField(FAMILY_BROWSING_HISTORY, NestedBrowsingHistory)
+    db_id = ObjectIdField(name='_id', null=True)
+    domain_name = StringField(name='domain')
+    timeperiod = StringField()
+    session_id = StringField()
+    user_profile = NestedDocumentField(NestedUserProfile)
+    browsing_history = NestedDocumentField(NestedBrowsingHistory)
 
-    @BaseDocument.key.getter
-    def key(self):
-        return self.domain_name, self.timeperiod, self.session_id
+    @classmethod
+    def key_fields(cls):
+        return cls.domain_name.name, cls.timeperiod.name, cls.session_id.name
 
-    @key.setter
-    def key(self, value):
-        self.domain_name = value[0]
-        self.timeperiod = value[1]
-        self.session_id = value[2]
+
+SESSION_ID = SingleSession.session_id.name
+TIMEPERIOD = SingleSession.timeperiod.name
+DOMAIN_NAME = SingleSession.domain_name.name

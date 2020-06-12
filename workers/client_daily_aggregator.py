@@ -2,8 +2,7 @@ __author__ = 'Bohdan Mushkevych'
 
 import random
 
-from db.model.raw_data import TIMEPERIOD
-from db.model.site_statistics import SiteStatistics
+from db.model.site_statistics import SiteStatistics, TIMEPERIOD
 from db.model.client_statistics import ClientStatistics, CLIENT_ID
 from synergy.system.utils import copy_and_sum_families
 from synergy.system import time_helper

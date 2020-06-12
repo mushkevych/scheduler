@@ -9,20 +9,15 @@ class Alert(BaseDocument):
     class presents model describing an Alert event, such as 20% increase or decrease in the page views
     """
 
-    db_id = ObjectIdField('_id', null=True)
-    domain_name = StringField(DOMAIN_NAME)
-    timeperiod = StringField(TIMEPERIOD)
-    number_of_pageviews = IntegerField(NUMBER_OF_PAGEVIEWS)
-    number_of_visits = IntegerField(NUMBER_OF_VISITS)
+    db_id = ObjectIdField(name='_id', null=True)
+    domain_name = StringField(name='domain')
+    timeperiod = StringField()      # YYYYMMDDHH format
+    number_of_pageviews = IntegerField()
+    number_of_visits = IntegerField()
 
-    @BaseDocument.key.getter
-    def key(self):
-        return self.domain_name, self.timeperiod
+    @classmethod
+    def key_fields(cls):
+        return cls.domain_name.name, cls.timeperiod.name
 
-    @key.setter
-    def key(self, value):
-        """
-        :param value: tuple (domain_name <string>, timeperiod <string in YYYYMMDDHH format>)
-        """
-        self.domain_name = value[0]
-        self.timeperiod = value[1]
+TIMEPERIOD = Alert.timeperiod.name
+DOMAIN_NAME = Alert.domain_name.name

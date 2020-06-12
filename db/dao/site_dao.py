@@ -4,8 +4,7 @@ from threading import RLock
 
 from bson import ObjectId
 
-from db.model.raw_data import *
-from db.model.site_statistics import SiteStatistics
+from db.model.site_statistics import SiteStatistics, DOMAIN_NAME, TIMEPERIOD
 from synergy.db.manager import ds_manager
 from synergy.system.decorator import thread_safe
 

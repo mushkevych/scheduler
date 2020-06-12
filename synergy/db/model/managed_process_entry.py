@@ -7,36 +7,21 @@ from synergy.scheduler.scheduler_constants import BLOCKING_CHILDREN, BLOCKING_DE
     EXCHANGE_MANAGED_WORKER, STATE_MACHINE_DISCRETE
 
 
-PROCESS_NAME = 'process_name'
-IS_ON = 'is_on'
-TRIGGER_FREQUENCY = 'trigger_frequency'
-STATE_MACHINE_NAME = 'state_machine_name'
-BLOCKING_TYPE = 'blocking_type'
-SOURCE = 'source'
-SINK = 'sink'
-TIME_QUALIFIER = 'time_qualifier'
-TIME_GROUPING = 'time_grouping'
-
-
 class ManagedProcessEntry(DaemonProcessEntry):
     """ Class presents single configuration entry for scheduler managed (i.e. - non-freerun) processes """
-    db_id = ObjectIdField('_id', null=True)
-    source = StringField(SOURCE, null=True)
-    sink = StringField(SINK, null=True)
-    time_qualifier = StringField(TIME_QUALIFIER)
-    time_grouping = IntegerField(TIME_GROUPING)
-    trigger_frequency = StringField(TRIGGER_FREQUENCY)
-    is_on = BooleanField(IS_ON, default=False)
-    state_machine_name = StringField(STATE_MACHINE_NAME)
-    blocking_type = StringField(BLOCKING_TYPE, choices=[BLOCKING_CHILDREN, BLOCKING_DEPENDENCIES, BLOCKING_NORMAL])
+    db_id = ObjectIdField(name='_id', null=True)
+    source = StringField(null=True)
+    sink = StringField(null=True)
+    time_qualifier = StringField()
+    time_grouping = IntegerField()
+    trigger_frequency = StringField()
+    is_on = BooleanField(default=False)
+    state_machine_name = StringField()
+    blocking_type = StringField(choices=[BLOCKING_CHILDREN, BLOCKING_DEPENDENCIES, BLOCKING_NORMAL])
 
-    @property
-    def key(self):
-        return self.process_name
-
-    @key.setter
-    def key(self, value):
-        self.process_name = value
+    @classmethod
+    def key_fields(cls):
+        return cls.process_name.name
 
 
 def managed_context_entry(process_name,
@@ -84,3 +69,6 @@ def managed_context_entry(process_name,
         log_filename=log_file if log_file is not None else token + time_qualifier + '.log',
         pid_filename=pid_file if pid_file is not None else token + time_qualifier + '.pid')
     return process_entry
+
+
+PROCESS_NAME = ManagedProcessEntry.process_name.name

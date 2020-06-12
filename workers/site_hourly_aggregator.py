@@ -1,7 +1,6 @@
 __author__ = 'Bohdan Mushkevych'
 
-from db.model.raw_data import DOMAIN_NAME, TIMEPERIOD
-from db.model.single_session import SingleSession
+from db.model.single_session import SingleSession, DOMAIN_NAME, TIMEPERIOD
 from db.model.site_statistics import SiteStatistics
 from synergy.system.utils import increment_family_property
 from workers.abstract_mongo_worker import AbstractMongoWorker

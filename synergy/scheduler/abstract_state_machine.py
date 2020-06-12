@@ -14,7 +14,7 @@ from synergy.system.mq_transmitter import MqTransmitter
 from synergy.conf import context
 from synergy.system.decorator import with_reconnect
 from synergy.system import time_helper
-from synergy.scheduler.tree_node import NodesCompositeState
+from synergy.scheduler.tree_node import DependentOnSummary
 
 
 class AbstractStateMachine(object):
@@ -35,7 +35,7 @@ class AbstractStateMachine(object):
         """
         raise NotImplementedError(f'property run_on_active_timeperiod must be implemented by {self.__class__.__name__}')
 
-    def _log_message(self, level, process_name, timeperiod, msg):
+    def _log_message(self, level:int, process_name:str, timeperiod:str, msg:str):
         """ method performs logging into log file and Timetable's tree node"""
         self.timetable.add_log_entry(process_name, timeperiod, msg)
         self.logger.log(level, msg)
@@ -246,12 +246,12 @@ class AbstractStateMachine(object):
         """ method will trigger job processing only if:
             - all dependencies are in [STATE_PROCESSED, STATE_NOOP]
             NOTICE: method will transfer current job into STATE_SKIPPED if any dependency is in STATE_SKIPPED """
-        composite_state = self.timetable.dependent_on_composite_state(job_record)
-        assert isinstance(composite_state, NodesCompositeState)
+        depon_summary = self.timetable.dependent_on_summary(job_record)
+        assert isinstance(depon_summary, DependentOnSummary)
 
-        if composite_state.all_processed:
+        if depon_summary.all_processed:
             self.manage_job(job_record)
-        elif composite_state.skipped_present:
+        elif depon_summary.skipped_present:
             # As soon as among <dependent on> periods are in STATE_SKIPPED
             # there is very little sense in waiting for them to become STATE_PROCESSED
             # Skip this timeperiod itself
@@ -259,10 +259,12 @@ class AbstractStateMachine(object):
             self.job_dao.update(job_record)
             self.mq_transmitter.publish_job_status(job_record)
 
+            depon_summary.log_skipped(WARNING)
             msg = 'Job {0}@{1} is blocked by STATE_SKIPPED dependencies. ' \
                   'Transferred the job to STATE_SKIPPED'.format(job_record.process_name, job_record.timeperiod)
             self._log_message(WARNING, job_record.process_name, job_record.timeperiod, msg)
         else:
+            depon_summary.log_unprocessed(INFO)
             msg = 'Job {0}@{1} is blocked by unprocessed dependencies. Waiting another tick' \
                   .format(job_record.process_name, job_record.timeperiod)
             self._log_message(INFO, job_record.process_name, job_record.timeperiod, msg)

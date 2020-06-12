@@ -14,7 +14,7 @@ from constants import TOKEN_SITE, TOKEN_CLIENT, PROCESS_SITE_YEARLY, PROCESS_SIT
 from synergy.db.model.job import Job
 from synergy.system import time_helper
 from synergy.scheduler.tree import MultiLevelTree
-from synergy.scheduler.tree_node import TreeNode, NodesCompositeState
+from synergy.scheduler.tree_node import TreeNode, DependentOnSummary
 from synergy.scheduler.timetable import Timetable
 from synergy.scheduler.process_hierarchy import ProcessHierarchy
 from synergy.system.time_qualifier import *
@@ -166,9 +166,9 @@ class TestTreeNode(unittest.TestCase):
     def test_is_finalizable(self):
         self.job_mock.is_active = True
 
-        composite_state = NodesCompositeState()
-        composite_state.all_finished = True
-        self.the_node.dependent_on_composite_state = mock.Mock(return_value=composite_state)
+        depon_summary = DependentOnSummary(None)
+        depon_summary.all_finished = mock.PropertyMock(return_value=True)
+        self.the_node.dependent_on_summary = mock.Mock(return_value=depon_summary)
         self.the_node.request_embryo_job_record = mock.Mock()
         for _index in range(10):
             mock_job = mock.create_autospec(Job)
@@ -187,11 +187,11 @@ class TestTreeNode(unittest.TestCase):
 
         # at least one of dependent nodes is not finished
         self.the_node.job_record.is_active = True
-        composite_state.all_finished = False
+        depon_summary.all_finished = mock.PropertyMock(return_value=False)
         self.assertFalse(self.the_node.is_finalizable())
 
         # at least one child is still active
-        composite_state.all_finished = True
+        depon_summary.all_finished = mock.PropertyMock(return_value=True)
         self.the_node.children[0].job_record.is_finished = False
         self.assertFalse(self.the_node.is_finalizable())
 

@@ -11,9 +11,8 @@ class LogRecordingDao(BaseDao):
 
     def __init__(self, logger):
         super(LogRecordingDao, self).__init__(logger=logger,
-                                              model_class=LogRecording,
-                                              primary_key=[PARENT_OBJECT_ID],
-                                              collection_name=COLLECTION_LOG_RECORDING)
+                                              collection_name=COLLECTION_LOG_RECORDING,
+                                              model_class=LogRecording)
 
     @thread_safe
     def append_log(self, uow_id, msg):
