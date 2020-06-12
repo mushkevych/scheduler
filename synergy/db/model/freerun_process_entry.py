@@ -31,9 +31,9 @@ class FreerunProcessEntry(DaemonProcessEntry):
     event_log = ListField()
     related_unit_of_work = ObjectIdField()
 
-    @property
-    def key_fields(self):
-        return FreerunProcessEntry.process_name.name, FreerunProcessEntry.entry_name.name
+    @classmethod
+    def key_fields(cls):
+        return cls.process_name.name, cls.entry_name.name
 
     @property
     def schedulable_name(self):

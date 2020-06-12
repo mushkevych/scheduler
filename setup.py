@@ -1,7 +1,7 @@
 from distutils.core import setup
 
 setup(name='synergy_scheduler',
-      version='2.2',
+      version='2.3',
       description='Synergy Scheduler',
       author='Bohdan Mushkevych',
       author_email='mushkevych@gmail.com',
@@ -32,8 +32,8 @@ setup(name='synergy_scheduler',
           'Topic :: Office/Business :: Scheduling',
           'Topic :: Utilities',
       ],
-      install_requires=['werkzeug', 'jinja2', 'amqp', 'pymongo', 'psutil', 'setproctitle', 'synergy_odm',
-                        'synergy_flow>=0.15'],
+      install_requires=['werkzeug', 'jinja2', 'amqp', 'pymongo', 'psutil', 'setproctitle',
+                        'synergy_odm>=0.10', 'synergy_flow>=0.16'],
       extras_require={'testing': ['mock', 'xmlrunner', 'pylint'],
                       'bash_driver': ['fabric2'],
                       }
