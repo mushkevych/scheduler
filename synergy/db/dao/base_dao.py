@@ -11,6 +11,8 @@ from synergy.system.decorator import thread_safe
 
 def build_db_query(fields_names, field_values):
     """ method builds query dictionary by zipping together DB field names with the field values """
+    if not isinstance(fields_names, (list, tuple)):
+        fields_names = [fields_names]
     if not isinstance(field_values, (list, tuple)):
         field_values = [field_values]
 

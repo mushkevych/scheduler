@@ -36,10 +36,10 @@ class SiteDailyAggregator(AbstractMongoWorker):
         target_obj.stat.number_of_pageviews += source_obj.stat.number_of_pageviews
         target_obj.stat.total_duration += source_obj.stat.total_duration
         copy_and_sum_families(source_obj.stat.os, target_obj.stat.os)
-        copy_and_sum_families(source_obj.stat.browsers, target_obj.stat.browsers)
-        copy_and_sum_families(source_obj.stat.screen_res, target_obj.stat.screen_res)
-        copy_and_sum_families(source_obj.stat.languages, target_obj.stat.languages)
-        copy_and_sum_families(source_obj.stat.countries, target_obj.stat.countries)
+        copy_and_sum_families(source_obj.stat.browser, target_obj.stat.browser)
+        copy_and_sum_families(source_obj.stat.screen_resolution, target_obj.stat.screen_resolution)
+        copy_and_sum_families(source_obj.stat.language, target_obj.stat.language)
+        copy_and_sum_families(source_obj.stat.country, target_obj.stat.country)
 
 
 if __name__ == '__main__':

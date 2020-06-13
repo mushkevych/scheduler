@@ -24,11 +24,11 @@ class RawData(BaseDocument):
         return cls.domain_name.name, cls.timestamp.name, cls.session_id.name
 
     @property
-    def screen_res(self):
+    def screen_resolution(self):
         return self.screen_x, self.screen_y
 
-    @screen_res.setter
-    def screen_res(self, value):
+    @screen_resolution.setter
+    def screen_resolution(self, value):
         self.screen_x = value[0]
         self.screen_y = value[1]
 

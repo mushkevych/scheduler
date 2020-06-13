@@ -37,12 +37,12 @@ class TestSiteStatistics(unittest.TestCase):
         key_2 = 'MS IE 9.9.9.9.9'
         value_2 = 11
 
-        doc = self.obj.stat.browsers
+        doc = self.obj.stat.browser
         doc[key_1] = value_1
         doc[key_2] = value_2
 
-        assert self.obj.stat.browsers[key_1] == value_1
-        assert self.obj.stat.browsers[key_2] == value_2
+        assert self.obj.stat.browser[key_1] == value_1
+        assert self.obj.stat.browser[key_2] == value_2
 
     def test_number_of_visits(self):
         value = 100
@@ -60,12 +60,12 @@ class TestSiteStatistics(unittest.TestCase):
         key_2 = (360, 240)
         value_2 = 98765
 
-        doc = self.obj.stat.screen_res
+        doc = self.obj.stat.screen_resolution
         doc[key_1] = value_1
         doc[key_2] = value_2
 
-        assert self.obj.stat.screen_res[key_1] == value_1
-        assert self.obj.stat.screen_res[key_2] == value_2
+        assert self.obj.stat.screen_resolution[key_1] == value_1
+        assert self.obj.stat.screen_resolution[key_2] == value_2
 
     def test_languages(self):
         key_1 = 'en_ca'
@@ -73,12 +73,12 @@ class TestSiteStatistics(unittest.TestCase):
         key_2 = 'ua_uk'
         value_2 = 98765
 
-        doc = self.obj.stat.languages
+        doc = self.obj.stat.language
         doc[key_1] = value_1
         doc[key_2] = value_2
 
-        assert self.obj.stat.languages[key_1] == value_1
-        assert self.obj.stat.languages[key_2] == value_2
+        assert self.obj.stat.language[key_1] == value_1
+        assert self.obj.stat.language[key_2] == value_2
 
     def test_countries(self):
         key_1 = 'ca'
@@ -86,12 +86,12 @@ class TestSiteStatistics(unittest.TestCase):
         key_2 = 'uk'
         value_2 = 98765
 
-        doc = self.obj.stat.countries
+        doc = self.obj.stat.country
         doc[key_1] = value_1
         doc[key_2] = value_2
 
-        assert self.obj.stat.countries[key_1] == value_1
-        assert self.obj.stat.countries[key_2] == value_2
+        assert self.obj.stat.country[key_1] == value_1
+        assert self.obj.stat.country[key_2] == value_2
 
 
 if __name__ == '__main__':

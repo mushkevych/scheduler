@@ -77,8 +77,8 @@ class SingleSessionWorker(AbstractMqWorker):
     def update_session_body(self, raw_data, session):
         if raw_data.browser is not None:
             session.user_profile.browser = raw_data.browser
-        if raw_data.screen_res[0] is not None and raw_data.screen_res[1] is not None:
-            session.user_profile.screen_res = raw_data.screen_res
+        if raw_data.screen_resolution[0] is not None and raw_data.screen_resolution[1] is not None:
+            session.user_profile.screen_resolution = raw_data.screen_resolution
         if raw_data.os is not None:
             session.user_profile.os = raw_data.os
         if raw_data.language is not None:

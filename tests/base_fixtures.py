@@ -118,11 +118,11 @@ def create_session_stats(composite_key_function, seed='RANDOM_SEED_OBJECT'):
         session.key = composite_key_function(i, TOTAL_ENTRIES)
         session.ip = '192.168.0.2'
         if i % 3 == 0:
-            session.user_profile.screen_res = (240, 360)
+            session.user_profile.screen_resolution = (240, 360)
         elif i % 5 == 0:
-            session.user_profile.screen_res = (360, 480)
+            session.user_profile.screen_resolution = (360, 480)
         else:
-            session.user_profile.screen_res = (760, 980)
+            session.user_profile.screen_resolution = (760, 980)
 
         if i % 2 == 0:
             session.user_profile.os = 'Linux'
@@ -184,28 +184,28 @@ def create_site_stats(collection_name, time_qualifier, seed='RANDOM_SEED_OBJECT'
         site_stat.stat.os = items
 
         items = _generate_entries('browser_', 5, i)
-        site_stat.stat.browsers = items
+        site_stat.stat.browser = items
 
         items = dict()
         items['(320, 240)'] = 3
         items['(640, 480)'] = 5
         items['(1024, 960)'] = 7
         items['(1280, 768)'] = 9
-        site_stat.stat.screen_res = items
+        site_stat.stat.screen_resolution = items
 
         items = dict()
         items['ca_en'] = 3
         items['ca_fr'] = 5
         items['ua_uk'] = 7
         items['us_en'] = 9
-        site_stat.stat.languages = items
+        site_stat.stat.language = items
 
         items = dict()
         items['ca'] = 3
         items['fr'] = 5
         items['uk'] = 7
         items['us'] = 9
-        site_stat.stat.countries = items
+        site_stat.stat.country = items
 
         stat_id = site_dao.insert(collection_name, site_stat)
         object_ids.append(stat_id)

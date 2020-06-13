@@ -73,7 +73,7 @@ class EventStreamGenerator(SynergyProcess):
                                                        random.randint(0, 255),
                                                        random.randint(0, 255))
 
-                document.screen_res = (random.randrange(340, 1080, 100), random.randrange(240, 980, 100))
+                document.screen_resolution = (random.randrange(340, 1080, 100), random.randrange(240, 980, 100))
 
                 if self.performance_tracker.tracker.success.per_tick % 7 == 0:
                     document.os = 'OSX'

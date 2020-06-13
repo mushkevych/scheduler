@@ -4,7 +4,7 @@ import unittest
 from settings import enable_test_mode
 enable_test_mode()
 
-from db.model.raw_data import DOMAIN_NAME, TIMEPERIOD
+from db.model.site_statistics import DOMAIN_NAME, TIMEPERIOD
 from constants import PROCESS_SITE_HOURLY
 from tests import hourly_fixtures
 from tests.test_abstract_worker import AbstractWorkerUnitTest

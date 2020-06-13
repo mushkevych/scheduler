@@ -29,7 +29,7 @@ class ClientMonthlyAggregator(ClientDailyAggregator):
         target_obj.total_duration += source_obj.total_duration
         copy_and_sum_families(source_obj.os, target_obj.os)
         copy_and_sum_families(source_obj.browsers, target_obj.browsers)
-        copy_and_sum_families(source_obj.screen_res, target_obj.screen_res)
+        copy_and_sum_families(source_obj.screen_resolution, target_obj.screen_resolution)
         copy_and_sum_families(source_obj.languages, target_obj.languages)
         copy_and_sum_families(source_obj.countries, target_obj.countries)
 

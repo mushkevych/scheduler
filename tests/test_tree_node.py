@@ -166,8 +166,9 @@ class TestTreeNode(unittest.TestCase):
     def test_is_finalizable(self):
         self.job_mock.is_active = True
 
-        depon_summary = DependentOnSummary(None)
-        depon_summary.all_finished = mock.PropertyMock(return_value=True)
+        depon_summary = mock.create_autospec(DependentOnSummary)
+        type(depon_summary).all_finished = mock.PropertyMock(return_value=True)
+
         self.the_node.dependent_on_summary = mock.Mock(return_value=depon_summary)
         self.the_node.request_embryo_job_record = mock.Mock()
         for _index in range(10):
@@ -187,11 +188,11 @@ class TestTreeNode(unittest.TestCase):
 
         # at least one of dependent nodes is not finished
         self.the_node.job_record.is_active = True
-        depon_summary.all_finished = mock.PropertyMock(return_value=False)
+        type(depon_summary).all_finished = mock.PropertyMock(return_value=False)
         self.assertFalse(self.the_node.is_finalizable())
 
         # at least one child is still active
-        depon_summary.all_finished = mock.PropertyMock(return_value=True)
+        type(depon_summary).all_finished = mock.PropertyMock(return_value=True)
         self.the_node.children[0].job_record.is_finished = False
         self.assertFalse(self.the_node.is_finalizable())
 

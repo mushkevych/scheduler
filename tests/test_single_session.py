@@ -44,7 +44,7 @@ class TestSingleSession(unittest.TestCase):
     def test_screen_res(self):
         value_x = 1080
         value_y = 980
-        self.obj.user_profile.screen_res = (value_x, value_y)
+        self.obj.user_profile.screen_resolution = (value_x, value_y)
         assert self.obj.user_profile.screen_x == value_x
         assert self.obj.user_profile.screen_y == value_y
 
