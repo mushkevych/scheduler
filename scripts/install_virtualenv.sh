@@ -48,8 +48,8 @@ commonlist=(
     "MarkupSafe-1.1.1.tar.gz"
     "Jinja2-2.10.1.tar.gz"
     "Werkzeug-1.0.0.tar.gz"
-    "synergy_odm-0.9.tar.gz"
-    "synergy_flow-0.15.tar.gz --no-deps"
+    "synergy_odm-0.11.tar.gz"
+    "synergy_flow-0.16.tar.gz --no-deps"
 
     # fabric
     "fabric-2.5.0.tar.gz"
