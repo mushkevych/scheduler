@@ -48,16 +48,16 @@ class EventStreamGenerator(SynergyProcess):
 
     def _generate_key(self):
         _id = random.randint(0, 100000)
-        domain_name = 'domain{0}__com'.format(_id)
+        domain_name = f'domain{_id}__com'
 
         session_no = self.number_of_groups + random.randint(0, 99)
-        session_id = 'session_{0}'.format(session_no)
+        session_id = f'session_{session_no}'
 
         return domain_name, time.time(), session_id
 
     def _run_stream_generation(self):
-        self.logger.info('Stream Generator: ON. Expected rate: {0}/s, {1}/m, {2}/h, {3}/d'
-                         .format(1 / SLEEP_TIME, 1 / SLEEP_TIME * 60, 1 / SLEEP_TIME * 3600, 1 / SLEEP_TIME * 86400))
+        rate = 1 / SLEEP_TIME
+        self.logger.info(f'Stream Generator: ON. Expected rate: {rate}/s, {rate*60}/m, {rate*3600}/h, {rate*86400}/d')
         self.performance_tracker.start()
         random.seed('RANDOM_SEED_OBJECT')
         document = RawData()

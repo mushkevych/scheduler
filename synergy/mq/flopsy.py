@@ -159,6 +159,12 @@ class Publisher(SynergyAware):
     def __del__(self):
         self.release()
 
+    def __enter__(self):
+        return self
+
+    def __exit__(self, exc_type, exc_value, traceback):
+        self.release()
+
     def publish(self, message_data):
         encoded = json.dumps({'data': message_data})
         message = amqp.Message(encoded)

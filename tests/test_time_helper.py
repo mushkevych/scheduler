@@ -46,7 +46,9 @@ class TestTimeHelper(unittest.TestCase):
             QUALIFIER_MONTHLY: [('2010123100', '2010120000', '20101231231232'),
                                 ('2010120000', '2010120000', '2010120000')],
             QUALIFIER_YEARLY: [('2010120000', '2010000000', '20101231231232'),
-                               ('2010000000', '2010000000', '2010000000')]
+                               ('2010000000', '2010000000', '2010000000')],
+            QUALIFIER_1: [('2010120000', '2010000000', '20101231231232'),
+                          ('1111111111', '1111111111', '1111111111')]
         }
 
         for key, test_set in fixture.items():
@@ -62,7 +64,8 @@ class TestTimeHelper(unittest.TestCase):
                    QUALIFIER_HOURLY: '2010123123',
                    QUALIFIER_DAILY: '2010123100',
                    QUALIFIER_MONTHLY: '2010120000',
-                   QUALIFIER_YEARLY: '2010000000'}
+                   QUALIFIER_YEARLY: '2010000000',
+                   QUALIFIER_1: '1111111111'}
 
         for key, value in fixture.items():
             self.assertEqual(time_helper.datetime_to_synergy(key, dt), value)
@@ -78,11 +81,13 @@ class TestTimeHelper(unittest.TestCase):
             QUALIFIER_MONTHLY: ['2010120000',
                                 datetime(year=2010, month=12, day=1, hour=0, minute=0, second=0)],
             QUALIFIER_YEARLY: ['2010000000',
-                               datetime(year=2010, month=1, day=1, hour=0, minute=0, second=0)]
+                               datetime(year=2010, month=1, day=1, hour=0, minute=0, second=0)],
+            QUALIFIER_1: ['2010000000',
+                          datetime(year=1111, month=11, day=11, hour=11, minute=0, second=0)]
         }
 
-        for key, value in fixture.items():
-            self.assertEqual(time_helper.synergy_to_datetime(key, value[0]), value[1])
+        for qualifier, value in fixture.items():
+            self.assertEqual(time_helper.synergy_to_datetime(qualifier, value[0]), value[1])
 
     def test_increment_time(self):
         stamps = ['2011010100', '2011010112', '2011010123']
@@ -104,6 +109,11 @@ class TestTimeHelper(unittest.TestCase):
         expected = ['2012000000', '2013000000', '2100000000']
         for idx, stamp in enumerate(stamps):
             self.assertEqual(time_helper.increment_timeperiod(QUALIFIER_YEARLY, stamp), expected[idx])
+
+        stamps = ['2011000000', '2012000000', '2099000000', '1111111111']
+        expected = ['1111111111', '1111111111', '1111111111', '1111111111']
+        for idx, stamp in enumerate(stamps):
+            self.assertEqual(time_helper.increment_timeperiod(QUALIFIER_1, stamp), expected[idx])
 
     def test_shift_time_by_delta(self):
         stamps = ['2011010100', '2011010112', '2011010123']
@@ -162,6 +172,12 @@ class TestTimeHelper(unittest.TestCase):
         for idx, stamp in enumerate(stamps):
             self.assertEqual(time_helper.increment_timeperiod(QUALIFIER_YEARLY, stamp, delta=-5), expected[idx])
 
+        stamps = ['2011000000', '2012000000', '2099000000', '1111111111']
+        expected = ['1111111111', '1111111111', '1111111111', '1111111111']
+        for idx, stamp in enumerate(stamps):
+            self.assertEqual(time_helper.increment_timeperiod(QUALIFIER_1, stamp, delta=-5), expected[idx])
+            self.assertEqual(time_helper.increment_timeperiod(QUALIFIER_1, stamp, delta=+5), expected[idx])
+
     def test_duration_calculation(self):
         timestamp_1 = 1305934600.0
         timestamp_2 = 1305934630.0
@@ -181,7 +197,8 @@ class TestTimeHelper(unittest.TestCase):
         fixture = {QUALIFIER_HOURLY: ['2010123123', ('2010', '12', '31', '23')],
                    QUALIFIER_DAILY: ['2010123100', ('2010', '12', '31', '00')],
                    QUALIFIER_MONTHLY: ['2010120000', ('2010', '12', '00', '00')],
-                   QUALIFIER_YEARLY: ['2010000000', ('2010', '00', '00', '00')]}
+                   QUALIFIER_YEARLY: ['2010000000', ('2010', '00', '00', '00')],
+                   QUALIFIER_1: ['1111111111', ('1111', '11', '11', '11')]}
 
         for key, value in fixture.items():
             self.assertEqual(time_helper.tokenize_timeperiod(value[0]), value[1])

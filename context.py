@@ -8,6 +8,7 @@ from synergy.workers.worker_constants import *
 from synergy.db.model.queue_context_entry import queue_context_entry
 from synergy.db.model.daemon_process_entry import daemon_context_entry
 from synergy.db.model.managed_process_entry import managed_context_entry
+from synergy.db.model.freerun_process_entry import freerun_context_entry
 from synergy.db.model.timetable_tree_entry import timetable_tree_entry
 from flow.flow_constants import *
 
@@ -141,6 +142,14 @@ process_context = {
         sink=COLLECTION_ALERT_DAILY,
         state_machine_name=STATE_MACHINE_DISCRETE,
         blocking_type=BLOCKING_DEPENDENCIES,
+        trigger_frequency='every 21600',
+        present_on_boxes=['dev.*']),
+
+    PROCESS_VERSION_UPGRADER: freerun_context_entry(
+        process_name=PROCESS_VERSION_UPGRADER,
+        entry_name='',
+        classname='workers.version_upgrader.VersionUpgrader.start',
+        token=TOKEN_ALERT,
         trigger_frequency='every 21600',
         present_on_boxes=['dev.*']),
 

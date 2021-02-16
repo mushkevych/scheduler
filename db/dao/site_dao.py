@@ -18,7 +18,7 @@ class SiteDao(object):
         self.ds = ds_manager.ds_factory(logger)
 
     @thread_safe
-    def get_one(self, collection_name, domain_name, timeperiod):
+    def get_one(self, collection_name:str, domain_name:str, timeperiod:str):
         collection = self.ds.connection(collection_name)
         document = collection.find_one(filter={DOMAIN_NAME: domain_name, TIMEPERIOD: timeperiod})
         if document is None:

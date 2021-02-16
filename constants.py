@@ -14,6 +14,7 @@ PROCESS_CLIENT_MONTHLY = 'ClientMonthlyAggregator'
 PROCESS_CLIENT_YEARLY = 'ClientYearlyAggregator'
 PROCESS_ALERT_DAILY = 'AlertDailyWorker'
 PROCESS_SIMPLE_FLOW_DAILY = 'SimpleFlowDaily'
+PROCESS_VERSION_UPGRADER = 'VersionUpgrader'
 
 # List of MX_PAGE_XXX, which are rendered by :mx.views.mx_page_tiles function
 MX_PAGE_TRAFFIC = 'traffic_details'

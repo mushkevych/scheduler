@@ -35,7 +35,7 @@ class JobDao(object):
         self.ds = ds_manager.ds_factory(logger)
 
     @thread_safe
-    def _get_job_collection_name(self, process_name):
+    def _get_job_collection_name(self, process_name:str):
         """jobs are stored in 4 collections: hourly, daily, monthly and yearly;
         method looks for the proper job_collection base on process TIME_QUALIFIER"""
         qualifier = context.process_context[process_name].time_qualifier
