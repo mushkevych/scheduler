@@ -145,12 +145,13 @@ process_context = {
         trigger_frequency='every 21600',
         present_on_boxes=['dev.*']),
 
-    PROCESS_VERSION_UPGRADER: freerun_context_entry(
+    PROCESS_VERSION_UPGRADER: managed_context_entry(
         process_name=PROCESS_VERSION_UPGRADER,
-        entry_name='',
         classname='workers.version_upgrader.VersionUpgrader.start',
-        token=TOKEN_ALERT,
-        trigger_frequency='every 21600',
+        time_qualifier=QUALIFIER_ONCE,
+        token=TOKEN_VERSION_UPGRADER,
+        state_machine_name=STATE_MACHINE_DISCRETE,
+        trigger_frequency='every 900',
         present_on_boxes=['dev.*']),
 
     PROCESS_SIMPLE_FLOW_DAILY: managed_context_entry(
@@ -201,6 +202,13 @@ timetable_context = {
         enclosed_processes=[PROCESS_SIMPLE_FLOW_DAILY],
         dependent_on=[],
         mx_name=TOKEN_FLOW,
+        mx_page=MX_PAGE_ALERT),
+
+    TREE_ONCE: timetable_tree_entry(
+        tree_name=TREE_ONCE,
+        enclosed_processes=[PROCESS_VERSION_UPGRADER],
+        dependent_on=[],
+        mx_name=TOKEN_VERSION_UPGRADER,
         mx_page=MX_PAGE_ALERT),
 }
 

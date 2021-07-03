@@ -5,7 +5,7 @@ QUALIFIER_HOURLY = '_hourly'
 QUALIFIER_DAILY = '_daily'
 QUALIFIER_MONTHLY = '_monthly'
 QUALIFIER_YEARLY = '_yearly'
-QUALIFIER_1 = '_1'
+QUALIFIER_ONCE = '_once'
 
 
 # following dict is used by ProcessHierarchy

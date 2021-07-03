@@ -25,6 +25,7 @@ TREE_SITE = 'tree_site'
 TREE_CLIENT = 'tree_client'
 TREE_ALERT = 'tree_alert'
 TREE_FLOW = 'tree_flow'
+TREE_ONCE = 'tree_once'
 
 # Process tokens. There should be one token per one Timetable tree or stand-alone process
 TOKEN_STREAM = 'stream'
@@ -32,6 +33,7 @@ TOKEN_SESSION = 'session'
 TOKEN_SITE = 'site'
 TOKEN_CLIENT = 'client'
 TOKEN_ALERT = 'alert'
+TOKEN_VERSION_UPGRADER = 'version_upgrader'
 TOKEN_FLOW = 'simple_flow'
 
 # Flow constants

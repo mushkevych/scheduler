@@ -154,7 +154,7 @@ class StateMachineFreerun(object):
             it will issue new WorkerMqRequest for the same UOW
 
             :parameter flow_request is passed from flow.mx.flow_action_handler.FlowActionHandler.perform_freerun_action
-            """
+        """
 
         uow = None
         if freerun_entry.related_unit_of_work:
