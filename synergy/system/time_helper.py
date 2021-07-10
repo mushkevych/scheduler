@@ -12,15 +12,11 @@ SYNERGY_HOURLY_PATTERN = '%Y%m%d%H'
 SYNERGY_DAILY_PATTERN = '%Y%m%d00'
 SYNERGY_MONTHLY_PATTERN = '%Y%m0000'
 SYNERGY_YEARLY_PATTERN = '%Y000000'
-SYNERGY_ONCE_PATTERN = '1111111111'
 
 
 def define_pattern(timeperiod):
     if len(timeperiod) > 10:
         return SYNERGY_SESSION_PATTERN
-
-    if timeperiod == SYNERGY_ONCE_PATTERN:
-        return SYNERGY_ONCE_PATTERN
 
     has_year = False
     has_month = False
@@ -135,15 +131,11 @@ def increment_timeperiod(time_qualifier, timeperiod, delta=1):
     elif time_qualifier == QUALIFIER_YEARLY:
         t = t.replace(year=t.year + delta)
         return t.strftime(SYNERGY_YEARLY_PATTERN)
-
-    elif time_qualifier == QUALIFIER_ONCE:
-        # always return the same 1111111111 value
-        return t.strftime(SYNERGY_ONCE_PATTERN)
     else:
         raise ValueError(f'unknown time qualifier: {time_qualifier}')
 
 
-def cast_to_time_qualifier(time_qualifier, timeperiod:str):
+def cast_to_time_qualifier(time_qualifier, timeperiod):
     """ method casts given timeperiod accordingly to time qualifier.
     For example, will cast session time format of 20100101193412 to 2010010119 with QUALIFIER_HOURLY """
 
@@ -155,8 +147,6 @@ def cast_to_time_qualifier(time_qualifier, timeperiod:str):
         date_format = SYNERGY_MONTHLY_PATTERN
     elif time_qualifier == QUALIFIER_YEARLY:
         date_format = SYNERGY_YEARLY_PATTERN
-    elif time_qualifier == QUALIFIER_ONCE:
-        date_format = SYNERGY_ONCE_PATTERN
     else:
         raise ValueError(f'unknown time qualifier: {time_qualifier}')
 
@@ -175,8 +165,6 @@ def datetime_to_synergy(time_qualifier, dt):
         date_format = SYNERGY_MONTHLY_PATTERN
     elif time_qualifier == QUALIFIER_YEARLY:
         date_format = SYNERGY_YEARLY_PATTERN
-    elif time_qualifier == QUALIFIER_ONCE:
-        date_format = SYNERGY_ONCE_PATTERN
     elif time_qualifier == QUALIFIER_REAL_TIME:
         date_format = SYNERGY_SESSION_PATTERN
     else:
@@ -194,9 +182,6 @@ def synergy_to_datetime(time_qualifier, timeperiod):
         date_format = SYNERGY_MONTHLY_PATTERN
     elif time_qualifier == QUALIFIER_YEARLY:
         date_format = SYNERGY_YEARLY_PATTERN
-    elif time_qualifier == QUALIFIER_ONCE:
-        timeperiod = SYNERGY_ONCE_PATTERN
-        date_format = SYNERGY_HOURLY_PATTERN
     elif time_qualifier == QUALIFIER_REAL_TIME:
         date_format = SYNERGY_SESSION_PATTERN
     else:

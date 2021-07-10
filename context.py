@@ -145,15 +145,6 @@ process_context = {
         trigger_frequency='every 21600',
         present_on_boxes=['dev.*']),
 
-    PROCESS_VERSION_UPGRADER: managed_context_entry(
-        process_name=PROCESS_VERSION_UPGRADER,
-        classname='workers.version_upgrader.VersionUpgrader.start',
-        time_qualifier=QUALIFIER_ONCE,
-        token=TOKEN_VERSION_UPGRADER,
-        state_machine_name=STATE_MACHINE_DISCRETE,
-        trigger_frequency='every 900',
-        present_on_boxes=['dev.*']),
-
     PROCESS_SIMPLE_FLOW_DAILY: managed_context_entry(
         process_name=PROCESS_SIMPLE_FLOW_DAILY,
         classname='flow.workers.flow_driver.FlowDriver.start',
