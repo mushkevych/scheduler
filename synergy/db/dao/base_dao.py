@@ -7,7 +7,7 @@ from bson import ObjectId
 from odm.document import BaseDocument
 from typing import Type
 
-from synergy.db.manager import ds_manager
+from synergy.db.manager import get_data_source
 from synergy.system.decorator import thread_safe
 
 
@@ -41,7 +41,7 @@ class BaseDao(object):
             self.primary_key = self.model_klass.key_fields()
 
         self.lock = RLock()
-        self.ds = ds_manager.ds_factory(logger)
+        self.ds = get_data_source(logger)
 
     @thread_safe
     def get_one(self, key):

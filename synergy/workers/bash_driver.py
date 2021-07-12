@@ -4,7 +4,7 @@ import os
 import time
 import threading
 from invoke import Context
-from fabric2 import Connection
+from fabric import Connection
 from datetime import datetime
 
 from synergy.conf import settings

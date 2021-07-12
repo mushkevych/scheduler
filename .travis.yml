@@ -33,6 +33,20 @@ matrix:
           - python3.8-venv
           - python3-setuptools
 
+    - python: "3.9"
+      env: PYTHON_BINARY="python3.9"
+      addons:
+        hosts:
+          # hostnames will be enlisted in /etc/hosts and resolved to 127.0.0.1
+          - syn-rabbitmq
+          - syn-mongodb
+        apt:
+          packages:
+          - python3.9
+          - python3.9-dev
+          - python3.9-venv
+          - python3-setuptools
+
 services:
   - docker
 
@@ -42,8 +56,8 @@ before_install:
 
 install:
   # mongodb section
-  - docker pull mongo:3
-  - docker run -d --name syn-mongodb -p 27017:27017 mongo:3
+  - docker pull mongo:4
+  - docker run -d --name syn-mongodb -p 27017:27017 mongo:4
 
   # rabbit mq section
   - docker pull rabbitmq:3

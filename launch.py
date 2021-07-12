@@ -230,7 +230,6 @@ def run_shell(parser_args):
     """ Run IPython in the virtualenv
         http://ipython.org/ipython-doc/stable/interactive/reference.html """
     from IPython import embed
-
     embed()
 
 

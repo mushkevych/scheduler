@@ -1,7 +1,7 @@
 __author__ = 'Bohdan Mushkevych'
 
 import pymongo
-from synergy.db.manager import ds_manager
+from synergy.db.manager import get_data_source
 from synergy.db.model.freerun_process_entry import ENTRY_NAME
 from synergy.db.model.managed_process_entry import PROCESS_NAME, ManagedProcessEntry
 from synergy.db.model.unit_of_work import TIMEPERIOD, START_ID, END_ID
@@ -12,7 +12,7 @@ from synergy.db.dao.managed_process_dao import ManagedProcessDao
 from synergy.conf import context, settings
 from synergy.scheduler.scheduler_constants import *
 from synergy.system.system_logger import get_logger
-from flow.db import db_manager
+from flow.db import db_manager as flow_db_manager
 
 
 def synch_db():
@@ -60,7 +60,7 @@ def reset_db():
     logger = get_logger(PROCESS_SCHEDULER)
     logger.info('Starting *scheduler* DB reset')
 
-    ds = ds_manager.ds_factory(logger)
+    ds = get_data_source(logger)
     ds._db_client.drop_database(settings.settings['mongo_db_name'])
     logger.info('*scheduler* db has been dropped')
 
@@ -91,7 +91,7 @@ def reset_db():
         connection.create_index([(PROCESS_NAME, pymongo.ASCENDING), (TIMEPERIOD, pymongo.ASCENDING)], unique=True)
 
     # reset Synergy Flow tables
-    db_manager.reset_db()
+    flow_db_manager.reset_db()
     logger.info('*scheduler* db has been recreated')
 
 

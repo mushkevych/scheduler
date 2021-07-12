@@ -4,7 +4,7 @@ import gc
 
 from synergy.conf import context
 from synergy.db.model import unit_of_work
-from synergy.db.manager import ds_manager
+from synergy.db.manager import get_data_source
 from synergy.workers.abstract_uow_aware_worker import AbstractUowAwareWorker
 
 
@@ -17,7 +17,7 @@ class AbstractMongoWorker(AbstractUowAwareWorker):
         self.aggregated_objects = dict()
         self.source = context.process_context[self.process_name].source
         self.sink = context.process_context[self.process_name].sink
-        self.ds = ds_manager.ds_factory(self.logger)
+        self.ds = get_data_source(self.logger)
 
     def __del__(self):
         self._flush_aggregated_objects()

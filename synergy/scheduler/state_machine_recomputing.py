@@ -3,7 +3,7 @@ __author__ = 'Bohdan Mushkevych'
 from logging import ERROR, INFO
 
 from synergy.db.model import job
-from synergy.db.manager import ds_manager
+from synergy.db.manager import get_data_source
 from synergy.conf import context
 from synergy.system.decorator import with_reconnect
 from synergy.system import time_helper
@@ -17,7 +17,7 @@ class StateMachineRecomputing(AbstractStateMachine):
 
     def __init__(self, logger, timetable):
         super(StateMachineRecomputing, self).__init__(logger, timetable, name=STATE_MACHINE_RECOMPUTING)
-        self.ds = ds_manager.ds_factory(self.logger)
+        self.ds = get_data_source(self.logger)
 
     @property
     def run_on_active_timeperiod(self):

@@ -4,7 +4,7 @@ import re
 import pymongo
 
 from synergy.db.dao.box_configuration_dao import BoxConfigurationDao, QUERY_PROCESSES_FOR_BOX_ID
-from synergy.db.manager import ds_manager
+from synergy.db.manager import get_data_source
 from synergy.db.model.box_configuration import BoxConfiguration, BOX_ID, PROCESS_NAME
 from synergy.conf import context, settings
 from synergy.supervisor.supervisor_constants import PROCESS_SUPERVISOR, COLLECTION_BOX_CONFIGURATION
@@ -124,7 +124,7 @@ class SupervisorConfigurator(object):
 
     def reset_db(self):
         self.logger.info('Starting *synergy.box_configuration* table reset')
-        ds = ds_manager.ds_factory(self.logger)
+        ds = get_data_source(self.logger)
         ds._db.drop_collection(COLLECTION_BOX_CONFIGURATION)
         self.logger.info('*synergy.box_configuration* table has been dropped')
 

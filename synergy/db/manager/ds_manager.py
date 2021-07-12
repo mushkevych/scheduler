@@ -1,6 +1,5 @@
 __author__ = 'Bohdan Mushkevych'
 
-import atexit
 from pymongo import MongoClient, ASCENDING, DESCENDING
 from bson.objectid import ObjectId
 
@@ -9,31 +8,6 @@ from synergy.db.model.unit_of_work import TIMEPERIOD
 from odm.document import BaseDocument
 
 QUERY_GET_ALL = {}
-
-if 'ds_factory' not in globals():
-    # this block defines module-level variable ds_factory
-
-    def factory():
-        # the only way to implement nonlocal closure variables in Python 2.X
-        instances = {}
-
-        def get_instance(logger):
-            ds_type = settings.settings['ds_type']
-
-            if ds_type not in instances:
-                if ds_type == "mongo_db":
-                    instances[ds_type] = MongoDbManager(logger)
-                elif ds_type == "hbase":
-                    instances[ds_type] = HBaseManager(logger)
-                else:
-                    raise ValueError(f'Unsupported Data Source type: {ds_type}')
-                atexit.register(instances[ds_type].interpreter_terminating)
-            return instances[ds_type]
-
-        return get_instance
-
-    global ds_factory
-    ds_factory = factory()
 
 
 class BaseManager(object):
@@ -51,7 +25,7 @@ class BaseManager(object):
         raise NotImplementedError(f'method __str__ must be implemented by {self.__class__.__name__}')
 
     def interpreter_terminating(self):
-        """ method is registered with the atexit hook, and notifies about Python interpreter shutdown sequnce """
+        """ method is registered with the atexit hook, and is notified about Python interpreter shutdown sequence """
         self.interpreter_is_terminating = True
 
     def is_alive(self):
@@ -102,10 +76,12 @@ class MongoDbManager(BaseManager):
 
     def __del__(self):
         try:
-            self._db_client.close()
+            if self._db_client:
+                self.logger.info('Closing MongoDB connection...')
+                self._db_client.close()
         except Exception as e:
             if self.interpreter_is_terminating:
-                self.logger.error(f'MongoDbManager cleanup likely followed MongoClient cleanup: {e}')
+                self.logger.warning(f'MongoDbManager cleanup likely followed MongoClient cleanup: {e}')
             else:
                 self.logger.error(f'Exception on closing MongoClient: {e}', exc_info=True)
         finally:

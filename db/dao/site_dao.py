@@ -5,7 +5,7 @@ from threading import RLock
 from bson import ObjectId
 
 from db.model.site_statistics import SiteStatistics, DOMAIN_NAME, TIMEPERIOD
-from synergy.db.manager import ds_manager
+from synergy.db.manager import get_data_source
 from synergy.system.decorator import thread_safe
 
 
@@ -15,7 +15,7 @@ class SiteDao(object):
         super(SiteDao, self).__init__()
         self.logger = logger
         self.lock = RLock()
-        self.ds = ds_manager.ds_factory(logger)
+        self.ds = get_data_source(logger)
 
     @thread_safe
     def get_one(self, collection_name:str, domain_name:str, timeperiod:str):
