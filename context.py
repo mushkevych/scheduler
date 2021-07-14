@@ -8,6 +8,7 @@ from synergy.workers.worker_constants import *
 from synergy.db.model.queue_context_entry import queue_context_entry
 from synergy.db.model.daemon_process_entry import daemon_context_entry
 from synergy.db.model.managed_process_entry import managed_context_entry
+from synergy.db.model.freerun_process_entry import freerun_context_entry
 from synergy.db.model.timetable_tree_entry import timetable_tree_entry
 from flow.flow_constants import *
 

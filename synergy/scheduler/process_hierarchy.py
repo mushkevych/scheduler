@@ -36,6 +36,9 @@ class ProcessHierarchy(object):
             self.entries[process_entry.process_name] = entry
             self.qualifiers[process_entry.time_qualifier] = entry
 
+    def __validate(self):
+        pass
+
     def __contains__(self, value):
         """
         :param value: process name

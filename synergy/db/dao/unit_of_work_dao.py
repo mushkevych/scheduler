@@ -8,7 +8,7 @@ from pymongo.errors import DuplicateKeyError as MongoDuplicateKeyError
 
 from synergy.conf import context
 from synergy.db.error import DuplicateKeyError
-from synergy.db.manager import ds_manager
+from synergy.db.manager import get_data_source
 from synergy.db.model import unit_of_work
 from synergy.db.model.unit_of_work import UnitOfWork
 from synergy.scheduler.scheduler_constants import COLLECTION_UNIT_OF_WORK
@@ -41,7 +41,7 @@ class UnitOfWorkDao(object):
         super(UnitOfWorkDao, self).__init__()
         self.logger = logger
         self.lock = RLock()
-        self.ds = ds_manager.ds_factory(logger)
+        self.ds = get_data_source(logger)
 
     @thread_safe
     def get_one(self, key):

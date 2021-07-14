@@ -29,7 +29,7 @@ class Scheduler(SynergyProcess):
         - JobStatusListener: asynchronous intra-scheduler notification bus
         - MX: HTTP server with management UI """
 
-    def __init__(self, process_name):
+    def __init__(self, process_name:str):
         super(Scheduler, self).__init__(process_name)
         self.lock = Lock()
         self.logger.info('Initializing {0}...'.format(self.process_name))
@@ -88,15 +88,13 @@ class Scheduler(SynergyProcess):
     def _load_managed_entries(self):
         """ loads scheduler managed entries. no start-up procedures are performed """
         for process_name, process_entry in context.process_context.items():
-            if isinstance(process_entry, ManagedProcessEntry):
-                _function = self.fire_managed_worker
-            else:
+            if not isinstance(process_entry, ManagedProcessEntry):
                 self.logger.warning('Skipping non-managed context entry {0} of type {1}.'
                                     .format(process_name, process_entry.__class__.__name__))
                 continue
 
             try:
-                self._register_process_entry(process_entry, _function)
+                self._register_process_entry(process_entry, self.fire_managed_worker)
             except Exception:
                 self.logger.error('Managed Thread Handler {0} failed to start. Skipping it.'
                                   .format(process_entry.key), exc_info=True)

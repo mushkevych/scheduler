@@ -19,5 +19,6 @@ class Alert(BaseDocument):
     def key_fields(cls):
         return cls.domain_name.name, cls.timeperiod.name
 
+
 TIMEPERIOD = Alert.timeperiod.name
 DOMAIN_NAME = Alert.domain_name.name

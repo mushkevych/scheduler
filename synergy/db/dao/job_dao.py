@@ -5,7 +5,7 @@ from threading import RLock
 from bson import ObjectId
 
 from synergy.conf import context
-from synergy.db.manager import ds_manager
+from synergy.db.manager import get_data_source
 from synergy.db.model import job
 from synergy.db.model.job import Job
 from synergy.scheduler.scheduler_constants import COLLECTION_JOB_HOURLY, COLLECTION_JOB_DAILY, \
@@ -32,10 +32,10 @@ class JobDao(object):
         super(JobDao, self).__init__()
         self.logger = logger
         self.lock = RLock()
-        self.ds = ds_manager.ds_factory(logger)
+        self.ds = get_data_source(logger)
 
     @thread_safe
-    def _get_job_collection_name(self, process_name):
+    def _get_job_collection_name(self, process_name:str):
         """jobs are stored in 4 collections: hourly, daily, monthly and yearly;
         method looks for the proper job_collection base on process TIME_QUALIFIER"""
         qualifier = context.process_context[process_name].time_qualifier

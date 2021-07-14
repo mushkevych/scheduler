@@ -5,7 +5,9 @@ from threading import RLock
 from bson import ObjectId
 
 from odm.document import BaseDocument
-from synergy.db.manager import ds_manager
+from typing import Type
+
+from synergy.db.manager import get_data_source
 from synergy.system.decorator import thread_safe
 
 
@@ -29,16 +31,17 @@ def build_db_query(fields_names, field_values):
 class BaseDao(object):
     """ Thread-safe base Data Access Object """
 
-    def __init__(self, logger, collection_name:str, model_class, primary_key=None):
+    def __init__(self, logger, collection_name:str, model_class:Type[BaseDocument], primary_key=None):
         super(BaseDao, self).__init__()
         self.logger = logger
         self.collection_name = collection_name
         self.model_klass = model_class
+        self.primary_key = primary_key
         if not primary_key:
             self.primary_key = self.model_klass.key_fields()
 
         self.lock = RLock()
-        self.ds = ds_manager.ds_factory(logger)
+        self.ds = get_data_source(logger)
 
     @thread_safe
     def get_one(self, key):
